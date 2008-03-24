@@ -1,0 +1,22 @@
+<% require 'digest/sha1' %>
+quentin:
+  id: 1
+  login: quentin
+  first_name: quentin
+  last_name: tarantino
+  email: quentin@example.com
+  salt: salt
+  crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
+  activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9b 
+  activated_at: <%= 5.days.ago.to_s :db %> 
+
+aaron:
+  id: 2
+  login: aaron
+  first_name: aaron
+  last_name: hank
+  email: aaron@example.com
+  salt: salt
+  crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
+  activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9a 
+
