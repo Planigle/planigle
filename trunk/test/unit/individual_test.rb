@@ -137,22 +137,34 @@ class IndividualTest < Test::Unit::TestCase
   end
 
   # Test that an individual can be authenticated.
-  def test_should_authenticate_individual
+  def test_authenticate_individual
     assert_equal individuals(:quentin), Individual.authenticate('quentin', 'testit')
     assert_equal individuals(:quentin), Individual.authenticate('QuEnTiN', 'testit') # case insensitive
     assert_nil Individual.authenticate('quentin', 'wrong' )
     assert_nil Individual.authenticate('quentin', 'TeStIt' ) # case sensitive password
   end
 
+  # Test that an individual can't be authenticated if not yet authenticated.
+  def test_authenticate_not_activated
+    assert_nil Individual.authenticate('aaron', 'testit')
+  end
+
+  # Test that an individual can't be authenticated if not yet authenticated.
+  def test_authenticate_not_enabled
+    individuals(:quentin).enabled = false
+    individuals(:quentin).save(false)
+    assert_nil Individual.authenticate('quentin', 'testit')
+  end
+
   # Test the remember cookie.
-  def test_should_set_remember_token
+  def test_set_remember_token
     individuals(:quentin).remember_me
     assert_not_nil individuals(:quentin).remember_token
     assert_not_nil individuals(:quentin).remember_token_expires_at
   end
 
   # Test forgetting the cookie.
-  def test_should_unset_remember_token
+  def test_unset_remember_token
     individuals(:quentin).remember_me
     assert_not_nil individuals(:quentin).remember_token
     individuals(:quentin).forget_me
@@ -160,7 +172,7 @@ class IndividualTest < Test::Unit::TestCase
   end
 
   # Test remembering for default of two weeks from now.
-  def test_should_remember_me_default_two_weeks
+  def test_remember_me_default_two_weeks
     time = 2.week.from_now.utc
     individuals(:quentin).remember_me
     assert_not_nil individuals(:quentin).remember_token

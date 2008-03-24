@@ -8,6 +8,9 @@ class IndividualsControllerTest < Test::Unit::TestCase
   fixtures :individuals
 
   def setup
+    ActionMailer::Base.delivery_method = :test
+    ActionMailer::Base.perform_deliveries = true
+    ActionMailer::Base.deliveries = []
     @controller = IndividualsController.new
     @request    = ActionController::TestRequest.new
     @response   = ActionController::TestResponse.new
