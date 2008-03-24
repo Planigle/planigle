@@ -1,0 +1,15 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+first:
+  id: 1
+  name: 'test'
+  description: ''
+  acceptance_criteria: ''
+  effort: 1
+  status_code: 1
+second:
+  id: 2
+  name: 'test2'
+  description: ''
+  acceptance_criteria: ''
+  effort: 1
+  status_code: 1

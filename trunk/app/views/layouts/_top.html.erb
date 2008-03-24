@@ -1,0 +1,26 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+        <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+		<title>
+			Planigle
+		</title>
+        <%= stylesheet_link_tag 'application' %>
+		<script language="javascript">
+			// If there's a form, set the focus to the first element.
+			function set_focus(){
+				if (document.forms.length > 0) {
+					var form = document.forms[0];
+					if (form.length > 0) {
+						form.elements[0].focus();
+					}
+				}
+			}
+		</script>
+  	</head>
+	<body onload="set_focus()">
+		<div id="banner">
+			<%= @page_title || "Planigle" %>
+		</div>
+		<div id="columns">

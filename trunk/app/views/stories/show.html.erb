@@ -1,0 +1,12 @@
+<table>
+  <tr><td><b>Name:</b></td><td><%=h @story.name %></td></tr>
+  <tr><td><b>Description:</b></td><td><%=h @story.description %></td></tr>
+  <tr><td><b>Acceptance Criteria:</b></td><td><%=h @story.acceptance_criteria %></td></tr>
+  <tr><td><b>Effort:</b></td><td><%=h @story.effort %></td></tr>
+  <tr><td><b>Status:</b></td><td><%= @story.status %></td></tr>
+</table>
+
+<p>
+<%= link_to 'Edit', edit_story_path(@story) %>
+<%= link_to 'Cancel', stories_path %>
+</p>

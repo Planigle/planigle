@@ -1,0 +1,13 @@
+<table>
+  <tr><td><b>Login:</b></td><td><%=h @individual.login %></td><tr>
+  <tr><td><b>Email:</b></td><td><%=h @individual.email %></td><tr>
+  <tr><td><b>First Name:</b></td><td><%=h @individual.first_name %></td><tr>
+  <tr><td><b>Last Name:</b></td><td><%=h @individual.last_name %></td><tr>
+  <tr><td><b>Activated:</b></td><td><%= @individual.activated? %></td><tr>
+  <tr><td><b>Enabled:</b></td><td><%= @individual.enabled %></td><tr>
+</table>
+
+<p>
+<%= link_to 'Edit', edit_individual_path(@individual) %>
+<%= link_to 'Cancel', individuals_path %>
+</p>
