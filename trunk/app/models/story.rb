@@ -1,8 +1,8 @@
 class Story < ActiveRecord::Base
   validates_presence_of     :name
   validates_length_of       :name,                   :within => 1..40
-  validates_length_of       :description,            :maximum => 4096
-  validates_length_of       :acceptance_criteria,    :maximum => 4096
+  validates_length_of       :description,            :maximum => 4096, :allow_nil => true
+  validates_length_of       :acceptance_criteria,    :maximum => 4096, :allow_nil => true
   validates_numericality_of :effort, :allow_nil => true
   validates_inclusion_of    :status_code,            :in => [0, 1 , 2]
 
