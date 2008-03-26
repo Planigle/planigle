@@ -86,7 +86,7 @@ class IndividualsControllerTest < Test::Unit::TestCase
     post :create, :individual => { :login => 'foo', :password => 'testit', :password_confirmation => 'testit',
       :last_name => 'bar', :first_name => 'foo', :email => 'foo@bogus.com'}
     assert_response :redirect
-    assert_redirected_to :action => 'show'
+    assert_redirected_to :action => 'index'
     assert_equal num_individuals + 1, Individual.count
   end
 
@@ -135,7 +135,7 @@ class IndividualsControllerTest < Test::Unit::TestCase
   # Test updating an individual without credentials.
   def test_update_unauthorized
     new_email = 'todd'
-    post :update, :id => @id, :individual => {:email => new_email}
+    put :update, :id => @id, :individual => {:email => new_email}
     assert_redirected_to :controller => 'sessions', :action => 'new'
     assert individuals(:quentin).reload.email != new_email
   end
@@ -144,9 +144,9 @@ class IndividualsControllerTest < Test::Unit::TestCase
   def test_update_success
     login_as(individuals(:quentin))
     new_email = 'foo@bar.com'
-    post :update, :id => @id, :individual => {:email => new_email}
+    put :update, :id => @id, :individual => {:email => new_email}
     assert_response :redirect
-    assert_redirected_to :action => 'show', :id => @id
+    assert_redirected_to :action => 'index'
     assert_equal new_email, individuals(:quentin).reload.email
   end
 
@@ -154,7 +154,7 @@ class IndividualsControllerTest < Test::Unit::TestCase
   def test_update_failure
     login_as(individuals(:quentin))
     new_email = 'todd'
-    post :update, :id => @id, :individual => {:email => new_email}
+    put :update, :id => @id, :individual => {:email => new_email}
     assert_response :success
     assert_template 'edit'
     assert individuals(:quentin).reload.email != new_email
@@ -162,7 +162,7 @@ class IndividualsControllerTest < Test::Unit::TestCase
 
   # Test deleting an individual without credentials.
   def test_destroy_unauthorized
-    post :destroy, :id => @id
+    delete :destroy, :id => @id
     assert_redirected_to :controller => 'sessions', :action => 'new'
     assert_nothing_raised {
       Individual.find(@id)
@@ -172,9 +172,20 @@ class IndividualsControllerTest < Test::Unit::TestCase
   # Test successfully deleting an individual.
   def test_destroy_success
     login_as(individuals(:quentin))
-    post :destroy, :id => @id
+    delete :destroy, :id => @id
     assert_response :redirect
     assert_redirected_to :action => 'index'
+    assert_raise(ActiveRecord::RecordNotFound) {
+      Individual.find(@id)
+    }
+  end
+    
+  # Test successfully deleting an individual while returning html for the remaining individuals.
+  def test_destroy_partial
+    login_as(individuals(:quentin))
+    xhr :delete, :destroy, :id => @id
+    assert_response :success
+    assert_template "_individuals"
     assert_raise(ActiveRecord::RecordNotFound) {
       Individual.find(@id)
     }

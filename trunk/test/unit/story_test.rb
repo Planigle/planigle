@@ -31,25 +31,19 @@ class StoryTest < Test::Unit::TestCase
     assert_failure(:effort, 'a')
   end
 
-  # Test the validation of status code.
-  def test_status_code
+  # Test the validation of status.
+  def test_status
     # Test that we can leave out the status code.
     assert_difference get_count do
       obj = Story.create({ :name => 'foo', :description => 'bar', :effort => 5.0, :acceptance_criteria => 'must'})
       assert !obj.new_record?, "#{obj.errors.full_messages.to_sentence}"
     end
 
-    assert_failure(:status_code,-1)
-    assert_success(:status_code, 0)
-    assert_success(:status_code, 2)
-    assert_failure(:status_code, 3)
-  end
-
-  # Test the validation of status.
-  def test_status
     assert_equal stories(:first).status, Story.valid_status_values[stories(:first).status_code]
     stories(:first).status = 'Accepted'
     assert_equal stories(:first).status, 'Accepted'
+    assert_success( :status, 'Accepted')
+    assert_failure( :status, 'Invalid Status' )
   end
 
   # Test the xml created for stories.
@@ -58,12 +52,33 @@ class StoryTest < Test::Unit::TestCase
     assert_tag( story, :status, story.status )
     assert_no_tag( story, :status_code )
   end
-  
+
+  # Test that added stories are put at the end of the list.
+  def test_priority_on_add
+    assert_equal [3, 2, 1] << create_story.id, Story.find(:all, :order=>'priority').collect {|story| story.id}    
+  end
+
+  # Test successfully sorting the stories.
+  def test_sort_success
+    assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    Story.sort([1, 2, 3]).each {|story| story.save(false)}
+    assert_equal [1, 2, 3], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+  end
+
+  # Test failure to change the sort order.
+  def test_sort_failure
+    assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    assert_raise(ActiveRecord::RecordNotFound) {
+      Story.sort [999, 2, 3]
+    }
+    assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+  end
+
 private
 
   # Create a story with valid values.  Options will override default values (should be :attribute => value).
   def create_story(options = {})
     Story.create({ :name => 'foo', :description => 'bar', :effort => 5.0, :acceptance_criteria => 'must',
-      :status_code=> 0}.merge(options))
+      :status => 'Created' }.merge(options))
   end
 end

@@ -59,7 +59,7 @@ class StoriesControllerTest < Test::Unit::TestCase
     login_as(individuals(:quentin))
     post :create, :story => { :name => 'foo', :status => 'Created' }
     assert_response :redirect
-    assert_redirected_to :action => 'show'
+    assert_redirected_to :action => 'index'
     assert_equal num_stories + 1, Story.count
   end
 
@@ -108,7 +108,7 @@ class StoriesControllerTest < Test::Unit::TestCase
   # Test updating a story without credentials.
   def test_update_unauthorized
     new_name = 'bar'
-    post :update, :id => @first_id, :story => {:name => new_name}
+    put :update, :id => @first_id, :story => {:name => new_name}
     assert_redirected_to :controller => 'sessions', :action => 'new'        
     assert stories(:first).reload.name != new_name
   end
@@ -117,9 +117,9 @@ class StoriesControllerTest < Test::Unit::TestCase
   def test_update_success
     login_as(individuals(:quentin))
     new_name = 'new'
-    post :update, :id => @first_id, :story => {:name => new_name}
+    put :update, :id => @first_id, :story => {:name => new_name}
     assert_response :redirect
-    assert_redirected_to :action => 'show', :id => @first_id
+    assert_redirected_to :action => 'index'
     assert_equal new_name, stories(:first).reload.name
   end
 
@@ -127,15 +127,41 @@ class StoriesControllerTest < Test::Unit::TestCase
   def test_update_fails
     login_as(individuals(:quentin))
     new_name = create_string(41)
-    post :update, :id => @first_id, :story => {:name => new_name}
+    put :update, :id => @first_id, :story => {:name => new_name}
     assert_response :success
     assert_template 'edit'
     assert stories(:first).reload.name != new_name
   end
 
+  # Test changing the sort order without credentials.
+  def test_sort_success_unauthorized
+    put :sort_stories, :stories => [1, 2, 3]
+    assert_redirected_to :controller => 'sessions', :action => 'new'        
+    assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+  end
+
+  # Test successfully changing the sort order.
+  def test_sort_success
+    login_as(individuals(:quentin))
+    assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    put :sort_stories, :stories => [1, 2, 3]
+    assert_response :success
+    assert_template '_stories'
+    assert_equal [1, 2, 3], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+  end
+
+  # Test failure to change the sort order.
+  def test_sort_failure
+    login_as(individuals(:quentin))
+    put :sort_stories, :stories => [999, 2, 3]
+    assert_response :unprocessable_entity
+    assert_template '_stories'
+    assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+  end
+
   # Test deleting a story without credentials.
   def test_destroy_unauthorized
-    post :destroy, :id => @first_id
+    delete :destroy, :id => @first_id
     assert_redirected_to :controller => 'sessions', :action => 'new'        
     assert_nothing_raised {
       Story.find(@first_id)
@@ -145,9 +171,20 @@ class StoriesControllerTest < Test::Unit::TestCase
   # Test successfully deleting a story.
   def test_destroy_success
     login_as(individuals(:quentin))
-    post :destroy, :id => @first_id
+    delete :destroy, :id => @first_id
     assert_response :redirect
     assert_redirected_to :action => 'index'
+    assert_raise(ActiveRecord::RecordNotFound) {
+      Story.find(@first_id)
+    }
+  end
+    
+  # Test successfully deleting a story while returning html for the remaining stories.
+  def test_destroy_partial
+    login_as(individuals(:quentin))
+    xhr :delete, :destroy, :id => @first_id
+    assert_response :success
+    assert_template "_stories"
     assert_raise(ActiveRecord::RecordNotFound) {
       Story.find(@first_id)
     }

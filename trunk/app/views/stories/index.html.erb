@@ -6,19 +6,11 @@
     <th>Effort</th>
     <th>Status</th>
   </tr>
-
-<% for story in @stories %>
-  <tr>
-    <td><%=h story.name %></td>
-    <td><%=h story.effort %></td>
-    <td><%= story.status %></td>
-
-    <td><%= link_to 'View', story %></td>
-    <td><%= link_to 'Edit', edit_story_path(story) %></td>
-    <td><%= link_to 'Delete', story, :confirm => 'Are you sure?', :method => :delete %></td>
-  </tr>
-<% end %>
+  <tbody id='stories'>
+    <%= render :partial=>'stories' %>
+  </tbody>
 </table>
+<%= sortable_element 'stories', :tag => 'tr', :url => {:action => 'sort_stories'} %>
 
 <br />
 

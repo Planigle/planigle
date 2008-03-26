@@ -9,21 +9,9 @@
     <th>Activated</th>
     <th>Enabled</th>
   </tr>
-  
-<% for individual in @individuals %>
-  <tr>
-    <td><%=h individual.login %></td>
-    <td><%=h individual.email %></td>
-    <td><%=h individual.first_name %></td>
-    <td><%=h individual.last_name %></td>
-    <td><%=h individual.activated? %></td>
-    <td><%=h individual.enabled %></td>
-	
-    <td><%= link_to 'View', individual %></td>
-    <td><%= link_to 'Edit', edit_individual_path(individual) %></td>
-    <td><%= link_to 'Delete', individual, :confirm => 'Are you sure?', :method => :delete %></td>
-  </tr>
-<% end %>
+  <tbody id='individuals'>
+    <%= render :partial=>'individuals' %>
+  </tbody>
 </table>
 
 <br />

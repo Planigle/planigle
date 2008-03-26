@@ -6,6 +6,7 @@ first:
   acceptance_criteria: ''
   effort: 1
   status_code: 1
+  priority: 3
 second:
   id: 2
   name: 'test2'
@@ -13,3 +14,12 @@ second:
   acceptance_criteria: ''
   effort: 1
   status_code: 1
+  priority: 2
+third:
+  id: 3
+  name: 'test3'
+  description: ''
+  acceptance_criteria: ''
+  effort: 1
+  status_code: 1
+  priority: 1
