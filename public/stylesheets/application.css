@@ -82,6 +82,10 @@
 	padding-left: 15px;
 	}
 
+#stories tr {
+	cursor: pointer;
+}
+
 #notice {
 	border: 2px solid red;
 	padding: 1em;

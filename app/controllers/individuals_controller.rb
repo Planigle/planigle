@@ -6,7 +6,7 @@ class IndividualsController < ApplicationController
   # GET /individuals
   # GET /individuals.xml
   def index
-    @individuals = Individual.find(:all)
+    find_all_individuals
 
     respond_to do |format|
       format.html # index.html.erb
@@ -35,7 +35,7 @@ class IndividualsController < ApplicationController
     respond_to do |format|
       if @individual.save
         flash[:notice] = "An email has been sent to validate the individual's email address.  The link enclosed in the email must be visited before the individual can log in."
-        format.html { redirect_to(@individual) }
+        format.html { redirect_to(individuals_path) }
         format.xml  { render :xml => @individual, :status => :created, :location => @individual }
       else
         format.html { render :action => "new" }
@@ -74,8 +74,7 @@ class IndividualsController < ApplicationController
   def update
     respond_to do |format|
       if @individual.update_attributes(params[:individual])
-        flash[:notice] = 'Individual was successfully updated.'
-        format.html { redirect_to(@individual) }
+        format.html { redirect_to(individuals_path) }
         format.xml  { head :ok }
       else
         format.html { render :action => "edit" }
@@ -91,12 +90,22 @@ class IndividualsController < ApplicationController
     @individual.destroy
 
     respond_to do |format|
-      format.html { redirect_to(individuals_url) }
+      if (request.xhr?)
+        find_all_individuals
+        format.html { render :partial => 'individuals' }
+      else
+        format.html { redirect_to(individuals_url) }        
+      end
       format.xml  { head :ok }
     end
   end
 
   private
+
+  # Find all individuals
+  def find_all_individuals
+    @individuals = Individual.find(:all)
+  end
 
   # Prepare the instance by finding the specified individual.
   def find_individual

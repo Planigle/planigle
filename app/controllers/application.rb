@@ -7,4 +7,7 @@ class ApplicationController < ActionController::Base
   # Pick a unique cookie name to distinguish our session data from others'
   session :session_key => '_planigle_session_id'  
   session :secret => "'I'll break your neck like a chicken bone.' - infamous quote"
+
+  # Turn off layouts for xhr (i.e., XmlHttpRequest; i.e., when you're using JavaScript to return partials)
+  layout proc{ |c| c.request.xhr? ? false : "application" }
 end

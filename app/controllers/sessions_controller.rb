@@ -3,6 +3,8 @@ class SessionsController < ApplicationController
   layout 'layouts/login'
 
   # Login screen or failure to log in from xml
+  # GET /sessions/new
+  # GET /sessions/new.xml
   def new
     respond_to do |format|
       format.html 
@@ -12,25 +14,35 @@ class SessionsController < ApplicationController
   end
 
   # Process login results by creating a session.
+  # POST /sessions
+  # POST /sessions.xml
   def create
-    self.current_individual = Individual.authenticate(params[:login], params[:password])
-    if logged_in?
-      if params[:remember_me] == "1"
-        self.current_individual.remember_me
-        cookies[:auth_token] = { :value => self.current_individual.remember_token , :expires => self.current_individual.remember_token_expires_at }
+    respond_to do |format|
+      self.current_individual = Individual.authenticate(params[:login], params[:password])
+      if logged_in?
+        if params[:remember_me] == "1"
+          self.current_individual.remember_me
+          cookies[:auth_token] = { :value => self.current_individual.remember_token , :expires => self.current_individual.remember_token_expires_at }
+        end
+        format.html { redirect_back_or_default('/') }
+        format.xml  { render :xml => 'Success', :status => :created }
+      else
+        format.html { flash[:notice] = 'Invalid Credentials'; render :action => 'new' }
+        format.xml  { render :xml => 'Invalid Credentials', :status => :unprocessable_entity }
       end
-      redirect_back_or_default('/')
-    else
-      flash[:notice] = "Invalid Credentials"
-      render :action => "new"
     end
   end
 
   # Log out
+  # DELETE /sessions
+  # DELETE /sessions.xml
   def destroy
-    self.current_individual.forget_me if logged_in?
-    cookies.delete :auth_token
-    reset_session
-    redirect_back_or_default('/')
+    respond_to do |format|
+      self.current_individual.forget_me if logged_in?
+      cookies.delete :auth_token
+      reset_session
+      format.html { redirect_back_or_default('/')}
+      format.xml { head :ok }
+    end
   end
 end

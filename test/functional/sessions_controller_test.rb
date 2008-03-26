@@ -32,7 +32,7 @@ class SessionsControllerTest < Test::Unit::TestCase
   def test_should_logout
     post :create, :login => 'quentin', :password => 'testit'
     assert session[:individual_id]
-    get :destroy
+    delete :destroy
     assert_nil session[:individual_id]
     assert_response :redirect
   end
@@ -53,7 +53,7 @@ class SessionsControllerTest < Test::Unit::TestCase
   def test_should_delete_token_on_logout
     post :create, :login => 'quentin', :password => 'testit', :remember_me => "1"
     assert_not_nil @response.cookies["auth_token"]
-    get :destroy
+    delete :destroy
     assert_equal @response.cookies["auth_token"], []
   end
 

@@ -6,11 +6,30 @@ class StoriesController < ApplicationController
   # GET /stories
   # GET /stories.xml
   def index
-    @stories = Story.find(:all)
+    find_all_stories
     
     respond_to do |format|
       format.html # index.html.erb
       format.xml  { render :xml => @stories }
+    end
+  end
+
+  # Sort the stories (specify the new order by listing the story ids in the desired order).
+  # GET /stories/sort_stories
+  # GET /stories/sort_stories.xml
+  def sort_stories
+    respond_to do |format|
+      @stories = Story.sort(params[:stories])
+      @stories.each { |story| story.save(false) }
+      
+      format.html { render :partial => 'stories' }
+      format.xml  { render :xml => @stories }
+    end
+  rescue
+    @stories = find_all_stories
+    respond_to do |format|
+      format.html { render :partial => 'stories', :status => :unprocessable_entity }
+      format.xml  { render :xml => 'Invalid id', :status => :unprocessable_entity }      
     end
   end
 
@@ -34,8 +53,7 @@ class StoriesController < ApplicationController
 
     respond_to do |format|
       if @story.save
-        flash[:notice] = 'Story was successfully created.'
-        format.html { redirect_to(@story) }
+        format.html { redirect_to(stories_path) }
         format.xml  { render :xml => @story, :status => :created, :location => @story }
       else
         format.html { render :action => "new" }
@@ -65,8 +83,7 @@ class StoriesController < ApplicationController
   def update
     respond_to do |format|
       if @story.update_attributes(params[:story])
-        flash[:notice] = 'Story was successfully updated.'
-        format.html { redirect_to(@story) }
+        format.html { redirect_to(stories_path) }
         format.xml  { head :ok }
       else
         format.html { render :action => "edit" }
@@ -82,12 +99,22 @@ class StoriesController < ApplicationController
     @story.destroy
 
     respond_to do |format|
-      format.html { redirect_to(stories_url) }
+      if (request.xhr?)
+        find_all_stories
+        format.html { render :partial => 'stories' }
+      else
+        format.html { redirect_to(stories_url) }        
+      end
       format.xml  { head :ok }
     end
   end
 
   private
+
+  # Find all stories
+  def find_all_stories
+    @stories = Story.find(:all, :order=>'priority')
+  end
 
   # Prepare the instance by finding the specified story.
   def find_story

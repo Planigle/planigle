@@ -18,7 +18,7 @@ class StoriesXmlTest < ActionController::IntegrationTest
     get '/stories', {}, {'Authorization' => authorization_header('quentin', 'testit'), 'Accept' => 'text/xml'}
     assert_response :success
     assert_select 'stories' do
-      assert_select 'story', :count => 2    
+      assert_select 'story', :count => 3
     end
   end
 
@@ -67,8 +67,9 @@ class StoriesXmlTest < ActionController::IntegrationTest
   
   # Test the put /stories/id request without credentials.
   def test_update_unauthorized
-    put '/stories/1', {}, {'Accept' => 'text/xml'}
+    put '/stories/1', {:story => {:name => 'foo'}}, {'Accept' => 'text/xml'}
     assert_response 401 # Unauthorized
+    assert_nil Story.find_by_name('')
   end
 
   # Test a successful put /stories/id request.
@@ -86,6 +87,31 @@ class StoriesXmlTest < ActionController::IntegrationTest
       assert_select 'error'
     end
     assert_nil Story.find_by_name('')
+  end
+
+  # Test changing the sort order without credentials.
+  def test_sort_success_unauthorized
+    put '/stories/sort_stories', {:stories => [1, 2, 3]}, {'Accept' => 'text/xml'}
+    assert_response 401 # Unauthorized
+    assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+  end
+
+  # Test successfully changing the sort order.
+  def test_sort_success
+    assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    put '/stories/sort_stories', {:stories => [1, 2, 3]}, {'Authorization' => authorization_header('quentin', 'testit'), 'Accept' => 'text/xml'}
+    assert_response :success
+    assert_select 'stories' do
+      assert_select 'story', :count => 3
+    end
+    assert_equal [1, 2, 3], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+  end
+
+  # Test failure to change the sort order.
+  def test_sort_failure
+    put '/stories/sort_stories', {:stories => [999, 2, 3]}, {'Authorization' => authorization_header('quentin', 'testit'), 'Accept' => 'text/xml'}
+    assert_response :unprocessable_entity
+    assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
   end
   
   # Test the delete /stories/id request without credentials.
