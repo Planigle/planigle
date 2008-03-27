@@ -1,5 +1,6 @@
 ActionController::Routing::Routes.draw do |map|
   map.sort_stories '/stories/sort_stories', :controller => 'stories', :action => 'sort_stories'
+  map.resources :iterations
   map.resources :individuals
   map.resources :stories
   map.resource :session
@@ -27,7 +28,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect ':controller/service.wsdl', :action => 'wsdl'
 
   # Install the default route as the lowest priority.
-  map.root :controller => 'stories'
+  map.root :controller => 'iterations'
   map.connect ':controller/:action/:id.:format'
   map.connect ':controller/:action/:id'
 end

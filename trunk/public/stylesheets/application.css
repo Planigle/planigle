@@ -17,22 +17,26 @@
 
 #side {
 	float: left;
-	padding-top: 1em;
-	padding-left: 1em;
-	padding-right: 1em;
-	padding-bottom: 1em;
+	padding-top: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-bottom: 405px;
+	margin-right: 15px;
 	background: #141;
 }
 
 #side a {
 	color: #bfb;
+    font-family: verdana, arial, helvetica, sans-serif;
 	font-size: medium;
+	text-decoration: none;
 }
 
 #main {
-	margin-left: 10em;
-	padding-top: 1em;
-	padding-left: 2em;
+	padding-left: 10px;
+	padding-top: 10px;
+	padding-right: 10px;
+	margin-left: 110px;
 	background: white;
 }
 
@@ -43,27 +47,17 @@
   line-height: 24px;
 }
 
-#main a {
-	border-width: 2px;
-	text-decoration: none;
-	text-transform: capitalize;
-	padding: 2px;
-	background-color: #C8C8C8;
-	border: outset; 
-	border-left-color: White;
-	border-right-color: Black;
-	border-top-color: White;
-	border-bottom-color: Black;
-}
-#main a:hover {
-	color: #fff;
-	background-color:#000;
+#main img {
+	border: hidden;
+	border-width: 0px;
 }
 
 #main H1 {
 	color: #141;
 	font-family: verdana, arial, helvetica, sans-serif;
 	font-size: medium;
+	margin-top: 0px;
+	padding-top: 0px;
 }
 
 #main table {
@@ -92,4 +86,18 @@
 	margin-bottom: 2em;
 	background-color: #f0f0f0;
 	font: bold smaller sans-serif;
+}
+
+.errorExplanation h2 {
+  color: Red;
+  font-family: verdana, arial, helvetica, sans-serif;
+  font-size:   12px;
+  line-height: 12px;	
+}
+
+.errorExplanation p, li, ui {
+  color: Black;
+  font-family: verdana, arial, helvetica, sans-serif;
+  font-size:   12px;
+  line-height: 0px;	
 }

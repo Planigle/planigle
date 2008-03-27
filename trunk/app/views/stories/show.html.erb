@@ -1,3 +1,5 @@
+<h1>View Story</h1>
+
 <table>
   <tr><td><b>Name:</b></td><td><%=h @story.name %></td></tr>
   <tr><td><b>Description:</b></td><td><%=h @story.description %></td></tr>
@@ -7,6 +9,6 @@
 </table>
 
 <p>
-<%= link_to 'Edit', edit_story_path(@story) %>
-<%= link_to 'Cancel', stories_path %>
+<%= link_to image_tag('edit.png', :alt => 'Edit', :size => '24x24'), edit_story_path(@story) %>
+<%= link_to image_tag('cancel.png', :alt => 'Cancel', :size => '24x24'), stories_path %>
 </p>

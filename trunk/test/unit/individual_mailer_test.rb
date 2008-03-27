@@ -1,7 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require 'individual_mailer'
 
-class IndividualMailerTest < Test::Unit::TestCase
+class IndividualMailerTest < ActiveSupport::TestCase
   fixtures :individuals
 
   def setup

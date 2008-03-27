@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class StoryTest < Test::Unit::TestCase
+class StoryTest < ActiveSupport::TestCase
   fixtures :stories
 
   # Test that a story can be created.
