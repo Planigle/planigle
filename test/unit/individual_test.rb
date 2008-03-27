@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-class IndividualTest < Test::Unit::TestCase
+class IndividualTest < ActiveSupport::TestCase
   fixtures :individuals
 
   # Test that an individual can be created.

@@ -1,4 +1,4 @@
-<h1>Stories</h1>
+<h1>Stories <%= link_to image_tag('new.png', :alt => 'New', :size => '24x24'), new_story_path %></h1>
 
 <table>
   <tr>
@@ -11,7 +11,3 @@
   </tbody>
 </table>
 <%= sortable_element 'stories', :tag => 'tr', :url => {:action => 'sort_stories'} %>
-
-<br />
-
-<%= link_to 'New story', new_story_path %>
