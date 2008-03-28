@@ -105,5 +105,16 @@ class IterationsController < ApplicationController
   # Prepare the instance by finding the specified iteration.
   def find_iteration
     @iteration = Iteration.find( params[ :id ] )
+  rescue
+    respond_to do |format|
+      if (request.xhr?)
+        find_all_iterations
+        format.html { render :partial => 'iterations', :status => 404 }
+      else
+        flash[:notice] = 'Invalid id'
+        format.html { redirect_to(iterations_url) }
+      end
+      format.xml  { render :xml => xml_error('Invalid id'), :status => 404 }
+    end
   end
 end

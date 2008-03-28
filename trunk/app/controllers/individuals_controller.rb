@@ -110,5 +110,16 @@ class IndividualsController < ApplicationController
   # Prepare the instance by finding the specified individual.
   def find_individual
     @individual = Individual.find( params[ :id ] )
+  rescue
+    respond_to do |format|
+      if (request.xhr?)
+        find_all_individuals
+        format.html { render :partial => 'individuals', :status => 404 }
+      else
+        flash[:notice] = 'Invalid id'
+        format.html { redirect_to(individuals_url) }
+      end
+      format.xml  { render :xml => xml_error('Invalid id'), :status => 404 }
+    end
   end
 end
