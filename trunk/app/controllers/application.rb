@@ -4,6 +4,7 @@
 class ApplicationController < ActionController::Base
   include AuthenticatedSystem # Enables the Restful Authentication plug-in
 
+  # before_filter :debug # Uncomment to enable output of debug logging.
   after_filter :change_response_for_flex
 
   # Pick a unique cookie name to distinguish our session data from others'
@@ -19,12 +20,16 @@ class ApplicationController < ActionController::Base
     if request.headers.has_key?('HTTP_X_FLASH_VERSION') && valid_status_codes.include?(response.headers['Status'])
       response.headers['Status'] = interpret_status(200)
     end
-  end
   
   # An error has occurred.  Render the error (a string) in xml.
   def xml_error(error)
     builder = Builder::XmlMarkup.new
     builder.instruct!
     builder.errors { builder.error error }
+  end
+   
+  # Add common debugging statements here.  To turn on, uncomment before_filter.
+  def debug
+    request.headers.each {header| logger.fatal(header)}
   end
 end
