@@ -1,7 +1,6 @@
 ENV["RAILS_ENV"] = "test"
 require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
 require 'test_help'
-require "base64"
 
 class Test::Unit::TestCase
   # Transactional fixtures accelerate your tests by wrapping each test method
@@ -89,11 +88,12 @@ class Test::Unit::TestCase
     assert_no_match includes, object.to_xml
   end
 
-  # Create the appropriate authorization header
-  def authorization_header(login, password)
-    Base64.encode64(login << ':' << password)
-  end
 private
+
+  # Log in as Flex would.
+  def flex_login
+    post '/session.xml', {:login => 'quentin', :password => 'testit'}, flex_header
+  end
 
   # Answer the string to get the current count of this object.
   def get_count
@@ -111,5 +111,20 @@ private
   # Answer a string representing the type of object. Ex., Story.
   def object_type
     self.class.to_s.chomp('Test')
+  end
+  
+  # Answer the header to use to show that flex is the client.
+  def flex_header
+    {'HTTP_X_FLASH_VERSION' => '9,0,115,0'}
+  end
+
+  # Answer the accept header that xml clients should end.
+  def accept_header
+    {'Accept' => 'text/xml'}
+  end
+
+  # Answer the authorization and accepts headers that xml clients should send.
+  def authorization_header
+    {'Authorization' => Base64.encode64('quentin' << ':' << 'testit'), 'Accept' => 'text/xml'}
   end
 end

@@ -9,7 +9,7 @@ class SessionsController < ApplicationController
     respond_to do |format|
       format.html 
       # Access Denied
-      format.xml  { render :xml => "Invalid Credentials", :status => 401 }
+      format.xml  { render :xml => xml_error('Invalid Credentials'), :status => 401 }
     end
   end
 
@@ -25,10 +25,10 @@ class SessionsController < ApplicationController
           cookies[:auth_token] = { :value => self.current_individual.remember_token , :expires => self.current_individual.remember_token_expires_at }
         end
         format.html { redirect_back_or_default('/') }
-        format.xml  { render :xml => 'Success', :status => :created }
+        format.xml  { head :created }
       else
         format.html { flash[:notice] = 'Invalid Credentials'; render :action => 'new' }
-        format.xml  { render :xml => 'Invalid Credentials', :status => :unprocessable_entity }
+        format.xml  { render :xml => xml_error('Invalid Credentials'), :status => :unprocessable_entity }
       end
     end
   end

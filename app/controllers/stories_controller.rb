@@ -25,11 +25,11 @@ class StoriesController < ApplicationController
       format.html { render :partial => 'stories' }
       format.xml  { render :xml => @stories }
     end
-  rescue
+  rescue Exception => e
     @stories = find_all_stories
     respond_to do |format|
       format.html { render :partial => 'stories', :status => :unprocessable_entity }
-      format.xml  { render :xml => 'Invalid id', :status => :unprocessable_entity }      
+      format.xml  { render :xml => xml_error('Invalid id'), :status => :unprocessable_entity }
     end
   end
 
@@ -119,5 +119,16 @@ class StoriesController < ApplicationController
   # Prepare the instance by finding the specified story.
   def find_story
     @story = Story.find( params[ :id ] )
+  rescue
+    respond_to do |format|
+      if (request.xhr?)
+        find_all_stories
+        format.html { render :partial => 'stories', :status => 404 }
+      else
+        flash[:notice] = 'Invalid id'
+        format.html { redirect_to(stories_url) }
+      end
+      format.xml  { render :xml => xml_error('Invalid id'), :status => 404 }
+    end
   end
 end
