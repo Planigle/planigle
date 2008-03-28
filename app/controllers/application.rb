@@ -20,6 +20,7 @@ class ApplicationController < ActionController::Base
     if request.headers.has_key?('HTTP_X_FLASH_VERSION') && valid_status_codes.include?(response.headers['Status'])
       response.headers['Status'] = interpret_status(200)
     end
+  end
   
   # An error has occurred.  Render the error (a string) in xml.
   def xml_error(error)
