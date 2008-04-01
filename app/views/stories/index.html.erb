@@ -1,4 +1,4 @@
-<h1>Stories <%= link_to image_tag('new.png', :alt => 'New', :size => '24x24'), @iteration ? new_iteration_story_path(@iteration) : new_story_path %></h1>
+<h1>Stories<%= @iteration ? ' for ' << h(@iteration.name) : '' %><%= link_to image_tag('new.png', :alt => 'New', :size => '24x24'), @iteration ? new_iteration_story_path(@iteration) : new_story_path %></h1>
 
 <table>
   <tr>
@@ -14,3 +14,9 @@
   </tbody>
 </table>
 <%= sortable_element 'stories', :tag => 'tr', :url => {:action => 'sort_stories'} %>
+
+<% if @iteration %>
+<p>
+<%= link_to image_tag('cancel.png', :alt => 'Cancel', :size => '24x24'), iterations_path %>
+</p>
+<% end %>
