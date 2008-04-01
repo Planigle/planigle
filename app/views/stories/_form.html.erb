@@ -1,10 +1,13 @@
 <%= error_messages_for :story %>
 
-<% form_for(@story) do |f| %>
+<% form_for(@story, :url => @iteration ? iteration_story_path(@iteration, @story) : story_path(@story)) do |f| %>
 	
   <table>
     <tr><td><label for="story_name">Name:</label></td>
     <td><%= f.text_field :name, :maxlength => 40  %></td></tr>
+	
+    <tr><td><label for="story_iteration">Iteration:</label></td>
+    <td><%= f.select :iteration_id, iteration_mapping %></td></tr>
 	
     <tr><td><label for="story_description">Description:</label></td>
     <td><%= f.text_area :description, :rows => 6, :maxlength => 4096 %></td></tr>

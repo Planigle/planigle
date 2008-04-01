@@ -1,5 +1,6 @@
 first:
   id: 1
+  iteration_id: 1
   name: 'test'
   description: ''
   acceptance_criteria: ''
@@ -8,6 +9,7 @@ first:
   priority: 3
 second:
   id: 2
+  iteration_id: 1
   name: 'test2'
   description: ''
   acceptance_criteria: ''

@@ -1,11 +1,27 @@
-<% for iteration in @iterations %>
-  <tr id='iteration_<%= iteration.id %>'>
-    <td><%=h iteration.name %></td>
-    <td><%= iteration.start %></td>
-    <td><%= iteration.length %> weeks</td>
-
-    <td><%= link_to image_tag('show.png', :alt => 'View', :size => '24x24'), iteration %></td>
-    <td><%= link_to image_tag('edit.png', :alt => 'Edit', :size => '24x24'), edit_iteration_path(iteration) %></td>
-    <td><%= link_to_remote image_tag('delete.png', :alt => 'Delete', :size => '24x24'), :url => iteration_path(iteration), :confirm => 'Are you sure?', :method => :delete, :update => 'iterations' %></td>
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Start</th>
+    <th>Length</th>
   </tr>
-<% end %>
+	<% for iteration in @iterations %>
+	  <tr id='iteration_<%= iteration.id %>'>
+	    <td>
+	    <% if iteration.stories.length > 0 %>
+	    <%= link_to_remote(
+	      image_tag('right_arrow.gif', :alt => 'Expand', :size => '11x11', :id =>'image_' << iteration.id.to_s),
+	      :condition => "toggle_expansion('image_" << iteration.id.to_s << "', 'iteration_stories_" << iteration.id.to_s << "')",
+	      :url => iteration_stories_path(iteration), :method => :get, :update => 'iteration_stories_' << iteration.id.to_s ) %>
+		<% else %>
+		  <%= blank %>
+	    <% end %>
+	    	<%=h iteration.name %></td>
+	    <td><%= iteration.start %></td>
+	    <td><%= iteration.length %> weeks</td>
+	    <td><%= link_to image_tag('show.png', :alt => 'View', :size => '24x24'), iteration %>
+	    <%= link_to image_tag('edit.png', :alt => 'Edit', :size => '24x24'), edit_iteration_path(iteration) %>
+	    <%= link_to_remote image_tag('delete.png', :alt => 'Delete', :size => '24x24'), :after => "delete_objects('iteration_stories_" << iteration.id.to_s << "', 'iteration_" << iteration.id.to_s << "')", :url => iteration_path(iteration), :confirm => 'Are you sure?', :method => :delete %></td>
+	  </tr>
+	  <tbody id='iteration_stories_<%= iteration.id -%>'></tbody>
+	<% end %>
+</table>

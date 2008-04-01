@@ -108,7 +108,7 @@ class IterationsController < ApplicationController
   rescue
     respond_to do |format|
       if (request.xhr?)
-        find_all_iterations
+        @iterations =[]
         format.html { render :partial => 'iterations', :status => 404 }
       else
         flash[:notice] = 'Invalid id'

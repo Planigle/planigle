@@ -1,11 +1,14 @@
 <% for story in @stories %>
   <tr id='story_<%= story.id %>'>
     <td><%=h story.name %></td>
+	<% if !@iteration %>
+	<td><%=h( (iteration=story.iteration) ? iteration.name : 'Backlog' )%></td>
+	<% end %>
     <td><%=h story.effort %></td>
     <td><%= story.status %></td>
 
-    <td><%= link_to image_tag('show.png', :alt => 'View', :size => '24x24'), story %></td>
-    <td><%= link_to image_tag('edit.png', :alt => 'Edit', :size => '24x24'), edit_story_path(story) %></td>
-    <td><%= link_to_remote image_tag('delete.png', :alt => 'Delete', :size => '24x24'), :url => story_path(story), :confirm => 'Are you sure?', :method => :delete, :update => 'stories' %></td>
+    <td><%= link_to image_tag('show.png', :alt => 'View', :size => '24x24'), @iteration ? iteration_story_path(@iteration, story) : story %>
+    <%= link_to image_tag('edit.png', :alt => 'Edit', :size => '24x24'), @iteration ? edit_iteration_story_path(@iteration, story) : edit_story_path(story) %>
+    <%= link_to_remote image_tag('delete.png', :alt => 'Delete', :size => '24x24'), :url => @iteration ? iteration_story_path(@iteration, story) : story_path(story), :confirm => 'Are you sure?', :method => :delete, :update => 'stories' %></td>
   </tr>
 <% end %>

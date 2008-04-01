@@ -1,0 +1,17 @@
+<tr class='embedded'>
+  <td class='embedded'><%= blank -%><%= blank -%><b><u>Story</u></b></td>
+  <td class='embedded'><b><u>Effort</u></b></td>
+  <td class='embedded'><b><u>Status</u></b></td>
+  </tr>
+<% for story in @stories %>
+  <tr class='embedded'>
+    <td class='embedded'><%= blank -%><%= blank -%><%=h story.name %></td>
+    <td class='embedded'><%=h story.effort %></td>
+    <td class='embedded'><%= story.status %></td>
+  </tr>
+<% end %>
+<tr class='embedded'>
+  <td class='embedded'><%= blank -%></td>
+  <td class='embedded'></td>
+  <td class='embedded'></td>
+</tr>

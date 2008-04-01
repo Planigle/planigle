@@ -40,11 +40,18 @@
 	background: white;
 }
 
-#main body, p, ol, ul, th, td, a {
+body#main, p#main, ol#main, ul#main, th#main, td#main, a#main {
   color: Black;
   font-family: verdana, arial, helvetica, sans-serif;
   font-size:   12px;
   line-height: 24px;
+}
+
+p.embedded, ol.embedded, ul.embedded, th.embedded, td.embedded, a.embedded {
+  color: Black;
+  font-family: verdana, arial, helvetica, sans-serif;
+  font-size:   10px;
+  line-height: 10px;
 }
 
 #main img {
@@ -70,6 +77,7 @@
 	padding-left: 15px;
 	text-decoration: underline;
 	text-transform: capitalize; 
+	text-align: left;
 }
 
 #main td {

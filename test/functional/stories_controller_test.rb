@@ -18,6 +18,14 @@ class StoriesControllerTest < Test::Unit::TestCase
     @request    = ActionController::TestRequest.new
     @response   = ActionController::TestResponse.new
   end
+  
+  # Test successfully getting a partial list (by iteration)
+  def test_list_partial
+    login_as(individuals(:quentin))
+    xhr :get, :index, {:iteration_id => 1}
+    assert_response :success
+    assert_template "_embedded_stories"
+  end
 
   # Test changing the sort order without credentials.
   def test_sort_success_unauthorized
@@ -39,7 +47,7 @@ class StoriesControllerTest < Test::Unit::TestCase
   # Test failure to change the sort order.
   def test_sort_failure
     login_as(individuals(:quentin))
-    put :sort_stories, :stories => [999, 2, 3]
+    xhr :put, :sort_stories, :stories => [999, 2, 3]
     assert_response :unprocessable_entity
     assert_template '_stories'
     assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
