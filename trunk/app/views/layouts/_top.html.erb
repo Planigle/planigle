@@ -7,17 +7,6 @@
 			Planigle
 		</title>
         <%= stylesheet_link_tag 'application' %>
-		<script language="javascript">
-			// If there's a form, set the focus to the first element.
-			function set_focus(){
-				if (document.forms.length > 0) {
-					var form = document.forms[0];
-					if (form.length > 0) {
-						form.elements[0].focus();
-					}
-				}
-			}
-		</script>
         <%= javascript_include_tag :defaults %>
   	</head>
 	<body onload="set_focus()">

@@ -28,7 +28,7 @@ module ResourceHelper
     get resource_url << '.xml', {}, flex_header
     assert_response :success
     assert_select resources_string do
-      assert_select resource_string, :count => resource_count 
+      assert_select resource_string, :count => resource_count
     end
   end
 
@@ -73,14 +73,14 @@ module ResourceHelper
 
   # Test a failed post /resources request.
   def test_create_failure
-    num_individuals = resource_count
+    num = resource_count
     post resource_url, create_failure_parameters, authorization_header
     assert_response 422 # Unprocessable Entity
     assert_select 'errors' do
       assert_select 'error'
     end
     assert_change_failed
-    assert_equal num_individuals, resource_count
+    assert_equal num, resource_count
   end
 
   # Test a failed post /resources request from Flex.

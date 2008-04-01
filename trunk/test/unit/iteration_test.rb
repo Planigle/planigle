@@ -2,6 +2,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class IterationTest < ActiveSupport::TestCase
   fixtures :iterations
+  fixtures :stories
 
   # Test that an iteration can be created.
   def test_should_create_iteration
@@ -51,6 +52,14 @@ class IterationTest < ActiveSupport::TestCase
     assert_equal 'iteration 2', iteration.name
     assert_equal previous.start + 21, iteration.start
     assert_equal previous.length, iteration.length
+  end
+  
+  # Test deleting an iteration
+  def test_delete_iteration
+    assert_equal stories(:first).iteration, iterations(:first)
+    iterations(:first).destroy
+    stories(:first).reload
+    assert_nil stories(:first).iteration
   end
 
 private

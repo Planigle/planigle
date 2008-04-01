@@ -2,4 +2,4 @@
 
 <%= render :partial => 'form', :locals => { :action => 'Create' } %>
 
-<%= link_to image_tag('cancel.png', :alt => 'Cancel', :size => '24x24'), stories_path %>
+<%= link_to image_tag('cancel.png', :alt => 'Cancel', :size => '24x24'), @iteration ? iteration_stories_path(@iteration) : stories_path %>

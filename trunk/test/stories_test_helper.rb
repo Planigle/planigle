@@ -1,5 +1,5 @@
 module StoriesTestHelper
-    # Return the parameters to use for a successful create.
+  # Return the parameters to use for a successful create.
   def create_success_parameters
     {:story => {:name => 'foo'}}
   end

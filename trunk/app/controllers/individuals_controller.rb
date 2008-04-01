@@ -113,7 +113,7 @@ class IndividualsController < ApplicationController
   rescue
     respond_to do |format|
       if (request.xhr?)
-        find_all_individuals
+        @individuals =[]
         format.html { render :partial => 'individuals', :status => 404 }
       else
         flash[:notice] = 'Invalid id'

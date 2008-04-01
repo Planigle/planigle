@@ -1,4 +1,6 @@
 class Story < ActiveRecord::Base
+  belongs_to :iteration
+  
   validates_presence_of     :name
   validates_length_of       :name,                   :within => 1..40
   validates_length_of       :description,            :maximum => 4096, :allow_nil => true
@@ -7,7 +9,7 @@ class Story < ActiveRecord::Base
 
   StatusMapping = [ 'Created', 'In Progress', 'Accepted' ]
 
-  attr_accessible :name, :description, :acceptance_criteria, :effort, :status
+  attr_accessible :name, :description, :acceptance_criteria, :effort, :status, :iteration_id
 
   # Assign a priority on creation
   before_create :initialize_priority
