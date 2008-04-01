@@ -20,6 +20,7 @@
 	    <td><%= iteration.length %> weeks</td>
 	    <td><%= link_to image_tag('show.png', :alt => 'View', :size => '24x24'), iteration %>
 	    <%= link_to image_tag('edit.png', :alt => 'Edit', :size => '24x24'), edit_iteration_path(iteration) %>
+		<%= link_to image_tag('details.png', :alt => 'Show Stories', :size => '24x24'), iteration_stories_path(iteration) %>
 	    <%= link_to_remote image_tag('delete.png', :alt => 'Delete', :size => '24x24'), :after => "delete_objects('iteration_stories_" << iteration.id.to_s << "', 'iteration_" << iteration.id.to_s << "')", :url => iteration_path(iteration), :confirm => 'Are you sure?', :method => :delete %></td>
 	  </tr>
 	  <tbody id='iteration_stories_<%= iteration.id -%>'></tbody>
