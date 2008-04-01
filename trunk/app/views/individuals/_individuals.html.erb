@@ -9,6 +9,6 @@
 	
     <td><%= link_to image_tag('show.png', :alt => 'View', :size => '24x24'), individual %>
     <%= link_to image_tag('edit.png', :alt => 'Edit', :size => '24x24'), edit_individual_path(individual) %>
-    <%= link_to_remote image_tag('delete.png', :alt => 'Delete', :size => '24x24'), :url => individual_path(individual), :confirm => 'Are you sure?', :method => :delete, :update => 'individuals' %></td>
+    <%= link_to_remote image_tag('delete.png', :alt => 'Delete', :size => '24x24'), :url => individual_path(individual), :confirm => 'Are you sure?', :method => :delete, :update => 'individuals', :failure => "location='/individuals'"%></td>
   </tr>
 <% end %>

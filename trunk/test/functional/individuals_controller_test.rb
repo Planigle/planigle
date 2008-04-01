@@ -44,4 +44,12 @@ class IndividualsControllerTest < Test::Unit::TestCase
   rescue ActionController::RoutingError
     # well played, sir
   end
+    
+  # Test deleting yourself.
+  def test_delete_self
+    login_as(individuals(:quentin))
+    delete :destroy, :id => 1
+    assert_redirected_to :action => :index
+    assert Individual.find_by_login('quentin')
+  end
 end

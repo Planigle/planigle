@@ -215,7 +215,7 @@ module ResourceHelper
     assert_delete_failed
   end
 
-  # Test a successful delete /resources/id request .
+  # Test a successful delete /resources/id request.
   def test_destroy_success
     delete resource_url << '/2', {}, authorization_header
     assert_response 200 # Success

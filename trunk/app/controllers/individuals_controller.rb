@@ -87,20 +87,24 @@ class IndividualsController < ApplicationController
   # DELETE /individuals/1
   # DELETE /individuals/1.xml
   def destroy
-    @individual.destroy
-
-    respond_to do |format|
-      if (request.xhr?)
-        find_all_individuals
-        format.html { render :partial => 'individuals' }
-      else
-        format.html { redirect_to(individuals_url) }        
+    if(@individual == current_individual)
+      respond_with_error('You cannot delete yourself.')
+    else
+        @individual.destroy
+  
+      respond_to do |format|
+        if (request.xhr?)
+          find_all_individuals
+          format.html { render :partial => 'individuals' }
+        else
+          format.html { redirect_to(individuals_url) }        
+        end
+        format.xml  { head :ok }
       end
-      format.xml  { head :ok }
     end
   end
 
-  private
+private
 
   # Find all individuals
   def find_all_individuals
@@ -120,6 +124,20 @@ class IndividualsController < ApplicationController
         format.html { redirect_to(individuals_url) }
       end
       format.xml  { render :xml => xml_error('Invalid id'), :status => 404 }
+    end
+  end
+
+  # Respond with an error.
+  def respond_with_error(error)
+    respond_to do |format|
+      flash[:notice] = error
+      if (request.xhr?)
+        find_all_individuals
+        format.html { render :partial => 'individuals', :status => :unprocessable_entity }
+      else
+        format.html { redirect_to(individuals_url) }        
+      end
+      format.xml  { render :xml => xml_error(error), :status => :unprocessable_entity }
     end
   end
 end
