@@ -69,4 +69,76 @@ class StoriesXmlTest < ActionController::IntegrationTest
     end
     assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
   end
+  
+  # Test successfully setting the iteration.
+  def test_set_iteration_success
+    put '/stories/1', {:story => {:iteration_id => 2}}, authorization_header
+    assert_response :success
+    assert_equal stories(:first).reload.iteration_id, 2
+  end
+  
+  # Test successfully setting the iteration in Flex.
+  def test_set_iteration_success_flex
+    flex_login
+    put '/stories/1.xml', {:story => {:iteration_id => 2}}, flex_header
+    assert_response :success
+    assert_equal stories(:first).reload.iteration_id, 2
+  end
+  
+  # Test unsuccessfully setting the iteration.
+  def test_set_iteration_failure
+    put '/stories/1', {:story => {:iteration_id => 999}}, authorization_header
+    assert_response :unprocessable_entity
+    assert_select 'errors' do
+      assert_select 'error'
+    end
+    assert_not_equal stories(:first).reload.iteration_id, 999
+  end
+  
+  # Test unsuccessfully setting the iteration in Flex.
+  def test_set_iteration_failure_flex
+    flex_login
+    put '/stories/1.xml', {:story => {:iteration_id => 999}}, flex_header
+    assert_response :success
+    assert_select 'errors' do
+      assert_select 'error'
+    end
+    assert_not_equal stories(:first).reload.iteration_id, 999
+  end
+  
+  # Test successfully setting the owner.
+  def test_set_owner_success
+    put '/stories/1', {:story => {:individual_id => 2}}, authorization_header
+    assert_response :success
+    assert_equal stories(:first).reload.individual_id, 2
+  end
+  
+  # Test successfully setting the owner in Flex.
+  def test_set_owner_success_flex
+    flex_login
+    put '/stories/1.xml', {:story => {:individual_id => 2}}, flex_header
+    assert_response :success
+    assert_equal stories(:first).reload.individual_id, 2
+  end
+  
+  # Test unsuccessfully setting the owner.
+  def test_set_owner_failure
+    put '/stories/1', {:story => {:individual_id => 999}}, authorization_header
+    assert_response :unprocessable_entity
+    assert_select 'errors' do
+      assert_select 'error'
+    end
+    assert_not_equal stories(:first).reload.individual_id, 999
+  end
+  
+  # Test unsuccessfully setting the owner in Flex.
+  def test_set_owner_failure_flex
+    flex_login
+    put '/stories/1.xml', {:story => {:individual_id => 999}}, flex_header
+    assert_response :success
+    assert_select 'errors' do
+      assert_select 'error'
+    end
+    assert_not_equal stories(:first).reload.individual_id, 999
+  end
 end

@@ -107,5 +107,5 @@ p.embedded, ol.embedded, ul.embedded, th.embedded, td.embedded, a.embedded {
   color: Black;
   font-family: verdana, arial, helvetica, sans-serif;
   font-size:   12px;
-  line-height: 0px;	
+  line-height: 12px;	
 }

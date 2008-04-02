@@ -1,5 +1,6 @@
 class Story < ActiveRecord::Base
   belongs_to :iteration
+  belongs_to :individual
   
   validates_presence_of     :name
   validates_length_of       :name,                   :within => 1..40
@@ -9,7 +10,7 @@ class Story < ActiveRecord::Base
 
   StatusMapping = [ 'Created', 'In Progress', 'Accepted' ]
 
-  attr_accessible :name, :description, :acceptance_criteria, :effort, :status, :iteration_id
+  attr_accessible :name, :description, :acceptance_criteria, :effort, :status, :iteration_id, :individual_id
 
   # Assign a priority on creation
   before_create :initialize_priority
@@ -42,10 +43,18 @@ class Story < ActiveRecord::Base
     self.status_code = code ? code : -1 # -1 will result in a status error.
   end
 
-  # Add custom validation of the status field to give a more specific message.
+  # Add custom validation of the status field and relationships to give a more specific message.
   def validate()
     if status_code == -1
       errors.add(:status, 'Status must be one of: Created, In Progress, Accepted')
+    end
+    
+    if iteration_id && !Iteration.find_by_id(iteration_id)
+      errors.add(:iteration_id, 'Iteration not valid')
+    end
+    
+    if individual_id && !Individual.find_by_id(individual_id)
+      errors.add(:individual_id, 'Owner not valid')
     end
   end
 

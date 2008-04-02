@@ -6,6 +6,7 @@
 <% for story in @stories %>
   <tr class='embedded'>
     <td class='embedded'><%= blank -%><%= blank -%><%=h story.name %></td>
+    <td class='embedded'><%=h individual(story) %></td>
     <td class='embedded'><%=h story.effort %></td>
     <td class='embedded'><%= story.status %></td>
   </tr>

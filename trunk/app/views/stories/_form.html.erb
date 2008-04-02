@@ -9,6 +9,9 @@
     <tr><td><label for="story_iteration">Iteration:</label></td>
     <td><%= f.select :iteration_id, iteration_mapping %></td></tr>
 	
+    <tr><td><label for="story_individual">Owner:</label></td>
+    <td><%= f.select :individual_id, individual_mapping %></td></tr>
+	
     <tr><td><label for="story_description">Description:</label></td>
     <td><%= f.text_area :description, :rows => 6, :maxlength => 4096 %></td></tr>
  	
