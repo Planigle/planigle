@@ -1,5 +1,7 @@
 require 'digest/sha1'
 class Individual < ActiveRecord::Base
+  has_many :stories, :dependent => :nullify
+
   # Virtual attribute for the unencrypted password
   attr_accessor :password
 
@@ -71,6 +73,11 @@ class Individual < ActiveRecord::Base
   # Answer whether we should still remember this individual.
   def remember_token?
     remember_token_expires_at && Time.now.utc < remember_token_expires_at 
+  end
+
+  # Answer how I should be displayed to the user.
+  def display_name
+    self.first_name << ' ' << self.last_name
   end
 
   # Override to_xml to exclude private attributes.

@@ -2,8 +2,9 @@
   <tr id='story_<%= story.id %>'>
     <td><%=h story.name %></td>
 	<% if !@iteration %>
-	<td><%=h( (iteration=story.iteration) ? iteration.name : 'Backlog' )%></td>
+	<td><%=h iteration(story) %></td>
 	<% end %>
+	<td><%=h individual(story) %></td>
     <td><%=h story.effort %></td>
     <td><%= story.status %></td>
 

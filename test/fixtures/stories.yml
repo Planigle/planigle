@@ -1,6 +1,7 @@
 first:
   id: 1
   iteration_id: 1
+  individual_id: 1
   name: 'test'
   description: ''
   acceptance_criteria: ''

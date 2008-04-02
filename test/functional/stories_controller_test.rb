@@ -52,4 +52,38 @@ class StoriesControllerTest < Test::Unit::TestCase
     assert_template '_stories'
     assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
   end
+  
+  # Test successfully setting the iteration.
+  def test_set_iteration_success
+    login_as(individuals(:quentin))
+    put :update, :id => 1, :story => {:iteration_id => 2}
+    assert_redirected_to :action => :index
+    assert_equal stories(:first).reload.iteration_id, 2
+  end
+  
+  # Test unsuccessfully setting the iteration.
+  def test_set_iteration_failure
+    login_as(individuals(:quentin))
+    put :update, :id => 1, :story => {:iteration_id => 999}
+    assert_response :success
+    assert_template 'edit'
+    assert_not_equal stories(:first).reload.iteration_id, 999
+  end
+  
+  # Test successfully setting the owner.
+  def test_set_owner_success
+    login_as(individuals(:quentin))
+    put :update, :id => 1, :story => {:individual_id => 2}
+    assert_redirected_to :action => :index
+    assert_equal stories(:first).reload.individual_id, 2
+  end
+  
+  # Test unsuccessfully setting the owner.
+  def test_set_owner_failure
+    login_as(individuals(:quentin))
+    put :update, :id => 1, :story => {:individual_id => 999}
+    assert_response :success
+    assert_template 'edit'
+    assert_not_equal stories(:first).reload.individual_id, 999
+  end
 end

@@ -3,6 +3,7 @@
 <table>
   <tr><td><b>Name:</b></td><td><%=h @story.name %></td></tr>
   <tr><td><b>Iteration:</b></td><td><%=h iteration(@story) %></td></tr>
+  <tr><td><b>Owner:</b></td><td><%=h individual(@story) %></td></tr>
   <tr><td><b>Description:</b></td><td><%=h @story.description %></td></tr>
   <tr><td><b>Acceptance Criteria:</b></td><td><%=h @story.acceptance_criteria %></td></tr>
   <tr><td><b>Effort:</b></td><td><%=h @story.effort %></td></tr>
