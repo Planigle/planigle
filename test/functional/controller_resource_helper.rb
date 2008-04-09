@@ -10,7 +10,6 @@ module ControllerResourceHelper
     login_as(individuals(:quentin))
     get :index
     assert_response :success
-    assert_template 'index'
   end
 
   # Test getting the form to create a new resource without credentials.
@@ -24,7 +23,6 @@ module ControllerResourceHelper
     login_as(individuals(:quentin))
     get :new
     assert_response :success
-    assert_template 'new'
     assert_not_nil assigns(resource_symbol)
   end
 
@@ -42,7 +40,7 @@ module ControllerResourceHelper
     login_as(individuals(:quentin))
     num = resource_count
     post :create, create_success_parameters
-    assert_redirected_to :action => 'index'
+    assert :success
     assert_equal num + 1, resource_count
     assert_create_succeeded
   end
@@ -53,7 +51,6 @@ module ControllerResourceHelper
     num = resource_count
     post :create, create_failure_parameters
     assert_response :success
-    assert_template 'new'
     assert_equal num, resource_count
     assert_change_failed
   end
@@ -69,7 +66,6 @@ module ControllerResourceHelper
     login_as(individuals(:quentin))
     get :show, :id => 1
     assert_response :success
-    assert_template 'show'
     assert_not_nil assigns(resource_symbol)
     assert assigns(resource_symbol).valid?
   end
@@ -78,7 +74,7 @@ module ControllerResourceHelper
   def test_show_not_found
     login_as(individuals(:quentin))
     get :show, :id => 999
-    assert_redirected_to :action => :index
+    assert_response 404
   end
 
   # Test getting the form to edit an resource without credentials.
@@ -92,7 +88,6 @@ module ControllerResourceHelper
     login_as(individuals(:quentin))
     get :edit, :id => 1
     assert_response :success
-    assert_template 'edit'
     assert_not_nil assigns(resource_symbol)
     assert assigns(resource_symbol).valid?
   end
@@ -101,7 +96,7 @@ module ControllerResourceHelper
   def test_edit_not_found
     login_as(individuals(:quentin))
     get :edit, :id => 999
-    assert_redirected_to :action => :index
+    assert_response 404
   end
 
   # Test updating an resource without credentials.
@@ -124,7 +119,6 @@ module ControllerResourceHelper
     login_as(individuals(:quentin))
     put :update, :id => 1, resource_symbol => (update_failure_parameters[resource_symbol]) # hack to get around compiler issue
     assert_response :success
-    assert_template 'edit'
     assert_change_failed
   end
 
@@ -132,7 +126,7 @@ module ControllerResourceHelper
   def test_update_not_found
     login_as(individuals(:quentin))
     put :update, :id => 999, resource_symbol => (update_success_parameters[resource_symbol]) # hack to get around compiler issue
-    assert_redirected_to :action => :index
+    assert_response 404
   end
 
   # Test deleting an resource without credentials.
@@ -154,7 +148,7 @@ module ControllerResourceHelper
   def test_destroy_not_found
     login_as(individuals(:quentin))
     delete :destroy, :id => 999
-    assert_redirected_to :action => :index
+    assert_response 404
   end
     
   # Test successfully deleting a resource while returning html for the remaining resources.
@@ -162,7 +156,6 @@ module ControllerResourceHelper
     login_as(individuals(:quentin))
     xhr :delete, :destroy, :id => 2
     assert_response :success
-    assert_template partial_resource
     assert_delete_succeeded
   end
     
@@ -171,5 +164,12 @@ module ControllerResourceHelper
     login_as(individuals(:quentin))
     xhr :delete, :destroy, :id => 999
     assert_response 404
+  end
+  
+private
+
+  # Answer a symbol for the resource.
+  def resource_symbol
+    :record
   end
 end

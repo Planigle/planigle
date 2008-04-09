@@ -1,6 +1,7 @@
 require 'digest/sha1'
 class Individual < ActiveRecord::Base
   has_many :stories, :dependent => :nullify
+  has_many :tasks, :dependent => :nullify
 
   # Virtual attribute for the unencrypted password
   attr_accessor :password
@@ -76,8 +77,8 @@ class Individual < ActiveRecord::Base
   end
 
   # Answer how I should be displayed to the user.
-  def display_name
-    self.first_name << ' ' << self.last_name
+  def name
+    "#{first_name} #{last_name}"
   end
 
   # Override to_xml to exclude private attributes.

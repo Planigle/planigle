@@ -1,37 +1,27 @@
 module StoriesTestHelper
   # Return the parameters to use for a successful create.
   def create_success_parameters
-    {:story => {:name => 'foo'}}
+    {:record => {:name => 'foo'}}
   end
 
   # Return the parameters to use for a failed create.
   def create_failure_parameters
-    {:story => {:name => ''}}
+    {:record => {:name => ''}}
   end
 
   # Return the parameters to use for a successful update.
   def update_success_parameters
-    {:story => {:name => 'foo'}}
+    {:record => {:name => 'foo'}}
   end
 
   # Return the parameters to use for a failed update.
   def update_failure_parameters
-    {:story => {:name => ''}}
+    {:record => {:name => ''}}
   end
   
   # Answer the number of resources that exist.
   def resource_count
     Story.count
-  end
-
-  # Answer a symbol which represents the resource.
-  def resource_symbol
-    :story
-  end
-
-  # Answer a string used to display this resource as a partial.
-  def partial_resource
-    '_stories'
   end
 
   # Verify that the object was created.

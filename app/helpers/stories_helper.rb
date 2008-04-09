@@ -1,33 +1,45 @@
 module StoriesHelper  
-  NoOwner = 'No Owner'
-  NoIteration = 'Backlog'
-  
   # Map user displayable terms to the internal status codes (in this case, they're the same).
-  def status_mapping
+  def status_code_mapping
     Story.valid_status_values.collect { |val| [val, val] }
   end
-  
-  # Answer a string to represent the story's iteration.
-  def iteration(story)
-    (iteration=story.iteration) ? iteration.name : NoIteration
+    
+  # Override how we select status.
+  def status_code_form_column(record, input_name)
+    select :record, :status, status_code_mapping, :name => input_name
+  end
+
+  # Answer a string to represent the status.
+  def status_code_column(record)
+    record.status
+  end
+
+  # Override the body id to make it more friendly to Scriptaculous.
+  def active_scaffold_tbody_id
+    parent_string + 'stories'
   end
   
-  # Answer a hash mapping iteration names to their ids.
-  def iteration_mapping
-    mapping = Iteration.find(:all, :order=>'start').collect {|iteration| [iteration.name, iteration.id]}
-    mapping << [NoIteration, nil]
-    mapping
+  # Override the way that row ids are created to make it more friendly to Scriptaculous.
+  def element_row_id(options = {})
+    options[:id] ||= params[:id]
+    clean_id("#{parent_string}story_#{options[:id]}")
   end
   
-  # Answer a string to represent the story's owner.
-  def individual(story)
-    (individual=story.individual) ? individual.display_name : NoOwner
+  # Create Javascript to allow the user to sort stories.
+  # This is a modified form of the Scriptaculous code to update the table with the results.
+  # It is particularly necessary due to the alternating colors.
+  def make_sortable
+    sortable_element active_scaffold_tbody_id,
+      :onUpdate => "function(){new Ajax.Request('/stories/sort_stories', {onSuccess: function(transport){Element.update(document.getElementById('#{active_scaffold_tbody_id}'), transport.responseText)}, asynchronous:true, evalScripts:true, parameters:Sortable.serialize('#{active_scaffold_tbody_id}')})}",
+      :tag => 'tr',
+      :url => {:action => 'sort_stories'}
   end
-  
-  # Answer a hash mapping individuals to their ids.
-  def individual_mapping
-    mapping = Individual.find(:all, :order=>'first_name, last_name').collect {|individual| [individual.display_name, individual.id]}
-    mapping << [NoOwner, nil]
-    mapping
+
+private
+
+  # Answer a string representing my parent (ex. 19) if I have one.  If a parent exists, follow by
+  # a - as a separator.
+  def parent_string
+    @parent_id ? @parent_id + '-' : ''
   end
 end

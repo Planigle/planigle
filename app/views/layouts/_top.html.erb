@@ -6,11 +6,11 @@
 		<title>
 			Planigle
 		</title>
-        <%= stylesheet_link_tag 'application' %>
         <%= javascript_include_tag :defaults %>
+		<%= active_scaffold_includes %>
+        <%= stylesheet_link_tag 'application' %>
   	</head>
-	<body onload="set_focus()">
+	<body>
 		<div id="banner">
 			<%= @page_title || "Planigle" %>
 		</div>
-		<div id="columns">

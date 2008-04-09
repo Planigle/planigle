@@ -5,21 +5,38 @@ class ApplicationController < ActionController::Base
   include AuthenticatedSystem # Enables the Restful Authentication plug-in
 
   # before_filter :debug # Uncomment to enable output of debug logging.
-  after_filter :change_response_for_flex
+  after_filter :change_response
+  around_filter :catch_exceptions
 
   # Pick a unique cookie name to distinguish our session data from others'
   session :session_key => '_planigle_session_id'  
   session :secret => "'I'll break your neck like a chicken bone.' - infamous quote"
 
-  # Turn off layouts for xhr (i.e., XmlHttpRequest; i.e., when you're using JavaScript to return partials)
-  layout proc{ |c| c.request.xhr? ? false : "application" }
+protected
 
   # Flex wants all responses to be 200
-  def change_response_for_flex
-    valid_status_codes = [201, 422].collect{|code| interpret_status(code)}
-    if request.headers.has_key?('HTTP_X_FLASH_VERSION') && valid_status_codes.include?(response.headers['Status'])
-      response.headers['Status'] = interpret_status(200)
+  # REST applications want create to respond in 201 and errors to be 422.
+  def change_response
+    logger.fatal(request.format)
+    if request.headers.has_key?('HTTP_X_FLASH_VERSION')
+      valid_status_codes = [201, 422, 500].collect{|code| interpret_status(code)}
+      if valid_status_codes.include?(response.headers['Status'])
+        response.headers['Status'] = interpret_status(200)
+      end
+    elsif request.format == Mime::XML
+      if response.headers['Status'] == interpret_status(500)
+        response.headers['Status'] = interpret_status(422)
+      elsif response.headers['Status'] == interpret_status(200) && request.path_parameters['action'] == 'create' && request.path_parameters['controller'] != 'sessions'
+        response.headers['Status'] = interpret_status(201)
+      end
     end
+  end
+
+  # Return a 404 if invalid object.
+  def catch_exceptions
+    yield
+  rescue ActiveRecord::RecordNotFound
+    head 404
   end
   
   # An error has occurred.  Render the error (a string) in xml.

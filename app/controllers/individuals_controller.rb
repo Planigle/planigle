@@ -1,49 +1,14 @@
 class IndividualsController < ApplicationController
   before_filter :login_required, :except => :activate
-  before_filter :find_individual, :only => %w(show edit update destroy)
 
-  # Display the current individuals.
-  # GET /individuals
-  # GET /individuals.xml
-  def index
-    find_all_individuals
-
-    respond_to do |format|
-      format.html # index.html.erb
-      format.xml  { render :xml => @individuals }
-    end
+  active_scaffold do |config|
+    config.columns = [:login, :email, :first_name, :last_name, :activated, :enabled ]
+    config.create.columns = [:login, :password, :password_confirmation, :email, :first_name, :last_name, :enabled ]
+    config.update.columns = [:login, :password, :password_confirmation, :email, :first_name, :last_name, :enabled ]
+    config.list.sorting = {:first_name => 'ASC', :last_name => 'ASC'}
+    columns[:activated].sort_by :sql => 'activation_code' 
   end
-
-  # Provide a form to create a new individual.
-  # GET /individuals/new
-  # GET /individuals/new.xml
-  def new
-    @individual = Individual.new
-
-    respond_to do |format|
-      format.html # new.html.erb
-      format.xml  { render :xml => @individual }
-    end
-  end
-
-  # Create a new Individual.  Generate an email so that they can validate their address.
-  # POST /individuals
-  # POST /individuals.xml
-  def create
-    @individual = Individual.new(params[:individual])
-
-    respond_to do |format|
-      if @individual.save
-        flash[:notice] = "An email has been sent to validate the individual's email address.  The link enclosed in the email must be visited before the individual can log in."
-        format.html { redirect_to(individuals_path) }
-        format.xml  { render :xml => @individual, :status => :created, :location => @individual }
-      else
-        format.html { render :action => "new" }
-        format.xml  { render :xml => @individual.errors, :status => :unprocessable_entity }
-      end
-    end
-  end
-
+  
   # Allow the user to activate himself/herself by clicking on an email link.
   # GET /activate/<activation code>
   def activate    
@@ -53,91 +18,16 @@ class IndividualsController < ApplicationController
     redirect_back_or_default('/')
   end
 
-  # Show the information for an individual.
-  # GET /individuals/1
-  # GET /individuals/1.xml
-  def show
-    respond_to do |format|
-      format.html # show.html.erb
-      format.xml  { render :xml => @individual }
-    end
-  end
-
-  # Provide a form to edit an individual.
-  # GET /individuals/1/edit
-  def edit
-  end
-
-  # Update an individual.
-  # PUT /individuals/1
-  # PUT /individuals/1.xml
-  def update
-    respond_to do |format|
-      if @individual.update_attributes(params[:individual])
-        format.html { redirect_to(individuals_path) }
-        format.xml  { head :ok }
-      else
-        format.html { render :action => "edit" }
-        format.xml  { render :xml => @individual.errors, :status => :unprocessable_entity }
-      end
-    end
-  end
-
-  # Delete an individual.
-  # DELETE /individuals/1
-  # DELETE /individuals/1.xml
-  def destroy
-    if(@individual == current_individual)
-      respond_with_error('You cannot delete yourself.')
-    else
-        @individual.destroy
-  
-      respond_to do |format|
-        if (request.xhr?)
-          find_all_individuals
-          format.html { render :partial => 'individuals' }
-        else
-          format.html { redirect_to(individuals_url) }        
-        end
-        format.xml  { head :ok }
-      end
-    end
-  end
-
 private
 
-  # Find all individuals
-  def find_all_individuals
-    @individuals = Individual.find(:all)
-  end
-
-  # Prepare the instance by finding the specified individual.
-  def find_individual
-    @individual = Individual.find( params[ :id ] )
-  rescue
-    respond_to do |format|
-      if (request.xhr?)
-        @individuals =[]
-        format.html { render :partial => 'individuals', :status => 404 }
-      else
-        flash[:notice] = 'Invalid id'
-        format.html { redirect_to(individuals_url) }
-      end
-      format.xml  { render :xml => xml_error('Invalid id'), :status => 404 }
-    end
-  end
-
-  # Respond with an error.
-  def respond_with_error(error)
-    respond_to do |format|
-      flash[:notice] = error
-      if (request.xhr?)
-        find_all_individuals
-        format.html { render :partial => 'individuals', :status => :unprocessable_entity }
-      else
-        format.html { redirect_to(individuals_url) }        
-      end
-      format.xml  { render :xml => xml_error(error), :status => :unprocessable_entity }
+  # Ensure that you can't delete yourself.
+  def do_destroy
+    @record = Individual.find( params[ :id ] )
+    if(@record == current_individual)
+      flash[:error] = 'You cannot delete yourself.'
+      self.successful = false
+    else
+      super
     end
   end
 end

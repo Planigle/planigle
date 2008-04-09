@@ -1,0 +1,16 @@
+;
+new Ajax.Request('/stories/<%= @parent_id -%>/row?_method=get', {
+  asynchronous: true,
+  evalScripts: true,
+  onSuccess: function(request) {
+	var id = 'story_<%= @parent_id -%>';
+	<% if @iteration_id -%>
+	if(!document.getElementById(id))
+	  id = '<%= @iteration_id << '-' -%>story_<%= @parent_id -%>';
+	<% end -%>
+    var target = document.getElementById(id);
+    Element.replace(target, request.responseText);
+    var new_target = document.getElementById(id);
+    if (target.hasClassName('even-record')) new_target.addClassName('even-record');
+  }
+} )

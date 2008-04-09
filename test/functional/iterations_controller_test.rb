@@ -18,15 +18,4 @@ class IterationsControllerTest < Test::Unit::TestCase
     @request    = ActionController::TestRequest.new
     @response   = ActionController::TestResponse.new
   end
-
-  # Test successfully creating a iteration while returning html for the new list of iterations.
-  def test_create_partial
-    login_as(individuals(:quentin))
-    post :create, :iteration => { :name => 'iteration 1', :start => Date.today } # Must follow an iteration with a number at end of name
-    num_iterations = Iteration.count
-    xhr :post, :create, {}
-    assert_response :success
-    assert_template "_iterations"
-    assert_equal num_iterations+1, Iteration.count
-  end
 end

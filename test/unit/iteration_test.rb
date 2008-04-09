@@ -39,7 +39,7 @@ class IterationTest < ActiveSupport::TestCase
   # Test new based on previous where the name is non-numeric.
   def test_new_based_on_previous_non_numeric_name
     previous = create_iteration({:name => 'foo', :start => Date.today + 14, :length => 2})
-    iteration = Iteration.new_based_on_previous
+    iteration = Iteration.new
     assert_nil iteration.name
     assert_equal previous.start + 14, iteration.start
     assert_equal previous.length, iteration.length
@@ -48,7 +48,7 @@ class IterationTest < ActiveSupport::TestCase
   # Test new based on previous where the name is non-numeric.
   def test_new_based_on_previous_numeric_name
     previous = create_iteration({:name => 'iteration 1', :start => Date.today + 14, :length => 3})
-    iteration = Iteration.new_based_on_previous
+    iteration = Iteration.new
     assert_equal 'iteration 2', iteration.name
     assert_equal previous.start + 21, iteration.start
     assert_equal previous.length, iteration.length
