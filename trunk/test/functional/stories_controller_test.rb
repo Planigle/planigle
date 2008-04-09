@@ -24,7 +24,7 @@ class StoriesControllerTest < Test::Unit::TestCase
     login_as(individuals(:quentin))
     xhr :get, :index, {:iteration_id => 1}
     assert_response :success
-    assert_template "_embedded_stories"
+    assert_template "list"
   end
 
   # Test changing the sort order without credentials.
@@ -40,7 +40,7 @@ class StoriesControllerTest < Test::Unit::TestCase
     assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
     put :sort_stories, :stories => [1, 2, 3]
     assert_response :success
-    assert_template '_stories'
+    assert_template '_sortable'
     assert_equal [1, 2, 3], Story.find(:all, :order=>'priority').collect {|story| story.id}    
   end
 
@@ -48,15 +48,14 @@ class StoriesControllerTest < Test::Unit::TestCase
   def test_sort_failure
     login_as(individuals(:quentin))
     xhr :put, :sort_stories, :stories => [999, 2, 3]
-    assert_response :unprocessable_entity
-    assert_template '_stories'
+    assert_response 404
     assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
   end
   
   # Test successfully setting the iteration.
   def test_set_iteration_success
     login_as(individuals(:quentin))
-    put :update, :id => 1, :story => {:iteration_id => 2}
+    put :update, :id => 1, :record => {:iteration_id => 2}
     assert_redirected_to :action => :index
     assert_equal stories(:first).reload.iteration_id, 2
   end
@@ -64,16 +63,16 @@ class StoriesControllerTest < Test::Unit::TestCase
   # Test unsuccessfully setting the iteration.
   def test_set_iteration_failure
     login_as(individuals(:quentin))
-    put :update, :id => 1, :story => {:iteration_id => 999}
+    put :update, :id => 1, :record => {:iteration_id => 999}
     assert_response :success
-    assert_template 'edit'
+    assert_template 'update_form'
     assert_not_equal stories(:first).reload.iteration_id, 999
   end
   
   # Test successfully setting the owner.
   def test_set_owner_success
     login_as(individuals(:quentin))
-    put :update, :id => 1, :story => {:individual_id => 2}
+    put :update, :id => 1, :record => {:individual_id => 2}
     assert_redirected_to :action => :index
     assert_equal stories(:first).reload.individual_id, 2
   end
@@ -81,9 +80,9 @@ class StoriesControllerTest < Test::Unit::TestCase
   # Test unsuccessfully setting the owner.
   def test_set_owner_failure
     login_as(individuals(:quentin))
-    put :update, :id => 1, :story => {:individual_id => 999}
+    put :update, :id => 1, :record => {:individual_id => 999}
     assert_response :success
-    assert_template 'edit'
+    assert_template 'update_form'
     assert_not_equal stories(:first).reload.individual_id, 999
   end
 end

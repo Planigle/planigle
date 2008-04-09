@@ -2,6 +2,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class StoryTest < ActiveSupport::TestCase
   fixtures :stories
+  fixtures :tasks
 
   # Test that a story can be created.
   def test_should_create_story
@@ -26,31 +27,22 @@ class StoryTest < ActiveSupport::TestCase
     validate_field(:acceptance_criteria, true, nil, 4096)
   end
 
-  # Test the validation of effort.
+  # Test the validation of effort.  Note: Effort should equal the sum of the tasks' efforts if nil.
   def test_effort
     assert_failure(:effort, 'a')
+    
+    story = stories(:first)
+    assert_equal 1, story.effort
+    story.effort=nil
+    story.save(false)
+    assert_equal 5, story.effort
   end
 
   # Test the validation of status.
-  def test_status
-    # Test that we can leave out the status code.
-    assert_difference get_count do
-      obj = Story.create({ :name => 'foo', :description => 'bar', :effort => 5.0, :acceptance_criteria => 'must'})
-      assert !obj.new_record?, "#{obj.errors.full_messages.to_sentence}"
-    end
-
-    assert_equal stories(:first).status, Story.valid_status_values[stories(:first).status_code]
-    stories(:first).status = 'Accepted'
-    assert_equal stories(:first).status, 'Accepted'
-    assert_success( :status, 'Accepted')
-    assert_failure( :status, 'Invalid Status' )
-  end
-
-  # Test the xml created for stories.
-  def test_xml
-    story = stories(:first)
-    assert_tag( story, :status, story.status )
-    assert_no_tag( story, :status_code )
+  def test_status_code
+    assert_success( :status_code, 0)
+    assert_failure( :status_code, -1 )
+    assert_failure( :status_code, 3 )
   end
 
   # Test that added stories are put at the end of the list.
@@ -73,12 +65,19 @@ class StoryTest < ActiveSupport::TestCase
     }
     assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
   end
+  
+  # Test deleting an story (should delete tasks).
+  def test_delete_story
+    assert_equal tasks(:one).story, stories(:first)
+    stories(:first).destroy
+    assert_nil Task.find_by_name('test')
+  end
 
 private
 
   # Create a story with valid values.  Options will override default values (should be :attribute => value).
   def create_story(options = {})
     Story.create({ :name => 'foo', :description => 'bar', :effort => 5.0, :acceptance_criteria => 'must',
-      :status => 'Created' }.merge(options))
+      :status_code => 0 }.merge(options))
   end
 end

@@ -27,12 +27,12 @@ private
 
   # Return the parameters to use for a successful create.
   def create_success_parameters
-    {:story => {:name => 'foo', :iteration_id => 1}}
+    {:record => {:name => 'foo', :iteration_id => 1}}
   end
 
   # Return the parameters to use for a failed create.
   def create_failure_parameters
-    {:story => {:name => '', :iteration_id => 1}}
+    {:record => {:name => '', :iteration_id => 1}}
   end
   
   # Answer the number of resources that exist.

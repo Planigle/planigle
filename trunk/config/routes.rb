@@ -1,11 +1,13 @@
 ActionController::Routing::Routes.draw do |map|
   map.sort_stories '/stories/sort_stories', :controller => 'stories', :action => 'sort_stories'
   map.sort_stories_format '/stories/sort_stories.:format', :controller => 'stories', :action => 'sort_stories'
-  map.resources :iterations do |iterations|
-    iterations.resources :stories
+  map.resources :iterations, :active_scaffold => true do |iterations|
+    iterations.resources :stories, :active_scaffold => true
   end
-  map.resources :individuals
-  map.resources :stories
+  map.resources :individuals, :active_scaffold => true
+  map.resources :stories, :active_scaffold => true do |stories|
+    stories.resources :tasks, :active_scaffold => true
+  end
   map.resource :session
   map.activate '/activate/:activation_code', :controller => 'individuals', :action => 'activate'
   map.logout '/logout', :controller => 'sessions', :action => 'destroy'
@@ -31,7 +33,6 @@ ActionController::Routing::Routes.draw do |map|
   map.connect ':controller/service.wsdl', :action => 'wsdl'
 
   # Install the default route as the lowest priority.
-  map.root :controller => 'iterations'
   map.connect ':controller/:action/:id.:format'
   map.connect ':controller/:action/:id'
 end

@@ -1,6 +1,7 @@
 class Story < ActiveRecord::Base
   belongs_to :iteration
   belongs_to :individual
+  has_many :tasks, :dependent => :destroy
   
   validates_presence_of     :name
   validates_length_of       :name,                   :within => 1..40
@@ -10,7 +11,7 @@ class Story < ActiveRecord::Base
 
   StatusMapping = [ 'Created', 'In Progress', 'Accepted' ]
 
-  attr_accessible :name, :description, :acceptance_criteria, :effort, :status, :iteration_id, :individual_id
+  attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :iteration_id, :individual_id
 
   # Assign a priority on creation
   before_create :initialize_priority
@@ -32,21 +33,21 @@ class Story < ActiveRecord::Base
     stories
   end
   
-  # Answer my status.
-  def status()
+  # Answer my status in a user friendly format.
+  def status
     StatusMapping[status_code]
   end
-
-  # Set status.
-  def status=(status)
-    code = StatusMapping.index(status)
-    self.status_code = code ? code : -1 # -1 will result in a status error.
+  
+  # My effort is either my value (if set) or the sum of my tasks.
+  def effort
+    eff = read_attribute(:effort)
+    eff ? eff : tasks.sum(:effort)
   end
 
   # Add custom validation of the status field and relationships to give a more specific message.
   def validate()
-    if status_code == -1
-      errors.add(:status, 'Status must be one of: Created, In Progress, Accepted')
+    if status_code < 0 || status_code >= StatusMapping.length
+      errors.add(:status_code, 'Invalid status')
     end
     
     if iteration_id && !Iteration.find_by_id(iteration_id)
@@ -57,14 +58,11 @@ class Story < ActiveRecord::Base
       errors.add(:individual_id, 'Owner not valid')
     end
   end
-
-  # Override to_xml to exclude private attributes.
+  
+  # Override to_xml to include tasks.
   def to_xml(options = {})
-    if !options[:except]
-      options[:except] = [:status_code, :priority]
-    end
-    if !options[:methods]
-      options[:methods] = [:status]
+    if !options[:include]
+      options[:include] = [:tasks]
     end
     super(options)
   end
