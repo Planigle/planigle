@@ -3,8 +3,8 @@ first:
   iteration_id: 1
   individual_id: 1
   name: 'test'
-  description: ''
-  acceptance_criteria: ''
+  description: 'description'
+  acceptance_criteria: 'criteria'
   effort: 1
   status_code: 1
   priority: 3
@@ -15,7 +15,7 @@ second:
   description: ''
   acceptance_criteria: ''
   effort: 1
-  status_code: 1
+  status_code: 2
   priority: 2
 third:
   id: 3

@@ -72,24 +72,24 @@ background: #555 url(../../../images/active_scaffold/default/arrow_down.gif) rig
 	right:22px;
 }
 
-#stories-content tr.record {
+.active-scaffold-stories tr.record {
 	cursor: pointer;
 }
 
-#tasks-content tr.record {
+.active-scaffold-tasks tr.record {
 	cursor: text;
 }
 
-#stories-content .view {
+.active-scaffold-stories .view {
 	background-color:#F3F9FF;
 	border:0px;
 }
 
-#stories-content element.style {
+.active-scaffold-stories element.style {
 	background-color:#F3F9FF;
 }
 
-#stories-content td.inline-adapter-cell {
+.active-scaffold-stories td.inline-adapter-cell {
 	background-color:#F3F9FF;
 	border-color:-moz-use-text-color #E2EDFB;
 }

@@ -40,7 +40,6 @@ module ControllerResourceHelper
     login_as(individuals(:quentin))
     num = resource_count
     post :create, create_success_parameters
-    assert :success
     assert_equal num + 1, resource_count
     assert_create_succeeded
   end
@@ -101,7 +100,7 @@ module ControllerResourceHelper
 
   # Test updating an resource without credentials.
   def test_update_unauthorized
-    put :update, {:id => 1}, update_success_parameters
+    put :update, :id => 1, resource_symbol => (update_success_parameters[resource_symbol]) # hack to get around compiler issue
     assert_redirected_to :controller => 'sessions', :action => 'new'
     assert_change_failed
   end

@@ -28,7 +28,7 @@ module ApplicationHelper
 
   # Answer a hash mapping iterations to their ids.
   def iteration_mapping
-    mapping = Iteration.find(:all, :order=>'start').collect {|iteration| [iteration.name, iteration.id]}
+    mapping = Iteration.find(:all, :order=>'start').collect {|iteration| [h(iteration.name), iteration.id]}
     mapping << [NoIteration, nil]
     mapping
   end

@@ -45,6 +45,24 @@ class StoryTest < ActiveSupport::TestCase
     assert_failure( :status_code, 3 )
   end
 
+  # Test the accepted? method.
+  def test_accepted
+    assert !stories(:first).accepted?
+    assert stories(:second).accepted?
+  end
+  
+  # Test splitting a story.
+  def test_split
+    story = stories(:first).split
+    assert_equal 'test part two', story.name
+    assert_equal 1, story.individual_id
+    assert_equal 2, story.iteration_id
+    assert_equal 'description', story.description
+    assert_equal 'criteria', story.acceptance_criteria
+    assert_equal 1, story.effort
+    assert_equal 0, story.status_code
+  end
+
   # Test that added stories are put at the end of the list.
   def test_priority_on_add
     assert_equal [3, 2, 1] << create_story.id, Story.find(:all, :order=>'priority').collect {|story| story.id}    

@@ -1,4 +1,5 @@
 class Story < ActiveRecord::Base
+  include Utilities::Text
   belongs_to :iteration
   belongs_to :individual
   has_many :tasks, :dependent => :destroy
@@ -37,11 +38,28 @@ class Story < ActiveRecord::Base
   def status
     StatusMapping[status_code]
   end
+
+  # Answer true if I have been accepted.
+  def accepted?
+    self.status_code == 2
+  end
   
   # My effort is either my value (if set) or the sum of my tasks.
   def effort
     eff = read_attribute(:effort)
     eff ? eff : tasks.sum(:effort)
+  end
+  
+  # Create a new story based on this one.
+  def split
+    next_iteration = Iteration.find(:first, :conditions => ["start>?", self.iteration ? self.iteration.start : Date.yesterday], :order => 'start')
+    Story.new(
+      :name => increment_name(self.name, self.name + as_(' part two')),
+      :iteration_id => next_iteration ? next_iteration.id : nil,
+      :individual_id => self.individual_id,
+      :description => self.description,
+      :acceptance_criteria => self.acceptance_criteria,
+      :effort => self.effort )
   end
 
   # Add custom validation of the status field and relationships to give a more specific message.

@@ -43,6 +43,12 @@ class TaskTest < ActiveSupport::TestCase
     assert_failure( :status_code, 3 )
   end
 
+  # Test the accepted? method.
+  def test_accepted
+    assert !tasks(:one).accepted?
+    assert tasks(:two).accepted?
+  end
+
 private
 
   # Create a task with valid values.  Options will override default values (should be :attribute => value).

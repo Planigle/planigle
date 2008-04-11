@@ -12,6 +12,6 @@ two:
   name: test2
   description: MyText
   effort: 2
-  status_code: 1
+  status_code: 2
   story_id: 1
   individual_id: 1

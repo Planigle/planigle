@@ -32,6 +32,11 @@ class Task < ActiveRecord::Base
     StatusMapping[status_code]
   end
 
+  # Answer true if I have been accepted.
+  def accepted?
+    self.status_code == 2
+  end
+  
   # Add custom validation of the status field and relationships to give a more specific message.
   def validate()
     if status_code < 0 || status_code >= StatusMapping.length

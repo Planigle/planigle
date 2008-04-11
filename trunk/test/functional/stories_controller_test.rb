@@ -12,6 +12,7 @@ class StoriesControllerTest < Test::Unit::TestCase
 
   fixtures :individuals
   fixtures :stories
+  fixtures :tasks
 
   def setup
     @controller = StoriesController.new
@@ -28,8 +29,8 @@ class StoriesControllerTest < Test::Unit::TestCase
   end
 
   # Test changing the sort order without credentials.
-  def test_sort_success_unauthorized
-    put :sort_stories, :stories => [1, 2, 3]
+  def test_sort_unauthorized
+    put :sort, :stories => [1, 2, 3]
     assert_redirected_to :controller => 'sessions', :action => 'new'        
     assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
   end
@@ -38,7 +39,7 @@ class StoriesControllerTest < Test::Unit::TestCase
   def test_sort_success
     login_as(individuals(:quentin))
     assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
-    put :sort_stories, :stories => [1, 2, 3]
+    put :sort, :stories => [1, 2, 3]
     assert_response :success
     assert_template '_sortable'
     assert_equal [1, 2, 3], Story.find(:all, :order=>'priority').collect {|story| story.id}    
@@ -47,9 +48,54 @@ class StoriesControllerTest < Test::Unit::TestCase
   # Test failure to change the sort order.
   def test_sort_failure
     login_as(individuals(:quentin))
-    xhr :put, :sort_stories, :stories => [999, 2, 3]
+    xhr :put, :sort, :stories => [999, 2, 3]
     assert_response 404
     assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+  end
+
+  # Test getting a split story template without credentials.
+  def test_split_get_unauthorized
+    get :split, :id => 1
+    assert_redirected_to :controller => 'sessions', :action => 'new'        
+  end
+
+  # Test getting a split story template successfully.
+  def test_split_get_success
+    login_as(individuals(:quentin))
+    get :split, :id => 1
+    assert_response :success
+    assert_not_nil assigns(resource_symbol)
+    assert assigns(resource_symbol).valid?
+  end
+
+  # Test splitting a story without credentials.
+  def test_split_put_unauthorized
+    num = resource_count
+    put :split, :id => 1, resource_symbol => (create_success_parameters[resource_symbol]) # hack to get around compiler issue
+    assert_redirected_to :controller => 'sessions', :action => 'new'        
+    assert_equal num, resource_count    
+  end
+
+  # Test splitting a story successfully.
+  def test_split_put_success
+    num = resource_count
+    login_as(individuals(:quentin))
+    put :split, :id => 1, resource_symbol => (create_success_parameters[resource_symbol]) # hack to get around compiler issue
+    assert_equal num + 1, resource_count
+    assert_create_succeeded
+    assert_equal 1, stories(:first).tasks.count
+    split = Story.find_by_name('foo')
+    assert_equal 1, split.tasks.count
+  end
+
+  # Test splitting a story unsuccessfully.
+  def test_split_put_failure
+    num = resource_count
+    login_as(individuals(:quentin))
+    put :split, :id => 1, resource_symbol => (create_failure_parameters[resource_symbol]) # hack to get around compiler issue
+    assert_response :success
+    assert_equal num, resource_count
+    assert_change_failed
   end
   
   # Test successfully setting the iteration.
