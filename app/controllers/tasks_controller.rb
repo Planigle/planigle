@@ -10,6 +10,7 @@ class TasksController < ApplicationController
     config.create.columns = [:name, :description, :individual_id, :effort, :status_code, :story_id ]
     config.show.columns = [:name, :description, :individual_id, :effort, :status_code ]
     config.update.columns = [:name, :description, :individual_id, :effort, :status_code ]
+    config.list.sorting = {:status_code => 'DESC', :name => 'ASC'}
   end
 
 private
@@ -29,7 +30,10 @@ private
   def capture_parent
     @parent_id = active_scaffold_constraints[:story]
     if @parent_id
-      @iteration_id = Story.find(@parent_id).iteration_id.to_s
+      iteration_id = Story.find(@parent_id).iteration_id
+      if iteration_id
+        @iteration_id = iteration_id.to_s
+      end
     end
   end
 end

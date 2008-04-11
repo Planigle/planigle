@@ -26,7 +26,7 @@ protected
     elsif request.format == Mime::XML
       if response.headers['Status'] == interpret_status(500)
         response.headers['Status'] = interpret_status(422)
-      elsif response.headers['Status'] == interpret_status(200) && request.path_parameters['action'] == 'create' && request.path_parameters['controller'] != 'sessions'
+      elsif response.headers['Status'] == interpret_status(200) && request.method == :post
         response.headers['Status'] = interpret_status(201)
       end
     end

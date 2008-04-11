@@ -1,6 +1,6 @@
 ActionController::Routing::Routes.draw do |map|
-  map.sort_stories '/stories/sort_stories', :controller => 'stories', :action => 'sort_stories'
-  map.sort_stories_format '/stories/sort_stories.:format', :controller => 'stories', :action => 'sort_stories'
+  map.sort '/stories/sort', :controller => 'stories', :action => 'sort'
+  map.sort_format '/stories/sort.:format', :controller => 'stories', :action => 'sort'
   map.resources :iterations, :active_scaffold => true do |iterations|
     iterations.resources :stories, :active_scaffold => true
   end

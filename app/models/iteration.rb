@@ -1,4 +1,5 @@
 class Iteration < ActiveRecord::Base
+  include Utilities::Text
   has_many :stories, :dependent => :nullify
   
   validates_presence_of     :name,   :start
@@ -10,10 +11,7 @@ class Iteration < ActiveRecord::Base
     last_iteration = self.class.find(:first, :order=>'start desc')
     if last_iteration
       if !attributes.include?(:name)
-        tail = last_iteration.name.split.last
-        if tail.to_i != 0
-          attributes[:name] = last_iteration.name.chomp(tail) + (tail.to_i + 1).to_s
-        end
+        attributes[:name] = increment_name(last_iteration.name)
       end
       if !attributes.include?(:start)
         attributes[:start] = last_iteration.start + last_iteration.length * 7

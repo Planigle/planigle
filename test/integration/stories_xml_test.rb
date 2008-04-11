@@ -15,14 +15,14 @@ class StoriesXmlTest < ActionController::IntegrationTest
 
   # Test changing the sort order without credentials.
   def test_sort_success_unauthorized
-    put '/stories/sort_stories', {:stories => [1, 2, 3]}, accept_header
+    put '/stories/sort', {:stories => [1, 2, 3]}, accept_header
     assert_response 401 # Unauthorized
     assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
   end
 
   # Test changing the sort order without credentials from Flex.
   def test_sort_success_unauthorized_flex
-    put '/stories/sort_stories.xml', {:stories => [1, 2, 3]}, flex_header
+    put '/stories/sort.xml', {:stories => [1, 2, 3]}, flex_header
     assert_response 401 # Unauthorized
     assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
   end
@@ -30,7 +30,7 @@ class StoriesXmlTest < ActionController::IntegrationTest
   # Test successfully changing the sort order.
   def test_sort_success
     assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
-    put '/stories/sort_stories', {:stories => [1, 2, 3]}, authorization_header
+    put '/stories/sort', {:stories => [1, 2, 3]}, authorization_header
     assert_response :success
     assert_select 'stories' do
       assert_select 'story', :count => 3
@@ -42,7 +42,7 @@ class StoriesXmlTest < ActionController::IntegrationTest
   def test_sort_success_flex
     assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
     flex_login
-    put '/stories/sort_stories.xml', {:stories => [1, 2, 3]}, flex_header
+    put '/stories/sort.xml', {:stories => [1, 2, 3]}, flex_header
     assert_response :success
     assert_select 'stories' do
       assert_select 'story', :count => 3
@@ -52,7 +52,7 @@ class StoriesXmlTest < ActionController::IntegrationTest
 
   # Test failure to change the sort order.
   def test_sort_failure
-    put '/stories/sort_stories', {:stories => [999, 2, 3]}, authorization_header
+    put '/stories/sort', {:stories => [999, 2, 3]}, authorization_header
     assert_response 404
     assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
   end
@@ -60,9 +60,96 @@ class StoriesXmlTest < ActionController::IntegrationTest
   # Test failure to change the sort order from Flex.
   def test_sort_failure_flex
     flex_login
-    put '/stories/sort_stories.xml', {:stories => [999, 2, 3]}, flex_header
+    put '/stories/sort.xml', {:stories => [999, 2, 3]}, flex_header
     assert_response 404
     assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+  end
+
+  # Test getting a split story template without credentials.
+  def test_split_get_unauthorized
+    get '/stories/split/1', {}, accept_header
+    assert_response 401
+  end
+
+  # Test getting a split story template without credentials.
+  def test_split_get_unauthorized_flex
+    get '/stories/split/1.xml', {}, flex_header
+    assert_response 401
+  end
+
+  # Test getting a split story template successfully.
+  def test_split_get_success
+    get '/stories/split/1', {}, authorization_header
+    assert_response 200
+    assert_select 'story'
+  end
+
+  # Test getting a split story template successfully.
+  def test_split_get_success_flex
+    flex_login
+    get '/stories/split/1.xml', {}, flex_header
+    assert_response 200
+    assert_select 'story'
+  end
+
+  # Test splitting a story without credentials.
+  def test_split_put_unauthorized
+    num = resource_count
+    put '/stories/split/1', create_success_parameters, accept_header
+    assert_response 401
+    assert_equal num, resource_count    
+  end
+
+  # Test splitting a story without credentials.
+  def test_split_put_unauthorized_flex
+    num = resource_count
+    put '/stories/split/1.xml', create_success_parameters, flex_header
+    assert_response 401
+    assert_equal num, resource_count    
+  end
+
+  # Test splitting a story successfully.
+  def test_split_put_success
+    num = resource_count
+    put '/stories/split/1', create_success_parameters, authorization_header
+    assert_response 200
+    assert_equal num + 1, resource_count
+    assert_create_succeeded
+    assert_equal 1, stories(:first).tasks.count
+    split = Story.find_by_name('foo')
+    assert_equal 1, split.tasks.count
+  end
+
+  # Test splitting a story successfully.
+  def test_split_put_success_flex
+    num = resource_count
+    flex_login
+    put '/stories/split/1.xml', create_success_parameters, flex_header
+    assert_response 200
+    assert_equal num + 1, resource_count
+    assert_create_succeeded
+    assert_equal 1, stories(:first).tasks.count
+    split = Story.find_by_name('foo')
+    assert_equal 1, split.tasks.count
+  end
+
+  # Test splitting a story unsuccessfully.
+  def test_split_put_failure
+    num = resource_count
+    put '/stories/split/1', create_failure_parameters, authorization_header
+    assert_response 422
+    assert_equal num, resource_count
+    assert_change_failed
+  end
+  
+  # Test splitting a story unsuccessfully.
+  def test_split_put_failure_flex
+    num = resource_count
+    flex_login
+    put '/stories/split/1.xml', create_failure_parameters, flex_header
+    assert_response 200
+    assert_equal num, resource_count
+    assert_change_failed
   end
   
   # Test successfully setting the iteration.
