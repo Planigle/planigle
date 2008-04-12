@@ -51,7 +51,6 @@ class StoriesController < ApplicationController
       end
     else
       iteration_id = params[:record][:iteration_id]
-      logger.fatal('')
       if @parent_id && iteration_id && iteration_id != ''  # If already constrained, adapt the contraint
         @parent_id = iteration_id.to_s
       end
