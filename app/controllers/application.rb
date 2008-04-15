@@ -17,7 +17,6 @@ protected
   # Flex wants all responses to be 200
   # REST applications want create to respond in 201 and errors to be 422.
   def change_response
-    logger.fatal(request.format)
     if request.headers.has_key?('HTTP_X_FLASH_VERSION')
       valid_status_codes = [201, 422, 500].collect{|code| interpret_status(code)}
       if valid_status_codes.include?(response.headers['Status'])
@@ -48,6 +47,6 @@ protected
    
   # Add common debugging statements here.  To turn on, uncomment before_filter.
   def debug
-    request.headers.each {header| logger.fatal(header)}
+    request.headers.each {header| logger.debug(header)}
   end
 end
