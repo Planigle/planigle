@@ -1,5 +1,16 @@
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
+  # Answer the protocol to use for insecure transactions.  Normally, this is http, but it could be overriden.
+  def insecure_protocol
+    controller.insecure_protocol
+  end
+
+  # Answer the protocol to use for secure transactions.  Normally, this is https, but it might be overriden
+  # with http if in a development environment.
+  def secure_protocol
+    controller.secure_protocol
+  end
+  
   NoOwner = 'No Owner'
 
   # Answer a string to represent the owner.

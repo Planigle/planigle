@@ -24,6 +24,11 @@ module TasksTestHelper
     Task.count
   end
 
+  # Verify that the list was successful.
+  def assert_list_success
+    assert_response :success
+  end
+
   # Verify that the object was created.
   def assert_create_succeeded
     assert Task.find_by_name('foo')

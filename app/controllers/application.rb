@@ -12,6 +12,17 @@ class ApplicationController < ActionController::Base
   session :session_key => '_planigle_session_id'  
   session :secret => "'I'll break your neck like a chicken bone.' - infamous quote"
 
+  # Answer the protocol to use for insecure transactions.  Normally, this is http, but it could be overriden.
+  def insecure_protocol
+    'http'
+  end
+
+  # Answer the protocol to use for secure transactions.  Normally, this is https, but it might be overriden
+  # with http if in a development environment.
+  def secure_protocol
+    'https'
+  end
+
 protected
 
   # Flex wants all responses to be 200

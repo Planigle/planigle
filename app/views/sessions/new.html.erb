@@ -1,6 +1,6 @@
 <div id='login'>
 <center>
-<% form_tag session_path do -%>
+<% form_tag url_for( {:protocol => secure_protocol, :action => :create, :only_path => false} ), { :id => 'login-form'} do -%>
 
 <table>
 	<tr><td align='right'><label for="login">Login:</label></td>
@@ -16,4 +16,7 @@
 <p><%= submit_tag 'Log in' %></p>
 <% end -%>
 </center>
+<script type="text/javascript">
+Form.focusFirstElement('login-form');
+</script>
 </div>

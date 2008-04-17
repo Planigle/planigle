@@ -1,5 +1,6 @@
 class IndividualsController < ApplicationController
   before_filter :login_required, :except => :activate
+  before_filter :check_protocol, :only => :index
 
   active_scaffold do |config|
     config.columns = [:login, :email, :first_name, :last_name, :activated, :enabled ]
@@ -20,7 +21,7 @@ class IndividualsController < ApplicationController
 
 private
 
-  # Ensure that you can't delete yourself.
+  # Ensure that you can't delete yourself.  This overrides an implementation in active scaffold.
   def do_destroy
     @record = Individual.find( params[ :id ] )
     if(@record == current_individual)
@@ -28,6 +29,13 @@ private
       self.successful = false
     else
       super
+    end
+  end
+  
+  # Verify that the correct protocol was used.  If not, redirect using the right one.
+  def check_protocol
+    if request.protocol[0,secure_protocol.length] != secure_protocol && request.format != Mime::XML
+      redirect_to(:action => 'index', :protocol => secure_protocol, :only_path => false)
     end
   end
 end
