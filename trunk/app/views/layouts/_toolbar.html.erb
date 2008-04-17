@@ -1,6 +1,6 @@
 <div id="toolbar">
-	<%= link_to 'Iterations', iterations_path %> - 
-	<%= link_to 'Stories', stories_path %> - 
-	<%= link_to 'Individuals', individuals_path %> - 
-	<%= link_to 'Log out', logout_url %>
+	<%= link_to 'Iterations', url_for( :controller => :iterations, :action => :list, :protocol => insecure_protocol, :only_path => false ) %> - 
+	<%= link_to 'Stories', url_for( :controller => :stories, :action => :list, :protocol => insecure_protocol, :only_path => false ) %> - 
+	<%= link_to 'Individuals', url_for( :controller => :individuals, :action => :list, :protocol => secure_protocol, :only_path => false ) %> - 
+	<%= link_to 'Log out', url_for( :controller => :session, :action => :destroy, :method => :delete, :protocol => insecure_protocol, :only_path => false ) %>
 </div>

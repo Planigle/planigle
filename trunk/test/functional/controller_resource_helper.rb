@@ -9,7 +9,7 @@ module ControllerResourceHelper
   def test_index_success
     login_as(individuals(:quentin))
     get :index
-    assert_response :success
+    assert_list_success
   end
 
   # Test getting the form to create a new resource without credentials.

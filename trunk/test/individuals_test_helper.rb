@@ -26,6 +26,11 @@ module IndividualsTestHelper
     Individual.count
   end
 
+  # Verify that the list was successful.
+  def assert_list_success
+    assert_response :redirect
+  end
+
   # Verify that the object was created.
   def assert_create_succeeded
     assert Individual.find_by_login('foo')
