@@ -4,16 +4,21 @@ class StoriesController < ApplicationController
   around_filter :update_sort, :only=>[:create, :sort, :row, :update_table]
   
   active_scaffold do |config|
+    edit_columns = [:name, :description, :acceptance_criteria, :iteration_id, :individual_id, :effort, :status_code ]
     config.columns = [:name, :iteration_id, :individual_id, :effort, :status_code, :priority ]
     config.columns[:iteration_id].label = 'Iteration' 
     config.columns[:individual_id].label = 'Owner' 
     config.columns[:status_code].label = 'Status' 
-    config.create.columns = [:name, :description, :acceptance_criteria, :iteration_id, :individual_id, :effort, :status_code ]
-    config.show.columns = [:name, :description, :acceptance_criteria, :iteration_id, :individual_id, :effort, :status_code ]
-    config.update.columns = [:name, :description, :acceptance_criteria, :iteration_id, :individual_id, :effort, :status_code ]
+    config.create.columns = edit_columns
+    config.show.columns = edit_columns
+    config.update.columns = edit_columns
     config.list.sorting = {:priority => 'ASC'}
     config.nested.add_link('Tasks', [:tasks])
     config.action_links.add(:split, {:label => 'Split', :type => :record, :crud_type => :update, :inline => true, :position => :after})
+    config.list_filter.add(:association, :individual, {:label => 'Owner', :association => [ :individual ] })
+    config.list_filter.add(:enumeration, :status, {:label => 'Status', :column => :status_code, :mapping => Story.status_code_mapping })
+    config.export.columns = [:name, :description, :acceptance_criteria, :iteration, :individual, :effort, :status ]
+    config.columns[:individual].label = 'Owner'
   end
 
   # Sort the stories (specify the new order by listing the story ids in the desired order).

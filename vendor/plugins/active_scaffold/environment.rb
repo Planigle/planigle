@@ -64,8 +64,10 @@ Dir["#{File.dirname __FILE__}/lib/extensions/*.rb"].each { |file| require file }
 Dir["#{File.dirname __FILE__}/lib/helpers/*.rb"].each do |file|
   require file unless ['view_helpers.rb', 'controller_helpers.rb'].include? File.basename(file)
 end
-require 'helpers/view_helpers'
-require 'helpers/controller_helpers'
+
+# WRB - Changed to make active scaffold export work (see http://code.google.com/p/activescaffold/issues/detail?id=526)
+require "#{File.dirname __FILE__}/lib/helpers/view_helpers"
+require "#{File.dirname __FILE__}/lib/helpers/controller_helpers"
 
 ## 
 ## Load the bridge infrastructure

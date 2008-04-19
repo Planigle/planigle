@@ -49,6 +49,12 @@ class TaskTest < ActiveSupport::TestCase
     assert tasks(:two).accepted?
   end
 
+  # Test that we can get a mapping of status to code.
+  def test_status_code_mapping
+    mapping = Task.status_code_mapping
+    assert_equal ['Created',0], mapping[0]
+  end
+
 private
 
   # Create a task with valid values.  Options will override default values (should be :attribute => value).

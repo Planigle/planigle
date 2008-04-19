@@ -91,6 +91,12 @@ class StoryTest < ActiveSupport::TestCase
     assert_nil Task.find_by_name('test')
   end
 
+  # Test that we can get a mapping of status to code.
+  def test_status_code_mapping
+    mapping = Story.status_code_mapping
+    assert_equal ['Created',0], mapping[0]
+  end
+
 private
 
   # Create a story with valid values.  Options will override default values (should be :attribute => value).

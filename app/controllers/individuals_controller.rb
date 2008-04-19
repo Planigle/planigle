@@ -1,13 +1,14 @@
 class IndividualsController < ApplicationController
   before_filter :login_required, :except => :activate
-  before_filter :check_protocol, :only => :index
 
   active_scaffold do |config|
     config.columns = [:login, :email, :first_name, :last_name, :activated, :enabled ]
-    config.create.columns = [:login, :password, :password_confirmation, :email, :first_name, :last_name, :enabled ]
-    config.update.columns = [:login, :password, :password_confirmation, :email, :first_name, :last_name, :enabled ]
+    edit_columns = [:login, :password, :password_confirmation, :email, :first_name, :last_name, :enabled ]
+    config.create.columns = edit_columns
+    config.update.columns = edit_columns
     config.list.sorting = {:first_name => 'ASC', :last_name => 'ASC'}
     columns[:activated].sort_by :sql => 'activation_code' 
+    config.list_filter.add(:boolean, :enabled, {:label => 'Enabled', :column => :enabled})
   end
   
   # Allow the user to activate himself/herself by clicking on an email link.
@@ -32,10 +33,8 @@ private
     end
   end
   
-  # Verify that the correct protocol was used.  If not, redirect using the right one.
-  def check_protocol
-    if request.protocol[0,secure_protocol.length] != secure_protocol && request.format != Mime::XML
-      redirect_to(:action => 'index', :protocol => secure_protocol, :only_path => false)
-    end
+  # SSL is required for this controller.
+  def ssl_required?
+    ssl_supported?
   end
 end

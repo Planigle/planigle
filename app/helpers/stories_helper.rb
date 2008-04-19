@@ -1,8 +1,27 @@
 module StoriesHelper  
-  # Map user displayable terms to the internal status codes (in this case, they're the same).
+  # Give a little more space for the name and restrict its length.
+  def name_form_column(record, input_name)
+    text_field :record, :name, :name => input_name, :size => 40, :maxlength => 40
+  end
+
+  # Give a little more space for the description.
+  def description_form_column(record, input_name)
+    text_area :record, :description, :name => input_name, :rows => 8, :cols => 150
+  end
+
+  # Give a little more space for the acceptance criteria.
+  def acceptance_criteria_form_column(record, input_name)
+    text_area :record, :acceptance_criteria, :name => input_name, :rows => 8, :cols => 150
+  end
+
+  # Reduce space for the effort.
+  def effort_form_column(record, input_name)
+    text_field :record, :effort, :name => input_name, :size => 4
+  end
+
+  # Map user displayable terms to the internal status codes.
   def status_code_mapping
-    i = -1
-    Story.valid_status_values.collect { |val| i+=1;[val, i] }
+    Story.status_code_mapping
   end
     
   # Override how we select status.

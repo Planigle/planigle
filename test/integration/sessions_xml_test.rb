@@ -1,4 +1,8 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
+require "application"
+
+# Ensure we don't get redirected to https.
+ApplicationController.ssl_supported=false
 
 class SessionsXmlTest < ActionController::IntegrationTest
   fixtures :individuals

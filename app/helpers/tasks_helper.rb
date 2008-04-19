@@ -1,8 +1,22 @@
 module TasksHelper
-  # Map user displayable terms to the internal status codes (in this case, they're the same).
+  # Give a little more space for the name and restrict its length.
+  def name_form_column(record, input_name)
+    text_field :record, :name, :name => input_name, :size => 40, :maxlength => 40
+  end
+
+  # Give a little more space for the description.
+  def description_form_column(record, input_name)
+    text_area :record, :description, :name => input_name, :rows => 10, :cols => 150
+  end
+
+  # Reduce space for the effort.
+  def effort_form_column(record, input_name)
+    text_field :record, :effort, :name => input_name, :size => 4
+  end
+
+  # Map user displayable terms to the internal status codes.
   def status_code_mapping
-    i = -1
-    Task.valid_status_values.collect { |val| i+=1;[val, i] }
+    Task.status_code_mapping
   end
     
   # Override how we select status.

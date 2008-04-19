@@ -1,14 +1,24 @@
 require File.dirname(__FILE__) + '/../test_helper'
 require 'sessions_controller'
+require 'application'
 
 # Re-raise errors caught by the controller.
 class SessionsController; def rescue_action(e) raise e end; end
+
+# Ensure we don't get redirected to https.
+ApplicationController.ssl_supported=false
 
 class SessionsControllerTest < Test::Unit::TestCase
   fixtures :individuals
 
   def setup
     @controller = SessionsController.new
+    
+    # For the testing, don't redirect to https.
+    def @controller.ssl_supported?
+      false
+    end
+
     @request    = ActionController::TestRequest.new
     @response   = ActionController::TestResponse.new
   end

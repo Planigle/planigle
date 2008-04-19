@@ -4,13 +4,18 @@ class TasksController < ApplicationController
   around_filter :update_js, :only=>[:create, :update, :destroy]
 
   active_scaffold do |config|
+    edit_columns = [:name, :description, :individual_id, :effort, :status_code ]
     config.columns = [:name, :individual_id, :effort, :status_code ]
     config.columns[:individual_id].label = 'Owner'
     config.columns[:status_code].label = 'Status'
     config.create.columns = [:name, :description, :individual_id, :effort, :status_code, :story_id ]
-    config.show.columns = [:name, :description, :individual_id, :effort, :status_code ]
-    config.update.columns = [:name, :description, :individual_id, :effort, :status_code ]
+    config.show.columns = edit_columns
+    config.update.columns = edit_columns
     config.list.sorting = {:status_code => 'DESC', :name => 'ASC'}
+    config.list_filter.add(:association, :individual, {:label => 'Owner', :association => [ :individual ] })
+    config.list_filter.add(:enumeration, :status, {:label => 'Status', :column => :status_code, :mapping => Task.status_code_mapping })
+    config.export.columns = [:name, :description, :individual, :effort, :status ]
+    config.columns[:individual].label = 'Owner'
   end
 
 private

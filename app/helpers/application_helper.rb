@@ -1,18 +1,12 @@
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
-  # Answer the protocol to use for insecure transactions.  Normally, this is http, but it could be overriden.
-  def insecure_protocol
-    controller.insecure_protocol
-  end
-
-  # Answer the protocol to use for secure transactions.  Normally, this is https, but it might be overriden
-  # with http if in a development environment.
-  def secure_protocol
-    controller.secure_protocol
-  end
-  
   NoOwner = 'No Owner'
 
+  # Answer a string to use if there is no owner.
+  def no_owner
+    NoOwner
+  end
+  
   # Answer a string to represent the owner.
   def individual_id_column(record)
     (individual=record.individual) ? h(individual.name) : NoOwner
@@ -20,7 +14,7 @@ module ApplicationHelper
 
   # Answer a hash mapping individuals to their ids.
   def individual_mapping
-    mapping = Individual.find(:all, :order=>'first_name, last_name').collect {|individual| [individual.name, individual.id]}
+    mapping = Individual.find(:all, :order=>'first_name, last_name').collect {|individual| [h(individual.name), individual.id]}
     mapping << [NoOwner, nil]
     mapping
   end
@@ -47,5 +41,10 @@ module ApplicationHelper
   # Override how we select owner.
   def iteration_id_form_column(record, input_name)
     select :record, :iteration_id, iteration_mapping, :name => input_name
+  end
+
+  # Override the export columns to use label rather than name.
+  def format_export_column_header_name(column)
+    column.label.titleize
   end
 end

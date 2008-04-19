@@ -45,4 +45,11 @@ class SessionsController < ApplicationController
       format.xml { head :ok }
     end
   end
+  
+private
+
+  # SSL is required for this controller.
+  def ssl_required?
+    ssl_supported?
+  end
 end

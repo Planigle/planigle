@@ -16,9 +16,17 @@ class Task < ActiveRecord::Base
     StatusMapping
   end
 
+  # Map user displayable terms to the internal status codes.
+  def self.status_code_mapping
+    i = -1
+    valid_status_values.collect { |val| i+=1;[val, i] }
+  end
+
   # A task should inherit its owner from its story.
   def story=(story)
-    self.individual_id = story.individual_id
+    if !self.individual_id
+      self.individual_id = story.individual_id
+    end
     write_attribute(:story_id, story.id)
   end
   

@@ -22,6 +22,12 @@ class Story < ActiveRecord::Base
     StatusMapping
   end
 
+  # Map user displayable terms to the internal status codes.
+  def self.status_code_mapping
+    i = -1
+    valid_status_values.collect { |val| i+=1;[val, i] }
+  end
+
   # Switch the priority of the stories with the sent ids in the order specified.  Return the stories affected.
   def self.sort( ids )
     stories = ids.collect { |id| self.find(id) }

@@ -1,6 +1,6 @@
 <div id='login'>
 <center>
-<% form_tag url_for( {:protocol => secure_protocol, :action => :create, :only_path => false} ), { :id => 'login-form'} do -%>
+<% form_tag session_path, {:id => 'login-form'} do -%>
 
 <table>
 	<tr><td align='right'><label for="login">Login:</label></td>
