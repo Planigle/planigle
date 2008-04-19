@@ -4,7 +4,7 @@ cancel_selector = "##{element_form_id(:action => action)} a.cancel".to_json
 
 if controller.send :successful?
   page << "if(document.getElementById('#{active_scaffold_tbody_id}')) {"
-  page.insert_html :top, active_scaffold_tbody_id, :partial => 'list_record', :locals => {:record => @record}
+  page.insert_html :bottom, active_scaffold_tbody_id, :partial => 'list_record', :locals => {:record => @record}
   page << "ActiveScaffold.stripe($('#{active_scaffold_tbody_id}'))"
   page << "ActiveScaffold.hide_empty_message('#{active_scaffold_tbody_id}','#{empty_message_id}');"
   page << "ActiveScaffold.increment_record_count('#{active_scaffold_id}');"

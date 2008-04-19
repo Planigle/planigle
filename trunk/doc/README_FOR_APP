@@ -1,17 +1,24 @@
 Planigle is a Ruby on Rails based agile planning application.
 
 Required Components - License:
-Ruby - GPLv2 (http://www.ruby-lang.org/en/downloads/)
+Ruby - Ruby (http://www.ruby-lang.org/en/downloads/)
 Rails - MIT (http://www.rubyonrails.com/down)
 MySQL - GPLv2 (http://dev.mysql.com/downloads/mysql/5.0.html)
 HTTP Server - Apache (http://httpd.apache.org/download.cgi)
 
 Embedded Components - License:
 Restful Authentication (Rails Plugin) - MIT
-ActiveScaffold (Rails Plugin) - MIT
+Active Scaffold (Rails Plugin) - MIT
+Active Scaffold Export (Active Scaffold Plugin) - MIT
+Active Scaffold Filters (Active Scaffold Plugin) - MIT
+Calendar Date Select (Rails Plugin) - MIT
+SSL Requirement (Rails Plugin) - MIT
+
+Required Gems:
+fastercsv (GPLv2)
 
 Suggested Gems:
-mysql
+mysql (Ruby)
 
 Suggested Eclipse plug-ins:
 Aptana (http://update.aptana.com/update/3.2/)
@@ -24,4 +31,4 @@ SQL Explorer (http://eclipsesql.sourceforge.net/)
 
 Additional Guidance:
 By default, the html application assumes that SSL is available (it was tested by providing this via Apache).
-To make it HTTP only (no HTTPS), change Application>>secure_protocol to return 'http'.
+To make it HTTP only (no HTTPS), execute ApplicationController.ssl_supported=false.

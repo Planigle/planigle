@@ -3,6 +3,6 @@ module Utilities::Text
   # default which is sent in (or nil if one is not).
   def increment_name(name, default = nil)
     tail = name.split.last
-    tail.to_i != 0 ? name.chomp(tail) + (tail.to_i + 1).to_s : default
+    (tail == '0' || tail.to_i != 0) ? name.chomp(tail) + (tail.to_i + 1).to_s : default
   end
 end

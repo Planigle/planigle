@@ -1,15 +1,28 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
 require "#{File.dirname(__FILE__)}/../individuals_test_helper"
 require "#{File.dirname(__FILE__)}/resource_helper"
+require "application"
+
+# Ensure we don't get redirected to https.
+ApplicationController.ssl_supported=false
 
 class IndividualsXmlTest < ActionController::IntegrationTest
   include ResourceHelper
   include IndividualsTestHelper
 
   fixtures :individuals
+  
+  class IndividualsController
+    # Change so that we're not redirected to SSL.
+    def ssl_supported?
+      false
+    end
 
-  # Re-raise errors caught by the controller.
-  class IndividualsController; def rescue_action(e) raise e end; end
+    # Re-raise errors caught by the controller.
+    def rescue_action(e)
+      raise e
+    end
+  end
 
   def setup
     ActionMailer::Base.delivery_method = :test
