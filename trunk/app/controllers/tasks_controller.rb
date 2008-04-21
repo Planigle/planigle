@@ -26,7 +26,14 @@ private
       js = render_to_string :partial => 'update_story', :layout => false
     end
     yield
+    
     if request.xhr?
+      if @parent_id
+        # Replace the placeholder with the updated effort
+        m = /(.*)(%EFFORT%)(.*)/m.match(js)
+        js = m[1] << Story.find(@parent_id).effort.to_s << m[3]
+      end
+
       response.body << js
     end
   end

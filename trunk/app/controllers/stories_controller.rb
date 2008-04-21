@@ -97,12 +97,5 @@ private
     if !@parent_id # sort doesn't have the constraint set, so we have to get it through the key.
       params.each_key {|key| if (index = key.to_s.index('stories')); @parent_id = key.slice(0,index-1); end}
     end
-    if !@parent_id # Last ditch, use the id key if it exists.
-      # TODO: Figure out how to not set this on the stories page
-      id = params[:id]
-      if id
-        @parent_id = Story.find(id).iteration_id.to_s
-      end
-    end
   end
 end
