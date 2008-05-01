@@ -15,6 +15,7 @@ class IndividualsControllerTest < Test::Unit::TestCase
   include IndividualsTestHelper
   
   fixtures :individuals
+  fixtures :projects
 
   def setup
     ActionMailer::Base.delivery_method = :test

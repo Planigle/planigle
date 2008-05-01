@@ -1,10 +1,11 @@
 class Story < ActiveRecord::Base
   include Utilities::Text
+  belongs_to :project
   belongs_to :iteration
   belongs_to :individual
   has_many :tasks, :dependent => :destroy
   
-  validates_presence_of     :name
+  validates_presence_of     :project_id, :name
   validates_length_of       :name,                   :within => 1..40
   validates_length_of       :description,            :maximum => 4096, :allow_nil => true
   validates_length_of       :acceptance_criteria,    :maximum => 4096, :allow_nil => true
@@ -12,7 +13,7 @@ class Story < ActiveRecord::Base
 
   StatusMapping = [ 'Created', 'In Progress', 'Accepted' ]
 
-  attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :iteration_id, :individual_id
+  attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :iteration_id, :individual_id, :project_id
 
   # Assign a priority on creation
   before_create :initialize_priority
@@ -58,29 +59,15 @@ class Story < ActiveRecord::Base
   
   # Create a new story based on this one.
   def split
-    next_iteration = Iteration.find(:first, :conditions => ["start>?", self.iteration ? self.iteration.start : Date.yesterday], :order => 'start')
+    next_iteration = self.iteration ? Iteration.find(:first, :conditions => ["start>? and project_id=?", self.iteration.start, self.project_id], :order => 'start') : nil
     Story.new(
-      :name => increment_name(self.name, self.name + as_(' part two')),
+      :name => increment_name(self.name, self.name + as_(' Part Two')),
+      :project_id => self.project_id,
       :iteration_id => next_iteration ? next_iteration.id : nil,
       :individual_id => self.individual_id,
       :description => self.description,
       :acceptance_criteria => self.acceptance_criteria,
-      :effort => self.effort )
-  end
-
-  # Add custom validation of the status field and relationships to give a more specific message.
-  def validate()
-    if status_code < 0 || status_code >= StatusMapping.length
-      errors.add(:status_code, 'Invalid status')
-    end
-    
-    if iteration_id && !Iteration.find_by_id(iteration_id)
-      errors.add(:iteration_id, 'Iteration not valid')
-    end
-    
-    if individual_id && !Individual.find_by_id(individual_id)
-      errors.add(:individual_id, 'Owner not valid')
-    end
+      :effort => raw_effort )
   end
   
   # Override to_xml to include tasks.
@@ -91,11 +78,37 @@ class Story < ActiveRecord::Base
     super(options)
   end
   
-private
+protected
+
+  # Add custom validation of the status field and relationships to give a more specific message.
+  def validate()
+    if status_code < 0 || status_code >= StatusMapping.length
+      errors.add(:status_code, 'is invalid')
+    end
+    
+    if iteration_id && !Iteration.find_by_id(iteration_id)
+      errors.add(:iteration_id, 'is invalid')
+    elsif iteration && project_id != iteration.project_id
+      errors.add(:iteration_id, 'is not from a valid project')
+    end
+    
+    if individual_id && !Individual.find_by_id(individual_id)
+      errors.add(:individual_id, 'is invalid')
+    elsif individual && project_id != individual.project_id
+      errors.add(:individual_id, 'is not from a valid project')
+    end
+    
+    errors.add(:effort, 'must be greater than 0') if effort && effort <= 0
+  end
   
   # Set the initial priority to the number of stories (+1 for me).
   def initialize_priority
     highest = Story.find(:first, :order=>'priority desc')
     self.priority = highest ? highest.priority + 1 : 1
+  end
+  
+  # Answer my direct effort rather than that of my tasks.
+  def raw_effort
+    read_attribute(:effort)
   end
 end

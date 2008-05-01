@@ -8,7 +8,7 @@ var target = document.getElementById(story_id);
 var i = 0;
 while (i < target.childNodes.length) {
   var child = target.childNodes[i];
-  if (child.nodeType == 1 && child.getAttribute("class").substring(0,13) == "effort-column") {
+  if (child.nodeType == 1 && child.className && child.className.substring(0,13) == "effort-column") {
     child.firstChild.data='%EFFORT%';
 	break;
     }

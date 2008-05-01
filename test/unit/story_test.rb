@@ -2,10 +2,11 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class StoryTest < ActiveSupport::TestCase
   fixtures :stories
+  fixtures :projects
   fixtures :tasks
 
   # Test that a story can be created.
-  def test_should_create_story
+  def test_create_story
     assert_difference 'Story.count' do
       story = create_story
       assert !story.new_record?, "#{story.errors.full_messages.to_sentence}"
@@ -30,6 +31,8 @@ class StoryTest < ActiveSupport::TestCase
   # Test the validation of effort.  Note: Effort should equal the sum of the tasks' efforts if nil.
   def test_effort
     assert_failure(:effort, 'a')
+    assert_failure(:effort, -1)
+    assert_failure(:effort, 0)
     
     story = stories(:first)
     assert_equal 1, story.effort
@@ -54,13 +57,50 @@ class StoryTest < ActiveSupport::TestCase
   # Test splitting a story.
   def test_split
     story = stories(:first).split
-    assert_equal 'test part two', story.name
-    assert_equal 1, story.individual_id
+    assert_equal 'test Part Two', story.name
+    assert_equal 1, story.project_id
+    assert_equal 2, story.individual_id
     assert_equal 2, story.iteration_id
     assert_equal 'description', story.description
     assert_equal 'criteria', story.acceptance_criteria
     assert_equal 1, story.effort
     assert_equal 0, story.status_code
+  end
+  
+  # Test splitting a story where the story ends up in the backlog.
+  def test_split_last
+    story = create_story(:iteration_id => 2 ).split
+    assert_equal 'foo Part Two', story.name
+    assert_equal 1, story.project_id
+    assert_equal nil, story.individual_id
+    assert_equal nil, story.iteration_id
+    assert_equal 'bar', story.description
+    assert_equal 'must', story.acceptance_criteria
+    assert_equal 5, story.effort
+    assert_equal 0, story.status_code
+  end
+  
+  # Test splitting a story where the story starts in the backlog.
+  def test_split_backlog
+    story = create_story(:iteration_id => nil ).split
+    assert_equal 'foo Part Two', story.name
+    assert_equal 1, story.project_id
+    assert_equal nil, story.individual_id
+    assert_equal nil, story.iteration_id
+    assert_equal 'bar', story.description
+    assert_equal 'must', story.acceptance_criteria
+    assert_equal 5, story.effort
+    assert_equal 0, story.status_code
+  end
+  
+  # Test splitting a story where the direct effort is null.
+  def test_split_null_effort
+    story = stories(:first)
+    story.effort = nil
+    story.save(false)
+    assert_equal 5, story.effort # Total of tasks
+    story = story.split
+    assert_nil story.effort
   end
 
   # Test that added stories are put at the end of the list.
@@ -102,6 +142,6 @@ private
   # Create a story with valid values.  Options will override default values (should be :attribute => value).
   def create_story(options = {})
     Story.create({ :name => 'foo', :description => 'bar', :effort => 5.0, :acceptance_criteria => 'must',
-      :status_code => 0 }.merge(options))
+      :status_code => 0, :project_id => 1 }.merge(options))
   end
 end

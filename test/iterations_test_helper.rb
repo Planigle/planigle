@@ -1,12 +1,12 @@
 module IterationsTestHelper
     # Return the parameters to use for a successful create.
   def create_success_parameters
-    {:record => {:name => 'foo', :start => Date.today}}
+    {:record => {:name => 'foo', :start => Date.today, :project_id => 1}}
   end
 
   # Return the parameters to use for a failed create.
   def create_failure_parameters
-    {:record => {:name => '', :start => Date.today}}
+    {:record => {:name => '', :start => Date.today, :project_id => 1}}
   end
 
   # Return the parameters to use for a successful update.

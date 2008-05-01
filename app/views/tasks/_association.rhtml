@@ -1,6 +1,7 @@
 <%
 	ar_class = filter.association_tree.last.class_name.constantize
-	associated_values = ar_class.find(:all).sort {|a,b| a.to_label <=> b.to_label }
+    # WRB - Changed to only get the ones for this project.
+	associated_values = individuals
 -%>
 
 <div style='margin-bottom: 1em;'>
@@ -16,11 +17,15 @@
 					"#{value.id}",session_value) + "&nbsp;#{value.to_label}") %>
 	</li>
 <% end -%>
+
 <% # WRB - Added checkbox for none -%>
+<% if filter.allow_nil -%>
 <li style='float: left; width: 20%;'>
 <%= content_tag(:label, 
-		check_box_tag(list_filter_input_name(filter) + "[]", "", nil) + "&nbsp;#{no_owner}") %>
+		check_box_tag(list_filter_input_name(filter) + "[]", "", nil) + "&nbsp;#{filter.nil_label}") %>
 </li>
+<% end -%>
+
 </ol>
 <br style='clear: left;'>
 </div>

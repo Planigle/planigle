@@ -8,7 +8,7 @@ class Association < ActiveScaffold::DataStructures::ListFilter
     # WRB - Changed so that '' is interepreted to be null.
     if params.detect {|param| param == ''}
       params = params.select {|param| param != '' }
-      return ["#{column} is null or #{column} IN (?)", params]
+      return ["(#{column} is null or #{column} IN (?))", params]
     else
       return ["#{column} IN (?)", params]
     end
@@ -19,6 +19,16 @@ class Association < ActiveScaffold::DataStructures::ListFilter
 		return arr
 	end
 	
+  # WRB - Added to check if nil is allowed.
+  def allow_nil()
+    @options[:allow_nil] ? @options[:allow_nil] : false
+  end
+  
+  # WRB - Added to return the label to use for nil (if it is allowed).
+  def nil_label()
+    @options[:nil_label] ? @options[:nil_label] : 'None'
+  end
+  
 	private
 	
 	def association_tree_from_array(model, association_array)

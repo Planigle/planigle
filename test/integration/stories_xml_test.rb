@@ -8,6 +8,7 @@ class StoriesXmlTest < ActionController::IntegrationTest
 
   fixtures :individuals
   fixtures :stories
+  fixtures :projects
   fixtures :tasks
 
   # Re-raise errors caught by the controller.

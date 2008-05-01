@@ -1,5 +1,8 @@
 <div id='login'>
 <center>
+<% if flash[:notice] -%>
+	<div id="notice"><%= flash[:notice] %></div>
+<% end -%>
 <% form_tag session_path, {:id => 'login-form'} do -%>
 
 <table>

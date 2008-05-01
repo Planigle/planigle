@@ -20,6 +20,13 @@ class ApplicationController < ActionController::Base
   ActiveScaffold.set_defaults do |config|
     config.actions.add :list_filter
     config.actions.add :export
+    config.show.link.label=''
+    config.list.empty_field_text=''
+  end
+
+  # Answer the current project id (or nil if there is not one).
+  def project_id
+    current_individual ? current_individual.project_id : nil
   end
 
 protected

@@ -1,11 +1,31 @@
 # Methods added to this helper will be available to all templates in the application.
 module ApplicationHelper
-  NoOwner = 'No Owner'
-
-  # Answer a string to use if there is no owner.
-  def no_owner
-    NoOwner
+  # Give a little more space for the name and restrict its length.
+  def name_form_column(record, input_name)
+    text_field :record, :name, :name => input_name, :size => 40, :maxlength => 40
   end
+
+  # Give a little more space for the description.
+  def description_form_column(record, input_name)
+    text_area :record, :description, :name => input_name, :rows => 8, :cols => 120
+  end
+  
+  # Answer a string to represent the project.
+  def project_id_column(record)
+    h(record.project.name)
+  end
+
+  # Answer a hash mapping projects to their ids.
+  def project_mapping
+    Project.find(:all, :order => 'name').collect {|project| [h(project.name), project.id]}
+  end
+    
+  # Override how we select project.
+  def project_id_form_column(record, input_name)
+    select :record, :project_id, project_mapping, :name => input_name
+  end
+
+  NoOwner = 'No Owner'
   
   # Answer a string to represent the owner.
   def individual_id_column(record)
@@ -14,9 +34,15 @@ module ApplicationHelper
 
   # Answer a hash mapping individuals to their ids.
   def individual_mapping
-    mapping = Individual.find(:all, :order=>'first_name, last_name').collect {|individual| [h(individual.name), individual.id]}
+    mapping = individuals.collect {|individual| [h(individual.name), individual.id]}
     mapping << [NoOwner, nil]
     mapping
+  end
+  
+  # Answer the individuals to use.
+  def individuals
+    project_id = controller.project_id
+    project_id ? Individual.find(:all, :conditions => ['project_id = ?', project_id], :order=>'first_name, last_name') : Individual.find(:all, :order=>'first_name, last_name')
   end
     
   # Override how we select owner.
@@ -33,7 +59,9 @@ module ApplicationHelper
 
   # Answer a hash mapping iterations to their ids.
   def iteration_mapping
-    mapping = Iteration.find(:all, :order=>'start').collect {|iteration| [h(iteration.name), iteration.id]}
+    project_id = controller.project_id
+    iterations = project_id ? Iteration.find(:all, :conditions => ['project_id = ?', project_id], :order => 'start') : Iteration.find(:all, :order=>'start')
+    mapping = iterations.collect {|iteration| [h(iteration.name), iteration.id]}
     mapping << [NoIteration, nil]
     mapping
   end

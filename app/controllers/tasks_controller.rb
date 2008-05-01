@@ -12,13 +12,14 @@ class TasksController < ApplicationController
     config.show.columns = edit_columns
     config.update.columns = edit_columns
     config.list.sorting = {:status_code => 'DESC', :name => 'ASC'}
-    config.list_filter.add(:association, :individual, {:label => 'Owner', :association => [ :individual ] })
-    config.list_filter.add(:enumeration, :status, {:label => 'Status', :column => :status_code, :mapping => Task.status_code_mapping })
+    config.list_filter.add(:association, :individual, {:allow_nil => true, :nil_label => 'No Owner', :label => 'Owner', :association => [ :individual ] })
+    config.list_filter.add(:enumeration, :status, {:label => 'Status', :column => 'tasks.status_code', :mapping => Task.status_code_mapping })
     config.export.columns = [:name, :description, :individual, :effort, :status ]
     config.columns[:individual].label = 'Owner'
+    config.columns[:individual_id].sort_by :sql => '(select min(CONCAT_WS(" ", first_name, last_name)) from individuals where id = tasks.individual_id)'
   end
 
-private
+protected
 
   # Add in Javascript to cause the containing story to be updated.
   def update_js
