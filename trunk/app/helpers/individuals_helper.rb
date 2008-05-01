@@ -1,4 +1,23 @@
 module IndividualsHelper
+  All = 'All'
+  
+  # Answer a string to represent the project.
+  def project_id_column(record)
+    (project=record.project) ? h(project.name) : All
+  end
+
+  # Answer a hash mapping projects to their ids.
+  def project_mapping
+    mapping = Project.find(:all, :order=>'name').collect {|project| [h(project.name), project.id]}
+    mapping << [All, nil]
+    mapping
+  end
+    
+  # Override how we select project.
+  def project_id_form_column(record, input_name)
+    select :record, :project_id, project_mapping, :name => input_name
+  end
+
   # Give a little more space for the login and restrict its length.
   def login_form_column(record, input_name)
     text_field :record, :login, :name => input_name, :size => 40, :maxlength => 40

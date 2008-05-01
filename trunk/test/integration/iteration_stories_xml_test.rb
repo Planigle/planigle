@@ -8,6 +8,7 @@ class IterationStoriesXmlTest < ActionController::IntegrationTest
 
   fixtures :individuals
   fixtures :iterations
+  fixtures :projects
   fixtures :stories
 
   # Re-raise errors caught by the controller.
@@ -27,12 +28,12 @@ private
 
   # Return the parameters to use for a successful create.
   def create_success_parameters
-    {:record => {:name => 'foo', :iteration_id => 1}}
+    {:record => {:name => 'foo', :iteration_id => 1, :project_id => 1}}
   end
 
   # Return the parameters to use for a failed create.
   def create_failure_parameters
-    {:record => {:name => '', :iteration_id => 1}}
+    {:record => {:name => '', :iteration_id => 1, :project_id => 1}}
   end
   
   # Answer the number of resources that exist.

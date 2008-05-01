@@ -16,6 +16,15 @@
 					"#{value.id}",session_value) + "&nbsp;#{value.to_label}") %>
 	</li>
 <% end -%>
+
+<% # WRB - Added checkbox for none -%>
+<% if filter.allow_nil -%>
+<li style='float: left; width: 20%;'>
+<%= content_tag(:label, 
+		check_box_tag(list_filter_input_name(filter) + "[]", "", nil) + "&nbsp;#{filter.nil_label}") %>
+</li>
+<% end -%>
+
 </ol>
 <br style='clear: left;'>
 </div>

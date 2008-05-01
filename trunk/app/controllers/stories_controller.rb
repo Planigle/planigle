@@ -4,8 +4,9 @@ class StoriesController < ApplicationController
   around_filter :update_sort, :only=>[:create, :sort, :row, :update_table]
   
   active_scaffold do |config|
-    edit_columns = [:name, :description, :acceptance_criteria, :iteration_id, :individual_id, :effort, :status_code ]
-    config.columns = [:name, :iteration_id, :individual_id, :effort, :status_code, :priority ]
+    edit_columns = [:project_id, :name, :description, :acceptance_criteria, :iteration_id, :individual_id, :effort, :status_code ]
+    config.columns = [:project_id, :name, :iteration_id, :individual_id, :effort, :status_code, :priority ]
+    config.columns[:project_id].label = 'Project' 
     config.columns[:iteration_id].label = 'Iteration' 
     config.columns[:individual_id].label = 'Owner' 
     config.columns[:status_code].label = 'Status' 
@@ -15,10 +16,14 @@ class StoriesController < ApplicationController
     config.list.sorting = {:priority => 'ASC'}
     config.nested.add_link('Tasks', [:tasks])
     config.action_links.add(:split, {:label => 'Split', :type => :record, :crud_type => :update, :inline => true, :position => :after})
-    config.list_filter.add(:association, :individual, {:label => 'Owner', :association => [ :individual ] })
+    config.list_filter.add(:association, :individual, {:allow_nil => true, :nil_label => 'No Owner', :label => 'Owner', :association => [ :individual ] })
     config.list_filter.add(:enumeration, :status, {:label => 'Status', :column => :status_code, :mapping => Story.status_code_mapping })
-    config.export.columns = [:name, :description, :acceptance_criteria, :iteration, :individual, :effort, :status ]
+    config.export.columns = [:project, :name, :description, :acceptance_criteria, :iteration, :individual, :effort, :status ]
     config.columns[:individual].label = 'Owner'
+    config.columns[:project_id].sort_by :sql => '(select min(name) from projects where id = project_id)'
+    config.columns[:iteration_id].sort_by :sql => '(select min(start) from iterations where id = iteration_id)'
+    config.columns[:individual_id].sort_by :sql => '(select min(CONCAT_WS(" ", first_name, last_name)) from individuals where id = individual_id)'
+    config.columns[:effort].sort_by :sql => '(if(effort IS NULL, (select sum(tasks.effort) from tasks where story_id = stories.id), effort))'
   end
 
   # Sort the stories (specify the new order by listing the story ids in the desired order).
@@ -68,7 +73,20 @@ class StoriesController < ApplicationController
     end
   end
 
-private
+protected
+  
+  # If the user is assigned to a project, only show things related to that project.
+  def active_scaffold_constraints
+    constraints = super
+    if constraints.include?(:iteration)
+      constraints[:iteration_id] = constraints[:iteration] # Add id form so that column is hidden.
+      constraints.merge({:project_id => Iteration.find(constraints[:iteration]).project_id})
+    elsif project_id
+      constraints.merge({:project_id => project_id})
+    else
+      constraints
+    end
+  end
 
   # When dynamically updating the HTML, Sortable (used for sorting) needs to be re-enabled.
   # This causes it to discover the rows again (including new rows).
@@ -93,7 +111,7 @@ private
 
   # Keep track of my parent (if I have one).  This is used in my helper methods.
   def capture_parent
-    @parent_id = active_scaffold_constraints[:iteration]
+    @parent_id = active_scaffold_constraints[:iteration_id]
     if !@parent_id # sort doesn't have the constraint set, so we have to get it through the key.
       params.each_key {|key| if (index = key.to_s.index('stories')); @parent_id = key.slice(0,index-1); end}
     end

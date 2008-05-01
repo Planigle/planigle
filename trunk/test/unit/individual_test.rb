@@ -2,6 +2,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class IndividualTest < ActiveSupport::TestCase
   fixtures :individuals
+  fixtures :projects
   fixtures :stories
 
   # Test that an individual can be created.
@@ -195,8 +196,8 @@ class IndividualTest < ActiveSupport::TestCase
   
   # Test deleting an individual
   def test_delete_individual
-    assert_equal stories(:first).individual, individuals(:quentin)
-    individuals(:quentin).destroy
+    assert_equal stories(:first).individual, individuals(:aaron)
+    individuals(:aaron).destroy
     stories(:first).reload
     assert_nil stories(:first).iteration
   end

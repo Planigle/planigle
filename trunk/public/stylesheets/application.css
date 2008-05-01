@@ -25,6 +25,14 @@
 	text-decoration: none;
 }
 
+#notice {
+	border: 2px solid red;
+	padding: 1em;
+	margin-bottom: 2em;
+	background-color: #f0f0f0;
+	font: bold smaller sans-serif;
+}
+
 .active-scaffold th.sorted {
 	background-color: #555555;
 }
@@ -70,6 +78,10 @@ background: #555 url(../../../images/active_scaffold/default/arrow_down.gif) rig
 	font-size:12px;
 	padding:0px;
 	letter-spacing:normal;
+}
+
+.active-scaffold td.numeric {
+	text-align:left;
 }
 
 .active-scaffold-header div.actions {

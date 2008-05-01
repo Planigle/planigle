@@ -1,5 +1,6 @@
 require 'digest/sha1'
 class Individual < ActiveRecord::Base
+  belongs_to :project
   has_many :stories, :dependent => :nullify
   has_many :tasks, :dependent => :nullify
 
@@ -26,7 +27,7 @@ class Individual < ActiveRecord::Base
 
   # Prevent a user from submitting a crafted form that bypasses activation
   # Anything that the user can change should be added here.
-  attr_accessible :login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled
+  attr_accessible :login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled, :project_id
 
   # Authenticates an individual by their login name and unencrypted password.  Returns the individual or nil.
   def self.authenticate(login, password)

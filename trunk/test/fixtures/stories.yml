@@ -1,7 +1,8 @@
 first:
   id: 1
+  project_id: 1
   iteration_id: 1
-  individual_id: 1
+  individual_id: 2
   name: 'test'
   description: 'description'
   acceptance_criteria: 'criteria'
@@ -10,6 +11,7 @@ first:
   priority: 3
 second:
   id: 2
+  project_id: 1
   iteration_id: 1
   name: 'test2'
   description: ''
@@ -19,6 +21,7 @@ second:
   priority: 2
 third:
   id: 3
+  project_id: 1
   name: 'test3'
   description: ''
   acceptance_criteria: ''

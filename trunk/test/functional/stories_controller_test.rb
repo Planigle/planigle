@@ -12,6 +12,7 @@ class StoriesControllerTest < Test::Unit::TestCase
 
   fixtures :individuals
   fixtures :stories
+  fixtures :projects
   fixtures :tasks
 
   def setup

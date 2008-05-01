@@ -6,11 +6,11 @@ class TaskTest < ActiveSupport::TestCase
   fixtures :tasks
 
   # Test that a task can be created.
-  def test_should_create_task
+  def test_create_task
     assert_difference 'Task.count' do
       task = create_task
       assert !task.new_record?, "#{task.errors.full_messages.to_sentence}"
-      assert_equal individuals(:quentin), task.individual # Tasks inherit the owner of their story.
+      assert_equal individuals(:aaron), task.individual # Tasks inherit the owner of their story.
     end
   end
 
@@ -34,6 +34,8 @@ class TaskTest < ActiveSupport::TestCase
   # Test the validation of effort.
   def test_effort
     assert_failure(:effort, 'a')
+    assert_failure(:effort, -1)
+    assert_failure(:effort, 0)
   end
 
   # Test the validation of status code.

@@ -1,14 +1,4 @@
 module StoriesHelper  
-  # Give a little more space for the name and restrict its length.
-  def name_form_column(record, input_name)
-    text_field :record, :name, :name => input_name, :size => 40, :maxlength => 40
-  end
-
-  # Give a little more space for the description.
-  def description_form_column(record, input_name)
-    text_area :record, :description, :name => input_name, :rows => 8, :cols => 150
-  end
-
   # Give a little more space for the acceptance criteria.
   def acceptance_criteria_form_column(record, input_name)
     text_area :record, :acceptance_criteria, :name => input_name, :rows => 8, :cols => 150

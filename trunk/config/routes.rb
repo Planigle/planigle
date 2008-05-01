@@ -1,13 +1,26 @@
 ActionController::Routing::Routes.draw do |map|
   map.sort '/stories/sort', :controller => 'stories', :action => 'sort'
   map.sort_format '/stories/sort.:format', :controller => 'stories', :action => 'sort'
+
+  map.resources :projects, :active_scaffold => true do |projects|
+    projects.resources :iterations, :active_scaffold => true do |iterations|
+      iterations.resources :stories, :active_scaffold => true
+    end
+  end
   map.resources :iterations, :active_scaffold => true do |iterations|
     iterations.resources :stories, :active_scaffold => true
   end
+
   map.resources :individuals, :active_scaffold => true
+  map.resources :projects, :active_scaffold => true do |projects|
+    projects.resources :stories, :active_scaffold => true do |stories|
+      stories.resources :tasks, :active_scaffold => true
+    end
+  end
   map.resources :stories, :active_scaffold => true do |stories|
     stories.resources :tasks, :active_scaffold => true
   end
+
   map.resource :session
   map.activate '/activate/:activation_code', :controller => 'individuals', :action => 'activate'
   map.logout '/logout', :controller => 'sessions', :action => 'destroy'

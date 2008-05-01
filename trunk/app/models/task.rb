@@ -44,19 +44,25 @@ class Task < ActiveRecord::Base
   def accepted?
     self.status_code == 2
   end
+
+protected
   
   # Add custom validation of the status field and relationships to give a more specific message.
   def validate()
     if status_code < 0 || status_code >= StatusMapping.length
-      errors.add(:status_code, 'Invalid status')
+      errors.add(:status_code, ' is invalid')
     end
     
     if individual_id && !Individual.find_by_id(individual_id)
-      errors.add(:individual_id, 'Owner not valid')
+      errors.add(:individual_id, ' is invalid')
+    elsif individual && story.project_id != individual.project_id
+      errors.add(:individual_id, ' is not from a valid project')
     end
     
-    if !story_id || !Story.find_by_id(story_id)
-      errors.add(:story_id, 'Story not valid')
+    if story_id && !Story.find_by_id(story_id)
+      errors.add(:story_id, ' is invalid')
     end
+    
+    errors.add(:effort, 'must be greater than 0') if effort && effort <= 0
   end
 end
