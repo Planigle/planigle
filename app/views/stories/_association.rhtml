@@ -1,0 +1,31 @@
+<%
+	ar_class = filter.association_tree.last.class_name.constantize
+    # WRB - Changed to only get the ones for this project.
+	associated_values = individuals
+-%>
+
+<div style='margin-bottom: 1em;'>
+<ol style='width: 100%'>
+<% associated_values.each do |value| -%>
+	<%
+		session_value = nil
+		session_value = filter_session.include? value.id.to_s unless filter_session.nil?
+	-%>
+   	<li style='float: left; width: 20%;'>
+		<%= content_tag(:label, 
+				check_box_tag(list_filter_input_name(filter) + "[]",
+					"#{value.id}",session_value) + "&nbsp;#{value.to_label}") %>
+	</li>
+<% end -%>
+
+<% # WRB - Added checkbox for none -%>
+<% if filter.allow_nil -%>
+<li style='float: left; width: 20%;'>
+<%= content_tag(:label, 
+		check_box_tag(list_filter_input_name(filter) + "[]", "", nil) + "&nbsp;#{filter.nil_label}") %>
+</li>
+<% end -%>
+
+</ol>
+<br style='clear: left;'>
+</div>
