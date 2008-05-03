@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="absolute" 
+	xmlns:view="org.planigle.planigle.view.*"
+	xmlns:control="org.planigle.planigle.control.*"
+	xmlns:business="org.planigle.planigle.business.*">
+	
+	<!--DESCRIPTION:  The Main.mxml is just an inital holding spot to load the rest
+				  of the application, once the user logs in successfully.-->
+
+	<!--TODO: DEBUG HTTP REQUESTS:  Should be commented out for Production.-->
+	<mx:TraceTarget/>
+
+	<!--The main style sheet for all the applications.-->
+	<mx:Style source="/org/planigle/planigle/css/CoreStyles.css"/>
+	
+	<mx:Script>
+		<![CDATA[
+			
+			// Note: These two lines ensure the viewModelLocator for all eliglble screens.
+			import org.planigle.planigle.model.ViewModelLocator;
+			[Bindable]
+			private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
+			
+		]]>
+	</mx:Script>
+	
+	<!--Cairngorm FrontController and ServiceLocator inclusions.-->
+	<control:LoginController id ="controller"/>
+	<business:Services id="services"/>
+	
+	<mx:ViewStack id="mainViewStack" 
+		selectedIndex="{viewModelLocator.workflowState}" 
+		width="100%" height="100%">
+		
+		<!--NOTE:  This will show the login screen by default.-->
+		<view:LoginScreen/>
+		
+		<!--NOTE:  This will actually load the Core.swf (via the CoreApplicationScreen view),
+			if the login is successful.-->
+		<view:CoreApplicationScreen/>
+				
+	</mx:ViewStack>
+	
+</mx:Application>

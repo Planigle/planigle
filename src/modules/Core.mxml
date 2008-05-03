@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="absolute"
+	xmlns:view="org.planigle.planigle.view.*" xmlns:view1="org.planigle.planigle.view.*">
+	
+	<!--The main style sheet for all the applications.-->
+	<mx:Style source="../org/planigle/planigle/css/CoreStyles.css"/>
+	
+	<mx:Script>
+		<![CDATA[
+			
+			// Had to add this for the module factory to see the model locator.
+			import org.planigle.planigle.model.ViewModelLocator;
+			[Bindable]
+			private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
+          
+		]]>
+	</mx:Script>
+	
+	<mx:TabBar x="19" y="62" id="mainNavigation" dataProvider="{mainViewStack}">
+	</mx:TabBar>
+	
+	<mx:ViewStack x="19" y="83" id="mainViewStack" width="1000" height="500">
+	
+		<view:WorkScreenTab/>
+		
+		<view:PeopleScreenTab/>
+			
+		<view:DashboardScreenTab/>
+		
+		<view1:AdminScreenTab/>
+	
+	</mx:ViewStack>
+	
+</mx:Module>
