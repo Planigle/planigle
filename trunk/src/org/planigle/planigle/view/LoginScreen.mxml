@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" horizontalAlign="center">
+
+	<mx:Script>
+		<![CDATA[
+			import org.planigle.planigle.vo.LoginVO;
+			
+			// Note: These two lines ensure the viewModelLocator for all eliglble screens.
+			import org.planigle.planigle.model.ViewModelLocator;
+			import org.planigle.planigle.events.LoginEvent;
+			
+
+			[Bindable]
+			private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
+			
+			
+			private function loginClickHandler(event:MouseEvent):void
+			{
+			
+				var loginEvent:LoginEvent = new LoginEvent( new LoginVO(userID.text, userPassword.text) );		
+				loginEvent.dispatch();
+		
+					
+			}
+
+			
+			
+		]]>
+	</mx:Script>
+	
+	<mx:Text text="Planigle - Agile Planning Tool" fontSize="22" fontWeight="bold" id="text1"/>
+	
+	<!--The default login panel and text input entry fields.  Note:  Only the userID and password are initially shown.-->
+	<mx:Panel title="Login" id="loginPanel" horizontalAlign="left" verticalAlign="middle">
+	
+		<mx:Form label="loginFormContainer" borderStyle="outset" cornerRadius="10" themeColor="#009DFF" id="loginForm">
+		
+		<mx:FormItem label="UserName" id="formUserName">
+        	<mx:TextInput id="userID" width="200" text="admin"/>
+        </mx:FormItem>
+        
+        <mx:FormItem label="Password" id="formPassword">
+            <mx:TextInput id="userPassword" width="200" text="admin" displayAsPassword="true"/>
+        </mx:FormItem>        
+	</mx:Form>
+	
+	<mx:ControlBar>
+		<mx:Button label="Login" id="newUserExistingUserActionButton"
+			click="loginClickHandler(event)"/>
+		<mx:Spacer width="100%"/>			
+		<mx:LinkButton label="New user - Future?" id="newUserExistingUserToggle" click="this.currentState='createUserForm'"/>
+	</mx:ControlBar>
+	
+	</mx:Panel>
+	
+	<!--The various state changes begin here.-->
+	<mx:states>
+	
+		<!--State change when the user clicks the "New User" link.-->
+		<mx:State name="createUserForm">
+			<mx:SetProperty target="{loginPanel}" name="title" value="Create New User"/>
+			<mx:AddChild relativeTo="{formPassword}" position="before">
+				<mx:FormItem label="User Name (again)">
+					<mx:TextInput id="userIDValidation" width="200" text="Retype user name"/>
+				</mx:FormItem>
+			</mx:AddChild>
+			<mx:SetProperty target="{formUserName}" name="label" value="User Name"/>
+			<mx:AddChild relativeTo="{loginForm}" position="lastChild">
+				<mx:FormItem label="Password (again)">
+					<mx:TextInput displayAsPassword="true"/>
+				</mx:FormItem>
+			</mx:AddChild>
+			<mx:SetProperty target="{formPassword}" name="label" value="Password"/>
+			<mx:AddChild relativeTo="{loginForm}" position="lastChild">
+				<mx:FormItem label="First Name">
+					<mx:TextInput/>
+				</mx:FormItem>
+			</mx:AddChild>
+			<mx:SetProperty target="{newUserExistingUserToggle}" name="label" value="Existing User?"/>
+			<mx:SetProperty target="{newUserExistingUserActionButton}" name="label" value="Create User"/>
+			<mx:SetEventHandler target="{newUserExistingUserToggle}" name="click" handler="this.currentState=''"/>
+		</mx:State>
+		
+	</mx:states>
+	
+</mx:VBox>

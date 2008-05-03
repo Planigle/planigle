@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cairngorm:ServiceLocator 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:cairngorm="com.adobe.cairngorm.business.*">
+	
+	<!--Login Service-->
+	<mx:HTTPService id="loginService"
+		url = "http://localhost:3500/session.xml"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+</cairngorm:ServiceLocator>

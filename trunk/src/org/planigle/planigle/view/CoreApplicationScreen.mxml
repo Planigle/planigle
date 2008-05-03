@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" initialize="onInitialize()">
+	
+	<mx:Script>
+		<![CDATA[
+			
+			import mx.events.ModuleEvent;
+        	import mx.modules.ModuleManager;
+        	import mx.modules.IModuleInfo;
+		
+			// Note: These two lines ensure the viewModelLocator for all eliglble screens.
+			import org.planigle.planigle.model.ViewModelLocator;
+			private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
+			
+			public var coreModuleInfo:IModuleInfo;
+			
+			private function loadCoreModule():void
+			{
+				coreModuleInfo = ModuleManager.getModule("modules/Core.swf");
+				coreModuleInfo.addEventListener(ModuleEvent.READY, moduleEventHandler);
+				
+				// Load the module into memory. Calling load() makes the
+	            // IFlexModuleFactory available. You can then get an
+	            // instance of the class using the factory's create()
+	            // method.
+	            coreModuleInfo.load(); 
+			}
+			
+			private function moduleEventHandler(event:ModuleEvent):void
+			{
+				this.addChild(coreModuleInfo.factory.create() as DisplayObject);
+			}
+			
+			private function onInitialize():void
+			{
+				// Load the core application module.
+				// Note:  Using this method prevents a large download until
+				//		  the user has successfully logged in.
+				loadCoreModule();
+				
+				// Set the application view to the core state.
+				//this.currentState='coreModule';
+			}
+			
+		]]>
+	</mx:Script>
+
+	
+</mx:VBox>

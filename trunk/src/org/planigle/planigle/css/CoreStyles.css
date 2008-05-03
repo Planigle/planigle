@@ -1,0 +1,16 @@
+/* CSS file */
+
+Application
+{
+	backgroundGradientAlphas: 1.0, 1.0;
+	backgroundGradientColors: #516025, #D3EE7F;
+}
+
+Button {
+	cornerRadius:10;
+	fillColors:#47473f,#dfdf7f;
+}
+
+Panel {
+	borderColor:#DFDF7F;
+}
