@@ -56,9 +56,4 @@ protected
       super
     end
   end
-  
-  # SSL is required for this controller.
-  def ssl_required?
-    ssl_supported?
-  end
 end

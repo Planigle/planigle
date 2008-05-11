@@ -1,35 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
 	layout="absolute"
-	xmlns:view="org.planigle.planigle.view.*" xmlns:view1="org.planigle.planigle.view.*">
+	xmlns:view="org.planigle.planigle.view.*" initialize="onInitialize(event)">
 	
 	<!--The main style sheet for all the applications.-->
 	<mx:Style source="../org/planigle/planigle/css/CoreStyles.css"/>
 	
 	<mx:Script>
 		<![CDATA[
-			
-			// Had to add this for the module factory to see the model locator.
+			import com.adobe.viewsource.ViewSource;
+			import mx.binding.utils.ChangeWatcher;
+			import flash.display.DisplayObject;
 			import org.planigle.planigle.model.ViewModelLocator;
+			import org.planigle.planigle.events.LogoutEvent;
+			import org.planigle.planigle.view.*;
+
 			[Bindable]
 			private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
-          
+
+			private var iterations:IterationsTab = new IterationsTab();
+			private var stories:StoriesTab = new StoriesTab();
+			private var projects:ProjectsTab = new ProjectsTab();
+			private var individuals:IndividualsTab = new IndividualsTab();
+
+			// Add the base tabs.
+			private function onInitialize(event:Event):void
+			{
+				mainViewStack.addChild(projects);
+				mainViewStack.addChild(individuals);
+				ChangeWatcher.watch( viewModelLocator, "currentUser", resetState );
+				resetState(event); // This is to catch it the first time (The event has already been sent).
+			}
+
+			// Hide the specified tab.
+			private function hideTab(tab:DisplayObject):void
+			{
+				if (mainViewStack.getChildren().indexOf(tab) != -1 )
+					mainViewStack.removeChild( tab );
+			}
+			
+			// Show the specified tab.
+			private function showTab(tab:DisplayObject):void
+			{
+				if (mainViewStack.getChildren().indexOf(tab) == -1 )
+					mainViewStack.addChildAt( tab, 0 );
+			}
+
+			// Reset based on a new user.
+			private function resetState(event:Event):void
+			{
+				if (viewModelLocator.currentUser)
+				{
+					if (viewModelLocator.isAdmin())
+					{
+						hideTab(iterations);
+						hideTab(stories);
+					}
+					else
+					{
+						showTab(stories);
+						showTab(iterations);
+					}
+				}
+			}
+			
+			// Log out.
+			private function logout():void
+			{
+				new LogoutEvent().dispatch();
+			}			
 		]]>
 	</mx:Script>
-	
-	<mx:TabBar x="19" y="62" id="mainNavigation" dataProvider="{mainViewStack}">
-	</mx:TabBar>
-	
-	<mx:ViewStack x="19" y="83" id="mainViewStack" width="1000" height="500">
-	
-		<view:WorkScreenTab/>
-		
-		<view:PeopleScreenTab/>
-			
-		<view:DashboardScreenTab/>
-		
-		<view1:AdminScreenTab/>
-	
+	<mx:HBox x="5" y="5" horizontalGap="625">
+		<mx:TabBar x="5" id="mainNavigation" dataProvider="{mainViewStack}">
+		</mx:TabBar>
+		<mx:LinkButton label="Log out" click="{logout()}"/>
+	</mx:HBox>
+	<mx:ViewStack x="5" y="26" id="mainViewStack" width="998" height="540">
 	</mx:ViewStack>
-	
 </mx:Module>

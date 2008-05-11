@@ -224,29 +224,4 @@ class StoriesXmlTest < ActionController::IntegrationTest
     end
     assert_not_equal stories(:first).reload.individual_id, 999
   end
-
-  # Test getting tasks for a story.
-  def test_show_tasks
-    get resource_url << '/1', {}, authorization_header
-    assert_response :success
-    assert_select resource_string
-    assert_select 'story' do
-      assert_select 'tasks' do
-        assert_select 'task'
-      end
-    end
-  end
-
-  # Test getting tasks for a story in Flex.
-  def test_show_tasks_flex
-    flex_login
-    get resource_url << '/1.xml', {}, flex_header
-    assert_response :success
-    assert_select resource_string
-    assert_select 'story' do
-      assert_select 'tasks' do
-        assert_select 'task'
-      end
-    end
-  end
 end

@@ -3,31 +3,25 @@ package org.planigle.planigle.commands
 	import com.adobe.cairngorm.commands.ICommand;
 	import com.adobe.cairngorm.control.CairngormEvent;
 	import mx.controls.Alert;
-	import mx.rpc.IResponder;	
+	import mx.rpc.IResponder;
 	import org.planigle.planigle.business.SessionDelegate;
-	import org.planigle.planigle.events.LoginEvent;
 	import org.planigle.planigle.model.ViewModelLocator;
-	import org.planigle.planigle.vo.LoginVO;
 	
-	public class LoginCommand implements ICommand, IResponder
+	public class LogoutCommand implements ICommand, IResponder
 	{
-		private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
-		private var userInfo:LoginVO;
+		public var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
 		
-		public function LoginCommand()
+		public function LogoutCommand()
 		{
 		}
 		
 		// Required for the ICommand interface.  Event must be of type Cairngorm event.
 		public function execute(event:CairngormEvent):void
 		{
-			var loginEvent:LoginEvent = event as LoginEvent;
-			
 			//  Delegate acts as both delegate and responder.
 			var delegate:SessionDelegate = new SessionDelegate( this );
 			
-			userInfo = loginEvent.loginParams;
-			delegate.login(userInfo);
+			delegate.logout();
 		}
 		
 		// Handle successful server request.
@@ -38,8 +32,8 @@ package org.planigle.planigle.commands
 				Alert.show(result.error);
 			else
 			{
-				viewModelLocator.setUser( userInfo.username );
-				viewModelLocator.workflowState = ViewModelLocator.CORE_APPLICATION_SCREEN;
+				viewModelLocator.currentUser = null;
+				viewModelLocator.workflowState = ViewModelLocator.LOGIN_SCREEN;
 			}
 		}
 		

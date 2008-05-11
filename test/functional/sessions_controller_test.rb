@@ -5,9 +5,6 @@ require 'application'
 # Re-raise errors caught by the controller.
 class SessionsController; def rescue_action(e) raise e end; end
 
-# Ensure we don't get redirected to https.
-ApplicationController.ssl_supported=false
-
 class SessionsControllerTest < Test::Unit::TestCase
   fixtures :individuals
 

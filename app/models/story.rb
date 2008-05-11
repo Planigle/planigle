@@ -70,14 +70,6 @@ class Story < ActiveRecord::Base
       :effort => raw_effort )
   end
   
-  # Override to_xml to include tasks.
-  def to_xml(options = {})
-    if !options[:include]
-      options[:include] = [:tasks]
-    end
-    super(options)
-  end
-  
 protected
 
   # Add custom validation of the status field and relationships to give a more specific message.

@@ -3,12 +3,7 @@
 
 class ApplicationController < ActionController::Base
   include AuthenticatedSystem # Enables the Restful Authentication plug-in
-  include SslRequirement
   
-  # Allow whether SSL should be used to be set via class property.
-  @@ssl_supported = true
-  cattr_accessor :ssl_supported
-
   # before_filter :debug # Uncomment to enable output of debug logging.
   after_filter :change_response
   around_filter :catch_exceptions
@@ -65,10 +60,5 @@ protected
   # Add common debugging statements here.  To turn on, uncomment before_filter.
   def debug
     request.headers.each {header| logger.debug(header)}
-  end
-  
-  # Answer true if we support SSL (true by default).
-  def ssl_supported?
-    ssl_supported
   end
 end
