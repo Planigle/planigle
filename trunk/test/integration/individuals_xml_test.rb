@@ -3,9 +3,6 @@ require "#{File.dirname(__FILE__)}/../individuals_test_helper"
 require "#{File.dirname(__FILE__)}/resource_helper"
 require "application"
 
-# Ensure we don't get redirected to https.
-ApplicationController.ssl_supported=false
-
 class IndividualsXmlTest < ActionController::IntegrationTest
   include ResourceHelper
   include IndividualsTestHelper

@@ -26,14 +26,6 @@ class Iteration < ActiveRecord::Base
     write_attribute(:project_id, project_id)
   end
   
-  # Override to_xml to include stories.
-  def to_xml(options = {})
-    if !options[:include]
-      options[:include] = [:stories]
-    end
-    super(options)
-  end
-
 protected
   
   # Ensure length is a positive number.

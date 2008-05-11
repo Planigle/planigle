@@ -1,16 +1,12 @@
 package org.planigle.planigle.events
 {
 	import com.adobe.cairngorm.control.CairngormEvent;
-	
 	import flash.events.Event;
-	
 	import org.planigle.planigle.vo.LoginVO;
 	
 	public class LoginEvent extends CairngormEvent
 	{
-
 		public static const LOGIN:String = "Login";
-		
 		public var loginParams:LoginVO;
 		
 		public function LoginEvent( loginParams:LoginVO )
@@ -25,6 +21,5 @@ package org.planigle.planigle.events
 		{
 			return new LoginEvent(loginParams);
 		}
-
 	}
 }

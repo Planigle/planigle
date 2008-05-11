@@ -2,13 +2,58 @@
 <cairngorm:ServiceLocator 
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:cairngorm="com.adobe.cairngorm.business.*">
-	
+
 	<!--Login Service-->
 	<mx:HTTPService id="loginService"
-		url = "http://localhost:3500/session.xml"
+		url = "/session.xml"
 		resultFormat = "e4x"
 		headers = "Accept: text/xml"
 		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
+
+	<!--Logout Service-->
+	<mx:HTTPService id="logoutService"
+		url = "/session.xml"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Get Iterations-->
+	<mx:HTTPService id="getIterationsService"
+		url = "/iterations.xml"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "GET"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Get Stories-->
+	<mx:HTTPService id="getStoriesService"
+		url = "/stories.xml"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "GET"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Get Projects-->
+	<mx:HTTPService id="getProjectsService"
+		url = "/projects.xml"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "GET"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Get Individuals-->
+	<mx:HTTPService id="getIndividualsService"
+		url = "/individuals.xml"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "GET"
 		useProxy="false"
 		showBusyCursor="true"/>
 	

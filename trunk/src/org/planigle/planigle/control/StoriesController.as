@@ -4,9 +4,9 @@ package org.planigle.planigle.control
 	import org.planigle.planigle.events.*;
 	import org.planigle.planigle.commands.*;
 	
-	public class LoginController extends FrontController
+	public class StoriesController extends FrontController
 	{
-		public function LoginController()
+		public function StoriesController()
 		{
 			this.initialize();	
 		}
@@ -14,9 +14,7 @@ package org.planigle.planigle.control
 		public function initialize():void
 		{
 			// Map event to command.
-			this.addCommand(LoginEvent.LOGIN, LoginCommand);	
-			
+			this.addCommand(StoryChangedEvent.STORY_CHANGED, GetStoriesCommand);	
 		}
-
 	}
 }
