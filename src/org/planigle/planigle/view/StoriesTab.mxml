@@ -3,9 +3,11 @@
 	<mx:HTTPService id="resourcePut" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
 	<mx:HTTPService id="resourceDelete" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
 	<mx:HTTPService id="resourcePost" url="/stories.xml" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
+	<mx:HTTPService id="resourceSort" url="/stories/sort.xml" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.events.DragEvent;
 		import mx.rpc.events.ResultEvent;
 		import mx.controls.Alert;
 		import mx.events.CloseEvent;
@@ -150,6 +152,33 @@
 				new StoryChangedEvent().dispatch();
 			}
 		}
+		
+		// The user has reordered the stories.
+		private function handleDrop(event:DragEvent):void
+		{
+			var stories:XMLList = viewModelLocator.stories;
+			var movedItems:Array = event.dragSource.dataForFormat("items") as Array;
+			var story:XMLList = XMLList(movedItems[0]);
+			var newIndex:int = resource_grid.calculateDropIndex(event);			
+			var inc:int = 0;
+			var url:String = "/stories/sort.xml?";
+			for(var i:int = 0; i < stories.length(); i++)
+			{
+				if (i>0) url += "&";
+				if (i == newIndex)
+				{
+					if (stories[i] != story) inc = -1;
+					url += "stories[]=" + story.id;
+				}
+				else
+				{
+					if (stories[i+inc] == story) inc = 0;
+					url += "stories[]=" + stories[i+inc].id;
+				}
+			}
+			resourceSort.url = url;
+			resourceSort.send();
+		}
 		]]>
 	</mx:Script>
  	
@@ -219,14 +248,15 @@
 			<mx:Text id="error" styleName="error" htmlText="{_error}" color="#ff0033" width="98%"/>
 			<mx:Button label="Create" id="btn_create" styleName="btn_create" click="createHandler(event);"/>
 		</mx:HBox>
-		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="resource_grid" dataProvider="{viewModelLocator.stories}" rowCount="{viewModelLocator.storyCount}" width="100%" height="100%">
+		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="resource_grid" dataProvider="{viewModelLocator.stories}" rowCount="{viewModelLocator.storyCount}" width="100%" height="100%" dragEnabled="true" dropEnabled="true" dragMoveEnabled="true" dragDrop="handleDrop(event)">
 				<mx:columns>
 				<mx:DataGridColumn headerText="Name" dataField="name"/>
 				<mx:DataGridColumn headerText="Iteration" labelFunction="ViewHelper.formatIteration" sortCompareFunction="ViewHelper.sortIteration"/>
 				<mx:DataGridColumn headerText="Owner" labelFunction="ViewHelper.formatIndividual" sortCompareFunction="ViewHelper.sortIndividual"/>
 				<mx:DataGridColumn headerText="Effort" dataField="effort"/>		 
 				<mx:DataGridColumn headerText="Status" labelFunction="ViewHelper.formatStatus" sortCompareFunction="ViewHelper.sortStatus"/>		 
-				<mx:DataGridColumn editable="false" width="120"> 
+				<mx:DataGridColumn headerText="Priority" dataField="priority"/>		 
+				<mx:DataGridColumn editable="false" width="120" sortable="false"> 
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Box direction="horizontal">

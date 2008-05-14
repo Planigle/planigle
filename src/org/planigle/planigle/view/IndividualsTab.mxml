@@ -237,7 +237,7 @@
 				<mx:DataGridColumn headerText="Last Name" dataField="last-name"/>
 				<mx:DataGridColumn headerText="Activated" dataField="activated"/>
 				<mx:DataGridColumn headerText="Enabled" dataField="enabled"/>
-				<mx:DataGridColumn editable="false" width="120"> 
+				<mx:DataGridColumn editable="false" width="120" sortable="false"> 
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Box direction="horizontal">
