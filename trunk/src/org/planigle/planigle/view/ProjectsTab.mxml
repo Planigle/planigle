@@ -187,7 +187,7 @@
 				<mx:columns>
 				<mx:DataGridColumn headerText="Name" dataField="name"/>
 				<mx:DataGridColumn headerText="Description" dataField="description"/>
-				<mx:DataGridColumn editable="false" width="120"> 
+				<mx:DataGridColumn editable="false" width="120" sortable="false"> 
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Box direction="horizontal">
