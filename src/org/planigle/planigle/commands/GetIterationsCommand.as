@@ -6,6 +6,7 @@ package org.planigle.planigle.commands
 	import mx.rpc.IResponder;
 	import org.planigle.planigle.business.IterationsDelegate;
 	import org.planigle.planigle.model.ViewModelLocator;
+	import org.planigle.planigle.model.IterationFactory;
 	
 	public class GetIterationsCommand implements ICommand, IResponder
 	{
@@ -27,7 +28,7 @@ package org.planigle.planigle.commands
 		// Handle successful server request.
 		public function result( event:Object ):void
 		{
-			viewModelLocator.iterations = event.result.children();
+			IterationFactory.getInstance().populate(event.result.children());
 		}
 		
 		// Handle case where error occurs.

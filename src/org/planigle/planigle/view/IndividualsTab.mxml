@@ -45,7 +45,7 @@
 		}
 
 		// Show user a form to create a resource.
-		private function createHandler(event:Event):void
+		private function showCreate(event:Event):void
 		{
 			clearErrorMessage();
 			currentState = 'Change';
@@ -62,7 +62,7 @@
 		}
 
 		// Show user a form to update a resource.
-		public function updateHandler(event:Event) : void
+		public function showUpdate(event:Event) : void
 		{
 			clearErrorMessage();
 			currentState = 'Change';
@@ -85,7 +85,7 @@
 		}
 
 		// Confirm that user wants to delete the resource.
-		public function deleteHandler(event:Event) : void
+		public function showDelete(event:Event) : void
 		{
 			Alert.show("Are you sure you want to delete this?", "Delete", 3, this,
 			function(event:CloseEvent):void
@@ -223,10 +223,10 @@
 
 	</mx:transitions>
 	
-	<mx:Panel id="combinedPanel" height="100%" y="0" width="100%" x="0">
-		<mx:HBox width="98%" horizontalAlign="right" horizontalGap="8" verticalAlign="middle" id="hbox1">
-			<mx:Text id="error" styleName="error" htmlText="{_error}" color="#ff0033" width="98%"/>
-			<mx:Button label="Create" id="btn_create" styleName="btn_create" click="createHandler(event);"/>
+	<mx:Panel id="combinedPanel" height="100%" y="0" width="100%" x="0" paddingTop="5" paddingLeft="5" paddingRight="5">
+		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="8" verticalAlign="middle" id="hbox1">
+			<mx:Text id="error" styleName="error" htmlText="{_error}" color="#ff0033" width="100%"/>
+			<mx:Button label="Create" id="btn_create" styleName="btn_create" click="showCreate(event);"/>
 		</mx:HBox>
 		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="resource_grid" dataProvider="{viewModelLocator.individuals}" rowCount="{viewModelLocator.individualCount}" width="100%" height="100%">
 				<mx:columns>
@@ -241,8 +241,8 @@
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Box direction="horizontal">
-								<mx:LinkButton label="Edit" click="outerDocument.updateHandler(event);"/>		 	
-								<mx:LinkButton label="Delete" click="outerDocument.deleteHandler(event);"/>		 	
+								<mx:LinkButton label="Edit" click="outerDocument.showUpdate(event);"/>		 	
+								<mx:LinkButton label="Delete" click="outerDocument.showDelete(event);"/>		 	
 							</mx:Box> 
 						</mx:Component>
 					</mx:itemRenderer>

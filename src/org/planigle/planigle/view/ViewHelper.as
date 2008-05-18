@@ -2,8 +2,9 @@ package org.planigle.planigle.view
 {
 	import mx.controls.dataGridClasses.DataGridColumn;
 	import mx.utils.ObjectUtil;
-	
 	import org.planigle.planigle.model.ViewModelLocator;
+	import org.planigle.planigle.model.IterationFactory;
+	import org.planigle.planigle.model.Iteration;
 	
 	// Provide static helper methods for formatting and sorting common fields.
 	public class ViewHelper
@@ -11,21 +12,13 @@ package org.planigle.planigle.view
 		// Display the iteration's name in the table (rather than ID).
 		public static function formatIteration(item:Object, column:DataGridColumn):String
 		{
-			var it:int = item.child("iteration-id");
-			if (it == 0)
-				return ViewModelLocator.getInstance().iterationSelector[0].name;
-			else
-				return ViewModelLocator.getInstance().iterationSelector.(id == it).name;
+			return IterationFactory.getInstance().find(item.iterationId).name;
 		}
 
 		// Answer the index of the iteration in the list of iterations (or -1 if backlog).
 		private static function indexIteration(item:Object):int
 		{
-			var it:int = item.child("iteration-id");
-			if (it == 0)
-				return -1;
-			else
-				return ViewModelLocator.getInstance().iterationSelector.(id == it).childIndex();
+			return IterationFactory.getInstance().iterationSelector.getItemIndex(IterationFactory.getInstance().find(item.iterationId));
 		}
 		
 		// Answer the sort order for the specified items (based on where they are in the list of iterations).
@@ -37,7 +30,7 @@ package org.planigle.planigle.view
 		// Display the owner's name in the table (rather than ID).
 		public static function formatIndividual(item:Object, column:DataGridColumn):String
 		{
-			var it:int = item.child("individual-id");
+			var it:int = item.ownerId;
 			if (it == 0)
 				return ViewModelLocator.getInstance().individualSelector[0].child("full-name");
 			else
@@ -47,7 +40,7 @@ package org.planigle.planigle.view
 		// Answer the index of the owner in the list of oweners (or -1 if no owner).
 		private static function indexIndividual(item:Object):int
 		{
-			var it:int = item.child("individual-id");
+			var it:int = item.ownerId;
 			if (it == 0)
 				return -1;
 			else
@@ -89,7 +82,7 @@ package org.planigle.planigle.view
 		// 	Display the user facing status in the table (rather than a code).	
 		public static function formatStatus(item:Object, column:DataGridColumn):String
 		{
-			switch(int(item.child("status-code")))
+			switch(item.statusCode)
 			{
 				case 1: return "In Progress";
 				case 2: return "Accepted";
@@ -100,7 +93,7 @@ package org.planigle.planigle.view
 		// Sort status based on its code.
 		public static function sortStatus(item1:Object, item2:Object):int
 		{
-			return ObjectUtil.numericCompare(int(item1.child("status-code")), int(item2.child("status-code")));
+			return ObjectUtil.numericCompare(item1.statusCode, item2.statusCode);
 		}
 	}
 }

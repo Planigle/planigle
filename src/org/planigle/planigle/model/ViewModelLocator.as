@@ -3,10 +3,10 @@ package org.planigle.planigle.model
 	import com.adobe.cairngorm.model.IModelLocator;
 	import flash.events.Event;
 	import mx.binding.utils.ChangeWatcher;
+	import mx.collections.ArrayCollection;
 	import org.planigle.planigle.events.*;
 
 	[Bindable]
-	// ViewModelLocator keeps track of common model info between views.
 	public class ViewModelLocator implements IModelLocator
 	{
 		// Single instance of our viewModelLocator
@@ -20,27 +20,20 @@ package org.planigle.planigle.model
 			initializeWatchers();
 		}
 
+		// Returns the single instance.
+		public static function getInstance():ViewModelLocator
+		{
+			if (instance == null)
+				instance = new ViewModelLocator(new SingletonEnforcer);
+			return instance;
+		}
+
 		// Register interest in key variables so that dependent variables can be updated.
 		private function initializeWatchers():void
 		{
-			ChangeWatcher.watch( this, "iterations", iterationsChanged );
-			ChangeWatcher.watch( this, "stories", storiesChanged );
 			ChangeWatcher.watch( this, "projects", projectsChanged );
 			ChangeWatcher.watch( this, "individuals", individualsChanged );
 			ChangeWatcher.watch( this, "currentUser", currentUserChanged );
-		}
-
-		// Update variables that rely on iteration info.
-		private function iterationsChanged(event:Event):void	
-		{
-			iterationSelector = <iteration><id nil="true" /><name>Backlog</name></iteration> + iterations;
-			iterationCount = iterations.length();
-		}
-
-		// Update variables that rely on story info.
-		private function storiesChanged(event:Event):void	
-		{
-			storyCount = stories.length();
 		}
 		
 		// Update variables that rely on project info.
@@ -67,14 +60,6 @@ package org.planigle.planigle.model
 				new StoryChangedEvent().dispatch();			
 			}			
 		}
-
-		// Returns the single instance.
-		public static function getInstance():ViewModelLocator
-		{
-			if (instance == null)
-				instance = new ViewModelLocator(new SingletonEnforcer);
-			return instance;
-		}
 		
 		// Answer whether the current user is an admin.
 		public function isAdmin():Boolean
@@ -89,14 +74,9 @@ package org.planigle.planigle.model
 			new IndividualChangedEvent().dispatch();		
 			new ProjectChangedEvent().dispatch();
 		}
-
+		
 		// Variables
 		public var workflowState:uint = 0;
-		public var iterations:XMLList = new XMLList();
-		public var iterationSelector:XMLList = new XMLList();
-		public var iterationCount:int = 0;
-		public var stories:XMLList = new XMLList();
-		public var storyCount:int = 0;
 		public var projects:XMLList = new XMLList();
 		public var projectSelector:XMLList = new XMLList();
 		public var projectCount:int = 0;
