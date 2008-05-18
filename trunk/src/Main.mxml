@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml"
-	layout="absolute" 
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" paddingBottom="5" paddingTop="5" paddingLeft="5" paddingRight="5"
+	width="100%" height="100%" 
 	xmlns:view="org.planigle.planigle.view.*"
 	xmlns:control="org.planigle.planigle.control.*"
 	xmlns:business="org.planigle.planigle.business.*">
@@ -42,7 +42,7 @@
 		
 		<!--NOTE:  This will actually load the Core.swf (via the CoreApplicationScreen view),
 			if the login is successful.-->
-		<view:CoreApplicationScreen/>
+		<view:CoreApplicationScreen name="core"/>
 				
 	</mx:ViewStack>
 	

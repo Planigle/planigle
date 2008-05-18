@@ -1,19 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" label="Stories" creationComplete="created(event)">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" name="Stories" label="Stories" creationComplete="created(event)">
 	<mx:HTTPService id="resourcePut" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
+	<mx:HTTPService id="resourceSplit" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
 	<mx:HTTPService id="resourceDelete" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
 	<mx:HTTPService id="resourcePost" url="/stories.xml" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
 	<mx:HTTPService id="resourceSort" url="/stories/sort.xml" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
 	
 	<mx:Script>
 		<![CDATA[
-			import mx.events.DragEvent;
+		import mx.events.DragEvent;
+		import mx.collections.ArrayCollection;
 		import mx.rpc.events.ResultEvent;
+		import mx.managers.PopUpManager;
 		import mx.controls.Alert;
 		import mx.events.CloseEvent;
 		import mx.binding.utils.ChangeWatcher;
 		import org.planigle.planigle.model.ViewModelLocator;
+		import org.planigle.planigle.model.IterationFactory;
+		import org.planigle.planigle.model.Iteration;
+		import org.planigle.planigle.model.StoryFactory;
+		import org.planigle.planigle.model.Story;
 		import org.planigle.planigle.events.StoryChangedEvent;
+		import org.planigle.planigle.view.components.SelectIteration;
 		
 		[Bindable]
 		private var _error:String;
@@ -21,10 +29,25 @@
 		[Bindable]
 		private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
 
+		[Bindable]
+		private var iterationFilter:ArrayCollection = new ArrayCollection();
+
+		[Bindable]
+		private var filteredStories:ArrayCollection = new ArrayCollection();
+		
+		private var changeQueue:ArrayCollection = new ArrayCollection();
+		
+		[Bindable]
+		private var btnBoxHeight:int = 0;
+
 		// Set up event listeners.  Called when the canvas has been created.
 		private function created(event:Event):void
 		{
-			ChangeWatcher.watch( viewModelLocator, "workflowState", resetState );			
+			ChangeWatcher.watch( viewModelLocator, "workflowState", resetState );
+			ChangeWatcher.watch( IterationFactory.getInstance(), "iterationSelector", setFilterList );
+			ChangeWatcher.watch( StoryFactory.getInstance(), "stories", handleFilter );
+			setFilterList(event);
+			btnBoxHeight = btn_box.height;
 		}
 		
 		// Clear the error message.
@@ -36,9 +59,91 @@
 			clearErrorMessage();
 			currentState = '';
 		}
+		
+		// Set the iterations in the filter list.
+		private function setFilterList(event:Event):void
+		{
+			var id:int = iteration.selectedItem ? iteration.selectedItem.id : -1;
+			var selection:Iteration = null;
+			var newFilter:ArrayCollection = new ArrayCollection();
+			newFilter.addItem( new Iteration( <iteration><id>-1</id><name>All</name></iteration> ));
+			for (var i:int = 0; i < IterationFactory.getInstance().iterationSelector.length; i++)
+			{
+				var it:Iteration = Iteration(IterationFactory.getInstance().iterationSelector.getItemAt(i));
+				newFilter.addItem(it);
+				if (it.id == id)
+					selection = it;
+			}
+			iterationFilter = newFilter;
+			if (selection)
+				iteration.selectedItem = selection;
+			else
+				iteration.selectedIndex = 0;
+			handleFilter(event);
+		}
+		
+		// The iteration filter has changed.
+		public function handleFilter(event:Event):void
+		{
+			if (iteration.selectedItem.id == -1) // Selected All
+			{
+				filteredStories = StoryFactory.getInstance().stories;
+				btn_add_existing.visible = false;
+				column_iteration.visible = true;
+			}	
+			else
+			{
+				filteredStories = new ArrayCollection();
+				for (var i:int = 0; i < StoryFactory.getInstance().stories.length; i++)
+				{
+					var story:Story = Story(StoryFactory.getInstance().stories.getItemAt(i));
+					if (story.iterationId == iteration.selectedItem.id)
+						filteredStories.addItem(story);
+				}
+				btn_add_existing.visible = true;
+				column_iteration.visible = false;
+			}
+		}
+		
+		private var selector:SelectIteration = null;
+		
+		// Add an existing story to this iteration.
+		private function handleAdd(event:Event):void
+		{
+			var stories:ArrayCollection = new ArrayCollection();
+			for (var i:int = 0; i < StoryFactory.getInstance().stories.length; i++)
+			{
+				var story:Story = Story(StoryFactory.getInstance().stories.getItemAt(i));
+				if (story.statusCode != Story.ACCEPTED && story.iterationId != iteration.selectedItem.id)
+					stories.addItem(story);
+			}
+			selector = SelectIteration(PopUpManager.createPopUp(this, SelectIteration, true));
+			selector.btn_ok.addEventListener("click", addStory );
+			selector.stories = stories;
+			selector.title = "Select story(s) to add to this iteration";
+			PopUpManager.centerPopUp(selector);
+		}
+		
+		// Add a story to the current iteration.
+		private function addStory(event:Event):void
+		{
+			var stories:Array = selector.data_grid.selectedItems;
+			for (var i:int = 0; i < stories.length; i++)
+			{
+				var story:Story = Story(stories[i]);
+				var params:Object = new Object();
+				params["record[iteration_id]"] = iteration.selectedItem.id;
+				params['_method'] = "PUT";
+				var change:Object = new Object();
+				change['id'] = story.id;
+				change['params'] = params;
+				changeQueue.addItem(change);
+			}
+			processChange();
+		}
 
 		// Show user a form to create a resource.
-		private function createHandler(event:Event):void
+		private function showCreate(event:Event):void
 		{
 			clearErrorMessage();
 			currentState = 'Change';
@@ -46,7 +151,10 @@
 			field_name.text = '';
 			field_description.text = '';
 			field_acceptance_criteria.text = '';
-			field_iteration.selectedIndex = 0;
+			if (iteration.selectedItem.id > 0)
+				field_iteration.selectedItem = iteration.selectedItem;
+			else
+				field_iteration.selectedIndex = 0;
 			field_owner.selectedIndex = 0;
 			field_effort.text = '';
 			field_status.selectedIndex = 0;
@@ -54,34 +162,36 @@
 		}
 
 		// Show user a form to update a resource.
-		public function updateHandler(event:Event) : void
+		public function showUpdate(event:Event) : void
 		{
 			clearErrorMessage();
 			currentState = 'Change';
 			field_name.setFocus();
 			field_name.text = resource_grid.selectedItem.name;
 			field_description.text = resource_grid.selectedItem.description;
-			field_acceptance_criteria.text = resource_grid.selectedItem.child("acceptance-criteria");
+			field_acceptance_criteria.text = resource_grid.selectedItem.acceptanceCriteria;
+			field_iteration.selectedItem = IterationFactory.getInstance().find(resource_grid.selectedItem.iterationId);
 
-			var it:int = int(resource_grid.selectedItem.child("iteration-id"));
-			if (it == 0)
-				field_iteration.selectedIndex = 0;
-			else
-				field_iteration.selectedItem = viewModelLocator.iterationSelector.(id == it);
-
-			it = int(resource_grid.selectedItem.child("individual-id"));
+			var it:int = int(resource_grid.selectedItem.ownerId);
 			if (it == 0)
 				field_owner.selectedIndex = 0;
 			else
 				field_owner.selectedItem = viewModelLocator.individualSelector.(id == it);
 
 			field_effort.text = resource_grid.selectedItem.effort;
-			field_status.selectedIndex = resource_grid.selectedItem.child("status-code");
+			field_status.selectedIndex = resource_grid.selectedItem.statusCode;
 			btn_change.label = 'Update';
 		}
 
+		// Show user a form to split a story.
+		public function showSplit(event:Event) : void
+		{
+			showUpdate(event);
+			btn_change.label = 'Split';
+		}
+
 		// Confirm that user wants to delete the resource.
-		public function deleteHandler(event:Event) : void
+		public function showDelete(event:Event) : void
 		{
 			Alert.show("Are you sure you want to delete this?", "Delete", 3, this,
 			function(event:CloseEvent):void
@@ -101,7 +211,7 @@
 			params['record[name]'] = field_name.text;
 			params['record[description]'] = field_description.text;
 			params['record[acceptance_criteria]'] = field_acceptance_criteria.text;
-			params['record[iteration_id]'] = field_iteration.selectedItem.id;
+			params['record[iteration_id]'] = field_iteration.selectedItem.id > 0 ? field_iteration.selectedItem.id : "";
 			params['record[individual_id]'] = field_owner.selectedItem.id;
 			params['record[effort]'] = field_effort.text;
 			params['record[status_code]'] = field_status.selectedItem.value;
@@ -114,8 +224,10 @@
 		{
 			if ( btn_change.label == 'Create' )
 				createResource(event);
-			else
+			else if ( btn_change.label == 'Update' )
 				updateResource(event);
+			else
+				splitResource(event);
 		}
 		
 		// Tell the server to create a resource.
@@ -125,12 +237,32 @@
 		}
 		
 		// Tell the server to update a resource.
-		private function updateResource(event:Event) : void
+		private function updateResource(event:Event):void
 		{
 			var params:Object = getParams();
 			params['_method'] = "PUT";
-			resourcePut.url = "/stories/" + resource_grid.selectedItem.id + ".xml";
-			resourcePut.send(params);
+			var change:Object = new Object();
+			change['id'] = resource_grid.selectedItem.id;
+			change['params'] = params;
+			changeQueue.addItem(change);
+			processChange();
+		}
+		
+		// Tell the server to split a resource.
+		private function splitResource(event:Event):void
+		{
+			var params:Object = getParams();
+			params['_method'] = "PUT";
+			resourceSplit.url = "/stories/split/" + resource_grid.selectedItem.id + ".xml";
+			resourceSplit.send(params);
+		}
+		
+		// Process the next change in the queue.
+		private function processChange():void
+		{
+			var change:Object = changeQueue.removeItemAt(0);
+			resourcePut.url = "/stories/" + change["id"] + ".xml";
+			resourcePut.send(change["params"]);
 		}
 
 		// Tell the server to delete a resource.
@@ -145,7 +277,12 @@
 		{
 			var result:XML = XML(event.result);
 			if (result.error.length() > 0)
+			{
 				_error = result;
+				changeQueue = new ArrayCollection(); // Cancel further changes.
+			}
+			else if (changeQueue.length > 0)
+				processChange();
 			else
 			{
 				resetState(event);
@@ -156,24 +293,24 @@
 		// The user has reordered the stories.
 		private function handleDrop(event:DragEvent):void
 		{
-			var stories:XMLList = viewModelLocator.stories;
+			var stories:ArrayCollection = filteredStories;
 			var movedItems:Array = event.dragSource.dataForFormat("items") as Array;
-			var story:XMLList = XMLList(movedItems[0]);
+			var story:Story = Story(movedItems[0]);
 			var newIndex:int = resource_grid.calculateDropIndex(event);			
 			var inc:int = 0;
 			var url:String = "/stories/sort.xml?";
-			for(var i:int = 0; i < stories.length(); i++)
+			for(var i:int = 0; i < stories.length; i++)
 			{
 				if (i>0) url += "&";
 				if (i == newIndex)
 				{
-					if (stories[i] != story) inc = -1;
+					if (stories.getItemAt(i) != story) inc = -1;
 					url += "stories[]=" + story.id;
 				}
 				else
 				{
-					if (stories[i+inc] == story) inc = 0;
-					url += "stories[]=" + stories[i+inc].id;
+					if (stories.getItemAt(i+inc) == story) inc = 0;
+					url += "stories[]=" + stories.getItemAt(i+inc).id;
 				}
 			}
 			resourceSort.url = url;
@@ -198,7 +335,7 @@
 							<mx:TextArea id='field_acceptance_criteria' height="64" width="500"><mx:text/></mx:TextArea>
 						</mx:FormItem>
 						<mx:FormItem label="Iteration">
-							<mx:ComboBox id='field_iteration' width="350" editable="false" dataProvider="{viewModelLocator.iterationSelector}" labelField="name"></mx:ComboBox>
+							<mx:ComboBox id='field_iteration' width="350" editable="false" dataProvider="{IterationFactory.getInstance().iterationSelector}" labelField="name"></mx:ComboBox>
 						</mx:FormItem>
 						<mx:FormItem label='Owner'>
 							<mx:ComboBox id='field_owner' width="350" editable="false" dataProvider="{viewModelLocator.individualSelector}" labelField="full-name"></mx:ComboBox>
@@ -226,16 +363,20 @@
 	
 	<mx:transitions>
 		<mx:Transition id="changeItem" fromState="*" toState="Change">
-			<mx:Sequence targets="{[combinedPanel]}">
+			<mx:Sequence targets="{[btn_box, combinedPanel]}">
 				<mx:RemoveChildAction/>
+				<mx:SetPropertyAction target="{btn_box}" name="visible" value="false"/>
+				<mx:SetPropertyAction target="{btn_box}" name="height" value="0"/>
 				<mx:Resize target="{combinedPanel}"/>
 				<mx:AddChildAction/>
 			</mx:Sequence>
 		</mx:Transition>
 
 		<mx:Transition id="returnList" fromState="Change" toState="*">
-			<mx:Sequence targets="{[combinedPanel]}">
+			<mx:Sequence targets="{[btn_box, combinedPanel]}">
 				<mx:RemoveChildAction/>
+				<mx:SetPropertyAction target="{btn_box}" name="height" value="{btnBoxHeight}"/>
+				<mx:SetPropertyAction target="{btn_box}" name="visible" value="true"/>
 				<mx:Resize target="{combinedPanel}"/>
 				<mx:AddChildAction/>
 			</mx:Sequence>
@@ -244,24 +385,31 @@
 	</mx:transitions>
 	
 	<mx:Panel id="combinedPanel" height="100%" y="0" width="100%" x="0">
-		<mx:HBox width="98%" horizontalAlign="right" horizontalGap="8" verticalAlign="middle" id="hbox1">
-			<mx:Text id="error" styleName="error" htmlText="{_error}" color="#ff0033" width="98%"/>
-			<mx:Button label="Create" id="btn_create" styleName="btn_create" click="createHandler(event);"/>
+		<mx:HBox id="btn_box" width="100%" horizontalAlign="left" verticalAlign="middle" paddingTop="5" paddingLeft="5" paddingRight="5">
+			<mx:VBox width="100%">
+				<mx:FormItem id="iteration_form" label="Iteration:">
+					<mx:ComboBox id='iteration' width="350" editable="false" dataProvider="{iterationFilter}" labelField="name" change="handleFilter(event)"></mx:ComboBox>
+				</mx:FormItem>
+				<mx:Text id="error" styleName="error" htmlText="{_error}" color="#ff0033" width="100%"/>
+			</mx:VBox>
+			<mx:Button label="Add Existing" click="handleAdd(event);" id="btn_add_existing"/>
+			<mx:Button label="Create" styleName="btn_create" click="showCreate(event);" id="btn_create"/>
 		</mx:HBox>
-		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="resource_grid" dataProvider="{viewModelLocator.stories}" rowCount="{viewModelLocator.storyCount}" width="100%" height="100%" dragEnabled="true" dropEnabled="true" dragMoveEnabled="true" dragDrop="handleDrop(event)">
+		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="resource_grid" dataProvider="{filteredStories}" rowCount="{filteredStories.length}" width="100%" height="100%" dragEnabled="true" dropEnabled="true" dragMoveEnabled="true" dragDrop="handleDrop(event)">
 				<mx:columns>
-				<mx:DataGridColumn headerText="Name" dataField="name"/>
-				<mx:DataGridColumn headerText="Iteration" labelFunction="ViewHelper.formatIteration" sortCompareFunction="ViewHelper.sortIteration"/>
-				<mx:DataGridColumn headerText="Owner" labelFunction="ViewHelper.formatIndividual" sortCompareFunction="ViewHelper.sortIndividual"/>
-				<mx:DataGridColumn headerText="Effort" dataField="effort"/>		 
-				<mx:DataGridColumn headerText="Status" labelFunction="ViewHelper.formatStatus" sortCompareFunction="ViewHelper.sortStatus"/>		 
-				<mx:DataGridColumn headerText="Priority" dataField="priority"/>		 
-				<mx:DataGridColumn editable="false" width="120" sortable="false"> 
+				<mx:DataGridColumn headerText="Name" width="350" dataField="name"/>
+				<mx:DataGridColumn id="column_iteration" width="150" headerText="Iteration" labelFunction="ViewHelper.formatIteration" sortCompareFunction="ViewHelper.sortIteration"/>
+				<mx:DataGridColumn headerText="Owner" width="150" labelFunction="ViewHelper.formatIndividual" sortCompareFunction="ViewHelper.sortIndividual"/>
+				<mx:DataGridColumn headerText="Effort" width="75" dataField="effort"/>		 
+				<mx:DataGridColumn headerText="Status" width="100" labelFunction="ViewHelper.formatStatus" sortCompareFunction="ViewHelper.sortStatus"/>		 
+				<mx:DataGridColumn headerText="Priority" width="80" dataField="priority"/>		 
+				<mx:DataGridColumn editable="false" minWidth="180" sortable="false"> 
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Box direction="horizontal">
-								<mx:LinkButton label="Edit" click="outerDocument.updateHandler(event);"/>		 	
-								<mx:LinkButton label="Delete" click="outerDocument.deleteHandler(event);"/>		 	
+								<mx:LinkButton label="Edit" click="outerDocument.showUpdate(event);"/>		 	
+								<mx:LinkButton label="Split" click="outerDocument.showSplit(event);"/>		 	
+								<mx:LinkButton label="Delete" click="outerDocument.showDelete(event);"/>		 	
 							</mx:Box> 
 						</mx:Component>
 					</mx:itemRenderer>

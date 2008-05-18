@@ -6,6 +6,7 @@ package org.planigle.planigle.commands
 	import mx.rpc.IResponder;
 	import org.planigle.planigle.business.StoriesDelegate;
 	import org.planigle.planigle.model.ViewModelLocator;
+	import org.planigle.planigle.model.StoryFactory;
 	
 	public class GetStoriesCommand implements ICommand, IResponder
 	{
@@ -27,7 +28,7 @@ package org.planigle.planigle.commands
 		// Handle successful server request.
 		public function result( event:Object ):void
 		{
-			viewModelLocator.stories = event.result.children();
+			StoryFactory.getInstance().populate(event.result.children());
 		}
 		
 		// Handle case where error occurs.

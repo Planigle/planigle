@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Module xmlns:mx="http://www.adobe.com/2006/mxml" 
+<mx:Module width="100%" height="100%" xmlns:mx="http://www.adobe.com/2006/mxml" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0"
 	layout="absolute"
 	xmlns:view="org.planigle.planigle.view.*" initialize="onInitialize(event)">
 	
@@ -71,11 +71,13 @@
 			}			
 		]]>
 	</mx:Script>
-	<mx:HBox x="5" y="5" horizontalGap="625">
-		<mx:TabBar x="5" id="mainNavigation" dataProvider="{mainViewStack}">
+	<mx:HBox horizontalGap="5" width="100%">
+		<mx:TabBar id="mainNavigation" dataProvider="{mainViewStack}" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0">
 		</mx:TabBar>
-		<mx:LinkButton label="Log out" click="{logout()}"/>
+		<mx:HBox horizontalAlign="right" width="100%">
+			<mx:LinkButton label="Log out" click="{logout()}"/>
+		</mx:HBox>
 	</mx:HBox>
-	<mx:ViewStack x="5" y="26" id="mainViewStack" width="998" height="540">
+	<mx:ViewStack id="mainViewStack" y="20" width="100%" height="100%" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0">
 	</mx:ViewStack>
 </mx:Module>
