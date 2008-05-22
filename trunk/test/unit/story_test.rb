@@ -38,7 +38,8 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal 1, story.effort
     story.effort=nil
     story.save(false)
-    assert_equal 5, story.effort
+    assert_nil story.effort
+    assert_equal 5, story.calculatedEffort
   end
 
   # Test the validation of status.
@@ -98,9 +99,10 @@ class StoryTest < ActiveSupport::TestCase
     story = stories(:first)
     story.effort = nil
     story.save(false)
-    assert_equal 5, story.effort # Total of tasks
-    story = story.split
     assert_nil story.effort
+    assert_equal 5, story.calculatedEffort # Total of tasks
+    story = story.split
+    assert_nil story.calculatedEffort
   end
 
   # Test that added stories are put at the end of the list.

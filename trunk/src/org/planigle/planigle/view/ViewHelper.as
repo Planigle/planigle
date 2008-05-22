@@ -12,7 +12,10 @@ package org.planigle.planigle.view
 		// Display the iteration's name in the table (rather than ID).
 		public static function formatIteration(item:Object, column:DataGridColumn):String
 		{
-			return IterationFactory.getInstance().find(item.iterationId).name;
+			if (item.iterationId != -1)
+				return IterationFactory.getInstance().find(item.iterationId).name;
+			else
+				return "";
 		}
 
 		// Answer the index of the iteration in the list of iterations (or -1 if backlog).

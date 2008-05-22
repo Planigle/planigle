@@ -55,8 +55,9 @@
 		{
 			clearErrorMessage();
 			currentState = 'Change';
-			field_name.setFocus();
 			field_name.text = resource_grid.selectedItem.name;
+			field_name.setFocus();
+			field_name.setSelection(0, field_name.text.length );
 			field_start.text = resource_grid.selectedItem.start;
 			field_length.text = resource_grid.selectedItem.length;
 			btn_change.label = 'Update';
@@ -194,19 +195,19 @@
 			<mx:Text id="error" styleName="error" htmlText="{_error}" color="#ff0033" width="100%"/>
 			<mx:Button label="Create" id="btn_create" styleName="btn_create" click="showCreate(event);"/>
 		</mx:HBox>
-		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="resource_grid" dataProvider="{IterationFactory.getInstance().iterations}" rowCount="{IterationFactory.getInstance().iterations.length}" width="100%" height="100%">
+		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="resource_grid" dataProvider="{IterationFactory.getInstance().iterations}" rowCount="{IterationFactory.getInstance().iterations.length}" width="100%" height="100%" doubleClickEnabled="true" doubleClick="showUpdate(event)">
 				<mx:columns>
 				<mx:DataGridColumn headerText="Name" dataField="name"/>
 				<mx:DataGridColumn headerText="Start" dataField="start"/>
 				<mx:DataGridColumn headerText="Length" dataField="length"/>
-				<mx:DataGridColumn editable="false" width="180" sortable="false"> 
-					<mx:itemRenderer> 
+				<mx:DataGridColumn editable="false" width="90" minWidth="90" sortable="false">
+					<mx:itemRenderer>
 						<mx:Component>
-							<mx:Box direction="horizontal">
-								<mx:LinkButton label="Plan" click="outerDocument.showPlan(event);"/>		 	
-								<mx:LinkButton label="Edit" click="outerDocument.showUpdate(event);"/>		 	
-								<mx:LinkButton label="Delete" click="outerDocument.showDelete(event);"/>		 	
-							</mx:Box> 
+							<mx:Box direction="horizontal" horizontalGap="0">
+								<mx:LinkButton icon="{parentApplication.imgExport}" toolTip="Plan" click="outerDocument.showPlan(event);"/>
+								<mx:LinkButton icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);"/>
+								<mx:LinkButton icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);"/>
+							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>
 				</mx:DataGridColumn>

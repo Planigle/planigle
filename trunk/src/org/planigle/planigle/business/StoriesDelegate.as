@@ -1,31 +1,65 @@
 package org.planigle.planigle.business
 {
 	import com.adobe.cairngorm.business.ServiceLocator;
-	import com.adobe.cairngorm.model.ModelLocator;
-	import mx.rpc.AsyncToken;
+	
 	import mx.rpc.IResponder;
+	import mx.rpc.http.HTTPService;
+	
+	import org.planigle.planigle.model.Story;
 	
 	public class StoriesDelegate
 	{
-		// Required by Cairngorm delegate.
 		private var responder:IResponder;
-		private var service:Object;
 		
 		public function StoriesDelegate( responder:IResponder )
 		{
 			this.responder = responder;
-			this.service = ServiceLocator.getInstance().getHTTPService("getStoriesService");
 		}
 		
 		// Get the latest stories.
 		public function getStories():void 
 		{
-			// Make any modifications to the URL here - added for template purposes.
-			// var serviceURL:String = service.url;
-			// service.url = service.url + extraParmsHere
-			
-			var makeServiceRequest:Object = service.send({random: Math.random()}); // Note: random prevents caching
-			makeServiceRequest.addResponder( responder );
-		}	
+			var service:HTTPService = ServiceLocator.getInstance().getHTTPService("getStoriesService");
+			service.send({random: Math.random()}).addResponder( responder ); // Note: random prevents caching
+		}
+		
+		// Create the story as specified.
+		public function createStory( params:Object ):void
+		{
+			var service:HTTPService = ServiceLocator.getInstance().getHTTPService("createStoryService");
+			params['random'] = Math.random(); // Prevents caching
+			service.send(params).addResponder( responder );
+		}
+		
+		// Update the story as specified.
+		public function updateStory( story:Story, params:Object ):void
+		{
+			var service:HTTPService = ServiceLocator.getInstance().getHTTPService("updateStoryService");
+			params['random'] = Math.random(); // Prevents caching
+			params['_method'] = "PUT";
+			service.url = "/stories/" + story.id + ".xml";
+			service.send(params).addResponder( responder );
+		}
+		
+		// Split the story as specified.
+		public function splitStory( story:Story, params:Object ):void
+		{
+			var service:HTTPService = ServiceLocator.getInstance().getHTTPService("splitStoryService");
+			params['random'] = Math.random(); // Prevents caching
+			params['_method'] = "PUT";
+			service.url = "/stories/split/" + story.id + ".xml";
+			service.send(params).addResponder( responder );
+		}
+		
+		// Delete the story.
+		public function deleteStory( story:Story ):void
+		{
+			var service:HTTPService = ServiceLocator.getInstance().getHTTPService("deleteStoryService");
+			var params:Object = new Object();
+			params['random'] = Math.random(); // Prevents caching
+			params['_method'] = "DELETE";
+			service.url = "/stories/" + story.id + ".xml";
+			service.send(params).addResponder( responder );
+		}
 	}
 }
