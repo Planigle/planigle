@@ -22,6 +22,23 @@
 			[Bindable]
 			private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
 			
+
+			// Images to be leveraged by pages.
+			[Embed(source="../public/images/edit.png")]
+			[Bindable]
+			public var imgEdit:Class;
+			
+			[Embed(source="../public/images/active_scaffold/default/cross.png")]
+			[Bindable]
+			public var imgCross:Class;
+		
+			[Embed(source="../public/images/active_scaffold/default/add.gif")]
+			[Bindable]
+			public var imgAdd:Class;
+		
+			[Embed(source="../public/images/active_scaffold/default/export.png")]
+			[Bindable]
+			public var imgExport:Class;
 		]]>
 	</mx:Script>
 	

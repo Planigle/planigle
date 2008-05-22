@@ -65,16 +65,21 @@ class StoriesController < ApplicationController
         @parent_id = iteration_id.to_s
       end
       active_scaffold_constraints[:iteration] = @parent_id
+      params[:tasks] = @old.tasks.select{|task| !task.accepted?}
       create
-      @old.tasks.select{|task| !task.accepted?}.each do |task|
-        task.story = @record
-        task.save(false)
-      end
     end
   end
 
 protected
-  
+
+  # This collection gets passed to ActiveRecord#find as the :include option, despite its name.
+  # This ensures that a story will automatically load its tasks in the same query as itself.
+  def conditions_for_collection 
+    result = super
+    active_scaffold_joins << :tasks
+    result
+  end 
+
   # If the user is assigned to a project, only show things related to that project.
   def active_scaffold_constraints
     constraints = super
@@ -114,6 +119,16 @@ protected
     @parent_id = active_scaffold_constraints[:iteration_id]
     if !@parent_id # sort doesn't have the constraint set, so we have to get it through the key.
       params.each_key {|key| if (index = key.to_s.index('stories')); @parent_id = key.slice(0,index-1); end}
+    end
+  end
+  
+  # Override create to allow automatic association of tasks (set in split).
+  def after_create_save(story)
+    if params[:tasks]
+      params[:tasks].each do |task|
+        story.tasks << task
+        task.save
+      end
     end
   end
 end

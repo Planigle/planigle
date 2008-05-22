@@ -3,7 +3,7 @@
 	layout="absolute"
 	xmlns:view="org.planigle.planigle.view.*" initialize="onInitialize(event)">
 	
-	<!--The main style sheet for all the applications.-->
+	<!--The main style sheet for all the pages.-->
 	<mx:Style source="../org/planigle/planigle/css/CoreStyles.css"/>
 	
 	<mx:Script>
@@ -12,6 +12,10 @@
 			import mx.binding.utils.ChangeWatcher;
 			import flash.display.DisplayObject;
 			import org.planigle.planigle.model.ViewModelLocator;
+			import org.planigle.planigle.events.ProjectChangedEvent;
+			import org.planigle.planigle.events.IndividualChangedEvent;
+			import org.planigle.planigle.events.IterationChangedEvent;
+			import org.planigle.planigle.events.StoryChangedEvent;
 			import org.planigle.planigle.events.LogoutEvent;
 			import org.planigle.planigle.view.*;
 
@@ -64,6 +68,18 @@
 				}
 			}
 			
+			// Refresh any cached data.
+			private function refresh():void
+			{
+				new ProjectChangedEvent().dispatch();
+				new IndividualChangedEvent().dispatch();
+				if (!viewModelLocator.isAdmin())
+				{
+					new IterationChangedEvent().dispatch();
+					new StoryChangedEvent().dispatch();
+				}
+			}
+			
 			// Log out.
 			private function logout():void
 			{
@@ -75,6 +91,7 @@
 		<mx:TabBar id="mainNavigation" dataProvider="{mainViewStack}" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0">
 		</mx:TabBar>
 		<mx:HBox horizontalAlign="right" width="100%">
+			<mx:LinkButton label="Refresh" click="{refresh()}"/>
 			<mx:LinkButton label="Log out" click="{logout()}"/>
 		</mx:HBox>
 	</mx:HBox>

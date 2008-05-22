@@ -66,8 +66,6 @@
 		{
 			clearErrorMessage();
 			currentState = 'Change';
-			viewModelLocator.isAdmin() ? field_project.setFocus() : field_login.setFocus();
-
 			var it:int = int(resource_grid.selectedItem.child("project-id"));
 			if (it == 0)
 				field_project.selectedIndex = 0;
@@ -75,6 +73,15 @@
 				field_project.selectedItem = viewModelLocator.projectSelector.(id == it);
 
 			field_login.text = resource_grid.selectedItem.login;
+
+			if (viewModelLocator.isAdmin())
+				field_project.setFocus();
+			else
+			{
+				field_login.setFocus();
+				field_login.setSelection(0, field_login.text.length );
+			}
+
 			field_password.text = '';
 			field_password_confirmation.text = '';
 			field_email.text = resource_grid.selectedItem.email;
@@ -228,22 +235,22 @@
 			<mx:Text id="error" styleName="error" htmlText="{_error}" color="#ff0033" width="100%"/>
 			<mx:Button label="Create" id="btn_create" styleName="btn_create" click="showCreate(event);"/>
 		</mx:HBox>
-		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="resource_grid" dataProvider="{viewModelLocator.individuals}" rowCount="{viewModelLocator.individualCount}" width="100%" height="100%">
+		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="resource_grid" dataProvider="{viewModelLocator.individuals}" rowCount="{viewModelLocator.individualCount}" width="100%" height="100%" doubleClickEnabled="true" doubleClick="showUpdate(event)">
 				<mx:columns>
 				<mx:DataGridColumn headerText="Project" labelFunction="ViewHelper.formatProject" sortCompareFunction="ViewHelper.sortProject" id="column_project"/>
 				<mx:DataGridColumn headerText="Login" dataField="login"/>
-				<mx:DataGridColumn headerText="Email" dataField="email"/>
+				<mx:DataGridColumn width="400" headerText="Email" dataField="email"/>
 				<mx:DataGridColumn headerText="First Name" dataField="first-name"/>
 				<mx:DataGridColumn headerText="Last Name" dataField="last-name"/>
-				<mx:DataGridColumn headerText="Activated" dataField="activated"/>
-				<mx:DataGridColumn headerText="Enabled" dataField="enabled"/>
-				<mx:DataGridColumn editable="false" width="120" sortable="false"> 
-					<mx:itemRenderer> 
+				<mx:DataGridColumn width="120" headerText="Activated" dataField="activated"/>
+				<mx:DataGridColumn width="120" headerText="Enabled" dataField="enabled"/>
+				<mx:DataGridColumn editable="false" width="60" minWidth="60" sortable="false">
+					<mx:itemRenderer>
 						<mx:Component>
-							<mx:Box direction="horizontal">
-								<mx:LinkButton label="Edit" click="outerDocument.showUpdate(event);"/>		 	
-								<mx:LinkButton label="Delete" click="outerDocument.showDelete(event);"/>		 	
-							</mx:Box> 
+							<mx:Box direction="horizontal" horizontalGap="0">
+								<mx:LinkButton icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);"/>
+								<mx:LinkButton icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);"/>
+							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>
 				</mx:DataGridColumn>

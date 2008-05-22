@@ -52,9 +52,8 @@ class Story < ActiveRecord::Base
   end
   
   # My effort is either my value (if set) or the sum of my tasks.
-  def effort
-    eff = read_attribute(:effort)
-    eff ? eff : tasks.sum(:effort)
+  def calculatedEffort
+    effort ? effort : tasks.inject(nil) {|sum, task| task.effort ? (sum ? sum + task.effort : task.effort) : sum } # Fewer queries than sum if tasks included
   end
   
   # Create a new story based on this one.
@@ -67,7 +66,15 @@ class Story < ActiveRecord::Base
       :individual_id => self.individual_id,
       :description => self.description,
       :acceptance_criteria => self.acceptance_criteria,
-      :effort => raw_effort )
+      :effort => self.effort )
+  end
+  
+  # Override to_xml to include tasks.
+  def to_xml(options = {})
+    if !options[:include]
+      options[:include] = [:tasks]
+    end
+    super(options)
   end
   
 protected
@@ -97,10 +104,5 @@ protected
   def initialize_priority
     highest = Story.find(:first, :order=>'priority desc')
     self.priority = highest ? highest.priority + 1 : 1
-  end
-  
-  # Answer my direct effort rather than that of my tasks.
-  def raw_effort
-    read_attribute(:effort)
   end
 end
