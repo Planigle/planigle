@@ -12,7 +12,7 @@
 	<mx:TraceTarget/>
 
 	<!--The main style sheet for all the applications.-->
-	<mx:Style source="/org/planigle/planigle/css/CoreStyles.css"/>
+	<mx:Style source="stylesheets/flex.css"/>
 	
 	<mx:Script>
 		<![CDATA[
