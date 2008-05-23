@@ -4,7 +4,7 @@
 	xmlns:view="org.planigle.planigle.view.*" initialize="onInitialize(event)">
 	
 	<!--The main style sheet for all the pages.-->
-	<mx:Style source="../org/planigle/planigle/css/CoreStyles.css"/>
+	<mx:Style source="stylesheets/flex.css"/>
 	
 	<mx:Script>
 		<![CDATA[

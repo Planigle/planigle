@@ -27,3 +27,5 @@ Flex (See http://www.adobe.com/cfusion/tdrc/index.cfm?product=flex_eclipse&loc=e
   Note: There is a 60 day free trial, but this costs money if you chose to use it
 SQL Explorer (http://eclipsesql.sourceforge.net/)
   Note: You can get the MySQL JDBC driver from http://dev.mysql.com/downloads/connector/j/5.0.html
+  
+See Installation_notes.rtf for help on getting your environment up and running.
