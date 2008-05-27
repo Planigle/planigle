@@ -1,0 +1,16 @@
+;
+var story_id = 'story_<%= @parent_id -%>';
+<% if @iteration_id -%>
+if(!document.getElementById(story_id))
+  story_id = '<%= @iteration_id << '-' -%>story_<%= @parent_id -%>';
+<% end -%>
+var target = document.getElementById(story_id);
+var i = 0;
+while (i < target.childNodes.length) {
+  var child = target.childNodes[i];
+  if (child.nodeType == 1 && child.className && child.className.substring(0,13) == "effort-column") {
+    child.firstChild.data='%EFFORT%';
+	break;
+    }
+  i++;
+  }

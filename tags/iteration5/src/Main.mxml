@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" paddingBottom="5" paddingTop="5" paddingLeft="5" paddingRight="5"
+	width="100%" height="100%" 
+	xmlns:view="org.planigle.planigle.view.*"
+	xmlns:control="org.planigle.planigle.control.*"
+	xmlns:business="org.planigle.planigle.business.*">
+	
+	<!--DESCRIPTION:  The Main.mxml is just an inital holding spot to load the rest
+				  of the application, once the user logs in successfully.-->
+
+	<!--TODO: DEBUG HTTP REQUESTS:  Should be commented out for Production.-->
+	<mx:TraceTarget/>
+
+	<!--The main style sheet for all the applications.-->
+	<mx:Style source="stylesheets/flex.css"/>
+	
+	<mx:Script>
+		<![CDATA[
+			
+			// Note: These two lines ensure the viewModelLocator for all eliglble screens.
+			import org.planigle.planigle.model.ViewModelLocator;
+			[Bindable]
+			private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
+			
+
+			// Images to be leveraged by pages.
+			[Embed(source="../public/images/edit.png")]
+			[Bindable]
+			public var imgEdit:Class;
+			
+			[Embed(source="../public/images/active_scaffold/default/cross.png")]
+			[Bindable]
+			public var imgCross:Class;
+		
+			[Embed(source="../public/images/active_scaffold/default/add.gif")]
+			[Bindable]
+			public var imgAdd:Class;
+		
+			[Embed(source="../public/images/active_scaffold/default/export.png")]
+			[Bindable]
+			public var imgExport:Class;
+		]]>
+	</mx:Script>
+	
+	<!--Cairngorm FrontController and ServiceLocator inclusions.-->
+	<control:SessionController id ="sessionController"/>
+	<control:IterationsController id ="iterationsController"/>
+	<control:StoriesController id ="storiesController"/>
+	<control:ProjectsController id ="projectsController"/>
+	<control:IndividualsController id ="individualsController"/>
+	<business:Services id="services"/>
+	
+	<mx:ViewStack id="mainViewStack" 
+		selectedIndex="{viewModelLocator.workflowState}" 
+		width="100%" height="100%">
+		
+		<!--NOTE:  This will show the login screen by default.-->
+		<view:LoginScreen/>
+		
+		<!--NOTE:  This will actually load the Core.swf (via the CoreApplicationScreen view),
+			if the login is successful.-->
+		<view:CoreApplicationScreen name="core"/>
+				
+	</mx:ViewStack>
+	
+</mx:Application>

@@ -1,0 +1,30 @@
+first:
+  id: 1
+  project_id: 1
+  iteration_id: 1
+  individual_id: 2
+  name: 'test'
+  description: 'description'
+  acceptance_criteria: 'criteria'
+  effort: 1
+  status_code: 1
+  priority: 3
+second:
+  id: 2
+  project_id: 1
+  iteration_id: 1
+  name: 'test2'
+  description: ''
+  acceptance_criteria: ''
+  effort: 1
+  status_code: 2
+  priority: 2
+third:
+  id: 3
+  project_id: 1
+  name: 'test3'
+  description: ''
+  acceptance_criteria: ''
+  effort: 1
+  status_code: 1
+  priority: 1

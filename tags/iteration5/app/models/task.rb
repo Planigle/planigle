@@ -1,0 +1,68 @@
+class Task < ActiveRecord::Base
+  belongs_to :individual
+  belongs_to :story
+  
+  validates_presence_of     :name, :story_id
+  validates_length_of       :name,                   :within => 1..40
+  validates_length_of       :description,            :maximum => 4096, :allow_nil => true
+  validates_numericality_of :effort, :allow_nil => true
+
+  StatusMapping = [ 'Created', 'In Progress', 'Accepted' ]
+
+  attr_accessible :name, :description, :effort, :status_code, :iteration_id, :individual_id, :story_id
+
+  # Answer the valid values for status.
+  def self.valid_status_values()
+    StatusMapping
+  end
+
+  # Map user displayable terms to the internal status codes.
+  def self.status_code_mapping
+    i = -1
+    valid_status_values.collect { |val| i+=1;[val, i] }
+  end
+
+  # A task should inherit its owner from its story.
+  def story=(story)
+    if !self.individual_id
+      self.individual_id = story.individual_id
+    end
+    write_attribute(:story_id, story.id)
+  end
+  
+  # A task should inherit its owner from its story.
+  def story_id=(story_id)
+    self.story=(Story.find(story_id))
+  end
+
+  # Answer my status in a user friendly format.
+  def status
+    StatusMapping[status_code]
+  end
+
+  # Answer true if I have been accepted.
+  def accepted?
+    self.status_code == 2
+  end
+
+protected
+  
+  # Add custom validation of the status field and relationships to give a more specific message.
+  def validate()
+    if status_code < 0 || status_code >= StatusMapping.length
+      errors.add(:status_code, ' is invalid')
+    end
+    
+    if individual_id && !Individual.find_by_id(individual_id)
+      errors.add(:individual_id, ' is invalid')
+    elsif individual && story.project_id != individual.project_id
+      errors.add(:individual_id, ' is not from a valid project')
+    end
+    
+    if story_id && !Story.find_by_id(story_id)
+      errors.add(:story_id, ' is invalid')
+    end
+    
+    errors.add(:effort, 'must be greater than 0') if effort && effort <= 0
+  end
+end

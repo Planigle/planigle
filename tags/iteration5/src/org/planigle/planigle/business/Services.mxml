@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cairngorm:ServiceLocator 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:cairngorm="com.adobe.cairngorm.business.*">
+
+	<!--Login Service-->
+	<mx:HTTPService id="loginService"
+		url = "/session.xml"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
+
+	<!--Logout Service-->
+	<mx:HTTPService id="logoutService"
+		url = "/session.xml"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Get Iterations-->
+	<mx:HTTPService id="getIterationsService"
+		url = "/iterations.xml"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "GET"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Get Stories-->
+	<mx:HTTPService id="getStoriesService"
+		url = "/stories.xml"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "GET"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Create Story-->
+	<mx:HTTPService id="createStoryService"
+		url = "/stories.xml"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Update Story-->
+	<mx:HTTPService id="updateStoryService"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Split Story-->
+	<mx:HTTPService id="splitStoryService"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Delete Story-->
+	<mx:HTTPService id="deleteStoryService"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Create Task-->
+	<mx:HTTPService id="createTaskService"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Update Task-->
+	<mx:HTTPService id="updateTaskService"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Delete Task-->
+	<mx:HTTPService id="deleteTaskService"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Get Projects-->
+	<mx:HTTPService id="getProjectsService"
+		url = "/projects.xml"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "GET"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Get Individuals-->
+	<mx:HTTPService id="getIndividualsService"
+		url = "/individuals.xml"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "GET"
+		useProxy="false"
+		showBusyCursor="true"/>
+</cairngorm:ServiceLocator>

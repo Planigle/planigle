@@ -1,0 +1,31 @@
+Planigle is a Ruby on Rails based agile planning application.
+
+Required Components - License:
+Ruby - Ruby (http://www.ruby-lang.org/en/downloads/)
+Rails - MIT (http://www.rubyonrails.com/down)
+MySQL - GPLv2 (http://dev.mysql.com/downloads/mysql/5.0.html)
+HTTP Server - Apache (http://httpd.apache.org/download.cgi)
+
+Embedded Components - License:
+Restful Authentication (Rails Plugin) - MIT
+Active Scaffold (Rails Plugin) - MIT
+Active Scaffold Export (Active Scaffold Plugin) - MIT
+Active Scaffold Filters (Active Scaffold Plugin) - MIT
+Calendar Date Select (Rails Plugin) - MIT
+
+Required Gems:
+fastercsv (GPLv2)
+
+Suggested Gems:
+mysql (Ruby)
+
+Suggested Eclipse plug-ins:
+Aptana (http://update.aptana.com/update/3.2/)
+  Note: This currently doesn't work with versions of RubyGems later than 0.9.4.
+Subversion (http://subclipse.tigris.org/update_1.2.x)
+Flex (See http://www.adobe.com/cfusion/tdrc/index.cfm?product=flex_eclipse&loc=en_us)
+  Note: There is a 60 day free trial, but this costs money if you chose to use it
+SQL Explorer (http://eclipsesql.sourceforge.net/)
+  Note: You can get the MySQL JDBC driver from http://dev.mysql.com/downloads/connector/j/5.0.html
+  
+See Installation_notes.rtf for help on getting your environment up and running.

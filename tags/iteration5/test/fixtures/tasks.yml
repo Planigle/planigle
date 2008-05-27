@@ -1,0 +1,17 @@
+one:
+  id: 1
+  name: test
+  description: MyText
+  effort: 3
+  status_code: 1
+  story_id: 1
+  individual_id: 2
+
+two:
+  id: 2
+  name: test2
+  description: MyText
+  effort: 2
+  status_code: 2
+  story_id: 1
+  individual_id: 2

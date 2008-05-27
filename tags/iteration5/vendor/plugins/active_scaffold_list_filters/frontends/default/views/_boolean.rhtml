@@ -1,0 +1,20 @@
+<%
+    # WRB - Added new filter type (including this file).
+-%>
+
+<div style='margin-bottom: 1em;'>
+<ol style='width: 100%'>
+<% [['True', true],['False', false]].each do |key, value| -%>
+	<%
+		session_value = nil
+		session_value = filter_session.include? value.to_s unless filter_session.nil?
+	-%>
+   	<li style='float: left; width: 20%;'>
+		<%= content_tag(:label, 
+				check_box_tag(list_filter_input_name(filter) + "[]",
+					"#{value}",session_value) + "&nbsp;#{key}") %>
+	</li>
+<% end -%>
+</ol>
+<br style='clear: left;'>
+</div>
