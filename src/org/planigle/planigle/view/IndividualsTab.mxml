@@ -2,7 +2,7 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" label="Individuals" creationComplete="created(event)">
 	<mx:HTTPService id="resourcePut" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
 	<mx:HTTPService id="resourceDelete" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
-	<mx:HTTPService id="resourcePost" url="/individuals.xml" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
+	<mx:HTTPService id="resourcePost" url="/individuals.xml" useProxy="false" method="POST" result="handleCreate(event)" resultFormat="e4x"/>
 	
 	<mx:Script>
 		<![CDATA[
@@ -30,15 +30,15 @@
 		private function clearErrorMessage():void {_error = ""}
 		
 		// Reset my state to how it was initially.
-		private function resetState(event:Event):void
+		public function resetState(event:Event):void
 		{
+			currentItem = null;
 			clearErrorMessage();
 			currentState = '';
 			if (viewModelLocator.currentUser)
 			{
 				var show:Boolean = viewModelLocator.isAdmin();
 				column_project.visible = show;
-				column_project.width = show ? 100 : 0;
 				item_project.visible = show;
 				item_project.maxHeight = show ? 25 : 0;
 			}
@@ -58,37 +58,47 @@
 			field_first_name.text = '';
 			field_last_name.text = '';
 			field_enabled.selectedIndex = 0;
+			label_password.required = true;
+			label_password_confirmation.required = true;
 			btn_change.label = 'Create';
 		}
+		
+		private var currentItem:Object;
 
 		// Show user a form to update a resource.
 		public function showUpdate(event:Event) : void
 		{
-			clearErrorMessage();
-			currentState = 'Change';
-			var it:int = int(resource_grid.selectedItem.child("project-id"));
-			if (it == 0)
-				field_project.selectedIndex = 0;
-			else
-				field_project.selectedItem = viewModelLocator.projectSelector.(id == it);
-
-			field_login.text = resource_grid.selectedItem.login;
-
-			if (viewModelLocator.isAdmin())
-				field_project.setFocus();
-			else
+			currentItem = resource_grid.selectedItem;
+			if (currentItem)
 			{
-				field_login.setFocus();
-				field_login.setSelection(0, field_login.text.length );
+				clearErrorMessage();
+				currentState = 'Change';
+				var it:int = int(currentItem.child("project-id"));
+				if (it == 0)
+					field_project.selectedIndex = 0;
+				else
+					field_project.selectedItem = viewModelLocator.projectSelector.(id == it);
+	
+				field_login.text = currentItem.login;
+	
+				if (viewModelLocator.isAdmin())
+					field_project.setFocus();
+				else
+				{
+					field_login.setFocus();
+					field_login.setSelection(0, field_login.text.length );
+				}
+	
+				field_password.text = '';
+				field_password_confirmation.text = '';
+				field_email.text = currentItem.email;
+				field_first_name.text = currentItem.child("first-name");
+				field_last_name.text = currentItem.child("last-name");
+				field_enabled.text = currentItem.enabled;
+				label_password.required = false;
+				label_password_confirmation.required = false;
+				btn_change.label = 'Update';
 			}
-
-			field_password.text = '';
-			field_password_confirmation.text = '';
-			field_email.text = resource_grid.selectedItem.email;
-			field_first_name.text = resource_grid.selectedItem.child("first-name");
-			field_last_name.text = resource_grid.selectedItem.child("last-name");
-			field_enabled.text = resource_grid.selectedItem.enabled;
-			btn_change.label = 'Update';
 		}
 
 		// Confirm that user wants to delete the resource.
@@ -141,7 +151,7 @@
 		{
 			var params:Object = getParams();
 			params['_method'] = "PUT";
-			resourcePut.url = "/individuals/" + resource_grid.selectedItem.id + ".xml";
+			resourcePut.url = "/individuals/" + currentItem.id + ".xml";
 			resourcePut.send(params);
 		}
 
@@ -153,16 +163,34 @@
 		}
 
 		// The server has responded with the results of the user's change.
-		private function handleUpdate(event:ResultEvent):void
+		private function handleChange(event:ResultEvent, isCreate:Boolean):void
 		{
 			var result:XML = XML(event.result);
 			if (result.error.length() > 0)
 				_error = result;
 			else
 			{
-				resetState(event);
+				if (isCreate)
+				{
+					showCreate(event);
+					_error = "Individual was successfully created."
+				}
+				else
+					resetState(event);
 				new IndividualChangedEvent().dispatch();
 			}
+		}
+		
+		// The server has responded with the results of the user's create.
+		private function handleCreate(event:ResultEvent):void
+		{
+			handleChange(event, true);
+		}
+		
+		// The server has responded with the results of the user's update.
+		private function handleUpdate(event:ResultEvent):void
+		{
+			handleChange(event, false);
 		}
 		]]>
 	</mx:Script>
@@ -172,27 +200,27 @@
 			<mx:RemoveChild target="{btn_create}"/>
 			<mx:AddChild relativeTo="{resource_grid}" position="before">
 				<mx:target>
-					<mx:Form id="change_form">
+					<mx:Form id="change_form" defaultButton="{btn_change}">
 						<mx:FormItem label='Project' id='item_project'>
 							<mx:ComboBox id='field_project' width="350" editable="false" dataProvider="{viewModelLocator.projectSelector}" labelField="name"></mx:ComboBox>
 						</mx:FormItem>
-						<mx:FormItem label='Login'>
-							<mx:TextInput id='field_login' text='' width="350"/>
+						<mx:FormItem label='Login' required="true">
+							<mx:TextInput id='field_login' maxChars="40" text='' width="350"/>
 						</mx:FormItem>
-						<mx:FormItem label='Password'>
-							<mx:TextInput id='field_password' text='' width="350" displayAsPassword="true"/>
+						<mx:FormItem label='Password' id="label_password">
+							<mx:TextInput id='field_password' maxChars="40" text='' width="350" displayAsPassword="true"/>
 						</mx:FormItem>
-						<mx:FormItem label='Password Confirmation'>
-							<mx:TextInput id='field_password_confirmation' text='' width="350" displayAsPassword="true"/>
+						<mx:FormItem label='Password Confirmation' id="label_password_confirmation">
+							<mx:TextInput id='field_password_confirmation' maxChars="40" text='' width="350" displayAsPassword="true"/>
 						</mx:FormItem>
-						<mx:FormItem label='Email'>
-							<mx:TextInput id='field_email' text='' width="350"/>
+						<mx:FormItem label='Email' required="true">
+							<mx:TextInput id='field_email' maxChars="40" text='' width="350"/>
 						</mx:FormItem>
-						<mx:FormItem label='First Name'>
-							<mx:TextInput id='field_first_name' text='' width="350"/>
+						<mx:FormItem label='First Name' required="true">
+							<mx:TextInput id='field_first_name' maxChars="40" text='' width="350"/>
 						</mx:FormItem>
-						<mx:FormItem label='Last Name'>
-							<mx:TextInput id='field_last_name' text='' width="350"/>
+						<mx:FormItem label='Last Name' required="true">
+							<mx:TextInput id='field_last_name' maxChars="100" text='' width="350"/>
 						</mx:FormItem>
 						<mx:FormItem label='Enabled'>
 							<mx:ComboBox id='field_enabled' width="350" editable="false">
@@ -237,7 +265,7 @@
 		</mx:HBox>
 		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="resource_grid" dataProvider="{viewModelLocator.individuals}" rowCount="{viewModelLocator.individualCount}" width="100%" height="100%" doubleClickEnabled="true" doubleClick="showUpdate(event)">
 				<mx:columns>
-				<mx:DataGridColumn headerText="Project" labelFunction="ViewHelper.formatProject" sortCompareFunction="ViewHelper.sortProject" id="column_project"/>
+				<mx:DataGridColumn width="100" headerText="Project" labelFunction="ViewHelper.formatProject" sortCompareFunction="ViewHelper.sortProject" id="column_project"/>
 				<mx:DataGridColumn headerText="Login" dataField="login"/>
 				<mx:DataGridColumn width="400" headerText="Email" dataField="email"/>
 				<mx:DataGridColumn headerText="First Name" dataField="first-name"/>

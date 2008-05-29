@@ -16,6 +16,7 @@ package org.planigle.planigle.control
 			// Map event to command.
 			this.addCommand(LoginEvent.LOGIN, LoginCommand);	
 			this.addCommand(LogoutEvent.LOGOUT, LogoutCommand);	
+			this.addCommand(URLEvent.URL, LoadURLCommand);	
 		}
 	}
 }

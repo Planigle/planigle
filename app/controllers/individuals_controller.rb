@@ -50,7 +50,7 @@ protected
   def do_destroy
     @record = Individual.find( params[ :id ] )
     if(@record == current_individual)
-      flash[:error] = 'You cannot delete yourself.'
+      @record.errors.add_to_base('You cannot delete yourself.')
       self.successful = false
     else
       super

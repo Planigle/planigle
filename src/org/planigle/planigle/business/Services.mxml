@@ -30,6 +30,31 @@
 		useProxy="false"
 		showBusyCursor="true"/>
 	
+	<!--Create Iteration-->
+	<mx:HTTPService id="createIterationService"
+		url = "/iterations.xml"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Update Iteration-->
+	<mx:HTTPService id="updateIterationService"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Delete Iteration-->
+	<mx:HTTPService id="deleteIterationService"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
 	<!--Get Stories-->
 	<mx:HTTPService id="getStoriesService"
 		url = "/stories.xml"

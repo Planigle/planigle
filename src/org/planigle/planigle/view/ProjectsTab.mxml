@@ -2,7 +2,7 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" label="Projects" creationComplete="created(event)">
 	<mx:HTTPService id="resourcePut" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
 	<mx:HTTPService id="resourceDelete" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
-	<mx:HTTPService id="resourcePost" url="/projects.xml" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
+	<mx:HTTPService id="resourcePost" url="/projects.xml" useProxy="false" method="POST" result="handleCreate(event)" resultFormat="e4x"/>
 	
 	<mx:Script>
 		<![CDATA[
@@ -33,8 +33,9 @@
 		public var makeVisible:Boolean = true;
 		
 		// Reset my state to how it was initially.
-		private function resetState(event:Event):void
+		public function resetState(event:Event):void
 		{
+			currentItem = null;
 			clearErrorMessage();
 			currentState = '';
 			if (viewModelLocator.currentUser)
@@ -55,16 +56,22 @@
 			btn_change.label = 'Create';
 		}
 
+		private var currentItem:Object; // Remember in case selection changes while form is open.
+
 		// Show user a form to update a resource.
 		public function showUpdate(event:Event) : void
 		{
-			clearErrorMessage();
-			currentState = 'Change';
-			field_name.text = resource_grid.selectedItem.name;
-			field_name.setFocus();
-			field_name.setSelection(0, field_name.text.length );
-			field_description.text = resource_grid.selectedItem.description;
-			btn_change.label = 'Update';
+			currentItem = resource_grid.selectedItem;
+			if (currentItem)
+			{
+				clearErrorMessage();
+				currentState = 'Change';
+				field_name.text = currentItem.name;
+				field_name.setFocus();
+				field_name.setSelection(0, field_name.text.length );
+				field_description.text = currentItem.description;
+				btn_change.label = 'Update';
+			}
 		}
 
 		// Confirm that user wants to delete the resource.
@@ -111,7 +118,7 @@
 		{
 			var params:Object = getParams();
 			params['_method'] = "PUT";
-			resourcePut.url = "/projects/" + resource_grid.selectedItem.id + ".xml";
+			resourcePut.url = "/projects/" + currentItem.id + ".xml";
 			resourcePut.send(params);
 		}
 
@@ -123,16 +130,34 @@
 		}
 
 		// The server has responded with the results of the user's change.
-		private function handleUpdate(event:ResultEvent):void
+		private function handleChange(event:ResultEvent, isCreate:Boolean):void
 		{
 			var result:XML = XML(event.result);
 			if (result.error.length() > 0)
 				_error = result;
 			else
 			{
-				resetState(event);
+				if (isCreate)
+				{
+					showCreate(event);
+					_error = "Project was successfully created."
+				}
+				else
+					resetState(event);
 				new ProjectChangedEvent().dispatch();
 			}
+		}
+		
+		// The server has responded with the results of the user's create.
+		private function handleCreate(event:ResultEvent):void
+		{
+			handleChange(event, true);
+		}
+		
+		// The server has responded with the results of the user's update.
+		private function handleUpdate(event:ResultEvent):void
+		{
+			handleChange(event, false);
 		}
 		]]>
 	</mx:Script>
@@ -142,12 +167,12 @@
 			<mx:RemoveChild target="{btn_create}"/>
 			<mx:AddChild relativeTo="{resource_grid}" position="before">
 				<mx:target>
-					<mx:Form id="change_form">
-						<mx:FormItem label='Name'>
-							<mx:TextInput id='field_name' text='' width="350"/>
+					<mx:Form id="change_form" defaultButton="{btn_change}">
+						<mx:FormItem label='Name' required="true">
+							<mx:TextInput id='field_name' maxChars="40" text='' width="350"/>
 						</mx:FormItem>
 						<mx:FormItem label='Description'>
-							<mx:TextArea id='field_description' height="64" width="500"><mx:text/></mx:TextArea>
+							<mx:TextArea id='field_description' maxChars="4096" height="64" width="500"><mx:text/></mx:TextArea>
 						</mx:FormItem>
 						<mx:ControlBar width="100%">
 							<mx:Spacer width="50"/>
