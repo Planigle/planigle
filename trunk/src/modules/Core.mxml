@@ -30,8 +30,8 @@
 			// Add the base tabs.
 			private function onInitialize(event:Event):void
 			{
-				mainViewStack.addChild(projects);
 				mainViewStack.addChild(individuals);
+				mainViewStack.addChild(projects);
 				ChangeWatcher.watch( viewModelLocator, "currentUser", resetState );
 				resetState(event); // This is to catch it the first time (The event has already been sent).
 			}
@@ -57,17 +57,23 @@
 				{
 					if (viewModelLocator.isAdmin())
 					{
-						hideTab(iterations);
 						hideTab(stories);
+						hideTab(iterations);
 					}
 					else
 					{
-						showTab(stories);
 						showTab(iterations);
+						showTab(stories);
 					}
 				}
 			}
-			
+
+			// Reset the state of the selected tab.
+			private function resetTab(event:Event):void
+			{
+				Object(mainViewStack.selectedChild).resetState(event);
+			}	
+					
 			// Refresh any cached data.
 			private function refresh():void
 			{
@@ -88,7 +94,7 @@
 		]]>
 	</mx:Script>
 	<mx:HBox horizontalGap="5" width="100%">
-		<mx:TabBar id="mainNavigation" dataProvider="{mainViewStack}" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0">
+		<mx:TabBar id="mainNavigation" dataProvider="{mainViewStack}" itemClick="resetTab(event)" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0">
 		</mx:TabBar>
 		<mx:HBox horizontalAlign="right" width="100%">
 			<mx:LinkButton label="Refresh" click="{refresh()}"/>

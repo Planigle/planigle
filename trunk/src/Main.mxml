@@ -5,7 +5,7 @@
 	xmlns:control="org.planigle.planigle.control.*"
 	xmlns:business="org.planigle.planigle.business.*">
 	
-	<!--DESCRIPTION:  The Main.mxml is just an inital holding spot to load the rest
+	<!--DESCRIPTION:  The Main.mxml is just an initial holding spot to load the rest
 				  of the application, once the user logs in successfully.-->
 
 	<!--TODO: DEBUG HTTP REQUESTS:  Should be commented out for Production.-->

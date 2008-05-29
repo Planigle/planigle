@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" label="Iterations" creationComplete="created(event)">
-	<mx:HTTPService id="resourcePut" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
-	<mx:HTTPService id="resourceDelete" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
-	<mx:HTTPService id="resourcePost" url="/iterations.xml" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
-	
 	<mx:Script>
 		<![CDATA[
 		import mx.rpc.events.ResultEvent;
 		import mx.controls.Alert;
+		import mx.controls.dataGridClasses.DataGridColumn;
 		import mx.events.CloseEvent;
 		import mx.binding.utils.ChangeWatcher;
 		import org.planigle.planigle.model.ViewModelLocator;
@@ -32,8 +29,9 @@
 		private function clearErrorMessage():void {_error = ""}
 		
 		// Reset my state to how it was initially.
-		private function resetState(event:Event):void
+		public function resetState(event:Event):void
 		{
+			currentItem = null;
 			clearErrorMessage();
 			currentState = '';
 		}
@@ -44,23 +42,48 @@
 			clearErrorMessage();
 			currentState = 'Change';
 			field_name.setFocus();
- 			field_name.text = '';
-			field_start.text = '';
-			field_length.text = '';
+			
+			if(IterationFactory.getInstance().iterations.length > 0)
+			{
+				var last:Iteration = Iteration(IterationFactory.getInstance().iterations.getItemAt(IterationFactory.getInstance().iterations.length - 1));
+				var splits:Array = last.name.split(" ");
+				if (int(splits[splits.length-1]) > 0)
+					{ // Increment last component of name if an integer.
+					splits[splits.length-1] = (int(splits[splits.length-1])+1).toString();
+					field_name.text = splits.join(" ");
+					field_name.setSelection(0, field_name.text.length );
+					}
+				else
+		 			field_name.text = '';
+				field_start.selectedDate = last.end();
+				field_length.text = last.length.toString();
+			}
+			else
+			{
+	 			field_name.text = '';
+				field_start.selectedDate = null;
+				field_length.text = '';
+			}
 			btn_change.label = 'Create';
 		}
+
+		private var currentItem:Object;
 
 		// Show user a form to update a resource.
 		public function showUpdate(event:Event) : void
 		{
-			clearErrorMessage();
-			currentState = 'Change';
-			field_name.text = resource_grid.selectedItem.name;
-			field_name.setFocus();
-			field_name.setSelection(0, field_name.text.length );
-			field_start.text = resource_grid.selectedItem.start;
-			field_length.text = resource_grid.selectedItem.length;
-			btn_change.label = 'Update';
+			currentItem = resource_grid.selectedItem;
+			if (currentItem)
+			{
+				clearErrorMessage();
+				currentState = 'Change';
+				field_name.text = currentItem.name;
+				field_name.setFocus();
+				field_name.setSelection(0, field_name.text.length );
+				field_start.selectedDate = currentItem.start;
+				field_length.text = currentItem.length;
+				btn_change.label = 'Update';
+			}
 		}
 
 		// Confirm that user wants to delete the resource.
@@ -72,7 +95,7 @@
 				if (event.detail==Alert.YES)
 				{
 					clearErrorMessage();
-					deleteResource(resource_grid.selectedItem.id);
+					deleteResource(resource_grid.selectedItem);
 				}
 			});
 		}
@@ -82,7 +105,7 @@
 		{
 			var params:Object = new Object();
 			params['record[name]'] = field_name.text;
-			params['record[start]'] = field_start.text;
+			params['record[start]'] = field_start.selectedDate;
 			params['record[length]'] = field_length.text;
 			params['random'] = Math.random(); // Prevents caching
 			return params;
@@ -100,36 +123,38 @@
 		// Tell the server to create a resource.
 		private function createResource(event:Event) : void 
 		{
-			resourcePost.send(getParams());
+			IterationFactory.getInstance().createIteration(getParams(), handleCreateSuccess, handleFailure);
 		}
 		
 		// Tell the server to update a resource.
 		private function updateResource(event:Event) : void
 		{
-			var params:Object = getParams();
-			params['_method'] = "PUT";
-			resourcePut.url = "/iterations/" + resource_grid.selectedItem.id + ".xml";
-			resourcePut.send(params);
+			currentItem.update(getParams(), handleSuccess, handleFailure);
 		}
 
 		// Tell the server to delete a resource.
-		private function deleteResource(id:String):void
+		private function deleteResource(resource:Object):void
 		{
-			resourceDelete.url = "/iterations/" + id + ".xml";
-			resourceDelete.send({_method: "DELETE"});
+			resource.destroy(handleSuccess, handleFailure);
+		}
+		
+		// Handle a successful create.
+		private function handleCreateSuccess():void
+		{
+			showCreate(null);
+			_error = "Iteration was successfully created."
 		}
 
-		// The server has responded with the results of the user's change.
-		private function handleUpdate(event:ResultEvent):void
+		// Handle a successful change.
+		private function handleSuccess():void
 		{
-			var result:XML = XML(event.result);
-			if (result.error.length() > 0)
-				_error = result;
-			else
-			{
-				resetState(event);
-				new IterationChangedEvent().dispatch();
-			}
+			resetState(null);
+		}
+
+		// Handle errors when making changes.
+		private function handleFailure(error:XMLList):void
+		{
+			_error = error;
 		}
 		
 		// Go to iteration planning.
@@ -142,6 +167,12 @@
 			stories.handleFilter(null); // ensure filter affect occurs.
 			core.mainViewStack.selectedChild = stories;
 		}
+		
+		// Format the start date into a more readable format.
+		private function formatDate(item:Object, column:DataGridColumn):String
+		{
+			return (item.start.month + 1) + "/" + item.start.date + "/" + item.start.fullYear;
+		}
 		]]>
 	</mx:Script>
  	
@@ -150,15 +181,15 @@
 			<mx:RemoveChild target="{btn_create}"/>
 			<mx:AddChild relativeTo="{resource_grid}" position="before">
 				<mx:target>
-					<mx:Form id="change_form">
-						<mx:FormItem label='Name'>
-							<mx:TextInput id='field_name' text='' width="350"/>
+					<mx:Form id="change_form" defaultButton="{btn_change}">
+						<mx:FormItem label='Name' required="true">
+							<mx:TextInput id='field_name' maxChars="40" text='' width="350"/>
 						</mx:FormItem>
-						<mx:FormItem label='Start'>
-							<mx:TextInput id='field_start' text='' width="350"/>
+						<mx:FormItem label='Start' required="true">
+							<mx:DateField id='field_start' editable="true" showToday="true" width="100"/>
 						</mx:FormItem>
-						<mx:FormItem label='Length'>
-							<mx:TextInput id='field_length' text='' width="350"/>
+						<mx:FormItem label='Length' required="true">
+							<mx:TextInput id='field_length' restrict="0-9" text='' width="350"/>
 						</mx:FormItem>
 						<mx:ControlBar width="100%">
 							<mx:Spacer width="50"/>
@@ -198,7 +229,7 @@
 		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="resource_grid" dataProvider="{IterationFactory.getInstance().iterations}" rowCount="{IterationFactory.getInstance().iterations.length}" width="100%" height="100%" doubleClickEnabled="true" doubleClick="showUpdate(event)">
 				<mx:columns>
 				<mx:DataGridColumn headerText="Name" dataField="name"/>
-				<mx:DataGridColumn headerText="Start" dataField="start"/>
+				<mx:DataGridColumn headerText="Start" dataField="start" labelFunction="formatDate" />
 				<mx:DataGridColumn headerText="Length" dataField="length"/>
 				<mx:DataGridColumn editable="false" width="90" minWidth="90" sortable="false">
 					<mx:itemRenderer>

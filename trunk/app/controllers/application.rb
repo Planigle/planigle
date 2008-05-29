@@ -29,16 +29,16 @@ protected
   # Flex wants all responses to be 200
   # REST applications want create to respond in 201 and errors to be 422.
   def change_response
-    if request.headers.has_key?('HTTP_X_FLASH_VERSION')
-      valid_status_codes = [201, 422, 500].collect{|code| interpret_status(code)}
-      if valid_status_codes.include?(response.headers['Status'])
-        response.headers['Status'] = interpret_status(200)
-      end
-    elsif request.format == Mime::XML
+    if request.format == Mime::XML && !request.path.include?('.xml') # Flex works around lack of Accept header by requesting .xml.
       if response.headers['Status'] == interpret_status(500)
         response.headers['Status'] = interpret_status(422)
       elsif response.headers['Status'] == interpret_status(200) && request.method == :post
         response.headers['Status'] = interpret_status(201)
+      end
+    else
+      valid_status_codes = [201, 422, 500].collect{|code| interpret_status(code)}
+      if valid_status_codes.include?(response.headers['Status'])
+        response.headers['Status'] = interpret_status(200)
       end
     end
   end
@@ -59,6 +59,6 @@ protected
    
   # Add common debugging statements here.  To turn on, uncomment before_filter.
   def debug
-    request.headers.each {header| logger.debug(header)}
+    request.headers.each {|header| logger.debug(header)}
   end
 end

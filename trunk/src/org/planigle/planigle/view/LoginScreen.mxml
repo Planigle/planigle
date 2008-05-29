@@ -7,6 +7,7 @@
 			import org.planigle.planigle.model.ViewModelLocator;
 			import org.planigle.planigle.vo.LoginVO;
 			import org.planigle.planigle.events.LoginEvent;
+			import org.planigle.planigle.events.URLEvent;
 			
 			// Set up event listeners.  Called when the canvas has been created.
 			private function created(event:Event):void
@@ -30,7 +31,7 @@
 		]]>
 	</mx:Script>
 	
-	<mx:Text text="Planigle - Agile Planning Tool" fontSize="22" fontWeight="bold"/>
+	<mx:LinkButton label="Planigle - Agile Planning Tool" fontSize="22" color="0xFFFFFF" fontWeight="bold" click="new URLEvent('http://code.google.com/p/planigle/').dispatch()"/>
 	<mx:Panel title="Login" id="loginPanel" horizontalAlign="center" verticalAlign="middle" backgroundAlpha="1.0" borderStyle="outset" backgroundColor="#F2F3AF">
 		<mx:Form label="loginFormContainer" borderStyle="outset" cornerRadius="10" themeColor="#009DFF" id="loginForm" backgroundColor="#FFFFFF" defaultButton="{loginButton}">
 			<mx:FormItem label="User Name" id="user_name">
