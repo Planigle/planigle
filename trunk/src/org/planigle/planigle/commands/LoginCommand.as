@@ -35,7 +35,7 @@ package org.planigle.planigle.commands
 		{
 			var result:XML = XML(event.result);
 			if (result.error.length() > 0)
-				Alert.show(result.error);
+				Alert.show(result.error, "Login Error");
 			else
 			{
 				viewModelLocator.setUser( userInfo.username );

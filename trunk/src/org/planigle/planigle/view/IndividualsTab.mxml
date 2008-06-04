@@ -167,7 +167,7 @@
 		{
 			var result:XML = XML(event.result);
 			if (result.error.length() > 0)
-				_error = result;
+				_error = result.error;
 			else
 			{
 				if (isCreate)

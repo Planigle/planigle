@@ -41,7 +41,7 @@
 		{
 			clearErrorMessage();
 			currentState = 'Change';
-			field_name.setFocus();
+			iterationFieldName.setFocus();
 			
 			if(IterationFactory.getInstance().iterations.length > 0)
 			{
@@ -50,21 +50,21 @@
 				if (int(splits[splits.length-1]) > 0)
 					{ // Increment last component of name if an integer.
 					splits[splits.length-1] = (int(splits[splits.length-1])+1).toString();
-					field_name.text = splits.join(" ");
-					field_name.setSelection(0, field_name.text.length );
+					iterationFieldName.text = splits.join(" ");
+					iterationFieldName.setSelection(0, iterationFieldName.text.length );
 					}
 				else
-		 			field_name.text = '';
-				field_start.selectedDate = last.end();
-				field_length.text = last.length.toString();
+		 			iterationFieldName.text = '';
+				iterationFieldStart.selectedDate = last.end();
+				iterationFieldLength.text = last.length.toString();
 			}
 			else
 			{
-	 			field_name.text = '';
-				field_start.selectedDate = null;
-				field_length.text = '';
+	 			iterationFieldName.text = '';
+				iterationFieldStart.selectedDate = new Date();
+				iterationFieldLength.text = '2';
 			}
-			btn_change.label = 'Create';
+			iterationBtnChange.label = 'Create';
 		}
 
 		private var currentItem:Object;
@@ -72,17 +72,17 @@
 		// Show user a form to update a resource.
 		public function showUpdate(event:Event) : void
 		{
-			currentItem = resource_grid.selectedItem;
+			currentItem = iterationResourceGrid.selectedItem;
 			if (currentItem)
 			{
 				clearErrorMessage();
 				currentState = 'Change';
-				field_name.text = currentItem.name;
-				field_name.setFocus();
-				field_name.setSelection(0, field_name.text.length );
-				field_start.selectedDate = currentItem.start;
-				field_length.text = currentItem.length;
-				btn_change.label = 'Update';
+				iterationFieldName.text = currentItem.name;
+				iterationFieldName.setFocus();
+				iterationFieldName.setSelection(0, iterationFieldName.text.length );
+				iterationFieldStart.selectedDate = currentItem.start;
+				iterationFieldLength.text = currentItem.length;
+				iterationBtnChange.label = 'Update';
 			}
 		}
 
@@ -95,7 +95,7 @@
 				if (event.detail==Alert.YES)
 				{
 					clearErrorMessage();
-					deleteResource(resource_grid.selectedItem);
+					deleteResource(iterationResourceGrid.selectedItem);
 				}
 			});
 		}
@@ -104,9 +104,9 @@
 		private function getParams() : Object
 		{
 			var params:Object = new Object();
-			params['record[name]'] = field_name.text;
-			params['record[start]'] = field_start.selectedDate;
-			params['record[length]'] = field_length.text;
+			params['record[name]'] = iterationFieldName.text;
+			params['record[start]'] = iterationFieldStart.selectedDate;
+			params['record[length]'] = iterationFieldLength.text;
 			params['random'] = Math.random(); // Prevents caching
 			return params;
 		}
@@ -114,7 +114,7 @@
 		// Tell the server to change a resource.
 		private function changeResource(event:Event) : void
 		{
-			if ( btn_change.label == 'Create' )
+			if ( iterationBtnChange.label == 'Create' )
 				createResource(event);
 			else
 				updateResource(event);
@@ -163,7 +163,7 @@
 			var coreApp:CoreApplicationScreen = parentApplication.mainViewStack.getChildByName("core");
 			var core:Core = Core(coreApp.getChildAt(0));
 			var stories:StoriesTab = StoriesTab(core.mainViewStack.getChildByName("Stories"));
-			stories.iteration.selectedItem = resource_grid.selectedItem;
+			stories.iteration.selectedItem = iterationResourceGrid.selectedItem;
 			stories.handleFilter(null); // ensure filter affect occurs.
 			core.mainViewStack.selectedChild = stories;
 		}
@@ -178,23 +178,23 @@
  	
 	<mx:states>
 		<mx:State name="Change">
-			<mx:RemoveChild target="{btn_create}"/>
-			<mx:AddChild relativeTo="{resource_grid}" position="before">
+			<mx:RemoveChild target="{iterationBtnCreate}"/>
+			<mx:AddChild relativeTo="{iterationResourceGrid}" position="before">
 				<mx:target>
-					<mx:Form id="change_form" defaultButton="{btn_change}">
+					<mx:Form id="iterationChangeForm" defaultButton="{iterationBtnChange}">
 						<mx:FormItem label='Name' required="true">
-							<mx:TextInput id='field_name' maxChars="40" text='' width="350"/>
+							<mx:TextInput id='iterationFieldName' maxChars="40" text='' width="350"/>
 						</mx:FormItem>
 						<mx:FormItem label='Start' required="true">
-							<mx:DateField id='field_start' editable="true" showToday="true" width="100"/>
+							<mx:DateField id='iterationFieldStart' editable="true" showToday="true" width="100"/>
 						</mx:FormItem>
 						<mx:FormItem label='Length' required="true">
-							<mx:TextInput id='field_length' restrict="0-9" text='' width="350"/>
+							<mx:TextInput id='iterationFieldLength' restrict="0-9" text='' width="350"/>
 						</mx:FormItem>
 						<mx:ControlBar width="100%">
 							<mx:Spacer width="50"/>
-							<mx:Button label="Change" id="btn_change" click="changeResource(event)"/>
-							<mx:LinkButton label="Cancel" id="btn_cancel" click="resetState(event)"/>
+							<mx:Button label="Change" id="iterationBtnChange" click="changeResource(event)"/>
+							<mx:LinkButton label="Cancel" id="iterationBtnCancel" click="resetState(event)"/>
 						</mx:ControlBar>
 					</mx:Form>	
 				</mx:target>
@@ -203,30 +203,30 @@
 	</mx:states>
 	
 	<mx:transitions>
-		<mx:Transition id="changeItem" fromState="*" toState="Change">
-			<mx:Sequence targets="{[combinedPanel]}">
+		<mx:Transition id="iterationChangeItem" fromState="*" toState="Change">
+			<mx:Sequence targets="{[iterationCombinedPanel]}">
 				<mx:RemoveChildAction/>
-				<mx:Resize target="{combinedPanel}"/>
+				<mx:Resize target="{iterationCombinedPanel}"/>
 				<mx:AddChildAction/>
 			</mx:Sequence>
 		</mx:Transition>
 
-		<mx:Transition id="returnList" fromState="Change" toState="*">
-			<mx:Sequence targets="{[combinedPanel]}">
+		<mx:Transition id="iterationReturnList" fromState="Change" toState="*">
+			<mx:Sequence targets="{[iterationCombinedPanel]}">
 				<mx:RemoveChildAction/>
-				<mx:Resize target="{combinedPanel}"/>
+				<mx:Resize target="{iterationCombinedPanel}"/>
 				<mx:AddChildAction/>
 			</mx:Sequence>
 		</mx:Transition>
 
 	</mx:transitions>
 	
-	<mx:Panel id="combinedPanel" height="100%" y="0" width="100%" x="0">
-		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="8" verticalAlign="middle" id="hbox1" paddingTop="5" paddingLeft="5" paddingRight="5">
-			<mx:Text id="error" styleName="error" htmlText="{_error}" color="#ff0033" width="100%"/>
-			<mx:Button label="Create" id="btn_create" styleName="btn_create" click="showCreate(event);"/>
+	<mx:Panel id="iterationCombinedPanel" height="100%" y="0" width="100%" x="0">
+		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="8" verticalAlign="middle" id="iterationHbox1" paddingTop="5" paddingLeft="5" paddingRight="5">
+			<mx:Text id="iterationError" styleName="error" htmlText="{_error}" color="#ff0033" width="100%"/>
+			<mx:Button label="Create" id="iterationBtnCreate" click="showCreate(event);"/>
 		</mx:HBox>
-		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="resource_grid" dataProvider="{IterationFactory.getInstance().iterations}" rowCount="{IterationFactory.getInstance().iterations.length}" width="100%" height="100%" doubleClickEnabled="true" doubleClick="showUpdate(event)">
+		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="iterationResourceGrid" dataProvider="{IterationFactory.getInstance().iterations}" rowCount="{IterationFactory.getInstance().iterations.length}" width="100%" height="100%" doubleClickEnabled="true" doubleClick="showUpdate(event)">
 				<mx:columns>
 				<mx:DataGridColumn headerText="Name" dataField="name"/>
 				<mx:DataGridColumn headerText="Start" dataField="start" labelFunction="formatDate" />
@@ -235,9 +235,9 @@
 					<mx:itemRenderer>
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
-								<mx:LinkButton icon="{parentApplication.imgExport}" toolTip="Plan" click="outerDocument.showPlan(event);"/>
-								<mx:LinkButton icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);"/>
-								<mx:LinkButton icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);"/>
+								<mx:LinkButton id="iterationBtnPlan" icon="{parentApplication.imgExport}" toolTip="Plan" click="outerDocument.showPlan(event);"/>
+								<mx:LinkButton id="iterationBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);"/>
+								<mx:LinkButton id="iterationBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>

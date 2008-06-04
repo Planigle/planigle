@@ -25,10 +25,10 @@ class IndividualsControllerTest < Test::Unit::TestCase
 
   # Test activating a user.
   def test_should_activate_user
-    assert_nil Individual.authenticate('aaron', 'testit')
-    get :activate, :activation_code => individuals(:aaron).activation_code
+    assert_nil Individual.authenticate('ted', 'testit')
+    get :activate, :activation_code => individuals(:ted).activation_code
     assert_redirected_to '/'
-    assert_equal individuals(:aaron), Individual.authenticate('aaron', 'testit')
+    assert_equal individuals(:ted), Individual.authenticate('ted', 'testit')
   end
 
   # Test activation without a key.

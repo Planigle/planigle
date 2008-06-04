@@ -97,8 +97,8 @@
 		<mx:TabBar id="mainNavigation" dataProvider="{mainViewStack}" itemClick="resetTab(event)" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0">
 		</mx:TabBar>
 		<mx:HBox horizontalAlign="right" width="100%">
-			<mx:LinkButton label="Refresh" click="{refresh()}"/>
-			<mx:LinkButton label="Log out" click="{logout()}"/>
+			<mx:LinkButton label="Refresh" id="refreshButton" click="{refresh()}"/>
+			<mx:LinkButton label="Log out" id="logoutButton" click="{logout()}"/>
 		</mx:HBox>
 	</mx:HBox>
 	<mx:ViewStack id="mainViewStack" y="20" width="100%" height="100%" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0">

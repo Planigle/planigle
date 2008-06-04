@@ -20,4 +20,15 @@ aaron:
   salt: salt
   crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
   activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9a 
+  activated_at: <%= 5.days.ago.to_s :db %> 
 
+ted:
+  id: 3
+  project_id: 1
+  login: ted
+  first_name: ted
+  last_name: williams
+  email: ted@example.com
+  salt: salt
+  crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
+  activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9c 

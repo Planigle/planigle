@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <actionScriptProperties mainApplicationPath="Main.mxml" version="3">
-  <compiler additionalCompilerArguments="-locale en_US" copyDependentFiles="false" enableModuleDebug="true" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="false" htmlHistoryManagement="true" htmlPlayerVersion="9.0.28" htmlPlayerVersionCheck="true" outputFolderPath="public" sourceFolderPath="src" strict="true" useApolloConfig="false" verifyDigests="true" warn="true">
+  <compiler additionalCompilerArguments="-locale en_US --include-libraries &quot;C:\users\walter\workspace\FunFX-0.0.4\FunFXAdapter.swc&quot; &quot;C:\Program Files\Adobe\Flex Builder 3 Plug-in\sdks\3.0.0\frameworks\libs\automation_agent.swc&quot; &quot;C:\Program Files\Adobe\Flex Builder 3 Plug-in\sdks\3.0.0\frameworks\libs\automation.swc&quot; &quot;C:\Program Files\Adobe\Flex Builder 3 Plug-in\sdks\3.0.0\frameworks\locale\en_US\automation_agent_rb.swc&quot;" copyDependentFiles="false" enableModuleDebug="true" generateAccessible="false" htmlExpressInstall="true" htmlGenerate="false" htmlHistoryManagement="true" htmlPlayerVersion="9.0.28" htmlPlayerVersionCheck="true" outputFolderPath="public" sourceFolderPath="src" strict="true" useApolloConfig="false" verifyDigests="true" warn="true">
     <compilerSourcePath>
       <compilerSourcePathEntry kind="1" linkType="1" path="public"/>
     </compilerSourcePath>
     <libraryPath defaultLinkType="1">
       <libraryPathEntry kind="4" path=""/>
       <libraryPathEntry kind="1" linkType="1" path="libs"/>
-      <libraryPathEntry kind="3" linkType="1" path="Cairngorm/Cairngorm.swc" useDefaultLinkType="false"/>
     </libraryPath>
     <sourceAttachmentPath/>
   </compiler>
