@@ -148,7 +148,7 @@ class IndividualTest < ActiveSupport::TestCase
 
   # Test that an individual can't be authenticated if not yet authenticated.
   def test_authenticate_not_activated
-    assert_nil Individual.authenticate('aaron', 'testit')
+    assert_nil Individual.authenticate('ted', 'testit')
   end
 
   # Test that an individual can't be authenticated if not yet authenticated.
@@ -199,7 +199,7 @@ class IndividualTest < ActiveSupport::TestCase
     assert_equal stories(:first).individual, individuals(:aaron)
     individuals(:aaron).destroy
     stories(:first).reload
-    assert_nil stories(:first).iteration
+    assert_nil stories(:first).individual
   end
 
 private

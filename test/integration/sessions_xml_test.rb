@@ -12,7 +12,7 @@ class SessionsXmlTest < ActionController::IntegrationTest
     get '/individuals.xml', {}, flex_header
     assert_response  200 # Successful
     assert_select 'individuals' do
-      assert_select 'individual', :count => 2    
+      assert_select 'individual', :count => 3
     end
   end
 
@@ -36,7 +36,7 @@ class SessionsXmlTest < ActionController::IntegrationTest
     get '/individuals.xml', {}, flex_header
     assert_response 200 # OK
     assert_select 'individuals' do
-      assert_select 'individual', :count => 2    
+      assert_select 'individual', :count => 3 
     end
 
     delete '/session.xml', {}, flex_header
