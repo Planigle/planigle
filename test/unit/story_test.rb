@@ -4,6 +4,8 @@ class StoryTest < ActiveSupport::TestCase
   fixtures :stories
   fixtures :projects
   fixtures :tasks
+  fixtures :surveys
+  fixtures :survey_mappings
 
   # Test that a story can be created.
   def test_create_story
@@ -45,8 +47,16 @@ class StoryTest < ActiveSupport::TestCase
   # Test the validation of status.
   def test_status_code
     assert_success( :status_code, 0)
-    assert_failure( :status_code, -1 )
-    assert_failure( :status_code, 3 )
+    assert_failure( :status_code, -1)
+    assert_failure( :status_code, 3)    
+  end
+
+  # Test the validation of public.
+  def test_public
+    story = create_story
+    assert_equal false, story.public # Defaults to false
+    assert_success( :public, true)
+    assert_success( :public, false)
   end
 
   # Test the accepted? method.
@@ -107,30 +117,32 @@ class StoryTest < ActiveSupport::TestCase
 
   # Test that added stories are put at the end of the list.
   def test_priority_on_add
-    assert_equal [3, 2, 1] << create_story.id, Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    assert_equal [3, 2, 1, 4] << create_story.id, Story.find(:all, :order=>'priority').collect {|story| story.id}    
   end
 
   # Test successfully sorting the stories.
   def test_sort_success
-    assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    assert_equal [3, 2, 1, 4], Story.find(:all, :order=>'priority').collect {|story| story.id}    
     Story.sort([1, 2, 3]).each {|story| story.save(false)}
-    assert_equal [1, 2, 3], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    assert_equal [1, 2, 3, 4], Story.find(:all, :order=>'priority').collect {|story| story.id}    
   end
 
   # Test failure to change the sort order.
   def test_sort_failure
-    assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    assert_equal [3, 2, 1, 4], Story.find(:all, :order=>'priority').collect {|story| story.id}    
     assert_raise(ActiveRecord::RecordNotFound) {
       Story.sort [999, 2, 3]
     }
-    assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    assert_equal [3, 2, 1, 4], Story.find(:all, :order=>'priority').collect {|story| story.id}    
   end
   
   # Test deleting an story (should delete tasks).
   def test_delete_story
     assert_equal tasks(:one).story, stories(:first)
+    assert_equal survey_mappings(:first).story, stories(:first)
     stories(:first).destroy
     assert_nil Task.find_by_name('test')
+    assert_nil SurveyMapping.find_by_id('1')
   end
 
   # Test that we can get a mapping of status to code.

@@ -98,5 +98,22 @@ package org.planigle.planigle.view
 		{
 			return ObjectUtil.numericCompare(item1.statusCode, item2.statusCode);
 		}
+
+		// 	Display the user facing survey mode in the table (rather than a code).	
+		public static function formatSurveyMode(item:Object, column:DataGridColumn):String
+		{
+			switch(int(item.child("survey-mode")))
+			{
+				case 1: return "Private by Default";
+				case 2: return "Public by Default";
+				default: return "Private";
+			}
+		}
+		
+		// Sort status based on its code.
+		public static function sortSurveyMode(item1:Object, item2:Object):int
+		{
+			return ObjectUtil.numericCompare(item1.child("survey-mode"), item2.child("survey-mode"));
+		}
 	}
 }

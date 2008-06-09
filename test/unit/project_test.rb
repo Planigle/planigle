@@ -5,6 +5,7 @@ class ProjectTest < ActiveSupport::TestCase
   fixtures :individuals
   fixtures :iterations
   fixtures :stories
+  fixtures :surveys
 
   # Test that an project can be created.
   def test_create_project
@@ -24,15 +25,26 @@ class ProjectTest < ActiveSupport::TestCase
     validate_field(:description, true, nil, 4096)
   end
 
+  # Test the validation of survey_mode.
+  def test_survey_mode
+    project = create_project
+    assert_equal 0, project.survey_mode # Defaults to Private (0)
+    assert_success( :survey_mode, 0)
+    assert_failure( :survey_mode, -1 )
+    assert_failure( :survey_mode, 3 )
+  end
+
   # Test deleting an project
   def test_delete_project
     assert_equal individuals(:aaron).project, projects(:first)
     assert_equal iterations(:first).project, projects(:first)
     assert_equal stories(:first).project, projects(:first)
+    assert_equal surveys(:first).project, projects(:first)
     projects(:first).destroy
     assert_nil Individual.find_by_id(2)
     assert_nil Iteration.find_by_id(1)
     assert_nil Story.find_by_id(1)
+    assert_nil Survey.find_by_id(1)
   end
 
 private

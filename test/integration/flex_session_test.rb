@@ -40,6 +40,7 @@ private
   # Test logging in successfully.
   def login_succeeded
     login('Quentin', 'testit')
+    sleep 3 # Wait to ensure data loaded
     logout
   end
   

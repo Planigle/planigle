@@ -17,6 +17,7 @@ class Individual < ActiveRecord::Base
   validates_length_of       :last_name,    :within => 1..40
   validates_length_of       :email,    :within => 6..100
   validates_uniqueness_of   :login, :email, :case_sensitive => false
+  validates_uniqueness_of   :activation_code
   validates_format_of       :email, :with => /(^([^@\s]+)@((?:[-_a-z0-9]+\.)+[a-z]{2,})$)|(^$)/i
 
   # Ensure that the individual's email address is validated.

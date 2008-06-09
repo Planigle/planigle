@@ -1,0 +1,17 @@
+first:
+  id: 1
+  project_id: 1
+  email: test@foo.com
+  excluded: false
+
+second:
+  id: 2
+  project_id: 1
+  email: test@bar.com
+  excluded: false
+
+third:
+  id: 3
+  project_id: 1
+  email: test@fubar.com
+  excluded: true

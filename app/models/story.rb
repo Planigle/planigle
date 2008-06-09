@@ -4,19 +4,30 @@ class Story < ActiveRecord::Base
   belongs_to :iteration
   belongs_to :individual
   has_many :tasks, :dependent => :destroy
+  has_many :survey_mappings, :dependent => :destroy
   
   validates_presence_of     :project_id, :name
   validates_length_of       :name,                   :within => 1..40
   validates_length_of       :description,            :maximum => 4096, :allow_nil => true
   validates_length_of       :acceptance_criteria,    :maximum => 4096, :allow_nil => true
   validates_numericality_of :effort, :allow_nil => true
+  validates_numericality_of :priority, :user_priority, :allow_nil => true
+  validates_numericality_of :status_code
 
   StatusMapping = [ 'Created', 'In Progress', 'Accepted' ]
 
-  attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :iteration_id, :individual_id, :project_id
+  attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :iteration_id, :individual_id, :project_id, :public, :user_priority
 
   # Assign a priority on creation
-  before_create :initialize_priority
+  before_create :initialize_defaults
+
+  # Override to default public.
+  def initialize(attributes={})
+    if (!attributes.include? :public)
+      attributes[:public] = false
+    end
+    super
+  end
 
   # Answer the valid values for status.
   def self.valid_status_values()
@@ -100,8 +111,8 @@ protected
     errors.add(:effort, 'must be greater than 0') if effort && effort <= 0
   end
   
-  # Set the initial priority to the number of stories (+1 for me).
-  def initialize_priority
+  # Set the initial priority to the number of stories (+1 for me).  Set public to false if not set.
+  def initialize_defaults
     highest = Story.find(:first, :order=>'priority desc')
     self.priority = highest ? highest.priority + 1 : 1
   end

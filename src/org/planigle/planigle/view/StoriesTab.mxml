@@ -252,6 +252,7 @@
 			field_owner.selectedIndex = 0;
 			field_effort.text = '';
 			field_status.selectedIndex = 0;
+			field_public.selectedIndex = ViewModelLocator.getInstance().projects.child("survey-mode") == 2 ? 0 : 1;
 			btn_change.label = 'Create';
 		}
 
@@ -284,6 +285,7 @@
 	
 				field_effort.text = currentItem.effort;
 				field_status.selectedIndex = currentItem.statusCode;
+				field_public.selectedIndex = currentItem.isPublic ? 0 : 1;
 				btn_change.label = 'Update';
 			}
 		}
@@ -331,6 +333,7 @@
 			params['record[individual_id]'] = field_owner.selectedItem.id;
 			params['record[effort]'] = field_effort.text;
 			params['record[status_code]'] = field_status.selectedItem.value;
+			params['record[public]'] = field_public.selectedItem.value;
 			return params;
 		}
 
@@ -497,6 +500,12 @@
 								<mx:Object label="Accepted" value="2" />
 							</mx:ComboBox>
 						</mx:FormItem>
+						<mx:FormItem label='Public'>
+							<mx:ComboBox id='field_public' width="350" editable="false">
+								<mx:Object label="true" value='true' />
+								<mx:Object label="false" value='false' />
+							</mx:ComboBox>
+						</mx:FormItem>
 						<mx:ControlBar width="100%">
 							<mx:Spacer width="50"/>
 							<mx:Button label="Change" id="btn_change" click="changeResource(event)"/>
@@ -561,7 +570,7 @@
 						</mx:Component>
 					</mx:itemRenderer>
 				</mx:DataGridColumn>
-				<mx:DataGridColumn headerText="Name" width="350" dataField="listName" />
+				<mx:DataGridColumn headerText="Name" width="350" dataField="listName" showDataTips="true" dataTipField="description" />
 				<mx:DataGridColumn id="column_iteration" width="150" headerText="Iteration" labelFunction="ViewHelper.formatIteration" sortCompareFunction="ViewHelper.sortIteration"/>
 				<mx:DataGridColumn headerText="Owner" width="150" labelFunction="ViewHelper.formatIndividual" sortCompareFunction="ViewHelper.sortIndividual"/>
 				<mx:DataGridColumn headerText="Effort" width="75" dataField="calculatedEffort"/>
@@ -578,15 +587,17 @@
 						</mx:Component>
 					</mx:itemRenderer>
 				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="Public" width="80" dataField="isPublic"/>
 				<mx:DataGridColumn headerText="Priority" width="80" dataField="priority"/>
+				<mx:DataGridColumn headerText="User Priority" width="80" dataField="userPriority"/>
 				<mx:DataGridColumn editable="false" width="130" minWidth="130" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0" width="100%">
-								<mx:LinkButton icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);"/>
-								<mx:LinkButton icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);"/>
-								<mx:LinkButton icon="{parentApplication.imgAdd}" toolTip="Add Task" visible="{data.isStory()}" click="outerDocument.showCreateTask(event);"/>
-								<mx:LinkButton icon="{parentApplication.imgExport}" toolTip="Split" visible="{data.isStory()}" click="outerDocument.showSplit(event);"/>
+								<mx:LinkButton id="storyEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);"/>
+								<mx:LinkButton id="storyDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);"/>
+								<mx:LinkButton id="taskAdd" icon="{parentApplication.imgAdd}" toolTip="Add Task" visible="{data.isStory()}" click="outerDocument.showCreateTask(event);"/>
+								<mx:LinkButton id="storySplit" icon="{parentApplication.imgExport}" toolTip="Split" visible="{data.isStory()}" click="outerDocument.showSplit(event);"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>

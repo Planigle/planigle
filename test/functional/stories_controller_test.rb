@@ -2,6 +2,7 @@ require "#{File.dirname(__FILE__)}/../test_helper"
 require "#{File.dirname(__FILE__)}/../stories_test_helper"
 require "#{File.dirname(__FILE__)}/controller_resource_helper"
 require "stories_controller"
+require "bigdecimal"
 
 # Re-raise errors caught by the controller.
 class StoriesController; def rescue_action(e) raise e end; end
@@ -14,6 +15,8 @@ class StoriesControllerTest < Test::Unit::TestCase
   fixtures :stories
   fixtures :projects
   fixtures :tasks
+  fixtures :surveys
+  fixtures :survey_mappings
 
   def setup
     @controller = StoriesController.new
@@ -33,17 +36,17 @@ class StoriesControllerTest < Test::Unit::TestCase
   def test_sort_unauthorized
     put :sort, :stories => [1, 2, 3]
     assert_redirected_to :controller => 'sessions', :action => 'new'        
-    assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    assert_equal [3, 2, 1, 4], Story.find(:all, :order=>'priority').collect {|story| story.id}    
   end
 
   # Test successfully changing the sort order.
   def test_sort_success
     login_as(individuals(:quentin))
-    assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    assert_equal [3, 2, 1, 4], Story.find(:all, :order=>'priority').collect {|story| story.id}    
     put :sort, :stories => [1, 2, 3]
     assert_response :success
     assert_template '_sortable'
-    assert_equal [1, 2, 3], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    assert_equal [1, 2, 3, 4], Story.find(:all, :order=>'priority').collect {|story| story.id}    
   end
 
   # Test failure to change the sort order.
@@ -51,7 +54,7 @@ class StoriesControllerTest < Test::Unit::TestCase
     login_as(individuals(:quentin))
     xhr :put, :sort, :stories => [999, 2, 3]
     assert_response 404
-    assert_equal [3, 2, 1], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    assert_equal [3, 2, 1, 4], Story.find(:all, :order=>'priority').collect {|story| story.id}    
   end
 
   # Test getting a split story template without credentials.
@@ -131,5 +134,19 @@ class StoriesControllerTest < Test::Unit::TestCase
     assert_response :success
     assert_template 'update_form'
     assert_not_equal stories(:first).reload.individual_id, 999
+  end
+    
+  # Test that changing from accepted to created or in progress recalculates surveys.
+  def test_status_code_change
+    assert_equal 2, stories(:first).user_priority
+    login_as(individuals(:quentin))
+
+    put :update, :id => 2, :record => {:status_code => 0}
+  
+    # Rounded to 1000th place to eliminate trivial differences
+    assert_equal BigDecimal("1.5"), stories(:first).reload.user_priority
+    
+    put :update, :id => 2, :record => {:status_code => 1}
+    assert_equal BigDecimal("1.5"), stories(:first).reload.user_priority
   end
 end

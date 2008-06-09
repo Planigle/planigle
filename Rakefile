@@ -13,6 +13,15 @@ namespace :build do
   task(:test) do
     puts %x[mxmlc.exe -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -link-report=report.xml --include-libraries libs\\FunFXAdapter.swc libs\\automation_agent.swc libs\\automation.swc libs\\automation_agent_rb.swc -output=public\\Main.swf src\\Main.mxml]
     puts %x[mxmlc.exe -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -load-externs=report.xml -output=public\\modules\\Core.swf src\\modules\\Core.mxml]
+    puts %x[mxmlc.exe -compiler.source-path=src -compiler.source-path+=public -library-path+=libs --include-libraries libs\\FunFXAdapter.swc libs\\automation_agent.swc libs\\automation.swc libs\\automation_agent_rb.swc -output=public\\Survey.swf src\\Survey.mxml]
+    puts %x[del report.xml]
+  end
+
+  desc "Build the Flex components in debug mode"
+  task(:debug) do
+    puts %x[mxmlc.exe -compiler.debug -compiler.incremental -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -link-report=report.xml -output=public\\Main.swf src\\Main.mxml]
+    puts %x[mxmlc.exe -compiler.debug -compiler.incremental -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -load-externs=report.xml -output=public\\modules\\Core.swf src\\modules\\Core.mxml]
+    puts %x[mxmlc.exe -compiler.debug -compiler.incremental -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -output=public\\Survey.swf src\\Survey.mxml]
     puts %x[del report.xml]
   end
 
@@ -20,6 +29,7 @@ namespace :build do
   task(:production) do
     puts %x[mxmlc.exe -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -link-report=report.xml -output=public\\Main.swf src\\Main.mxml]
     puts %x[mxmlc.exe -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -load-externs=report.xml -output=public\\modules\\Core.swf src\\modules\\Core.mxml]
+    puts %x[mxmlc.exe -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -output=public\\Survey.swf src\\Survey.mxml]
     puts %x[del report.xml]
   end
 end

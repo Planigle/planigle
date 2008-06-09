@@ -66,11 +66,20 @@ private
   def edit_project_success
     num_rows = @ie.data_grid("projectResourceGrid").num_rows
     edit_project('foo 1', 'description')
+
+    @ie.combo_box("projectFieldSurveyMode").open
+    @ie.combo_box("projectFieldSurveyMode").select(:item_renderer => "Private")
+    assert !@ie.form_item("projectFormSurveyUrl").visible
+    @ie.combo_box("projectFieldSurveyMode").open
+    @ie.combo_box("projectFieldSurveyMode").select(:item_renderer => "Public by Default")
+    assert @ie.form_item("projectFormSurveyUrl").visible
+    assert_equal "http://localhost/survey.html?project=" + projects(:first).survey_key, @ie.label("projectLabelSurveyUrl").text
+
     @ie.button("projectBtnChange").click
     assert_equal '', @ie.text_area("projectError").text
     assert_nil @ie.button("projectBtnCancel")
     assert_equal num_rows, @ie.data_grid("projectResourceGrid").num_rows
-    assert_equal "foo 1,description,Edit | Delete", @ie.data_grid("projectResourceGrid").tabular_data
+    assert_equal "foo 1,description,Public by Default,Edit | Delete", @ie.data_grid("projectResourceGrid").tabular_data
   end
     
   # Test whether you can successfully cancel editing a project.
