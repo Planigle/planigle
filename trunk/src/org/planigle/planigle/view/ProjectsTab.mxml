@@ -6,6 +6,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+		import flash.external.ExternalInterface;
 		import mx.rpc.events.ResultEvent;
 		import mx.controls.Alert;
 		import mx.events.CloseEvent;
@@ -53,6 +54,8 @@
 			projectFieldName.setFocus();
 			projectFieldName.text = '';
 			projectFieldDescription.text = '';
+			projectFieldSurveyMode.selectedIndex = 0;
+			projectLabelSurveyUrl.text = "Will be assigned on creation";
 			projectBtnChange.label = 'Create';
 		}
 
@@ -70,6 +73,10 @@
 				projectFieldName.setFocus();
 				projectFieldName.setSelection(0, projectFieldName.text.length );
 				projectFieldDescription.text = currentItem.description;
+				projectFieldSurveyMode.selectedIndex = int(currentItem.child("survey-mode"));
+				var base:String = ExternalInterface.call("BrowserHistory.getURL");
+				base = base.substr( 0, base.indexOf( "/", 8) );
+				projectLabelSurveyUrl.text = base + "/survey.html?project=" + currentItem.child("survey-key");
 				projectBtnChange.label = 'Update';
 			}
 		}
@@ -94,6 +101,7 @@
 			var params:Object = new Object();
 			params['record[name]'] = projectFieldName.text;
 			params['record[description]'] = projectFieldDescription.text;
+			params['record[survey_mode]'] = projectFieldSurveyMode.selectedItem.value;
 			params['random'] = Math.random(); // Prevents caching
 			return params;
 		}
@@ -174,6 +182,16 @@
 						<mx:FormItem label='Description'>
 							<mx:TextArea id='projectFieldDescription' maxChars="4096" height="64" width="500"><mx:text/></mx:TextArea>
 						</mx:FormItem>
+						<mx:FormItem label='Stories'>
+							<mx:ComboBox id='projectFieldSurveyMode' width="350" editable="false">
+								<mx:Object label="Private" value="0" />
+								<mx:Object label="Private by Default" value="1" />
+								<mx:Object label="Public by Default" value="2" />
+							</mx:ComboBox>
+						</mx:FormItem>
+						<mx:FormItem id="projectFormSurveyUrl" label='Survey URL' visible="{projectFieldSurveyMode.selectedIndex > 0}" height="{projectFieldSurveyMode.selectedIndex > 0 ? 20 : 0}">
+							<mx:Label id="projectLabelSurveyUrl" selectable="true"/>
+						</mx:FormItem>
 						<mx:ControlBar width="100%">
 							<mx:Spacer width="50"/>
 							<mx:Button label="Change" id="projectBtnChange" click="changeResource(event)"/>
@@ -213,6 +231,7 @@
 				<mx:columns>
 				<mx:DataGridColumn headerText="Name" dataField="name"/>
 				<mx:DataGridColumn headerText="Description" dataField="description"/>
+				<mx:DataGridColumn headerText="Stories" labelFunction="ViewHelper.formatSurveyMode" sortCompareFunction="ViewHelper.sortSurveyMode"/>
 				<mx:DataGridColumn editable="false" width="60" minWidth="60" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>

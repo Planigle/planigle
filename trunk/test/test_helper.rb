@@ -110,7 +110,7 @@ private
 
   # Answer a string representing the type of object. Ex., Story.
   def object_type
-    self.class.to_s.chomp('Test')
+    self.class.to_s.chomp('Test').delete('_')
   end
   
   # Answer the header to use to show that flex is the client.

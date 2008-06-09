@@ -20,7 +20,9 @@ package org.planigle.planigle.model
 		public var effort:String; // My actual effort.
 		public var calculatedEffort:String; // My effort when looking at my tasks.
 		public var statusCode:int;
+		public var isPublic:Boolean;
 		public var priority:int;
+		public var userPriority:String = "";
 		public var tasks:ArrayCollection = new ArrayCollection();
 		public static const CREATED:int = 0;
 		public static const IN_PROGRESS:int = 1;
@@ -39,7 +41,10 @@ package org.planigle.planigle.model
 			ownerId = xml.child("individual-id");
 			effort = xml.effort;
 			statusCode = xml.child("status-code");
+			isPublic = xml.public == "true";
 			priority = xml.priority;
+			userPriority = statusCode < 2 ? xml.child("user-priority") : "";
+
 			tasks = new ArrayCollection();
 			for (var i:int = 0; i < xml.tasks.task.length(); i++)
 			  tasks.addItem( new Task(this, XML(xml.tasks.task[i])));

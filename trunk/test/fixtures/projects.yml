@@ -3,7 +3,11 @@
 first:
   id: 1
   name: Test
+  survey_key: 1
+  survey_mode: 1
 
 second:
   id: 2
   name: Test2
+  survey_key: 2
+  survey_mode: 0

@@ -6,6 +6,7 @@ class Task < ActiveRecord::Base
   validates_length_of       :name,                   :within => 1..40
   validates_length_of       :description,            :maximum => 4096, :allow_nil => true
   validates_numericality_of :effort, :allow_nil => true
+  validates_numericality_of :status_code
 
   StatusMapping = [ 'Created', 'In Progress', 'Accepted' ]
 

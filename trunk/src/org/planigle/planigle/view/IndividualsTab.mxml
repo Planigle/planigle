@@ -94,7 +94,7 @@
 				field_email.text = currentItem.email;
 				field_first_name.text = currentItem.child("first-name");
 				field_last_name.text = currentItem.child("last-name");
-				field_enabled.text = currentItem.enabled;
+				field_enabled.selectedIndex = currentItem.enabled ? 0 : 1;
 				label_password.required = false;
 				label_password_confirmation.required = false;
 				btn_change.label = 'Update';
@@ -214,13 +214,13 @@
 							<mx:TextInput id='field_password_confirmation' maxChars="40" text='' width="350" displayAsPassword="true"/>
 						</mx:FormItem>
 						<mx:FormItem label='Email' required="true">
-							<mx:TextInput id='field_email' maxChars="40" text='' width="350"/>
+							<mx:TextInput id='field_email' maxChars="100" text='' width="350"/>
 						</mx:FormItem>
 						<mx:FormItem label='First Name' required="true">
 							<mx:TextInput id='field_first_name' maxChars="40" text='' width="350"/>
 						</mx:FormItem>
 						<mx:FormItem label='Last Name' required="true">
-							<mx:TextInput id='field_last_name' maxChars="100" text='' width="350"/>
+							<mx:TextInput id='field_last_name' maxChars="40" text='' width="350"/>
 						</mx:FormItem>
 						<mx:FormItem label='Enabled'>
 							<mx:ComboBox id='field_enabled' width="350" editable="false">

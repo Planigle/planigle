@@ -9,6 +9,9 @@ first:
   effort: 1
   status_code: 1
   priority: 3
+  public: true
+  user_priority: 2
+
 second:
   id: 2
   project_id: 1
@@ -19,6 +22,9 @@ second:
   effort: 1
   status_code: 2
   priority: 2
+  public: true
+  user_priority: 1
+
 third:
   id: 3
   project_id: 1
@@ -28,3 +34,16 @@ third:
   effort: 1
   status_code: 1
   priority: 1
+  public: false
+
+fourth:
+  id: 4
+  project_id: 1
+  name: 'test4'
+  description: ''
+  acceptance_criteria: ''
+  effort: 1
+  status_code: 1
+  priority: 4
+  public: true
+  

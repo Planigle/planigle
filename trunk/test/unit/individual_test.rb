@@ -33,6 +33,8 @@ class IndividualTest < ActiveSupport::TestCase
     assert_failure(:email, 'aaaaaa')
     assert_failure(:email, 'aaa@aa')
     assert_failure(:email, 'aa @a.aa')
+    assert_failure(:email, 'quentin@example.com') # in use
+    assert_failure(:email, 'Quentin@example.com') # case doesn't matter
   end
 
   # Test the validation of last name.

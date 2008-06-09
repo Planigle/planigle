@@ -4,8 +4,8 @@ class StoriesController < ApplicationController
   around_filter :update_sort, :only=>[:create, :sort, :row, :update_table]
   
   active_scaffold do |config|
-    edit_columns = [:project_id, :name, :description, :acceptance_criteria, :iteration_id, :individual_id, :effort, :status_code ]
-    config.columns = [:project_id, :name, :iteration_id, :individual_id, :effort, :status_code, :priority ]
+    edit_columns = [:project_id, :name, :description, :acceptance_criteria, :iteration_id, :individual_id, :effort, :status_code, :public ]
+    config.columns = [:project_id, :name, :iteration_id, :individual_id, :effort, :status_code, :priority, :public ]
     config.columns[:project_id].label = 'Project' 
     config.columns[:iteration_id].label = 'Iteration' 
     config.columns[:individual_id].label = 'Owner' 
@@ -130,5 +130,18 @@ protected
         task.save
       end
     end
+  end
+  
+  # Update the surveys if the story is unaccepted.
+  def do_update
+    @record = find_if_allowed(params[:id], :update)
+    should_update = (params["record"]["status_code"] !=2 and @record.status_code == 2 and @record.user_priority)
+    result = super
+    if should_update
+      Survey.update_rankings(@record.project).each do |story|
+        story.save(false)
+      end
+    end
+    result
   end
 end
