@@ -13,7 +13,7 @@ class FlexProjectsAdminTest < Test::Unit::TestCase
     @ie = Funfx.instance 
     @ie.start(false) 
     @ie.speed = 1
-    @ie.goto("http://localhost/index.html", "Main") 
+    @ie.goto("http://localhost:3000/index.html", "Main") 
     login('quentin', 'testit')
     sleep 3 # Wait to ensure data loaded
     @ie.button_bar("mainNavigation").change(:related_object => "Projects")
@@ -139,7 +139,7 @@ private
     @ie.combo_box("projectFieldSurveyMode").open
     @ie.combo_box("projectFieldSurveyMode").select(:item_renderer => "Public by Default")
     assert @ie.form_item("projectFormSurveyUrl").visible
-    assert_equal "http://localhost/survey.html?project=" + projects(:first).survey_key, @ie.label("projectLabelSurveyUrl").text
+    assert_equal "http://localhost:3000/survey.html?project=" + projects(:first).survey_key, @ie.label("projectLabelSurveyUrl").text
 
     @ie.button("projectBtnChange").click
     assert_equal '', @ie.text_area("projectError").text

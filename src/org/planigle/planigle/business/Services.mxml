@@ -5,7 +5,7 @@
 
 	<!--Login Service-->
 	<mx:HTTPService id="loginService"
-		url = "/session.xml"
+		url = "session.xml"
 		resultFormat = "e4x"
 		headers = "Accept: text/xml"
 		method = "POST"
@@ -14,7 +14,7 @@
 
 	<!--Logout Service-->
 	<mx:HTTPService id="logoutService"
-		url = "/session.xml"
+		url = "session.xml"
 		resultFormat = "e4x"
 		headers = "Accept: text/xml"
 		method = "POST"
@@ -23,7 +23,7 @@
 	
 	<!--Get Iterations-->
 	<mx:HTTPService id="getIterationsService"
-		url = "/iterations.xml"
+		url = "iterations.xml"
 		resultFormat = "e4x"
 		headers = "Accept: text/xml"
 		method = "GET"
@@ -32,7 +32,7 @@
 	
 	<!--Create Iteration-->
 	<mx:HTTPService id="createIterationService"
-		url = "/iterations.xml"
+		url = "iterations.xml"
 		resultFormat = "e4x"
 		headers = "Accept: text/xml"
 		method = "POST"
@@ -57,7 +57,7 @@
 	
 	<!--Get Stories-->
 	<mx:HTTPService id="getStoriesService"
-		url = "/stories.xml"
+		url = "stories.xml"
 		resultFormat = "e4x"
 		headers = "Accept: text/xml"
 		method = "GET"
@@ -66,7 +66,7 @@
 	
 	<!--Create Story-->
 	<mx:HTTPService id="createStoryService"
-		url = "/stories.xml"
+		url = "stories.xml"
 		resultFormat = "e4x"
 		headers = "Accept: text/xml"
 		method = "POST"
@@ -123,7 +123,7 @@
 	
 	<!--Get Projects-->
 	<mx:HTTPService id="getProjectsService"
-		url = "/projects.xml"
+		url = "projects.xml"
 		resultFormat = "e4x"
 		headers = "Accept: text/xml"
 		method = "GET"
@@ -132,7 +132,7 @@
 	
 	<!--Get Individuals-->
 	<mx:HTTPService id="getIndividualsService"
-		url = "/individuals.xml"
+		url = "individuals.xml"
 		resultFormat = "e4x"
 		headers = "Accept: text/xml"
 		method = "GET"

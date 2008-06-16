@@ -2,7 +2,7 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" label="Individuals" creationComplete="created(event)">
 	<mx:HTTPService id="resourcePut" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
 	<mx:HTTPService id="resourceDelete" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
-	<mx:HTTPService id="resourcePost" url="/individuals.xml" useProxy="false" method="POST" result="handleCreate(event)" resultFormat="e4x"/>
+	<mx:HTTPService id="resourcePost" url="individuals.xml" useProxy="false" method="POST" result="handleCreate(event)" resultFormat="e4x"/>
 	
 	<mx:Script>
 		<![CDATA[
@@ -151,14 +151,14 @@
 		{
 			var params:Object = getParams();
 			params['_method'] = "PUT";
-			resourcePut.url = "/individuals/" + currentItem.id + ".xml";
+			resourcePut.url = "individuals/" + currentItem.id + ".xml";
 			resourcePut.send(params);
 		}
 
 		// Tell the server to delete a resource.
 		private function deleteResource(id:String):void
 		{
-			resourceDelete.url = "/individuals/" + id + ".xml";
+			resourceDelete.url = "individuals/" + id + ".xml";
 			resourceDelete.send({_method: "DELETE"});
 		}
 

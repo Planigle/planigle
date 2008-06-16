@@ -5,8 +5,8 @@
 	<!--The main style sheet for all the applications.-->
 	<mx:Style source="stylesheets/flex.css"/>
 
-	<mx:HTTPService id="surveyGet" url="/surveys/" useProxy="false" method="GET" result="handleSurvey(event)" resultFormat="e4x" showBusyCursor="true"/>
-	<mx:HTTPService id="surveyPost" url="/surveys/" useProxy="false" method="POST" result="handleSubmit(event)" resultFormat="e4x" showBusyCursor="true"/>
+	<mx:HTTPService id="surveyGet" url="surveys/" useProxy="false" method="GET" result="handleSurvey(event)" resultFormat="e4x" showBusyCursor="true"/>
+	<mx:HTTPService id="surveyPost" url="surveys/" useProxy="false" method="POST" result="handleSubmit(event)" resultFormat="e4x" showBusyCursor="true"/>
 	
 	<mx:Script>
 		<![CDATA[
@@ -22,7 +22,7 @@
 			// Populate based on the URL parameter project.
 			public function init():void
 			{
-				surveyGet.url = "/surveys/" + Application.application.parameters.project + ".xml";
+				surveyGet.url = "surveys/" + Application.application.parameters.project + ".xml";
 				surveyGet.send();
 				fieldEmail.setFocus();
 			}
@@ -59,7 +59,7 @@
 					queryString += "stories[]="
 					queryString += story.id
 				}
-				surveyPost.url = "/surveys/" + Application.application.parameters.project + ".xml" + queryString;
+				surveyPost.url = "surveys/" + Application.application.parameters.project + ".xml" + queryString;
 				var params:Object = new Object();
 				params["_method"] = "put";
 				params["email"] = fieldEmail.text;

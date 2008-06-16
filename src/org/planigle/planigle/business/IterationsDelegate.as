@@ -38,7 +38,7 @@ package org.planigle.planigle.business
 			var service:HTTPService = ServiceLocator.getInstance().getHTTPService("updateIterationService");
 			params['random'] = Math.random(); // Prevents caching
 			params['_method'] = "PUT";
-			service.url = "/iterations/" + iteration.id + ".xml";
+			service.url = "iterations/" + iteration.id + ".xml";
 			service.send(params).addResponder( responder );
 		}
 		
@@ -49,7 +49,7 @@ package org.planigle.planigle.business
 			var params:Object = new Object();
 			params['random'] = Math.random(); // Prevents caching
 			params['_method'] = "DELETE";
-			service.url = "/iterations/" + iteration.id + ".xml";
+			service.url = "iterations/" + iteration.id + ".xml";
 			service.send(params).addResponder( responder );
 		}
 	}
