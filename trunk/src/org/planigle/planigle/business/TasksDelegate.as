@@ -22,7 +22,7 @@ package org.planigle.planigle.business
 		{
 			var service:HTTPService = ServiceLocator.getInstance().getHTTPService("createTaskService");
 			params['random'] = Math.random(); // Prevents caching
-			service.url = "/stories/" + story.id + "/tasks.xml"
+			service.url = "stories/" + story.id + "/tasks.xml"
 			service.send(params).addResponder( responder );
 		}
 		
@@ -32,7 +32,7 @@ package org.planigle.planigle.business
 			var service:HTTPService = ServiceLocator.getInstance().getHTTPService("updateTaskService");
 			params['random'] = Math.random(); // Prevents caching
 			params['_method'] = "PUT";
-			service.url = "/stories/" + task.story.id + "/tasks/" + task.id + ".xml";
+			service.url = "stories/" + task.story.id + "/tasks/" + task.id + ".xml";
 			service.send(params).addResponder( responder );
 		}
 		
@@ -43,7 +43,7 @@ package org.planigle.planigle.business
 			var params:Object = new Object();
 			params['random'] = Math.random(); // Prevents caching
 			params['_method'] = "DELETE";
-			service.url = "/stories/" + task.story.id + "/tasks/" + task.id + ".xml";
+			service.url = "stories/" + task.story.id + "/tasks/" + task.id + ".xml";
 			service.send(params).addResponder( responder );
 		}
 	}

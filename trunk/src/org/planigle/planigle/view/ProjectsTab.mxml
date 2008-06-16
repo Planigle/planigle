@@ -2,7 +2,7 @@
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" label="Projects" creationComplete="created(event)">
 	<mx:HTTPService id="resourcePut" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
 	<mx:HTTPService id="resourceDelete" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
-	<mx:HTTPService id="resourcePost" url="/projects.xml" useProxy="false" method="POST" result="handleCreate(event)" resultFormat="e4x"/>
+	<mx:HTTPService id="resourcePost" url="projects.xml" useProxy="false" method="POST" result="handleCreate(event)" resultFormat="e4x"/>
 	
 	<mx:Script>
 		<![CDATA[
@@ -75,7 +75,9 @@
 				projectFieldDescription.text = currentItem.description;
 				projectFieldSurveyMode.selectedIndex = int(currentItem.child("survey-mode"));
 				var base:String = ExternalInterface.call("BrowserHistory.getURL");
-				base = base.substr( 0, base.indexOf( "/", 8) );
+				for (var index:int = base.indexOf( "/" ); base.indexOf( "/", index + 1 ) >= 0; )
+					index = base.indexOf( "/", index + 1 ); // Get the last /
+				base = base.substr( 0, index );
 				projectLabelSurveyUrl.text = base + "/survey.html?project=" + currentItem.child("survey-key");
 				projectBtnChange.label = 'Update';
 			}
@@ -126,14 +128,14 @@
 		{
 			var params:Object = getParams();
 			params['_method'] = "PUT";
-			resourcePut.url = "/projects/" + currentItem.id + ".xml";
+			resourcePut.url = "projects/" + currentItem.id + ".xml";
 			resourcePut.send(params);
 		}
 
 		// Tell the server to delete a resource.
 		private function deleteResource(id:String):void
 		{
-			resourceDelete.url = "/projects/" + id + ".xml";
+			resourceDelete.url = "projects/" + id + ".xml";
 			resourceDelete.send({_method: "DELETE"});
 		}
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:local="org.planigle.planigle.view.controls.*" name="Stories" label="Stories" creationComplete="created(event)">
-	<mx:HTTPService id="resourceSort" url="/stories/sort.xml" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
+	<mx:HTTPService id="resourceSort" url="stories/sort.xml" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
 	<mx:Script>
 		<![CDATA[
 		import mx.collections.ArrayCollection;
@@ -414,7 +414,7 @@
 			var story:Story = Story(movedItems[0]);
 			var newIndex:int = resource_grid.calculateDropIndex(event);			
 			var inc:int = 0;
-			var url:String = "/stories/sort.xml?";
+			var url:String = "stories/sort.xml?";
 			for(var i:int = 0; i < stories.length; i++)
 			{
 				var s:Object = null;

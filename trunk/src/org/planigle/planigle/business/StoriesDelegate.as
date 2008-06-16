@@ -37,7 +37,7 @@ package org.planigle.planigle.business
 			var service:HTTPService = ServiceLocator.getInstance().getHTTPService("updateStoryService");
 			params['random'] = Math.random(); // Prevents caching
 			params['_method'] = "PUT";
-			service.url = "/stories/" + story.id + ".xml";
+			service.url = "stories/" + story.id + ".xml";
 			service.send(params).addResponder( responder );
 		}
 		
@@ -47,7 +47,7 @@ package org.planigle.planigle.business
 			var service:HTTPService = ServiceLocator.getInstance().getHTTPService("splitStoryService");
 			params['random'] = Math.random(); // Prevents caching
 			params['_method'] = "PUT";
-			service.url = "/stories/split/" + story.id + ".xml";
+			service.url = "stories/split/" + story.id + ".xml";
 			service.send(params).addResponder( responder );
 		}
 		
@@ -58,7 +58,7 @@ package org.planigle.planigle.business
 			var params:Object = new Object();
 			params['random'] = Math.random(); // Prevents caching
 			params['_method'] = "DELETE";
-			service.url = "/stories/" + story.id + ".xml";
+			service.url = "stories/" + story.id + ".xml";
 			service.send(params).addResponder( responder );
 		}
 	}

@@ -13,7 +13,7 @@ class FlexSessionTest < Test::Unit::TestCase
     @ie = Funfx.instance 
     @ie.start(false) 
     @ie.speed = 1
-    @ie.goto("http://localhost/index.html", "Main") 
+    @ie.goto("http://localhost:3000/index.html", "Main") 
   end 
   
   def teardown
