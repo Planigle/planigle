@@ -35,6 +35,7 @@
 		// Remember heights so they can be changed and restored.
 		private var formIterationHeight:int;
 		private var formAcceptanceHeight:int;
+		private var formPublicHeight:int;
 
 		// Set up event listeners.  Called when the canvas has been created.
 		private function created(event:Event):void
@@ -42,6 +43,7 @@
 			currentState = 'Change';
 			formIterationHeight = form_iteration.height;
 			formAcceptanceHeight = form_acceptance_criteria.height;
+			formPublicHeight = form_public.height;
 			currentState = '';
 
 			ChangeWatcher.watch( viewModelLocator, "workflowState", resetState ); // Reset if log out / logged back in
@@ -189,6 +191,8 @@
 			form_iteration.height = formIterationHeight;
 			form_acceptance_criteria.visible = true;
 			form_acceptance_criteria.height = formAcceptanceHeight;
+			form_public.visible = true;
+			form_public.height = formPublicHeight;
 		}
 		
 		// Prepare the form for a task.
@@ -198,6 +202,8 @@
 			form_iteration.height = 0;
 			form_acceptance_criteria.visible = false;
 			form_acceptance_criteria.height = 0;
+			form_public.visible = false;
+			form_public.height = 0;
 		}
 
 		private var currentItem:Object; // Remember in case selection changes while form is open.
@@ -268,11 +274,12 @@
 				field_name.setFocus();
 				field_name.setSelection(0, field_name.text.length );
 				field_description.text = currentItem.description;
-				if (resource_grid.selectedItem.isStory())
+				if (currentItem.isStory())
 				{
 					prepareForStory();
 					field_iteration.selectedItem = IterationFactory.getInstance().find(currentItem.iterationId);
 					field_acceptance_criteria.text = currentItem.acceptanceCriteria;
+					field_public.selectedIndex = currentItem.isPublic ? 0 : 1;
 				}
 				else
 					prepareForTask();
@@ -285,7 +292,6 @@
 	
 				field_effort.text = currentItem.effort;
 				field_status.selectedIndex = currentItem.statusCode;
-				field_public.selectedIndex = currentItem.isPublic ? 0 : 1;
 				btn_change.label = 'Update';
 			}
 		}
@@ -323,17 +329,20 @@
 		}
 		
 		// Create parameters for the user's request to the server.
-		private function getParams() : Object
+		private function getParams(isStory:Boolean) : Object
 		{
 			var params:Object = new Object();
 			params['record[name]'] = field_name.text;
 			params['record[description]'] = field_description.text;
-			params['record[acceptance_criteria]'] = field_acceptance_criteria.text;
-			params['record[iteration_id]'] = field_iteration.selectedItem.id > 0 ? field_iteration.selectedItem.id : "";
 			params['record[individual_id]'] = field_owner.selectedItem.id;
 			params['record[effort]'] = field_effort.text;
 			params['record[status_code]'] = field_status.selectedItem.value;
-			params['record[public]'] = field_public.selectedItem.value;
+			if (isStory)
+			{
+				params['record[iteration_id]'] = field_iteration.selectedItem.id > 0 ? field_iteration.selectedItem.id : "";
+				params['record[acceptance_criteria]'] = field_acceptance_criteria.text;
+				params['record[public]'] = field_public.selectedItem.value;
+			}
 			return params;
 		}
 
@@ -343,14 +352,14 @@
 			if (btn_change.label == 'Create')
 			{
 				if (currentItem)
-					currentItem.createTask(getParams(), handleCreateSuccess, handleFailure);
+					currentItem.createTask(getParams(false), handleCreateSuccess, handleFailure);
 				else
-					StoryFactory.getInstance().createStory(getParams(), handleCreateSuccess, handleFailure);
+					StoryFactory.getInstance().createStory(getParams(true), handleCreateSuccess, handleFailure);
 			}
 			else if (btn_change.label == 'Update')
-				currentItem.update(getParams(), currentItem.isStory() ? handleUpdateStorySuccess : handleSuccess, handleFailure);
+				currentItem.update(getParams(currentItem.isStory()), currentItem.isStory() ? handleUpdateStorySuccess : handleSuccess, handleFailure);
 			else
-				currentItem.split(getParams(), handleSuccess, handleFailure);
+				currentItem.split(getParams(currentItem.isStory()), handleSuccess, handleFailure);
 		}
 		
 		// A story was successfully updated.
@@ -500,7 +509,7 @@
 								<mx:Object label="Accepted" value="2" />
 							</mx:ComboBox>
 						</mx:FormItem>
-						<mx:FormItem label='Public'>
+						<mx:FormItem label='Public' id="form_public">
 							<mx:ComboBox id='field_public' width="350" editable="false">
 								<mx:Object label="true" value='true' />
 								<mx:Object label="false" value='false' />
