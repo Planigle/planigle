@@ -22,6 +22,7 @@ class SessionsController < ApplicationController
       if logged_in?
         if params[:remember_me] == "1"
           self.current_individual.remember_me
+          self.current_individual.save(false)
           cookies[:auth_token] = { :value => self.current_individual.remember_token , :expires => self.current_individual.remember_token_expires_at }
         end
         format.html { redirect_back_or_default('/') }

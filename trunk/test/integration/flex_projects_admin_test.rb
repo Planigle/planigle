@@ -14,6 +14,7 @@ class FlexProjectsAdminTest < Test::Unit::TestCase
     @ie.start(false) 
     @ie.speed = 1
     @ie.goto("http://localhost:3000/index.html", "Main") 
+    sleep 1 # Wait to ensure remember me check is made
     login('quentin', 'testit')
     sleep 3 # Wait to ensure data loaded
     @ie.button_bar("mainNavigation").change(:related_object => "Projects")

@@ -7,15 +7,14 @@ module AuthenticatedSystem
     end
 
     # Accesses the current individual from the session. 
-    # Future calls avoid the database because nil is not equal to false.
     def current_individual
-      @current_individual ||= (login_from_session || login_from_basic_auth || login_from_cookie) unless @current_individual == false
+      @current_individual ||= (login_from_session || login_from_basic_auth || login_from_cookie)
     end
 
     # Store the given individual id in the session.
     def current_individual=(new_individual)
       session[:individual_id] = new_individual ? new_individual.id : nil
-      @current_individual = new_individual || false
+      @current_individual = new_individual
     end
 
     # Check if the individual is authorized
@@ -114,8 +113,6 @@ module AuthenticatedSystem
     def login_from_cookie
       individual = cookies[:auth_token] && Individual.find_by_remember_token(cookies[:auth_token])
       if individual && individual.remember_token?
-        individual.remember_me
-        cookies[:auth_token] = { :value => individual.remember_token, :expires => individual.remember_token_expires_at }
         self.current_individual = individual
       end
     end
