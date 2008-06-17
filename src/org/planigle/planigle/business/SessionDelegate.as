@@ -26,10 +26,7 @@ package org.planigle.planigle.business
 			var params:Object = new Object();
 			params["login"] = loginParams.username;
 			params["password"] = loginParams.password;
-			
-			// Make any modifications to the URL here - added for template purposes.
-			// var serviceURL:String = service.url;
-			// service.url = service.url + extraParmsHere
+			params["remember_me"] = loginParams.rememberMe ? 1 : 0;
 			
 			// Login to the service with the userID and password.
 			var makeServiceRequest:Object = service.send( params );
@@ -40,10 +37,6 @@ package org.planigle.planigle.business
 		public function logout():void 
 		{
 			this.service = ServiceLocator.getInstance().getHTTPService("logoutService");
-			
-			// Make any modifications to the URL here - added for template purposes.
-			// var serviceURL:String = service.url;
-			// service.url = service.url + extraParmsHere
 			
 			var params:Object = new Object();
 			params['_method'] = "DELETE";
