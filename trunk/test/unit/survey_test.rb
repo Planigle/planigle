@@ -14,6 +14,16 @@ class SurveyTest < ActiveSupport::TestCase
     end
   end
 
+  # Test the validation of name.
+  def test_name
+    validate_field(:name, false, 1, 80)
+  end
+
+  # Test the validation of company.
+  def test_company
+    validate_field(:company, true, nil, 80)
+  end
+
   # Test the validation of email.
   def test_email
     assert_failure(:email, nil)
@@ -55,10 +65,16 @@ class SurveyTest < ActiveSupport::TestCase
     assert_nil SurveyMapping.find_by_id(1)
   end
 
+  # Test the xml created for surveys.
+  def test_xml
+    survey = surveys(:first)
+    assert_no_tag( survey, :project_id )
+  end
+
 private
 
   # Create a survey with valid values.  Options will override default values (should be :attribute => value).
   def create_survey(options = {})
-    Survey.create({ :project_id => 1, :email => 'foo'+rand.to_s+'@bar.com' }.merge(options))
+    Survey.create({ :project_id => 1, :name => 'boo', :email => 'foo'+rand.to_s+'@bar.com' }.merge(options))
   end
 end

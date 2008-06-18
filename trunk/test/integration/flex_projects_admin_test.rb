@@ -60,7 +60,7 @@ private
     @ie.button("projectBtnChange").click
 
     # Values should not change
-    assert_equal "Name can't be blank\rName is too short (minimum is 1 characters)", @ie.text_area("projectError").text
+    assert_equal "Name can't be blank", @ie.text_area("projectError").text
     assert_equal '', @ie.text_area("projectFieldName").text
     assert_equal 'description', @ie.text_area("projectFieldDescription").text
     assert_not_nil @ie.button("projectBtnCancel")
@@ -140,7 +140,7 @@ private
     @ie.combo_box("projectFieldSurveyMode").open
     @ie.combo_box("projectFieldSurveyMode").select(:item_renderer => "Public by Default")
     assert @ie.form_item("projectFormSurveyUrl").visible
-    assert_equal "http://localhost:3000/survey.html?project=" + projects(:first).survey_key, @ie.label("projectLabelSurveyUrl").text
+    assert_equal "http://localhost:3000/survey.html?projectid=1&surveykey=" + projects(:first).survey_key, @ie.label("projectLabelSurveyUrl").text
 
     @ie.button("projectBtnChange").click
     assert_equal '', @ie.text_area("projectError").text

@@ -6,7 +6,7 @@ class Project < ActiveRecord::Base
   has_many :surveys, :dependent => :destroy
 
   validates_presence_of     :name
-  validates_length_of       :name,                   :within => 1..40
+  validates_length_of       :name,                   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
   validates_length_of       :description,            :maximum => 4096, :allow_nil => true
   validates_numericality_of :survey_mode
   validates_uniqueness_of   :survey_key
@@ -60,6 +60,23 @@ class Project < ActiveRecord::Base
           builder.priority i
         end
         i += 1
+      end
+    end
+  end
+
+  # Show survey summary info for this project (in XML)
+  def show_surveys
+    builder = Builder::XmlMarkup.new
+    builder.instruct!
+    builder.surveys do
+      surveys.each do |survey|
+        builder.survey do
+          builder.id survey.id
+          builder.name survey.name
+          builder.company survey.company
+          builder.email survey.email
+          builder.excluded survey.excluded
+        end
       end
     end
   end

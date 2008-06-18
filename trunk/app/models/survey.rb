@@ -4,17 +4,22 @@ class Survey < ActiveRecord::Base
   belongs_to :project
   has_many :survey_mappings, :dependent => :destroy
   
-  validates_presence_of     :project_id, :email
-  validates_length_of       :email,    :within => 6..100
+  validates_presence_of     :project_id, :name, :email
+  validates_length_of       :name, :maximum => 80, :allow_nil => true # Allow nil to workaround bug
+  validates_length_of       :company, :maximum => 80, :allow_nil => true
+  validates_length_of       :email, :within => 6..100
   validates_uniqueness_of   :email, :case_sensitive => false
   validates_format_of       :email, :with => /(^([^@\s]+)@((?:[-_a-z0-9]+\.)+[a-z]{2,})$)|(^$)/i
 
-  attr_accessible :project_id, :email, :excluded
+  attr_accessible :project_id, :name, :company, :email, :excluded
   
   # Override to_xml to include survey mappings.
   def to_xml(options = {})
     if !options[:include]
       options[:include] = [:survey_mappings]
+    end
+    if !options[:except]
+      options[:except] = [:project_id]
     end
     super(options)
   end

@@ -3,7 +3,7 @@ class Task < ActiveRecord::Base
   belongs_to :story
   
   validates_presence_of     :name, :story_id
-  validates_length_of       :name,                   :within => 1..40
+  validates_length_of       :name,                   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
   validates_length_of       :description,            :maximum => 4096, :allow_nil => true
   validates_numericality_of :effort, :allow_nil => true
   validates_numericality_of :status_code

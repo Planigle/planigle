@@ -28,7 +28,7 @@ class FlexSurveysTest < Test::Unit::TestCase
 
   # Test getting a survey with an invalid code.
   def get_invalid_survey
-    @ie.goto("http://localhost:3000/survey.html?project=0", "Survey") 
+    @ie.goto("http://localhost:3000/survey.html?projectid=1&surveykey=0", "Survey") 
     sleep 2 # Wait for survey to load
     assert_equal 'Invalid survey key', @ie.text_area("error").text
     assert !@ie.button("btnSubmit").visible
@@ -36,7 +36,7 @@ class FlexSurveysTest < Test::Unit::TestCase
   
   # Test getting a survey successfully.
   def get_survey_success
-    @ie.goto("http://localhost:3000/survey.html?project=" + projects(:first).survey_key, "Survey")
+    @ie.goto("http://localhost:3000/survey.html?projectid=1&surveykey=" + projects(:first).survey_key, "Survey")
     sleep 2 # Wait for survey to load
     assert_equal 'Drag and drop the stories to order them from most important to least important and then hit Submit', @ie.text_area("error").text
     assert @ie.button("btnSubmit").visible
@@ -53,17 +53,19 @@ class FlexSurveysTest < Test::Unit::TestCase
 
   # Test submitting without an email.
   def submit_without_email
-    @ie.goto("http://localhost:3000/survey.html?project=" + projects(:first).survey_key, "Survey") 
+    @ie.goto("http://localhost:3000/survey.html?projectid=1&surveykey=" + projects(:first).survey_key, "Survey") 
     sleep 2 # Wait for survey to load
     @ie.button("btnSubmit").click
-    assert_equal "Email can't be blank\rEmail is too short (minimum is 6 characters)", @ie.text_area("error").text
+    assert_equal "Name can't be blank\rEmail can't be blank\rEmail is too short (minimum is 6 characters)", @ie.text_area("error").text
     assert @ie.button("btnSubmit").visible
   end
   
   # Test submitting successfully.
   def submit_successful
-    @ie.goto("http://localhost:3000/survey.html?project=" + projects(:first).survey_key, "Survey") 
+    @ie.goto("http://localhost:3000/survey.html?projectid=1&surveykey=" + projects(:first).survey_key, "Survey") 
     sleep 2 # Wait for survey to load
+    @ie.text_area("fieldName").input(:text => 'Testy' )
+    @ie.text_area("fieldCompany").input(:text => 'Foo' )
     @ie.text_area("fieldEmail").input(:text => 'testy@foo.com' )
     @ie.button("btnSubmit").click
     assert_equal 'Survey submitted successfully!  Thanks for your help.', @ie.text_area("error").text

@@ -7,7 +7,7 @@ class Story < ActiveRecord::Base
   has_many :survey_mappings, :dependent => :destroy
   
   validates_presence_of     :project_id, :name
-  validates_length_of       :name,                   :within => 1..40
+  validates_length_of       :name,                   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
   validates_length_of       :description,            :maximum => 4096, :allow_nil => true
   validates_length_of       :acceptance_criteria,    :maximum => 4096, :allow_nil => true
   validates_numericality_of :effort, :allow_nil => true

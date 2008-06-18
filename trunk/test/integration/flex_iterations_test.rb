@@ -63,7 +63,7 @@ private
     @ie.button("iterationBtnChange").click
 
     # Values should not change
-    assert_equal "Name can't be blank\rName is too short (minimum is 1 characters)", @ie.text_area("iterationError").text
+    assert_equal "Name can't be blank", @ie.text_area("iterationError").text
     assert_equal '', @ie.text_area("iterationFieldName").text
     assert_equal '05/28/2008', @ie.text_area("iterationFieldStart").text # Based on last iteration
     assert_equal '2', @ie.text_area("iterationFieldLength").text         # Based on last iteration

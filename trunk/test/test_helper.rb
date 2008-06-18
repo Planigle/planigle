@@ -77,9 +77,13 @@ class Test::Unit::TestCase
   end
 
   # Assert that the XML for object includes the specified tag and value.
-  def assert_tag( object, tag, value )
-    includes = /.*<#{tag}.*>#{value}<\/#{tag}>.*/
-    assert_match includes, object.to_xml
+  def assert_tag( object, tag, value=nil )
+    if value
+      includes = /.*<#{tag}.*>#{value}<\/#{tag}>.*/
+    else
+      includes = /.*<#{tag}.*>.*<\/#{tag}>.*/
+    end
+    assert_match includes, object.class == String ? object : object.to_xml
   end
   
   # Assert that the XML for object does not include the specified tag.

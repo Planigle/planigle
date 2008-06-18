@@ -5,8 +5,8 @@
 	<!--The main style sheet for all the applications.-->
 	<mx:Style source="stylesheets/flex.css"/>
 
-	<mx:HTTPService id="surveyGet" url="surveys/" useProxy="false" method="GET" result="handleSurvey(event)" resultFormat="e4x" showBusyCursor="true"/>
-	<mx:HTTPService id="surveyPost" url="surveys/" useProxy="false" method="POST" result="handleSubmit(event)" resultFormat="e4x" showBusyCursor="true"/>
+	<mx:HTTPService id="surveyGet" useProxy="false" method="GET" result="handleSurvey(event)" resultFormat="e4x" showBusyCursor="true"/>
+	<mx:HTTPService id="surveyPost" useProxy="false" method="POST" result="handleSubmit(event)" resultFormat="e4x" showBusyCursor="true"/>
 	
 	<mx:Script>
 		<![CDATA[
@@ -22,7 +22,7 @@
 			// Populate based on the URL parameter project.
 			public function init():void
 			{
-				surveyGet.url = "surveys/" + Application.application.parameters.project + ".xml";
+				surveyGet.url = "projects/" + Application.application.parameters["projectid"] + "/surveys/new.xml?survey_key=" + Application.application.parameters["surveykey"];
 				surveyGet.send();
 				fieldEmail.setFocus();
 			}
@@ -59,9 +59,11 @@
 					queryString += "stories[]="
 					queryString += story.id
 				}
-				surveyPost.url = "surveys/" + Application.application.parameters.project + ".xml" + queryString;
+				surveyPost.url = "projects/" + Application.application.parameters.projectid + "/surveys.xml" + queryString;
 				var params:Object = new Object();
-				params["_method"] = "put";
+				params["survey_key"] = Application.application.parameters.surveykey;
+				params["name"] = fieldName.text;
+				params["company"] = fieldCompany.text;
 				params["email"] = fieldEmail.text;
 				surveyPost.send(params);
 			}
@@ -97,9 +99,17 @@
 			</mx:VBox>
 			<mx:Button label="Submit" id="btnSubmit" click="submit()" visible="false"/>
 		</mx:HBox>
-		<mx:FormItem label='Email' required="true">
-			<mx:TextInput id='fieldEmail' maxChars="100" text='' width="350"/>
-		</mx:FormItem>
+		<mx:Form>
+			<mx:FormItem label='Name' required="true">
+				<mx:TextInput id='fieldName' maxChars="80" text='' width="350"/>
+			</mx:FormItem>
+			<mx:FormItem label='Company'>
+				<mx:TextInput id='fieldCompany' maxChars="80" text='' width="350"/>
+			</mx:FormItem>
+			<mx:FormItem label='Email' required="true">
+				<mx:TextInput id='fieldEmail' maxChars="100" text='' width="350"/>
+			</mx:FormItem>
+		</mx:Form>
 		<mx:DataGrid id="resourceGrid" dataProvider="{stories}" width="100%" height="100%" dragEnabled="true" dropEnabled="true" dragMoveEnabled="true">
 			<mx:columns>
 				<mx:DataGridColumn headerText="Name" width="350" dataField="name" sortable="false"/>

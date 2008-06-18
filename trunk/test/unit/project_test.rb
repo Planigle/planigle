@@ -47,6 +47,29 @@ class ProjectTest < ActiveSupport::TestCase
     assert_nil Survey.find_by_id(1)
   end
 
+  # Test the xml created for surveys.
+  def test_create_survey
+    survey = projects(:first).create_survey
+    assert_tag( survey, :stories)
+    assert_tag( survey, :story)
+    assert_tag( survey, :id)
+    assert_tag( survey, :name)
+    assert_tag( survey, :description)
+    assert_tag( survey, :priority)
+  end
+
+  # Test the xml to show surveys.
+  def test_show_surveys
+    survey = projects(:first).show_surveys
+    assert_tag( survey, :surveys)
+    assert_tag( survey, :survey)
+    assert_tag( survey, :id)
+    assert_tag( survey, :name)
+    assert_tag( survey, :company)
+    assert_tag( survey, :email)
+    assert_tag( survey, :excluded)
+  end
+
 private
 
   # Create an project with valid values.  Options will override default values (should be :attribute => value).
