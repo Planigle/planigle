@@ -13,8 +13,8 @@ class Individual < ActiveRecord::Base
   validates_length_of       :password, :within => 6..40, :if => :password_required?
   validates_confirmation_of :password,                   :if => :password_required?
   validates_length_of       :login,    :within => 2..40
-  validates_length_of       :first_name,    :within => 1..40
-  validates_length_of       :last_name,    :within => 1..40
+  validates_length_of       :first_name,    :maximum => 40, :allow_nil => true # Allow nil to workaround bug
+  validates_length_of       :last_name,    :maximum => 40, :allow_nil => true # Allow nil to workaround bug
   validates_length_of       :email,    :within => 6..100
   validates_uniqueness_of   :login, :email, :case_sensitive => false
   validates_uniqueness_of   :activation_code

@@ -1,27 +1,31 @@
 class SurveysController < ApplicationController
+  before_filter :login_required, :except => [:new, :create]
+
   # Create a survey template.
-  def show
-    project = Project.find(:first, :conditions => [ "survey_key = ? and survey_mode != 0", params[:id]])
+  def new
+    project = Project.find(:first, :conditions => [ "id = ? and survey_key = ? and survey_mode != 0", params[:project_id], params[:survey_key]])
     if !project
-      render :xml => xml_error("Invalid survey key")
+      render :xml => xml_error("Invalid survey key"), :status => :unprocessable_entity
     else
       render :xml => project.create_survey
     end
   end
   
   # Post a survey template.
-  def update
-    project = Project.find(:first, :conditions => [ "survey_key = ? and survey_mode != 0", params[:id]])
+  def create
+    project = Project.find(:first, :conditions => [ "id = ? and survey_key = ? and survey_mode != 0", params[:project_id], params[:survey_key]])
     if !project
-      render :xml => xml_error("Invalid survey key")
+      render :xml => xml_error("Invalid survey key"), :status => :unprocessable_entity
     else
       begin
         Survey.transaction do
           # Create Survey / clear existing entries for this email
           if (@survey = Survey.find(:first, :conditions => [ "project_id = ? and STRCMP( email, ?)=0", project.id, params[:email] ]))
+            @survey.name = params[:name]
+            @survey.company = params[:company]
             @survey.survey_mappings.delete_all
           else
-            @survey = Survey.new(:project_id => project.id, :email => params[:email])
+            @survey = Survey.new(:project_id => project.id, :name => params[:name], :company => params[:company], :email => params[:email])
             @survey.save!
           end
     
@@ -44,11 +48,23 @@ class SurveysController < ApplicationController
         if @survey.valid?
           logger.error(e)
           logger.error(e.backtrace.join("\n"))
-          render :xml => xml_error('Error processing survey')
+          render :xml => xml_error('Error processing survey'), :status => 500
         else
           render :xml => @survey.errors, :status => :unprocessable_entity
         end
       end
     end
+  end
+
+  # List the existing surveys.
+  def index
+    project = Project.find(params[:project_id])
+    render :xml => project.show_surveys
+  end
+
+  # Show details on a particular survey
+  def show
+    survey = Project.find(params[:project_id]).surveys.find(params[:id])
+    render :xml => survey
   end
 end

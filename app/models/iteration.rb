@@ -4,7 +4,7 @@ class Iteration < ActiveRecord::Base
   has_many :stories, :dependent => :nullify
   
   validates_presence_of     :project_id, :name, :start
-  validates_length_of       :name,   :within => 1..40  
+  validates_length_of       :name,   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
   validates_numericality_of :length
 
   # Prevent a user from submitting a crafted form that bypasses activation

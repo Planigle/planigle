@@ -18,7 +18,9 @@ ActionController::Routing::Routes.draw do |map|
   map.activate '/activate/:activation_code', :controller => 'individuals', :action => 'activate'
   map.logout '/logout', :controller => 'sessions', :action => 'destroy'
 
-  map.resources :surveys
+  map.resources :projects, :active_scaffold => true do |projects|
+    projects.resources :surveys
+  end
 
   # The priority is based upon order of creation: first created -> highest priority.
   

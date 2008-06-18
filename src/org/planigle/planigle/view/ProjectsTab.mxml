@@ -78,7 +78,7 @@
 				for (var index:int = base.indexOf( "/" ); base.indexOf( "/", index + 1 ) >= 0; )
 					index = base.indexOf( "/", index + 1 ); // Get the last /
 				base = base.substr( 0, index );
-				projectLabelSurveyUrl.text = base + "/survey.html?project=" + currentItem.child("survey-key");
+				projectLabelSurveyUrl.text = base + "/survey.html?projectid=" + currentItem.id + "&surveykey=" + currentItem.child("survey-key");
 				projectBtnChange.label = 'Update';
 			}
 		}
