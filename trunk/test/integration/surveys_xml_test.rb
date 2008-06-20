@@ -224,4 +224,54 @@ class SurveysXmlTest < ActionController::IntegrationTest
       end
     end
   end
+
+  # Test updating a survey.
+  def test_update_survey
+    put '/projects/1/surveys/2', {:record => {:excluded => true}}, authorization_header
+    assert_response :success
+    assert_select 'survey'
+    assert surveys(:second).reload.excluded
+    assert_nil stories(:third).reload.user_priority
+  end
+
+  # Test updating a survey.
+  def test_update_survey_flex
+    flex_login
+    put '/projects/1/surveys/2.xml', {:record => {:excluded => true}}, flex_header
+    assert_response :success
+    assert_select 'survey'
+    assert surveys(:second).reload.excluded
+    assert_nil stories(:third).reload.user_priority
+  end
+
+  # Test updating a survey w/ invalid number.
+  def test_update_survey_invalid
+    put '/projects/1/surveys/0', {:record => {:excluded => true}}, authorization_header
+    assert_response 404
+    assert_equal 2.0, stories(:third).reload.user_priority
+  end
+
+  # Test updating a survey w/ invalid number.
+  def test_update_survey_invalid_flex
+    flex_login
+    put '/projects/1/surveys/0.xml', {:record => {:excluded => true}}, flex_header
+    assert_response 404
+    assert_equal 2.0, stories(:third).reload.user_priority
+  end
+
+  # Test updating a survey w/o authorization.
+  def test_update_survey_unauthorized
+    put '/projects/1/surveys/2', {:record => {:excluded => true}}, accept_header
+    assert_response 401
+    assert !surveys(:second).reload.excluded
+    assert_equal 2.0, stories(:third).reload.user_priority
+  end
+
+  # Test updating a survey w/o authorization.
+  def test_update_survey_unauthorized_flex
+    put '/projects/1/surveys/2.xml', {:record => {:excluded => true}}, flex_header
+    assert_response 401
+    assert !surveys(:second).reload.excluded
+    assert_equal 2.0, stories(:third).reload.user_priority
+  end
 end

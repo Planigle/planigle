@@ -58,18 +58,6 @@ class ProjectTest < ActiveSupport::TestCase
     assert_tag( survey, :priority)
   end
 
-  # Test the xml to show surveys.
-  def test_show_surveys
-    survey = projects(:first).show_surveys
-    assert_tag( survey, :surveys)
-    assert_tag( survey, :survey)
-    assert_tag( survey, :id)
-    assert_tag( survey, :name)
-    assert_tag( survey, :company)
-    assert_tag( survey, :email)
-    assert_tag( survey, :excluded)
-  end
-
 private
 
   # Create an project with valid values.  Options will override default values (should be :attribute => value).

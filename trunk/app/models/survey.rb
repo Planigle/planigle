@@ -52,4 +52,9 @@ class Survey < ActiveRecord::Base
     
     hash.keys
   end
+  
+  # Answer the stories which I am ranking
+  def stories
+    survey_mappings.select{|sm| sm.story_id }.collect{|sm| sm.story }
+  end
 end

@@ -34,6 +34,7 @@ third:
   effort: 1
   status_code: 1
   priority: 1
+  user_priority: 2
   public: false
 
 fourth:

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:local="org.planigle.planigle.view.controls.*" name="Stories" label="Stories" creationComplete="created(event)">
-	<mx:HTTPService id="resourceSort" url="stories/sort.xml" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:local="org.planigle.planigle.view.controls.*" xmlns:component="org.planigle.planigle.view.components.*" name="Stories" label="Stories" creationComplete="created(event)">
+	<mx:HTTPService id="resourceSort" url="stories/sort.xml" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x" showBusyCursor="true"/>
 	<mx:Script>
 		<![CDATA[
 		import mx.collections.ArrayCollection;
@@ -133,6 +133,12 @@
 				handleFilter(event);
 				}
 		}
+
+		// Show the surveys for this project.
+		private function handleSurveys(event:Event):void
+		{
+			currentState = "Survey";
+		}
 		
 		// Add an existing story to this iteration.
 		private function handleAdd(event:Event):void
@@ -246,13 +252,7 @@
 				if (iteration.selectedItem.id >= 0)
 					field_iteration.selectedItem = iteration.selectedItem;
 				else
-				{
-					var current:Iteration = IterationFactory.getInstance().current();
-					if (current)
-						field_iteration.selectedItem = current;
-					else
-						field_iteration.selectedIndex = IterationFactory.getInstance().iterationSelector.length - 1;
-				}
+					field_iteration.selectedIndex = IterationFactory.getInstance().iterationSelector.length - 1;
 			}
 
 			field_owner.selectedIndex = 0;
@@ -473,7 +473,10 @@
 		// The user has updated the story / task status in the table.
 		public function updateStatus(item:Object, event:ListEvent):void
 		{
+			var recalc:Boolean = item.statusCode == 2 && event.target.selectedIndex < 2;
 			item.update({"record[status_code]": event.target.selectedIndex}, handleSuccess, handleFailure);
+			if (recalc)
+				new StoryChangedEvent().dispatch();
 		}
 		]]>
 	</mx:Script>
@@ -524,6 +527,14 @@
 				</mx:target>
 			</mx:AddChild>
 		</mx:State>
+		<mx:State name="Survey">
+			<mx:AddChild relativeTo="{combinedPanel}" position="before">
+				<mx:target>
+					<component:ViewSurveys id="surveysView" done="resetState(event)">
+					</component:ViewSurveys>
+				</mx:target>
+			</mx:AddChild>
+		</mx:State>
 	</mx:states>
 	
 	<mx:transitions>
@@ -555,6 +566,23 @@
 			</mx:Sequence>
 		</mx:Transition>
 
+		<mx:Transition id="survey" fromState="*" toState="Survey">
+			<mx:Sequence targets="{[combinedPanel]}">
+				<mx:RemoveChildAction/>
+				<mx:SetPropertyAction target="{combinedPanel}" name="visible" value="false"/>
+				<mx:Resize target="{combinedPanel}"/>
+				<mx:AddChildAction/>
+			</mx:Sequence>
+		</mx:Transition>
+
+		<mx:Transition id="survey2" fromState="Survey" toState="*">
+			<mx:Sequence targets="{[combinedPanel]}">
+				<mx:RemoveChildAction/>
+				<mx:SetPropertyAction target="{combinedPanel}" name="visible" value="true"/>
+				<mx:Resize target="{combinedPanel}"/>
+				<mx:AddChildAction/>
+			</mx:Sequence>
+		</mx:Transition>
 	</mx:transitions>
 	
 	<mx:Panel id="combinedPanel" height="100%" y="0" width="100%" x="0">
@@ -565,6 +593,7 @@
 				</mx:FormItem>
 				<mx:Text id="error" styleName="error" htmlText="{_error}" color="#ff0033" width="100%"/>
 			</mx:VBox>
+			<mx:Button label="View Surveys" click="handleSurveys(event);" id="btn_view_surveys"/>
 			<mx:Button label="Add Existing" click="handleAdd(event);" id="btn_add_existing" visible="{iteration.selectedItem.id != -1}"/>
 			<mx:Button label="Create" styleName="btn_create" click="showCreateStory(event);" id="btn_create"/>
 		</mx:HBox>
@@ -583,7 +612,7 @@
 				<mx:DataGridColumn id="column_iteration" width="150" headerText="Iteration" labelFunction="ViewHelper.formatIteration" sortCompareFunction="ViewHelper.sortIteration"/>
 				<mx:DataGridColumn headerText="Owner" width="150" labelFunction="ViewHelper.formatIndividual" sortCompareFunction="ViewHelper.sortIndividual"/>
 				<mx:DataGridColumn headerText="Effort" width="75" dataField="calculatedEffort"/>
-				<mx:DataGridColumn editable="false" width="100" minWidth="100" headerText="Status" sortCompareFunction="ViewHelper.sortStatus">
+				<mx:DataGridColumn editable="false" width="125" minWidth="125" headerText="Status" sortCompareFunction="ViewHelper.sortStatus">
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
@@ -599,7 +628,7 @@
 				<mx:DataGridColumn headerText="Public" width="80" dataField="isPublic"/>
 				<mx:DataGridColumn headerText="Priority" width="80" dataField="priority"/>
 				<mx:DataGridColumn headerText="User Priority" width="80" dataField="userPriority"/>
-				<mx:DataGridColumn editable="false" width="130" minWidth="130" sortable="false">
+				<mx:DataGridColumn editable="false" width="140" minWidth="140" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0" width="100%">
