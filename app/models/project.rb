@@ -64,23 +64,6 @@ class Project < ActiveRecord::Base
     end
   end
 
-  # Show survey summary info for this project (in XML)
-  def show_surveys
-    builder = Builder::XmlMarkup.new
-    builder.instruct!
-    builder.surveys do
-      surveys.each do |survey|
-        builder.survey do
-          builder.id survey.id
-          builder.name survey.name
-          builder.company survey.company
-          builder.email survey.email
-          builder.excluded survey.excluded
-        end
-      end
-    end
-  end
-
 protected
   
   # Add custom validation of the status field and relationships to give a more specific message.

@@ -55,7 +55,9 @@
 			<mx:FormItem label="Password" id="password">
 				<mx:TextInput id="userPassword" width="200" text="" displayAsPassword="true"/>
 			</mx:FormItem>
-			<mx:CheckBox id="rememberMe" label="Remember me"/>
+			<mx:HBox id="btnBox" width="100%" horizontalAlign="center">
+				<mx:CheckBox id="rememberMe" label="Remember me"/>
+			</mx:HBox>
 		</mx:Form>
 		<mx:Button label="Login" id="loginButton"
 			click="loginClickHandler(event)"/>

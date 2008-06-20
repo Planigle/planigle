@@ -19,18 +19,7 @@ package org.planigle.planigle.model
 		{
 			id = xml.id;
 			name = xml.name;
-			
-			try
-			{
-				var st:String = xml.start;
-				st=st.replace(/-/g, "/");
-				start = new Date(st);
-			}
-			catch(exception:TypeError)
-			{
-				start = new Date();
-			}
-			
+			start = DateUtils.stringToDate(xml.start);			
 			length = xml.length;
 		}
 		

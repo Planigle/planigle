@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" label="Projects" creationComplete="created(event)">
-	<mx:HTTPService id="resourcePut" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
-	<mx:HTTPService id="resourceDelete" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x"/>
-	<mx:HTTPService id="resourcePost" url="projects.xml" useProxy="false" method="POST" result="handleCreate(event)" resultFormat="e4x"/>
+	<mx:HTTPService id="resourcePut" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x" showBusyCursor="true"/>
+	<mx:HTTPService id="resourceDelete" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x" showBusyCursor="true"/>
+	<mx:HTTPService id="resourcePost" url="projects.xml" useProxy="false" method="POST" result="handleCreate(event)" resultFormat="e4x" showBusyCursor="true"/>
 	
 	<mx:Script>
 		<![CDATA[

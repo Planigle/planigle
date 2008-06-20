@@ -59,12 +59,54 @@ class SurveysController < ApplicationController
   # List the existing surveys.
   def index
     project = Project.find(params[:project_id])
-    render :xml => project.show_surveys
+    render :xml => project.surveys.to_xml(:include => [])
   end
 
   # Show details on a particular survey
   def show
     survey = Project.find(params[:project_id]).surveys.find(params[:id])
     render :xml => survey
+  end
+
+  # Update the survey (currently can only mark as excluded)
+  def update
+    survey = Project.find(params[:project_id]).surveys.find(params[:id])
+    if params.has_key?(:record) and params[:record].has_key?(:excluded)
+      begin
+        Survey.transaction do
+          excluded = params[:record][:excluded] == "true"
+          survey.excluded = excluded
+          survey.save!
+  
+          # Update the user rankings on the stories
+          ranked_stories = survey.apply_to_stories
+          ranked_stories.each do |story|
+            story.save!
+          end
+          
+          # nil out user_priority for stories that are no longer ranked.
+          if excluded
+            survey.stories.each do |story|
+              if !ranked_stories.include? story
+                story.user_priority = nil
+                story.save!
+              end
+            end
+          end
+      
+          render :xml => survey
+        end
+      rescue Exception => e
+        if survey.valid?
+          logger.error(e)
+          logger.error(e.backtrace.join("\n"))
+          render :xml => xml_error('Error processing survey'), :status => 500
+        else
+          render :xml => survey.errors, :status => :unprocessable_entity
+        end
+      end
+    else
+      render :xml => xml_error('Can only change whether a survey is excluded'), :status => :unprocessable_entity
+    end
   end
 end

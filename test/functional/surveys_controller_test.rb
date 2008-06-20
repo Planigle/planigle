@@ -125,4 +125,30 @@ class SurveysControllerTest < Test::Unit::TestCase
       end
     end
   end
+
+  # Test updating a survey.
+  def test_update_survey
+    login_as(individuals(:quentin))
+    put :update, :project_id => 1, :id => 2, :record => {:excluded => "true"}
+    assert_response :success
+    assert_select 'survey'
+    assert surveys(:second).reload.excluded
+    assert_nil stories(:third).reload.user_priority
+  end
+
+  # Test updating a survey w/ invalid number.
+  def test_update_survey_invalid
+    login_as(individuals(:quentin))
+    put :update, :project_id => 1, :id => 0, :record => {:excluded => "true"}
+    assert_response 404
+    assert_equal 2.0, stories(:third).reload.user_priority
+  end
+
+  # Test updating a survey w/o authorization.
+  def test_update_survey_unauthorized
+    put :update, :project_id => 1, :id => 2, :record => {:excluded => "true"}
+    assert_redirected_to :controller => 'sessions', :action => 'new'        
+    assert !surveys(:second).reload.excluded
+    assert_equal 2.0, stories(:third).reload.user_priority
+  end
 end

@@ -10,6 +10,7 @@
 		import org.planigle.planigle.model.ViewModelLocator;
 		import org.planigle.planigle.model.IterationFactory;
 		import org.planigle.planigle.model.Iteration;
+		import org.planigle.planigle.model.DateUtils;
 		import org.planigle.planigle.events.IterationChangedEvent;
 		import modules.Core;
 		
@@ -60,7 +61,7 @@
 			}
 			else
 			{
-	 			iterationFieldName.text = '';
+	 			iterationFieldName.text = 'Iteration 1';
 				iterationFieldStart.selectedDate = new Date();
 				iterationFieldLength.text = '2';
 			}
@@ -171,7 +172,7 @@
 		// Format the start date into a more readable format.
 		private function formatDate(item:Object, column:DataGridColumn):String
 		{
-			return (item.start.month + 1) + "/" + item.start.date + "/" + item.start.fullYear;
+			return DateUtils.formatDate(item.start);
 		}
 		]]>
 	</mx:Script>
@@ -188,7 +189,7 @@
 						<mx:FormItem label='Start' required="true">
 							<mx:DateField id='iterationFieldStart' editable="true" showToday="true" width="100"/>
 						</mx:FormItem>
-						<mx:FormItem label='Length' required="true">
+						<mx:FormItem label='Length (in weeks)' required="true">
 							<mx:TextInput id='iterationFieldLength' restrict="0-9" text='' width="350"/>
 						</mx:FormItem>
 						<mx:ControlBar width="100%">
@@ -230,7 +231,7 @@
 				<mx:columns>
 				<mx:DataGridColumn headerText="Name" dataField="name"/>
 				<mx:DataGridColumn headerText="Start" dataField="start" labelFunction="formatDate" />
-				<mx:DataGridColumn headerText="Length" dataField="length"/>
+				<mx:DataGridColumn headerText="Length (in weeks)" dataField="length"/>
 				<mx:DataGridColumn editable="false" width="90" minWidth="90" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>

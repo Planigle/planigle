@@ -9,6 +9,7 @@ package org.planigle.planigle.model
 	{
 		public var stories:ArrayCollection = new ArrayCollection();
 		private static var instance:StoryFactory;
+		private var storyMapping:Object = new Object();
 		
 		public function StoryFactory(enforcer:SingletonEnforcer)
 		{
@@ -28,8 +29,13 @@ package org.planigle.planigle.model
 		public function populate(xml:XMLList):void
 		{
 			var newStories:ArrayCollection = new ArrayCollection();
+			storyMapping = new Object();
 			for (var i:int = 0; i < xml.length(); i++)
-				newStories.addItem(new Story(xml[i]));
+			{
+				var story:Story = new Story(xml[i]);
+				newStories.addItem(story);
+				storyMapping[story.id] = story;
+			}
 			stories = newStories;
 		}
 		
@@ -52,6 +58,12 @@ package org.planigle.planigle.model
 			newStories.addItem(story);
 			stories = newStories;
 			return story;
+		}
+
+		// Find a story given its ID.  If no story, return null.
+		public function find(id:int):Story
+		{
+			return storyMapping[id];
 		}
 	}
 }

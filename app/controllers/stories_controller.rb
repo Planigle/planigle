@@ -135,7 +135,7 @@ protected
   # Update the surveys if the story is unaccepted.
   def do_update
     @record = find_if_allowed(params[:id], :update)
-    should_update = (params["record"]["status_code"] !=2 and @record.status_code == 2 and @record.user_priority)
+    should_update = (params["record"]["status_code"] !=2 and @record.status_code == 2)
     result = super
     if should_update
       Survey.update_rankings(@record.project).each do |story|
