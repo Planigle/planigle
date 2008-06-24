@@ -611,7 +611,7 @@
 				<mx:DataGridColumn headerText="Name" width="350" dataField="listName" showDataTips="true" dataTipField="description" />
 				<mx:DataGridColumn id="column_iteration" width="150" headerText="Iteration" labelFunction="ViewHelper.formatIteration" sortCompareFunction="ViewHelper.sortIteration"/>
 				<mx:DataGridColumn headerText="Owner" width="150" labelFunction="ViewHelper.formatIndividual" sortCompareFunction="ViewHelper.sortIndividual"/>
-				<mx:DataGridColumn headerText="Effort" width="75" dataField="calculatedEffort"/>
+				<mx:DataGridColumn headerText="Effort" width="75" dataField="calculatedEffort" sortCompareFunction="ViewHelper.sortEffort"/>
 				<mx:DataGridColumn editable="false" width="125" minWidth="125" headerText="Status" sortCompareFunction="ViewHelper.sortStatus">
 					<mx:itemRenderer> 
 						<mx:Component>
@@ -627,7 +627,7 @@
 				</mx:DataGridColumn>
 				<mx:DataGridColumn headerText="Public" width="80" dataField="isPublic"/>
 				<mx:DataGridColumn headerText="Priority" width="80" dataField="priority"/>
-				<mx:DataGridColumn headerText="User Priority" width="80" dataField="userPriority"/>
+				<mx:DataGridColumn headerText="User Priority" width="80" dataField="userPriority" sortCompareFunction="ViewHelper.sortUserPriority"/>
 				<mx:DataGridColumn editable="false" width="140" minWidth="140" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>

@@ -115,5 +115,17 @@ package org.planigle.planigle.view
 		{
 			return ObjectUtil.numericCompare(item1.child("survey-mode"), item2.child("survey-mode"));
 		}
+
+		// Sort effort numerically.
+		public static function sortEffort(item1:Object, item2:Object):int
+		{
+			return ObjectUtil.numericCompare(Number(item1.calculatedEffort),Number(item2.calculatedEffort));
+		}
+
+		// Sort user priority numerically.
+		public static function sortUserPriority(item1:Object, item2:Object):int
+		{
+			return ObjectUtil.numericCompare(Number(item1.userPriority),Number(item2.userPriority));
+		}
 	}
 }
