@@ -54,7 +54,7 @@
 		// Update the surveys.
 		private function updateSurveys(event:Event):void
 		{
-			resourceGet.url = "projects/" + ViewModelLocator.getInstance().projects[0].id + "/surveys.xml";
+			resourceGet.url = "surveys.xml";
 			var params:Object = new Object();
 			params["random"] = Math.random();
 			resourceGet.send(params);
@@ -91,7 +91,7 @@
 		public function showDetails(event:Event):void
 		{
 			currentState = "Details";
-			detailsGet.url = "projects/" + ViewModelLocator.getInstance().projects[0].id + "/surveys/" + surveysResourceGrid.selectedItem.id + ".xml";
+			detailsGet.url = "surveys/" + surveysResourceGrid.selectedItem.id + ".xml";
 			var params:Object = new Object();
 			params["random"] = Math.random();
 			detailsGet.send(params);
@@ -123,7 +123,7 @@
 		// Show the details for the selected survey.
 		public function updateExcluded(item:Object, event:ListEvent):void
 		{
-			resourceUpdate.url = "projects/" + ViewModelLocator.getInstance().projects[0].id + "/surveys/" + item.id + ".xml";
+			resourceUpdate.url = "surveys/" + item.id + ".xml";
 			var params:Object = new Object();
 			params["_method"] = "put";
 			params["random"] = Math.random();

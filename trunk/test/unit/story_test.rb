@@ -117,23 +117,23 @@ class StoryTest < ActiveSupport::TestCase
 
   # Test that added stories are put at the end of the list.
   def test_priority_on_add
-    assert_equal [3, 2, 1, 4] << create_story.id, Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    assert_equal [3, 2, 1, 4] << create_story.id, Story.find(:all, :conditions => 'project_id = 1', :order=>'priority').collect {|story| story.id}    
   end
 
   # Test successfully sorting the stories.
   def test_sort_success
-    assert_equal [3, 2, 1, 4], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    assert_equal [3, 2, 1, 4], Story.find(:all, :conditions => 'project_id = 1', :order=>'priority').collect {|story| story.id}    
     Story.sort([1, 2, 3]).each {|story| story.save(false)}
-    assert_equal [1, 2, 3, 4], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    assert_equal [1, 2, 3, 4], Story.find(:all, :conditions => 'project_id = 1', :order=>'priority').collect {|story| story.id}    
   end
 
   # Test failure to change the sort order.
   def test_sort_failure
-    assert_equal [3, 2, 1, 4], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    assert_equal [3, 2, 1, 4], Story.find(:all, :conditions => 'project_id = 1', :order=>'priority').collect {|story| story.id}    
     assert_raise(ActiveRecord::RecordNotFound) {
       Story.sort [999, 2, 3]
     }
-    assert_equal [3, 2, 1, 4], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    assert_equal [3, 2, 1, 4], Story.find(:all, :conditions => 'project_id = 1', :order=>'priority').collect {|story| story.id}    
   end
   
   # Test deleting an story (should delete tasks).

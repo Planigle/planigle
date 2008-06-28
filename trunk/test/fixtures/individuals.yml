@@ -1,6 +1,7 @@
 <% require 'digest/sha1' %>
 quentin:
   id: 1
+  role: 0
   login: quentin
   first_name: quentin
   last_name: tarantino
@@ -12,6 +13,7 @@ quentin:
 
 aaron:
   id: 2
+  role: 1
   project_id: 1
   login: aaron
   first_name: aaron
@@ -24,6 +26,7 @@ aaron:
 
 ted:
   id: 3
+  role: 1
   project_id: 1
   login: ted
   first_name: ted
@@ -32,3 +35,42 @@ ted:
   salt: salt
   crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
   activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9c 
+
+user:
+  id: 4
+  role: 2
+  project_id: 1
+  login: user
+  first_name: user
+  last_name: williams
+  email: user@example.com
+  salt: salt
+  crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
+  activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9c 
+  activated_at: <%= 5.days.ago.to_s :db %> 
+
+readonly:
+  id: 5
+  role: 3
+  project_id: 1
+  login: readonly
+  first_name: readonly
+  last_name: williams
+  email: readonly@example.com
+  salt: salt
+  crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
+  activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9c 
+  activated_at: <%= 5.days.ago.to_s :db %> 
+
+admin2:
+  id: 6
+  role: 0
+  project_id: 1
+  login: admin2
+  first_name: admin2
+  last_name: williams
+  email: admin2@example.com
+  salt: salt
+  crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
+  activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9c 
+  activated_at: <%= 5.days.ago.to_s :db %> 

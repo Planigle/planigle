@@ -22,7 +22,7 @@
 			// Populate based on the URL parameter project.
 			public function init():void
 			{
-				surveyGet.url = "projects/" + Application.application.parameters["projectid"] + "/surveys/new.xml?survey_key=" + Application.application.parameters["surveykey"];
+				surveyGet.url = "surveys/new.xml?survey_key=" + Application.application.parameters["surveykey"];
 				surveyGet.send();
 				fieldEmail.setFocus();
 			}
@@ -59,7 +59,7 @@
 					queryString += "stories[]="
 					queryString += story.id
 				}
-				surveyPost.url = "projects/" + Application.application.parameters.projectid + "/surveys.xml" + queryString;
+				surveyPost.url = "surveys.xml" + queryString;
 				var params:Object = new Object();
 				params["survey_key"] = Application.application.parameters.surveykey;
 				params["name"] = fieldName.text;

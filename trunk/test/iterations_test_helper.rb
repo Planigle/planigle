@@ -19,6 +19,11 @@ module IterationsTestHelper
     {:record => {:name => ''}}
   end
   
+  # Answer the context for this resource (if contained within scope of others).
+  def context
+    {}
+  end
+  
   # Answer the number of resources that exist.
   def resource_count
     Iteration.count

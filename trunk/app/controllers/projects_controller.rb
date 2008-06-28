@@ -6,23 +6,23 @@ class ProjectsController < ApplicationController
   end
 
 protected
-  
-  # If the user is assigned to a project, they can't create new ones.
-  def create_authorized?
-    !project_id
-  end
-  
-  # If the user is assigned to a project, they can't delete it.
-  def delete_authorized?
-    !project_id
-  end
-  
+
   # If the user is assigned to a project, only show things related to that project.
   def active_scaffold_constraints
-    if current_individual.project
+    if current_individual.role >= Individual::ProjectAdmin
       super.merge({:id => project_id})
     else
       super
+    end
+  end
+  
+  # Only admins can create projects.
+  def create_authorized?
+    if current_individual.role <= Individual::Admin
+      true
+    else
+      unauthorized
+      false
     end
   end
 end

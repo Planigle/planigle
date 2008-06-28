@@ -1,4 +1,5 @@
-Planigle is a Ruby on Rails based agile planning application.
+Planigle is a Ruby on Rails based agile planning application. It was developed by and is copyrighted by
+Walter Bodwell (2008).  It is licensed under GPLv2 (included in this distribution).
 
 Required Components - License:
 Ruby - Ruby (http://www.ruby-lang.org/en/downloads/)

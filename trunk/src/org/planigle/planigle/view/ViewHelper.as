@@ -127,5 +127,17 @@ package org.planigle.planigle.view
 		{
 			return ObjectUtil.numericCompare(Number(item1.userPriority),Number(item2.userPriority));
 		}
+
+		// 	Display the user facing role in the table (rather than a code).	
+		public static function formatRole(item:Object, column:DataGridColumn):String
+		{
+			switch(int(item.role))
+			{
+				case 0: return "Admin";
+				case 1: return "Project Admin";
+				case 2: return "Project User";
+				default: return "Read Only User";
+			}
+		}		
 	}
 }

@@ -30,7 +30,7 @@ class IndividualsXmlTest < ActionController::IntegrationTest
   # Test that you can't delete yourself.
   def test_destroy_self
     delete resource_url << '/1', {}, authorization_header
-    assert_response 422 # Unprocessable Entity
+    assert_response 401 # Unprocessable Entity
     assert Individual.find_by_login('quentin')
   end
 

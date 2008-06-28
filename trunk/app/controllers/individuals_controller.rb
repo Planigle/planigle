@@ -2,8 +2,8 @@ class IndividualsController < ApplicationController
   before_filter :login_required, :except => :activate
 
   active_scaffold do |config|
-    config.columns = [:project_id, :login, :email, :first_name, :last_name, :activated, :enabled ]
-    edit_columns = [:project_id, :login, :password, :password_confirmation, :email, :first_name, :last_name, :enabled ]
+    config.columns = [:project_id, :login, :email, :first_name, :last_name, :activated, :enabled, :role ]
+    edit_columns = [:project_id, :login, :password, :password_confirmation, :email, :first_name, :last_name, :enabled, :role ]
     config.columns[:project_id].label = 'Project' 
     config.create.columns = edit_columns
     config.update.columns = edit_columns
@@ -24,36 +24,44 @@ class IndividualsController < ApplicationController
   end
 
 protected
-  
+
   # If the user is assigned to a project, only show things related to that project.
   def active_scaffold_constraints
-    if project_id
+    if current_individual and current_individual.role >= Individual::ProjectUser
+      super.merge({:id => current_individual.id})
+    elsif current_individual and current_individual.role >= Individual::ProjectAdmin
       super.merge({:project_id => project_id})
     else
       super
     end
   end
-
-  # Ensure that you can't take "admin" away from yourself.  This overrides an implementation in active scaffold.
-  def do_update
-    @record = Individual.find( params[ :id ] )
-    project = params[:record][:project_id]
-    if(@record == current_individual) && !@record.project && project && project != ''
-      @record.errors.add(:project_id, '- You cannot remove your own admin abilities.')
-      self.successful = false
+  
+  # Project admins shouldn't be able to see admins.
+  def active_scaffold_conditions
+    conditions = super
+    current_individual.role == Individual::ProjectAdmin ? merge_conditions( conditions, ['role in (1,2,3)'] ) : conditions
+  end
+  
+  # Only project admins or higher can create individuals.
+  def create_authorized?
+    if current_individual.role <= Individual::Admin
+      true
+    elsif current_individual.role <= Individual::ProjectAdmin && (!params[:record] || !params[:record][:project_id] || project_id == params[:record][:project_id]) && (!params[:record] || params[:record][:role] > Individual::Admin)
+      true
     else
-      super
+      unauthorized
+      false
     end
   end
-
-  # Ensure that you can't delete yourself.  This overrides an implementation in active scaffold.
-  def do_destroy
-    @record = Individual.find( params[ :id ] )
-    if(@record == current_individual)
-      @record.errors.add_to_base('You cannot delete yourself.')
-      self.successful = false
+  
+  # Catch the case where a project admin is trying to make another user an admin.  Other cases are
+  # caught in Individual::authorized_for_update?
+  def update_authorized?
+    if Individual::ProjectAdmin && (params[:record] && params[:record][:role] == 0)
+      unauthorized
+      false
     else
-      super
+      true
     end
   end
 end

@@ -18,3 +18,10 @@ third:
   name: Scott
   email: test@fubar.com
   excluded: true
+
+fourth:
+  id: 4
+  project_id: 2
+  name: Scot
+  email: testt@fubar.com
+  excluded: false

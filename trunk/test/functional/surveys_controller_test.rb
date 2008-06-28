@@ -4,19 +4,13 @@ require "surveys_controller"
 # Re-raise errors caught by the controller.
 class SurveysController; def rescue_action(e) raise e end; end
 
-class SurveysControllerTest < Test::Unit::TestCase
+class SurveysControllerTest < ActionController::TestCase
 
   fixtures :individuals
   fixtures :projects
   fixtures :stories
   fixtures :surveys
   fixtures :survey_mappings
-
-  def setup
-    @controller = SurveysController.new
-    @request    = ActionController::TestRequest.new
-    @response   = ActionController::TestResponse.new
-  end
 
   # Test creating a survey.
   def test_create_survey
@@ -89,7 +83,7 @@ class SurveysControllerTest < Test::Unit::TestCase
     assert_response :success
 
     assert_select 'surveys' do
-      assert_select 'survey', 3 do
+      assert_select 'survey', Survey.count do
         assert_select 'id'
         assert_select 'name'
         assert_select 'company'
@@ -150,5 +144,83 @@ class SurveysControllerTest < Test::Unit::TestCase
     assert_redirected_to :controller => 'sessions', :action => 'new'        
     assert !surveys(:second).reload.excluded
     assert_equal 2.0, stories(:third).reload.user_priority
+  end
+    
+  # Test getting surveys (based on role).
+  def test_index_by_admin
+    index_by_role(individuals(:quentin), Survey.count)
+  end
+    
+  # Test getting surveys (based on role).
+  def test_index_by_project_admin
+    index_by_role(individuals(:aaron), Survey.find_all_by_project_id(1).length)
+  end
+    
+  # Test getting surveys (based on role).
+  def test_index_by_project_user
+    index_by_role(individuals(:user), Survey.find_all_by_project_id(1).length)
+  end
+    
+  # Test getting surveys (based on role).
+  def test_index_by_read_only_user
+    index_by_role(individuals(:readonly), Survey.find_all_by_project_id(1).length)
+  end
+
+  # Test getting surveys (based on role).
+  def index_by_role(user, count)
+    login_as(user)
+    get :index, :format => 'xml'
+    assert_response :success
+    assert_select "surveys" do
+      assert_select "survey", count
+    end
+  end
+
+  # Test showing a survey for another project.
+  def test_show_wrong_project
+    login_as(individuals(:aaron))
+    get :show, :id => 4, :format => 'xml'
+    assert_response 401
+  end
+    
+  # Test updating surveys (based on role).
+  def test_update_by_project_admin
+    update_by_role_successful(individuals(:aaron))
+  end
+    
+  # Test updating surveys (based on role).
+  def test_update_by_project_user
+    update_by_role_unsuccessful(individuals(:user))
+  end
+    
+  # Test updating surveys (based on role).
+  def test_update_by_read_only_user
+    update_by_role_unsuccessful(individuals(:readonly))
+  end
+    
+  # Test updating a survey for another project.
+  def test_update_wrong_project
+    login_as(individuals(:aaron))
+    put :update, :id => 4, :format => 'xml', :record => {:excluded => 'true'}
+    assert_response 401
+    assert_equal false, surveys(:fourth).reload.excluded
+    assert_select 'errors'
+  end
+  
+  # Update successfully based on role.
+  def update_by_role_successful( user )
+    login_as(user)
+    put :update, :id => 1, :format => 'xml', :record => {:excluded => 'true'}
+    assert_response :success
+    assert surveys(:first).reload.excluded
+  end
+    
+  # Update unsuccessfully based on role.
+  def update_by_role_unsuccessful( user )
+    login_as(user)
+    put :update, :id => 1, :format => 'xml', :record => {:excluded => 'true'}
+    assert_response 401
+    assert_equal false, surveys(:first).reload.excluded
+    assert_select "errors"
   end
 end

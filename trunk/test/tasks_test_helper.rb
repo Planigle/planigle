@@ -1,22 +1,27 @@
 module TasksTestHelper
   # Return the parameters to use for a successful create.
   def create_success_parameters
-    {:record => {:name => 'foo', :story_id => 1}}
+    {:record => {:name => 'foo'}, :story_id => 1}
   end
 
   # Return the parameters to use for a failed create.
   def create_failure_parameters
-    {:record => {:name => '', :story_id => 1}}
+    {:record => {:name => ''}, :story_id => 1}
   end
 
   # Return the parameters to use for a successful update.
   def update_success_parameters
-    {:record => {:name => 'foo'}}
+    {:record => {:name => 'foo'}, :story_id => 1}
   end
 
   # Return the parameters to use for a failed update.
   def update_failure_parameters
-    {:record => {:name => ''}}
+    {:record => {:name => ''}, :story_id => 1}
+  end
+  
+  # Answer the context for this resource (if contained within scope of others).
+  def context
+    {:story_id => 1}
   end
   
   # Answer the number of resources that exist.

@@ -7,7 +7,7 @@ class Individual < ActiveRecord::Base
   # Virtual attribute for the unencrypted password
   attr_accessor :password
 
-  validates_presence_of     :login, :email, :first_name, :last_name
+  validates_presence_of     :login, :email, :first_name, :last_name, :role
   validates_presence_of     :password,                   :if => :password_required?
   validates_presence_of     :password_confirmation,      :if => :password_required?
   validates_length_of       :password, :within => 6..40, :if => :password_required?
@@ -17,8 +17,8 @@ class Individual < ActiveRecord::Base
   validates_length_of       :last_name,    :maximum => 40, :allow_nil => true # Allow nil to workaround bug
   validates_length_of       :email,    :within => 6..100
   validates_uniqueness_of   :login, :email, :case_sensitive => false
-  validates_uniqueness_of   :activation_code
   validates_format_of       :email, :with => /(^([^@\s]+)@((?:[-_a-z0-9]+\.)+[a-z]{2,})$)|(^$)/i
+  validates_numericality_of :role
 
   # Ensure that the individual's email address is validated.
   before_create :make_activation_code
@@ -28,7 +28,12 @@ class Individual < ActiveRecord::Base
 
   # Prevent a user from submitting a crafted form that bypasses activation
   # Anything that the user can change should be added here.
-  attr_accessible :login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled, :project_id
+  attr_accessible :login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled, :project_id, :role
+
+  Admin = 0
+  ProjectAdmin = 1
+  ProjectUser = 2
+  ReadOnlyUser = 3
 
   # Authenticates an individual by their login name and unencrypted password.  Returns the individual or nil.
   def self.authenticate(login, password)
@@ -99,7 +104,7 @@ class Individual < ActiveRecord::Base
     activated?
   end
  
-private
+protected
 
   # Remember this individual on the browser for the specified amount of time so that they
   # don't have to log in.
@@ -134,5 +139,57 @@ private
   # Set my activation code.
   def make_activation_code
     self.activation_code = Digest::SHA1.hexdigest( Time.now.to_s.split(//).sort_by {rand}.join )
+  end
+
+  # Add custom validation of the role field.
+  def validate
+    if role && (role < Admin || role > ReadOnlyUser)
+      errors.add(:role, ' is invalid')
+    end
+    
+    if role && (role > Admin && !project_id )
+      errors.add(:project, ' must be set for users who are not admins')
+    end
+  end
+
+  # Answer whether the user is authorized to see me.
+  def authorized_for_read?
+    if !current_user
+      true # Activate
+    else
+      case current_user.role
+        when Individual::Admin then true
+        else current_user.project_id == project_id && role != Individual::Admin
+      end
+    end
+  end
+
+  # Answer whether the user is authorized for update.
+  def authorized_for_update?
+    case current_user.role
+      when Individual::Admin then true
+      when Individual::ProjectAdmin then current_user.project_id == project_id && role != Individual::Admin
+      when Individual::ProjectUser then current_user.id == id
+      else false
+    end
+  end
+
+  # Answer whether the user is authorized for delete.
+  def authorized_for_destroy?
+    case current_user.role
+      when Individual::Admin then id != current_user.id
+      when Individual::ProjectAdmin then id != current_user.id && current_user.project_id == project_id && role != Individual::Admin
+      else false
+    end
+  end
+
+  # Answer whether the user can update role.
+  def role_authorized_for_update?
+    (current_user.role <= Individual::ProjectAdmin) && (id != current_user.id)
+  end
+
+  # Answer whether the user can update project id.
+  def project_id_authorized_for_update?
+    current_user.role <= Individual::Admin
   end
 end
