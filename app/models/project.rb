@@ -72,4 +72,26 @@ protected
       errors.add(:survey_mode, ' is invalid')
     end
   end
+
+  # Answer whether the user is authorized to see me.
+  def authorized_for_read?
+    case current_user.role
+      when Individual::Admin then true
+      else current_user.project_id == id
+    end
+  end
+
+  # Answer whether the user is authorized for update.
+  def authorized_for_update?    
+    case current_user.role
+      when Individual::Admin then true
+      when Individual::ProjectAdmin then current_user.project_id == id
+      else false
+    end
+  end
+
+  # Answer whether the user is authorized for delete.
+  def authorized_for_destroy?    
+    current_user.role <= Individual::Admin
+  end
 end

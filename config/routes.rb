@@ -1,6 +1,8 @@
 ActionController::Routing::Routes.draw do |map|
   map.sort '/stories/sort', :controller => 'stories', :action => 'sort'
   map.sort_format '/stories/sort.:format', :controller => 'stories', :action => 'sort'
+  map.split '/stories/split/:id', :controller => 'stories', :action => 'split'
+  map.split_format '/stories/split/:id.:format', :controller => 'stories', :action => 'split'
   
   map.resources :stories, :active_scaffold => true do |stories|
     stories.resources :tasks, :active_scaffold => true
@@ -18,9 +20,7 @@ ActionController::Routing::Routes.draw do |map|
   map.activate '/activate/:activation_code', :controller => 'individuals', :action => 'activate'
   map.logout '/logout', :controller => 'sessions', :action => 'destroy'
 
-  map.resources :projects, :active_scaffold => true do |projects|
-    projects.resources :surveys
-  end
+  map.resources :surveys, :active_scaffold => true
 
   # The priority is based upon order of creation: first created -> highest priority.
   
@@ -40,9 +40,9 @@ ActionController::Routing::Routes.draw do |map|
   
   # Allow downloading Web Service WSDL as a file with an extension
   # instead of a file named 'wsdl'
-  map.connect ':controller/service.wsdl', :action => 'wsdl'
+  # map.connect ':controller/service.wsdl', :action => 'wsdl'
 
   # Install the default route as the lowest priority.
-  map.connect ':controller/:action/:id.:format'
-  map.connect ':controller/:action/:id'
+  # map.connect ':controller/:action/:id.:format'
+  # map.connect ':controller/:action/:id'
 end

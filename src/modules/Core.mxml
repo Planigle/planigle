@@ -55,7 +55,7 @@
 			{
 				if (viewModelLocator.currentUser)
 				{
-					if (viewModelLocator.isAdmin())
+					if (viewModelLocator.isAdminOnly())
 					{
 						hideTab(stories);
 						hideTab(iterations);

@@ -5,8 +5,8 @@ class ApplicationController < ActionController::Base
   include AuthenticatedSystem # Enables the Restful Authentication plug-in
   
   # before_filter :debug # Uncomment to enable output of debug logging.
-  after_filter :change_response
   around_filter :catch_exceptions
+  after_filter :change_response
 
   # Pick a unique cookie name to distinguish our session data from others'
   session :session_key => '_planigle_session_id'  
@@ -17,6 +17,7 @@ class ApplicationController < ActionController::Base
     config.actions.add :export
     config.show.link.label=''
     config.list.empty_field_text=''
+    config.security.current_user_method = :current_individual
   end
 
   # Answer the current project id (or nil if there is not one).
@@ -29,18 +30,23 @@ protected
   # Flex wants all responses to be 200
   # REST applications want create to respond in 201 and errors to be 422.
   def change_response
-    if request.format == Mime::XML && !request.path.include?('.xml') # Flex works around lack of Accept header by requesting .xml.
+    if is_web_service
       if response.headers['Status'] == interpret_status(500)
         response.headers['Status'] = interpret_status(422)
       elsif response.headers['Status'] == interpret_status(200) && request.method == :post
         response.headers['Status'] = interpret_status(201)
       end
     else
-      valid_status_codes = [201, 422, 500].collect{|code| interpret_status(code)}
+      valid_status_codes = [201, 401, 422, 500].collect{|code| interpret_status(code)}
       if valid_status_codes.include?(response.headers['Status'])
         response.headers['Status'] = interpret_status(200)
       end
     end
+  end
+
+  # Answer if response codes should be tailored to a web service (not Flex).
+  def is_web_service
+    request.format == Mime::XML && (!request.path.include?('.xml') || request.user_agent == 'Rails Testing') # Flex works around lack of Accept header by requesting .xml.
   end
 
   # Return a 404 if invalid object.
@@ -48,6 +54,15 @@ protected
     yield
   rescue ActiveRecord::RecordNotFound
     head 404
+  rescue ActiveScaffold::RecordNotAllowed
+    unauthorized
+  end
+  
+  # Render as unauthorized (note that since this is frequently called in a filter that cancels future
+  # filters, we need to make sure we return a status code that Flex will like (if in use).
+  def unauthorized
+    status = is_web_service ? 401 : 200 # Flex works around lack of Accept header by requesting .xml.
+    render :xml => xml_error("You are not authorized to perform that action."), :status => status
   end
   
   # An error has occurred.  Render the error (a string) in xml.

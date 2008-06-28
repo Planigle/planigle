@@ -1,13 +1,13 @@
 module IndividualsTestHelper
   # Return the parameters to use for a successful create.
   def create_success_parameters
-    {:record => {:login => 'foo', :email => 'foo@sample.com', :last_name => 'bar',
+    {:record => {:login => 'foo', :email => 'foo@sample.com', :last_name => 'bar', :role => 1, :project_id => 1,
       :first_name => 'foo', :password => 'testit', :password_confirmation => 'testit'}}
   end
 
   # Return the parameters to use for a failed create.
   def create_failure_parameters
-    {:record => {:login => '', :email => 'foo@sample.com', :last_name => 'bar',
+    {:record => {:login => '', :email => 'foo@sample.com', :last_name => 'bar', :role => 1, :project_id => 1,
       :first_name => 'foo', :password => 'testit', :password_confirmation => 'testit'}}
   end
 
@@ -19,6 +19,11 @@ module IndividualsTestHelper
   # Return the parameters to use for a failed update.
   def update_failure_parameters
     {:record => {:login => ''}}
+  end
+  
+  # Answer the context for this resource (if contained within scope of others).
+  def context
+    {}
   end
   
   # Answer the number of resources that exist.

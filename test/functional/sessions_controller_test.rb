@@ -5,20 +5,8 @@ require 'application'
 # Re-raise errors caught by the controller.
 class SessionsController; def rescue_action(e) raise e end; end
 
-class SessionsControllerTest < Test::Unit::TestCase
+class SessionsControllerTest < ActionController::TestCase
   fixtures :individuals
-
-  def setup
-    @controller = SessionsController.new
-    
-    # For the testing, don't redirect to https.
-    def @controller.ssl_supported?
-      false
-    end
-
-    @request    = ActionController::TestRequest.new
-    @response   = ActionController::TestResponse.new
-  end
 
   # Test successfully logging in.
   def test_should_login_and_redirect

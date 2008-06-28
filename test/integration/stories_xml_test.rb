@@ -18,44 +18,44 @@ class StoriesXmlTest < ActionController::IntegrationTest
   def test_sort_success_unauthorized
     put '/stories/sort', {:stories => [1, 2, 3]}, accept_header
     assert_response 401 # Unauthorized
-    assert_equal [3, 2, 1, 4], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    assert_equal [3, 2, 1, 4], Story.find(:all, :conditions => 'project_id = 1', :order=>'priority').collect {|story| story.id}    
   end
 
   # Test changing the sort order without credentials from Flex.
   def test_sort_success_unauthorized_flex
     put '/stories/sort.xml', {:stories => [1, 2, 3]}, flex_header
     assert_response 401 # Unauthorized
-    assert_equal [3, 2, 1, 4], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    assert_equal [3, 2, 1, 4], Story.find(:all, :conditions => 'project_id = 1', :order=>'priority').collect {|story| story.id}    
   end
 
   # Test successfully changing the sort order.
   def test_sort_success
-    assert_equal [3, 2, 1, 4], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    assert_equal [3, 2, 1, 4], Story.find(:all, :conditions => 'project_id = 1', :order=>'priority').collect {|story| story.id}    
     put '/stories/sort', {:stories => [1, 2, 3]}, authorization_header
     assert_response :success
     assert_select 'stories' do
       assert_select 'story', :count => 3
     end
-    assert_equal [1, 2, 3, 4], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    assert_equal [1, 2, 3, 4], Story.find(:all, :conditions => 'project_id = 1', :order=>'priority').collect {|story| story.id}    
   end
 
   # Test successfully changing the sort order from Flex.
   def test_sort_success_flex
-    assert_equal [3, 2, 1, 4], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    assert_equal [3, 2, 1, 4], Story.find(:all, :conditions => 'project_id = 1', :order=>'priority').collect {|story| story.id}    
     flex_login
     put '/stories/sort.xml', {:stories => [1, 2, 3]}, flex_header
     assert_response :success
     assert_select 'stories' do
       assert_select 'story', :count => 3
     end
-    assert_equal [1, 2, 3, 4], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    assert_equal [1, 2, 3, 4], Story.find(:all, :conditions => 'project_id = 1', :order=>'priority').collect {|story| story.id}    
   end
 
   # Test failure to change the sort order.
   def test_sort_failure
     put '/stories/sort', {:stories => [999, 2, 3]}, authorization_header
     assert_response 404
-    assert_equal [3, 2, 1, 4], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    assert_equal [3, 2, 1, 4], Story.find(:all, :conditions => 'project_id = 1', :conditions => 'project_id = 1', :order=>'priority').collect {|story| story.id}    
   end
 
   # Test failure to change the sort order from Flex.
@@ -63,7 +63,7 @@ class StoriesXmlTest < ActionController::IntegrationTest
     flex_login
     put '/stories/sort.xml', {:stories => [999, 2, 3]}, flex_header
     assert_response 404
-    assert_equal [3, 2, 1, 4], Story.find(:all, :order=>'priority').collect {|story| story.id}    
+    assert_equal [3, 2, 1, 4], Story.find(:all, :conditions => 'project_id = 1', :order=>'priority').collect {|story| story.id}    
   end
 
   # Test getting a split story template without credentials.

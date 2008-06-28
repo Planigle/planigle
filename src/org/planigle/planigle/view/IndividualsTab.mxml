@@ -57,6 +57,7 @@
 			field_email.text = '';
 			field_first_name.text = '';
 			field_last_name.text = '';
+			field_role.selectedIndex = int(viewModelLocator.currentUser.role) + 1;
 			field_enabled.selectedIndex = 0;
 			label_password.required = true;
 			label_password_confirmation.required = true;
@@ -94,6 +95,7 @@
 				field_email.text = currentItem.email;
 				field_first_name.text = currentItem.child("first-name");
 				field_last_name.text = currentItem.child("last-name");
+				field_role.selectedIndex = int(currentItem.role);
 				field_enabled.selectedIndex = currentItem.enabled ? 0 : 1;
 				label_password.required = false;
 				label_password_confirmation.required = false;
@@ -126,6 +128,7 @@
 			params['record[email]'] = field_email.text;
 			params['record[first_name]'] = field_first_name.text;
 			params['record[last_name]'] = field_last_name.text;
+			params['record[role]'] = field_role.selectedItem.value;
 			params['record[enabled]'] = field_enabled.selectedItem.value;
 			params['random'] = Math.random(); // Prevents caching
 			return params;
@@ -222,6 +225,14 @@
 						<mx:FormItem label='Last Name' required="true">
 							<mx:TextInput id='field_last_name' maxChars="40" text='' width="350"/>
 						</mx:FormItem>
+						<mx:FormItem label='Role'>
+							<mx:ComboBox id='field_role' width="350" editable="false">
+								<mx:Object label="Admin" value='0' />
+								<mx:Object label="Project Admin" value='1' />
+								<mx:Object label="Project User" value='2' />
+								<mx:Object label="Read Only User" value='3' />
+							</mx:ComboBox>
+						</mx:FormItem>
 						<mx:FormItem label='Enabled'>
 							<mx:ComboBox id='field_enabled' width="350" editable="false">
 								<mx:Object label="true" value='true' />
@@ -270,6 +281,7 @@
 				<mx:DataGridColumn width="400" headerText="Email" dataField="email"/>
 				<mx:DataGridColumn headerText="First Name" dataField="first-name"/>
 				<mx:DataGridColumn headerText="Last Name" dataField="last-name"/>
+				<mx:DataGridColumn headerText="Role" dataField="role" labelFunction="ViewHelper.formatRole"/>
 				<mx:DataGridColumn width="120" headerText="Activated" dataField="activated"/>
 				<mx:DataGridColumn width="120" headerText="Enabled" dataField="enabled"/>
 				<mx:DataGridColumn editable="false" width="60" minWidth="60" sortable="false">

@@ -39,7 +39,7 @@ package org.planigle.planigle.model
 		// Update variables that rely on project info.
 		private function projectsChanged(event:Event):void
 		{
-			projectSelector = <project><id nil="true" /><name>All</name></project> + projects;
+			projectSelector = <project><id nil="true" /><name>None</name></project> + projects;
 			projectCount = projects.length();
 		}
 	
@@ -54,7 +54,7 @@ package org.planigle.planigle.model
 		// Update info relevant to the current user.
 		private function currentUserChanged(event:Event):void
 		{
-			if ( currentUser && !isAdmin() )
+			if ( currentUser && !isAdminOnly() )
 			{ // Admins don't need this info.
 				new IterationChangedEvent().dispatch();			
 				new StoryChangedEvent().dispatch();			
@@ -63,6 +63,12 @@ package org.planigle.planigle.model
 		
 		// Answer whether the current user is an admin.
 		public function isAdmin():Boolean
+		{
+			return currentUser && currentUser.role == "0"
+		}
+		
+		// Answer whether the current user is an admin only (no project).
+		public function isAdminOnly():Boolean
 		{
 			return currentUser && currentUser.child("project-id") == ""
 		}

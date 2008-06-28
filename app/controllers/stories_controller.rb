@@ -30,19 +30,23 @@ class StoriesController < ApplicationController
   # GET /stories/sort
   # GET /stories/sort.xml
   def sort
-    respond_to do |format|
-      # Stories might have the iteration preceding it (i.e., could be 'stories' or '14-stories')
-      story_ids = nil
-      params.each_key {|key| if key.to_s.index('stories'); story_ids = params[key]; end}
+    # Stories might have the iteration preceding it (i.e., could be 'stories' or '14-stories')
+    story_ids = nil
+    params.each_key {|key| if key.to_s.index('stories'); story_ids = params[key]; end}
 
-      # If stories are expanded to show tasks, they can include blank rows which should be ignored.
-      story_ids = story_ids.select {|id| id != ''}
-
-      stories = Story.sort(story_ids)
-      stories.each { |story| story.save(false) }
-      
-      format.html { render :partial => 'list_record', :collection => stories, :locals => { :hidden => false } }
-      format.xml  { render :xml => stories }
+    # If stories are expanded to show tasks, they can include blank rows which should be ignored.
+    story_ids = story_ids.select {|id| id != ''}
+    
+    if (story_ids.select {|id| !find_if_allowed(id, :update)}).empty?
+      respond_to do |format|
+        stories = Story.sort(story_ids)
+        stories.each { |story| story.save(false) }
+        
+        format.html { render :partial => 'list_record', :collection => stories, :locals => { :hidden => false } }
+        format.xml  { render :xml => stories }
+      end
+    else
+      unauthorized
     end
   end
 
@@ -53,20 +57,27 @@ class StoriesController < ApplicationController
   # POST /stories/1/split.xml
   def split
     @old = Story.find(params[:id])
-    if request.get?
-      @record = @old.split
-      respond_to do |format|
-        format.html {render :action => 'split', :layout => false}
-        format.xml {render :xml => @record }
+    
+    # Needed for authorization check
+    if !params[:record]; params[:record] = {}; end
+    if !params[:record][:project_id]; params[:record][:project_id] = @old.project_id; end
+
+    if create_authorized?
+      if request.get?
+        @record = @old.split
+        respond_to do |format|
+          format.html {render :action => 'split', :layout => false}
+          format.xml {render :xml => @record }
+        end
+      else
+        iteration_id = params[:record][:iteration_id]
+        if @parent_id && iteration_id && iteration_id != ''  # If already constrained, adapt the contraint
+          @parent_id = iteration_id.to_s
+        end
+        active_scaffold_constraints[:iteration] = @parent_id
+        params[:tasks] = @old.tasks.select{|task| !task.accepted?}
+        create
       end
-    else
-      iteration_id = params[:record][:iteration_id]
-      if @parent_id && iteration_id && iteration_id != ''  # If already constrained, adapt the contraint
-        @parent_id = iteration_id.to_s
-      end
-      active_scaffold_constraints[:iteration] = @parent_id
-      params[:tasks] = @old.tasks.select{|task| !task.accepted?}
-      create
     end
   end
 
@@ -86,7 +97,7 @@ protected
     if constraints.include?(:iteration)
       constraints[:iteration_id] = constraints[:iteration] # Add id form so that column is hidden.
       constraints.merge({:project_id => Iteration.find(constraints[:iteration]).project_id})
-    elsif project_id
+    elsif current_individual.role >= Individual::ProjectAdmin or project_id
       constraints.merge({:project_id => project_id})
     else
       constraints
@@ -143,5 +154,17 @@ protected
       end
     end
     result
+  end
+  
+  # Only project users or higher can create stories.
+  def create_authorized?
+    if current_individual.role <= Individual::Admin
+      true
+    elsif current_individual.role <= Individual::ProjectUser && (!params[:record] || !params[:record][:project_id] || project_id == params[:record][:project_id])
+      true
+    else
+      unauthorized
+      false
+    end
   end
 end

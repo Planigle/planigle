@@ -15,3 +15,11 @@ two:
   status_code: 2
   story_id: 1
   individual_id: 2
+
+three:
+  id: 3
+  name: test3
+  description: More
+  effort: 3
+  status_code: 1
+  story_id: 5

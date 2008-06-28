@@ -5,7 +5,7 @@ class TasksController < ApplicationController
 
   active_scaffold do |config|
     edit_columns = [:name, :description, :individual_id, :effort, :status_code ]
-    config.columns = [:name, :individual_id, :effort, :status_code ]
+    config.columns = [:name, :individual_id, :effort, :status_code, :story ]
     config.columns[:individual_id].label = 'Owner'
     config.columns[:status_code].label = 'Status'
     config.create.columns = [:name, :description, :individual_id, :effort, :status_code, :story_id ]
@@ -41,12 +41,34 @@ protected
   
   # Keep track of my parent (if I have one).  This is used in my helper methods.
   def capture_parent
-    @parent_id = active_scaffold_constraints[:story]
+    @parent_id = active_scaffold_constraints[:story_id]
     if @parent_id
       iteration_id = Story.find(@parent_id).iteration_id
       if iteration_id
         @iteration_id = iteration_id.to_s
       end
+    end
+  end
+
+  # If the user is assigned to a project, only show things related to that project.
+  def active_scaffold_constraints
+    constraints = super
+    constraints[:story_id] = params[:story_id]
+    if current_individual.role >= Individual::ProjectAdmin or project_id
+      constraints[:story] = {:project => project_id}
+    end
+    constraints
+  end
+
+  # Only project users or higher can create tasks.
+  def create_authorized?
+    if current_individual.role <= Individual::Admin
+      true
+    elsif current_individual.role <= Individual::ProjectUser && (!params[:story_id] || project_id == Story.find(params[:story_id]).project_id)
+      true
+    else
+      unauthorized
+      false
     end
   end
 end

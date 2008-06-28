@@ -13,7 +13,7 @@ class SurveysXmlTest < ActionController::IntegrationTest
 
   # Test creating a survey.
   def test_create_survey
-    get '/projects/1/surveys/new?survey_key=' + projects(:first).survey_key, {}, accept_header
+    get '/surveys/new?survey_key=' + projects(:first).survey_key, {}, accept_header
     assert_response :success
 
     assert_select 'stories' do
@@ -28,7 +28,7 @@ class SurveysXmlTest < ActionController::IntegrationTest
 
   # Test creating a survey.
   def test_create_survey_flex
-    get '/projects/1/surveys/new.xml?survey_key=' + projects(:first).survey_key, {}, flex_header
+    get '/surveys/new.xml?survey_key=' + projects(:first).survey_key, {}, flex_header
     assert_response :success
 
     assert_select 'stories' do
@@ -43,7 +43,7 @@ class SurveysXmlTest < ActionController::IntegrationTest
 
   # Test creating a survey w/ invalid number.
   def test_create_survey_invalid
-    get '/projects/1/surveys/new?survey_key=0', {}, accept_header
+    get '/surveys/new?survey_key=0', {}, accept_header
     assert_response 422
 
     assert_select 'errors' do
@@ -53,7 +53,7 @@ class SurveysXmlTest < ActionController::IntegrationTest
 
   # Test creating a survey w/ invalid number.
   def test_create_survey_invalid_flex
-    get '/projects/1/surveys/new?survey_key=0.xml', {}, flex_header
+    get '/surveys/new?survey_key=0.xml', {}, flex_header
     assert_response :success
 
     assert_select 'errors' do
@@ -63,7 +63,7 @@ class SurveysXmlTest < ActionController::IntegrationTest
 
   # Test submitting a survey.
   def test_submit_survey_success
-    post '/projects/1/surveys?survey_key=' + projects(:first).survey_key, {:name => 'hat', :email => 'hat@bat.com', :stories => [4, 1]}, accept_header    
+    post '/surveys?survey_key=' + projects(:first).survey_key, {:name => 'hat', :email => 'hat@bat.com', :stories => [4, 1]}, accept_header    
     assert_response 201
 
     assert_equal (BigDecimal("4")/3).round(3), stories(:first).reload.user_priority
@@ -74,7 +74,7 @@ class SurveysXmlTest < ActionController::IntegrationTest
 
   # Test submitting a survey.
   def test_submit_survey_success_flex
-    post '/projects/1/surveys.xml?survey_key=' + projects(:first).survey_key, {:name => 'hat', :email => 'hat@bat.com', :stories => [4, 1]}, flex_header    
+    post '/surveys.xml?survey_key=' + projects(:first).survey_key, {:name => 'hat', :email => 'hat@bat.com', :stories => [4, 1]}, flex_header    
     assert_response :success
 
     assert_equal (BigDecimal("4")/3).round(3), stories(:first).reload.user_priority
@@ -85,7 +85,7 @@ class SurveysXmlTest < ActionController::IntegrationTest
 
   # Test submitting a survey unsuccessfully.
   def test_submit_survey_failure
-    post '/projects/1/surveys?survey_key=' + projects(:first).survey_key, {:stories => [4, 1]}, accept_header    
+    post '/surveys?survey_key=' + projects(:first).survey_key, {:stories => [4, 1]}, accept_header    
     assert_response 422
 
     assert_select 'errors' do
@@ -96,7 +96,7 @@ class SurveysXmlTest < ActionController::IntegrationTest
 
   # Test submitting a survey unsuccessfully.
   def test_submit_survey_failure_flex
-    post '/projects/1/surveys.xml?survey_key=' + projects(:first).survey_key, {:stories => [4, 1]}, flex_header    
+    post '/surveys.xml?survey_key=' + projects(:first).survey_key, {:stories => [4, 1]}, flex_header    
     assert_response :success
 
     assert_select 'errors' do
@@ -107,7 +107,7 @@ class SurveysXmlTest < ActionController::IntegrationTest
 
   # Test submitting a survey w/ an invalid survey number.
   def test_submit_survey_invalid
-    post '/projects/1/surveys?survey_key=0', {:email => 'hat@bat.com', :stories => [4, 1]}, accept_header    
+    post '/surveys?survey_key=0', {:email => 'hat@bat.com', :stories => [4, 1]}, accept_header    
     assert_response 422
 
     assert_select 'errors' do
@@ -118,7 +118,7 @@ class SurveysXmlTest < ActionController::IntegrationTest
 
   # Test submitting a survey w/ an invalid survey number.
   def test_submit_survey_invalid_flex
-    post '/projects/1/surveys.xml?survey_key=0', {:email => 'hat@bat.com', :stories => [4, 1]}, flex_header
+    post '/surveys.xml?survey_key=0', {:email => 'hat@bat.com', :stories => [4, 1]}, flex_header
     assert_response :success
 
     assert_select 'errors' do
@@ -129,23 +129,23 @@ class SurveysXmlTest < ActionController::IntegrationTest
   
   # Test listing surveys.
   def test_list_survey_unauthorized
-    get '/projects/1/surveys', {}, accept_header
+    get '/surveys', {}, accept_header
     assert_response 401 # Unauthorized
   end
   
   # Test listing surveys.
   def test_list_survey_unauthorized_flex
-    get '/projects/1/surveys.xml', {}, flex_header
+    get '/surveys.xml', {}, flex_header
     assert_response 401 # Unauthorized
   end
 
   # Test listing surveys.
   def test_list_survey
-    get '/projects/1/surveys', {}, authorization_header
+    get '/surveys', {}, authorization_header
     assert_response :success
 
     assert_select 'surveys' do
-      assert_select 'survey', 3 do
+      assert_select 'survey', Survey.count do
         assert_select 'id'
         assert_select 'name'
         assert_select 'company'
@@ -158,11 +158,11 @@ class SurveysXmlTest < ActionController::IntegrationTest
   # Test listing surveys.
   def test_list_survey_flex
     flex_login
-    get '/projects/1/surveys.xml', {}, flex_header
+    get '/surveys.xml', {}, flex_header
     assert_response :success
 
     assert_select 'surveys' do
-      assert_select 'survey', 3 do
+      assert_select 'survey', Survey.count do
         assert_select 'id'
         assert_select 'name'
         assert_select 'company'
@@ -174,19 +174,19 @@ class SurveysXmlTest < ActionController::IntegrationTest
 
   # Test showing a survey.
   def test_show_survey_unauthorized
-    get '/projects/1/surveys/1', {}, accept_header
+    get '/surveys/1', {}, accept_header
     assert_response 401 # Unauthorized
   end
 
   # Test showing a survey.
   def test_show_survey_unauthorized_flex
-    get '/projects/1/surveys/1.xml', {}, flex_header
+    get '/surveys/1.xml', {}, flex_header
     assert_response 401 # Unauthorized
   end
 
   # Test showing a survey.
   def test_show_survey
-    get '/projects/1/surveys/1', {}, authorization_header
+    get '/surveys/1', {}, authorization_header
     assert_response :success
 
     assert_select 'survey' do
@@ -207,7 +207,7 @@ class SurveysXmlTest < ActionController::IntegrationTest
   # Test showing a survey.
   def test_show_survey_flex
     flex_login
-    get '/projects/1/surveys/1.xml', {}, flex_header
+    get '/surveys/1.xml', {}, flex_header
     assert_response :success
 
     assert_select 'survey' do
@@ -227,7 +227,7 @@ class SurveysXmlTest < ActionController::IntegrationTest
 
   # Test updating a survey.
   def test_update_survey
-    put '/projects/1/surveys/2', {:record => {:excluded => true}}, authorization_header
+    put '/surveys/2', {:record => {:excluded => true}}, authorization_header
     assert_response :success
     assert_select 'survey'
     assert surveys(:second).reload.excluded
@@ -237,7 +237,7 @@ class SurveysXmlTest < ActionController::IntegrationTest
   # Test updating a survey.
   def test_update_survey_flex
     flex_login
-    put '/projects/1/surveys/2.xml', {:record => {:excluded => true}}, flex_header
+    put '/surveys/2.xml', {:record => {:excluded => true}}, flex_header
     assert_response :success
     assert_select 'survey'
     assert surveys(:second).reload.excluded
@@ -246,7 +246,7 @@ class SurveysXmlTest < ActionController::IntegrationTest
 
   # Test updating a survey w/ invalid number.
   def test_update_survey_invalid
-    put '/projects/1/surveys/0', {:record => {:excluded => true}}, authorization_header
+    put '/surveys/0', {:record => {:excluded => true}}, authorization_header
     assert_response 404
     assert_equal 2.0, stories(:third).reload.user_priority
   end
@@ -254,14 +254,14 @@ class SurveysXmlTest < ActionController::IntegrationTest
   # Test updating a survey w/ invalid number.
   def test_update_survey_invalid_flex
     flex_login
-    put '/projects/1/surveys/0.xml', {:record => {:excluded => true}}, flex_header
+    put '/surveys/0.xml', {:record => {:excluded => true}}, flex_header
     assert_response 404
     assert_equal 2.0, stories(:third).reload.user_priority
   end
 
   # Test updating a survey w/o authorization.
   def test_update_survey_unauthorized
-    put '/projects/1/surveys/2', {:record => {:excluded => true}}, accept_header
+    put '/surveys/2', {:record => {:excluded => true}}, accept_header
     assert_response 401
     assert !surveys(:second).reload.excluded
     assert_equal 2.0, stories(:third).reload.user_priority
@@ -269,7 +269,7 @@ class SurveysXmlTest < ActionController::IntegrationTest
 
   # Test updating a survey w/o authorization.
   def test_update_survey_unauthorized_flex
-    put '/projects/1/surveys/2.xml', {:record => {:excluded => true}}, flex_header
+    put '/surveys/2.xml', {:record => {:excluded => true}}, flex_header
     assert_response 401
     assert !surveys(:second).reload.excluded
     assert_equal 2.0, stories(:third).reload.user_priority
