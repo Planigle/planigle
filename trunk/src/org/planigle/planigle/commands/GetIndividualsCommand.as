@@ -5,12 +5,10 @@ package org.planigle.planigle.commands
 	import mx.controls.Alert;
 	import mx.rpc.IResponder;
 	import org.planigle.planigle.business.IndividualsDelegate;
-	import org.planigle.planigle.model.ViewModelLocator;
+	import org.planigle.planigle.model.IndividualFactory;
 	
 	public class GetIndividualsCommand implements ICommand, IResponder
 	{
-		public var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
-		
 		public function GetIndividualsCommand()
 		{
 		}
@@ -27,13 +25,7 @@ package org.planigle.planigle.commands
 		// Handle successful server request.
 		public function result( event:Object ):void
 		{
-			var xml:XML = XML(event.result);
-			
-			// Augment the individuals with a full-name field (combo of first and last name).
-			for each (var individual:XML in xml.individual)
-				individual.appendChild(<full-name>{individual.child('first-name') + ' ' + individual.child('last-name')}</full-name>);
-
-			viewModelLocator.individuals = xml.children();
+			IndividualFactory.getInstance().populate(event.result.children());
 		}
 		
 		// Handle case where error occurs.

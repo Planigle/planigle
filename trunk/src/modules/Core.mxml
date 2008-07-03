@@ -11,16 +11,19 @@
 			import com.adobe.viewsource.ViewSource;
 			import mx.binding.utils.ChangeWatcher;
 			import flash.display.DisplayObject;
-			import org.planigle.planigle.model.ViewModelLocator;
+			import org.planigle.planigle.model.IndividualFactory;
 			import org.planigle.planigle.events.ProjectChangedEvent;
 			import org.planigle.planigle.events.IndividualChangedEvent;
 			import org.planigle.planigle.events.IterationChangedEvent;
 			import org.planigle.planigle.events.StoryChangedEvent;
 			import org.planigle.planigle.events.LogoutEvent;
-			import org.planigle.planigle.view.*;
+			import org.planigle.planigle.view.IterationsTab;
+			import org.planigle.planigle.view.StoriesTab;
+			import org.planigle.planigle.view.ProjectsTab;
+			import org.planigle.planigle.view.IndividualsTab;
 
 			[Bindable]
-			private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
+			private var factory:IndividualFactory = IndividualFactory.getInstance();
 
 			private var iterations:IterationsTab = new IterationsTab();
 			private var stories:StoriesTab = new StoriesTab();
@@ -32,7 +35,7 @@
 			{
 				mainViewStack.addChild(individuals);
 				mainViewStack.addChild(projects);
-				ChangeWatcher.watch( viewModelLocator, "currentUser", resetState );
+				ChangeWatcher.watch( factory, "currentIndividual", resetState );
 				resetState(event); // This is to catch it the first time (The event has already been sent).
 			}
 
@@ -53,9 +56,9 @@
 			// Reset based on a new user.
 			private function resetState(event:Event):void
 			{
-				if (viewModelLocator.currentUser)
+				if (factory.currentIndividual)
 				{
-					if (viewModelLocator.isAdminOnly())
+					if (factory.currentIndividual.isAdminOnly())
 					{
 						hideTab(stories);
 						hideTab(iterations);
@@ -79,7 +82,7 @@
 			{
 				new ProjectChangedEvent().dispatch();
 				new IndividualChangedEvent().dispatch();
-				if (!viewModelLocator.isAdmin())
+				if (!factory.currentIndividual.isAdminOnly())
 				{
 					new IterationChangedEvent().dispatch();
 					new StoryChangedEvent().dispatch();

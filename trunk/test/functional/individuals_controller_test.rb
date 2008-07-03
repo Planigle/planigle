@@ -59,12 +59,12 @@ class IndividualsControllerTest < Test::Unit::TestCase
     
   # Test getting individuals (based on role).
   def test_index_by_project_user
-    index_by_role(individuals(:user), 1)
+    index_by_role(individuals(:user), Individual.find_all_by_project_id(1, :conditions => "role != 0").length)
   end
     
   # Test getting individuals (based on role).
   def test_index_by_read_only_user
-    index_by_role(individuals(:readonly), 1)
+    index_by_role(individuals(:readonly), Individual.find_all_by_project_id(1, :conditions => "role != 0").length)
   end
 
   # Test getting individuals (based on role).

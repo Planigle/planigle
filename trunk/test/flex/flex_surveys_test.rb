@@ -11,7 +11,7 @@ class FlexSurveysTest < Test::Unit::TestCase
 
   def setup
     @ie = Funfx.instance 
-    @ie.start(false) 
+    @ie.start(true) 
     @ie.speed = 1
   end 
   
@@ -68,6 +68,7 @@ class FlexSurveysTest < Test::Unit::TestCase
     @ie.text_area("fieldCompany").input(:text => 'Foo' )
     @ie.text_area("fieldEmail").input(:text => 'testy@foo.com' )
     @ie.button("btnSubmit").click
+    sleep 2 # Wait for survey submission
     assert_equal 'Survey submitted successfully!  Thanks for your help.', @ie.text_area("error").text
     assert !@ie.button("btnSubmit").visible
   end

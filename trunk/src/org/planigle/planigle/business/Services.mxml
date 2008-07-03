@@ -138,4 +138,29 @@
 		method = "GET"
 		useProxy="false"
 		showBusyCursor="true"/>
+	
+	<!--Create Individual-->
+	<mx:HTTPService id="createIndividualService"
+		url = "individuals.xml"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Update Individual-->
+	<mx:HTTPService id="updateIndividualService"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Delete Individual-->
+	<mx:HTTPService id="deleteIndividualService"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
 </cairngorm:ServiceLocator>

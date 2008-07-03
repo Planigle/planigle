@@ -15,9 +15,6 @@ class FlexIterationsTest < Test::Unit::TestCase
     @ie.speed = 1
     @ie.goto("http://localhost:3000/index.html", "Main") 
     sleep 1 # Wait to ensure remember me check is made
-    login('aaron', 'testit')
-    sleep 3 # Wait to ensure data loaded
-    @ie.button_bar("mainNavigation").change(:related_object => "Iterations")
   end 
   
   def teardown
@@ -27,6 +24,7 @@ class FlexIterationsTest < Test::Unit::TestCase
 
   # Test create (in one stream for more efficiency).
   def test_create
+    init('admin2')
     create_iteration_failure
     create_iteration_success
     create_iteration_cancel
@@ -34,6 +32,7 @@ class FlexIterationsTest < Test::Unit::TestCase
 
   # Test edit (in one stream for more efficiency).
   def test_edit
+    init('admin2')
     edit_iteration_failure
     edit_iteration_success
     edit_iteration_cancel
@@ -41,10 +40,35 @@ class FlexIterationsTest < Test::Unit::TestCase
 
   # Test misc (in one stream for more efficiency).
   def test_misc
+    init('admin2')
     plan_iteration
     delete_iteration_cancel
     delete_iteration
     sort_columns
+  end
+
+  # Test logging in as a project admin
+  def test_project_admin
+    init('aaron')
+    assert @ie.button("iterationBtnCreate").visible
+    assert @ie.button("iterationBtnEdit")[1].visible
+    assert @ie.button("iterationBtnDelete")[1].visible
+  end
+
+  # Test logging in as a project user
+  def test_project_user
+    init('user')
+    assert !@ie.button("iterationBtnCreate").visible
+    assert !@ie.button("iterationBtnEdit")[1].visible
+    assert !@ie.button("iterationBtnDelete")[1].visible
+  end
+
+  # Test logging in as a read only user
+  def test_read_only
+    init('readonly')
+    assert !@ie.button("iterationBtnCreate").visible
+    assert !@ie.button("iterationBtnEdit")[1].visible
+    assert !@ie.button("iterationBtnDelete")[1].visible
   end
 
 private
@@ -199,5 +223,12 @@ private
     @ie.text_area("userID").input(:text => logon )
     @ie.text_area("userPassword").input(:text => password )
     @ie.button("loginButton").click
+  end
+  
+  # Initialize for a particular logon
+  def init( logon )
+    login(logon, 'testit')
+    sleep 3 # Wait to ensure data loaded
+    @ie.button_bar("mainNavigation").change(:related_object => "Iterations")
   end
 end

@@ -27,9 +27,7 @@ protected
 
   # If the user is assigned to a project, only show things related to that project.
   def active_scaffold_constraints
-    if current_individual and current_individual.role >= Individual::ProjectUser
-      super.merge({:id => current_individual.id})
-    elsif current_individual and current_individual.role >= Individual::ProjectAdmin
+    if current_individual and current_individual.role >= Individual::ProjectAdmin
       super.merge({:project_id => project_id})
     else
       super
@@ -39,7 +37,7 @@ protected
   # Project admins shouldn't be able to see admins.
   def active_scaffold_conditions
     conditions = super
-    current_individual.role == Individual::ProjectAdmin ? merge_conditions( conditions, ['role in (1,2,3)'] ) : conditions
+    current_individual.role >= Individual::ProjectAdmin ? merge_conditions( conditions, ['role in (1,2,3)'] ) : conditions
   end
   
   # Only project admins or higher can create individuals.

@@ -37,4 +37,4 @@ See Installation_notes.rtf for help on getting your environment up and running.
 
 Testing Note: To get the Flex integration tests working, you'll need to do a test build (rake build:test).
 You'll also need to have a separate process running on the same box configured as a test environment
-when you run the tests.
+when you run the tests.  Then run the rake test:flex task.

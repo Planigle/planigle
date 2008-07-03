@@ -11,9 +11,9 @@ require 'tasks/rails'
 namespace :build do
   desc "Build the Flex components in test mode"
   task(:test) do
-    puts %x[mxmlc.exe -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -link-report=report.xml --include-libraries libs\\FunFXAdapter.swc libs\\automation_agent.swc libs\\automation.swc libs\\automation_agent_rb.swc -output=public\\Main.swf src\\Main.mxml]
-    puts %x[mxmlc.exe -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -load-externs=report.xml -output=public\\modules\\Core.swf src\\modules\\Core.mxml]
-    puts %x[mxmlc.exe -compiler.source-path=src -compiler.source-path+=public -library-path+=libs --include-libraries libs\\FunFXAdapter.swc libs\\automation_agent.swc libs\\automation.swc libs\\automation_agent_rb.swc -output=public\\Survey.swf src\\Survey.mxml]
+    puts %x[mxmlc.exe -compiler.debug -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -link-report=report.xml --include-libraries libs\\FunFXAdapter.swc libs\\automation_agent.swc libs\\automation.swc libs\\automation_agent_rb.swc -output=public\\Main.swf src\\Main.mxml]
+    puts %x[mxmlc.exe -compiler.debug -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -load-externs=report.xml -output=public\\modules\\Core.swf src\\modules\\Core.mxml]
+    puts %x[mxmlc.exe -compiler.debug -compiler.source-path=src -compiler.source-path+=public -library-path+=libs --include-libraries libs\\FunFXAdapter.swc libs\\automation_agent.swc libs\\automation.swc libs\\automation_agent_rb.swc -output=public\\Survey.swf src\\Survey.mxml]
     puts %x[del report.xml]
   end
 
@@ -31,5 +31,14 @@ namespace :build do
     puts %x[mxmlc.exe -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -load-externs=report.xml -output=public\\modules\\Core.swf src\\modules\\Core.mxml]
     puts %x[mxmlc.exe -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -output=public\\Survey.swf src\\Survey.mxml]
     puts %x[del report.xml]
+  end
+end
+
+namespace :test do
+  desc "Run the Flex tests in test/flex"
+  Rake::TestTask.new(:flex => "db:test:prepare") do |t|
+    t.libs << "test" 
+    t.pattern = 'test/flex/**/*_test.rb'
+    t.verbose = true
   end
 end

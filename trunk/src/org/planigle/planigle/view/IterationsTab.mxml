@@ -8,6 +8,7 @@
 		import mx.events.CloseEvent;
 		import mx.binding.utils.ChangeWatcher;
 		import org.planigle.planigle.model.ViewModelLocator;
+		import org.planigle.planigle.model.IndividualFactory;
 		import org.planigle.planigle.model.IterationFactory;
 		import org.planigle.planigle.model.Iteration;
 		import org.planigle.planigle.model.DateUtils;
@@ -20,10 +21,13 @@
 		[Bindable]
 		private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
 
+		[Bindable]
+		public var factory:IndividualFactory = IndividualFactory.getInstance();
+
 		// Set up event listeners.  Called when the canvas has been created.
 		private function created(event:Event):void
 		{
-			ChangeWatcher.watch( viewModelLocator, "workflowState", resetState );			
+			ChangeWatcher.watch( factory, "currentIndividual", resetState );			
 		}
 		
 		// Clear the error message.
@@ -225,9 +229,9 @@
 	<mx:Panel id="iterationCombinedPanel" height="100%" y="0" width="100%" x="0">
 		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="8" verticalAlign="middle" id="iterationHbox1" paddingTop="5" paddingLeft="5" paddingRight="5">
 			<mx:Text id="iterationError" styleName="error" htmlText="{_error}" color="#ff0033" width="100%"/>
-			<mx:Button label="Create" id="iterationBtnCreate" click="showCreate(event);"/>
+			<mx:Button label="Create" id="iterationBtnCreate" click="showCreate(event);" visible="{factory.currentIndividual.isAtLeastProjectAdmin()}"/>
 		</mx:HBox>
-		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="iterationResourceGrid" dataProvider="{IterationFactory.getInstance().iterations}" rowCount="{IterationFactory.getInstance().iterations.length}" width="100%" height="100%" doubleClickEnabled="true" doubleClick="showUpdate(event)">
+		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="iterationResourceGrid" dataProvider="{IterationFactory.getInstance().iterations}" rowCount="{IterationFactory.getInstance().iterations.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)">
 				<mx:columns>
 				<mx:DataGridColumn headerText="Name" dataField="name"/>
 				<mx:DataGridColumn headerText="Start" dataField="start" labelFunction="formatDate" />
@@ -237,8 +241,8 @@
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
 								<mx:LinkButton id="iterationBtnPlan" icon="{parentApplication.imgExport}" toolTip="Plan" click="outerDocument.showPlan(event);"/>
-								<mx:LinkButton id="iterationBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);"/>
-								<mx:LinkButton id="iterationBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);"/>
+								<mx:LinkButton id="iterationBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
+								<mx:LinkButton id="iterationBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>
