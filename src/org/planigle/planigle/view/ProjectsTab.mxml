@@ -12,6 +12,7 @@
 		import mx.events.CloseEvent;
 		import mx.binding.utils.ChangeWatcher;
 		import org.planigle.planigle.model.ViewModelLocator;
+		import org.planigle.planigle.model.IndividualFactory;
 		import org.planigle.planigle.events.ProjectChangedEvent;
 		
 		[Bindable]
@@ -20,18 +21,18 @@
 		[Bindable]
 		private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
 
+		[Bindable]
+		public var factory:IndividualFactory = IndividualFactory.getInstance();
+
 		// Set up event listeners.  Called when the canvas has been created.
 		private function created(event:Event):void
 		{
-			ChangeWatcher.watch( viewModelLocator, "currentUser", resetState );			
+			ChangeWatcher.watch( factory, "currentIndividual", resetState );			
 			resetState(event); // This is to catch it the first time (The event has already been sent).
 		}
 		
 		// Clear the error message.
 		private function clearErrorMessage():void {_error = ""}
-		
-		[Bindable]
-		public var makeVisible:Boolean = true;
 		
 		// Reset my state to how it was initially.
 		public function resetState(event:Event):void
@@ -39,11 +40,6 @@
 			currentItem = null;
 			clearErrorMessage();
 			currentState = '';
-			if (viewModelLocator.currentUser)
-			{
-				makeVisible = viewModelLocator.isAdmin();
-				projectBtnCreate.visible = makeVisible;
-			}
 		}
 
 		// Show user a form to create a resource.
@@ -227,9 +223,9 @@
 	<mx:Panel id="projectCombinedPanel" height="100%" y="0" width="100%" x="0" paddingTop="5" paddingLeft="5" paddingRight="5">
 		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="8" verticalAlign="middle" id="projectHbox1">
 			<mx:Text id="projectError" styleName="error" htmlText="{_error}" color="#ff0033" width="100%"/>
-			<mx:Button label="Create" id="projectBtnCreate" click="showCreate(event);"/>
+			<mx:Button label="Create" id="projectBtnCreate" click="showCreate(event);" visible="{factory.currentIndividual.isAdmin()}"/>
 		</mx:HBox>
-		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="projectResourceGrid" dataProvider="{viewModelLocator.projects}" rowCount="{viewModelLocator.projectCount}" width="100%" height="100%" doubleClickEnabled="true" doubleClick="showUpdate(event)">
+		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="projectResourceGrid" dataProvider="{viewModelLocator.projects}" rowCount="{viewModelLocator.projectCount}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)">
 				<mx:columns>
 				<mx:DataGridColumn headerText="Name" dataField="name"/>
 				<mx:DataGridColumn headerText="Description" dataField="description"/>
@@ -238,8 +234,8 @@
 					<mx:itemRenderer>
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
-								<mx:LinkButton id="projectBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);"/>
-								<mx:LinkButton id="projectBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.makeVisible}"/>
+								<mx:LinkButton id="projectBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
+								<mx:LinkButton id="projectBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.factory.currentIndividual.isAdmin()}"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>

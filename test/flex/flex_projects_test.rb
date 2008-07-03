@@ -2,7 +2,7 @@ require "#{File.dirname(__FILE__)}/../test_helper"
 require 'test/unit'
 require 'funfx' 
 
-class FlexProjectsAdminTest < Test::Unit::TestCase
+class FlexProjectsTest < Test::Unit::TestCase
   fixtures :individuals
   fixtures :projects
   fixtures :stories
@@ -15,9 +15,6 @@ class FlexProjectsAdminTest < Test::Unit::TestCase
     @ie.speed = 1
     @ie.goto("http://localhost:3000/index.html", "Main") 
     sleep 1 # Wait to ensure remember me check is made
-    login('quentin', 'testit')
-    sleep 3 # Wait to ensure data loaded
-    @ie.button_bar("mainNavigation").change(:related_object => "Projects")
   end 
   
   def teardown
@@ -27,6 +24,8 @@ class FlexProjectsAdminTest < Test::Unit::TestCase
 
   # Test create (in one stream for more efficiency).
   def test_create
+    init('admin2')
+    assert_equal Project.count, @ie.data_grid("projectResourceGrid").num_rows
     create_project_failure
     create_project_success
     create_project_cancel
@@ -34,6 +33,7 @@ class FlexProjectsAdminTest < Test::Unit::TestCase
 
   # Test edit (in one stream for more efficiency).
   def test_edit
+    init('admin2')
     edit_project_failure
     edit_project_success
     edit_project_cancel
@@ -41,9 +41,37 @@ class FlexProjectsAdminTest < Test::Unit::TestCase
 
   # Test misc (in one stream for more efficiency).
   def test_misc
+    init('admin2')
     delete_project_cancel
     delete_project
     sort_columns
+  end
+
+  # Test logging in as a project admin
+  def test_project_admin
+    init('aaron')
+    assert_equal 1, @ie.data_grid("projectResourceGrid").num_rows
+    assert !@ie.button("projectBtnCreate").visible
+    assert @ie.button("projectBtnEdit")[1].visible
+    assert !@ie.button("projectBtnDelete")[1].visible
+  end
+
+  # Test logging in as a project user
+  def test_project_user
+    init('user')
+    assert_equal 1, @ie.data_grid("projectResourceGrid").num_rows
+    assert !@ie.button("projectBtnCreate").visible
+    assert !@ie.button("projectBtnEdit")[1].visible
+    assert !@ie.button("projectBtnDelete")[1].visible
+  end
+
+  # Test logging in as a read only user
+  def test_read_only
+    init('readonly')
+    assert_equal 1, @ie.data_grid("projectResourceGrid").num_rows
+    assert !@ie.button("projectBtnCreate").visible
+    assert !@ie.button("projectBtnEdit")[1].visible
+    assert !@ie.button("projectBtnDelete")[1].visible
   end
 
 private
@@ -169,7 +197,7 @@ private
   # Test deleting a project.
   def delete_project_cancel
     num_rows = @ie.data_grid("projectResourceGrid").num_rows
-    @ie.button("projectBtnDelete")[1].click
+    @ie.button("projectBtnDelete")[2].click
     @ie.alert("Delete")[0].button("No").click
     assert_equal '', @ie.text_area("projectError").text
     assert_equal num_rows, @ie.data_grid("projectResourceGrid").num_rows
@@ -178,8 +206,9 @@ private
   # Test deleting a project.
   def delete_project
     num_rows = @ie.data_grid("projectResourceGrid").num_rows
-    @ie.button("projectBtnDelete")[1].click
+    @ie.button("projectBtnDelete")[2].click
     @ie.alert("Delete")[0].button("Yes").click
+    sleep 1 # Wait for it to take effect.
     assert_equal '', @ie.text_area("projectError").text
     assert_equal num_rows-1, @ie.data_grid("projectResourceGrid").num_rows
   end
@@ -197,5 +226,12 @@ private
     @ie.text_area("userID").input(:text => logon )
     @ie.text_area("userPassword").input(:text => password )
     @ie.button("loginButton").click
+  end
+  
+  # Initialize for a particular logon
+  def init( logon )
+    login(logon, 'testit')
+    sleep 3 # Wait to ensure data loaded
+    @ie.button_bar("mainNavigation").change(:related_object => "Projects")
   end
 end

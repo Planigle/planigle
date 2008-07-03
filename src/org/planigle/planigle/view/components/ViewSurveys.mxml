@@ -12,6 +12,7 @@
 		import mx.binding.utils.ChangeWatcher;
 		import mx.events.ListEvent;
 		import org.planigle.planigle.model.ViewModelLocator;
+		import org.planigle.planigle.model.IndividualFactory;
 		import org.planigle.planigle.model.StoryFactory;
 		import org.planigle.planigle.model.Story;
 		import org.planigle.planigle.model.DateUtils;
@@ -22,6 +23,9 @@
 
 		[Bindable]
 		private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
+
+		[Bindable]
+		public var factory:IndividualFactory = IndividualFactory.getInstance();
 
 		[Bindable]
 		private var surveys:XMLList = new XMLList();
@@ -90,11 +94,14 @@
 		// Show the details for the selected survey.
 		public function showDetails(event:Event):void
 		{
-			currentState = "Details";
-			detailsGet.url = "surveys/" + surveysResourceGrid.selectedItem.id + ".xml";
-			var params:Object = new Object();
-			params["random"] = Math.random();
-			detailsGet.send(params);
+			if (surveysResourceGrid.selectedItem.id)
+			{
+				currentState = "Details";
+				detailsGet.url = "surveys/" + surveysResourceGrid.selectedItem.id + ".xml";
+				var params:Object = new Object();
+				params["random"] = Math.random();
+				detailsGet.send(params);
+			}
 		}
 
 		// The details have been updated.
@@ -206,7 +213,7 @@
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
-							<mx:ComboBox width="100%" editable="false" selectedIndex="{data.excluded == 'true' ? 0 : 1}" change="outerDocument.updateExcluded(data, event)">
+							<mx:ComboBox width="100%" editable="false" selectedIndex="{data.excluded == 'true' ? 0 : 1}" change="outerDocument.updateExcluded(data, event)" enabled="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}">
 								<mx:Object label="true" value="true" />
 								<mx:Object label="false" value="false" />
 							</mx:ComboBox>

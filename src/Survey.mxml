@@ -24,7 +24,7 @@
 			{
 				surveyGet.url = "surveys/new.xml?survey_key=" + Application.application.parameters["surveykey"];
 				surveyGet.send();
-				fieldEmail.setFocus();
+				fieldName.setFocus();
 			}
 
 			// Respond to the result of the population request.

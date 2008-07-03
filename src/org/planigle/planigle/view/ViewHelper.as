@@ -3,8 +3,8 @@ package org.planigle.planigle.view
 	import mx.controls.dataGridClasses.DataGridColumn;
 	import mx.utils.ObjectUtil;
 	import org.planigle.planigle.model.ViewModelLocator;
+	import org.planigle.planigle.model.IndividualFactory;
 	import org.planigle.planigle.model.IterationFactory;
-	import org.planigle.planigle.model.Iteration;
 	
 	// Provide static helper methods for formatting and sorting common fields.
 	public class ViewHelper
@@ -33,21 +33,13 @@ package org.planigle.planigle.view
 		// Display the owner's name in the table (rather than ID).
 		public static function formatIndividual(item:Object, column:DataGridColumn):String
 		{
-			var it:int = item.ownerId;
-			if (it == 0)
-				return ViewModelLocator.getInstance().individualSelector[0].child("full-name");
-			else
-				return ViewModelLocator.getInstance().individualSelector.(id == it).child("full-name");
+			return IndividualFactory.getInstance().find(item.ownerId).fullName;
 		}
 
 		// Answer the index of the owner in the list of oweners (or -1 if no owner).
 		private static function indexIndividual(item:Object):int
 		{
-			var it:int = item.ownerId;
-			if (it == 0)
-				return -1;
-			else
-				return ViewModelLocator.getInstance().individualSelector.(id == it).childIndex();
+			return IndividualFactory.getInstance().individualSelector.getItemIndex(IndividualFactory.getInstance().find(item.ownerId));
 		}
 		
 		// Answer the sort order for the specified items (based on where they are in the list of owners).
@@ -59,7 +51,7 @@ package org.planigle.planigle.view
 		// Display the project's name in the table (rather than ID).
 		public static function formatProject(item:Object, column:DataGridColumn):String
 		{
-			var it:int = item.child("project-id");
+			var it:int = item.projectId;
 			if (it == 0)
 				return ViewModelLocator.getInstance().projectSelector[0].name;
 			else
@@ -69,7 +61,7 @@ package org.planigle.planigle.view
 		// Answer the index of the project in the list of projects (or -1 if no project).
 		private static function indexProject(item:Object):int
 		{
-			var it:int = item.child("project-id");
+			var it:int = item.projectId;
 			if (it == 0)
 				return -1;
 			else

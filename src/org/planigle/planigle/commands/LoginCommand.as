@@ -7,11 +7,13 @@ package org.planigle.planigle.commands
 	import org.planigle.planigle.business.SessionDelegate;
 	import org.planigle.planigle.events.LoginEvent;
 	import org.planigle.planigle.model.ViewModelLocator;
+	import org.planigle.planigle.model.IndividualFactory;
 	import org.planigle.planigle.vo.LoginVO;
 	
 	public class LoginCommand implements ICommand, IResponder
 	{
 		private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
+		private var individualFactory:IndividualFactory = IndividualFactory.getInstance();
 		private var userInfo:LoginVO;
 		
 		public function LoginCommand()
@@ -41,7 +43,7 @@ package org.planigle.planigle.commands
 			}
 			else
 			{
-				viewModelLocator.setUser( userInfo.username );
+				individualFactory.setCurrent( result.login );
 				viewModelLocator.workflowState = ViewModelLocator.CORE_APPLICATION_SCREEN;
 			}
 		}

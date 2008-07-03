@@ -45,6 +45,8 @@ private
     login('Quentin', 'testit')
     sleep 3 # Wait to ensure data loaded
     assert @ie.button("logoutButton")
+    assert_no_tab "Iterations"
+    assert_no_tab "Stories"
     logout
   end
   
@@ -54,7 +56,7 @@ private
     login('Quentin', 'testit', true)
     sleep 3 # Wait to ensure data loaded
     @ie.goto("http://localhost:3000/index.html", "Main") 
-    sleep 3 # Wait to ensure data loaded
+    sleep 5 # Wait to ensure data loaded
     assert @ie.button("logoutButton") # should succeed because cookie skips log in.
     logout
     @ie.goto("http://localhost:3000/index.html", "Main") 
@@ -75,5 +77,14 @@ private
   # Log out of the system.
   def logout
     @ie.button("logoutButton").click
+  end
+  
+  # Assert that the tab does not exist.
+  def assert_no_tab( tab_name )
+    begin
+      @ie.button_bar("mainNavigation").change(:related_object => tab_name)
+      assert false
+    rescue
+    end
   end
 end

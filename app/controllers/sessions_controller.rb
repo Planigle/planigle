@@ -26,7 +26,7 @@ class SessionsController < ApplicationController
           cookies[:auth_token] = { :value => self.current_individual.remember_token , :expires => self.current_individual.remember_token_expires_at }
         end
         format.html { redirect_back_or_default('/') }
-        format.xml  { head :created }
+        format.xml  { render :xml => current_individual, :status => :created }
       else
         format.html { flash[:notice] = 'Invalid Credentials'; render :action => 'new' }
         format.xml  { render :xml => xml_error('Invalid Credentials'), :status => :unprocessable_entity }

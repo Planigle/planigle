@@ -13,6 +13,7 @@
 		import mx.events.ListEvent;
 		import mx.binding.utils.ChangeWatcher;
 		import org.planigle.planigle.model.ViewModelLocator;
+		import org.planigle.planigle.model.IndividualFactory;
 		import org.planigle.planigle.model.IterationFactory;
 		import org.planigle.planigle.model.Iteration;
 		import org.planigle.planigle.model.StoryFactory;
@@ -25,6 +26,9 @@
 
 		[Bindable]
 		private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
+
+		[Bindable]
+		public var factory:IndividualFactory = IndividualFactory.getInstance();
 
 		[Bindable] // List of iterations plus All and Backlog
 		private var iterationFilter:ArrayCollection = new ArrayCollection();
@@ -46,7 +50,7 @@
 			formPublicHeight = form_public.height;
 			currentState = '';
 
-			ChangeWatcher.watch( viewModelLocator, "workflowState", resetState ); // Reset if log out / logged back in
+			ChangeWatcher.watch( factory, "currentIndividual", resetState ); // Reset if log out / logged back in
 			ChangeWatcher.watch( IterationFactory.getInstance(), "iterationSelector", setFilterList );
 			ChangeWatcher.watch( StoryFactory.getInstance(), "stories", handleFilter );
 			setFilterList(event);
@@ -232,9 +236,9 @@
 			// Set default owner to that of the story.
 			var it:int = int(currentItem.ownerId);
 			if (it == 0)
-				field_owner.selectedIndex = 0;
+				field_owner.selectedIndex = IndividualFactory.getInstance().individualSelector.length - 1;
 			else
-				field_owner.selectedItem = viewModelLocator.individualSelector.(id == it);
+				field_owner.selectedItem = IndividualFactory.getInstance().find(it);
 		}
 
 		// Show user a form to create a resource.
@@ -255,7 +259,7 @@
 					field_iteration.selectedIndex = IterationFactory.getInstance().iterationSelector.length - 1;
 			}
 
-			field_owner.selectedIndex = 0;
+			field_owner.selectedIndex = IndividualFactory.getInstance().individualSelector.length - 1;
 			field_effort.text = '';
 			field_status.selectedIndex = 0;
 			field_public.selectedIndex = ViewModelLocator.getInstance().projects.child("survey-mode") == 2 ? 0 : 1;
@@ -286,9 +290,9 @@
 	
 				var it:int = int(currentItem.ownerId);
 				if (it == 0)
-					field_owner.selectedIndex = 0;
+					field_owner.selectedIndex = IndividualFactory.getInstance().individualSelector.length - 1;
 				else
-					field_owner.selectedItem = viewModelLocator.individualSelector.(id == it);
+					field_owner.selectedItem = IndividualFactory.getInstance().find(it);
 	
 				field_effort.text = currentItem.effort;
 				field_status.selectedIndex = currentItem.statusCode;
@@ -334,7 +338,7 @@
 			var params:Object = new Object();
 			params['record[name]'] = field_name.text;
 			params['record[description]'] = field_description.text;
-			params['record[individual_id]'] = field_owner.selectedItem.id;
+			params['record[individual_id]'] = field_owner.selectedItem.id > 0 ? field_owner.selectedItem.id : "";
 			params['record[effort]'] = field_effort.text;
 			params['record[status_code]'] = field_status.selectedItem.value;
 			if (isStory)
@@ -478,6 +482,24 @@
 			if (recalc)
 				new StoryChangedEvent().dispatch();
 		}
+
+		// Answer whether to show (based on whether the item is a story and the user has rights).
+		public function shouldShowStory(data:Object):Boolean
+		{
+			return data.isStory() && shouldShow(data);
+		}
+
+		// Answer whether to show (based on whether the user has rights).
+		public function shouldShow(data:Object):Boolean
+		{
+			return factory.currentIndividual.isAtLeastProjectUser();
+		}
+
+		// Answer whether to show existing (based on current selection and whether the user has rights).
+		public function shouldShowExisting():Boolean
+		{
+			return iteration.selectedItem.id != -1 && factory.currentIndividual.isAtLeastProjectUser();
+		}
 		]]>
 	</mx:Script>
  	
@@ -500,7 +522,7 @@
 							<mx:ComboBox id='field_iteration' width="350" editable="false" dataProvider="{IterationFactory.getInstance().iterationSelector}" labelField="name"></mx:ComboBox>
 						</mx:FormItem>
 						<mx:FormItem label='Owner'>
-							<mx:ComboBox id='field_owner' width="350" editable="false" dataProvider="{viewModelLocator.individualSelector}" labelField="full-name"></mx:ComboBox>
+							<mx:ComboBox id='field_owner' width="350" editable="false" dataProvider="{IndividualFactory.getInstance().individualSelector}" labelField="fullName"></mx:ComboBox>
 						</mx:FormItem>
 						<mx:FormItem label='Effort'>
 							<mx:TextInput id='field_effort' restrict="0-9." text='' width="350"/>
@@ -559,7 +581,7 @@
 				<mx:SetPropertyAction target="{btn_create}" name="height" value="22"/>
 				<mx:SetPropertyAction target="{iteration_form}" name="height" value="22"/>
 				<mx:SetPropertyAction target="{btn_add_existing}" name="visible" value="{iteration.selectedItem.id != -1}"/>
-				<mx:SetPropertyAction target="{btn_create}" name="visible" value="true"/>
+				<mx:SetPropertyAction target="{btn_create}" name="visible" value="{factory.currentIndividual.isAtLeastProjectUser()}"/>
 				<mx:SetPropertyAction target="{iteration_form}" name="visible" value="true"/>
 				<mx:Resize target="{combinedPanel}"/>
 				<mx:AddChildAction/>
@@ -594,10 +616,10 @@
 				<mx:Text id="error" styleName="error" htmlText="{_error}" color="#ff0033" width="100%"/>
 			</mx:VBox>
 			<mx:Button label="View Surveys" click="handleSurveys(event);" id="btn_view_surveys"/>
-			<mx:Button label="Add Existing" click="handleAdd(event);" id="btn_add_existing" visible="{iteration.selectedItem.id != -1}"/>
-			<mx:Button label="Create" styleName="btn_create" click="showCreateStory(event);" id="btn_create"/>
+			<mx:Button label="Add Existing" click="handleAdd(event);" id="btn_add_existing" visible="{shouldShowExisting()}"/>
+			<mx:Button label="Create" styleName="btn_create" click="showCreateStory(event);" id="btn_create" visible="{factory.currentIndividual.isAtLeastProjectUser()}"/>
 		</mx:HBox>
-		<local:ColoredBackgroundDataGrid id="resource_grid" dataProvider="{filteredStories}" rowCount="{filteredStories.length}" width="100%" height="100%" dragEnabled="true" dropEnabled="true" dragMoveEnabled="true" dragStart="handleDrag(event)" dragDrop="handleDrop(event)" rowColorFunction="rowColor" headerRelease="prepareSort(event)" doubleClickEnabled="true" doubleClick="showUpdate(event)">
+		<local:ColoredBackgroundDataGrid id="resource_grid" dataProvider="{filteredStories}" rowCount="{filteredStories.length}" width="100%" height="100%" dragEnabled="true" dropEnabled="true" dragMoveEnabled="true" dragStart="handleDrag(event)" dragDrop="handleDrop(event)" rowColorFunction="rowColor" headerRelease="prepareSort(event)" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" doubleClick="showUpdate(event)">
 			<local:columns>
 				<mx:DataGridColumn editable="false" width="5" sortable="false"> 
 					<mx:itemRenderer> 
@@ -616,7 +638,7 @@
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
-							<mx:ComboBox width="100%" editable="false" selectedIndex="{data.statusCode}" change="outerDocument.updateStatus(data, event)">
+							<mx:ComboBox width="100%" editable="false" selectedIndex="{data.statusCode}" change="outerDocument.updateStatus(data, event)" enabled="{outerDocument.factory.currentIndividual.isAtLeastProjectUser()}">
 								<mx:Object label="Created" value="0" />
 								<mx:Object label="In Progress" value="1" />
 								<mx:Object label="Accepted" value="2" />
@@ -632,10 +654,10 @@
 					<mx:itemRenderer>
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0" width="100%">
-								<mx:LinkButton id="storyEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);"/>
-								<mx:LinkButton id="storyDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);"/>
-								<mx:LinkButton id="taskAdd" icon="{parentApplication.imgAdd}" toolTip="Add Task" visible="{data.isStory()}" click="outerDocument.showCreateTask(event);"/>
-								<mx:LinkButton id="storySplit" icon="{parentApplication.imgExport}" toolTip="Split" visible="{data.isStory()}" click="outerDocument.showSplit(event);"/>
+								<mx:LinkButton id="storyEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);" visible="{outerDocument.shouldShow(data)}"/>
+								<mx:LinkButton id="storyDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.shouldShow(data)}"/>
+								<mx:LinkButton id="taskAdd" icon="{parentApplication.imgAdd}" toolTip="Add Task" click="outerDocument.showCreateTask(event);" visible="{outerDocument.shouldShowStory(data)}"/>
+								<mx:LinkButton id="storySplit" icon="{parentApplication.imgExport}" toolTip="Split" click="outerDocument.showSplit(event);" visible="{outerDocument.shouldShowStory(data)}"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>

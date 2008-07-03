@@ -32,7 +32,6 @@ package org.planigle.planigle.commands
 				Alert.show(result.error);
 			else
 			{
-				viewModelLocator.currentUser = null;
 				viewModelLocator.workflowState = ViewModelLocator.LOGIN_SCREEN;
 			}
 		}
