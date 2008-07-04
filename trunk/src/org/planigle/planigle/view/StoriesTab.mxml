@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:local="org.planigle.planigle.view.controls.*" xmlns:component="org.planigle.planigle.view.components.*" name="Stories" label="Stories" creationComplete="created(event)">
-	<mx:HTTPService id="resourceSort" url="stories/sort.xml" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x" showBusyCursor="true"/>
 	<mx:Script>
 		<![CDATA[
 		import mx.collections.ArrayCollection;
@@ -8,6 +7,7 @@
 		import mx.managers.PopUpManager;
 		import mx.controls.Alert;
 		import mx.controls.DataGrid;
+		import mx.events.DataGridEvent;
 		import mx.events.DragEvent;
 		import mx.events.CloseEvent;
 		import mx.events.ListEvent;
@@ -397,26 +397,21 @@
 		{
 			_error = error;
 		}
-
-		// The server has responded with the results of the user's change.
-		private function handleUpdate(event:ResultEvent):void
-		{
-			var result:XML = XML(event.result);
-			if (result.error.length() > 0)
-				handleFailure(result.error);
-			else
-			{
-				handleSuccess();
-				new StoryChangedEvent().dispatch();
-			}
-		}
 		
+		private const PRIORITY:int = 7;
+		private var sort:int = PRIORITY;
+
 		// The user is reordering the stories.  Don't allow them to move tasks.
 		private function handleDrag(event:DragEvent):void
 		{
 			var o:Object = DataGrid(event.dragInitiator).selectedItem;
 			if (!o.isStory()) // Can't drag tasks
 				event.preventDefault();
+			if (sort != PRIORITY)
+			{
+				Alert.show("You can only drag and drop to prioritize after sorting by priority.");
+				event.preventDefault();
+			}
 		}
 		
 		// The user has reordered the stories.
@@ -425,35 +420,33 @@
 			var stories:ArrayCollection = filteredStories;
 			var movedItems:Array = event.dragSource.dataForFormat("items") as Array;
 			var story:Story = Story(movedItems[0]);
-			var newIndex:int = resource_grid.calculateDropIndex(event);			
-			var inc:int = 0;
-			var url:String = "stories/sort.xml?";
-			for(var i:int = 0; i < stories.length; i++)
+			var newIndex:int = resource_grid.calculateDropIndex(event);
+			var before:Number = 0;
+			var after:Number = 0;
+			var itemAtIndex:Story = null;
+			if (newIndex == stories.length) // Move to end
 			{
-				var s:Object = null;
-				if (i == newIndex)
-				{
-					if (stories.getItemAt(i) != story) inc = -1;
-					s = story;
-				}
-				else
-				{
-					if (stories.getItemAt(i+inc) == story) inc = 0;
-					s = stories.getItemAt(i+inc);
-				}
-				if (s.isStory())
-				{
-					if (i>0) url += "&";
-					url += "stories[]=" + s.id;
-				}
+				itemAtIndex = Story(stories.getItemAt(newIndex - 1));
+				if (itemAtIndex == story)
+					return; // Not moved
+				before = itemAtIndex.priority;
+				after = before + 1;
 			}
-			resourceSort.url = url;
-			resourceSort.send();
+			else
+			{
+				itemAtIndex = Story(stories.getItemAt(newIndex));
+				if (itemAtIndex == story)
+					return; // Not moved
+				before = newIndex == 0 ? itemAtIndex.priority - 1 : (stories.getItemAt(newIndex-1).priority);
+				after = itemAtIndex.priority;
+			}
+			story.update({"record[priority]": (before+after)/2}, handleSuccess, handleFailure);
 		}
 
 		// Prepare for sorting by collapsing all stories.
-		private function prepareSort(event:Event):void
+		private function prepareSort(event:DataGridEvent):void
 		{
+			sort = event.columnIndex;
 			var changes:Boolean = false;
 			for(var i:int = 0; i < filteredStories.length; i++)
 			{
@@ -619,7 +612,7 @@
 			<mx:Button label="Add Existing" click="handleAdd(event);" id="btn_add_existing" visible="{shouldShowExisting()}"/>
 			<mx:Button label="Create" styleName="btn_create" click="showCreateStory(event);" id="btn_create" visible="{factory.currentIndividual.isAtLeastProjectUser()}"/>
 		</mx:HBox>
-		<local:ColoredBackgroundDataGrid id="resource_grid" dataProvider="{filteredStories}" rowCount="{filteredStories.length}" width="100%" height="100%" dragEnabled="true" dropEnabled="true" dragMoveEnabled="true" dragStart="handleDrag(event)" dragDrop="handleDrop(event)" rowColorFunction="rowColor" headerRelease="prepareSort(event)" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" doubleClick="showUpdate(event)">
+		<local:ColoredBackgroundDataGrid id="resource_grid" dataProvider="{filteredStories}" rowCount="{filteredStories.length}" width="100%" height="100%" dragEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" dropEnabled="true" dragMoveEnabled="true" dragStart="handleDrag(event)" dragDrop="handleDrop(event)" rowColorFunction="rowColor" headerRelease="prepareSort(event)" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" doubleClick="showUpdate(event)">
 			<local:columns>
 				<mx:DataGridColumn editable="false" width="5" sortable="false"> 
 					<mx:itemRenderer> 
@@ -648,7 +641,7 @@
 					</mx:itemRenderer>
 				</mx:DataGridColumn>
 				<mx:DataGridColumn headerText="Public" width="80" dataField="isPublic"/>
-				<mx:DataGridColumn headerText="Priority" width="80" dataField="priority"/>
+				<mx:DataGridColumn headerText="Priority" width="80" dataField="normalizedPriority" sortCompareFunction="ViewHelper.sortPriority"/>
 				<mx:DataGridColumn headerText="User Priority" width="80" dataField="userPriority" sortCompareFunction="ViewHelper.sortUserPriority"/>
 				<mx:DataGridColumn editable="false" width="140" minWidth="140" sortable="false">
 					<mx:itemRenderer>

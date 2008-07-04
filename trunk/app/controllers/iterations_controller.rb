@@ -25,7 +25,7 @@ protected
   def create_authorized?
     if current_individual.role <= Individual::Admin
       true
-    elsif current_individual.role <= Individual::ProjectAdmin && (!params[:record] || !params[:record][:project_id] || project_id == params[:record][:project_id])
+    elsif current_individual.role <= Individual::ProjectAdmin && (!params[:record] || !params[:record][:project_id] || project_id == params[:record][:project_id].to_i)
       true
     else
       unauthorized

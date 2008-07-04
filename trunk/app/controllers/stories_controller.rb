@@ -1,10 +1,8 @@
 class StoriesController < ApplicationController
   before_filter :login_required
-  before_filter :capture_parent  
-  around_filter :update_sort, :only=>[:create, :sort, :row, :update_table]
   
   active_scaffold do |config|
-    edit_columns = [:project_id, :name, :description, :acceptance_criteria, :iteration_id, :individual_id, :effort, :status_code, :public ]
+    edit_columns = [:project_id, :name, :description, :acceptance_criteria, :iteration_id, :individual_id, :effort, :status_code, :priority, :public ]
     config.columns = [:project_id, :name, :iteration_id, :individual_id, :effort, :status_code, :priority, :public ]
     config.columns[:project_id].label = 'Project' 
     config.columns[:iteration_id].label = 'Iteration' 
@@ -24,30 +22,6 @@ class StoriesController < ApplicationController
     config.columns[:iteration_id].sort_by :sql => '(select min(start) from iterations where id = iteration_id)'
     config.columns[:individual_id].sort_by :sql => '(select min(CONCAT_WS(" ", first_name, last_name)) from individuals where id = individual_id)'
     config.columns[:effort].sort_by :sql => '(if(effort IS NULL, (select sum(tasks.effort) from tasks where story_id = stories.id), effort))'
-  end
-
-  # Sort the stories (specify the new order by listing the story ids in the desired order).
-  # GET /stories/sort
-  # GET /stories/sort.xml
-  def sort
-    # Stories might have the iteration preceding it (i.e., could be 'stories' or '14-stories')
-    story_ids = nil
-    params.each_key {|key| if key.to_s.index('stories'); story_ids = params[key]; end}
-
-    # If stories are expanded to show tasks, they can include blank rows which should be ignored.
-    story_ids = story_ids.select {|id| id != ''}
-    
-    if (story_ids.select {|id| !find_if_allowed(id, :update)}).empty?
-      respond_to do |format|
-        stories = Story.sort(story_ids)
-        stories.each { |story| story.save(false) }
-        
-        format.html { render :partial => 'list_record', :collection => stories, :locals => { :hidden => false } }
-        format.xml  { render :xml => stories }
-      end
-    else
-      unauthorized
-    end
   end
 
   # Split the story (tasks which have not been accepted will automatically be put in the new story).
@@ -83,13 +57,10 @@ class StoriesController < ApplicationController
 
 protected
 
-  # This collection gets passed to ActiveRecord#find as the :include option, despite its name.
-  # This ensures that a story will automatically load its tasks in the same query as itself.
-  def conditions_for_collection 
-    result = super
-    active_scaffold_joins << :tasks
-    result
-  end 
+  # Automatically include tasks (to reduce number of queries).
+  def active_scaffold_joins
+    super.concat [:tasks]
+  end
 
   # If the user is assigned to a project, only show things related to that project.
   def active_scaffold_constraints
@@ -101,35 +72,6 @@ protected
       constraints.merge({:project_id => project_id})
     else
       constraints
-    end
-  end
-
-  # When dynamically updating the HTML, Sortable (used for sorting) needs to be re-enabled.
-  # This causes it to discover the rows again (including new rows).
-  # The workaround is to augment any requesting adding rows with this Javascript.
-  # The form varies on whether the response is html or Javascript.
-  def update_sort
-    respond_to do |format|
-      format.html do
-        sort = render_to_string :partial => 'sortable', :layout => false
-        if request.path_parameters['action'] == 'create'
-          # Javascript is expected; Remove the HTML tags
-          start = sort.index('CDATA[');
-          ending = sort.index('//]');
-          sort = ';' + sort.slice(start+6, ending-(start+6))
-        end
-        yield
-        response.body << sort
-      end
-      format.xml { yield }
-    end
-  end
-
-  # Keep track of my parent (if I have one).  This is used in my helper methods.
-  def capture_parent
-    @parent_id = active_scaffold_constraints[:iteration_id]
-    if !@parent_id # sort doesn't have the constraint set, so we have to get it through the key.
-      params.each_key {|key| if (index = key.to_s.index('stories')); @parent_id = key.slice(0,index-1); end}
     end
   end
   
@@ -147,20 +89,22 @@ protected
   def do_update
     @record = find_if_allowed(params[:id], :update)
     should_update = (params["record"]["status_code"] !=2 and @record.status_code == 2)
-    result = super
-    if should_update
-      Survey.update_rankings(@record.project).each do |story|
-        story.save(false)
+    Story.transaction do
+      result = super
+      if should_update
+        Survey.update_rankings(@record.project).each do |story|
+          story.save(false)
+        end
       end
+      result
     end
-    result
   end
   
   # Only project users or higher can create stories.
   def create_authorized?
     if current_individual.role <= Individual::Admin
       true
-    elsif current_individual.role <= Individual::ProjectUser && (!params[:record] || !params[:record][:project_id] || project_id == params[:record][:project_id])
+    elsif current_individual.role <= Individual::ProjectUser && (!params[:record] || !params[:record][:project_id] || project_id == params[:record][:project_id].to_i)
       true
     else
       unauthorized

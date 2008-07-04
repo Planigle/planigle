@@ -26,31 +26,6 @@ class StoriesControllerTest < ActionController::TestCase
     assert_template "list"
   end
 
-  # Test changing the sort order without credentials.
-  def test_sort_unauthorized
-    put :sort, :stories => [1, 2, 3]
-    assert_redirected_to :controller => 'sessions', :action => 'new'        
-    assert_equal [3, 2, 1, 4], Story.find(:all, :conditions=>'project_id=1', :order=>'priority').collect {|story| story.id}    
-  end
-
-  # Test successfully changing the sort order.
-  def test_sort_success
-    login_as(individuals(:quentin))
-    assert_equal [3, 2, 1, 4], Story.find(:all, :conditions=>'project_id=1', :order=>'priority').collect {|story| story.id}    
-    put :sort, :stories => [1, 2, 3]
-    assert_response :success
-    assert_template '_sortable'
-    assert_equal [1, 2, 3, 4], Story.find(:all, :conditions=>'project_id=1', :order=>'priority').collect {|story| story.id}    
-  end
-
-  # Test failure to change the sort order.
-  def test_sort_failure
-    login_as(individuals(:quentin))
-    xhr :put, :sort, :stories => [999, 2, 3]
-    assert_response 404
-    assert_equal [3, 2, 1, 4], Story.find(:all, :conditions=>'project_id=1', :order=>'priority').collect {|story| story.id}    
-  end
-
   # Test getting a split story template without credentials.
   def test_split_get_unauthorized
     get :split, :id => 1
@@ -318,47 +293,6 @@ class StoriesControllerTest < ActionController::TestCase
     assert_change_failed
     assert_select "errors"
   end    
-
-  # Test sorting stories (based on role).
-  def test_sort_by_project_admin
-    sort_by_role_successful(individuals(:aaron))
-  end
-    
-  # Test sorting stories (based on role).
-  def test_sort_by_project_user
-    sort_by_role_successful(individuals(:user))
-  end
-    
-  # Test sorting stories (based on role).
-  def test_sort_by_read_only_user
-    sort_by_role_unsuccessful(individuals(:readonly))
-  end
-    
-  # Test sorting a story for another project.
-  def test_sort_wrong_project
-    login_as(individuals(:aaron))
-    put :sort, :stories => [1, 2, 3, 5], :format => 'xml'
-    assert_response 401
-    assert_select 'errors'
-    assert_equal [3, 2, 1, 4], Story.find(:all, :conditions=>'project_id=1', :order=>'priority').collect {|story| story.id}    
-  end
-  
-  # Sort successfully based on role.
-  def sort_by_role_successful( user, params = (update_success_parameters[resource_symbol]) )
-    login_as(user)
-    put :sort, :stories => [1, 2, 3], :format => 'xml'
-    assert_response :success
-    assert_equal [1, 2, 3, 4], Story.find(:all, :conditions=>'project_id=1', :order=>'priority').collect {|story| story.id}    
-  end
-    
-  # Sort unsuccessfully based on role.
-  def sort_by_role_unsuccessful( user, params = (update_success_parameters[resource_symbol]) )
-    login_as(user)
-    put :sort, :stories => [1, 2, 3], :format => 'xml'
-    assert_response 401
-    assert_select "errors"
-    assert_equal [3, 2, 1, 4], Story.find(:all, :conditions=>'project_id=1', :order=>'priority').collect {|story| story.id}    
-  end
     
   # Test deleting stories (based on role).
   def test_delete_by_project_admin

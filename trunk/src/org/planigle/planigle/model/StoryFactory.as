@@ -37,6 +37,7 @@ package org.planigle.planigle.model
 				storyMapping[story.id] = story;
 			}
 			stories = newStories;
+			normalizePriorities();
 		}
 		
 		// Create a new story.  Params should be of the format (record[param]).  Success function
@@ -57,6 +58,7 @@ package org.planigle.planigle.model
 				newStories.addItem(stories.getItemAt(i));
 			newStories.addItem(story);
 			stories = newStories;
+			normalizePriorities();
 			return story;
 		}
 
@@ -64,6 +66,23 @@ package org.planigle.planigle.model
 		public function find(id:int):Story
 		{
 			return storyMapping[id];
+		}
+
+		// Normalize the priorities so that they are 1..n (excluding accepted stories).
+		public function normalizePriorities():void
+		{
+			stories.source.sortOn("priority", Array.NUMERIC);
+			var i:int = 1;
+			for each (var story:Story in stories)
+			{
+				if (story.statusCode == Story.ACCEPTED)
+					story.normalizedPriority = '';
+				else
+				{
+					story.normalizedPriority = String(i);
+					i++;
+				}
+			}
 		}
 	}
 }

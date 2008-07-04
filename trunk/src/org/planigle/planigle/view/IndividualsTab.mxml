@@ -60,8 +60,12 @@
 		{
 			clearErrorMessage();
 			currentState = 'Change';
-			IndividualFactory.current().isAdmin() ? individualFieldProject.setFocus() : individualFieldLogin.setFocus();
-			individualFieldProject.selectedIndex = 0;
+			factory.currentIndividual.isAdmin() ? individualFieldProject.setFocus() : individualFieldLogin.setFocus();
+			var it:int = int(factory.currentIndividual.projectId);
+			if (it == 0)
+				individualFieldProject.selectedIndex = 0;
+			else
+				individualFieldProject.selectedItem = viewModelLocator.projectSelector.(id == it);
 			individualFieldLogin.text = '';
 			individualFieldPassword.text = '';
 			individualFieldPasswordConfirmation.text = '';
