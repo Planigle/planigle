@@ -17,7 +17,7 @@ class StoryTest < ActiveSupport::TestCase
 
   # Test the validation of name.
   def test_name
-    validate_field(:name, false, nil, 40)
+    validate_field(:name, false, nil, 250)
   end
 
   # Test the validation of description.
@@ -28,6 +28,14 @@ class StoryTest < ActiveSupport::TestCase
   # Test the validation of acceptance criteria.
   def test_acceptance_criteria
     validate_field(:acceptance_criteria, true, nil, 4096)
+  end
+
+  # Test the validation of priority.
+  def test_priority
+    assert_failure(:priority, 'a')
+    assert_success(:priority, -1)
+    assert_success(:priority, 0)
+    assert_success(:priority, 1.345)
   end
 
   # Test the validation of effort.  Note: Effort should equal the sum of the tasks' efforts if nil.

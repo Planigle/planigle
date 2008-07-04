@@ -14,6 +14,7 @@
 		import mx.binding.utils.ChangeWatcher;
 		import org.planigle.planigle.model.ViewModelLocator;
 		import org.planigle.planigle.model.IndividualFactory;
+		import org.planigle.planigle.model.Individual;
 		import org.planigle.planigle.model.IterationFactory;
 		import org.planigle.planigle.model.Iteration;
 		import org.planigle.planigle.model.StoryFactory;
@@ -33,6 +34,9 @@
 		[Bindable] // List of iterations plus All and Backlog
 		private var iterationFilter:ArrayCollection = new ArrayCollection();
 
+		[Bindable] // List of individuals plus All and None
+		private var individualFilter:ArrayCollection = new ArrayCollection();
+
 		[Bindable] // List of stories (filtered for selected iteration)
 		private var filteredStories:ArrayCollection = new ArrayCollection();
 
@@ -51,9 +55,12 @@
 			currentState = '';
 
 			ChangeWatcher.watch( factory, "currentIndividual", resetState ); // Reset if log out / logged back in
-			ChangeWatcher.watch( IterationFactory.getInstance(), "iterationSelector", setFilterList );
+			ChangeWatcher.watch( IterationFactory.getInstance(), "iterationSelector", updateIterationFilterList );
+			ChangeWatcher.watch( IndividualFactory.getInstance(), "individualSelector", updateIndividualFilterList );
 			ChangeWatcher.watch( StoryFactory.getInstance(), "stories", handleFilter );
-			setFilterList(event);
+			setIterationFilterList();
+			setIndividualFilterList();
+			handleFilter(event);
 		}
 		
 		// Clear the error message.
@@ -67,8 +74,15 @@
 			currentState = '';
 		}
 		
+		// Update the iterations in the filter list.
+		private function updateIterationFilterList(event:Event):void
+		{
+			setIterationFilterList();
+			handleFilter(event);
+		}
+		
 		// Set the iterations in the filter list.
-		private function setFilterList(event:Event):void
+		private function setIterationFilterList():void
 		{
 			// Remember selection so that updating iterations doesn't revert it.
 			var id:int = iteration.selectedItem ? iteration.selectedItem.id : -1;
@@ -94,7 +108,36 @@
 				else
 					iteration.selectedIndex = iterationFilter.length - 1;
 			}
+		}
+		
+		// Update the individuals in the filter list.
+		private function updateIndividualFilterList(event:Event):void
+		{
+			setIndividualFilterList();
 			handleFilter(event);
+		}
+		
+		// Set the individuals in the filter list.
+		private function setIndividualFilterList():void
+		{
+			// Remember selection so that updating individuals doesn't revert it.
+			var id:int = individual.selectedItem ? individual.selectedItem.id : -1;
+			var selection:Individual = null;
+
+			var newFilter:ArrayCollection = new ArrayCollection();
+			for (var i:int = 0; i < IndividualFactory.getInstance().individualSelector.length; i++)
+			{
+				var it:Individual = Individual(IndividualFactory.getInstance().individualSelector.getItemAt(i));
+				newFilter.addItem(it);
+				if (it.id == id)
+					selection = it;
+			}
+			newFilter.addItem( new Individual( <individual><id>-1</id><first-name>All</first-name></individual> ));
+			individualFilter = newFilter;
+			if (selection)
+				individual.selectedItem = selection;
+			else
+				individual.selectedIndex = individualFilter.length - 1;
 		}
 
 		// Answer the stories for the selected iteration.
@@ -104,18 +147,37 @@
 			for (var i:int = 0; i < StoryFactory.getInstance().stories.length; i++)
 			{
 				var story:Story = Story(StoryFactory.getInstance().stories.getItemAt(i));
-				if (story.iterationId == iteration.selectedItem.id)
+				if (matchesIterationFilter(story) && matchesIndividualFilter(story) && matchesStatusFilter(story))
 					stories.addItem(story);
 			}
 			return stories;
+		}
+
+		// Answer whether the story matches the iteration filter.
+		private function matchesIterationFilter( story:Story ):Boolean
+		{
+			return iteration.selectedItem.id == -1 || story.iterationId == iteration.selectedItem.id;
+		}
+
+		// Answer whether the story matches the individual filter.
+		private function matchesIndividualFilter( story:Story ):Boolean
+		{
+			return individual.selectedItem.id == -1 || story.ownerId == individual.selectedItem.id;
+		}
+
+		// Answer whether the story matches the status filter.
+		private function matchesStatusFilter( story:Story ):Boolean
+		{
+			return status.selectedItem.value == -1 ||
+				(status.selectedItem.value == -2 && (story.statusCode == Story.CREATED || story.statusCode == Story.IN_PROGRESS)) ||
+				status.selectedItem.value == story.statusCode;
 		}
 		
 		// The iteration filter has changed.
 		public function handleFilter(event:Event):void
 		{
-			var filtered:Boolean = iteration.selectedItem.id != -1; // Select All
-			var stories:ArrayCollection = filtered ? getFilteredStories() : StoryFactory.getInstance().stories;
-			column_iteration.visible = !filtered;
+			var stories:ArrayCollection = getFilteredStories();
+			column_iteration.visible = iteration.selectedItem.id == -1;
 			var storiesAndTasks:ArrayCollection = new ArrayCollection;
 			for (var i:int = 0; i < stories.length; i++)
 			{
@@ -126,6 +188,7 @@
 						storiesAndTasks.addItem(story.tasks.getItemAt(j));
 			}
 			filteredStories = storiesAndTasks;
+			btn_add_existing.visible = shouldShowExisting();
 		}
 		
 		// Expand / collapse a story.
@@ -257,9 +320,9 @@
 					field_iteration.selectedItem = iteration.selectedItem;
 				else
 					field_iteration.selectedIndex = IterationFactory.getInstance().iterationSelector.length - 1;
+				field_owner.selectedItem = IndividualFactory.getInstance().currentIndividual;
 			}
 
-			field_owner.selectedIndex = IndividualFactory.getInstance().individualSelector.length - 1;
 			field_effort.text = '';
 			field_status.selectedIndex = 0;
 			field_public.selectedIndex = ViewModelLocator.getInstance().projects.child("survey-mode") == 2 ? 0 : 1;
@@ -503,7 +566,7 @@
 				<mx:target>
 					<mx:Form id="change_form" defaultButton="{btn_change}">
 						<mx:FormItem label='Name' required="true">
-							<mx:TextInput id='field_name' maxChars="40" text='' width="350"/>
+							<mx:TextInput id='field_name' maxChars="250" text='' width="700"/>
 						</mx:FormItem>
 						<mx:FormItem label='Description'>
 							<mx:TextArea id='field_description' maxChars="4096" height="64" width="500"><mx:text/></mx:TextArea>
@@ -556,12 +619,18 @@
 		<mx:Transition id="changeItem" fromState="*" toState="Change">
 			<mx:Sequence targets="{[btn_box, combinedPanel]}">
 				<mx:RemoveChildAction/>
+				<mx:SetPropertyAction target="{owner_form}" name="visible" value="false"/>
+				<mx:SetPropertyAction target="{status_form}" name="visible" value="false"/>
 				<mx:SetPropertyAction target="{iteration_form}" name="visible" value="false"/>
 				<mx:SetPropertyAction target="{btn_create}" name="visible" value="false"/>
 				<mx:SetPropertyAction target="{btn_add_existing}" name="visible" value="false"/>
+				<mx:SetPropertyAction target="{btn_view_surveys}" name="visible" value="false"/>
 				<mx:SetPropertyAction target="{iteration_form}" name="height" value="0"/>
+				<mx:SetPropertyAction target="{owner_form}" name="height" value="0"/>
+				<mx:SetPropertyAction target="{status_form}" name="height" value="0"/>
 				<mx:SetPropertyAction target="{btn_create}" name="height" value="0"/>
 				<mx:SetPropertyAction target="{btn_add_existing}" name="height" value="0"/>
+				<mx:SetPropertyAction target="{btn_view_surveys}" name="height" value="0"/>
 				<mx:Resize target="{combinedPanel}"/>
 				<mx:AddChildAction/>
 			</mx:Sequence>
@@ -570,12 +639,18 @@
 		<mx:Transition id="returnList" fromState="Change" toState="*">
 			<mx:Sequence targets="{[btn_box, combinedPanel]}">
 				<mx:RemoveChildAction/>
+				<mx:SetPropertyAction target="{btn_view_surveys}" name="height" value="22"/>
 				<mx:SetPropertyAction target="{btn_add_existing}" name="height" value="22"/>
 				<mx:SetPropertyAction target="{btn_create}" name="height" value="22"/>
 				<mx:SetPropertyAction target="{iteration_form}" name="height" value="22"/>
+				<mx:SetPropertyAction target="{owner_form}" name="height" value="22"/>
+				<mx:SetPropertyAction target="{status_form}" name="height" value="22"/>
+				<mx:SetPropertyAction target="{btn_view_surveys}" name="visible" value="true"/>
 				<mx:SetPropertyAction target="{btn_add_existing}" name="visible" value="{iteration.selectedItem.id != -1}"/>
 				<mx:SetPropertyAction target="{btn_create}" name="visible" value="{factory.currentIndividual.isAtLeastProjectUser()}"/>
 				<mx:SetPropertyAction target="{iteration_form}" name="visible" value="true"/>
+				<mx:SetPropertyAction target="{owner_form}" name="visible" value="true"/>
+				<mx:SetPropertyAction target="{status_form}" name="visible" value="true"/>
 				<mx:Resize target="{combinedPanel}"/>
 				<mx:AddChildAction/>
 			</mx:Sequence>
@@ -601,18 +676,32 @@
 	</mx:transitions>
 	
 	<mx:Panel id="combinedPanel" height="100%" y="0" width="100%" x="0">
-		<mx:HBox id="btn_box" width="100%" horizontalAlign="left" verticalAlign="middle" paddingTop="5" paddingLeft="5" paddingRight="5">
+		<mx:HBox id="btn_box" width="100%" horizontalAlign="left" paddingTop="5" paddingLeft="5" paddingRight="5">
 			<mx:VBox width="100%">
-				<mx:FormItem id="iteration_form" label="Iteration:">
-					<mx:ComboBox id='iteration' width="350" editable="false" dataProvider="{iterationFilter}" labelField="name" change="handleFilter(event)"></mx:ComboBox>
-				</mx:FormItem>
+				<mx:HBox width="100%">
+					<mx:FormItem id="iteration_form" label="Iteration:">
+						<mx:ComboBox id='iteration' width="150" editable="false" dataProvider="{iterationFilter}" labelField="name" change="handleFilter(event)"></mx:ComboBox>
+					</mx:FormItem>
+					<mx:FormItem id="owner_form" label="Owner:">
+						<mx:ComboBox id='individual' width="150" editable="false" dataProvider="{individualFilter}" labelField="fullName" change="handleFilter(event)"></mx:ComboBox>
+					</mx:FormItem>
+					<mx:FormItem id="status_form" label="Status:">
+						<mx:ComboBox id='status' width="150" editable="false" change="handleFilter(event)" selectedIndex="2">
+							<mx:Object label="Created" value="0" />
+							<mx:Object label="In Progress" value="1" />
+							<mx:Object label="Not Accepted" value="-2" />
+							<mx:Object label="Accepted" value="2" />
+							<mx:Object label="All" value="-1" />
+						</mx:ComboBox>
+					</mx:FormItem>
+				</mx:HBox>
 				<mx:Text id="error" styleName="error" htmlText="{_error}" color="#ff0033" width="100%"/>
 			</mx:VBox>
-			<mx:Button label="View Surveys" click="handleSurveys(event);" id="btn_view_surveys"/>
 			<mx:Button label="Add Existing" click="handleAdd(event);" id="btn_add_existing" visible="{shouldShowExisting()}"/>
 			<mx:Button label="Create" styleName="btn_create" click="showCreateStory(event);" id="btn_create" visible="{factory.currentIndividual.isAtLeastProjectUser()}"/>
+			<mx:Button label="View Surveys" click="handleSurveys(event);" id="btn_view_surveys"/>
 		</mx:HBox>
-		<local:ColoredBackgroundDataGrid id="resource_grid" dataProvider="{filteredStories}" rowCount="{filteredStories.length}" width="100%" height="100%" dragEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" dropEnabled="true" dragMoveEnabled="true" dragStart="handleDrag(event)" dragDrop="handleDrop(event)" rowColorFunction="rowColor" headerRelease="prepareSort(event)" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" doubleClick="showUpdate(event)">
+		<local:ColoredBackgroundDataGrid id="resource_grid" variableRowHeight="true" dataProvider="{filteredStories}" rowCount="{filteredStories.length}" width="100%" height="100%" dragEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" dropEnabled="true" dragMoveEnabled="true" dragStart="handleDrag(event)" dragDrop="handleDrop(event)" rowColorFunction="rowColor" headerRelease="prepareSort(event)" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" doubleClick="showUpdate(event)">
 			<local:columns>
 				<mx:DataGridColumn editable="false" width="5" sortable="false"> 
 					<mx:itemRenderer> 
@@ -623,11 +712,11 @@
 						</mx:Component>
 					</mx:itemRenderer>
 				</mx:DataGridColumn>
-				<mx:DataGridColumn headerText="Name" width="350" dataField="listName" showDataTips="true" dataTipField="description" />
+				<mx:DataGridColumn headerText="Name" wordWrap="true" width="350" dataField="listName" showDataTips="true" dataTipField="description" />
 				<mx:DataGridColumn id="column_iteration" width="150" headerText="Iteration" labelFunction="ViewHelper.formatIteration" sortCompareFunction="ViewHelper.sortIteration"/>
 				<mx:DataGridColumn headerText="Owner" width="150" labelFunction="ViewHelper.formatIndividual" sortCompareFunction="ViewHelper.sortIndividual"/>
 				<mx:DataGridColumn headerText="Effort" width="75" dataField="calculatedEffort" sortCompareFunction="ViewHelper.sortEffort"/>
-				<mx:DataGridColumn editable="false" width="125" minWidth="125" headerText="Status" sortCompareFunction="ViewHelper.sortStatus">
+				<mx:DataGridColumn editable="false" width="120" minWidth="120" headerText="Status" sortCompareFunction="ViewHelper.sortStatus">
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
@@ -642,7 +731,7 @@
 				</mx:DataGridColumn>
 				<mx:DataGridColumn headerText="Public" width="80" dataField="isPublic"/>
 				<mx:DataGridColumn headerText="Priority" width="80" dataField="normalizedPriority" sortCompareFunction="ViewHelper.sortPriority"/>
-				<mx:DataGridColumn headerText="User Priority" width="80" dataField="userPriority" sortCompareFunction="ViewHelper.sortUserPriority"/>
+				<mx:DataGridColumn headerText="User Priority" width="90" dataField="userPriority" sortCompareFunction="ViewHelper.sortUserPriority"/>
 				<mx:DataGridColumn editable="false" width="140" minWidth="140" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>
