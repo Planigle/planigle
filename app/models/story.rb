@@ -11,12 +11,12 @@ class Story < ActiveRecord::Base
   validates_length_of       :description,            :maximum => 4096, :allow_nil => true
   validates_length_of       :acceptance_criteria,    :maximum => 4096, :allow_nil => true
   validates_numericality_of :effort, :allow_nil => true
-  validates_numericality_of :priority, :user_priority, :allow_nil => true
+  validates_numericality_of :priority, :user_priority, :allow_nil => true # Needed for priority since not set until after check
   validates_numericality_of :status_code
 
   StatusMapping = [ 'Created', 'In Progress', 'Accepted' ]
 
-  attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :iteration_id, :individual_id, :project_id, :public, :user_priority
+  attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :iteration_id, :individual_id, :project_id, :public, :priority, :user_priority
 
   # Assign a priority on creation
   before_create :initialize_defaults

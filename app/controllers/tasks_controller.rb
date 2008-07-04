@@ -1,7 +1,5 @@
 class TasksController < ApplicationController
   before_filter :login_required
-  before_filter :capture_parent
-  around_filter :update_js, :only=>[:create, :update, :destroy]
 
   active_scaffold do |config|
     edit_columns = [:name, :description, :individual_id, :effort, :status_code ]
@@ -20,35 +18,6 @@ class TasksController < ApplicationController
   end
 
 protected
-
-  # Add in Javascript to cause the containing story to be updated.
-  def update_js
-    if request.xhr?
-      js = render_to_string :partial => 'update_story', :layout => false
-    end
-    yield
-    
-    if request.xhr?
-      if @parent_id
-        # Replace the placeholder with the updated effort
-        m = /(.*)(%EFFORT%)(.*)/m.match(js)
-        js = m[1] << Story.find(@parent_id).effort.to_s << m[3]
-      end
-
-      response.body << js
-    end
-  end
-  
-  # Keep track of my parent (if I have one).  This is used in my helper methods.
-  def capture_parent
-    @parent_id = active_scaffold_constraints[:story_id]
-    if @parent_id
-      iteration_id = Story.find(@parent_id).iteration_id
-      if iteration_id
-        @iteration_id = iteration_id.to_s
-      end
-    end
-  end
 
   # If the user is assigned to a project, only show things related to that project.
   def active_scaffold_constraints

@@ -21,7 +21,8 @@ package org.planigle.planigle.model
 		public var calculatedEffort:String; // My effort when looking at my tasks.
 		public var statusCode:int;
 		public var isPublic:Boolean;
-		public var priority:int;
+		public var priority:Number;
+		public var normalizedPriority:String = "";
 		public var userPriority:String = "";
 		public var tasks:ArrayCollection = new ArrayCollection();
 		public static const CREATED:int = 0;
@@ -69,6 +70,7 @@ package org.planigle.planigle.model
 		public function updateCompleted(xml:XML):void
 		{
 			populate(xml);
+			StoryFactory.getInstance().normalizePriorities()
 		}
 		
 		// Split me.  Params should be of the format (record[param]).  Success function
@@ -115,6 +117,7 @@ package org.planigle.planigle.model
 					stories.addItem(story);
 			}
 			StoryFactory.getInstance().stories = stories;
+			StoryFactory.getInstance().normalizePriorities();
 		}
 		
 		// Create a new task for me.  Params should be of the format (record[param]).  Success function

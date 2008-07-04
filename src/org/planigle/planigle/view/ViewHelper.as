@@ -114,6 +114,12 @@ package org.planigle.planigle.view
 			return ObjectUtil.numericCompare(Number(item1.calculatedEffort),Number(item2.calculatedEffort));
 		}
 
+		// Sort priority numerically.
+		public static function sortPriority(item1:Object, item2:Object):int
+		{
+			return ObjectUtil.numericCompare(Number(item1.priority),Number(item2.priority));
+		}
+
 		// Sort user priority numerically.
 		public static function sortUserPriority(item1:Object, item2:Object):int
 		{
