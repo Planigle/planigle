@@ -111,7 +111,7 @@
 				individualFieldEmail.text = currentItem.email;
 				individualFieldFirstName.text = currentItem.firstName;
 				individualFieldLastName.text = currentItem.lastName;
-				individualFieldRole.selectedIndex = currentItem.role;
+				individualFieldRole.selectedIndex = factory.currentIndividual.isAdmin() ? currentItem.role : currentItem.role - 1;
 				individualFieldEnabled.selectedIndex = currentItem.enabled ? 0 : 1;
 				labelPassword.required = false;
 				labelPasswordConfirmation.required = false;

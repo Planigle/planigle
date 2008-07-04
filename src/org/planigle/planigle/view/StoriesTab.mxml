@@ -534,7 +534,7 @@
 		public function updateStatus(item:Object, event:ListEvent):void
 		{
 			var recalc:Boolean = item.statusCode == 2 && event.target.selectedIndex < 2;
-			item.update({"record[status_code]": event.target.selectedIndex}, handleSuccess, handleFailure);
+			item.update({"record[status_code]": event.target.selectedIndex}, handleUpdateStorySuccess, handleFailure);
 			if (recalc)
 				new StoryChangedEvent().dispatch();
 		}
