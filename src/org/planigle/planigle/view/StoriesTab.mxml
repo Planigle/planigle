@@ -320,7 +320,7 @@
 					field_iteration.selectedItem = iteration.selectedItem;
 				else
 					field_iteration.selectedIndex = IterationFactory.getInstance().iterationSelector.length - 1;
-				field_owner.selectedItem = IndividualFactory.getInstance().currentIndividual;
+				field_owner.selectedIndex = IndividualFactory.getInstance().individualSelector.length - 1;
 			}
 
 			field_effort.text = '';

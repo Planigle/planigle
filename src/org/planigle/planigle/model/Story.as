@@ -150,7 +150,7 @@ package org.planigle.planigle.model
 		{
 			if (effort == "")
 			{
-				var sum:int = 0;
+				var sum:Number = 0;
 				for (var i:int; i < tasks.length; i++)
 				{
 					var task:Task = Task(tasks.getItemAt(i));
