@@ -32,25 +32,23 @@ package org.planigle.planigle.model
 			var newIterationSelector:ArrayCollection = new ArrayCollection();
 			iterationMapping = new Object();
 
-			for (var i:int = 0; i < newIterations.length; i++)
+			for each (var iteration:Iteration in newIterations)
 			{
-				var iteration:Iteration = Iteration(newIterations.getItemAt(i));
 				newIterationSelector.addItem(iteration);
 				iterationMapping[iteration.id] = iteration;
 			}
 			
-			newIterationSelector.addItem( new Iteration( <iteration><id nil="true" /><name>Backlog</name></iteration> ) );
+			var iter:Iteration = new Iteration();
+			iter.populate( <iteration><id nil="true" /><name>Backlog</name></iteration> );
+			newIterationSelector.addItem( iter );
 			iterations = newIterations;
 			iterationSelector = newIterationSelector;
 		}
 
-		// Populate the iterations based on XML.
-		public function populate(xml:XMLList):void
+		// Populate the iterations.
+		public function populate(newIterations:Array):void
 		{
-			var newIterations:ArrayCollection = new ArrayCollection();
-			for (var j:int = 0; j < xml.length(); j++)
-				newIterations.addItem(new Iteration(xml[j]));
-			updateIterations(newIterations);
+			updateIterations(new ArrayCollection(newIterations));
 		}
 		
 		// Create a new iteration.  Params should be of the format (record[param]).  Success function
@@ -64,18 +62,19 @@ package org.planigle.planigle.model
 		// An iteration has been successfully created.  Change myself to reflect the changes.
 		public function createIterationCompleted(xml:XML):Iteration
 		{
-			var iteration:Iteration = new Iteration(xml);
+			var newIteration:Iteration = new Iteration();
+			newIteration.populate(xml);
 			// Create copy to ensure any views get notified of changes.
 			var newIterations:ArrayCollection = new ArrayCollection();
-			for (var i:int = 0; i < iterations.length; i++)
-				newIterations.addItem(iterations.getItemAt(i));
-			newIterations.addItem(iteration);
+			for each (var iteration:Iteration in iterations)
+				newIterations.addItem(iteration);
+			newIterations.addItem(newIteration);
 			updateIterations(newIterations);
-			return iteration;
+			return newIteration;
 		}
 
 		// Find an iteration given its ID.  If no iteration, return an Iteration representing the backlog.
-		public function find(id:int):Iteration
+		public function find(id:String):Iteration
 		{
 			var iteration:Iteration = iterationMapping[id];
 			return iteration ? iteration : Iteration(iterationSelector.getItemAt(iterationSelector.length-1));	
@@ -84,13 +83,24 @@ package org.planigle.planigle.model
 		// Answer the first iteration whose dates include today.  If none, return null.
 		public function current():Iteration
 		{
-			for (var i:int = 0; i < iterations.length; i++)
+			for each (var iteration:Iteration in iterations)
 			{
-				var iteration:Iteration = Iteration(iterations.getItemAt(i));
 				if(iteration.isCurrent())
 					return iteration;
 			}
 			return null;
+		}
+
+		// Answer the iterations within the release.
+		public function iterationsInRelease(release:Release):ArrayCollection
+		{
+			var iterationsInRelease:ArrayCollection = new ArrayCollection();
+			for each (var iteration:Iteration in iterationSelector)
+			{
+				if (!release.id || release.id == "-1" || !iteration.id || iteration.isIn(release))
+					iterationsInRelease.addItem(iteration);
+			}
+			return iterationsInRelease;
 		}
 	}
 }

@@ -85,9 +85,9 @@ class FlexIndividualsTest < Test::Unit::TestCase
     init('user')
     project_grid
     assert !@ie.button("individualBtnCreate").visible
-    assert !@ie.button("individualBtnDelete")[find_row('user')].visible
+    assert !@ie.button("individualBtnDelete")[find_row('user')-1].visible
     verify_edit(true)
-    row = find_row('readonly')
+    row = find_row('readonly')-1
     assert !@ie.button("individualBtnEdit")[row].visible
   end
 
@@ -96,7 +96,7 @@ class FlexIndividualsTest < Test::Unit::TestCase
     init('readonly')
     project_grid
     assert !@ie.button("individualBtnCreate").visible
-    row = find_row('readonly')
+    row = find_row('readonly')-1
     assert !@ie.button("individualBtnEdit")[row].visible
     assert !@ie.button("individualBtnDelete")[row].visible
   end

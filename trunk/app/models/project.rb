@@ -1,6 +1,7 @@
 require 'digest/sha1'
 class Project < ActiveRecord::Base
   has_many :individuals, :dependent => :destroy
+  has_many :releases, :dependent => :destroy
   has_many :iterations, :dependent => :destroy
   has_many :stories, :dependent => :destroy
   has_many :surveys, :dependent => :destroy
@@ -52,7 +53,7 @@ class Project < ActiveRecord::Base
     builder.instruct!
     builder.stories do
       i = 1
-      stories.find(:all, :order => 'priority', :conditions => 'status_code < 2 and public=true').each do |story|
+      stories.find(:all, :order => 'priority', :conditions => 'status_code < 2 and is_public=true').each do |story|
         builder.story do
           builder.id story.id
           builder.name story.name
@@ -64,17 +65,17 @@ class Project < ActiveRecord::Base
     end
   end
 
-protected
-  
-  # Add custom validation of the status field and relationships to give a more specific message.
-  def validate()
-    if survey_mode < 0 || survey_mode >= ModeMapping.length
-      errors.add(:survey_mode, ' is invalid')
+  # Only admins can create projects.
+  def authorized_for_create?(current_user)
+    if current_user.role <= Individual::Admin
+      true
+    else
+      false
     end
   end
 
   # Answer whether the user is authorized to see me.
-  def authorized_for_read?
+  def authorized_for_read?(current_user)
     case current_user.role
       when Individual::Admin then true
       else current_user.project_id == id
@@ -82,7 +83,7 @@ protected
   end
 
   # Answer whether the user is authorized for update.
-  def authorized_for_update?    
+  def authorized_for_update?(current_user)    
     case current_user.role
       when Individual::Admin then true
       when Individual::ProjectAdmin then current_user.project_id == id
@@ -91,7 +92,16 @@ protected
   end
 
   # Answer whether the user is authorized for delete.
-  def authorized_for_destroy?    
+  def authorized_for_destroy?(current_user)
     current_user.role <= Individual::Admin
+  end
+
+protected
+  
+  # Add custom validation of the status field and relationships to give a more specific message.
+  def validate()
+    if survey_mode < 0 || survey_mode >= ModeMapping.length
+      errors.add(:survey_mode, ' is invalid')
+    end
   end
 end

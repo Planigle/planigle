@@ -169,28 +169,28 @@ class IndividualsControllerTest < Test::Unit::TestCase
   def test_update_role_self
     login_as(individuals(:quentin))
     put :update, :id => 1, :record => {:role => 1}, :format => 'xml'
-    assert_response :success
+    assert_response 401
     assert_equal 0, individuals(:quentin).reload.role
   end
     
   # Test updating project by role.
   def test_update_project_by_admin
-    update_project_by_role_successful( individuals(:quentin), false )
+    update_project_by_role_successful( individuals(:quentin) )
   end
     
   # Test updating project by role.
   def test_update_project_by_project_admin
-    update_project_by_role_unsuccessful( individuals(:aaron), false )
+    update_project_by_role_unsuccessful( individuals(:aaron) )
   end
     
   # Test updating project by role.
   def test_update_project_by_project_user
-    update_project_by_role_unsuccessful( individuals(:user), true )
+    update_project_by_role_unsuccessful( individuals(:user) )
   end
     
   # Test updating project by role.
   def test_update_project_by_readonly_user
-    update_project_by_role_unsuccessful( individuals(:readonly), true )
+    update_project_by_role_unsuccessful( individuals(:readonly) )
   end
 
   # Test updating an individual for another project.
@@ -231,7 +231,7 @@ class IndividualsControllerTest < Test::Unit::TestCase
   end
   
   # Update project successfully based on role.
-  def update_project_by_role_successful( user, unauthorized, params = {:project_id => 2} )
+  def update_project_by_role_successful( user, params = {:project_id => 2} )
     login_as(user)
     put :update, :id => 3, resource_symbol => params, :format => 'xml'
     assert_response :success
@@ -248,14 +248,12 @@ class IndividualsControllerTest < Test::Unit::TestCase
   end
   
   # Update project unsuccessfully based on role.
-  def update_project_by_role_unsuccessful( user, unauthorized, params = {:project_id => 2} )
+  def update_project_by_role_unsuccessful( user, params = {:project_id => 2} )
     login_as(user)
     put :update, :id => 3, resource_symbol => params, :format => 'xml'
-    assert_response (unauthorized ? 401 : :success)
+    assert_response 401
     assert_equal 1, individuals(:ted).reload.project_id
-    if unauthorized
-      assert_select "errors"
-    end
+    assert_select "errors"
   end
     
   # Test deleting individuals (based on role).

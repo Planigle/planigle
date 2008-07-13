@@ -3,6 +3,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 class ProjectTest < ActiveSupport::TestCase
   fixtures :projects
   fixtures :individuals
+  fixtures :releases
   fixtures :iterations
   fixtures :stories
   fixtures :surveys
@@ -37,11 +38,13 @@ class ProjectTest < ActiveSupport::TestCase
   # Test deleting an project
   def test_delete_project
     assert_equal individuals(:aaron).project, projects(:first)
+    assert_equal releases(:first).project, projects(:first)
     assert_equal iterations(:first).project, projects(:first)
     assert_equal stories(:first).project, projects(:first)
     assert_equal surveys(:first).project, projects(:first)
     projects(:first).destroy
     assert_nil Individual.find_by_id(2)
+    assert_nil Release.find_by_id(1)
     assert_nil Iteration.find_by_id(1)
     assert_nil Story.find_by_id(1)
     assert_nil Survey.find_by_id(1)

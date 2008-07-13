@@ -4,29 +4,27 @@ package org.planigle.planigle.model
 	
 	import org.planigle.planigle.commands.DeleteIterationCommand;
 	import org.planigle.planigle.commands.UpdateIterationCommand;
+	import org.planigle.planigle.model.ReleaseFactory;
+	import org.planigle.planigle.model.Release;
 
+	[RemoteClass(alias='Iteration')]
 	[Bindable]
 	public class Iteration
 	{
 		private const MILLIS_IN_WEEK:int = 7*24*60*60*1000;
-		public var id:int;
+		public var id:String;
+		public var projectId: int;
 		public var name:String;
 		public var start:Date;
 		public var length:int;
 	
 		// Populate myself from XML.
-		private function populate(xml:XML):void
+		public function populate(xml:XML):void
 		{
-			id = xml.id;
+			id = xml.id == "" ? null: xml.id;
 			name = xml.name;
 			start = DateUtils.stringToDate(xml.start);			
 			length = xml.length;
-		}
-		
-		// Construct an iteration based on XML.
-		public function Iteration(xml:XML)
-		{
-			populate(xml);
 		}
 		
 		// Update me.  Params should be of the format (record[param]).  Success function
@@ -55,9 +53,8 @@ package org.planigle.planigle.model
 		{
 			// Create copy to ensure any views get notified of changes.
 			var iterations:ArrayCollection = new ArrayCollection();
-			for (var i:int = 0; i < IterationFactory.getInstance().iterations.length; i++)
+			for each (var iteration:Iteration in IterationFactory.getInstance().iterations)
 			{
-				var iteration:Iteration = Iteration(IterationFactory.getInstance().iterations.getItemAt(i));
 				if (iteration != this)
 					iterations.addItem(iteration);
 			}
@@ -86,6 +83,49 @@ package org.planigle.planigle.model
 				return Iteration(iterations.getItemAt( i + 1 ));
 			else
 				return this;
+		}
+
+		// Increment my name (or return an empty string if I cannot do so).
+		public function incrementName():String
+		{
+			var splits:Array = name.split(" ");
+			if (int(splits[splits.length-1]) > 0)
+				{ // Increment last component of name if an integer.
+				splits[splits.length-1] = (int(splits[splits.length-1])+1).toString();
+				return splits.join(" ");
+				}
+			else
+	 			return '';
+		}
+
+		// Answer true if I am in a release (true if any part of me overlaps).
+		public function isIn(release:Release):Boolean
+		{
+			return start <= release.finish && end() >= release.start;
+		}
+
+		// Answer the releases that could be worked on during me.
+		public function releases():ArrayCollection
+		{
+			if (!id)
+				return ReleaseFactory.getInstance().releaseSelector;
+			else
+			{
+				var releases:ArrayCollection = new ArrayCollection();
+				for each (var release:Release in ReleaseFactory.getInstance().releaseSelector)
+				{
+					if (!release.id || isIn(release))
+						releases.addItem(release);
+				}
+				return releases;
+			}
+		}
+
+		// Answer my default release.
+		public function defaultRelease():Release
+		{
+			var releases:ArrayCollection = releases();
+			return Release((!id || releases.length < 2) ? releases.getItemAt(releases.length - 1) : releases.getItemAt(releases.length - 2));
 		}
 	}
 }

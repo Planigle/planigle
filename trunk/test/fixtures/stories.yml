@@ -1,6 +1,7 @@
 first:
   id: 1
   project_id: 1
+  release_id: 1
   iteration_id: 1
   individual_id: 2
   name: 'test'
@@ -9,12 +10,13 @@ first:
   effort: 1
   status_code: 1
   priority: 3
-  public: true
+  is_public: true
   user_priority: 2
 
 second:
   id: 2
   project_id: 1
+  release_id: 1
   iteration_id: 1
   name: 'test2'
   description: ''
@@ -22,7 +24,7 @@ second:
   effort: 1
   status_code: 2
   priority: 2
-  public: true
+  is_public: true
   user_priority: 1
 
 third:
@@ -35,7 +37,7 @@ third:
   status_code: 1
   priority: 1
   user_priority: 2
-  public: false
+  is_public: false
 
 fourth:
   id: 4
@@ -46,7 +48,7 @@ fourth:
   effort: 1
   status_code: 1
   priority: 4
-  public: true
+  is_public: true
 
 fifth:
   id: 5
@@ -57,4 +59,4 @@ fifth:
   effort: 2
   status_code: 1
   priority: 1
-  public: true
+  is_public: true

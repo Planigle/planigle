@@ -1,35 +1,35 @@
-class IterationsController < ApplicationController
+class IterationsController < ResourceController
   before_filter :login_required
-  active_scaffold do |config|
-    config.columns = [:project_id, :name, :start, :length ]
-    config.columns[:project_id].label = 'Project' 
-    config.columns[:length].label = 'Length (in weeks)' 
-    config.list.sorting = {:start => 'ASC'}
-    config.nested.add_link('Stories', [:stories])
-    config.export.columns = [:project, :name, :start, :length ]
-    config.columns[:project_id].sort_by :sql => '(select min(name) from projects where id = project_id)'
-  end
 
 protected
 
-  # If the user is assigned to a project, only show things related to that project.
-  def active_scaffold_constraints
+  # Get the records based on the current individual.
+  def get_records
     if current_individual.role >= Individual::ProjectAdmin or project_id
-      super.merge({:project_id => project_id})
+      Iteration.find(:all, :conditions => ["project_id = ?", project_id], :order => 'start')
     else
-      super
+      Iteration.find(:all, :order => 'start')
     end
   end
+
+  # Answer the current record based on the current individual.
+  def get_record
+    Iteration.find(is_amf ? params[0] : params[:id])
+  end
   
-  # Only project admins or higher can create iterations.
-  def create_authorized?
-    if current_individual.role <= Individual::Admin
-      true
-    elsif current_individual.role <= Individual::ProjectAdmin && (!params[:record] || !params[:record][:project_id] || project_id == params[:record][:project_id].to_i)
-      true
+  # Create a new record given the params.
+  def create_record
+    is_amf ? params[0] : Iteration.new(params[:record])
+  end
+  
+  # Update the record given the params.
+  def update_record
+    if is_amf
+      @record.name = params[0].name
+      @record.start = params[0].start
+      @record.length = params[0].length
     else
-      unauthorized
-      false
+      @record.attributes = params[:record]
     end
   end
 end

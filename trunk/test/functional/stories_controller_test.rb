@@ -18,14 +18,6 @@ class StoriesControllerTest < ActionController::TestCase
   fixtures :surveys
   fixtures :survey_mappings
 
-  # Test successfully getting a partial list (by iteration)
-  def test_list_partial
-    login_as(individuals(:quentin))
-    xhr :get, :index, {:iteration_id => 1}
-    assert_response :success
-    assert_template "list"
-  end
-
   # Test getting a split story template without credentials.
   def test_split_get_unauthorized
     get :split, :id => 1
@@ -75,7 +67,7 @@ class StoriesControllerTest < ActionController::TestCase
   def test_set_iteration_success
     login_as(individuals(:quentin))
     put :update, :id => 1, :record => {:iteration_id => 2}
-    assert_redirected_to :action => :index
+    assert_response :success
     assert_equal stories(:first).reload.iteration_id, 2
   end
   
@@ -84,7 +76,6 @@ class StoriesControllerTest < ActionController::TestCase
     login_as(individuals(:quentin))
     put :update, :id => 1, :record => {:iteration_id => 999}
     assert_response :success
-    assert_template 'update_form'
     assert_not_equal stories(:first).reload.iteration_id, 999
   end
   
@@ -92,7 +83,7 @@ class StoriesControllerTest < ActionController::TestCase
   def test_set_owner_success
     login_as(individuals(:quentin))
     put :update, :id => 1, :record => {:individual_id => 2}
-    assert_redirected_to :action => :index
+    assert_response :success
     assert_equal stories(:first).reload.individual_id, 2
   end
   
@@ -101,7 +92,6 @@ class StoriesControllerTest < ActionController::TestCase
     login_as(individuals(:quentin))
     put :update, :id => 1, :record => {:individual_id => 999}
     assert_response :success
-    assert_template 'update_form'
     assert_not_equal stories(:first).reload.individual_id, 999
   end
     
@@ -235,7 +225,7 @@ class StoriesControllerTest < ActionController::TestCase
     login_as(user)
     num = resource_count
     put :split, create_success_parameters.merge( :id => 1, :format => 'xml' )
-    assert_response :success
+    assert_response 201
     assert_equal num + 1, resource_count
     assert_create_succeeded
     assert_equal 1, stories(:first).tasks.count

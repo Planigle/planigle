@@ -2,6 +2,8 @@ package org.planigle.planigle.model
 {
 	public class DateUtils
 	{
+		public static const MILLIS_IN_DAY:int = 24*60*60*1000;
+
 		// Convert a Rails date string to a Date.
 		public static function stringToDate( st:String ):Date
 		{

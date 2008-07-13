@@ -12,20 +12,12 @@ class ApplicationController < ActionController::Base
   session :session_key => '_planigle_session_id'  
   session :secret => "'I'll break your neck like a chicken bone.' - infamous quote"
 
-  ActiveScaffold.set_defaults do |config|
-    config.actions.add :list_filter
-    config.actions.add :export
-    config.show.link.label=''
-    config.list.empty_field_text=''
-    config.security.current_user_method = :current_individual
-  end
+protected
 
   # Answer the current project id (or nil if there is not one).
   def project_id
     current_individual ? current_individual.project_id : nil
   end
-
-protected
 
   # Flex wants all responses to be 200
   # REST applications want create to respond in 201 and errors to be 422.
@@ -54,15 +46,16 @@ protected
     yield
   rescue ActiveRecord::RecordNotFound
     head 404
-  rescue ActiveScaffold::RecordNotAllowed
-    unauthorized
   end
   
   # Render as unauthorized (note that since this is frequently called in a filter that cancels future
   # filters, we need to make sure we return a status code that Flex will like (if in use).
   def unauthorized
     status = is_web_service ? 401 : 200 # Flex works around lack of Accept header by requesting .xml.
-    render :xml => xml_error("You are not authorized to perform that action."), :status => status
+    respond_to do |format|
+      format.xml { render :xml => xml_error("You are not authorized to perform that action."), :status => status }
+      format.amf { render :amf => ["You are not authorized to perform that action."] }
+    end
   end
   
   # An error has occurred.  Render the error (a string) in xml.

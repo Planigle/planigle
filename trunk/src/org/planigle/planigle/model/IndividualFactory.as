@@ -5,6 +5,7 @@ package org.planigle.planigle.model
 	import org.planigle.planigle.commands.CreateIndividualCommand;
 	import org.planigle.planigle.events.ProjectChangedEvent;
 	import org.planigle.planigle.events.IndividualChangedEvent;
+	import org.planigle.planigle.events.ReleaseChangedEvent;
 	import org.planigle.planigle.events.IterationChangedEvent;
 	import org.planigle.planigle.events.StoryChangedEvent;
 	
@@ -44,33 +45,32 @@ package org.planigle.planigle.model
 			var newIndividualSelector:ArrayCollection = new ArrayCollection();
 			individualMapping = new Object();
 
-			for (var i:int = 0; i < newIndividuals.length; i++)
+			for each (var individual:Individual in newIndividuals)
 			{
-				var individual:Individual = Individual(newIndividuals.getItemAt(i));
 				newIndividualSelector.addItem(individual);
 				individualMapping[individual.id] = individual;
 				if (individual.login == currentLogin)
 					currentIndividual = individual;
 			}
 			
-			newIndividualSelector.addItem( new Individual( <individual><id nil="true" /><first-name>No</first-name><last-name>Owner</last-name></individual> ) );
+			var individ:Individual = new Individual();
+			individ.populate( <individual><id nil="true" /><first-name>No</first-name><last-name>Owner</last-name></individual> );
+			newIndividualSelector.addItem( individ );
 			individuals = newIndividuals;
 			individualSelector = newIndividualSelector;
+		}
+
+		// Populate the individuals.
+		public function populate(newIndividuals:Array):void
+		{
+			updateIndividuals(new ArrayCollection(newIndividuals));
 
 			if ( !currentIndividual.isAdminOnly() )
 			{ // Admins don't need this info.
+				new ReleaseChangedEvent().dispatch();			
 				new IterationChangedEvent().dispatch();			
 				new StoryChangedEvent().dispatch();			
 			}			
-		}
-
-		// Populate the individuals based on XML.
-		public function populate(xml:XMLList):void
-		{
-			var newIndividuals:ArrayCollection = new ArrayCollection();
-			for (var j:int = 0; j < xml.length(); j++)
-				newIndividuals.addItem(new Individual(xml[j]));
-			updateIndividuals(newIndividuals);
 		}
 		
 		// Create a new individual.  Params should be of the format (record[param]).  Success function
@@ -84,18 +84,19 @@ package org.planigle.planigle.model
 		// An individual has been successfully created.  Change myself to reflect the changes.
 		public function createIndividualCompleted(xml:XML):Individual
 		{
-			var individual:Individual = new Individual(xml);
+			var newIndividual:Individual = new Individual();
+			newIndividual.populate(xml);
 			// Create copy to ensure any views get notified of changes.
 			var newIndividuals:ArrayCollection = new ArrayCollection();
-			for (var i:int = 0; i < individuals.length; i++)
-				newIndividuals.addItem(individuals.getItemAt(i));
-			newIndividuals.addItem(individual);
+			for each (var individual:Individual in individuals)
+				newIndividuals.addItem(individual);
+			newIndividuals.addItem(newIndividual);
 			updateIndividuals(newIndividuals);
-			return individual;
+			return newIndividual;
 		}
 
 		// Find an individual given its ID.  If no individual, return an Individual representing the backlog.
-		public function find(id:int):Individual
+		public function find(id:String):Individual
 		{
 			var individual:Individual = individualMapping[id];
 			return individual ? individual : Individual(individualSelector.getItemAt(individualSelector.length-1));	
@@ -104,7 +105,9 @@ package org.planigle.planigle.model
 		// Update after a new user is logged in.
 		public function setCurrent(login:String):void
 		{
-			if (currentLogin != login)
+			if (currentLogin == login) // Re-logging in, no need to get data
+				ViewModelLocator.getInstance().workflowState = ViewModelLocator.CORE_APPLICATION_SCREEN;
+			else
 			{
 				currentLogin = login;
 				new IndividualChangedEvent().dispatch();		

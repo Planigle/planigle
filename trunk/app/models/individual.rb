@@ -91,10 +91,7 @@ class Individual < ActiveRecord::Base
   # Override to_xml to exclude private attributes.
   def to_xml(options = {})
     if !options[:except]
-      options[:except] = [:crypted_password, :salt, :remember_token, :remember_token_expires_at, :activation_code, :activated_at ]
-    end
-    if !options[:methods]
-      options[:methods] = [:activated]
+      options[:except] = [:crypted_password, :salt, :remember_token, :remember_token_expires_at, :activation_code ]
     end
     super(options)
   end
@@ -102,6 +99,44 @@ class Individual < ActiveRecord::Base
   # Prettier method name for xml.
   def activated
     activated?
+  end
+
+  # Only project admins or higher can create individuals.
+  def authorized_for_create?(current_user)
+    if current_user.role <= Individual::Admin
+      true
+    elsif current_user.role <= Individual::ProjectAdmin && current_user.project_id == project_id && role != Individual::Admin
+      true
+    else
+      false
+    end
+  end
+
+  # Answer whether the user is authorized to see me.
+  def authorized_for_read?(current_user)
+    case current_user.role
+      when Individual::Admin then true
+      else current_user.project_id == project_id && role != Individual::Admin
+    end
+  end
+
+  # Answer whether the user is authorized for update.
+  def authorized_for_update?(current_user)
+    case current_user.role
+      when Individual::Admin then true
+      when Individual::ProjectAdmin then current_user.project_id == project_id && role != Individual::Admin
+      when Individual::ProjectUser then current_user.id == id
+      else false
+    end
+  end
+
+  # Answer whether the user is authorized for delete.
+  def authorized_for_destroy?(current_user)
+    case current_user.role
+      when Individual::Admin then id != current_user.id
+      when Individual::ProjectAdmin then id != current_user.id && current_user.project_id == project_id && role != Individual::Admin
+      else false
+    end
   end
  
 protected
@@ -150,46 +185,5 @@ protected
     if role && (role > Admin && !project_id )
       errors.add(:project, ' must be set for users who are not admins')
     end
-  end
-
-  # Answer whether the user is authorized to see me.
-  def authorized_for_read?
-    if !current_user
-      true # Activate
-    else
-      case current_user.role
-        when Individual::Admin then true
-        else current_user.project_id == project_id && role != Individual::Admin
-      end
-    end
-  end
-
-  # Answer whether the user is authorized for update.
-  def authorized_for_update?
-    case current_user.role
-      when Individual::Admin then true
-      when Individual::ProjectAdmin then current_user.project_id == project_id && role != Individual::Admin
-      when Individual::ProjectUser then current_user.id == id
-      else false
-    end
-  end
-
-  # Answer whether the user is authorized for delete.
-  def authorized_for_destroy?
-    case current_user.role
-      when Individual::Admin then id != current_user.id
-      when Individual::ProjectAdmin then id != current_user.id && current_user.project_id == project_id && role != Individual::Admin
-      else false
-    end
-  end
-
-  # Answer whether the user can update role.
-  def role_authorized_for_update?
-    (current_user.role <= Individual::ProjectAdmin) && (id != current_user.id)
-  end
-
-  # Answer whether the user can update project id.
-  def project_id_authorized_for_update?
-    current_user.role <= Individual::Admin
   end
 end

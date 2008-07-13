@@ -44,6 +44,7 @@
 	
 	<!--Cairngorm FrontController and ServiceLocator inclusions.-->
 	<control:SessionController id ="sessionController"/>
+	<control:ReleasesController id ="releasesController"/>
 	<control:IterationsController id ="iterationsController"/>
 	<control:StoriesController id ="storiesController"/>
 	<control:ProjectsController id ="projectsController"/>

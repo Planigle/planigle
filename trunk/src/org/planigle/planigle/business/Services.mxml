@@ -3,6 +3,46 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:cairngorm="com.adobe.cairngorm.business.*">
 
+	<mx:RemoteObject id="releaseRO"
+		source="ReleasesController"
+		destination="rubyamf"
+		showBusyCursor="true">
+		<mx:method name="index"/>
+		<mx:method name="create"/>
+		<mx:method name="update"/>
+		<mx:method name="destroy"/>
+	</mx:RemoteObject>
+
+	<mx:RemoteObject id="iterationRO"
+		source="IterationsController"
+		destination="rubyamf"
+		showBusyCursor="true">
+		<mx:method name="index"/>
+		<mx:method name="create"/>
+		<mx:method name="update"/>
+		<mx:method name="destroy"/>
+	</mx:RemoteObject>
+
+	<mx:RemoteObject id="individualRO"
+		source="IndividualsController"
+		destination="rubyamf"
+		showBusyCursor="true">
+		<mx:method name="index"/>
+		<mx:method name="create"/>
+		<mx:method name="update"/>
+		<mx:method name="destroy"/>
+	</mx:RemoteObject>
+
+	<mx:RemoteObject id="storyRO"
+		source="StoriesController"
+		destination="rubyamf"
+		showBusyCursor="true">
+		<mx:method name="index"/>
+		<mx:method name="create"/>
+		<mx:method name="update"/>
+		<mx:method name="destroy"/>
+	</mx:RemoteObject>
+
 	<!--Login Service-->
 	<mx:HTTPService id="loginService"
 		url = "session.xml"
@@ -21,6 +61,40 @@
 		useProxy="false"
 		showBusyCursor="true"/>
 	
+	<!--Get Releases-->
+	<mx:HTTPService id="getReleasesService"
+		url = "releases.xml"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "GET"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Create Release-->
+	<mx:HTTPService id="createReleaseService"
+		url = "releases.xml"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Update Release-->
+	<mx:HTTPService id="updateReleaseService"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Delete Release-->
+	<mx:HTTPService id="deleteReleaseService"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
+		
 	<!--Get Iterations-->
 	<mx:HTTPService id="getIterationsService"
 		url = "iterations.xml"
@@ -29,7 +103,7 @@
 		method = "GET"
 		useProxy="false"
 		showBusyCursor="true"/>
-	
+
 	<!--Create Iteration-->
 	<mx:HTTPService id="createIterationService"
 		url = "iterations.xml"

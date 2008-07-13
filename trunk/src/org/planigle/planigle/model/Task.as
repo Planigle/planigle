@@ -4,41 +4,48 @@ package org.planigle.planigle.model
 	import org.planigle.planigle.commands.UpdateTaskCommand;
 	import org.planigle.planigle.commands.DeleteTaskCommand;
 
+	[RemoteClass(alias='Task')]
 	[Bindable]
 	public class Task
 	{
 		public var story:Story;
 		public var id:int;
+		public var storyId: int;
 		public var name:String;
-		public var listName:String; // allows for indentation in list.
 		public var description:String;
-		public var iterationId:int = -1; // stubbed out to look like a Story in tables.
-		public var ownerId:int;
+		public var individualId:String;
 		public var effort:String;
-		public var calculatedEffort:String; // stubbed out to look like a Story in tables.
 		public var statusCode:int;
-		public var priority:String = ""; // stubbed out to look like a Story in tables.
 
 		// Populate myself from XML.
-		private function populate(xml:XML):void
+		public function populate(xml:XML):void
 		{
 			id = xml.id;
 			name = xml.name;
-			listName = "     " + name;
 			description = xml.description;
-			ownerId = xml.child("individual-id");
+			individualId = xml.child("individual-id");
 			effort = xml.effort;
-			calculatedEffort = effort;
 			statusCode = xml.child("status-code");
 		}
 
-		// Construct a task based on XML.
-		public function Task(aStory:Story, xml:XML)
+		// For tasks, the list name is indented.
+		public function get listName():String
 		{
-			story = aStory;
-			populate(xml);
+			return "     " + name;
 		}
-		
+
+		// For tasks, the calculated effort is the same as the effort.
+		public function get calculatedEffort():String
+		{
+			return effort;
+		}
+
+		// Tasks aren't assigned directly to iterations.
+		public function get iterationId():int
+		{
+			return -1;
+		}
+
 		// Update the task.  Params should be of the format (record[param]).  Success function
 		// will be called if successfully updated.  FailureFunction will be called if failed (will
 		// be passed an XMLList with errors).
@@ -51,7 +58,6 @@ package org.planigle.planigle.model
 		public function updateCompleted(xml:XML):void
 		{
 			populate(xml);
-			story.updateEffort();
 		}
 		
 		// Delete me.  Success function if successfully deleted.  FailureFunction will be called if failed
@@ -64,8 +70,9 @@ package org.planigle.planigle.model
 		// I have been successfully deleted.  Remove myself to reflect the changes.
 		public function destroyCompleted():void
 		{
-			story.tasks.removeItemAt(story.tasks.getItemIndex(this));
-			story.updateEffort();
+			var taskCollect:ArrayCollection = new ArrayCollection(story.tasks);
+			taskCollect.removeItemAt(taskCollect.getItemIndex(this));
+			story.tasks = taskCollect.source;
 
 			// Create copy to ensure any views get notified of changes.
 			var stories:ArrayCollection = new ArrayCollection();

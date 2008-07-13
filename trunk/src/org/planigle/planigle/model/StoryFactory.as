@@ -25,17 +25,13 @@ package org.planigle.planigle.model
 			return instance;
 		}
 
-		// Populate the stories based on XML.
-		public function populate(xml:XMLList):void
+		// Populate the stories.
+		public function populate(someStories:Array):void
 		{
-			var newStories:ArrayCollection = new ArrayCollection();
+			var newStories:ArrayCollection = new ArrayCollection(someStories);
 			storyMapping = new Object();
-			for (var i:int = 0; i < xml.length(); i++)
-			{
-				var story:Story = new Story(xml[i]);
-				newStories.addItem(story);
+			for each (var story:Story in newStories)
 				storyMapping[story.id] = story;
-			}
 			stories = newStories;
 			normalizePriorities();
 		}
@@ -51,15 +47,16 @@ package org.planigle.planigle.model
 		// A story has been successfully created.  Change myself to reflect the changes.
 		public function createStoryCompleted(xml:XML):Story
 		{
-			var story:Story = new Story(xml);
+			var newStory:Story = new Story();
+			newStory.populate(xml);
 			// Create copy to ensure any views get notified of changes.
 			var newStories:ArrayCollection = new ArrayCollection();
-			for (var i:int = 0; i < stories.length; i++)
-				newStories.addItem(stories.getItemAt(i));
-			newStories.addItem(story);
+			for each (var story:Story in stories)
+				newStories.addItem(story);
+			newStories.addItem(newStory);
 			stories = newStories;
 			normalizePriorities();
-			return story;
+			return newStory;
 		}
 
 		// Find a story given its ID.  If no story, return null.

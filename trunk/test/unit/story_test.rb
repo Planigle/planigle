@@ -59,12 +59,10 @@ class StoryTest < ActiveSupport::TestCase
     assert_failure( :status_code, 3)    
   end
 
-  # Test the validation of public.
-  def test_public
-    story = create_story
-    assert_equal false, story.public # Defaults to false
-    assert_success( :public, true)
-    assert_success( :public, false)
+  # Test the validation of is_public.
+  def test_is_public
+    assert_success( :is_public, true)
+    assert_success( :is_public, false)
   end
 
   # Test the accepted? method.
@@ -88,7 +86,7 @@ class StoryTest < ActiveSupport::TestCase
   
   # Test splitting a story where the story ends up in the backlog.
   def test_split_last
-    story = create_story(:iteration_id => 2 ).split
+    story = create_story(:iteration_id => 4, :release_id => 1 ).split
     assert_equal 'foo Part Two', story.name
     assert_equal 1, story.project_id
     assert_equal nil, story.individual_id
@@ -126,22 +124,6 @@ class StoryTest < ActiveSupport::TestCase
   # Test that added stories are put at the end of the list.
   def test_priority_on_add
     assert_equal [3, 2, 1, 4] << create_story.id, Story.find(:all, :conditions => 'project_id = 1', :order=>'priority').collect {|story| story.id}    
-  end
-
-  # Test successfully sorting the stories.
-  def test_sort_success
-    assert_equal [3, 2, 1, 4], Story.find(:all, :conditions => 'project_id = 1', :order=>'priority').collect {|story| story.id}    
-    Story.sort([1, 2, 3]).each {|story| story.save(false)}
-    assert_equal [1, 2, 3, 4], Story.find(:all, :conditions => 'project_id = 1', :order=>'priority').collect {|story| story.id}    
-  end
-
-  # Test failure to change the sort order.
-  def test_sort_failure
-    assert_equal [3, 2, 1, 4], Story.find(:all, :conditions => 'project_id = 1', :order=>'priority').collect {|story| story.id}    
-    assert_raise(ActiveRecord::RecordNotFound) {
-      Story.sort [999, 2, 3]
-    }
-    assert_equal [3, 2, 1, 4], Story.find(:all, :conditions => 'project_id = 1', :order=>'priority').collect {|story| story.id}    
   end
   
   # Test deleting an story (should delete tasks).

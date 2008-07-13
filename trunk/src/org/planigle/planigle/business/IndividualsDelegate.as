@@ -5,6 +5,7 @@ package org.planigle.planigle.business
 	import mx.rpc.AsyncToken;
 	import mx.rpc.IResponder;
 	import mx.rpc.http.HTTPService;
+	import mx.rpc.remoting.RemoteObject;
 	import org.planigle.planigle.model.Individual;
 	
 	public class IndividualsDelegate
@@ -20,8 +21,8 @@ package org.planigle.planigle.business
 		// Get the latest individuals.
 		public function getIndividuals():void 
 		{
-			var service:HTTPService = ServiceLocator.getInstance().getHTTPService("getIndividualsService");
-			service.send({random: Math.random()}).addResponder( responder ); // Note: random prevents caching
+			var remoteObject:RemoteObject = ServiceLocator.getInstance().getRemoteObject("individualRO");
+			remoteObject.index.send().addResponder(responder);
 		}	
 		
 		// Create the individual as specified.

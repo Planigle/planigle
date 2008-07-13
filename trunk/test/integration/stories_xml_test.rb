@@ -61,7 +61,7 @@ class StoriesXmlTest < ActionController::IntegrationTest
   def test_split_put_success
     num = resource_count
     put '/stories/split/1', create_success_parameters, authorization_header
-    assert_response 200
+    assert_response 201
     assert_equal num + 1, resource_count
     assert_create_succeeded
     assert_equal 1, stories(:first).tasks.count

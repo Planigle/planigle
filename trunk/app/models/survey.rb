@@ -58,10 +58,8 @@ class Survey < ActiveRecord::Base
     survey_mappings.select{|sm| sm.story_id }.collect{|sm| sm.story }
   end
   
-  protected
-  
   # Answer whether the user is authorized to see me.
-  def authorized_for_read?
+  def authorized_for_read?(current_user)
     if !current_user; return false; end;
     case current_user.role
       when Individual::Admin then true
@@ -70,7 +68,7 @@ class Survey < ActiveRecord::Base
   end
 
   # Answer whether the user is authorized for update.
-  def authorized_for_update?    
+  def authorized_for_update?(current_user)    
     case current_user.role
       when Individual::Admin then true
       when Individual::ProjectAdmin then current_user.project_id == project_id

@@ -42,10 +42,7 @@ package org.planigle.planigle.commands
 					Alert.show(result.error, "Login Error");
 			}
 			else
-			{
 				individualFactory.setCurrent( result.login );
-				viewModelLocator.workflowState = ViewModelLocator.CORE_APPLICATION_SCREEN;
-			}
 		}
 		
 		// Handle case where error occurs.

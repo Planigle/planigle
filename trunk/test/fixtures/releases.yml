@@ -1,0 +1,21 @@
+first:
+  id: 1
+  project_id: 1
+  name: first
+  start: 2008-03-26
+  finish: 2008-06-26
+
+second:
+  id: 2
+  project_id: 1
+  name: second
+  start: 2008-06-12
+  finish: 2008-09-12
+
+third:
+  id: 3
+  project_id: 2
+  name: third
+  start: 2008-06-12
+  finish: 2008-09-12
+  

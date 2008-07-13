@@ -14,10 +14,11 @@
 			import org.planigle.planigle.model.IndividualFactory;
 			import org.planigle.planigle.events.ProjectChangedEvent;
 			import org.planigle.planigle.events.IndividualChangedEvent;
+			import org.planigle.planigle.events.ReleaseChangedEvent;
 			import org.planigle.planigle.events.IterationChangedEvent;
 			import org.planigle.planigle.events.StoryChangedEvent;
 			import org.planigle.planigle.events.LogoutEvent;
-			import org.planigle.planigle.view.IterationsTab;
+			import org.planigle.planigle.view.ScheduleTab;
 			import org.planigle.planigle.view.StoriesTab;
 			import org.planigle.planigle.view.ProjectsTab;
 			import org.planigle.planigle.view.IndividualsTab;
@@ -25,7 +26,7 @@
 			[Bindable]
 			private var factory:IndividualFactory = IndividualFactory.getInstance();
 
-			private var iterations:IterationsTab = new IterationsTab();
+			private var schedule:ScheduleTab = new ScheduleTab();
 			private var stories:StoriesTab = new StoriesTab();
 			private var projects:ProjectsTab = new ProjectsTab();
 			private var individuals:IndividualsTab = new IndividualsTab();
@@ -61,11 +62,11 @@
 					if (factory.currentIndividual.isAdminOnly())
 					{
 						hideTab(stories);
-						hideTab(iterations);
+						hideTab(schedule);
 					}
 					else
 					{
-						showTab(iterations);
+						showTab(schedule);
 						showTab(stories);
 					}
 				}
@@ -84,6 +85,7 @@
 				new IndividualChangedEvent().dispatch();
 				if (!factory.currentIndividual.isAdminOnly())
 				{
+					new ReleaseChangedEvent().dispatch();
 					new IterationChangedEvent().dispatch();
 					new StoryChangedEvent().dispatch();
 				}
