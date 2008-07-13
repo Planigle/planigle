@@ -80,7 +80,7 @@ private
     
     # Values will be based off of last iteration (non-numeric name)
     assert_equal '', @ie.text_area("iterationFieldName").text
-    assert_equal '04/30/2008', @ie.text_area("iterationFieldStart").text
+    assert_equal '07/18/2008', @ie.text_area("iterationFieldStart").text
     assert_equal '3', @ie.text_area("iterationFieldLength").text
 
     create_iteration('', '05/28/2008', '2')
@@ -103,7 +103,7 @@ private
     
     # Values will be based off of last iteration (non-numeric name)
     assert_equal '', @ie.text_area("iterationFieldName").text
-    assert_equal '04/30/2008', @ie.text_area("iterationFieldStart").text
+    assert_equal '07/18/2008', @ie.text_area("iterationFieldStart").text
     assert_equal '3', @ie.text_area("iterationFieldLength").text
     
     create_iteration('foo 1', '05/28/2008', '2')
@@ -207,7 +207,7 @@ private
     @ie.button("iterationBtnPlan")[1].click
     assert_equal 0, @ie.button_bar("mainNavigation").selectedIndex
     assert_equal 0, @ie.combo_box("iteration").selectedIndex
-    @ie.button_bar("mainNavigation").change(:related_object => "Iterations")
+    @ie.button_bar("mainNavigation").change(:related_object => "Schedule")
   end
       
   # Test sorting the various columns.
@@ -228,7 +228,7 @@ private
   # Initialize for a particular logon
   def init( logon )
     login(logon, 'testit')
-    sleep 3 # Wait to ensure data loaded
-    @ie.button_bar("mainNavigation").change(:related_object => "Iterations")
+    sleep 5 # Wait to ensure data loaded
+    @ie.button_bar("mainNavigation").change(:related_object => "Schedule")
   end
 end

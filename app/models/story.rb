@@ -1,6 +1,7 @@
 class Story < ActiveRecord::Base
   include Utilities::Text
   belongs_to :project
+  belongs_to :release
   belongs_to :iteration
   belongs_to :individual
   has_many :tasks, :dependent => :destroy
@@ -16,18 +17,10 @@ class Story < ActiveRecord::Base
 
   StatusMapping = [ 'Created', 'In Progress', 'Accepted' ]
 
-  attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :iteration_id, :individual_id, :project_id, :public, :priority, :user_priority
+  attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :release_id, :iteration_id, :individual_id, :project_id, :is_public, :priority, :user_priority
 
   # Assign a priority on creation
   before_create :initialize_defaults
-
-  # Override to default public.
-  def initialize(attributes={})
-    if (!attributes.include? :public)
-      attributes[:public] = false
-    end
-    super
-  end
 
   # Answer the valid values for status.
   def self.valid_status_values()
@@ -40,18 +33,6 @@ class Story < ActiveRecord::Base
     valid_status_values.collect { |val| i+=1;[val, i] }
   end
 
-  # Switch the priority of the stories with the sent ids in the order specified.  Return the stories affected.
-  def self.sort( ids )
-    stories = ids.collect { |id| self.find(id) }
-    priorities = stories.collect {|story| story.priority}.sort
-    i = 0
-    stories.each do |story|
-      story.priority = priorities[i]
-      i += 1
-    end
-    stories
-  end
-  
   # Answer my status in a user friendly format.
   def status
     StatusMapping[status_code]
@@ -71,7 +52,7 @@ class Story < ActiveRecord::Base
   def split
     next_iteration = self.iteration ? Iteration.find(:first, :conditions => ["start>? and project_id=?", self.iteration.start, self.project_id], :order => 'start') : nil
     Story.new(
-      :name => increment_name(self.name, self.name + as_(' Part Two')),
+      :name => increment_name(self.name, self.name + ' Part Two'),
       :project_id => self.project_id,
       :iteration_id => next_iteration ? next_iteration.id : nil,
       :individual_id => self.individual_id,
@@ -88,6 +69,45 @@ class Story < ActiveRecord::Base
     super(options)
   end
   
+  # Only project users or higher can create stories.
+  def authorized_for_create?(current_user)
+    if current_user.role <= Individual::Admin
+      true
+    elsif current_user.role <= Individual::ProjectUser && current_user.project_id == project_id
+      true
+    else
+      false
+    end
+  end
+
+  # Answer whether the user is authorized to see me.
+  def authorized_for_read?(current_user)
+    case current_user.role
+      when Individual::Admin then true
+      else current_user.project_id == project_id
+    end
+  end
+
+  # Answer whether the user is authorized for update.
+  def authorized_for_update?(current_user)
+    case current_user.role
+      when Individual::Admin then true
+      when Individual::ProjectAdmin then current_user.project_id == project_id
+      when Individual::ProjectUser then current_user.project_id == project_id
+      else false
+    end
+  end
+
+  # Answer whether the user is authorized for delete.
+  def authorized_for_destroy?(current_user)
+    case current_user.role
+      when Individual::Admin then true
+      when Individual::ProjectAdmin then current_user.project_id == project_id
+      when Individual::ProjectUser then current_user.project_id == project_id
+      else false
+    end
+  end
+
 protected
 
   # Add custom validation of the status field and relationships to give a more specific message.
@@ -115,33 +135,5 @@ protected
   def initialize_defaults
     highest = Story.find(:first, :order=>'priority desc')
     self.priority = highest ? highest.priority + 1 : 1
-  end
-
-  # Answer whether the user is authorized to see me.
-  def authorized_for_read?
-    case current_user.role
-      when Individual::Admin then true
-      else current_user.project_id == project_id
-    end
-  end
-
-  # Answer whether the user is authorized for update.
-  def authorized_for_update?    
-    case current_user.role
-      when Individual::Admin then true
-      when Individual::ProjectAdmin then current_user.project_id == project_id
-      when Individual::ProjectUser then current_user.project_id == project_id
-      else false
-    end
-  end
-
-  # Answer whether the user is authorized for delete.
-  def authorized_for_destroy?    
-    case current_user.role
-      when Individual::Admin then true
-      when Individual::ProjectAdmin then current_user.project_id == project_id
-      when Individual::ProjectUser then current_user.project_id == project_id
-      else false
-    end
   end
 end

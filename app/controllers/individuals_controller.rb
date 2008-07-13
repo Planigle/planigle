@@ -1,19 +1,6 @@
-class IndividualsController < ApplicationController
+class IndividualsController < ResourceController
   before_filter :login_required, :except => :activate
 
-  active_scaffold do |config|
-    config.columns = [:project_id, :login, :email, :first_name, :last_name, :activated, :enabled, :role ]
-    edit_columns = [:project_id, :login, :password, :password_confirmation, :email, :first_name, :last_name, :enabled, :role ]
-    config.columns[:project_id].label = 'Project' 
-    config.create.columns = edit_columns
-    config.update.columns = edit_columns
-    config.list.sorting = {:first_name => 'ASC', :last_name => 'ASC'}
-    columns[:activated].sort_by :sql => 'activation_code' 
-    config.list_filter.add(:boolean, :enabled, {:label => 'Enabled', :column => :enabled})
-    config.export.columns = [:project, :login, :email, :first_name, :last_name, :activated, :enabled ]
-    config.columns[:project_id].sort_by :sql => '(select min(name) from projects where id = project_id)'
-  end
-  
   # Allow the user to activate himself/herself by clicking on an email link.
   # GET /activate/<activation code>
   def activate    
@@ -25,41 +12,56 @@ class IndividualsController < ApplicationController
 
 protected
 
-  # If the user is assigned to a project, only show things related to that project.
-  def active_scaffold_constraints
-    if current_individual and current_individual.role >= Individual::ProjectAdmin
-      super.merge({:project_id => project_id})
+  # Get the records based on the current individual.
+  def get_records
+    if current_individual.role >= Individual::ProjectAdmin
+      Individual.find(:all, :conditions => ["project_id = ? and role in (1,2,3)", project_id], :order => 'first_name, last_name')
+    else
+      Individual.find(:all, :order => 'first_name, last_name')
+    end
+  end
+
+  # Answer the current record based on the current individual.
+  def get_record
+    Individual.find(is_amf ? params[0] : params[:id])
+  end
+  
+  # Create a new record given the params.
+  def create_record
+    is_amf ? params[0] : Individual.new(params[:record])
+  end
+  
+  # Update the record given the params.
+  def update_record
+    if is_amf
+      @record.project_id = params[0].project_id
+      @record.login = params[0].login
+      @record.password = params[0].password
+      @record.password_confirmation = params[0].password_confirmation
+      @record.email = params[0].email
+      @record.first_name = params[0].first_name
+      @record.last_name = params[0].last_name
+      @record.enabled = params[0].enabled
+      @record.role = params[0].role
+    else
+      @record.attributes = params[:record]
+    end
+  end
+
+  # Answer if this request is authorized for update.
+  def authorized_for_update?(record)
+    new_project_id = is_amf ? params[0].project_id : params[:record][:project_id]
+    new_role = is_amf ? params[0].role : params[:record][:role]
+    if (current_individual.role > Individual::Admin && new_project_id && record.project_id != new_project_id.to_i)
+      false # Must be admin to change project
+    elsif (current_individual.role == Individual::ProjectAdmin && new_role && new_role.to_i == Individual::Admin)
+      false # Project admin can't change user to admin
+    elsif (current_individual.role > Individual::ProjectAdmin && new_role && record.role != new_role.to_i)
+      false # Must be project admin to change role
+    elsif (new_role && record.role != new_role.to_i && record.id == current_individual.id)
+      false # Can't change own role
     else
       super
-    end
-  end
-  
-  # Project admins shouldn't be able to see admins.
-  def active_scaffold_conditions
-    conditions = super
-    current_individual.role >= Individual::ProjectAdmin ? merge_conditions( conditions, ['role in (1,2,3)'] ) : conditions
-  end
-  
-  # Only project admins or higher can create individuals.
-  def create_authorized?
-    if current_individual.role <= Individual::Admin
-      true
-    elsif current_individual.role <= Individual::ProjectAdmin && (!params[:record] || !params[:record][:project_id] || project_id == params[:record][:project_id].to_i) && (!params[:record] || !params[:record][:role] || params[:record][:role].to_i > Individual::Admin)
-      true
-    else
-      unauthorized
-      false
-    end
-  end
-  
-  # Catch the case where a project admin is trying to make another user an admin.  Other cases are
-  # caught in Individual::authorized_for_update?
-  def update_authorized?
-    if Individual::ProjectAdmin && (params[:record] && params[:record][:role] == 0)
-      unauthorized
-      false
-    else
-      true
     end
   end
 end

@@ -12,7 +12,7 @@ package org.planigle.planigle.view
 		// Display the iteration's name in the table (rather than ID).
 		public static function formatIteration(item:Object, column:DataGridColumn):String
 		{
-			if (item.iterationId != -1)
+			if (item.iterationId != "-1")
 				return IterationFactory.getInstance().find(item.iterationId).name;
 			else
 				return "";
@@ -33,13 +33,13 @@ package org.planigle.planigle.view
 		// Display the owner's name in the table (rather than ID).
 		public static function formatIndividual(item:Object, column:DataGridColumn):String
 		{
-			return IndividualFactory.getInstance().find(item.ownerId).fullName;
+			return IndividualFactory.getInstance().find(item.individualId).fullName;
 		}
 
 		// Answer the index of the owner in the list of oweners (or -1 if no owner).
 		private static function indexIndividual(item:Object):int
 		{
-			return IndividualFactory.getInstance().individualSelector.getItemIndex(IndividualFactory.getInstance().find(item.ownerId));
+			return IndividualFactory.getInstance().individualSelector.getItemIndex(IndividualFactory.getInstance().find(item.individualId));
 		}
 		
 		// Answer the sort order for the specified items (based on where they are in the list of owners).

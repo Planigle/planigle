@@ -7,57 +7,99 @@ package org.planigle.planigle.model
 	import org.planigle.planigle.commands.SplitStoryCommand;
 	import org.planigle.planigle.commands.UpdateStoryCommand;
 	
+	[RemoteClass(alias='Story')]
 	[Bindable]
 	public class Story
 	{
 		public var id:int;
+		public var projectId: int;
 		public var name:String;
-		public var listName:String; // Allows for different representation in list.
 		public var description:String;
 		public var acceptanceCriteria:String;
-		public var iterationId:int;
-		public var ownerId:int;
-		public var effort:String; // My actual effort.
-		public var calculatedEffort:String; // My effort when looking at my tasks.
+		public var releaseId:String;
+		public var iterationId:String;
+		public var individualId:String;
+		public var effort:String;
 		public var statusCode:int;
 		public var isPublic:Boolean;
 		public var priority:Number;
-		public var normalizedPriority:String = "";
 		public var userPriority:String = "";
-		public var tasks:ArrayCollection = new ArrayCollection();
+		public var normalizedPriority:String = ""; // Calculated by StoryFactory
+		private var myTasks:Array = new Array();
 		public static const CREATED:int = 0;
 		public static const IN_PROGRESS:int = 1;
 		public static const ACCEPTED:int = 2;
 		private static var expanded:Object = new Object(); // Keep in static so that it persists after reloading
 
 		// Populate myself from XML.
-		private function populate(xml:XML):void
+		public function populate(xml:XML):void
 		{
 			id = xml.id;
 			name = xml.name;
-			listName = name;
 			description = xml.description;
 			acceptanceCriteria = xml.child("acceptance-criteria");
+			releaseId = xml.child("release-id");
 			iterationId = xml.child("iteration-id");
-			ownerId = xml.child("individual-id");
+			individualId = xml.child("individual-id");
 			effort = xml.effort;
 			statusCode = xml.child("status-code");
-			isPublic = xml.public == "true";
+			isPublic = xml.child("is_public") == "true";
 			priority = xml.priority;
-			userPriority = statusCode < 2 ? xml.child("user-priority") : "";
+			userPriority = xml.child("user-priority");
 
-			tasks = new ArrayCollection();
+			var newTasks:ArrayCollection = new ArrayCollection();
 			for (var i:int = 0; i < xml.tasks.task.length(); i++)
-			  tasks.addItem( new Task(this, XML(xml.tasks.task[i])));
-			updateEffort();
+			{
+				var task:Task = new Task();
+				task.populate(XML(xml.tasks.task[i]));
+				newTasks.addItem(task);
+			}
+			tasks = newTasks.source;
 		}
 
-		// Construct a story based on XML.
-		public function Story(xml:XML)
+		// Answer my tasks.
+		public function get tasks():Array
 		{
-			populate(xml);
+			return myTasks;
 		}
-		
+
+		// Set my tasks.
+		public function set tasks(tasks:Array):void
+		{
+			myTasks = tasks;
+			for each (var task:Task in myTasks)
+				task.story = this;
+		}
+
+		// For stories, the list name is the same as the name.
+		public function get listName():String
+		{
+			return name;
+		}
+
+		// For stories, if not set locally, the calculated effort is the sum of its tasks.
+		public function get calculatedEffort():String
+		{
+			if (!effort || effort == "")
+			{
+				var sum:Number = 0;
+				for each (var task:Task in tasks)
+				{
+					if (task.effort != "")
+						sum += Number(task.effort);
+				}
+				return (sum == 0) ? "" : sum.toString();				
+			}
+			else
+				return effort;
+		}
+
+		// Only show user priority if not accepted.
+		public function get modifiedUserPriority():String
+		{
+			return statusCode < 2 ? userPriority : "";
+		}
+
 		// Update me.  Params should be of the format (record[param]).  Success function
 		// will be called if successfully updated.  FailureFunction will be called if failed (will
 		// be passed an XMLList with errors).
@@ -84,17 +126,18 @@ package org.planigle.planigle.model
 		// I have been successfully split.  Change myself to reflect the changes.
 		public function splitCompleted(xml:XML):void
 		{
+			var taskCollect:ArrayCollection = new ArrayCollection(tasks);
 			for(var i:int = 0; i < xml.tasks.task.length(); i++)
 			{ // Remove any tasks that were moved to the new story.  Do it before creating the story to prevent multiple events.
 				var id:int = int(xml.tasks.task[i].id);
 				for (var j:int = tasks.length - 1; j >= 0; j--) // Go backwards since deleting
 				{
-					var task:Task = Task(tasks.getItemAt(j));
+					var task:Task = Task(tasks[j]);
 					if (id == task.id)
-						tasks.removeItemAt(j);
+						taskCollect.removeItemAt(j);
 				}
 			}
-			updateEffort();
+			tasks = taskCollect.source;
 			StoryFactory.getInstance().createStoryCompleted(xml);
 		}
 		
@@ -110,9 +153,8 @@ package org.planigle.planigle.model
 		{
 			// Create copy to ensure any views get notified of changes.
 			var stories:ArrayCollection = new ArrayCollection();
-			for (var i:int = 0; i < StoryFactory.getInstance().stories.length; i++)
+			for each (var story:Story in StoryFactory.getInstance().stories)
 			{
-				var story:Story = Story(StoryFactory.getInstance().stories.getItemAt(i));
 				if (story != this)
 					stories.addItem(story);
 			}
@@ -132,36 +174,19 @@ package org.planigle.planigle.model
 		// A task has been successfully created.  Change myself to reflect the changes.
 		public function createTaskCompleted(xml:XML):Task
 		{
-			var task:Task = new Task(this, xml);
-			tasks.addItem(task);
+			var task:Task = new Task();
+			task.populate(xml);
+			var taskCollect:ArrayCollection = new ArrayCollection(tasks);
+			taskCollect.addItem(task);
+			tasks = taskCollect.source;
 
 			// Create copy to ensure any views get notified of changes.
 			var stories:ArrayCollection = new ArrayCollection();
-			for (var i:int = 0; i < StoryFactory.getInstance().stories.length; i++)
-				stories.addItem(StoryFactory.getInstance().stories.getItemAt(i));
+			for each (var story:Story in StoryFactory.getInstance().stories)
+				stories.addItem(story);
 			StoryFactory.getInstance().stories = stories;
-			updateEffort();
 			
 			return task;
-		}
-		
-		// Update my effort based on the tasks I contain.
-		public function updateEffort():void
-		{
-			if (effort == "")
-			{
-				var sum:Number = 0;
-				for (var i:int; i < tasks.length; i++)
-				{
-					var task:Task = Task(tasks.getItemAt(i));
-					if (task.effort != "")
-						sum += Number(task.effort);
-				}
-				calculatedEffort = (sum == 0) ? "" : sum.toString();
-				
-			}
-			else
-			  calculatedEffort = effort;
 		}
 		
 		// Expand the story to show its tasks.

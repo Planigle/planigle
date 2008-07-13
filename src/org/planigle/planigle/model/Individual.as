@@ -5,18 +5,18 @@ package org.planigle.planigle.model
 	import org.planigle.planigle.commands.DeleteIndividualCommand;
 	import org.planigle.planigle.commands.UpdateIndividualCommand;
 
+	[RemoteClass(alias='Individual')]
 	[Bindable]
 	public class Individual
 	{
-		public var id:int;
+		public var id:String;
 		public var projectId:String;
 		public var login:String;
 		public var email:String;
 		public var firstName:String;
 		public var lastName:String;
-		public var fullName:String;
 		public var role:int;
-		public var activated:Boolean;
+		public var activatedAt:Date;
 		public var enabled:Boolean;
 		private static const ADMIN:int = 0;
 		private static const PROJECT_ADMIN:int = 1;
@@ -24,24 +24,30 @@ package org.planigle.planigle.model
 		private static const READ_ONLY:int = 3;
 	
 		// Populate myself from XML.
-		private function populate(xml:XML):void
+		public function populate(xml:XML):void
 		{
-			id = xml.id;
+			id = xml.id == "" ? null: xml.id;
 			projectId = xml.child("project-id");
 			login = xml.login;
 			email = xml.email;
 			firstName = xml.child("first-name");
 			lastName = xml.child("last-name");
-			fullName = firstName + " " + lastName;
 			role = int(xml.role);
-			activated = xml.activated == "true";
+			var activatedDate:String = xml.child("activated-at");
+			activatedAt = activatedDate == "" ? null : DateUtils.stringToDate(activatedDate);
 			enabled = xml.enabled == "true";
 		}
-		
-		// Construct an individual based on XML.
-		public function Individual(xml:XML)
+
+		// Answer my full name.
+		public function get fullName():String
 		{
-			populate(xml);
+			return firstName + " " + lastName;
+		}
+
+		// Answer whether I have been activated.
+		public function get activated():Boolean
+		{
+			return activatedAt != null;
 		}
 		
 		// Update me.  Params should be of the format (record[param]).  Success function
@@ -70,9 +76,8 @@ package org.planigle.planigle.model
 		{
 			// Create copy to ensure any views get notified of changes.
 			var individuals:ArrayCollection = new ArrayCollection();
-			for (var i:int = 0; i < IndividualFactory.getInstance().individuals.length; i++)
+			for each (var individual:Individual in IndividualFactory.getInstance().individuals)
 			{
-				var individual:Individual = Individual(IndividualFactory.getInstance().individuals.getItemAt(i));
 				if (individual != this)
 					individuals.addItem(individual);
 			}

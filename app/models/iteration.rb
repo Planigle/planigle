@@ -23,16 +23,18 @@ class Iteration < ActiveRecord::Base
     end
     write_attribute(:project_id, project_id)
   end
-  
-protected
-  
-  # Ensure length is a positive number.
-  def validate
-    errors.add(:length, 'must be greater than 0') if length && length <= 0
+
+  # Only project admins or higher can create iterations.
+  def authorized_for_create?(current_user)
+    case current_user.role
+      when Individual::Admin then true
+      when Individual::ProjectAdmin then current_user.project_id == project_id
+      else false
+    end
   end
 
   # Answer whether the user is authorized to see me.
-  def authorized_for_read?
+  def authorized_for_read?(current_user)
     case current_user.role
       when Individual::Admin then true
       else current_user.project_id == project_id
@@ -40,7 +42,7 @@ protected
   end
 
   # Answer whether the user is authorized for update.
-  def authorized_for_update?    
+  def authorized_for_update?(current_user)
     case current_user.role
       when Individual::Admin then true
       when Individual::ProjectAdmin then current_user.project_id == project_id
@@ -49,11 +51,18 @@ protected
   end
 
   # Answer whether the user is authorized for delete.
-  def authorized_for_destroy?    
+  def authorized_for_destroy?(current_user)
     case current_user.role
       when Individual::Admin then true
       when Individual::ProjectAdmin then current_user.project_id == project_id
       else false
     end
+  end
+  
+protected
+  
+  # Ensure length is a positive number.
+  def validate
+    errors.add(:length, 'must be greater than 0') if length && length <= 0
   end
 end

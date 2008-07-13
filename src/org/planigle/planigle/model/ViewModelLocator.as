@@ -25,6 +25,20 @@ package org.planigle.planigle.model
 			return instance;
 		}
 
+		// Keep track of whether we are waiting for data.
+		public function waitingForData():void
+		{
+			dataCount++
+		}
+
+		// We are no longer waiting for data.
+		public function gotData():void
+		{
+			dataCount--
+			if (dataCount == 0) // Can now show the screen
+				workflowState = ViewModelLocator.CORE_APPLICATION_SCREEN;
+		}
+
 		// Register interest in key variables so that dependent variables can be updated.
 		private function initializeWatchers():void
 		{
@@ -43,6 +57,7 @@ package org.planigle.planigle.model
 		public var projects:XMLList = new XMLList();
 		public var projectSelector:XMLList = new XMLList();
 		public var projectCount:int = 0;
+		private var dataCount:int = 0;
 	
 		// Constants
 		public static const LOGIN_SCREEN:uint = 0;

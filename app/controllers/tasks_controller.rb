@@ -1,43 +1,37 @@
-class TasksController < ApplicationController
+class TasksController < ResourceController
   before_filter :login_required
-
-  active_scaffold do |config|
-    edit_columns = [:name, :description, :individual_id, :effort, :status_code ]
-    config.columns = [:name, :individual_id, :effort, :status_code, :story ]
-    config.columns[:individual_id].label = 'Owner'
-    config.columns[:status_code].label = 'Status'
-    config.create.columns = [:name, :description, :individual_id, :effort, :status_code, :story_id ]
-    config.show.columns = edit_columns
-    config.update.columns = edit_columns
-    config.list.sorting = {:status_code => 'DESC', :name => 'ASC'}
-    config.list_filter.add(:association, :individual, {:allow_nil => true, :nil_label => 'No Owner', :label => 'Owner', :association => [ :individual ] })
-    config.list_filter.add(:enumeration, :status, {:label => 'Status', :column => 'tasks.status_code', :mapping => Task.status_code_mapping })
-    config.export.columns = [:name, :description, :individual, :effort, :status ]
-    config.columns[:individual].label = 'Owner'
-    config.columns[:individual_id].sort_by :sql => '(select min(CONCAT_WS(" ", first_name, last_name)) from individuals where id = tasks.individual_id)'
-  end
 
 protected
 
-  # If the user is assigned to a project, only show things related to that project.
-  def active_scaffold_constraints
-    constraints = super
-    constraints[:story_id] = params[:story_id]
-    if current_individual.role >= Individual::ProjectAdmin or project_id
-      constraints[:story] = {:project => project_id}
-    end
-    constraints
+  # Get the records based on the current individual.
+  def get_records
+    Task.find(:all, :conditions => ["story_id = ?", params[:story_id]], :order => 'status_code desc, name')
   end
 
-  # Only project users or higher can create tasks.
-  def create_authorized?
-    if current_individual.role <= Individual::Admin
-      true
-    elsif current_individual.role <= Individual::ProjectUser && (!params[:story_id] || project_id == Story.find(params[:story_id]).project_id)
-      true
+  # Answer the current record based on the current individual.
+  def get_record
+    task = Task.find(:first, :conditions => ["id = ? and story_id = ?", (is_amf ? params[0] : params[:id]), params[:story_id]])
+    if !task; raise ActiveRecord::RecordNotFound.new; end
+    task
+  end
+  
+  # Create a new record given the params.
+  def create_record
+    task = is_amf ? params[0] : Task.new(params[:record])
+    task.story_id = params[:story_id]
+    task
+  end
+  
+  # Update the record given the params.
+  def update_record
+    if is_amf
+      @record.name = params[0].name
+      @record.description = params[0].description
+      @record.individual_id = params[0].individual_id
+      @record.effort = params[0].effort
+      @record.status_code = params[0].status_code
     else
-      unauthorized
-      false
+      @record.attributes = params[:record]
     end
   end
 end

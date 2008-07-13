@@ -12,20 +12,12 @@ class TasksControllerTest < ActionController::TestCase
 
   fixtures :individuals
   fixtures :tasks
-  
-  # Test successfully getting a partial list (by story)
-  def test_list_partial
-    login_as(individuals(:quentin))
-    xhr :get, :index, {:story_id => 1}
-    assert_response :success
-    assert_template "list"
-  end
     
   # Test successfully setting the owner.
   def test_set_owner_success
     login_as(individuals(:quentin))
     put :update, :id => 1, :record => {:individual_id => 2}, :story_id => 1
-    assert_redirected_to :action => :index
+    assert_response :success
     assert_equal tasks(:one).reload.individual_id, 2
   end
   
@@ -70,7 +62,7 @@ class TasksControllerTest < ActionController::TestCase
   # Test showing a task for another project.
   def test_show_wrong_project
     login_as(individuals(:aaron))
-    get :show, :id => 3, :format => 'xml', :story_id => 1
+    get :show, :id => 3, :format => 'xml', :story_id => 5
     assert_response 401
   end
     
@@ -136,7 +128,7 @@ class TasksControllerTest < ActionController::TestCase
   # Test updating a task for another project.
   def test_update_wrong_project
     login_as(individuals(:aaron))
-    put :update, {:id => 3, :format => 'xml'}.merge(update_success_parameters)
+    put :update, update_success_parameters.merge({:id => 3, :story_id => 5, :format => 'xml'})
     assert_response 401
     assert_change_failed
     assert_select 'errors'
@@ -177,7 +169,7 @@ class TasksControllerTest < ActionController::TestCase
   # Delete from a different project.
   def test_delete_wrong_project
     login_as(individuals(:aaron))
-    delete :destroy, :id => 3, :format => 'xml', :story_id => 1
+    delete :destroy, :id => 3, :format => 'xml', :story_id => 5
     assert_response 401
     assert Task.find_by_name('test3')
     assert_select "errors"

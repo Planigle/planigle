@@ -4,6 +4,7 @@ package org.planigle.planigle.business
 	
 	import mx.rpc.IResponder;
 	import mx.rpc.http.HTTPService;
+	import mx.rpc.remoting.RemoteObject;
 	
 	import org.planigle.planigle.model.Story;
 	
@@ -19,8 +20,8 @@ package org.planigle.planigle.business
 		// Get the latest stories.
 		public function getStories():void 
 		{
-			var service:HTTPService = ServiceLocator.getInstance().getHTTPService("getStoriesService");
-			service.send({random: Math.random()}).addResponder( responder ); // Note: random prevents caching
+			var remoteObject:RemoteObject = ServiceLocator.getInstance().getRemoteObject("storyRO");
+			remoteObject.index.send().addResponder(responder);
 		}
 		
 		// Create the story as specified.

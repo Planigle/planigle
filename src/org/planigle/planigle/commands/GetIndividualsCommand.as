@@ -6,6 +6,7 @@ package org.planigle.planigle.commands
 	import mx.rpc.IResponder;
 	import org.planigle.planigle.business.IndividualsDelegate;
 	import org.planigle.planigle.model.IndividualFactory;
+	import org.planigle.planigle.model.ViewModelLocator;
 	
 	public class GetIndividualsCommand implements ICommand, IResponder
 	{
@@ -25,13 +26,15 @@ package org.planigle.planigle.commands
 		// Handle successful server request.
 		public function result( event:Object ):void
 		{
-			IndividualFactory.getInstance().populate(event.result.children());
+			IndividualFactory.getInstance().populate(event.result as Array);
+			ViewModelLocator.getInstance().gotData();
 		}
 		
 		// Handle case where error occurs.
 		public function fault( event:Object ):void
 		{
 			Alert.show(event.fault.faultString);
+			ViewModelLocator.getInstance().gotData();
 		}
 	}
 }

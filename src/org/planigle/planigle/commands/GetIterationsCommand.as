@@ -7,6 +7,7 @@ package org.planigle.planigle.commands
 	import org.planigle.planigle.business.IterationsDelegate;
 	import org.planigle.planigle.model.ViewModelLocator;
 	import org.planigle.planigle.model.IterationFactory;
+	import org.planigle.planigle.model.ViewModelLocator;
 	
 	public class GetIterationsCommand implements ICommand, IResponder
 	{
@@ -28,13 +29,15 @@ package org.planigle.planigle.commands
 		// Handle successful server request.
 		public function result( event:Object ):void
 		{
-			IterationFactory.getInstance().populate(event.result.children());
+			IterationFactory.getInstance().populate(event.result as Array);
+			ViewModelLocator.getInstance().gotData();
 		}
 		
 		// Handle case where error occurs.
 		public function fault( event:Object ):void
 		{
 			Alert.show(event.fault.faultString);
+			ViewModelLocator.getInstance().gotData();
 		}
 	}
 }

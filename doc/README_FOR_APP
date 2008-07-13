@@ -9,11 +9,8 @@ HTTP Server - Apache (http://httpd.apache.org/download.cgi)
 Flex - MPL
 
 Embedded Components - License:
+Ruby AMF (Rails Plugin) - MIT
 Restful Authentication (Rails Plugin) - MIT
-Active Scaffold (Rails Plugin) - MIT
-Active Scaffold Export (Active Scaffold Plugin) - MIT
-Active Scaffold Filters (Active Scaffold Plugin) - MIT
-Calendar Date Select (Rails Plugin) - MIT
 Cairngorm (Flex library) - BSD
 Flex automation libraries - MPL (included for build convenience; part of Flex SDK)
 

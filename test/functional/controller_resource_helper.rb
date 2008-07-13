@@ -12,20 +12,6 @@ module ControllerResourceHelper
     assert_response :success
   end
 
-  # Test getting the form to create a new resource without credentials.
-  def test_new_unauthorized
-    get :new, context
-    assert_redirected_to :controller => 'sessions', :action => 'new'
-  end
-    
-  # Test successfully getting the form to create a new resource.
-  def test_new_success
-    login_as(individuals(:quentin))
-    get :new, context
-    assert_response :success
-    assert_not_nil assigns(resource_symbol)
-  end
-
   # Test creating a new resource without credentials.
   def test_create_unauthorized
     num = resource_count
@@ -76,28 +62,6 @@ module ControllerResourceHelper
     assert_response 404
   end
 
-  # Test getting the form to edit an resource without credentials.
-  def test_edit_unauthorized
-    get :edit, {:id => 1}.merge(context)
-    assert_redirected_to :controller => 'sessions', :action => 'new'
-  end
-    
-  # Test successfully getting the form to edit an resource.
-  def test_edit_success
-    login_as(individuals(:quentin))
-    get :edit, {:id => 1}.merge(context)
-    assert_response :success
-    assert_not_nil assigns(resource_symbol)
-    assert assigns(resource_symbol).valid?
-  end
-    
-  # Test unsuccessfully getting the form to edit an resource.
-  def test_edit_not_found
-    login_as(individuals(:quentin))
-    get :edit, {:id => 999}.merge(context)
-    assert_response 404
-  end
-
   # Test updating an resource without credentials.
   def test_update_unauthorized
     put :update, {:id => 1}.merge(update_success_parameters)
@@ -109,7 +73,7 @@ module ControllerResourceHelper
   def test_update_success
     login_as(individuals(:quentin))
     put :update, {:id => 1}.merge(update_success_parameters)
-    assert_redirected_to :action => :index
+    assert_response :success
     assert_update_succeeded
   end
 
@@ -139,7 +103,7 @@ module ControllerResourceHelper
   def test_destroy_success
     login_as(individuals(:quentin))
     delete :destroy, {:id => 2}.merge(context)
-    assert_redirected_to :action => :index
+    assert_response :success
     assert_delete_succeeded
   end
     

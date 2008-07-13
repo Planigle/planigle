@@ -216,7 +216,6 @@ class IndividualTest < ActiveSupport::TestCase
   # Test the xml created for stories.
   def test_xml
     individ = individuals(:quentin)
-    assert_tag( individ, :activated, individ.activated? )
     assert_no_tag( individ, :crypted_password )
     assert_no_tag( individ, :salt )
     assert_no_tag( individ, :remember_token )

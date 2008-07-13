@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" height="100%" y="0" width="100%" x="0" creationComplete="created(event)">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" height="100%" y="0" width="100%" x="0" creationComplete="created(event)">
 	<mx:Metadata>
 		[Event(name="done", type="flash.events.Event")]
 	</mx:Metadata>
@@ -234,4 +234,4 @@
 			</mx:columns>
 		</mx:DataGrid>
 	</mx:Canvas>
-</mx:Panel>
+</mx:Canvas>

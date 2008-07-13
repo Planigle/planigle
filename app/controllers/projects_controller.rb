@@ -1,28 +1,35 @@
-class ProjectsController < ApplicationController
+class ProjectsController < ResourceController
   before_filter :login_required
-  active_scaffold do |config|
-    config.columns = [:name, :description, :survey_mode]
-    config.list.sorting = {:name => 'ASC'}
-  end
 
 protected
 
-  # If the user is assigned to a project, only show things related to that project.
-  def active_scaffold_constraints
+  # Get the records based on the current individual.
+  def get_records
     if current_individual.role >= Individual::ProjectAdmin
-      super.merge({:id => project_id})
+      Project.find(:all, :conditions => ["id = ?", project_id])
     else
-      super
+      Project.find(:all, :order => 'name')
     end
   end
+
+  # Answer the current record based on the current individual.
+  def get_record
+    Project.find(is_amf ? params[0] : params[:id])
+  end
   
-  # Only admins can create projects.
-  def create_authorized?
-    if current_individual.role <= Individual::Admin
-      true
+  # Create a new record given the params.
+  def create_record
+    is_amf ? params[0] : Project.new(params[:record])
+  end
+  
+  # Update the record given the params.
+  def update_record
+    if is_amf
+      @record.name = params[0].name
+      @record.description = params[0].description
+      @record.survey_mode = params[0].survey_mode
     else
-      unauthorized
-      false
+      @record.attributes = params[:record]
     end
   end
 end
