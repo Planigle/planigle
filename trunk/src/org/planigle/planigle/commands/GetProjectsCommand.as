@@ -5,7 +5,7 @@ package org.planigle.planigle.commands
 	import mx.controls.Alert;
 	import mx.rpc.IResponder;
 	import org.planigle.planigle.business.ProjectsDelegate;
-	import org.planigle.planigle.model.ViewModelLocator;
+	import org.planigle.planigle.model.ProjectFactory;
 	import org.planigle.planigle.model.ViewModelLocator;
 	
 	public class GetProjectsCommand implements ICommand, IResponder
@@ -28,7 +28,7 @@ package org.planigle.planigle.commands
 		// Handle successful server request.
 		public function result( event:Object ):void
 		{
-			viewModelLocator.projects = event.result.children();
+			ProjectFactory.getInstance().populate(event.result as Array);
 			ViewModelLocator.getInstance().gotData();
 		}
 		

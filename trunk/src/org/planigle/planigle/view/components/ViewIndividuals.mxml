@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" label="Individuals" borderThicknessLeft="2" borderThicknessRight="2" headerHeight="0" creationComplete="created(event)">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" height="100%" y="0" width="100%" x="0" label="Individuals" creationComplete="created(event)">
 	<mx:Script>
 		<![CDATA[
 		import mx.rpc.events.ResultEvent;
@@ -8,9 +8,15 @@
 		import mx.events.CloseEvent;
 		import mx.binding.utils.ChangeWatcher;
 		import org.planigle.planigle.model.ViewModelLocator;
+		import org.planigle.planigle.model.ProjectFactory;
+		import org.planigle.planigle.model.Project;
 		import org.planigle.planigle.model.IndividualFactory;
 		import org.planigle.planigle.model.Individual;
+		import org.planigle.planigle.view.ViewHelper;
 		import org.planigle.planigle.events.IndividualChangedEvent;
+
+		[Bindable]
+		public var project:Project;
 		
 		[Bindable]
 		private var _error:String;
@@ -19,17 +25,38 @@
 		private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
 
 		[Bindable]
+		public var individuals:ArrayCollection = new ArrayCollection();
+
+		[Bindable]
 		public var factory:IndividualFactory = IndividualFactory.getInstance();
 
 		// Set up event listeners.  Called when the canvas has been created.
 		private function created(event:Event):void
 		{
 			ChangeWatcher.watch( factory, "currentIndividual", resetState );
+			ChangeWatcher.watch( IndividualFactory.getInstance(), "individuals", setIndividuals );			
+			ChangeWatcher.watch( this, "project", setIndividuals );			
 			resetState(event); // This is to catch it the first time (The event has already been sent).
+			setIndividuals(event);
 		}
 		
 		// Clear the error message.
 		private function clearErrorMessage():void {_error = ""}
+
+		// Set the individuals to a copy (so that changes here won't affect elsewhere).
+		private function setIndividuals(event:Event):void
+		{
+			var newIndividuals:ArrayCollection = new ArrayCollection();
+			for each (var individual:Individual in IndividualFactory.getInstance().individuals)
+			{
+				if (!project || individual.projectId == project.id)
+					newIndividuals.addItem(individual);
+			}
+			individuals = newIndividuals;
+
+			columnProject.visible = IndividualFactory.current().isAdmin() && !project;
+			columnProject.width = columnProject.visible ? 100 : 0;
+		}
 		
 		// Reset my state to how it was initially.
 		public function resetState(event:Event):void
@@ -40,8 +67,6 @@
 			if (IndividualFactory.current())
 			{
 				var show:Boolean = IndividualFactory.current().isAdmin();
-				columnProject.visible = show;
-				columnProject.width = show ? 100 : 0;
 				individualFormProject.visible = show;
 				individualFormProject.maxHeight = show ? 25 : 0;
 
@@ -61,11 +86,13 @@
 			clearErrorMessage();
 			currentState = 'Change';
 			factory.currentIndividual.isAdmin() ? individualFieldProject.setFocus() : individualFieldLogin.setFocus();
-			var it:int = int(factory.currentIndividual.projectId);
-			if (it == 0)
-				individualFieldProject.selectedIndex = 0;
+			var it:String = factory.currentIndividual.projectId;
+			if (it)
+				individualFieldProject.selectedItem = ProjectFactory.getInstance().find(it);
+			else if (project)
+				individualFieldProject.selectedItem = project;
 			else
-				individualFieldProject.selectedItem = viewModelLocator.projectSelector.(id == it);
+				individualFieldProject.selectedIndex = 0;
 			individualFieldLogin.text = '';
 			individualFieldPassword.text = '';
 			individualFieldPasswordConfirmation.text = '';
@@ -90,11 +117,11 @@
 			{
 				clearErrorMessage();
 				currentState = 'Change';
-				var it:int = int(currentItem.projectId);
-				if (it == 0)
+				var it:String = currentItem.projectId;
+				if (!it)
 					individualFieldProject.selectedIndex = 0;
 				else
-					individualFieldProject.selectedItem = viewModelLocator.projectSelector.(id == it);
+					individualFieldProject.selectedItem = ProjectFactory.getInstance().find(it);
 	
 				individualFieldLogin.text = currentItem.login;
 	
@@ -211,7 +238,7 @@
 				<mx:target>
 					<mx:Form id="changeForm" defaultButton="{individualBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
 						<mx:FormItem id='individualFormProject' label='Project'>
-							<mx:ComboBox id='individualFieldProject' width="350" editable="false" dataProvider="{viewModelLocator.projectSelector}" labelField="name"></mx:ComboBox>
+							<mx:ComboBox id='individualFieldProject' width="350" editable="false" dataProvider="{ProjectFactory.getInstance().projectSelector}" labelField="name"></mx:ComboBox>
 						</mx:FormItem>
 						<mx:FormItem label='Login' required="true">
 							<mx:TextInput id='individualFieldLogin' maxChars="40" text='' width="350"/>
@@ -272,10 +299,11 @@
 	
 	<mx:Panel id="combinedPanel" height="100%" y="0" width="100%" x="0" borderThicknessTop="0" borderThicknessLeft="0" borderThicknessRight="0" headerHeight="0">
 		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="8" verticalAlign="middle" id="hbox1" paddingTop="5" paddingLeft="5" paddingRight="5">
+			<mx:Label text="Individuals" fontWeight="bold" textDecoration="underline"/>
 			<mx:Text id="individualError" styleName="error" htmlText="{_error}" color="#ff0033" width="100%"/>
 			<mx:Button label="Create" id="individualBtnCreate" styleName="individualBtnCreate" click="showCreate(event);" visible="{factory.currentIndividual.isAtLeastProjectAdmin()}"/>
 		</mx:HBox>
-		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="individualResourceGrid" dataProvider="{factory.individuals}" rowCount="{factory.individuals.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" doubleClick="showUpdate(event)">
+		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="individualResourceGrid" dataProvider="{individuals}" rowCount="{individuals.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" doubleClick="showUpdate(event)">
 				<mx:columns>
 				<mx:DataGridColumn width="100" headerText="Project" labelFunction="ViewHelper.formatProject" sortCompareFunction="ViewHelper.sortProject" id="columnProject"/>
 				<mx:DataGridColumn headerText="Login" dataField="login"/>
@@ -298,4 +326,4 @@
 			</mx:columns>
 		</mx:DataGrid>
 	</mx:Panel>
-</mx:Panel>
+</mx:Canvas>

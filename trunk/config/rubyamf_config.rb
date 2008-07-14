@@ -77,6 +77,12 @@ module RubyAMF
       :attributes => ["id", "project_id", "name", "start", "length"])
 
     ClassMappings.register(
+      :actionscript => 'Project',
+      :ruby => 'Project',
+      :type => 'active_record',
+      :attributes => ["id", "name", "description", "survey_key", "survey_mode"])
+
+    ClassMappings.register(
       :actionscript => 'Individual',
       :ruby => 'Individual',
       :type => 'active_record',

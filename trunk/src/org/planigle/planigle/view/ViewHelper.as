@@ -2,7 +2,7 @@ package org.planigle.planigle.view
 {
 	import mx.controls.dataGridClasses.DataGridColumn;
 	import mx.utils.ObjectUtil;
-	import org.planigle.planigle.model.ViewModelLocator;
+	import org.planigle.planigle.model.ProjectFactory;
 	import org.planigle.planigle.model.IndividualFactory;
 	import org.planigle.planigle.model.IterationFactory;
 	
@@ -51,21 +51,13 @@ package org.planigle.planigle.view
 		// Display the project's name in the table (rather than ID).
 		public static function formatProject(item:Object, column:DataGridColumn):String
 		{
-			var it:int = item.projectId;
-			if (it == 0)
-				return ViewModelLocator.getInstance().projectSelector[0].name;
-			else
-				return ViewModelLocator.getInstance().projectSelector.(id == it).name;
+			return ProjectFactory.getInstance().find(item.projectId).name;
 		}
 
 		// Answer the index of the project in the list of projects (or -1 if no project).
 		private static function indexProject(item:Object):int
 		{
-			var it:int = item.projectId;
-			if (it == 0)
-				return -1;
-			else
-				return ViewModelLocator.getInstance().projectSelector.(id == it).childIndex();
+			return ProjectFactory.getInstance().projectSelector.getItemIndex(ProjectFactory.getInstance().find(item.projectId));
 		}
 		
 		// Answer the sort order for the specified items (based on where they are in the list of projects).
@@ -94,7 +86,7 @@ package org.planigle.planigle.view
 		// 	Display the user facing survey mode in the table (rather than a code).	
 		public static function formatSurveyMode(item:Object, column:DataGridColumn):String
 		{
-			switch(int(item.child("survey-mode")))
+			switch(item.surveyMode)
 			{
 				case 1: return "Private by Default";
 				case 2: return "Public by Default";

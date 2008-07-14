@@ -299,7 +299,7 @@ private
 
   # Verify that the edit panel doesn't show project, nor allow creation of admins.
   def verify_edit( is_self )
-    @ie.button("individualBtnEdit")[find_row('user') - 1].click
+    @ie.button("individualBtnEdit")[find_row('user')].click
     assert !@ie.form_item("individualFormProject").visible
     if is_self
       assert !@ie.form_item("individualFormRole").visible
@@ -326,7 +326,7 @@ private
   def init( logon )
     login(logon, 'testit')
     sleep 6 # Wait to ensure data loaded
-    @ie.button_bar("mainNavigation").change(:related_object => "Individuals")
+    @ie.button_bar("mainNavigation").change(:related_object => "People")
   end
   
   # Return the number of the row that contains the specified login.
