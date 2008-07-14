@@ -23,6 +23,16 @@
 		<mx:method name="destroy"/>
 	</mx:RemoteObject>
 
+	<mx:RemoteObject id="projectRO"
+		source="ProjectsController"
+		destination="rubyamf"
+		showBusyCursor="true">
+		<mx:method name="index"/>
+		<mx:method name="create"/>
+		<mx:method name="update"/>
+		<mx:method name="destroy"/>
+	</mx:RemoteObject>
+
 	<mx:RemoteObject id="individualRO"
 		source="IndividualsController"
 		destination="rubyamf"
@@ -201,6 +211,31 @@
 		resultFormat = "e4x"
 		headers = "Accept: text/xml"
 		method = "GET"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Create Project-->
+	<mx:HTTPService id="createProjectService"
+		url = "projects.xml"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Update Project-->
+	<mx:HTTPService id="updateProjectService"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
+	
+	<!--Delete Project-->
+	<mx:HTTPService id="deleteProjectService"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
 		useProxy="false"
 		showBusyCursor="true"/>
 	

@@ -22,6 +22,12 @@ class FlexProjectsTest < Test::Unit::TestCase
     Fixtures.reset_cache # Since we have a separate process changing the database
   end
 
+  # Test selection.
+  def test_a_select
+    init('admin2')
+    select_project
+  end
+
   # Test create (in one stream for more efficiency).
   def test_create
     init('admin2')
@@ -193,6 +199,12 @@ private
     @ie.text_area("projectFieldName").input(:text => name )
     @ie.text_area("projectFieldDescription").input(:text => description )
   end
+
+  # Select a project to see what is displayed in individuals.
+  def select_project
+    @ie.data_grid("projectResourceGrid").select(:item_renderer => "Test")
+    assert_equal 5, @ie.data_grid("individualResourceGrid").num_rows
+  end
     
   # Test deleting a project.
   def delete_project_cancel
@@ -232,6 +244,6 @@ private
   def init( logon )
     login(logon, 'testit')
     sleep 3 # Wait to ensure data loaded
-    @ie.button_bar("mainNavigation").change(:related_object => "Projects")
+    @ie.button_bar("mainNavigation").change(:related_object => "People")
   end
 end

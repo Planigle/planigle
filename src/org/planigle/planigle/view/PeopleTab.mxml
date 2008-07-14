@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:component="org.planigle.planigle.view.components.*" label="People" borderThicknessLeft="2" borderThicknessRight="2" headerHeight="0">
+	<mx:Script>
+		<![CDATA[
+		// Reset my state to how it was initially.
+		public function resetState(event:Event):void
+		{
+			projects.resetState(event);
+			individuals.resetState(event);
+		}
+
+		// The user has selected a project.
+		public function selectProject(event:Event):void
+		{
+			individuals.project = projects.project;
+		}
+		]]>
+	</mx:Script>
+	<component:ViewProjects id="projects" height="50%" itemClick="selectProject(event)"/>
+	<component:ViewIndividuals id="individuals" height="50%"/>
+</mx:Panel>

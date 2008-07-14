@@ -13,6 +13,7 @@
 		import mx.events.ListEvent;
 		import mx.binding.utils.ChangeWatcher;
 		import org.planigle.planigle.model.ViewModelLocator;
+		import org.planigle.planigle.model.ProjectFactory;
 		import org.planigle.planigle.model.IndividualFactory;
 		import org.planigle.planigle.model.Individual;
 		import org.planigle.planigle.model.ReleaseFactory;
@@ -402,7 +403,7 @@
 
 			field_effort.text = '';
 			field_status.selectedIndex = 0;
-			field_public.selectedIndex = ViewModelLocator.getInstance().projects.child("survey-mode") == 2 ? 0 : 1;
+			field_public.selectedIndex = ProjectFactory.getInstance().projects.getItemAt(0).surveyMode  == 2 ? 0 : 1;
 			btn_change.label = 'Create';
 		}
 

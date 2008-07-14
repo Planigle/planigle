@@ -20,22 +20,19 @@
 			import org.planigle.planigle.events.LogoutEvent;
 			import org.planigle.planigle.view.ScheduleTab;
 			import org.planigle.planigle.view.StoriesTab;
-			import org.planigle.planigle.view.ProjectsTab;
-			import org.planigle.planigle.view.IndividualsTab;
+			import org.planigle.planigle.view.PeopleTab;
 
 			[Bindable]
 			private var factory:IndividualFactory = IndividualFactory.getInstance();
 
 			private var schedule:ScheduleTab = new ScheduleTab();
 			private var stories:StoriesTab = new StoriesTab();
-			private var projects:ProjectsTab = new ProjectsTab();
-			private var individuals:IndividualsTab = new IndividualsTab();
+			private var people:PeopleTab = new PeopleTab();
 
 			// Add the base tabs.
 			private function onInitialize(event:Event):void
 			{
-				mainViewStack.addChild(individuals);
-				mainViewStack.addChild(projects);
+				mainViewStack.addChild(people);
 				ChangeWatcher.watch( factory, "currentIndividual", resetState );
 				resetState(event); // This is to catch it the first time (The event has already been sent).
 			}
