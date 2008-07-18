@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class ReleaseTest < ActiveSupport::TestCase
+  fixtures :individuals
   fixtures :releases
   fixtures :projects
   fixtures :iterations
@@ -40,6 +41,14 @@ class ReleaseTest < ActiveSupport::TestCase
     releases(:first).destroy
     stories(:first).reload
     assert_nil stories(:first).release
+  end
+
+  # Test finding individuals for a specific user.
+  def test_find
+    assert_equal Release.count, Release.get_records(individuals(:quentin)).length
+    assert_equal Release.find_all_by_project_id(1).length, Release.get_records(individuals(:aaron)).length
+    assert_equal Release.find_all_by_project_id(1).length, Release.get_records(individuals(:user)).length
+    assert_equal Release.find_all_by_project_id(1).length, Release.get_records(individuals(:readonly)).length
   end
 
 private

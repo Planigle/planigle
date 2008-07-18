@@ -7,14 +7,21 @@ package org.planigle.planigle.commands
 	import org.planigle.planigle.business.SessionDelegate;
 	import org.planigle.planigle.events.LoginEvent;
 	import org.planigle.planigle.model.ViewModelLocator;
+	import org.planigle.planigle.model.PlanigleSystem;
+	import org.planigle.planigle.model.ProjectFactory;
 	import org.planigle.planigle.model.IndividualFactory;
+	import org.planigle.planigle.model.ReleaseFactory;
+	import org.planigle.planigle.model.IterationFactory;
+	import org.planigle.planigle.model.StoryFactory;
 	import org.planigle.planigle.vo.LoginVO;
 	
 	public class LoginCommand implements ICommand, IResponder
 	{
-		private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
-		private var individualFactory:IndividualFactory = IndividualFactory.getInstance();
-		private var userInfo:LoginVO;
+		[Bindable]
+		public static var agreement:String = "";
+
+		public static var lastLogin:LoginVO;
+		public var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
 		
 		public function LoginCommand()
 		{
@@ -28,28 +35,47 @@ package org.planigle.planigle.commands
 			//  Delegate acts as both delegate and responder.
 			var delegate:SessionDelegate = new SessionDelegate( this );
 			
-			userInfo = loginEvent.loginParams;
-			delegate.login(userInfo);
+			lastLogin = loginEvent.loginParams;
+			delegate.login(lastLogin);
 		}
 		
 		// Handle successful server request.
 		public function result( event:Object ):void
 		{
-			var result:XML = XML(event.result);
-			if (result.error.length() > 0)
+			var result:Object = event.result;
+			if (result.error)
 			{
-				if (!userInfo.test)
-					Alert.show(result.error, "Login Error");
+				if (result.agreement)
+				{
+					agreement = result.agreement;
+					viewModelLocator.workflowState = ViewModelLocator.LICENSE_AGREEMENT_SCREEN;
+				}
+				else
+				{
+					if (!lastLogin.test)
+						Alert.show(result.error, "Login Error");
+					viewModelLocator.workflowState = ViewModelLocator.LOGIN_SCREEN;
+				}
 			}
 			else
-				individualFactory.setCurrent( result.login );
+			{
+				PlanigleSystem.getInstance().populateFromObject( result.system );
+				IndividualFactory.getInstance().setCurrent( result.currentIndividual.login );
+				ProjectFactory.getInstance().populate( result.projects as Array );
+				IndividualFactory.getInstance().populate( result.individuals as Array );
+				ReleaseFactory.getInstance().populate( result.releases ? result.releases as Array : new Array() );
+				IterationFactory.getInstance().populate( result.iterations ? result.iterations as Array : new Array() );
+				StoryFactory.getInstance().populate( result.stories ? result.stories as Array : new Array() );
+				viewModelLocator.workflowState = ViewModelLocator.CORE_APPLICATION_SCREEN;
+			}
 		}
 		
 		// Handle case where error occurs.
 		public function fault( event:Object ):void
 		{
-			if (!userInfo.test)
+			if (!lastLogin.test)
 				Alert.show(event.fault.faultString);
+			viewModelLocator.workflowState = ViewModelLocator.LOGIN_SCREEN;
 		}
 	}
 }

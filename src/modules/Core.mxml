@@ -21,6 +21,7 @@
 			import org.planigle.planigle.view.ScheduleTab;
 			import org.planigle.planigle.view.StoriesTab;
 			import org.planigle.planigle.view.PeopleTab;
+			import org.planigle.planigle.view.SystemTab;
 
 			[Bindable]
 			private var factory:IndividualFactory = IndividualFactory.getInstance();
@@ -28,13 +29,33 @@
 			private var schedule:ScheduleTab = new ScheduleTab();
 			private var stories:StoriesTab = new StoriesTab();
 			private var people:PeopleTab = new PeopleTab();
+			private var system:SystemTab = new SystemTab();
 
 			// Add the base tabs.
 			private function onInitialize(event:Event):void
 			{
 				mainViewStack.addChild(people);
-				ChangeWatcher.watch( factory, "currentIndividual", resetState );
-				resetState(event); // This is to catch it the first time (The event has already been sent).
+				ChangeWatcher.watch( factory, "currentIndividual", changeIndividual );
+				changeIndividual(event); // This is to catch it the first time (The event has already been sent).
+			}
+
+			private var watcher:ChangeWatcher;
+
+			// The user has changed.
+			private function changeIndividual(event:Event):void
+			{
+				if (watcher)
+					watcher.unwatch();
+
+				watcher = factory.currentIndividual ? ChangeWatcher.watch( factory.currentIndividual, "projectId", changeProject ) : null;
+				resetState(event);
+			}
+
+			// The project has changed.
+			private function changeProject(event:Event):void
+			{
+				resetState(event);
+				refresh();
 			}
 
 			// Hide the specified tab.
@@ -45,10 +66,10 @@
 			}
 			
 			// Show the specified tab.
-			private function showTab(tab:DisplayObject):void
+			private function showTab(tab:DisplayObject, location:int):void
 			{
 				if (mainViewStack.getChildren().indexOf(tab) == -1 )
-					mainViewStack.addChildAt( tab, 0 );
+					mainViewStack.addChildAt( tab, location );
 			}
 
 			// Reset based on a new user.
@@ -56,6 +77,11 @@
 			{
 				if (factory.currentIndividual)
 				{
+					if (factory.currentIndividual.isAdmin())
+						showTab(system, mainViewStack.getChildren().length);
+					else
+						hideTab(system);
+
 					if (factory.currentIndividual.isAdminOnly())
 					{
 						hideTab(stories);
@@ -63,8 +89,8 @@
 					}
 					else
 					{
-						showTab(schedule);
-						showTab(stories);
+						showTab(schedule, 0);
+						showTab(stories, 0);
 					}
 				}
 			}

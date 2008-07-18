@@ -65,6 +65,15 @@ class Project < ActiveRecord::Base
     end
   end
 
+  # Answer the records for a particular user.
+  def self.get_records(current_user)
+    if current_user.role >= Individual::ProjectAdmin
+      Project.find(:all, :conditions => ["id = ?", current_user.project_id])
+    else
+      Project.find(:all, :order => 'name')
+    end
+  end
+
   # Only admins can create projects.
   def authorized_for_create?(current_user)
     if current_user.role <= Individual::Admin

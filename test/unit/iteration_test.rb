@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class IterationTest < ActiveSupport::TestCase
+  fixtures :individuals
   fixtures :iterations
   fixtures :projects
   fixtures :stories
@@ -48,6 +49,14 @@ class IterationTest < ActiveSupport::TestCase
     iterations(:first).project_id = 2
     stories(:first).reload
     assert_equal 2, stories(:first).project_id
+  end
+
+  # Test finding individuals for a specific user.
+  def test_find
+    assert_equal Iteration.count, Iteration.get_records(individuals(:quentin)).length
+    assert_equal Iteration.find_all_by_project_id(1).length, Iteration.get_records(individuals(:aaron)).length
+    assert_equal Iteration.find_all_by_project_id(1).length, Iteration.get_records(individuals(:user)).length
+    assert_equal Iteration.find_all_by_project_id(1).length, Iteration.get_records(individuals(:readonly)).length
   end
 
 private

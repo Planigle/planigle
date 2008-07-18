@@ -6,21 +6,39 @@ require 'application'
 class SessionsController; def rescue_action(e) raise e end; end
 
 class SessionsControllerTest < ActionController::TestCase
+  fixtures :systems
   fixtures :individuals
 
   # Test successfully logging in.
-  def test_should_login_and_redirect
-    post :create, :login => 'quentin', :password => 'testit'
+  def test_should_login
+    post :create, :login => 'quentin', :password => 'testit', :format => 'xml'
     assert session[:individual_id]
-    assert_response :redirect
+    assert individuals(:quentin).last_login > (Time.now - 10)
+    assert_select 'current-individual', 1
+    assert_select 'system', 1
+    assert_select 'release', false
+    assert_select 'iteration', false
+    assert_select 'story', false
+    assert_select 'project', Project.count
+    assert_select 'individual', Individual.count
+
+    post :create, :login => 'aaron', :password => 'testit', :format => 'xml'
+    assert session[:individual_id]
+    assert individuals(:aaron).last_login > (Time.now - 10)
+    assert_select 'current-individual', 1
+    assert_select 'system', 1
+    assert_select 'release', Release.find_all_by_project_id(1).length
+    assert_select 'iteration', Iteration.find_all_by_project_id(1).length
+    assert_select 'story', Story.find_all_by_project_id(1).length
+    assert_select 'project', 1
+    assert_select 'individual', Individual.find_all_by_project_id(1, :conditions => "role != 0").length
   end
 
   # Test failure to log in.
-  def test_should_fail_login_and_not_redirect
+  def test_should_fail_login
     post :create, :login => 'quentin', :password => 'bad password'
     assert_nil session[:individual_id]
     assert_response :success
-    assert_template 'new'
   end
 
   # Test logging out.
@@ -29,24 +47,23 @@ class SessionsControllerTest < ActionController::TestCase
     assert session[:individual_id]
     delete :destroy
     assert_nil session[:individual_id]
-    assert_response :redirect
   end
 
   # Test setting remember me.
   def test_should_remember_me
-    post :create, :login => 'quentin', :password => 'testit', :remember_me => "1"
+    post :create, :login => 'quentin', :password => 'testit', :remember_me => "true"
     assert_not_nil @response.cookies["auth_token"]
   end
 
   # Test turning off remember me.
   def test_should_not_remember_me
-    post :create, :login => 'quentin', :password => 'testit', :remember_me => "0"
+    post :create, :login => 'quentin', :password => 'testit', :remember_me => "false"
     assert_nil @response.cookies["auth_token"]
   end
   
   # Test that logging out removes remember me.
   def test_should_delete_token_on_logout
-    post :create, :login => 'quentin', :password => 'testit', :remember_me => "1"
+    post :create, :login => 'quentin', :password => 'testit', :remember_me => "true"
     assert_not_nil @response.cookies["auth_token"]
     delete :destroy
     assert_equal @response.cookies["auth_token"], []
@@ -78,6 +95,22 @@ class SessionsControllerTest < ActionController::TestCase
     @request.cookies["auth_token"] = auth_token('invalid_auth_token')
     get :new
     assert !@controller.send(:logged_in?)
+  end
+
+  # Verify that if there is a license agreement, the user should have to accept
+  def test_should_require_accept_license
+    system = System.find(:first)
+    system.license_agreement = "You must accept"
+    system.save(false)
+    post :create, :login => 'quentin', :password => 'testit', :format => 'xml'
+    assert_response 422
+    assert_select "error"
+    assert_select "agreement"
+    assert_nil session[:individual_id]
+    
+    post :create, :login => 'quentin', :password => 'testit', :accept_agreement => "true", :format => 'xml'
+    assert session[:individual_id]
+    assert individuals(:quentin).accepted_agreement > (Time.now - 10)
   end
 
 private

@@ -6,6 +6,7 @@ class ReleasesXmlTest < ActionController::IntegrationTest
   include ResourceHelper
   include ReleasesTestHelper
 
+  fixtures :systems
   fixtures :individuals
   fixtures :releases
   fixtures :projects

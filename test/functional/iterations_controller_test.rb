@@ -10,6 +10,7 @@ class IterationsControllerTest < ActionController::TestCase
   include ControllerResourceHelper
   include IterationsTestHelper
 
+  fixtures :systems
   fixtures :individuals
   fixtures :iterations
   fixtures :projects

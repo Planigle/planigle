@@ -7,6 +7,7 @@ class IndividualsXmlTest < ActionController::IntegrationTest
   include ResourceHelper
   include IndividualsTestHelper
 
+  fixtures :systems
   fixtures :individuals
   
   class IndividualsController
@@ -25,6 +26,8 @@ class IndividualsXmlTest < ActionController::IntegrationTest
     ActionMailer::Base.delivery_method = :test
     ActionMailer::Base.perform_deliveries = true
     ActionMailer::Base.deliveries = []
+    IndividualMailer.admin_email = 'testxyz@testxyz.com'
+    IndividualMailer.site = 'www.testxyz.com'
   end
 
   # Test that you can't delete yourself.

@@ -3,6 +3,14 @@
 	xmlns:mx="http://www.adobe.com/2006/mxml" 
 	xmlns:cairngorm="com.adobe.cairngorm.business.*">
 
+	<mx:RemoteObject id="sessionRO"
+		source="SessionsController"
+		destination="rubyamf"
+		showBusyCursor="true">
+		<mx:method name="create"/>
+		<mx:method name="destroy"/>
+	</mx:RemoteObject>
+
 	<mx:RemoteObject id="releaseRO"
 		source="ReleasesController"
 		destination="rubyamf"
@@ -53,67 +61,14 @@
 		<mx:method name="destroy"/>
 	</mx:RemoteObject>
 
-	<!--Login Service-->
-	<mx:HTTPService id="loginService"
-		url = "session.xml"
-		resultFormat = "e4x"
-		headers = "Accept: text/xml"
-		method = "POST"
-		useProxy="false"
-		showBusyCursor="true"/>
-
-	<!--Logout Service-->
-	<mx:HTTPService id="logoutService"
-		url = "session.xml"
+	<!--Update System-->
+	<mx:HTTPService id="updateSystemService"
 		resultFormat = "e4x"
 		headers = "Accept: text/xml"
 		method = "POST"
 		useProxy="false"
 		showBusyCursor="true"/>
 	
-	<!--Get Releases-->
-	<mx:HTTPService id="getReleasesService"
-		url = "releases.xml"
-		resultFormat = "e4x"
-		headers = "Accept: text/xml"
-		method = "GET"
-		useProxy="false"
-		showBusyCursor="true"/>
-	
-	<!--Create Release-->
-	<mx:HTTPService id="createReleaseService"
-		url = "releases.xml"
-		resultFormat = "e4x"
-		headers = "Accept: text/xml"
-		method = "POST"
-		useProxy="false"
-		showBusyCursor="true"/>
-	
-	<!--Update Release-->
-	<mx:HTTPService id="updateReleaseService"
-		resultFormat = "e4x"
-		headers = "Accept: text/xml"
-		method = "POST"
-		useProxy="false"
-		showBusyCursor="true"/>
-	
-	<!--Delete Release-->
-	<mx:HTTPService id="deleteReleaseService"
-		resultFormat = "e4x"
-		headers = "Accept: text/xml"
-		method = "POST"
-		useProxy="false"
-		showBusyCursor="true"/>
-		
-	<!--Get Iterations-->
-	<mx:HTTPService id="getIterationsService"
-		url = "iterations.xml"
-		resultFormat = "e4x"
-		headers = "Accept: text/xml"
-		method = "GET"
-		useProxy="false"
-		showBusyCursor="true"/>
-
 	<!--Create Iteration-->
 	<mx:HTTPService id="createIterationService"
 		url = "iterations.xml"
@@ -136,15 +91,6 @@
 		resultFormat = "e4x"
 		headers = "Accept: text/xml"
 		method = "POST"
-		useProxy="false"
-		showBusyCursor="true"/>
-	
-	<!--Get Stories-->
-	<mx:HTTPService id="getStoriesService"
-		url = "stories.xml"
-		resultFormat = "e4x"
-		headers = "Accept: text/xml"
-		method = "GET"
 		useProxy="false"
 		showBusyCursor="true"/>
 	
@@ -205,15 +151,6 @@
 		useProxy="false"
 		showBusyCursor="true"/>
 	
-	<!--Get Projects-->
-	<mx:HTTPService id="getProjectsService"
-		url = "projects.xml"
-		resultFormat = "e4x"
-		headers = "Accept: text/xml"
-		method = "GET"
-		useProxy="false"
-		showBusyCursor="true"/>
-	
 	<!--Create Project-->
 	<mx:HTTPService id="createProjectService"
 		url = "projects.xml"
@@ -236,15 +173,6 @@
 		resultFormat = "e4x"
 		headers = "Accept: text/xml"
 		method = "POST"
-		useProxy="false"
-		showBusyCursor="true"/>
-	
-	<!--Get Individuals-->
-	<mx:HTTPService id="getIndividualsService"
-		url = "individuals.xml"
-		resultFormat = "e4x"
-		headers = "Accept: text/xml"
-		method = "GET"
 		useProxy="false"
 		showBusyCursor="true"/>
 	

@@ -16,6 +16,6 @@
 		}
 		]]>
 	</mx:Script>
-	<component:ViewReleases id="releases" height="50%" itemClick="selectRelease(event)"/>
-	<component:ViewIterations id="iterations" height="50%"/>
+	<component:ViewReleases id="releases" height="40%" itemClick="selectRelease(event)"/>
+	<component:ViewIterations id="iterations" height="60%"/>
 </mx:Panel>

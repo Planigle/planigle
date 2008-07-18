@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:component="org.planigle.planigle.view.components.*" label="System" borderThicknessLeft="2" borderThicknessRight="2" headerHeight="0">
+	<mx:Script>
+		<![CDATA[
+		import org.planigle.planigle.model.PlanigleSystem;
+		
+		[Bindable]
+		private var _error:String;
+
+		// Reset my state to how it was initially.
+		public function resetState(event:Event):void
+		{
+			systemAgreement.text = PlanigleSystem.getInstance().licenseAgreement;
+		}
+		
+		// Create parameters for the user's request to the server.
+		private function getParams() : Object
+		{
+			var params:Object = new Object();
+			params['record[license_agreement]'] = systemAgreement.text;
+			return params;
+		}
+
+		public function acceptChanges(event:Event):void
+		{
+			PlanigleSystem.getInstance().update(getParams(), handleSuccess, handleFailure);
+		}
+
+		// Handle a successful change.
+		private function handleSuccess():void
+		{
+			resetState(null);
+			_error = "Successfully updated system";
+		}
+
+		// Handle errors when making changes.
+		private function handleFailure(error:Array):void
+		{
+			_error = error.join("\r");
+		}
+		]]>
+	</mx:Script>
+	<mx:Text id="systemError" styleName="error" htmlText="{_error}" color="#ff0033" width="100%"/>
+	<mx:Form defaultButton="{okBtn}" paddingTop="0" paddingBottom="0" verticalGap="5">
+		<mx:FormItem label='License Agreement'>
+			<mx:TextArea id='systemAgreement' width="800" height="400"/>
+		</mx:FormItem>
+		<mx:ControlBar width="100%">
+			<mx:Spacer width="50"/>
+			<mx:Button label="OK" id="okBtn" click="acceptChanges(event)"/>
+			<mx:LinkButton label="Cancel" id="cancelBtn" click="resetState(event)"/>
+		</mx:ControlBar>
+	</mx:Form>	
+</mx:Panel>

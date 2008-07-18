@@ -64,13 +64,6 @@ package org.planigle.planigle.model
 		public function populate(newIndividuals:Array):void
 		{
 			updateIndividuals(new ArrayCollection(newIndividuals));
-
-			if ( !currentIndividual.isAdminOnly() )
-			{ // Admins don't need this info.
-				new ReleaseChangedEvent().dispatch();			
-				new IterationChangedEvent().dispatch();			
-				new StoryChangedEvent().dispatch();			
-			}			
 		}
 		
 		// Create a new individual.  Params should be of the format (record[param]).  Success function
@@ -105,14 +98,7 @@ package org.planigle.planigle.model
 		// Update after a new user is logged in.
 		public function setCurrent(login:String):void
 		{
-			if (currentLogin == login) // Re-logging in, no need to get data
-				ViewModelLocator.getInstance().workflowState = ViewModelLocator.CORE_APPLICATION_SCREEN;
-			else
-			{
-				currentLogin = login;
-				new IndividualChangedEvent().dispatch();		
-				new ProjectChangedEvent().dispatch();
-			}
+			currentLogin = login;
 		}
 	}
 }

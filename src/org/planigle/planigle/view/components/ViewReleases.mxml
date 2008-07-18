@@ -255,8 +255,8 @@
 		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="releaseResourceGrid" dataProvider="{releases}" rowCount="{ReleaseFactory.getInstance().releases.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)" itemClick="releaseSelected(event)">
 			<mx:columns>
 				<mx:DataGridColumn headerText="Name" dataField="name"/>
-				<mx:DataGridColumn headerText="Start" dataField="start" labelFunction="formatStart" />
-				<mx:DataGridColumn headerText="Finish" dataField="finish" labelFunction="formatFinish" />
+				<mx:DataGridColumn headerText="Start" width="120" dataField="start" labelFunction="formatStart" />
+				<mx:DataGridColumn headerText="Finish" width="120" dataField="finish" labelFunction="formatFinish" />
 				<mx:DataGridColumn editable="false" width="90" minWidth="90" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>

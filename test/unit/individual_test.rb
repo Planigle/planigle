@@ -5,6 +5,14 @@ class IndividualTest < ActiveSupport::TestCase
   fixtures :projects
   fixtures :stories
 
+  def setup
+    ActionMailer::Base.delivery_method = :test
+    ActionMailer::Base.perform_deliveries = true
+    ActionMailer::Base.deliveries = []
+    IndividualMailer.admin_email = 'testxyz@testxyz.com'
+    IndividualMailer.site = 'www.testxyz.com'
+  end
+
   # Test that an individual can be created.
   def test_create_individual
     assert_difference 'Individual.count' do
@@ -95,6 +103,18 @@ class IndividualTest < ActiveSupport::TestCase
 
     indiv = create_individual( :role => 3, :project_id => 1 )
     assert_nil indiv.errors.on(:project)
+  end
+
+  # Test the validation of last_login.
+  def test_last_login
+    assert_success(:last_login, nil)
+    assert_success(:last_login, Time.now)
+  end
+
+  # Test the validation of agreement_accepted.
+  def test_agreement_accepted
+    assert_success(:agreement_accepted, nil)
+    assert_success(:agreement_accepted, Time.now)
   end
 
   # Test that the individual's activation code is set on creation.
@@ -230,6 +250,14 @@ class IndividualTest < ActiveSupport::TestCase
     individuals(:aaron).destroy
     stories(:first).reload
     assert_nil stories(:first).individual
+  end
+
+  # Test finding individuals for a specific user.
+  def test_find
+    assert_equal Individual.count, Individual.get_records(individuals(:quentin)).length
+    assert_equal Individual.find_all_by_project_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:aaron)).length
+    assert_equal Individual.find_all_by_project_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:user)).length
+    assert_equal Individual.find_all_by_project_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:readonly)).length
   end
 
 private

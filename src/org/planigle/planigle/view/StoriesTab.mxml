@@ -210,19 +210,19 @@
 		// Answer whether the story matches the release filter.
 		private function matchesReleaseFilter( story:Story ):Boolean
 		{
-			return release.selectedItem.id == "-1" || story.releaseId == release.selectedItem.id;
+			return !release.selectedItem || release.selectedItem.id == "-1" || story.releaseId == release.selectedItem.id;
 		}
 
 		// Answer whether the story matches the iteration filter.
 		private function matchesIterationFilter( story:Story ):Boolean
 		{
-			return iteration.selectedItem.id == "-1" || story.iterationId == iteration.selectedItem.id;
+			return !iteration.selectedItem || iteration.selectedItem.id == "-1" || story.iterationId == iteration.selectedItem.id;
 		}
 
 		// Answer whether the story matches the individual filter.
 		private function matchesIndividualFilter( story:Story ):Boolean
 		{
-			return individual.selectedItem.id == "-1" || story.individualId == individual.selectedItem.id;
+			return !individual.selectedItem || individual.selectedItem.id == "-1" || story.individualId == individual.selectedItem.id;
 		}
 
 		// Answer whether the story matches the storyStatus filter.
@@ -778,11 +778,11 @@
 						</mx:Component>
 					</mx:itemRenderer>
 				</mx:DataGridColumn>
-				<mx:DataGridColumn headerText="Name" wordWrap="true" width="350" dataField="listName" showDataTips="true" dataTipField="description" />
+				<mx:DataGridColumn headerText="Name" wordWrap="true" dataField="listName" showDataTips="true" dataTipField="description" />
 				<mx:DataGridColumn id="column_iteration" width="150" headerText="Iteration" labelFunction="ViewHelper.formatIteration" sortCompareFunction="ViewHelper.sortIteration"/>
 				<mx:DataGridColumn id="column_individual" headerText="Owner" width="150" labelFunction="ViewHelper.formatIndividual" sortCompareFunction="ViewHelper.sortIndividual"/>
-				<mx:DataGridColumn headerText="Effort" width="75" dataField="calculatedEffort" sortCompareFunction="ViewHelper.sortEffort"/>
-				<mx:DataGridColumn editable="false" width="120" minWidth="120" headerText="Status" sortCompareFunction="ViewHelper.sortStatus">
+				<mx:DataGridColumn headerText="Effort" width="65" dataField="calculatedEffort" sortCompareFunction="ViewHelper.sortEffort"/>
+				<mx:DataGridColumn editable="false" width="100" minWidth="115" headerText="Status" sortCompareFunction="ViewHelper.sortStatus">
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
@@ -795,8 +795,8 @@
 						</mx:Component>
 					</mx:itemRenderer>
 				</mx:DataGridColumn>
-				<mx:DataGridColumn headerText="Public" width="80" dataField="isPublic"/>
-				<mx:DataGridColumn headerText="Priority" width="80" dataField="normalizedPriority" sortCompareFunction="ViewHelper.sortPriority"/>
+				<mx:DataGridColumn headerText="Public" width="60" dataField="isPublic"/>
+				<mx:DataGridColumn headerText="Priority" width="65" dataField="normalizedPriority" sortCompareFunction="ViewHelper.sortPriority"/>
 				<mx:DataGridColumn headerText="User Priority" width="90" dataField="modifiedUserPriority" sortCompareFunction="ViewHelper.sortUserPriority"/>
 				<mx:DataGridColumn editable="false" width="140" minWidth="140" sortable="false">
 					<mx:itemRenderer>

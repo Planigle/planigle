@@ -65,6 +65,12 @@ module RubyAMF
     # ClassMappings.register(:actionscript => 'User', :ruby => 'User', :type => 'active_record', :associations=> ["addresses", "credit_cards"], :methods => ["friends"])
     #
     ClassMappings.register(
+      :actionscript => 'System',
+      :ruby => 'System',
+      :type => 'active_record',
+      :attributes => ["id", "license_agreement"])
+
+    ClassMappings.register(
       :actionscript => 'Release',
       :ruby => 'Release',
       :type => 'active_record',
@@ -86,7 +92,7 @@ module RubyAMF
       :actionscript => 'Individual',
       :ruby => 'Individual',
       :type => 'active_record',
-      :attributes => ["id", "project_id", "login", "email", "first_name", "last_name", "activated_at", "enabled", "role"])
+      :attributes => ["id", "project_id", "login", "email", "first_name", "last_name", "activated_at", "enabled", "accepted_agreement", "last_login", "role"])
 
     ClassMappings.register(
       :actionscript => 'Story',

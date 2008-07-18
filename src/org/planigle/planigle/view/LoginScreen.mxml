@@ -1,28 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" horizontalAlign="center" preinitialize="preinitialize(event)" creationComplete="created(event)">
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" horizontalAlign="center" creationComplete="created(event)">
 
 	<mx:Script>
 		<![CDATA[
-			import flash.external.ExternalInterface;
 			import mx.binding.utils.ChangeWatcher;
 			import org.planigle.planigle.model.ViewModelLocator;
 			import org.planigle.planigle.vo.LoginVO;
 			import org.planigle.planigle.events.LoginEvent;
 			import org.planigle.planigle.events.URLEvent;
-			
-			// See if a cookie is present which skips login.
-			private function preinitialize(event:Event):void
-			{
-				if (!ExternalInterface.available || containsCookie("auth_token"))
-					new LoginEvent( new LoginVO('', '', true, true) ).dispatch();
-			}
-
-			// Answer true if a cookie exists with the given name.
-			private function containsCookie(cookie:String):Boolean
-			{
-				var js:String = "function get_cookie(){return document.cookie;}"
-				return ExternalInterface.call(js).toString().indexOf(cookie + "=") != -1;
-			}
 			
 			// Set up event listeners.  Called when the canvas has been created.
 			private function created(event:Event):void

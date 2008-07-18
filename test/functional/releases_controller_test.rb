@@ -10,6 +10,7 @@ class ReleasesControllerTest < ActionController::TestCase
   include ControllerResourceHelper
   include ReleasesTestHelper
 
+  fixtures :systems
   fixtures :individuals
   fixtures :releases
   fixtures :projects

@@ -2,6 +2,7 @@ require "#{File.dirname(__FILE__)}/../test_helper"
 
 class SurveysXmlTest < ActionController::IntegrationTest
 
+  fixtures :systems
   fixtures :individuals
   fixtures :stories
   fixtures :projects

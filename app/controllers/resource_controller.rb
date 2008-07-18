@@ -22,6 +22,8 @@ class ResourceController < ApplicationController
     else
       unauthorized
     end
+  rescue ActiveRecord::RecordNotFound
+    head 404
   end
 
   # POST /records
@@ -50,7 +52,7 @@ class ResourceController < ApplicationController
     if (authorized_for_update?(@record))
       update_record
       respond_to do |format|
-        if @record.save
+        if save_record
           format.xml { render :xml => @record }
           format.amf { render :amf => @record }
         else
@@ -61,6 +63,8 @@ class ResourceController < ApplicationController
     else
       unauthorized
     end
+  rescue ActiveRecord::RecordNotFound
+    head 404
   end
 
   # DELETE /records/1
@@ -76,9 +80,16 @@ class ResourceController < ApplicationController
     else
       unauthorized
     end
+  rescue ActiveRecord::RecordNotFound
+    head 404
   end
   
 protected
+
+  # Save the record (answering whether it was successful
+  def save_record
+    @record.save
+  end
 
   # Answer if this request is authorized for create.
   def authorized_for_create?(record)

@@ -9,6 +9,15 @@ class Release < ActiveRecord::Base
   # Prevent a user from submitting a crafted form that bypasses activation
   # Anything that the user can change should be added here.
   attr_accessible :name, :start, :finish, :project_id
+
+  # Answer the records for a particular user.
+  def self.get_records(current_user)
+    if current_user.role >= Individual::ProjectAdmin or current_user.project_id
+      Release.find(:all, :conditions => ["project_id = ?", current_user.project_id], :order => 'start')
+    else
+      Release.find(:all, :order => 'start')
+    end
+  end
   
   # Answer whether the user is authorized to create me.
   def authorized_for_create?(current_user)

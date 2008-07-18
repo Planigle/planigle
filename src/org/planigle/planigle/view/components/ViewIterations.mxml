@@ -256,8 +256,8 @@
 		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="iterationResourceGrid" dataProvider="{iterations}" rowCount="{IterationFactory.getInstance().iterations.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)">
 			<mx:columns>
 				<mx:DataGridColumn headerText="Name" dataField="name"/>
-				<mx:DataGridColumn headerText="Start" dataField="start" labelFunction="formatDate" />
-				<mx:DataGridColumn headerText="Length (in weeks)" dataField="length"/>
+				<mx:DataGridColumn headerText="Start" width="120" dataField="start" labelFunction="formatDate" />
+				<mx:DataGridColumn headerText="Length (in weeks)" width="80" dataField="length"/>
 				<mx:DataGridColumn editable="false" width="90" minWidth="90" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>

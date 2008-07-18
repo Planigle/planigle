@@ -3,6 +3,7 @@ require 'test/unit'
 require 'funfx' 
 
 class FlexSessionTest < Test::Unit::TestCase
+  fixtures :systems
   fixtures :individuals
   fixtures :projects
   fixtures :stories
@@ -26,7 +27,25 @@ class FlexSessionTest < Test::Unit::TestCase
     login_failed
     login_succeeded
     login_cookie
-  end 
+  end
+  
+  # Test going through the license agreement
+  def test_agreement
+    login("quentin", "testit")
+    sleep 5 # Wait for response
+    @ie.button_bar("mainNavigation").change(:related_object => "System")
+    @ie.text_area("systemAgreement").input(:text => "new agreement" )
+    @ie.button("okBtn").click
+    logout
+    sleep 1
+    login("quentin", "testit")
+    sleep 2 # Wait for response
+    @ie.button("noButton").click
+    @ie.alert("License Agreement")[0].button("OK").click
+    @ie.button("yesButton").click
+    sleep 5 # Wait for data to load
+    assert @ie.button("logoutButton")
+  end
 
 private
   
@@ -45,7 +64,7 @@ private
     login('Quentin', 'testit')
     sleep 3 # Wait to ensure data loaded
     assert @ie.button("logoutButton")
-    assert_no_tab "Iterations"
+    assert_no_tab "Schedule"
     assert_no_tab "Stories"
     logout
   end

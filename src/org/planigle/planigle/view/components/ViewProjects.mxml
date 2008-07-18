@@ -242,7 +242,7 @@
 				<mx:columns>
 				<mx:DataGridColumn headerText="Name" dataField="name"/>
 				<mx:DataGridColumn headerText="Description" dataField="description"/>
-				<mx:DataGridColumn headerText="Stories" labelFunction="ViewHelper.formatSurveyMode" sortCompareFunction="ViewHelper.sortSurveyMode"/>
+				<mx:DataGridColumn headerText="Stories" width="120" labelFunction="ViewHelper.formatSurveyMode" sortCompareFunction="ViewHelper.sortSurveyMode"/>
 				<mx:DataGridColumn editable="false" width="60" minWidth="60" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>

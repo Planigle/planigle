@@ -18,6 +18,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :surveys
 
   map.resource :session
+  map.resource :system
   map.activate '/activate/:activation_code', :controller => 'individuals', :action => 'activate'
   map.logout '/logout', :controller => 'sessions', :action => 'destroy'
 

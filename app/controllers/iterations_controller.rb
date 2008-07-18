@@ -5,11 +5,7 @@ protected
 
   # Get the records based on the current individual.
   def get_records
-    if current_individual.role >= Individual::ProjectAdmin or project_id
-      Iteration.find(:all, :conditions => ["project_id = ?", project_id], :order => 'start')
-    else
-      Iteration.find(:all, :order => 'start')
-    end
+    Iteration.get_records(current_individual)
   end
 
   # Answer the current record based on the current individual.

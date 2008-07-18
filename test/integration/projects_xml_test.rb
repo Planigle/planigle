@@ -6,6 +6,7 @@ class ProjectsXmlTest < ActionController::IntegrationTest
   include ResourceHelper
   include ProjectsTestHelper
 
+  fixtures :systems
   fixtures :individuals
   fixtures :projects
 
