@@ -3,13 +3,17 @@ require 'test/unit'
 require 'funfx' 
 
 class FlexIndividualsTest < Test::Unit::TestCase
+  fixtures :systems
   fixtures :individuals
   fixtures :projects
+  fixtures :releases
 
   def setup
     ActionMailer::Base.delivery_method = :test
     ActionMailer::Base.perform_deliveries = true
     ActionMailer::Base.deliveries = []
+    IndividualMailer.admin_email = 'testxyz@testxyz.com'
+    IndividualMailer.site = 'www.testxyz.com'
     @ie = Funfx.instance 
     @ie.start(false) 
     @ie.speed = 1
@@ -101,6 +105,23 @@ class FlexIndividualsTest < Test::Unit::TestCase
     assert !@ie.button("individualBtnDelete")[row].visible
   end
 
+  # Changing an admins project will result in the tabs changing and new data.
+  def test_change_project
+    init('quentin')
+    assert_equal 2, @ie.button_bar("mainNavigation").numChildren
+    
+    @ie.button("individualBtnEdit")[find_row('quentin')].click
+    @ie.combo_box("individualFieldProject").open
+    @ie.combo_box("individualFieldProject").select(:item_renderer => 'Test' )
+    @ie.button("individualBtnChange").click
+    sleep 5 # Wait for data to load
+
+    assert_equal 4, @ie.button_bar("mainNavigation").numChildren
+    
+    @ie.button_bar("mainNavigation").change(:related_object => "Schedule")
+    assert_equal 2, @ie.data_grid("releaseResourceGrid").num_rows
+  end
+  
 private
 
   # Test whether error handling works for creating an individual.
@@ -150,7 +171,7 @@ private
     assert_equal 'true', @ie.combo_box("individualFieldEnabled").text
     assert_not_nil @ie.button("individualBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("individualResourceGrid").num_rows
-    assert_equal "Test,testy2,testy2@testit.com,testy,test,Admin,false,true,Edit | Delete", @ie.data_grid("individualResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
+    assert_equal "Test,testy2,testy2@testit.com,testy,test,Admin,false,true, ,Edit | Delete", @ie.data_grid("individualResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
     @ie.button("individualBtnCancel").click
   end
     
@@ -272,7 +293,7 @@ private
       
   # Test sorting the various columns.
   def sort_columns
-    (0..7).each do |i|
+    (0..8).each do |i|
       @ie.data_grid("individualResourceGrid").header_click(:columnIndex => i.to_s)
       @ie.data_grid("individualResourceGrid").header_click(:columnIndex => i.to_s) # Sort both ways
     end

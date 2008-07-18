@@ -11,6 +11,7 @@ class IndividualsControllerTest < Test::Unit::TestCase
   include ControllerResourceHelper
   include IndividualsTestHelper
   
+  fixtures :systems
   fixtures :individuals
   fixtures :projects
 
@@ -18,6 +19,8 @@ class IndividualsControllerTest < Test::Unit::TestCase
     ActionMailer::Base.delivery_method = :test
     ActionMailer::Base.perform_deliveries = true
     ActionMailer::Base.deliveries = []
+    IndividualMailer.admin_email = 'testxyz@testxyz.com'
+    IndividualMailer.site = 'www.testxyz.com'
     @controller = IndividualsController.new
     @request    = ActionController::TestRequest.new
     @response   = ActionController::TestResponse.new

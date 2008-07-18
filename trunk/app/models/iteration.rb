@@ -24,6 +24,15 @@ class Iteration < ActiveRecord::Base
     write_attribute(:project_id, project_id)
   end
 
+  # Answer the records for a particular user.
+  def self.get_records(current_user)
+    if current_user.role >= Individual::ProjectAdmin or current_user.project_id
+      Iteration.find(:all, :conditions => ["project_id = ?", current_user.project_id], :order => 'start')
+    else
+      Iteration.find(:all, :order => 'start')
+    end
+  end
+
   # Only project admins or higher can create iterations.
   def authorized_for_create?(current_user)
     case current_user.role

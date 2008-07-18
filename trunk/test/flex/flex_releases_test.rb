@@ -3,6 +3,7 @@ require 'test/unit'
 require 'funfx' 
 
 class FlexReleasesTest < Test::Unit::TestCase
+  fixtures :systems
   fixtures :individuals
   fixtures :projects
   fixtures :releases

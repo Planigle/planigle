@@ -113,22 +113,7 @@ module ControllerResourceHelper
     delete :destroy, {:id => 999}.merge(context)
     assert_response 404
   end
-    
-  # Test successfully deleting a resource while returning html for the remaining resources.
-  def test_destroy_partial
-    login_as(individuals(:quentin))
-    xhr :delete, :destroy, {:id => 2}.merge(context)
-    assert_response :success
-    assert_delete_succeeded
-  end
-    
-  # Test unsuccessfully deleting a resource while returning html for the remaining resources.
-  def test_destroy_partial_not_found
-    login_as(individuals(:quentin))
-    xhr :delete, :destroy, {:id => 999}.merge(context)
-    assert_response 404
-  end
-  
+      
 private
 
   # Answer a symbol for the resource.

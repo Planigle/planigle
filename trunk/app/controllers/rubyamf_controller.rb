@@ -1,8 +1,6 @@
 class RubyamfController < ApplicationController
-  before_filter :login_required
-
   include RubyAMF::App
-  
+
   def gateway      
     RequestStore.rails_authentication = nil #clear auth hash
     RequestStore.rails_request = request

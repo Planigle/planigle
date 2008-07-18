@@ -11,6 +11,7 @@ class StoriesControllerTest < ActionController::TestCase
   include ControllerResourceHelper
   include StoriesTestHelper
 
+  fixtures :systems
   fixtures :individuals
   fixtures :stories
   fixtures :projects

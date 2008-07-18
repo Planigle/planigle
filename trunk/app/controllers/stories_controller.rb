@@ -25,6 +25,8 @@ class StoriesController < ResourceController
         create
       end
     end
+  rescue ActiveRecord::RecordNotFound
+    head 404
   end
   
   # Update the surveys if the story is unaccepted.
@@ -37,25 +39,15 @@ class StoriesController < ResourceController
         Survey.update_rankings(@record.project).each {|story| story.save(false)}
       end
     end
+  rescue ActiveRecord::RecordNotFound
+    head 404
   end
 
 protected
 
   # Get the records based on the current individual.
   def get_records
-    if params[:iteration_id]
-      if current_individual.role >= Individual::ProjectAdmin or project_id
-        Story.find(:all, :include => :tasks, :conditions => ["iteration_id = ? and project_id = ?", params[:iteration_id], project_id], :order => 'priority')
-      else
-        Story.find(:all, :include => :tasks, :conditions => ["iteration_id = ?", params[:iteration_id]], :order => 'priority')
-      end
-    else
-      if current_individual.role >= Individual::ProjectAdmin or project_id
-        Story.find(:all, :include => :tasks, :conditions => ["project_id = ?", project_id], :order => 'priority')
-      else
-        Story.find(:all, :include => :tasks, :order => 'priority')
-      end
-    end
+    Story.get_records(current_individual, params[:iteration_id])
   end
 
   # Answer the current record based on the current individual.

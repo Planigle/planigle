@@ -94,7 +94,7 @@
 		// Show the details for the selected survey.
 		public function showDetails(event:Event):void
 		{
-			if (surveysResourceGrid.selectedItem.id)
+			if (surveysResourceGrid.selectedItem)
 			{
 				currentState = "Details";
 				detailsGet.url = "surveys/" + surveysResourceGrid.selectedItem.id + ".xml";

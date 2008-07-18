@@ -5,14 +5,10 @@ package org.planigle.planigle.commands
 	import mx.controls.Alert;
 	import mx.rpc.IResponder;
 	import org.planigle.planigle.business.StoriesDelegate;
-	import org.planigle.planigle.model.ViewModelLocator;
 	import org.planigle.planigle.model.StoryFactory;
-	import org.planigle.planigle.model.ViewModelLocator;
 	
 	public class GetStoriesCommand implements ICommand, IResponder
 	{
-		public var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
-		
 		public function GetStoriesCommand()
 		{
 		}
@@ -30,14 +26,12 @@ package org.planigle.planigle.commands
 		public function result( event:Object ):void
 		{
 			StoryFactory.getInstance().populate(event.result as Array);
-			ViewModelLocator.getInstance().gotData();
 		}
 		
 		// Handle case where error occurs.
 		public function fault( event:Object ):void
 		{
 			Alert.show(event.fault.faultString);
-			ViewModelLocator.getInstance().gotData();
 		}
 	}
 }

@@ -6,6 +6,7 @@ class IterationsXmlTest < ActionController::IntegrationTest
   include ResourceHelper
   include IterationsTestHelper
 
+  fixtures :systems
   fixtures :individuals
   fixtures :iterations
   fixtures :projects

@@ -28,7 +28,7 @@ class Individual < ActiveRecord::Base
 
   # Prevent a user from submitting a crafted form that bypasses activation
   # Anything that the user can change should be added here.
-  attr_accessible :login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled, :project_id, :role
+  attr_accessible :login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled, :project_id, :role, :last_login, :accepted_agreement
 
   Admin = 0
   ProjectAdmin = 1
@@ -99,6 +99,15 @@ class Individual < ActiveRecord::Base
   # Prettier method name for xml.
   def activated
     activated?
+  end
+
+  # Answer the records for a particular user.
+  def self.get_records(current_user)
+    if current_user.role >= Individual::ProjectAdmin
+      find(:all, :conditions => ["project_id = ? and role in (1,2,3)", current_user.project_id], :order => 'first_name, last_name')
+    else
+      find(:all, :order => 'first_name, last_name')
+    end
   end
 
   # Only project admins or higher can create individuals.

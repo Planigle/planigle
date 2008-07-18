@@ -18,6 +18,8 @@ package org.planigle.planigle.model
 		public var role:int;
 		public var activatedAt:Date;
 		public var enabled:Boolean;
+		public var lastLogin:Date;
+		public var acceptedAgreement:Date;
 		private static const ADMIN:int = 0;
 		private static const PROJECT_ADMIN:int = 1;
 		private static const PROJECT_USER:int = 2;
@@ -36,6 +38,10 @@ package org.planigle.planigle.model
 			var activatedDate:String = xml.child("activated-at");
 			activatedAt = activatedDate == "" ? null : DateUtils.stringToDate(activatedDate);
 			enabled = xml.enabled == "true";
+			var loginDate:String = xml.child("last-login");
+			lastLogin = loginDate == "" ? null : DateUtils.stringToDate(loginDate);
+			var acceptedDate:String = xml.child("accepted-agreement");
+			acceptedAgreement = acceptedDate == "" ? null : DateUtils.stringToDate(acceptedDate);
 		}
 
 		// Answer my full name.
@@ -87,25 +93,25 @@ package org.planigle.planigle.model
 		// Answer whether I am an admin.
 		public function isAdmin():Boolean
 		{
-			return role == ADMIN
+			return role == ADMIN;
 		}
 		
 		// Answer whether I am an admin.
 		public function isAtLeastProjectAdmin():Boolean
 		{
-			return role <= PROJECT_ADMIN
+			return role <= PROJECT_ADMIN;
 		}
 		
 		// Answer whether I am an admin.
 		public function isAtLeastProjectUser():Boolean
 		{
-			return role <= PROJECT_USER
+			return role <= PROJECT_USER;
 		}
 		
 		// Answer whether I an admin only (no project).
 		public function isAdminOnly():Boolean
 		{
-			return projectId == ""
+			return !projectId;
 		}
 	}
 }

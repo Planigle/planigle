@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class StoryTest < ActiveSupport::TestCase
+  fixtures :individuals
   fixtures :stories
   fixtures :projects
   fixtures :tasks
@@ -139,6 +140,14 @@ class StoryTest < ActiveSupport::TestCase
   def test_status_code_mapping
     mapping = Story.status_code_mapping
     assert_equal ['Created',0], mapping[0]
+  end
+
+  # Test finding individuals for a specific user.
+  def test_find
+    assert_equal Story.count, Story.get_records(individuals(:quentin)).length
+    assert_equal Story.find_all_by_project_id(1).length, Story.get_records(individuals(:aaron)).length
+    assert_equal Story.find_all_by_project_id(1).length, Story.get_records(individuals(:user)).length
+    assert_equal Story.find_all_by_project_id(1).length, Story.get_records(individuals(:readonly)).length
   end
 
 private

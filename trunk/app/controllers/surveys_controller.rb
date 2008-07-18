@@ -54,6 +54,8 @@ class SurveysController < ApplicationController
         end
       end
     end
+  rescue ActiveRecord::RecordNotFound
+    head 404
   end
 
   # List the existing surveys.
@@ -70,6 +72,8 @@ class SurveysController < ApplicationController
     else
       unauthorized
     end
+  rescue ActiveRecord::RecordNotFound
+    head 404
   end
 
   # Update the survey (currently can only mark as excluded)
@@ -116,5 +120,7 @@ class SurveysController < ApplicationController
     else
       unauthorized
     end
+  rescue ActiveRecord::RecordNotFound
+    head 404
   end
 end

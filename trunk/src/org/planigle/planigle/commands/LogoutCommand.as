@@ -27,13 +27,11 @@ package org.planigle.planigle.commands
 		// Handle successful server request.
 		public function result( event:Object ):void
 		{
-			var result:XML = XML(event.result);
-			if (result.error.length() > 0)
-				Alert.show(result.error);
-			else
-			{
+			var result:Object = event.result;
+			if (result == 'success')
 				viewModelLocator.workflowState = ViewModelLocator.LOGIN_SCREEN;
-			}
+			else
+				Alert.show(result.error);
 		}
 		
 		// Handle case where error occurs.

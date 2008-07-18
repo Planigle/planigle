@@ -68,6 +68,23 @@ class Story < ActiveRecord::Base
     end
     super(options)
   end
+
+  # Answer the records for a particular user.
+  def self.get_records(current_user, iteration_id=nil)
+    if iteration_id
+      if current_user.role >= Individual::ProjectAdmin or current_user.project_id
+        Story.find(:all, :include => :tasks, :conditions => ["iteration_id = ? and project_id = ?", iteration_id, current_user.project_id], :order => 'priority')
+      else
+        Story.find(:all, :include => :tasks, :conditions => ["iteration_id = ?", iteration_id], :order => 'priority')
+      end
+    else
+      if current_user.role >= Individual::ProjectAdmin or current_user.project_id
+        Story.find(:all, :include => :tasks, :conditions => ["project_id = ?", current_user.project_id], :order => 'priority')
+      else
+        Story.find(:all, :include => :tasks, :order => 'priority')
+      end
+    end
+  end
   
   # Only project users or higher can create stories.
   def authorized_for_create?(current_user)

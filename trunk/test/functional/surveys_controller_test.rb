@@ -6,6 +6,7 @@ class SurveysController; def rescue_action(e) raise e end; end
 
 class SurveysControllerTest < ActionController::TestCase
 
+  fixtures :systems
   fixtures :individuals
   fixtures :projects
   fixtures :stories

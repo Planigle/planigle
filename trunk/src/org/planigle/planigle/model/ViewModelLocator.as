@@ -21,28 +21,14 @@ package org.planigle.planigle.model
 				instance = new ViewModelLocator(new SingletonEnforcer);
 			return instance;
 		}
-
-		// Keep track of whether we are waiting for data.
-		public function waitingForData():void
-		{
-			dataCount++
-		}
-
-		// We are no longer waiting for data.
-		public function gotData():void
-		{
-			dataCount--
-			if (dataCount == 0) // Can now show the screen
-				workflowState = ViewModelLocator.CORE_APPLICATION_SCREEN;
-		}
 		
 		// Variables
 		public var workflowState:uint = 0;
-		private var dataCount:int = 0;
 	
 		// Constants
-		public static const LOGIN_SCREEN:uint = 0;
-		public static const CORE_APPLICATION_SCREEN:uint = 1;
+		public static const LICENSE_AGREEMENT_SCREEN:uint = 1;
+		public static const LOGIN_SCREEN:uint = 2;
+		public static const CORE_APPLICATION_SCREEN:uint = 3;
 	}
 }
 

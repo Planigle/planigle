@@ -6,6 +6,7 @@ class StoryTasksXmlTest < ActionController::IntegrationTest
   include ResourceHelper
   include TasksTestHelper
 
+  fixtures :systems
   fixtures :individuals
   fixtures :stories
   fixtures :tasks

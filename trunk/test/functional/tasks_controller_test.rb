@@ -10,6 +10,7 @@ class TasksControllerTest < ActionController::TestCase
   include ControllerResourceHelper
   include TasksTestHelper
 
+  fixtures :systems
   fixtures :individuals
   fixtures :tasks
     

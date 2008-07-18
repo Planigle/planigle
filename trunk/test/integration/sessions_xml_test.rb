@@ -2,6 +2,7 @@ require "#{File.dirname(__FILE__)}/../test_helper"
 require "application"
 
 class SessionsXmlTest < ActionController::IntegrationTest
+  fixtures :systems
   fixtures :individuals
   
   # Test a successful login (without headers).

@@ -6,12 +6,9 @@ package org.planigle.planigle.commands
 	import mx.rpc.IResponder;
 	import org.planigle.planigle.business.ProjectsDelegate;
 	import org.planigle.planigle.model.ProjectFactory;
-	import org.planigle.planigle.model.ViewModelLocator;
 	
 	public class GetProjectsCommand implements ICommand, IResponder
 	{
-		public var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
-		
 		public function GetProjectsCommand()
 		{
 		}
@@ -29,14 +26,12 @@ package org.planigle.planigle.commands
 		public function result( event:Object ):void
 		{
 			ProjectFactory.getInstance().populate(event.result as Array);
-			ViewModelLocator.getInstance().gotData();
 		}
 		
 		// Handle case where error occurs.
 		public function fault( event:Object ):void
 		{
 			Alert.show(event.fault.faultString);
-			ViewModelLocator.getInstance().gotData();
 		}
 	}
 }

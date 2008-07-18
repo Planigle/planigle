@@ -5,7 +5,6 @@ class ApplicationController < ActionController::Base
   include AuthenticatedSystem # Enables the Restful Authentication plug-in
   
   # before_filter :debug # Uncomment to enable output of debug logging.
-  around_filter :catch_exceptions
   after_filter :change_response
 
   # Pick a unique cookie name to distinguish our session data from others'
@@ -41,13 +40,6 @@ protected
     request.format == Mime::XML && (!request.path.include?('.xml') || request.user_agent == 'Rails Testing') # Flex works around lack of Accept header by requesting .xml.
   end
 
-  # Return a 404 if invalid object.
-  def catch_exceptions
-    yield
-  rescue ActiveRecord::RecordNotFound
-    head 404
-  end
-  
   # Render as unauthorized (note that since this is frequently called in a filter that cancels future
   # filters, we need to make sure we return a status code that Flex will like (if in use).
   def unauthorized

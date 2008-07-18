@@ -10,6 +10,7 @@ class ProjectsControllerTest < ActionController::TestCase
   include ControllerResourceHelper
   include ProjectsTestHelper
 
+  fixtures :systems
   fixtures :individuals
   fixtures :projects
     

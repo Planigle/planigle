@@ -61,6 +61,14 @@ class ProjectTest < ActiveSupport::TestCase
     assert_tag( survey, :priority)
   end
 
+  # Test finding individuals for a specific user.
+  def test_find
+    assert_equal Project.count, Project.get_records(individuals(:quentin)).length
+    assert_equal 1, Project.get_records(individuals(:aaron)).length
+    assert_equal 1, Project.get_records(individuals(:user)).length
+    assert_equal 1, Project.get_records(individuals(:readonly)).length
+  end
+
 private
 
   # Create an project with valid values.  Options will override default values (should be :attribute => value).
