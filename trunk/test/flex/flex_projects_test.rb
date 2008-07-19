@@ -113,11 +113,11 @@ private
     
     create_project('zfoo 1', 'description')
 
-    assert !@ie.form_item("projectFormSurveyUrl").visible
-    @ie.combo_box("projectFieldSurveyMode").open
-    @ie.combo_box("projectFieldSurveyMode").select(:item_renderer => "Public by Default")
     assert @ie.form_item("projectFormSurveyUrl").visible
     assert_equal "Will be assigned on creation", @ie.label("projectLabelSurveyUrl").text
+    @ie.combo_box("projectFieldSurveyMode").open
+    @ie.combo_box("projectFieldSurveyMode").select(:item_renderer => "Private")
+    assert !@ie.form_item("projectFormSurveyUrl").visible
 
     @ie.button("projectBtnChange").click
 
@@ -127,7 +127,7 @@ private
     assert_equal '', @ie.text_area("projectFieldDescription").text
     assert_not_nil @ie.button("projectBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("projectResourceGrid").num_rows
-    assert_equal "zfoo 1,description,Public by Default,Edit | Delete", @ie.data_grid("projectResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
+    assert_equal "zfoo 1,description,Private,Edit | Delete", @ie.data_grid("projectResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
     @ie.button("projectBtnCancel").click
   end
     

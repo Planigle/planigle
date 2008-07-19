@@ -53,6 +53,7 @@ private
   def login_failed
     sleep 1 # Wait to ensure remember me check is made
     login('quentin', 'testi')
+    sleep 1
     assert_not_nil(@ie.alert("Login Error"))
     @ie.alert("Login Error").button("OK").click
     assert_nil @ie.button("logoutButton")
