@@ -69,7 +69,7 @@
 			projectFieldName.setFocus();
 			projectFieldName.text = '';
 			projectFieldDescription.text = '';
-			projectFieldSurveyMode.selectedIndex = 0;
+			projectFieldSurveyMode.selectedIndex = 1;
 			projectLabelSurveyUrl.text = "Will be assigned on creation";
 			projectBtnChange.label = 'Create';
 		}

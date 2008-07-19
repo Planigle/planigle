@@ -189,6 +189,7 @@
 			var core:Core = Core(coreApp.getChildAt(0));
 			var stories:StoriesTab = StoriesTab(core.mainViewStack.getChildByName("Stories"));
 			stories.release.selectedIndex = ReleaseFactory.getInstance().releases.length + 1;
+			stories.handleFilter(null); // ensure filter affect occurs.
 			stories.iteration.selectedItem = iterationResourceGrid.selectedItem;
 			stories.handleFilter(null); // ensure filter affect occurs.
 			core.mainViewStack.selectedChild = stories;
