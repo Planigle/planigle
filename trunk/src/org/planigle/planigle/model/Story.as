@@ -38,12 +38,12 @@ package org.planigle.planigle.model
 			name = xml.name;
 			description = xml.description;
 			acceptanceCriteria = xml.child("acceptance-criteria");
-			releaseId = xml.child("release-id");
-			iterationId = xml.child("iteration-id");
-			individualId = xml.child("individual-id");
+			releaseId = xml.child("release-id") == "" ? null : xml.child("release-id");
+			iterationId = xml.child("iteration-id") == "" ? null : xml.child("iteration-id");
+			individualId = xml.child("individual-id") == "" ? null : xml.child("individual-id");
 			effort = xml.effort;
 			statusCode = xml.child("status-code");
-			isPublic = xml.child("is_public") == "true";
+			isPublic = xml.child("is-public") == "true";
 			priority = xml.priority;
 			userPriority = xml.child("user-priority");
 

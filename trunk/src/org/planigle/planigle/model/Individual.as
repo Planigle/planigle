@@ -28,8 +28,8 @@ package org.planigle.planigle.model
 		// Populate myself from XML.
 		public function populate(xml:XML):void
 		{
-			id = xml.id == "" ? null: xml.id;
-			projectId = xml.child("project-id");
+			id = xml.id;
+			projectId = xml.child("project-id") == "" ? null : xml.child("project-id");
 			login = xml.login;
 			email = xml.email;
 			firstName = xml.child("first-name");

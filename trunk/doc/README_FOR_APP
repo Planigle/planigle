@@ -15,7 +15,6 @@ Cairngorm (Flex library) - BSD
 Flex automation libraries - MPL (included for build convenience; part of Flex SDK)
 
 Required Gems:
-fastercsv - GPLv2
 FunFX - MIT (from http://rubyforge.org/projects/funfx/)
 
 Suggested Gems:

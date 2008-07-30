@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="500" height="250">
+	<mx:Script>
+		<![CDATA[
+			// Update items provided via items variable..
+			import mx.managers.PopUpManager;
+			import mx.collections.ArrayCollection;
+			import org.planigle.planigle.model.ReleaseFactory;
+			import org.planigle.planigle.model.Release;
+			import org.planigle.planigle.model.IterationFactory;
+			import org.planigle.planigle.model.Iteration;
+			import org.planigle.planigle.model.IndividualFactory;
+			import org.planigle.planigle.model.Individual;
+			
+			private var release:Release;
+			private var items:ArrayCollection = new ArrayCollection();
+			private var updateFunction:Function;
+			private var updateCompleteFunction:Function;
+
+			[Bindable]
+			private var iterations:ArrayCollection = new ArrayCollection();
+
+			[Bindable]
+			private var releases:ArrayCollection = new ArrayCollection();
+
+			[Bindable]
+			private var individuals:ArrayCollection = new ArrayCollection();
+
+			public function init(release:Release, items:ArrayCollection, updateFunction:Function, updateCompleteFunction:Function):void
+			{
+				this.release = release;
+				this.items = items;
+				this.updateFunction = updateFunction;
+				this.updateCompleteFunction = updateCompleteFunction;
+
+				var noChange:Object = new Object();
+				noChange.name = "No Change";
+				noChange.fullName = "No Change";
+				noChange.id = "-1";
+
+				iterations.addItem(noChange);
+				for each (var iteration:Iteration in IterationFactory.getInstance().iterationsInRelease(release))
+					iterations.addItem(iteration);
+
+				releases.addItem(noChange);
+				for each (var release:Release in ReleaseFactory.getInstance().releaseSelector)
+					releases.addItem(release);
+
+				individuals.addItem(noChange);
+				for each (var individual:Individual in IndividualFactory.getInstance().individualSelector)
+					individuals.addItem(individual);
+			}
+						
+			// Update the specified items.
+			private function updateItems(event:Event):void
+			{
+				var params:Object = new Object();
+				if (updateFieldIteration.selectedItem.id != "-1")
+					params['record[iteration_id]'] = updateFieldIteration.selectedItem.id ? updateFieldIteration.selectedItem.id : ""
+				if (updateFieldRelease.selectedItem.id != "-1")
+					params['record[release_id]'] = updateFieldRelease.selectedItem.id ? updateFieldRelease.selectedItem.id : ""
+				if (updateFieldOwner.selectedItem.id != "-1")
+					params['record[individual_id]'] = updateFieldOwner.selectedItem.id ? updateFieldOwner.selectedItem.id : ""
+				if (updateFieldStatus.selectedItem.value != "-1")
+					params['record[status_code]'] = updateFieldStatus.selectedItem.value
+				if (updateFieldPublic.selectedItem.value != "-1")
+					params['record[is_public]'] = updateFieldPublic.selectedItem.value
+
+				for (var key:Object in params)
+				{
+					for each (var item:Object in items)
+						updateFunction( item, params );
+					updateCompleteFunction();
+					break; // This is a hack to ensure that update is only called if something has changed.
+				}
+				PopUpManager.removePopUp(this);
+			}
+
+			// Update the release based on the change to the iteration.
+			public function updateRelease():void
+			{
+				updateFieldRelease.selectedItem = (release.id == "-1" || !release.id) ? updateFieldIteration.selectedItem.defaultRelease() : release;
+			}
+		]]>
+	</mx:Script>
+	<mx:Form defaultButton="{updateBtnOk}" width="100%" height="100%">
+			<mx:FormItem label="Iteration" id="form_iteration">
+				<mx:ComboBox id='updateFieldIteration' width="350" editable="false" dataProvider="{iterations}" labelField="name" change="updateRelease()"></mx:ComboBox>
+			</mx:FormItem>
+			<mx:FormItem label="Release" id="form_release">
+				<mx:ComboBox id='updateFieldRelease' width="350" editable="false" dataProvider="{releases}" labelField="name"></mx:ComboBox>
+			</mx:FormItem>
+			<mx:FormItem label='Owner'>
+				<mx:ComboBox id='updateFieldOwner' width="350" editable="false" dataProvider="{individuals}" labelField="fullName"></mx:ComboBox>
+			</mx:FormItem>
+			<mx:FormItem label='Status'>
+				<mx:ComboBox id='updateFieldStatus' width="350" editable="false">
+					<mx:Object label="No Change" value="-1" />
+					<mx:Object label="Created" value="0" />
+					<mx:Object label="In Progress" value="1" />
+					<mx:Object label="Accepted" value="2" />
+				</mx:ComboBox>
+			</mx:FormItem>
+			<mx:FormItem label='Public' id="form_public">
+				<mx:ComboBox id='updateFieldPublic' width="350" editable="false">
+					<mx:Object label="No Change" value="-1" />
+					<mx:Object label="true" value='true' />
+					<mx:Object label="false" value='false' />
+				</mx:ComboBox>
+			</mx:FormItem>
+		<mx:HBox y="270" width="100%" horizontalAlign="center">
+			<mx:Button id="updateBtnOk" label="OK" click="updateItems(event)"/>
+			<mx:Button id="updateBtnCancel" label="Cancel" click="PopUpManager.removePopUp(this)"/>
+		</mx:HBox>	
+	</mx:Form>
+</mx:TitleWindow>

@@ -23,7 +23,7 @@ package org.planigle.planigle.model
 			id = xml.id;
 			name = xml.name;
 			description = xml.description;
-			individualId = xml.child("individual-id");
+			individualId = xml.child("individual-id") == "" ? null : xml.child("individual-id");
 			effort = xml.effort;
 			statusCode = xml.child("status-code");
 		}
