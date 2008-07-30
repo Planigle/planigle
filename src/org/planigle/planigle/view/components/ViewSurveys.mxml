@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" height="100%" y="0" width="100%" x="0" creationComplete="created(event)">
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" height="100%" y="0" width="100%" x="0" creationComplete="created(event)" borderThicknessLeft="0" borderThicknessRight="0" headerHeight="0">
 	<mx:Metadata>
 		[Event(name="done", type="flash.events.Event")]
 	</mx:Metadata>
@@ -113,8 +113,8 @@
 			{
 				var story:Story = StoryFactory.getInstance().find( int(detail.child("story-id")) );
 				detail.name = story.name;
-				detail.description = story.description;
-				detail.systemPriority = story.priority;
+				detail.description = story.description ? story.description : "";
+				detail.normalizedPriority = story.normalizedPriority;
 			}
 			clearErrorMessage();
 		}
@@ -163,7 +163,7 @@
 						<mx:columns>
 							<mx:DataGridColumn headerText="Name" width="350" dataField="name"/>
 							<mx:DataGridColumn headerText="Description" labelFunction="limitDescription" dataField="description" showDataTips="true" dataTipField="description"/>
-							<mx:DataGridColumn headerText="Priority" width="80" dataField="systemPriority"/>
+							<mx:DataGridColumn headerText="Priority" width="80" dataField="normalizedPriority"/>
 							<mx:DataGridColumn headerText="User Priority" width="80" dataField="priority"/>
 						</mx:columns>
 					</mx:DataGrid>
@@ -184,7 +184,7 @@
 			<mx:Sequence targets="{[combinedPanel]}">
 				<mx:RemoveChildAction/>
 				<mx:SetPropertyAction target="{combinedPanel}" name="height" value="150"/>
-				<mx:Resize duration="500" target="{combinedPanel}"/>
+				<mx:Resize target="{combinedPanel}"/>
 				<mx:AddChildAction/>
 			</mx:Sequence>
 		</mx:Transition>
@@ -193,7 +193,7 @@
 			<mx:Sequence targets="{[combinedPanel]}">
 				<mx:RemoveChildAction/>
 				<mx:SetPropertyAction target="{combinedPanel}" name="height" value="{gridHeight}"/>
-				<mx:Resize duration="500" target="{combinedPanel}"/>
+				<mx:Resize target="{combinedPanel}"/>
 				<mx:AddChildAction/>
 			</mx:Sequence>
 		</mx:Transition>
@@ -234,4 +234,4 @@
 			</mx:columns>
 		</mx:DataGrid>
 	</mx:Canvas>
-</mx:Canvas>
+</mx:Panel>

@@ -150,7 +150,9 @@ protected
   
   # Set the initial priority to the number of stories (+1 for me).  Set public to false if not set.
   def initialize_defaults
-    highest = Story.find(:first, :order=>'priority desc')
-    self.priority = highest ? highest.priority + 1 : 1
+    if !self.priority      
+      highest = Story.find(:first, :order=>'priority desc')
+      self.priority = highest ? highest.priority + 1 : 1
+    end
   end
 end
