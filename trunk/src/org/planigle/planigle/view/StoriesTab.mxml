@@ -48,9 +48,13 @@
 		[Bindable] // List of stories (filtered for selected iteration)
 		private var filteredStories:ArrayCollection = new ArrayCollection();
 
+		[Bindable]
+		private var panelHeight:int;
+
 		// Set up event listeners.  Called when the canvas has been created.
 		private function created(event:Event):void
 		{
+			panelHeight = combinedPanel.height;
 			ChangeWatcher.watch( factory, "currentIndividual", resetState ); // Reset if log out / logged back in
 			ChangeWatcher.watch( ReleaseFactory.getInstance(), "releaseSelector", updateReleaseFilterList );
 			ChangeWatcher.watch( IterationFactory.getInstance(), "iterationSelector", updateIterationFilterList );
@@ -469,6 +473,7 @@
 					storyFieldName.setSelection(0, storyFieldName.text.length );
 					}
 				storyFieldIteration.selectedItem = IterationFactory.getInstance().find(currentItem.iterationId).next();
+				storyFieldStatus.selectedIndex = 0; // Set to created
 				storyBtnChange.label = 'Split';
 			}
 		}
@@ -525,7 +530,14 @@
 				handleUpdateSuccess(); // Prime the processing.
 			}
 			else
-				currentItem.split(getParams(currentItem.isStory()), handleSuccess, handleFailure);
+			{	// Split and default to priority between current story and next in priority
+				var params:Object = getParams(true);
+				var allStories:ArrayCollection = StoryFactory.getInstance().stories;
+				var index:int = allStories.getItemIndex(currentItem);
+				var nextPriority:int = index + 1 == allStories.length ? currentItem.priority + 1 : allStories.getItemAt( index + 1 ).priority;
+				params['record[priority]'] = Number(currentItem.priority + nextPriority) / 2;
+				currentItem.split(params, handleSuccess, handleFailure);
+			}
 		}
 
 		// Update an item.
@@ -764,6 +776,7 @@
 			<mx:Sequence targets="{[combinedPanel]}">
 				<mx:RemoveChildAction/>
 				<mx:SetPropertyAction target="{combinedPanel}" name="visible" value="false"/>
+				<mx:SetPropertyAction target="{combinedPanel}" name="height" value="0"/>
 				<mx:Resize target="{combinedPanel}"/>
 				<mx:AddChildAction/>
 			</mx:Sequence>
@@ -773,6 +786,7 @@
 			<mx:Sequence targets="{[combinedPanel]}">
 				<mx:RemoveChildAction/>
 				<mx:SetPropertyAction target="{combinedPanel}" name="visible" value="true"/>
+				<mx:SetPropertyAction target="{combinedPanel}" name="height" value="{panelHeight}"/>
 				<mx:Resize target="{combinedPanel}"/>
 				<mx:AddChildAction/>
 			</mx:Sequence>
