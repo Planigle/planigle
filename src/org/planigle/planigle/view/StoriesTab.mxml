@@ -534,8 +534,8 @@
 				var params:Object = getParams(true);
 				var allStories:ArrayCollection = StoryFactory.getInstance().stories;
 				var index:int = allStories.getItemIndex(currentItem);
-				var nextPriority:int = index + 1 == allStories.length ? currentItem.priority + 1 : allStories.getItemAt( index + 1 ).priority;
-				params['record[priority]'] = Number(currentItem.priority + nextPriority) / 2;
+				var nextPriority:Number = index + 1 == allStories.length ? currentItem.priority + 1 : allStories.getItemAt( index + 1 ).priority;
+				params['record[priority]'] = (currentItem.priority + nextPriority) / 2;
 				currentItem.split(params, handleSuccess, handleFailure);
 			}
 		}
