@@ -10,7 +10,6 @@ class TaskTest < ActiveSupport::TestCase
     assert_difference 'Task.count' do
       task = create_task
       assert !task.new_record?, "#{task.errors.full_messages.to_sentence}"
-      assert_equal individuals(:aaron), task.individual # Tasks inherit the owner of their story.
     end
   end
 

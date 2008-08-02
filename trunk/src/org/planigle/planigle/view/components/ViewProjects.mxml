@@ -149,6 +149,7 @@
 		{
 			item.destroy(handleSuccess,handleFailure);
 			projectResourceGrid.selectedItem = null;
+			projectSelected(null); // Deletion can affect selection; ensure event is sent
 		}
 		
 		// Handle a successful create.

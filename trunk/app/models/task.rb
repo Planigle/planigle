@@ -23,19 +23,6 @@ class Task < ActiveRecord::Base
     valid_status_values.collect { |val| i+=1;[val, i] }
   end
 
-  # A task should inherit its owner from its story.
-  def story=(story)
-    if !self.individual_id
-      self.individual_id = story.individual_id
-    end
-    write_attribute(:story_id, story.id)
-  end
-  
-  # A task should inherit its owner from its story.
-  def story_id=(story_id)
-    self.story=(Story.find(story_id))
-  end
-
   # Answer my status in a user friendly format.
   def status
     StatusMapping[status_code]
