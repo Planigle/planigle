@@ -7,7 +7,7 @@ class IndividualsController < ResourceController
     if (individual = Individual.activate(params[:activation_code]))
       individual.save(false)
     end
-    redirect_back_or_default('/')
+    redirect_to(ENV['url_after_activate'] ? ENV['url_after_activate'] : '/')
   end
 
 protected
