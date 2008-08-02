@@ -46,6 +46,33 @@ class FlexSessionTest < Test::Unit::TestCase
     sleep 5 # Wait for data to load
     assert @ie.button("logoutButton")
   end
+  
+  # Test signing up for an account.
+  def test_signup
+    @ie.button("signupButton").click
+    @ie.text_area("signupFieldName").input(:text => ' ' )
+    @ie.text_area("signupFieldDescription").input(:text => 'description' )
+    @ie.text_area("signupFieldLogin").input(:text => 'login' )
+    @ie.text_area("signupFieldPassword").input(:text => 'password' )
+    @ie.text_area("signupFieldPasswordConfirmation").input(:text => 'password' )
+    @ie.text_area("signupFieldEmail").input(:text => 'xzcvg@kasjhuj.com' )
+    @ie.text_area("signupFieldFirstName").input(:text => 'test' )
+    @ie.text_area("signupFieldLastName").input(:text => 'ignore' )    
+    @ie.button("okButton").click
+    assert_equal "Name can't be blank", @ie.text_area("projectError").text
+    @ie.text_area("signupFieldName").input(:text => 'foobar' )
+    @ie.button("okButton").click
+    assert_equal "You have successfully signed up for Planigle.  Shortly, you will receive an email to complete the signup process.", @ie.text_area("projectError").text
+    assert_nil @ie.button("okButton")
+    assert_nil @ie.button("cancelButton")
+  end
+
+  # Test canceling signing up.
+  def test_signup
+    @ie.button("signupButton").click
+    @ie.button("cancelButton").click
+    assert @ie.button("loginButton").visible
+  end
 
 private
   

@@ -148,6 +148,7 @@
 		private function deleteResource(item:Object):void
 		{
 			item.destroy(handleSuccess,handleFailure);
+			projectResourceGrid.selectedItem = null;
 		}
 		
 		// Handle a successful create.

@@ -156,7 +156,7 @@
 		private function deleteResource(resource:Object):void
 		{
 			resource.destroy(handleSuccess, handleFailure);
-			releaseSelected(null); // Deletion can affect selection; ensure event is sent
+			releaseResourceGrid.selectedItem = null;
 		}
 		
 		// Handle a successful create.

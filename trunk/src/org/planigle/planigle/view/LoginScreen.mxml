@@ -30,6 +30,12 @@
 				var loginEvent:LoginEvent = new LoginEvent( new LoginVO(userID.text, userPassword.text, rememberMe.selected) );		
 				loginEvent.dispatch();
 			}
+			
+			// Handle the user signing up for an account.
+			private function signupForAccount(event:MouseEvent):void
+			{
+				ViewModelLocator.getInstance().workflowState = ViewModelLocator.SIGNUP;
+			}
 		]]>
 	</mx:Script>
 	
@@ -48,5 +54,6 @@
 		</mx:Form>
 		<mx:Button label="Login" id="loginButton"
 			click="loginClickHandler(event)"/>
+		<mx:LinkButton id="signupButton" label="Click here to get a free account" fontSize="10" color="0x000000" click="signupForAccount(event)"/>
 	</mx:Panel>
 </mx:VBox>

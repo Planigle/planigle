@@ -333,8 +333,8 @@
 		// Prepare the form for a story.
 		private function prepareForStory():void
 		{
-			storyFieldName.maxChars=40;
-			storyFieldName.width=350;
+			storyFieldName.maxChars=250;
+			storyFieldName.width=700;
 			storyFormRelease.height = ReleaseFactory.getInstance().releaseSelector.length > 1 ? 22 : 0;
 			storyFormRelease.visible = ReleaseFactory.getInstance().releaseSelector.length > 1;
 			storyFormIteration.height = 22;
@@ -348,8 +348,8 @@
 		// Prepare the form for a task.
 		private function prepareForTask():void
 		{
-			storyFieldName.maxChars=250;
-			storyFieldName.width=700;
+			storyFieldName.maxChars=40;
+			storyFieldName.width=350;
 			storyFormRelease.height = 0;
 			storyFormRelease.visible = false;
 			storyFormIteration.height = 0;
