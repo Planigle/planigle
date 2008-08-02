@@ -336,8 +336,8 @@ private
   def delete_multiple
     @ie.combo_box("storyStatus").select(:item_renderer => 'All Statuses' )
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
-    @ie.data_grid("storyResourceGrid").select(:item_renderer => "foo")
-    @ie.data_grid("storyResourceGrid").select(:item_renderer => "test4", :ctrl_key => "true")
+    @ie.data_grid("storyResourceGrid").select(:item_renderer => "test2")
+    @ie.data_grid("storyResourceGrid").select(:item_renderer => "test3", :ctrl_key => "true")
     @ie.button("storyBtnDeleteMultiple").click
     @ie.alert("Delete")[0].button("Yes").click
     assert_equal '', @ie.text_area("storyError").text

@@ -13,7 +13,46 @@ class ProjectsControllerTest < ActionController::TestCase
   fixtures :systems
   fixtures :individuals
   fixtures :projects
-    
+
+  def setup
+    ActionMailer::Base.delivery_method = :test
+    ActionMailer::Base.perform_deliveries = true
+    ActionMailer::Base.deliveries = []
+    IndividualMailer.admin_email = 'testxyz@testxyz.com'
+    IndividualMailer.site = 'www.testxyz.com'
+    super
+  end
+
+  # Test successfully signing up.
+  def test_signup_success
+    ActionMailer::Base.deliveries = []
+    num = resource_count
+    individuals = Individual.count
+    post :create, create_success_parameters.merge( {:individual => {:login => 'foo', :email => 'foo@sample.com', :last_name => 'bar', :role => 1, :project_id => 1,
+      :first_name => 'foo', :password => 'testit', :password_confirmation => 'testit'}} )
+    assert_equal num + 1, resource_count
+    assert_equal individuals + 1, Individual.count
+    assert_create_succeeded
+    assert_equal 2, ActionMailer::Base.deliveries.length
+    assert_select "project"
+    assert_select "individual"
+  end
+
+  # Test signing up unsuccessfully.
+  def test_signup_failure
+    ActionMailer::Base.deliveries = []
+    num = resource_count
+    individuals = Individual.count
+    post :create, create_success_parameters.merge( {:individual => {:login => '', :email => 'foo@sample.com', :last_name => 'bar', :role => 1, :project_id => 1,
+      :first_name => 'foo', :password => 'testit', :password_confirmation => 'testit'}} )
+    assert_response :success
+    assert_equal num, resource_count
+    assert_equal individuals, Individual.count
+    assert_change_failed
+    assert_equal 0, ActionMailer::Base.deliveries.length
+    assert_select "errors"
+  end
+  
   # Test getting projects (based on role).
   def test_index_by_admin
     index_by_role(individuals(:quentin), Project.count)
