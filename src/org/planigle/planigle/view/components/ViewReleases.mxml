@@ -157,6 +157,7 @@
 		{
 			resource.destroy(handleSuccess, handleFailure);
 			releaseResourceGrid.selectedItem = null;
+			releaseSelected(null); // Deletion can affect selection; ensure event is sent
 		}
 		
 		// Handle a successful create.

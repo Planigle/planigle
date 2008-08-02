@@ -110,7 +110,7 @@
 				<mx:TextInput id='fieldEmail' maxChars="100" text='' width="350"/>
 			</mx:FormItem>
 		</mx:Form>
-		<mx:DataGrid id="resourceGrid" dataProvider="{stories}" width="100%" height="100%" dragEnabled="true" dropEnabled="true" dragMoveEnabled="true">
+		<mx:DataGrid id="resourceGrid" dataProvider="{stories}" width="100%" height="100%" dragEnabled="true" dropEnabled="true" dragMoveEnabled="true" allowMultipleSelection="true">
 			<mx:columns>
 				<mx:DataGridColumn headerText="Name" width="350" dataField="name" sortable="false"/>
 				<mx:DataGridColumn headerText="Description" labelFunction="limitDescription" sortable="false" showDataTips="true" dataTipField="description"/>
