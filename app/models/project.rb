@@ -1,6 +1,6 @@
 require 'digest/sha1'
 class Project < ActiveRecord::Base
-  has_many :individuals, :dependent => :destroy
+  has_many :individuals, :dependent => :nullify # Delete non-admins
   has_many :releases, :dependent => :destroy
   has_many :iterations, :dependent => :destroy
   has_many :stories, :dependent => :destroy
@@ -29,6 +29,12 @@ class Project < ActiveRecord::Base
   # Initialize the survey key to ensure we have a unique, non-guessable id for URLs.
   def initialize_defaults
     self.survey_key = Digest::SHA1.hexdigest( Time.now.to_s.split(//).sort_by {rand}.join )
+  end
+
+  # Delete all non-admins
+  def destroy
+    Individual.delete_all(["project_id = ? and role != 0", id])
+    super
   end
 
   ModeMapping = [ 'Private', 'Private by default', 'Public by default' ]

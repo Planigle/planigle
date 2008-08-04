@@ -177,7 +177,11 @@ package org.planigle.planigle.model
 			var task:Task = new Task();
 			task.populate(xml);
 			task.story = this;
-			var taskCollect:ArrayCollection = new ArrayCollection(tasks);
+
+			// Adjust my tasks
+			var taskCollect:ArrayCollection = new ArrayCollection();
+			for each (var oldTask:Task in tasks)
+				taskCollect.addItem(oldTask);
 			taskCollect.addItem(task);
 			tasks = taskCollect.source;
 

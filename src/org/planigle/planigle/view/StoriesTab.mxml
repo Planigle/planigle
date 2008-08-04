@@ -144,7 +144,7 @@
 			var newFilter:ArrayCollection = new ArrayCollection();
 			for each (var it:Iteration in IterationFactory.getInstance().iterationSelector)
 			{
-				if (release.selectedItem.id == "-1" || it.id == "-1" || it.id == null || it.isIn(Release(release.selectedItem)))
+				if (!release.selectedItem || release.selectedItem.id == "-1" || it.id == "-1" || it.id == null || it.isIn(Release(release.selectedItem)))
 				{
 					newFilter.addItem(it);
 					if (it.id == id)
@@ -248,8 +248,8 @@
 		// The iteration filter has changed.
 		public function handleFilter(event:Event):void
 		{
-			storyColumnIteration.visible = iteration.selectedItem.id == "-1";
-			storyColumnIndividual.visible = individual.selectedItem.id == "-1";
+			storyColumnIteration.visible = !iteration.selectedItem || iteration.selectedItem.id == "-1";
+			storyColumnIndividual.visible = !individual.selectedItem || individual.selectedItem.id == "-1";
 			var storiesAndTasks:ArrayCollection = new ArrayCollection;
 			for each (var story:Story in getFilteredStories())
 			{
@@ -596,9 +596,24 @@
 		// The user has reordered the stories.
 		private function handleReorder(event:DragEvent):void
 		{
-			var stories:ArrayCollection = filteredStories;
+			// Eliminate the tasks from the list
+			var stories:ArrayCollection = new ArrayCollection();
+			for each (var item:Object in filteredStories)
+				if (item.isStory()) stories.addItem(item);
+
+			// Get the items to move
 			var movedItems:Array = event.dragSource.dataForFormat("items") as Array;
+
+			// Get the new index
 			var newIndex:int = storyResourceGrid.calculateDropIndex(event);
+			if (newIndex == filteredStories.length)
+				newIndex = stories.length;
+			else if (filteredStories.getItemAt(newIndex).isStory())
+				newIndex = stories.getItemIndex(filteredStories.getItemAt(newIndex));
+			else
+				newIndex = stories.getItemIndex(filteredStories.getItemAt(newIndex).story) + 1;
+
+
 			var before:Number = -1;
 			var after:Number = -1;
 			for (var i:int = movedItems.length - 1; i >= 0; i--)
@@ -626,8 +641,8 @@
 					}
 					after = itemAtIndex.priority;
 				}
-				updateItem(story, {"record[priority]": (before+after)/2 });
 				before = (before+after)/2;
+				updateItem(story, {"record[priority]": before });
 			}
 			handleUpdateSuccess(); // Prime the processing.
 		}
@@ -680,7 +695,7 @@
 		// Answer whether to show existing (based on current selection and whether the user has rights).
 		public function shouldShowExisting():Boolean
 		{
-			return iteration.selectedItem.id != "-1" && factory.currentIndividual.isAtLeastProjectUser();
+			return iteration.selectedItem && iteration.selectedItem.id != "-1" && factory.currentIndividual.isAtLeastProjectUser();
 		}
 
 		// Update the release based on the change to the iteration.

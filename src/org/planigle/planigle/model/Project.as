@@ -2,6 +2,8 @@ package org.planigle.planigle.model
 {
 	import mx.collections.ArrayCollection;
 	
+	import org.planigle.planigle.model.IndividualFactory;
+	import org.planigle.planigle.model.Individual;
 	import org.planigle.planigle.commands.DeleteProjectCommand;
 	import org.planigle.planigle.commands.UpdateProjectCommand;
 
@@ -52,6 +54,17 @@ package org.planigle.planigle.model
 		// I have been successfully deleted.  Remove myself to reflect the changes.
 		public function destroyCompleted():void
 		{
+			for each (var individual:Individual in IndividualFactory.getInstance().individuals)
+				if (individual.projectId == id)
+				{
+					if (individual.role == 0)
+						individual.projectId = null;
+					else
+						individual.destroyCompleted();
+				}
+			if (IndividualFactory.getInstance().currentIndividual.projectId == id)
+				IndividualFactory.getInstance().currentIndividual.projectId = null;
+
 			// Create copy to ensure any views get notified of changes.
 			var projects:ArrayCollection = new ArrayCollection();
 			for each (var project:Project in ProjectFactory.getInstance().projects)

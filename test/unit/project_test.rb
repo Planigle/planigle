@@ -48,6 +48,8 @@ class ProjectTest < ActiveSupport::TestCase
     assert_nil Iteration.find_by_id(1)
     assert_nil Story.find_by_id(1)
     assert_nil Survey.find_by_id(1)
+    assert_nil Individual.find_by_id(2) # non-admin deleted
+    assert Individual.find_by_id(6) # admin set to nil
   end
 
   # Test the xml created for surveys.
