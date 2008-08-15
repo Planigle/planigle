@@ -6,6 +6,7 @@ package org.planigle.planigle.model
 	import org.planigle.planigle.model.Individual;
 	import org.planigle.planigle.commands.DeleteProjectCommand;
 	import org.planigle.planigle.commands.UpdateProjectCommand;
+	import org.planigle.planigle.commands.CreateTeamCommand;
 
 	[RemoteClass(alias='Project')]
 	[Bindable]
@@ -19,6 +20,10 @@ package org.planigle.planigle.model
 		private static const PRIVATE:int = 0;
 		private static const PRIVATE_BY_DEFAULT:int = 1;
 		private static const PUBLIC_BY_DEFAULT:int = 2;
+		private var myTeams:Array = new Array();
+		public var teamSelector:ArrayCollection = new ArrayCollection();
+		private var teamMapping:Object = new Object();
+		private static var expanded:Object = new Object(); // Keep in static so that it persists after reloading
 	
 		// Populate myself from XML.
 		public function populate(xml:XML):void
@@ -28,6 +33,48 @@ package org.planigle.planigle.model
 			description = xml.description;
 			surveyKey = xml.child("survey-key");
 			surveyMode = int(xml.child("survey-mode"));
+
+			var newTeams:ArrayCollection = new ArrayCollection();
+			for (var i:int = 0; i < xml.teams.team.length(); i++)
+			{
+				var team:Team = new Team();
+				team.populate(XML(xml.teams.team[i]));
+				newTeams.addItem(team);
+			}
+			teams = newTeams.source;
+		}
+
+		// For projects, the list name is not indented.
+		public function get listName():String
+		{
+			return name;
+		}
+
+		// Answer my teams.
+		public function get teams():Array
+		{
+			return myTeams;
+		}
+
+		// Set my teams.
+		public function set teams(teams:Array):void
+		{
+			myTeams = teams;
+
+			var newTeamSelector:ArrayCollection = new ArrayCollection();
+			teamMapping = new Object();
+
+			for each (var team:Team in teams)
+			{
+				team.project = this;
+				newTeamSelector.addItem(team);
+				teamMapping[team.id] = team;
+			}
+			
+			var tm:Team = new Team();
+			tm.populate( <team><id nil="true" /><name>None</name></team> );
+			newTeamSelector.addItem( tm );
+			teamSelector = newTeamSelector;
 		}
 		
 		// Update me.  Params should be of the format (record[param]).  Success function
@@ -73,6 +120,97 @@ package org.planigle.planigle.model
 					projects.addItem(project);
 			}
 			ProjectFactory.getInstance().updateProjects(projects);
+		}
+
+		// Create a new team.  Params should be of the format (record[param]).  Success function
+		// will be called if successfully updated.  FailureFunction will be called if failed (will
+		// be passed an XMLList with errors).
+		public function createTeam(params:Object, successFunction:Function, failureFunction:Function):void
+		{
+			new CreateTeamCommand(this, params, successFunction, failureFunction).execute(null);
+		}
+		
+		// An team has been successfully created.  Change myself to reflect the changes.
+		public function createCompleted(xml:XML):Team
+		{
+			var newTeam:Team = new Team();
+			newTeam.populate(xml);
+
+			// Create copy to ensure any views get notified of changes.
+			var newTeams:ArrayCollection = new ArrayCollection();
+			for each (var team:Team in teams)
+				newTeams.addItem(team);
+			newTeams.addItem(newTeam);
+			teams = newTeams.source;
+
+			// Create copy to ensure any views get notified of changes.
+			var projects:ArrayCollection = new ArrayCollection();
+			for each (var project:Project in ProjectFactory.getInstance().projects)
+				projects.addItem(project);
+			ProjectFactory.getInstance().projects = projects;
+
+			return newTeam;
+		}
+
+		// Find a team given its ID.  If no team, return an Team representing none.
+		public function find(id:String):Team
+		{
+			var team:Team = teamMapping[id];
+			return team ? team : Team(teamSelector.getItemAt(teamSelector.length-1));	
+		}
+		
+		// Expand the project to show its teams.
+		public function expand():void
+		{
+			expanded[String(id)] = true;
+		}
+		
+		// Collapse the project to not show its teams.
+		public function collapse():void
+		{
+			expanded[String(id)] = false;
+		}
+		
+		// Expand me if collapsed.  Collapse me if expanded.
+		public function toggleExpanded():void
+		{
+			if (isExpanded())
+				collapse();
+			else
+				expand();
+		}
+		
+		// Answer whether the project is expanded.
+		public function isExpanded():Boolean
+		{
+			return expanded.hasOwnProperty(String(id)) && expanded[String(id)];
+		}
+
+		//  Yes, I'm a project.
+		public function isProject():Boolean
+		{
+			return true;
+		}
+		
+		// Answer a label for my expand button.
+		public function expandLabel():String
+		{
+			if (teams.length == 0)
+				return "";
+			else
+				return isExpanded() ? "-" : "+";
+		}
+		
+		// Answer my background color.  -1 means use the default.
+		public function backgroundColor():int
+		{
+			return -1;
+		}
+
+		// Answer whether I contain the specified individual.
+		public function containsIndividual(individual:Individual):Boolean
+		{
+			return individual.projectId == id;
 		}
 	}
 }

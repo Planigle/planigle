@@ -837,7 +837,7 @@
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
-								<mx:LinkButton label="{data.expandLabel()}" click="outerDocument.expand(event);"/>		 	
+								<mx:LinkButton id="storyBtnExpand" label="{data.expandLabel()}" click="outerDocument.expand(event);"/>		 	
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>

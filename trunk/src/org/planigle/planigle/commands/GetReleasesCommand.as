@@ -19,7 +19,7 @@ package org.planigle.planigle.commands
 			//  Delegate acts as both delegate and responder.
 			var delegate:ReleasesDelegate = new ReleasesDelegate( this );
 			
-			delegate.getReleases();
+			delegate.get();
 		}
 		
 		// Handle successful server request.

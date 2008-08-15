@@ -3,6 +3,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 class IndividualTest < ActiveSupport::TestCase
   fixtures :individuals
   fixtures :projects
+  fixtures :teams
   fixtures :stories
 
   def setup
@@ -82,6 +83,18 @@ class IndividualTest < ActiveSupport::TestCase
 
     indiv = create_individual( :enabled => true)
     assert indiv.enabled
+  end
+
+  # Test setting team_id
+  def test_team_id
+    indiv = create_individual( :project_id => nil, :team_id => 1 )
+    assert indiv.errors.on(:team)
+
+    indiv = create_individual( :project_id => 2, :team_id => 1 )
+    assert indiv.errors.on(:team)
+
+    indiv = create_individual( :project_id => 1, :team_id => 1 )
+    assert_nil indiv.errors.on(:team)
   end
   
   # Test setting project_id

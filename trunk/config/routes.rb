@@ -13,8 +13,12 @@ ActionController::Routing::Routes.draw do |map|
   end
 
   map.resources :releases
+
+  map.resources :projects do |projects|
+    projects.resources :teams
+  end
+
   map.resources :individuals
-  map.resources :projects
   map.resources :surveys
 
   map.resource :session

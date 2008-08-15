@@ -15,6 +15,7 @@ aaron:
   id: 2
   role: 1
   project_id: 1
+  team_id: 1
   login: aaron
   first_name: aaron
   last_name: hank

@@ -16,37 +16,28 @@ package org.planigle.planigle.model
 		public var start:Date;
 		public var finish:Date;
 	
-		// Populate myself from another object.
-		public function populate(release:Release):void
+		// Populate myself from XML.
+		public function populate(xml:XML):void
 		{
-			name = release.name;
-			start = release.start;			
-			finish = release.finish;
+			id = xml.id == "" ? null: xml.id;
+			projectId = xml.child("project-id") == "" ? null : xml.child("project-id");
+			name = xml.name;
+			start = DateUtils.stringToDate(xml.start);		
+			finish = DateUtils.stringToDate(xml.finish);
 		}
 	
-		// Populate myself from another an object.
-		public function populateFromObject(params:Object):void
-		{
-			if (params["record[project_id]"] != undefined) projectId = params["record[project_id]"];
-			if (params["record[name]"] != undefined) name = params["record[name]"];
-			if (params["record[start]"] != undefined) start = params["record[start]"] == "" ? null : params["record[start]"];
-			if (params["record[finish]"] != undefined) finish = params["record[finish]"] == "" ? null : params["record[finish]"];
-		}
-		
 		// Update me.  Params should be of the format (record[param]).  Success function
 		// will be called if successfully updated.  FailureFunction will be called if failed (will
 		// be passed an XMLList with errors).
 		public function update(params:Object, successFunction:Function, failureFunction:Function):void
 		{
-			var newRelease:Release = Release(ObjectUtil.copy(this));
-			newRelease.populateFromObject(params);
-			new UpdateReleaseCommand(this, newRelease, successFunction, failureFunction).execute(null);
+			new UpdateReleaseCommand(this, params, successFunction, failureFunction).execute(null);
 		}
 		
 		// I have been successfully updated.  Change myself to reflect the changes.
-		public function updateCompleted(release:Release):void
+		public function updateCompleted(xml:XML):void
 		{
-			populate(release);
+			populate(xml);
 		}
 		
 		// Delete me.  Success function if successfully deleted.  FailureFunction will be called if failed

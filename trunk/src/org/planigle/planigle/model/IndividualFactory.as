@@ -71,11 +71,11 @@ package org.planigle.planigle.model
 		// be passed an XMLList with errors).
 		public function createIndividual(params:Object, successFunction:Function, failureFunction:Function):void
 		{
-			new CreateIndividualCommand(params, successFunction, failureFunction).execute(null);
+			new CreateIndividualCommand(this, params, successFunction, failureFunction).execute(null);
 		}
 		
 		// An individual has been successfully created.  Change myself to reflect the changes.
-		public function createIndividualCompleted(xml:XML):Individual
+		public function createCompleted(xml:XML):Individual
 		{
 			var newIndividual:Individual = new Individual();
 			newIndividual.populate(xml);

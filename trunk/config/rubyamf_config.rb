@@ -86,19 +86,26 @@ module RubyAMF
       :actionscript => 'Project',
       :ruby => 'Project',
       :type => 'active_record',
-      :attributes => ["id", "name", "description", "survey_key", "survey_mode"])
+      :attributes => ["id", "name", "description", "survey_key", "survey_mode"],
+      :associations => ["teams"])
+
+    ClassMappings.register(
+      :actionscript => 'Team',
+      :ruby => 'Team',
+      :type => 'active_record',
+      :attributes => ["id", "project_id", "name", "description"])
 
     ClassMappings.register(
       :actionscript => 'Individual',
       :ruby => 'Individual',
       :type => 'active_record',
-      :attributes => ["id", "project_id", "login", "email", "first_name", "last_name", "activated_at", "enabled", "accepted_agreement", "last_login", "role"])
+      :attributes => ["id", "project_id", "login", "email", "first_name", "last_name", "activated_at", "enabled", "accepted_agreement", "last_login", "role", "team_id"])
 
     ClassMappings.register(
       :actionscript => 'Story',
       :ruby => 'Story',
       :type => 'active_record',
-      :attributes => ["id", "project_id", "name", "description", "acceptance_criteria", "release_id", "iteration_id", "individual_id", "effort", "status_code", "priority", "user_priority", "is_public"],
+      :attributes => ["id", "project_id", "name", "description", "acceptance_criteria", "release_id", "iteration_id", "individual_id", "effort", "status_code", "priority", "user_priority", "is_public", "team_id"],
       :associations => ["tasks"])
 
     ClassMappings.register(

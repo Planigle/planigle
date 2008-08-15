@@ -41,6 +41,11 @@ class FlexReleasesTest < Test::Unit::TestCase
     init('admin2')
     edit_release_failure
     edit_release_success
+  end
+
+  # Test canceling edit.
+  def test_edit_cancel
+    init('admin2')
     edit_release_cancel
   end 
 

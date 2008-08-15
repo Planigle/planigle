@@ -22,6 +22,7 @@ package org.planigle.planigle.model
 		public function populate(xml:XML):void
 		{
 			id = xml.id == "" ? null: xml.id;
+			projectId = xml.child("project-id") == "" ? null : xml.child("project-id");
 			name = xml.name;
 			start = DateUtils.stringToDate(xml.start);			
 			length = xml.length;

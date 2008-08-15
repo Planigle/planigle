@@ -56,11 +56,11 @@ package org.planigle.planigle.model
 		// be passed an XMLList with errors).
 		public function createIteration(params:Object, successFunction:Function, failureFunction:Function):void
 		{
-			new CreateIterationCommand(params, successFunction, failureFunction).execute(null);
+			new CreateIterationCommand(this, params, successFunction, failureFunction).execute(null);
 		}
 		
 		// An iteration has been successfully created.  Change myself to reflect the changes.
-		public function createIterationCompleted(xml:XML):Iteration
+		public function createCompleted(xml:XML):Iteration
 		{
 			var newIteration:Iteration = new Iteration();
 			newIteration.populate(xml);

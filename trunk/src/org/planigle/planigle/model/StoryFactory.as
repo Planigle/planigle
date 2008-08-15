@@ -41,11 +41,11 @@ package org.planigle.planigle.model
 		// be passed an XMLList with errors).
 		public function createStory(params:Object, successFunction:Function, failureFunction:Function):void
 		{
-			new CreateStoryCommand(params, successFunction, failureFunction).execute(null);
+			new CreateStoryCommand(this, params, successFunction, failureFunction).execute(null);
 		}
 		
 		// A story has been successfully created.  Change myself to reflect the changes.
-		public function createStoryCompleted(xml:XML):Story
+		public function createCompleted(xml:XML):Story
 		{
 			var newStory:Story = new Story();
 			newStory.populate(xml);

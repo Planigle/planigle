@@ -127,7 +127,7 @@ private
     assert_equal '', @ie.text_area("projectFieldDescription").text
     assert_not_nil @ie.button("projectBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("projectResourceGrid").num_rows
-    assert_equal "zfoo 1,description,Private,Edit | Delete", @ie.data_grid("projectResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
+    assert_equal ",zfoo 1,description,Private,Edit | Delete | Add Team", @ie.data_grid("projectResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
     @ie.button("projectBtnCancel").click
   end
     
@@ -181,7 +181,7 @@ private
     assert_equal '', @ie.text_area("projectError").text
     assert_nil @ie.button("projectBtnCancel")
     assert_equal num_rows, @ie.data_grid("projectResourceGrid").num_rows
-    assert_equal "foo 1,description,Public by Default,Edit | Delete", @ie.data_grid("projectResourceGrid").tabular_data
+    assert_equal ",foo 1,description,Public by Default,Edit | Delete | Add Team", @ie.data_grid("projectResourceGrid").tabular_data
   end
     
   # Test whether you can successfully cancel editing a project.
@@ -228,7 +228,7 @@ private
     
   # Test sorting the various columns.
   def sort_columns
-    (0..1).each do |i|
+    (1..2).each do |i|
       @ie.data_grid("projectResourceGrid").header_click(:columnIndex => i.to_s)
       @ie.data_grid("projectResourceGrid").header_click(:columnIndex => i.to_s) # Sort both ways
     end

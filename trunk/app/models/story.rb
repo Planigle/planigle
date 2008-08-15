@@ -1,6 +1,7 @@
 class Story < ActiveRecord::Base
   include Utilities::Text
   belongs_to :project
+  belongs_to :team
   belongs_to :release
   belongs_to :iteration
   belongs_to :individual
@@ -17,7 +18,7 @@ class Story < ActiveRecord::Base
 
   StatusMapping = [ 'Created', 'In Progress', 'Accepted' ]
 
-  attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :release_id, :iteration_id, :individual_id, :project_id, :is_public, :priority, :user_priority
+  attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :release_id, :iteration_id, :individual_id, :project_id, :is_public, :priority, :user_priority, :team_id
 
   # Assign a priority on creation
   before_create :initialize_defaults

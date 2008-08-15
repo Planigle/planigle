@@ -1,46 +1,30 @@
 package org.planigle.planigle.business
 {
-	import com.adobe.cairngorm.business.ServiceLocator;
-	
 	import mx.rpc.IResponder;
-	import mx.rpc.remoting.RemoteObject;
-	
-	import org.planigle.planigle.model.Release;
-	
-	public class ReleasesDelegate
+
+	public class ReleasesDelegate extends Delegate
 	{
-		// Required by Cairngorm delegate.
-		private var remoteObject:RemoteObject;
-		private var responder:IResponder;
-		
 		public function ReleasesDelegate( responder:IResponder )
 		{
-			this.responder = responder;
-			this.remoteObject = ServiceLocator.getInstance().getRemoteObject("releaseRO");
+			super(responder);
 		}
-		
-		// Get the latest releases.
-		public function getReleases():void 
+
+		// Answer the name of the remote object (should be overridden).
+		override protected function getRemoteObjectName():String
 		{
-			remoteObject.index.send().addResponder(responder);
-		}	
-		
-		// Create the release as specified.
-		public function createRelease( release:Release ):void
-		{
-			remoteObject.create.send(release).addResponder(responder);
+			return "releaseRO";
 		}
-		
-		// Update the release as specified.
-		public function updateRelease( release:Release ):void
+
+		// Answer the name of the factory URL.
+		override protected function getFactoryUrl(factory:Object):String
 		{
-			remoteObject.update.send(release).addResponder(responder);
+			return "releases.xml"
 		}
-		
-		// Delete the release.
-		public function deleteRelease( release:Release ):void
+
+		// Answer the name of the object URL (should be overridden).
+		override protected function getObjectUrl(object:Object):String
 		{
-			remoteObject.destroy.send(release.id).addResponder(responder);
+			return "releases/" + object.id + ".xml"
 		}
 	}
 }

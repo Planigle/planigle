@@ -31,6 +31,7 @@ protected
   def update_record
     if is_amf
       @record.project_id = params[0].project_id
+      @record.team_id = params[0].team_id
       @record.login = params[0].login
       @record.password = params[0].password
       @record.password_confirmation = params[0].password_confirmation

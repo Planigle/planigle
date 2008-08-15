@@ -3,6 +3,7 @@ package org.planigle.planigle.view
 	import mx.controls.dataGridClasses.DataGridColumn;
 	import mx.utils.ObjectUtil;
 	import org.planigle.planigle.model.ProjectFactory;
+	import org.planigle.planigle.model.Project;
 	import org.planigle.planigle.model.IndividualFactory;
 	import org.planigle.planigle.model.IterationFactory;
 	
@@ -66,6 +67,25 @@ package org.planigle.planigle.view
 			return ObjectUtil.numericCompare( indexProject(item1), indexProject(item2) );
 		}
 
+		// Display the team's name in the table (rather than ID).
+		public static function formatTeam(item:Object, column:DataGridColumn):String
+		{
+			return ProjectFactory.getInstance().find(item.projectId).find(item.teamId).name;
+		}
+
+		// Answer the index of the team in the list of teams (or -1 if no team).
+		private static function indexTeam(item:Object):int
+		{
+			var project:Project = ProjectFactory.getInstance().find(item.projectId);
+			return indexProject(item)*100 + project.teamSelector.getItemIndex(project.find(item.teamId));
+		}
+		
+		// Answer the sort order for the specified items (based on where they are in the list of projects).
+		public static function sortTeam(item1:Object, item2:Object):int
+		{
+			return ObjectUtil.numericCompare( indexTeam(item1), indexTeam(item2) );
+		}
+
 		// 	Display the user facing status in the table (rather than a code).	
 		public static function formatStatus(item:Object, column:DataGridColumn):String
 		{
@@ -86,12 +106,16 @@ package org.planigle.planigle.view
 		// 	Display the user facing survey mode in the table (rather than a code).	
 		public static function formatSurveyMode(item:Object, column:DataGridColumn):String
 		{
-			switch(item.surveyMode)
+			if (item.isProject())
 			{
-				case 1: return "Private by Default";
-				case 2: return "Public by Default";
-				default: return "Private";
+				switch(item.surveyMode)
+				{
+					case 1: return "Private by Default";
+					case 2: return "Public by Default";
+					default: return "Private";
+				}
 			}
+			else return "";
 		}
 		
 		// Sort status based on its code.
