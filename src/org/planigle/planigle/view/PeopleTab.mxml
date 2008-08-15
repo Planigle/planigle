@@ -12,7 +12,7 @@
 		// The user has selected a project.
 		public function selectProject(event:Event):void
 		{
-			individuals.project = projects.project;
+			individuals.group = projects.group;
 		}
 		]]>
 	</mx:Script>

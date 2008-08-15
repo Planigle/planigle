@@ -56,11 +56,11 @@ package org.planigle.planigle.model
 		// be passed an XMLList with errors).
 		public function createProject(params:Object, successFunction:Function, failureFunction:Function):void
 		{
-			new CreateProjectCommand(params, successFunction, failureFunction).execute(null);
+			new CreateProjectCommand(this, params, successFunction, failureFunction).execute(null);
 		}
 		
 		// An project has been successfully created.  Change myself to reflect the changes.
-		public function createProjectCompleted(xml:XML):Project
+		public function createCompleted(xml:XML):Project
 		{
 			var newProject:Project = new Project();
 			newProject.populate(xml);

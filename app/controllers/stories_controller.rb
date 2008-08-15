@@ -70,6 +70,7 @@ protected
   # Update the record given the params.
   def update_record
     if is_amf
+      @record.team_id = params[0].projectteam_id
       @record.name = params[0].name
       @record.description = params[0].description
       @record.acceptance_criteria = params[0].acceptance_criteria

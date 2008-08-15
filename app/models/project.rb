@@ -1,5 +1,6 @@
 require 'digest/sha1'
 class Project < ActiveRecord::Base
+  has_many :teams, :dependent => :destroy
   has_many :individuals, :dependent => :nullify # Delete non-admins
   has_many :releases, :dependent => :destroy
   has_many :iterations, :dependent => :destroy
@@ -35,6 +36,14 @@ class Project < ActiveRecord::Base
   def destroy
     Individual.delete_all(["project_id = ? and role != 0", id])
     super
+  end
+  
+  # Override to_xml to include teams.
+  def to_xml(options = {})
+    if !options[:include]
+      options[:include] = [:teams]
+    end
+    super(options)
   end
 
   ModeMapping = [ 'Private', 'Private by default', 'Public by default' ]
@@ -74,9 +83,9 @@ class Project < ActiveRecord::Base
   # Answer the records for a particular user.
   def self.get_records(current_user)
     if current_user.role >= Individual::ProjectAdmin
-      Project.find(:all, :conditions => ["id = ?", current_user.project_id])
+      Project.find(:all, :include => :teams, :conditions => ["projects.id = ?", current_user.project_id])
     else
-      Project.find(:all, :order => 'name')
+      Project.find(:all, :include => :teams, :order => 'projects.name')
     end
   end
 

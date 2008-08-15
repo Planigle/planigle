@@ -12,7 +12,8 @@ package org.planigle.planigle.model
 	public class Story
 	{
 		public var id:int;
-		public var projectId: int;
+		public var projectId:int;
+		public var teamId:String;
 		public var name:String;
 		public var description:String;
 		public var acceptanceCriteria:String;
@@ -34,6 +35,7 @@ package org.planigle.planigle.model
 		// Populate myself from XML.
 		public function populate(xml:XML):void
 		{
+			teamId = xml.child("team-id") == "" ? null : xml.child("team-id");
 			id = xml.id;
 			name = xml.name;
 			description = xml.description;
@@ -138,7 +140,7 @@ package org.planigle.planigle.model
 				}
 			}
 			tasks = taskCollect.source;
-			StoryFactory.getInstance().createStoryCompleted(xml);
+			StoryFactory.getInstance().createCompleted(xml);
 		}
 		
 		// Delete me.  Success function if successfully deleted.  FailureFunction will be called if failed
@@ -172,7 +174,7 @@ package org.planigle.planigle.model
 		}
 		
 		// A task has been successfully created.  Change myself to reflect the changes.
-		public function createTaskCompleted(xml:XML):Task
+		public function createCompleted(xml:XML):Task
 		{
 			var task:Task = new Task();
 			task.populate(xml);

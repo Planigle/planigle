@@ -13,6 +13,7 @@ class ProjectsControllerTest < ActionController::TestCase
   fixtures :systems
   fixtures :individuals
   fixtures :projects
+  fixtures :teams
 
   def setup
     ActionMailer::Base.delivery_method = :test
@@ -51,6 +52,20 @@ class ProjectsControllerTest < ActionController::TestCase
     assert_change_failed
     assert_equal 0, ActionMailer::Base.deliveries.length
     assert_select "errors"
+  end
+
+  # Test that the teams are included in the xml.
+  def test_xml
+    login_as(individuals(:aaron))
+    get :index, :format => 'xml'
+    assert_response :success
+    assert_select "projects" do
+      assert_select "project", 1 do
+        assert_select "teams" do
+          assert_select "team", 2
+        end
+      end
+    end
   end
   
   # Test getting projects (based on role).

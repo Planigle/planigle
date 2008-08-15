@@ -1,54 +1,19 @@
 package org.planigle.planigle.commands
 {
-	import com.adobe.cairngorm.commands.ICommand;
-	import com.adobe.cairngorm.control.CairngormEvent;
-	
-	import mx.controls.Alert;
-	import mx.rpc.IResponder;
-	
+	import org.planigle.planigle.business.Delegate;
 	import org.planigle.planigle.business.TasksDelegate;
-	import org.planigle.planigle.model.Task;
-	
-	public class DeleteTaskCommand implements ICommand, IResponder
+
+	public class DeleteTaskCommand extends DeleteCommand
 	{
-		private var task:Task;
-		private var notifySuccess:Function;
-		private var notifyFailure:Function;
-		
-		public function DeleteTaskCommand(aTask:Task, aSuccessFunction:Function, aFailureFunction:Function)
+		public function DeleteTaskCommand(object:Object, aSuccessFunction:Function, aFailureFunction:Function)
 		{
-			task = aTask;
-			notifySuccess = aSuccessFunction;
-			notifyFailure = aFailureFunction;
+			super(object, aSuccessFunction, aFailureFunction);
 		}
-		
-		// Required for the ICommand interface.  Event must be of type Cairngorm event.
-		public function execute(event:CairngormEvent):void
+
+		// This should be overriden by subclasses to provide the specific delegate class.
+		override protected function createDelegate():Delegate
 		{
-			new TasksDelegate( this ).deleteTask(task);
-		}
-		
-		// Handle successful server request.
-		public function result( event:Object ):void
-		{
-			var result:XML = XML(event.result);
-			if (result.error.length() > 0)
-			{
-				if (notifyFailure != null)
-					notifyFailure(result.error);
-			}
-			else
-			{
-				task.destroyCompleted();
-				if (notifySuccess != null)
-					notifySuccess();
-			}
-		}
-		
-		// Handle case where error occurs.
-		public function fault( event:Object ):void
-		{
-			Alert.show(event.fault.faultString);
+			return new TasksDelegate( this )
 		}
 	}
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" height="100%" y="0" width="100%" x="0" label="Projects" creationComplete="created(event)">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:local="org.planigle.planigle.view.controls.*" height="100%" y="0" width="100%" x="0" label="Projects" creationComplete="created(event)">
 	<mx:Metadata>
 		[Event(name="itemClick", type="flash.events.Event")]
 	</mx:Metadata>
@@ -16,6 +16,7 @@
 		import org.planigle.planigle.model.ViewModelLocator;
 		import org.planigle.planigle.model.ProjectFactory;
 		import org.planigle.planigle.model.Project;
+		import org.planigle.planigle.model.Team;
 		import org.planigle.planigle.model.IndividualFactory;
 		import org.planigle.planigle.view.ViewHelper;
 		import org.planigle.planigle.events.ProjectChangedEvent;
@@ -49,7 +50,14 @@
 		{
 			var newProjects:ArrayCollection = new ArrayCollection();
 			for each (var project:Project in ProjectFactory.getInstance().projects)
+			{
 				newProjects.addItem(project);
+				if (project.isExpanded())
+				{
+					for each (var team:Team in project.teams)
+						newProjects.addItem(team);
+				}
+			}
 			projects = newProjects;
 		}
 		
@@ -69,12 +77,46 @@
 			projectFieldName.setFocus();
 			projectFieldName.text = '';
 			projectFieldDescription.text = '';
-			projectFieldSurveyMode.selectedIndex = 1;
-			projectLabelSurveyUrl.text = "Will be assigned on creation";
 			projectBtnChange.label = 'Create';
 		}
 
 		private var currentItem:Object; // Remember in case selection changes while form is open.
+
+		// Prepare the fields to create / edit a project.
+		private function prepareForProject():void
+		{
+			projectFormSurveyMode.visible = true;
+			projectFormSurveyMode.height = 22;
+			projectFormSurveyUrl.visible = true;
+			projectFormSurveyUrl.height = 22;
+		}
+
+		// Show user a form to create a resource.
+		private function showCreateProject(event:Event):void
+		{
+			currentItem = null;
+			showCreate(event);
+			prepareForProject();
+			projectFieldSurveyMode.selectedIndex = 1;
+			projectLabelSurveyUrl.text = "Will be assigned on creation";
+		}
+
+		// Prepare the fields to create / edit a team.
+		private function prepareForTeam():void
+		{
+			projectFormSurveyMode.visible = false;
+			projectFormSurveyMode.height = 0;
+			projectFormSurveyUrl.visible = false;
+			projectFormSurveyUrl.height = 0;
+		}
+
+		// Show user a form to create a resource.
+		public function showCreateTeam(event:Event):void
+		{
+			currentItem = projectResourceGrid.selectedItem;
+			showCreate(event);
+			prepareForTeam();
+		}
 
 		// Show user a form to update a resource.
 		public function showUpdate(event:Event) : void
@@ -88,12 +130,18 @@
 				projectFieldName.setFocus();
 				projectFieldName.setSelection(0, projectFieldName.text.length );
 				projectFieldDescription.text = currentItem.description;
-				projectFieldSurveyMode.selectedIndex = currentItem.surveyMode;
-				var base:String = ExternalInterface.call("BrowserHistory.getURL");
-				for (var index:int = base.indexOf( "/" ); base.indexOf( "/", index + 1 ) >= 0; )
-					index = base.indexOf( "/", index + 1 ); // Get the last /
-				base = base.substr( 0, index );
-				projectLabelSurveyUrl.text = base + "/survey.html?projectid=" + currentItem.id + "&surveykey=" + currentItem.surveyKey;
+				if (currentItem.isProject())
+				{
+					prepareForProject();
+					projectFieldSurveyMode.selectedIndex = currentItem.surveyMode;
+					var base:String = ExternalInterface.call("BrowserHistory.getURL");
+					for (var index:int = base.indexOf( "/" ); base.indexOf( "/", index + 1 ) >= 0; )
+						index = base.indexOf( "/", index + 1 ); // Get the last /
+					base = base.substr( 0, index );
+					projectLabelSurveyUrl.text = base + "/survey.html?projectid=" + currentItem.id + "&surveykey=" + currentItem.surveyKey;
+				}
+				else
+					prepareForTeam();
 				projectBtnChange.label = 'Update';
 			}
 		}
@@ -113,12 +161,13 @@
 		}
 		
 		// Create parameters for the user's request to the server.
-		private function getParams() : Object
+		private function getParams(isProject:Boolean) : Object
 		{
 			var params:Object = new Object();
 			params['record[name]'] = projectFieldName.text;
 			params['record[description]'] = projectFieldDescription.text;
-			params['record[survey_mode]'] = projectFieldSurveyMode.selectedItem.value;
+			if (isProject)
+				params['record[survey_mode]'] = projectFieldSurveyMode.selectedItem.value;
 			params['random'] = Math.random(); // Prevents caching
 			return params;
 		}
@@ -135,13 +184,16 @@
 		// Tell the server to create a resource.
 		private function createResource(event:Event) : void 
 		{
-			ProjectFactory.getInstance().createProject(getParams(), handleCreateSuccess, handleFailure);
+			if (currentItem)
+				currentItem.createTeam(getParams(false), handleCreateSuccess, handleFailure);
+			else
+				ProjectFactory.getInstance().createProject(getParams(true), handleCreateSuccess, handleFailure);
 		}
 		
 		// Tell the server to update a resource.
 		private function updateResource(event:Event) : void
 		{
-			currentItem.update(getParams(), handleSuccess, handleFailure);
+			currentItem.update(getParams(currentItem.isProject()), handleSuccess, handleFailure);
 		}
 
 		// Tell the server to delete a resource.
@@ -149,14 +201,17 @@
 		{
 			item.destroy(handleSuccess,handleFailure);
 			projectResourceGrid.selectedItem = null;
-			projectSelected(null); // Deletion can affect selection; ensure event is sent
+			groupSelected(null); // Deletion can affect selection; ensure event is sent
 		}
 		
 		// Handle a successful create.
 		private function handleCreateSuccess():void
 		{
 			showCreate(null);
-			_error = "Project was successfully created."
+			if (currentItem)
+				_error = "Team was successfully created."
+			else
+				_error = "Project was successfully created."
 		}
 
 		// Handle a successful change.
@@ -171,13 +226,42 @@
 			_error = error;
 		}
 
-		public var project:Project;
+		public var group:Object;
 
-		// A project has been selected.  Pass it up the chain.
-		private function projectSelected(event:ListEvent):void
+		// A group has been selected.  Pass it up the chain.
+		private function groupSelected(event:ListEvent):void
 		{
-			project = Project(projectResourceGrid.selectedItem);
+			group = projectResourceGrid.selectedItem;
 			dispatchEvent(new Event("itemClick"));
+		}
+		
+		// Expand / collapse a project.
+		public function expand(event:Event) : void
+		{
+			if (projectResourceGrid.selectedItem.isProject())
+				{
+				projectResourceGrid.selectedItem.toggleExpanded();
+				setProjects(event);
+				}
+		}
+		
+		// Answer the color to use for a row.
+		private function rowColor(item:Object, color:uint) : uint
+		{
+			return (item && item.backgroundColor() >= 0) ? item.backgroundColor() : color;
+		}
+
+		// Answer whether to show (based on whether the item is a project and the user has rights).
+		public function shouldShowDeleteProject(data:Object):Boolean
+		{
+			return (data.isProject() && factory.currentIndividual.isAdmin()) ||
+				(!data.isProject() && factory.currentIndividual.isAtLeastProjectAdmin());
+		}
+
+		// Answer whether to show (based on whether the item is a project and the user has rights).
+		public function shouldShowAddTeam(data:Object):Boolean
+		{
+			return data.isProject() && factory.currentIndividual.isAtLeastProjectAdmin();
 		}
 		]]>
 	</mx:Script>
@@ -194,7 +278,7 @@
 						<mx:FormItem label='Description'>
 							<mx:TextArea id='projectFieldDescription' maxChars="4096" height="64" width="500"><mx:text/></mx:TextArea>
 						</mx:FormItem>
-						<mx:FormItem label='Stories'>
+						<mx:FormItem id="projectFormSurveyMode" label='Stories'>
 							<mx:ComboBox id='projectFieldSurveyMode' width="350" editable="false">
 								<mx:Object label="Private" value="0" />
 								<mx:Object label="Private by Default" value="1" />
@@ -238,11 +322,20 @@
 		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="8" verticalAlign="middle" id="projectHbox1" paddingTop="5" paddingLeft="5" paddingRight="5">
 			<mx:Label text="Projects" fontWeight="bold" textDecoration="underline"/>
 			<mx:Text id="projectError" styleName="error" htmlText="{_error}" color="#ff0033" width="100%"/>
-			<mx:Button label="Create" id="projectBtnCreate" click="showCreate(event);" visible="{factory.currentIndividual.isAdmin()}"/>
+			<mx:Button label="Create" id="projectBtnCreate" click="showCreateProject(event);" visible="{factory.currentIndividual.isAdmin()}"/>
 		</mx:HBox>
-		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="projectResourceGrid" dataProvider="{projects}" rowCount="{projects.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)" itemClick="projectSelected(event)">
-				<mx:columns>
-				<mx:DataGridColumn headerText="Name" dataField="name"/>
+		<local:ColoredBackgroundDataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="projectResourceGrid" dataProvider="{projects}" rowCount="{projects.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)" itemClick="groupSelected(event)" rowColorFunction="rowColor">
+			<local:columns>
+				<mx:DataGridColumn editable="false" minWidth="20" width="20" sortable="false"> 
+					<mx:itemRenderer> 
+						<mx:Component>
+							<mx:Box direction="horizontal" horizontalGap="0">
+								<mx:LinkButton id="projectBtnExpand" label="{data.expandLabel()}" click="outerDocument.expand(event);"/>		 	
+							</mx:Box>
+						</mx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="Name" dataField="listName"/>
 				<mx:DataGridColumn headerText="Description" dataField="description"/>
 				<mx:DataGridColumn headerText="Stories" width="120" labelFunction="ViewHelper.formatSurveyMode" sortCompareFunction="ViewHelper.sortSurveyMode"/>
 				<mx:DataGridColumn editable="false" width="60" minWidth="60" sortable="false">
@@ -250,12 +343,13 @@
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
 								<mx:LinkButton id="projectBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
-								<mx:LinkButton id="projectBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.factory.currentIndividual.isAdmin()}"/>
+								<mx:LinkButton id="projectBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.shouldShowDeleteProject(data)}"/>
+								<mx:LinkButton id="teamBtnAdd" icon="{parentApplication.imgAdd}" toolTip="Add Team" click="outerDocument.showCreateTeam(event);" visible="{outerDocument.shouldShowAddTeam(data)}"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>
 				</mx:DataGridColumn>
-			</mx:columns>
-		</mx:DataGrid>
+			</local:columns>
+		</local:ColoredBackgroundDataGrid>
 	</mx:Panel>
 </mx:Canvas>

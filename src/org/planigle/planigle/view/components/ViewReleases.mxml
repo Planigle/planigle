@@ -174,9 +174,9 @@
 		}
 
 		// Handle errors when making changes.
-		private function handleFailure(error:Array):void
+		private function handleFailure(error:XMLList):void
 		{
-			_error = error.join("\r");
+			_error = error;
 		}
 		
 		// Format the start date into a more readable format.

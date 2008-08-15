@@ -1,57 +1,30 @@
 package org.planigle.planigle.business
 {
-	import com.adobe.cairngorm.business.ServiceLocator;
-	import com.adobe.cairngorm.model.ModelLocator;
-	import mx.rpc.AsyncToken;
 	import mx.rpc.IResponder;
-	import mx.rpc.http.HTTPService;
-	import mx.rpc.remoting.RemoteObject;
-	import org.planigle.planigle.model.Individual;
-	
-	public class IndividualsDelegate
+
+	public class IndividualsDelegate extends Delegate
 	{
-		// Required by Cairngorm delegate.
-		private var responder:IResponder;
-		
 		public function IndividualsDelegate( responder:IResponder )
 		{
-			this.responder = responder;
+			super(responder);
 		}
-		
-		// Get the latest individuals.
-		public function getIndividuals():void 
+
+		// Answer the name of the remote object (should be overridden).
+		override protected function getRemoteObjectName():String
 		{
-			var remoteObject:RemoteObject = ServiceLocator.getInstance().getRemoteObject("individualRO");
-			remoteObject.index.send().addResponder(responder);
-		}	
-		
-		// Create the individual as specified.
-		public function createIndividual( params:Object ):void
-		{
-			var service:HTTPService = ServiceLocator.getInstance().getHTTPService("createIndividualService");
-			params['random'] = Math.random(); // Prevents caching
-			service.send(params).addResponder( responder );
+			return "individualRO";
 		}
-		
-		// Update the individual as specified.
-		public function updateIndividual( individual:Individual, params:Object ):void
+
+		// Answer the name of the factory URL.
+		override protected function getFactoryUrl(factory:Object):String
 		{
-			var service:HTTPService = ServiceLocator.getInstance().getHTTPService("updateIndividualService");
-			params['random'] = Math.random(); // Prevents caching
-			params['_method'] = "PUT";
-			service.url = "individuals/" + individual.id + ".xml";
-			service.send(params).addResponder( responder );
+			return "individuals.xml"
 		}
-		
-		// Delete the individual.
-		public function deleteIndividual( individual:Individual ):void
+
+		// Answer the name of the object URL (should be overridden).
+		override protected function getObjectUrl(object:Object):String
 		{
-			var service:HTTPService = ServiceLocator.getInstance().getHTTPService("deleteIndividualService");
-			var params:Object = new Object();
-			params['random'] = Math.random(); // Prevents caching
-			params['_method'] = "DELETE";
-			service.url = "individuals/" + individual.id + ".xml";
-			service.send(params).addResponder( responder );
+			return "individuals/" + object.id + ".xml"
 		}
 	}
 }

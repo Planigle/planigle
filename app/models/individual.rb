@@ -1,6 +1,7 @@
 require 'digest/sha1'
 class Individual < ActiveRecord::Base
   belongs_to :project
+  belongs_to :team
   has_many :stories, :dependent => :nullify
   has_many :tasks, :dependent => :nullify
 
@@ -28,7 +29,7 @@ class Individual < ActiveRecord::Base
 
   # Prevent a user from submitting a crafted form that bypasses activation
   # Anything that the user can change should be added here.
-  attr_accessible :login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled, :project_id, :role, :last_login, :accepted_agreement
+  attr_accessible :login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled, :project_id, :role, :last_login, :accepted_agreement, :team_id
 
   Admin = 0
   ProjectAdmin = 1
@@ -193,6 +194,10 @@ protected
     
     if role && (role > Admin && !project_id )
       errors.add(:project, ' must be set for users who are not admins')
+    end
+    
+    if team && (!project || team.project != project )
+      errors.add(:team, ' must be associated with project')
     end
   end
 end

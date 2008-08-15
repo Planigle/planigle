@@ -1,57 +1,30 @@
 package org.planigle.planigle.business
 {
-	import com.adobe.cairngorm.business.ServiceLocator;
-	import com.adobe.cairngorm.model.ModelLocator;
-	import mx.rpc.AsyncToken;
 	import mx.rpc.IResponder;
-	import mx.rpc.http.HTTPService;
-	import mx.rpc.remoting.RemoteObject;
-	import org.planigle.planigle.model.Project;
-	
-	public class ProjectsDelegate
+
+	public class ProjectsDelegate extends Delegate
 	{
-		// Required by Cairngorm delegate.
-		private var responder:IResponder;
-		
 		public function ProjectsDelegate( responder:IResponder )
 		{
-			this.responder = responder;
+			super(responder);
 		}
-		
-		// Get the latest projects.
-		public function getProjects():void 
+
+		// Answer the name of the remote object (should be overridden).
+		override protected function getRemoteObjectName():String
 		{
-			var remoteObject:RemoteObject = ServiceLocator.getInstance().getRemoteObject("projectRO");
-			remoteObject.index.send().addResponder(responder);
-		}	
-		
-		// Create the project as specified.
-		public function createProject( params:Object ):void
-		{
-			var service:HTTPService = ServiceLocator.getInstance().getHTTPService("createProjectService");
-			params['random'] = Math.random(); // Prevents caching
-			service.send(params).addResponder( responder );
+			return "projectRO";
 		}
-		
-		// Update the project as specified.
-		public function updateProject( project:Project, params:Object ):void
+
+		// Answer the name of the factory URL.
+		override protected function getFactoryUrl(factory:Object):String
 		{
-			var service:HTTPService = ServiceLocator.getInstance().getHTTPService("updateProjectService");
-			params['random'] = Math.random(); // Prevents caching
-			params['_method'] = "PUT";
-			service.url = "projects/" + project.id + ".xml";
-			service.send(params).addResponder( responder );
+			return "projects.xml"
 		}
-		
-		// Delete the project.
-		public function deleteProject( project:Project ):void
+
+		// Answer the name of the object URL (should be overridden).
+		override protected function getObjectUrl(object:Object):String
 		{
-			var service:HTTPService = ServiceLocator.getInstance().getHTTPService("deleteProjectService");
-			var params:Object = new Object();
-			params['random'] = Math.random(); // Prevents caching
-			params['_method'] = "DELETE";
-			service.url = "projects/" + project.id + ".xml";
-			service.send(params).addResponder( responder );
+			return "projects/" + object.id + ".xml"
 		}
 	}
 }

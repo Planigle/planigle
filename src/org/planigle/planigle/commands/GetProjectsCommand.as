@@ -19,7 +19,7 @@ package org.planigle.planigle.commands
 			//  Delegate acts as both delegate and responder.
 			var delegate:ProjectsDelegate = new ProjectsDelegate( this );
 			
-			delegate.getProjects();
+			delegate.get();
 		}
 		
 		// Handle successful server request.

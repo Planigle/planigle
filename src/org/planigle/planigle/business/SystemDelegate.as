@@ -7,24 +7,17 @@ package org.planigle.planigle.business
 	import mx.rpc.http.HTTPService;
 	import org.planigle.planigle.model.PlanigleSystem;
 	
-	public class SystemDelegate
+	public class SystemDelegate extends Delegate
 	{
-		// Required by Cairngorm delegate.
-		private var responder:IResponder;
-		
 		public function SystemDelegate( responder:IResponder )
 		{
-			this.responder = responder;
+			super(responder);
 		}
 		
-		// Update the system as specified.
-		public function updateSystem( system:PlanigleSystem, params:Object ):void
+		// Answer the name of the object URL (should be overridden).
+		override protected function getObjectUrl(object:Object):String
 		{
-			var service:HTTPService = ServiceLocator.getInstance().getHTTPService("updateSystemService");
-			params['random'] = Math.random(); // Prevents caching
-			params['_method'] = "PUT";
-			service.url = "system.xml";
-			service.send(params).addResponder( responder );
+			return "system.xml";
 		}
 	}
 }

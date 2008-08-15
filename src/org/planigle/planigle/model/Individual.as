@@ -11,6 +11,7 @@ package org.planigle.planigle.model
 	{
 		public var id:String;
 		public var projectId:String;
+		public var teamId:String;
 		public var login:String;
 		public var email:String;
 		public var firstName:String;
@@ -30,6 +31,7 @@ package org.planigle.planigle.model
 		{
 			id = xml.id;
 			projectId = xml.child("project-id") == "" ? null : xml.child("project-id");
+			teamId = xml.child("team-id") == "" ? null : xml.child("team-id");
 			login = xml.login;
 			email = xml.email;
 			firstName = xml.child("first-name");

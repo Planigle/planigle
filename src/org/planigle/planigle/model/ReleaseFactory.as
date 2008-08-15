@@ -56,14 +56,14 @@ package org.planigle.planigle.model
 		// be passed an Array with errors).
 		public function createRelease(params:Object, successFunction:Function, failureFunction:Function):void
 		{
-			var newRelease:Release = new Release();
-			newRelease.populateFromObject(params);
-			new CreateReleaseCommand(newRelease, successFunction, failureFunction).execute(null);
+			new CreateReleaseCommand(this, params, successFunction, failureFunction).execute(null);
 		}
 		
 		// An release has been successfully created.  Change myself to reflect the changes.
-		public function createReleaseCompleted(newRelease:Release):Release
+		public function createCompleted(xml:XML):Release
 		{
+			var newRelease:Release = new Release();
+			newRelease.populate(xml);
 			// Create copy to ensure any views get notified of changes.
 			var newReleases:ArrayCollection = new ArrayCollection();
 			for each (var release:Release in releases)
