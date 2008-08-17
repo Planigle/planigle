@@ -10,8 +10,6 @@ package org.planigle.planigle.model
 	public class Individual
 	{
 		public var id:String;
-		public var projectId:String;
-		public var teamId:String;
 		public var login:String;
 		public var email:String;
 		public var firstName:String;
@@ -21,6 +19,10 @@ package org.planigle.planigle.model
 		public var enabled:Boolean;
 		public var lastLogin:Date;
 		public var acceptedAgreement:Date;
+		private var _projectId:String;
+		private var _project:Project;
+		private var _teamId:String;
+		private var _team:Team;
 		private static const ADMIN:int = 0;
 		private static const PROJECT_ADMIN:int = 1;
 		private static const PROJECT_USER:int = 2;
@@ -56,6 +58,48 @@ package org.planigle.planigle.model
 		public function get activated():Boolean
 		{
 			return activatedAt != null;
+		}
+
+		// Answer my project.
+		public function get project():Project
+		{
+			if (!_project && projectId)
+				_project = ProjectFactory.getInstance().find(projectId);
+			return _project;
+		}
+
+		// Answer my project id.
+		public function get projectId():String
+		{
+			return _projectId;
+		}
+
+		// Set my project id.
+		public function set projectId(newId:String):void
+		{
+			_projectId = newId;
+			_project = null;
+		}
+
+		// Answer my team.
+		public function get team():Team
+		{
+			if (!_team && teamId)
+				_team = project.find(teamId);
+			return _team;
+		}
+
+		// Answer my team id.
+		public function get teamId():String
+		{
+			return _teamId;
+		}
+
+		// Set my team id.
+		public function set teamId(newId:String):void
+		{
+			_teamId = newId;
+			_team = null;
 		}
 		
 		// Update me.  Params should be of the format (record[param]).  Success function

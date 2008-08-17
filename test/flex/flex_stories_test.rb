@@ -4,6 +4,7 @@ require 'funfx'
 
 class FlexStoriesTest < Test::Unit::TestCase
   fixtures :systems
+  fixtures :teams
   fixtures :individuals
   fixtures :projects
   fixtures :releases
@@ -118,12 +119,13 @@ private
     assert_equal '', @ie.text_area("storyFieldAcceptanceCriteria").text
     assert_equal 'Backlog', @ie.combo_box("storyFieldIteration").text
     assert_equal 'No Release', @ie.combo_box("storyFieldRelease").text
+    assert_equal 'No Team', @ie.combo_box("storyFieldTeam").text
     assert_equal 'No Owner', @ie.combo_box("storyFieldOwner").text
     assert_equal '', @ie.text_area("storyFieldEffort").text
     assert_equal 'Created', @ie.combo_box("storyFieldStatus").text
     assert_equal 'false', @ie.combo_box("storyFieldPublic").text
 
-    create_story(' ', 'description', 'acceptance_criteria', 'fourth', 'second', 'ted williams', '1', 'Created', 'true')
+    create_story(' ', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test', 'ted williams', '1', 'Created', 'true')
     @ie.button("storyBtnChange").click
 
     # Values should not change
@@ -133,6 +135,7 @@ private
     assert_equal 'acceptance_criteria', @ie.text_area("storyFieldAcceptanceCriteria").text
     assert_equal 'fourth', @ie.combo_box("storyFieldIteration").text
     assert_equal 'second', @ie.combo_box("storyFieldRelease").text
+    assert_equal 'Test', @ie.combo_box("storyFieldTeam").text
     assert_equal 'ted williams', @ie.combo_box("storyFieldOwner").text
     assert_equal '1', @ie.text_area("storyFieldEffort").text
     assert_equal 'Created', @ie.combo_box("storyFieldStatus").text
@@ -152,12 +155,13 @@ private
     assert_equal '', @ie.text_area("storyFieldAcceptanceCriteria").text
     assert_equal 'Backlog', @ie.combo_box("storyFieldIteration").text
     assert_equal 'No Release', @ie.combo_box("storyFieldRelease").text
+    assert_equal 'No Team', @ie.combo_box("storyFieldTeam").text
     assert_equal 'No Owner', @ie.combo_box("storyFieldOwner").text
     assert_equal '', @ie.text_area("storyFieldEffort").text
     assert_equal 'Created', @ie.combo_box("storyFieldStatus").text
     assert_equal 'false', @ie.combo_box("storyFieldPublic").text
     
-    create_story('foo', 'description', 'acceptance_criteria', 'fourth', 'second', 'ted williams', '1', 'Created', 'true')
+    create_story('foo', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test', 'ted williams', '1', 'Created', 'true')
     @ie.button("storyBtnChange").click
 
     assert_equal 'Story was successfully created.', @ie.text_area("storyError").text
@@ -166,13 +170,14 @@ private
     assert_equal '', @ie.text_area("storyFieldAcceptanceCriteria").text
     assert_equal 'Backlog', @ie.combo_box("storyFieldIteration").text
     assert_equal 'No Release', @ie.combo_box("storyFieldRelease").text
+    assert_equal 'No Team', @ie.combo_box("storyFieldTeam").text
     assert_equal 'No Owner', @ie.combo_box("storyFieldOwner").text
     assert_equal '', @ie.text_area("storyFieldEffort").text
     assert_equal 'Created', @ie.combo_box("storyFieldStatus").text
     assert_equal 'false', @ie.combo_box("storyFieldPublic").text
     assert_not_nil @ie.button("storyBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",foo,fourth,ted williams,1.0,Created,true,4,,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
+    assert_equal ",foo,fourth,No Team,ted williams,1.0,Created,true,4,,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
     @ie.button("storyBtnCancel").click
   end
     
@@ -180,7 +185,7 @@ private
   def create_story_cancel
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
     @ie.button("storyBtnCreate").click
-    create_story('foo', 'description', 'acceptance_criteria', 'fourth', 'second', 'ted williams', '1', 'Created', 'true')
+    create_story('foo', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test', 'ted williams', '1', 'Created', 'true')
     @ie.button("storyBtnCancel").click
     assert_equal '', @ie.text_area("storyError").text
     assert_nil @ie.button("storyBtnCancel")
@@ -188,7 +193,7 @@ private
   end
 
   # Create a story.
-  def create_story(name, description, acceptance_criteria, iteration, release, owner, effort, status, public)
+  def create_story(name, description, acceptance_criteria, iteration, release, team, owner, effort, status, public)
     @ie.text_area("storyFieldName").input(:text => name )
     @ie.text_area("storyFieldDescription").input(:text => description )
     @ie.text_area("storyFieldAcceptanceCriteria").input(:text => acceptance_criteria )
@@ -196,6 +201,8 @@ private
     @ie.combo_box("storyFieldIteration").select(:item_renderer => iteration )
     @ie.combo_box("storyFieldRelease").open
     @ie.combo_box("storyFieldRelease").select(:item_renderer => release )
+    @ie.combo_box("storyFieldTeam").open
+    @ie.combo_box("storyFieldTeam").select(:item_renderer => team )
     @ie.combo_box("storyFieldOwner").open
     @ie.combo_box("storyFieldOwner").select(:item_renderer => owner )
     @ie.text_area("storyFieldEffort").input(:text => effort )
@@ -208,7 +215,7 @@ private
   # Test whether error handling works for editing a story.
   def edit_story_failure
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
-    edit_story(' ', 'description', 'acceptance_criteria', 'fourth', 'second', 'ted williams', '1', 'Created', 'true')
+    edit_story(' ', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test', 'ted williams', '1', 'Created', 'true')
     @ie.button("storyBtnChange").click
     assert_equal "Name can't be blank", @ie.text_area("storyError").text
     assert_equal ' ', @ie.text_area("storyFieldName").text
@@ -216,6 +223,7 @@ private
     assert_equal 'acceptance_criteria', @ie.text_area("storyFieldAcceptanceCriteria").text
     assert_equal 'fourth', @ie.combo_box("storyFieldIteration").text
     assert_equal 'second', @ie.combo_box("storyFieldRelease").text
+    assert_equal 'Test', @ie.combo_box("storyFieldTeam").text
     assert_equal 'ted williams', @ie.combo_box("storyFieldOwner").text
     assert_equal '1', @ie.text_area("storyFieldEffort").text
     assert_equal 'Created', @ie.combo_box("storyFieldStatus").text
@@ -228,19 +236,19 @@ private
   # Test whether you can successfully edit a story.
   def edit_story_success
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
-    edit_story('foo 1', 'description', 'acceptance_criteria', 'fourth', 'second', 'ted williams', '1', 'Created', 'true')
+    edit_story('foo 1', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test', 'ted williams', '1', 'Created', 'true')
     @ie.button("storyBtnChange").click
     sleep 3 # Wait for results
     assert_equal '', @ie.text_area("storyError").text
     assert_nil @ie.button("storyBtnCancel")
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",foo 1,fourth,ted williams,1.0,Created,true,1,2.0,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
+    assert_equal ",foo 1,fourth,Test,ted williams,1.0,Created,true,1,2.0,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
   end
     
   # Test whether you can successfully cancel editing a story.
   def edit_story_cancel
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
-    edit_story('foo 1', 'description', 'acceptance_criteria', 'fourth', 'second', 'ted williams', '1', 'Created', 'true')
+    edit_story('foo 1', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test', 'ted williams', '1', 'Created', 'true')
     @ie.button("storyBtnCancel").click
     assert_equal '', @ie.text_area("storyError").text
     assert_nil @ie.button("storyBtnCancel")
@@ -272,6 +280,8 @@ private
     @ie.combo_box("updateFieldIteration").select(:item_renderer => 'fourth' )
     @ie.combo_box("updateFieldRelease").open
     @ie.combo_box("updateFieldRelease").select(:item_renderer => 'first' )
+    @ie.combo_box("updateFieldTeam").open
+    @ie.combo_box("updateFieldTeam").select(:item_renderer => 'Test' )
     @ie.combo_box("updateFieldOwner").open
     @ie.combo_box("updateFieldOwner").select(:item_renderer => 'aaron hank' )
     @ie.combo_box("updateFieldStatus").open
@@ -281,12 +291,12 @@ private
     @ie.button("updateBtnOk").click
     assert_equal '', @ie.text_area("storyError").text
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal "+,test,fourth,aaron hank,1.0,Created,true,2,2.0,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 1, :end => 1)
-    assert_equal ",test3,fourth,aaron hank,1.0,Created,true,1,2.0,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
+    assert_equal "+,test,fourth,Test,aaron hank,1.0,Created,true,2,2.0,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 1, :end => 1)
+    assert_equal ",test3,fourth,Test,aaron hank,1.0,Created,true,1,2.0,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
   end
 
   # Edit a story.
-  def edit_story(name, description, acceptance_criteria, iteration, release, owner, effort, status, public)
+  def edit_story(name, description, acceptance_criteria, iteration, release, team, owner, effort, status, public)
     @ie.button("storyBtnEdit")[1].click
     @ie.text_area("storyFieldName").input(:text => name )
     @ie.text_area("storyFieldDescription").input(:text => description )
@@ -295,6 +305,8 @@ private
     @ie.combo_box("storyFieldIteration").select(:item_renderer => iteration )
     @ie.combo_box("storyFieldRelease").open
     @ie.combo_box("storyFieldRelease").select(:item_renderer => release )
+    @ie.combo_box("storyFieldTeam").open
+    @ie.combo_box("storyFieldTeam").select(:item_renderer => team )
     @ie.combo_box("storyFieldOwner").open
     @ie.combo_box("storyFieldOwner").select(:item_renderer => owner )
     @ie.text_area("storyFieldEffort").input(:text => effort )

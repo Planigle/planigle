@@ -14,6 +14,7 @@
 		import mx.binding.utils.ChangeWatcher;
 		import org.planigle.planigle.model.ViewModelLocator;
 		import org.planigle.planigle.model.ProjectFactory;
+		import org.planigle.planigle.model.Team;
 		import org.planigle.planigle.model.IndividualFactory;
 		import org.planigle.planigle.model.Individual;
 		import org.planigle.planigle.model.ReleaseFactory;
@@ -42,7 +43,10 @@
 		[Bindable] // List of iterations plus Backlog and All Iterations
 		private var iterationFilter:ArrayCollection = new ArrayCollection();
 
-		[Bindable] // List of individuals plus All Owners and None
+		[Bindable] // List of teams plus All Teams and No Team
+		private var teamFilter:ArrayCollection = new ArrayCollection();
+
+		[Bindable] // List of individuals plus All Owners and No Owner
 		private var individualFilter:ArrayCollection = new ArrayCollection();
 
 		[Bindable] // List of stories (filtered for selected iteration)
@@ -58,10 +62,13 @@
 			ChangeWatcher.watch( factory, "currentIndividual", resetState ); // Reset if log out / logged back in
 			ChangeWatcher.watch( ReleaseFactory.getInstance(), "releaseSelector", updateReleaseFilterList );
 			ChangeWatcher.watch( IterationFactory.getInstance(), "iterationSelector", updateIterationFilterList );
+			ChangeWatcher.watch( IndividualFactory.current(), "project", updateTeamWatcher );
 			ChangeWatcher.watch( IndividualFactory.getInstance(), "individualSelector", updateIndividualFilterList );
 			ChangeWatcher.watch( StoryFactory.getInstance(), "stories", handleFilter );
 			setReleaseFilterList();
 			setIterationFilterList();
+			updateTeamWatcher(event);
+			setTeamFilterList();
 			setIndividualFilterList();
 			handleFilter(event);
 		}
@@ -168,6 +175,54 @@
 					iteration.selectedIndex = iterationFilter.length - 1;
 			}
 		}
+
+		private var watcher:ChangeWatcher;
+
+		// Watch for changes to the teams.
+		private function updateTeamWatcher(event:Event):void
+		{
+			if (watcher)
+				watcher.unwatch();
+			if (IndividualFactory.current().project)
+				watcher = ChangeWatcher.watch( IndividualFactory.current().project, "teams", updateTeamFilterList );
+			else watcher = null;
+		}
+
+		// Update the teamss in the filter list.
+		private function updateTeamFilterList(event:Event):void
+		{
+			setTeamFilterList();
+			handleFilter(event);
+		}
+		
+		// Set the teams in the filter list.
+		private function setTeamFilterList():void
+		{
+			// Remember selection so that updating teams doesn't revert it.
+			var id:String = team.selectedItem ? team.selectedItem.id : "-1";
+			var selection:Team = null;
+
+			var newFilter:ArrayCollection = new ArrayCollection();
+			var teams:ArrayCollection = IndividualFactory.current().project ? IndividualFactory.current().project.teamSelector : new ArrayCollection();
+			for each (var it:Team in teams)
+			{
+				newFilter.addItem(it);
+				if (it.id == id)
+					selection = it;
+			}
+			var all:Team = new Team();
+			all.populate( <team><id>-1</id><name>All Teams</name></team> );
+			newFilter.addItem(all);
+			teamFilter = newFilter;
+			if (selection)
+				team.selectedItem = selection;
+			else if (IndividualFactory.current().team)
+				team.selectedItem = IndividualFactory.current().team
+			else
+				team.selectedIndex = teamFilter.length - 1;
+			team.visible = teamFilter.length > 2;
+			team.width = team.visible ? 130 : 0;
+		}
 		
 		// Update the individuals in the filter list.
 		private function updateIndividualFilterList(event:Event):void
@@ -206,7 +261,7 @@
 			var stories:ArrayCollection = new ArrayCollection();
 			for each (var story:Story in StoryFactory.getInstance().stories)
 			{
-				if (matchesReleaseFilter(story) && matchesIterationFilter(story) && matchesIndividualFilter(story) && matchesStatusFilter(story))
+				if (matchesReleaseFilter(story) && matchesIterationFilter(story) && matchesTeamFilter(story) && matchesIndividualFilter(story) && matchesStatusFilter(story))
 					stories.addItem(story);
 			}
 			return stories;
@@ -222,6 +277,12 @@
 		private function matchesIterationFilter( story:Story ):Boolean
 		{
 			return !iteration.selectedItem || iteration.selectedItem.id == "-1" || story.iterationId == iteration.selectedItem.id;
+		}
+
+		// Answer whether the story matches the team filter.
+		private function matchesTeamFilter( story:Story ):Boolean
+		{
+			return !team.selectedItem || team.selectedItem.id == "-1" || story.teamId == team.selectedItem.id;
 		}
 
 		// Answer whether the story matches the individual filter.
@@ -249,6 +310,7 @@
 		public function handleFilter(event:Event):void
 		{
 			storyColumnIteration.visible = !iteration.selectedItem || iteration.selectedItem.id == "-1";
+			storyColumnTeam.visible = IndividualFactory.current().project.teams.length > 0 && (!team.selectedItem || team.selectedItem.id == "-1");
 			storyColumnIndividual.visible = !individual.selectedItem || individual.selectedItem.id == "-1";
 			var storiesAndTasks:ArrayCollection = new ArrayCollection;
 			for each (var story:Story in getFilteredStories())
@@ -339,6 +401,8 @@
 			storyFormRelease.visible = ReleaseFactory.getInstance().releaseSelector.length > 1;
 			storyFormIteration.height = 22;
 			storyFormIteration.visible = true;
+			storyFormTeam.height = 22;
+			storyFormTeam.visible = true;
 			storyFormAcceptanceCriteria.height = 65;
 			storyFormAcceptanceCriteria.visible = true;
 			storyFormPublic.height = 22;
@@ -354,6 +418,8 @@
 			storyFormRelease.visible = false;
 			storyFormIteration.height = 0;
 			storyFormIteration.visible = false;
+			storyFormTeam.height = 0;
+			storyFormTeam.visible = false;
 			storyFormAcceptanceCriteria.height = 0;
 			storyFormAcceptanceCriteria.visible = false;
 			storyFormPublic.height = 0;
@@ -403,12 +469,13 @@
 					storyFieldIteration.selectedIndex = IterationFactory.getInstance().iterationSelector.length - 1;
 				storyFieldRelease.dataProvider = storyFieldIteration.selectedItem.releases();
 				storyFieldRelease.selectedItem = storyFieldIteration.selectedItem.defaultRelease();
-				storyFieldOwner.selectedIndex = IndividualFactory.getInstance().individualSelector.length - 1;
+				storyFieldTeam.selectedIndex = IndividualFactory.current().project.teamSelector.length - 1;
+				storyFieldPublic.selectedIndex = ProjectFactory.getInstance().projects.getItemAt(0).surveyMode  == 2 ? 0 : 1;
 			}
 
+			storyFieldOwner.selectedIndex = IndividualFactory.getInstance().individualSelector.length - 1;
 			storyFieldEffort.text = '';
 			storyFieldStatus.selectedIndex = 0;
-			storyFieldPublic.selectedIndex = ProjectFactory.getInstance().projects.getItemAt(0).surveyMode  == 2 ? 0 : 1;
 			storyBtnChange.label = 'Create';
 		}
 
@@ -441,16 +508,23 @@
 						storyFieldRelease.dataProvider = iteration.releases();
 						storyFieldRelease.selectedItem = ReleaseFactory.getInstance().find(currentItem.releaseId);
 						storyFieldAcceptanceCriteria.text = currentItem.acceptanceCriteria;
+
+						var it:String = currentItem.teamId;
+						if (!it)
+							storyFieldTeam.selectedIndex = IndividualFactory.current().project.teamSelector.length - 1;
+						else
+							storyFieldTeam.selectedItem = IndividualFactory.current().project.find(it);
+
 						storyFieldPublic.selectedIndex = currentItem.isPublic ? 0 : 1;
 					}
 					else
 						prepareForTask();
 	
-					var it:String = currentItem.individualId;
-					if (!it)
+					var it2:String = currentItem.individualId;
+					if (!it2)
 						storyFieldOwner.selectedIndex = IndividualFactory.getInstance().individualSelector.length - 1;
 					else
-						storyFieldOwner.selectedItem = IndividualFactory.getInstance().find(it);
+						storyFieldOwner.selectedItem = IndividualFactory.getInstance().find(it2);
 	
 					storyFieldEffort.text = currentItem.effort;
 					storyFieldStatus.selectedIndex = currentItem.statusCode;
@@ -509,6 +583,7 @@
 				params['record[release_id]'] = storyFieldRelease.selectedItem.id > 0 ? storyFieldRelease.selectedItem.id : "";
 				params['record[iteration_id]'] = storyFieldIteration.selectedItem.id > 0 ? storyFieldIteration.selectedItem.id : "";
 				params['record[acceptance_criteria]'] = storyFieldAcceptanceCriteria.text;
+				params['record[team_id]'] = storyFieldTeam.selectedItem.id > 0 ? storyFieldTeam.selectedItem.id : "";
 				params['record[is_public]'] = storyFieldPublic.selectedItem.value;
 			}
 			return params;
@@ -728,6 +803,9 @@
 						<mx:FormItem label="Release" id="storyFormRelease">
 							<mx:ComboBox id='storyFieldRelease' width="350" editable="false" labelField="name"></mx:ComboBox>
 						</mx:FormItem>
+						<mx:FormItem label='Team' id="storyFormTeam">
+							<mx:ComboBox id='storyFieldTeam' width="350" editable="false" dataProvider="{IndividualFactory.current().project.teamSelector}" labelField="name"></mx:ComboBox>
+						</mx:FormItem>
 						<mx:FormItem label='Owner'>
 							<mx:ComboBox id='storyFieldOwner' width="350" editable="false" dataProvider="{IndividualFactory.getInstance().individualSelector}" labelField="fullName"></mx:ComboBox>
 						</mx:FormItem>
@@ -812,10 +890,11 @@
 		<mx:VBox id="vbox" width="100%" paddingTop="5" paddingLeft="5" paddingRight="5">
 			<mx:HBox id="storyBtnBox" width="100%" horizontalAlign="left">
 				<mx:HBox width="100%" id='topRow'>
-					<mx:ComboBox id='release' width="130" editable="false" dataProvider="{releaseFilter}" labelField="name" change="handleReleaseFilter(event)"></mx:ComboBox>
-					<mx:ComboBox id='iteration' width="130" editable="false" dataProvider="{iterationFilter}" labelField="name" change="handleFilter(event)"></mx:ComboBox>
-					<mx:ComboBox id='individual' width="130" editable="false" dataProvider="{individualFilter}" labelField="fullName" change="handleFilter(event)"></mx:ComboBox>
-					<mx:ComboBox id='storyStatus' width="130" editable="false" change="handleFilter(event)" selectedIndex="2">
+					<mx:ComboBox id='release' width="115" editable="false" dataProvider="{releaseFilter}" labelField="name" change="handleReleaseFilter(event)"></mx:ComboBox>
+					<mx:ComboBox id='iteration' width="115" editable="false" dataProvider="{iterationFilter}" labelField="name" change="handleFilter(event)"></mx:ComboBox>
+					<mx:ComboBox id='team' width="115" editable="false" dataProvider="{teamFilter}" labelField="name" change="handleFilter(event)"></mx:ComboBox>
+					<mx:ComboBox id='individual' width="115" editable="false" dataProvider="{individualFilter}" labelField="fullName" change="handleFilter(event)"></mx:ComboBox>
+					<mx:ComboBox id='storyStatus' width="116" editable="false" change="handleFilter(event)" selectedIndex="2">
 						<mx:Object label="Created" value="0" />
 						<mx:Object label="In Progress" value="1" />
 						<mx:Object label="Not Accepted" value="-2" />
@@ -843,8 +922,9 @@
 					</mx:itemRenderer>
 				</mx:DataGridColumn>
 				<mx:DataGridColumn headerText="Name" wordWrap="true" dataField="listName" showDataTips="true" dataTipField="description" />
-				<mx:DataGridColumn id="storyColumnIteration" width="150" headerText="Iteration" labelFunction="ViewHelper.formatIteration" sortCompareFunction="ViewHelper.sortIteration"/>
-				<mx:DataGridColumn id="storyColumnIndividual" headerText="Owner" width="150" labelFunction="ViewHelper.formatIndividual" sortCompareFunction="ViewHelper.sortIndividual"/>
+				<mx:DataGridColumn id="storyColumnIteration" width="135" headerText="Iteration" labelFunction="ViewHelper.formatIteration" sortCompareFunction="ViewHelper.sortIteration"/>
+				<mx:DataGridColumn id="storyColumnTeam" headerText="Team" width="135" labelFunction="ViewHelper.formatTeam" sortCompareFunction="ViewHelper.sortTeam"/>
+				<mx:DataGridColumn id="storyColumnIndividual" headerText="Owner" width="135" labelFunction="ViewHelper.formatIndividual" sortCompareFunction="ViewHelper.sortIndividual"/>
 				<mx:DataGridColumn headerText="Effort" width="65" dataField="calculatedEffort" sortCompareFunction="ViewHelper.sortEffort"/>
 				<mx:DataGridColumn editable="false" width="100" minWidth="115" headerText="Status" sortCompareFunction="ViewHelper.sortStatus">
 					<mx:itemRenderer> 

@@ -72,7 +72,7 @@ package org.planigle.planigle.model
 			}
 			
 			var tm:Team = new Team();
-			tm.populate( <team><id nil="true" /><name>None</name></team> );
+			tm.populate( <team><id nil="true" /><name>No Team</name></team> );
 			newTeamSelector.addItem( tm );
 			teamSelector = newTeamSelector;
 		}
