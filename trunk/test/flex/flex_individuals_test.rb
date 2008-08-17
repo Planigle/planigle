@@ -163,7 +163,7 @@ private
     sleep 5 # Wait for results
     assert_equal 'Individual was successfully created.', @ie.text_area("individualError").text
     assert_equal 'Test', @ie.combo_box("individualFieldProject").text
-    assert_equal 'None', @ie.combo_box("individualFieldTeam").text
+    assert_equal 'No Team', @ie.combo_box("individualFieldTeam").text
     assert_equal '', @ie.text_area("individualFieldLogin").text
     assert_equal '', @ie.text_area("individualFieldPassword").text
     assert_equal '', @ie.text_area("individualFieldPasswordConfirmation").text

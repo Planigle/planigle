@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="500" height="250">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="500" height="270">
 	<mx:Script>
 		<![CDATA[
 			// Update items provided via items variable..
@@ -9,6 +9,7 @@
 			import org.planigle.planigle.model.Release;
 			import org.planigle.planigle.model.IterationFactory;
 			import org.planigle.planigle.model.Iteration;
+			import org.planigle.planigle.model.Team;
 			import org.planigle.planigle.model.IndividualFactory;
 			import org.planigle.planigle.model.Individual;
 			
@@ -22,6 +23,9 @@
 
 			[Bindable]
 			private var releases:ArrayCollection = new ArrayCollection();
+
+			[Bindable]
+			private var teams:ArrayCollection = new ArrayCollection();
 
 			[Bindable]
 			private var individuals:ArrayCollection = new ArrayCollection();
@@ -46,6 +50,10 @@
 				for each (var release:Release in ReleaseFactory.getInstance().releaseSelector)
 					releases.addItem(release);
 
+				teams.addItem(noChange);
+				for each (var team:Team in IndividualFactory.current().project.teamSelector)
+					teams.addItem(team);
+
 				individuals.addItem(noChange);
 				for each (var individual:Individual in IndividualFactory.getInstance().individualSelector)
 					individuals.addItem(individual);
@@ -60,6 +68,8 @@
 				if (updateFieldRelease.selectedItem.id != "-1")
 					params['record[release_id]'] = updateFieldRelease.selectedItem.id ? updateFieldRelease.selectedItem.id : ""
 				if (updateFieldOwner.selectedItem.id != "-1")
+					params['record[team_id]'] = updateFieldTeam.selectedItem.id ? updateFieldTeam.selectedItem.id : ""
+				if (updateFieldTeam.selectedItem.id != "-1")
 					params['record[individual_id]'] = updateFieldOwner.selectedItem.id ? updateFieldOwner.selectedItem.id : ""
 				if (updateFieldStatus.selectedItem.value != "-1")
 					params['record[status_code]'] = updateFieldStatus.selectedItem.value
@@ -89,6 +99,9 @@
 			</mx:FormItem>
 			<mx:FormItem label="Release" id="form_release">
 				<mx:ComboBox id='updateFieldRelease' width="350" editable="false" dataProvider="{releases}" labelField="name"></mx:ComboBox>
+			</mx:FormItem>
+			<mx:FormItem label='Team'>
+				<mx:ComboBox id='updateFieldTeam' width="350" editable="false" dataProvider="{teams}" labelField="name"></mx:ComboBox>
 			</mx:FormItem>
 			<mx:FormItem label='Owner'>
 				<mx:ComboBox id='updateFieldOwner' width="350" editable="false" dataProvider="{individuals}" labelField="fullName"></mx:ComboBox>

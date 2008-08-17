@@ -70,7 +70,7 @@ package org.planigle.planigle.view
 		// Display the team's name in the table (rather than ID).
 		public static function formatTeam(item:Object, column:DataGridColumn):String
 		{
-			return ProjectFactory.getInstance().find(item.projectId).find(item.teamId).name;
+			return item.hasOwnProperty("teamId") ? ProjectFactory.getInstance().find(item.projectId).find(item.teamId).name : "";
 		}
 
 		// Answer the index of the team in the list of teams (or -1 if no team).

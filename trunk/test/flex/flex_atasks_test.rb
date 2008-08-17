@@ -1,11 +1,12 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
 require 'test/unit'
 require 'funfx' 
-
-class FlexTasksTest < Test::Unit::TestCase
+#Moved to beginning by preceding with an A.
+class FlexAtasksTest < Test::Unit::TestCase
   fixtures :systems
   fixtures :tasks
   fixtures :projects
+  fixtures :teams
   fixtures :individuals
   fixtures :stories
   fixtures :iterations
@@ -72,8 +73,8 @@ class FlexTasksTest < Test::Unit::TestCase
     @ie.button("updateBtnOk").click
     assert_equal '', @ie.text_area("storyError").text
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",     test,,aaron hank,3.0,Created, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 2, :end => 2)
-    assert_equal ",     test2,,aaron hank,2.0,Created, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 3, :end => 3)
+    assert_equal ",     test,,,aaron hank,3.0,Created, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 2, :end => 2)
+    assert_equal ",     test2,,,aaron hank,2.0,Created, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 3, :end => 3)
   end
 
   # Test edit (in one stream for more efficiency).
@@ -99,8 +100,9 @@ class FlexTasksTest < Test::Unit::TestCase
   end
 
   # Test logging in as a story admin
-  def test_story_admin
+  def test_project_admin
     init('aaron')
+    @ie.button("storyBtnExpand")[1].click # In position 1 in some cases
     assert_equal Story.count(:conditions => ['project_id = ? and status_code < 2', projects(:first).id]) + Task.count(:conditions => ['story_id = ?', stories(:first).id]), @ie.data_grid("storyResourceGrid").num_rows
     assert @ie.button("taskBtnAdd")[2].visible
     assert @ie.button("storyBtnEdit")[3].visible
@@ -108,7 +110,7 @@ class FlexTasksTest < Test::Unit::TestCase
   end
 
   # Test logging in as a story user
-  def test_story_user
+  def test_project_user
     init('user')
     assert_equal Story.count(:conditions => ['project_id = ? and status_code < 2', projects(:first).id]) + Task.count(:conditions => ['story_id = ?', stories(:first).id]), @ie.data_grid("storyResourceGrid").num_rows
     assert @ie.button("taskBtnAdd")[2].visible
@@ -174,12 +176,12 @@ private
     assert_equal 'Task was successfully created.', @ie.text_area("storyError").text
     assert_equal '', @ie.text_area("storyFieldName").text
     assert_equal '', @ie.text_area("storyFieldDescription").text
-    assert_equal 'ted williams', @ie.combo_box("storyFieldOwner").text
+    assert_equal 'No Owner', @ie.combo_box("storyFieldOwner").text
     assert_equal '', @ie.text_area("storyFieldEffort").text
     assert_equal 'Created', @ie.combo_box("storyFieldStatus").text
     assert_not_nil @ie.button("storyBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",     foo,,ted williams,1.0,Created, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 4, :end => 4)
+    assert_equal ",     foo,,,ted williams,1.0,Created, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 4, :end => 4)
     @ie.button("storyBtnCancel").click
   end
     
@@ -237,7 +239,7 @@ private
     assert_equal '', @ie.text_area("storyError").text
     assert_nil @ie.button("storyBtnCancel")
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",     foo 1,,ted williams,1.0,Created, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 3, :end => 3)
+    assert_equal ",     foo 1,,,ted williams,1.0,Created, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 3, :end => 3)
   end
     
   # Test whether you can successfully cancel editing a task.
@@ -301,6 +303,8 @@ private
     login(logon, 'testit')
     sleep 3 # Wait to ensure data loaded
     @ie.button_bar("mainNavigation").change(:related_object => "Stories")
+    @ie.combo_box("team").open
+    @ie.combo_box("team").select(:item_renderer => 'All Teams' )
     @ie.button("storyBtnExpand")[2].click
   end
 end
