@@ -31,7 +31,7 @@ package org.planigle.planigle.model
 		// Populate myself from XML.
 		public function populate(xml:XML):void
 		{
-			id = xml.id;
+			id = xml.id == "" ? null: xml.id;
 			projectId = xml.child("project-id") == "" ? null : xml.child("project-id");
 			teamId = xml.child("team-id") == "" ? null : xml.child("team-id");
 			login = xml.login;
