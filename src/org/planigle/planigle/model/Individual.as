@@ -48,6 +48,23 @@ package org.planigle.planigle.model
 			acceptedAgreement = acceptedDate == "" ? null : DateUtils.stringToDate(acceptedDate);
 		}
 
+		// Populate myself from an object.
+		public function populateFromObject(individual:Individual):void
+		{
+			id = individual.id;
+			projectId = individual.projectId;
+			teamId = individual.teamId;
+			login = individual.login;
+			email = individual.email;
+			firstName = individual.firstName;
+			lastName = individual.lastName;
+			role = individual.role;
+			activatedAt = individual.activatedAt;
+			enabled = individual.enabled;
+			lastLogin = individual.lastLogin;
+			acceptedAgreement = individual.acceptedAgreement;
+		}
+
 		// Answer my full name.
 		public function get fullName():String
 		{

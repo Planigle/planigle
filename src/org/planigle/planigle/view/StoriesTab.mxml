@@ -62,12 +62,12 @@
 			ChangeWatcher.watch( factory, "currentIndividual", resetState ); // Reset if log out / logged back in
 			ChangeWatcher.watch( ReleaseFactory.getInstance(), "releaseSelector", updateReleaseFilterList );
 			ChangeWatcher.watch( IterationFactory.getInstance(), "iterationSelector", updateIterationFilterList );
-			ChangeWatcher.watch( IndividualFactory.current(), "project", updateTeamWatcher );
+			ChangeWatcher.watch( IndividualFactory.current(), "projectId", updateTeamWatcher );
 			ChangeWatcher.watch( IndividualFactory.getInstance(), "individualSelector", updateIndividualFilterList );
 			ChangeWatcher.watch( StoryFactory.getInstance(), "stories", handleFilter );
 			setReleaseFilterList();
 			setIterationFilterList();
-			updateTeamWatcher(event);
+			setTeamWatcher();
 			setTeamFilterList();
 			setIndividualFilterList();
 			handleFilter(event);
@@ -181,6 +181,13 @@
 		// Watch for changes to the teams.
 		private function updateTeamWatcher(event:Event):void
 		{
+			setTeamWatcher();
+			updateTeamFilterList(event);
+		}
+
+		// Watch for changes to the teams.
+		private function setTeamWatcher():void
+		{
 			if (watcher)
 				watcher.unwatch();
 			if (IndividualFactory.current().project)
@@ -188,7 +195,7 @@
 			else watcher = null;
 		}
 
-		// Update the teamss in the filter list.
+		// Update the teams in the filter list.
 		private function updateTeamFilterList(event:Event):void
 		{
 			setTeamFilterList();
@@ -361,11 +368,22 @@
 		// Add a story to the current iteration.
 		private function addStory(stories:Array):void
 		{
-			var defaultRelease:Release = release.selectedItem.id == "-1" ? iteration.selectedItem.defaultRelease() : Release(release.selectedItem);
+			var params:Object = new Object();
+			if (iteration.selectedItem && iteration.selectedItem.id != "-1")
+			{
+				params["record[iteration_id]"] = iteration.selectedItem.id ? iteration.selectedItem.id : "";
+				var defaultRelease:Release = iteration.selectedItem.defaultRelease();
+				if ( defaultRelease && defaultRelease.id )
+					params["record[release_id]"] = defaultRelease.id; // Might be overriden below
+			}
+			if (release.selectedItem && release.selectedItem.id != "-1")
+				params["record[release_id]"] = release.selectedItem.id ? release.selectedItem.id : "";
+			if (team.selectedItem && team.selectedItem.id != "-1")
+				params["record[team_id]"] = team.selectedItem.id ? team.selectedItem.id : "";
+			if (individual.selectedItem && individual.selectedItem.id != "-1")
+				params["record[individual_id]"] = individual.selectedItem.id ? individual.selectedItem.id : "";
 			for each (var story:Story in stories)
-				updateItem(story, {
-						"record[iteration_id]": iteration.selectedItem.id && iteration.selectedItem.id != "-1" ? iteration.selectedItem.id : "",
-						"record[release_id]": defaultRelease.id ? defaultRelease.id : "" });
+				updateItem(story, params);
 			handleUpdateSuccess(); // Prime the processing.
 		}
 		
@@ -463,17 +481,32 @@
 			if (isStory)
 			{
 				storyFieldAcceptanceCriteria.text = '';
-				if (!iteration.selectedItem.id || iteration.selectedItem.id > 0)
+
+				if (iteration.selectedItem.id != "-1")
 					storyFieldIteration.selectedItem = iteration.selectedItem;
 				else
 					storyFieldIteration.selectedIndex = IterationFactory.getInstance().iterationSelector.length - 1;
+
 				storyFieldRelease.dataProvider = storyFieldIteration.selectedItem.releases();
-				storyFieldRelease.selectedItem = storyFieldIteration.selectedItem.defaultRelease();
-				storyFieldTeam.selectedIndex = IndividualFactory.current().project.teamSelector.length - 1;
+
+				if (release.selectedItem.id != "-1")
+					storyFieldRelease.selectedItem = release.selectedItem;
+				else
+					storyFieldRelease.selectedItem = storyFieldIteration.selectedItem.defaultRelease();
+
+				if (team.selectedItem.id != "-1")
+					storyFieldTeam.selectedItem = team.selectedItem;
+				else
+					storyFieldTeam.selectedIndex = IndividualFactory.current().project.teamSelector.length - 1;
+
 				storyFieldPublic.selectedIndex = ProjectFactory.getInstance().projects.getItemAt(0).surveyMode  == 2 ? 0 : 1;
 			}
 
-			storyFieldOwner.selectedIndex = IndividualFactory.getInstance().individualSelector.length - 1;
+			if (individual.selectedItem.id != "-1")
+				storyFieldOwner.selectedItem = individual.selectedItem;
+			else
+				storyFieldOwner.selectedIndex = IndividualFactory.getInstance().individualSelector.length - 1;
+
 			storyFieldEffort.text = '';
 			storyFieldStatus.selectedIndex = 0;
 			storyBtnChange.label = 'Create';
