@@ -40,17 +40,27 @@ package org.planigle.planigle.model
 		}
 		
 		// Update my individuals to be the specified individuals.
-		public function updateIndividuals( newIndividuals:ArrayCollection ):void
+		public function updateIndividuals( newIndivids:ArrayCollection ):void
 		{
+			var newIndividuals:ArrayCollection = new ArrayCollection();
 			var newIndividualSelector:ArrayCollection = new ArrayCollection();
 			individualMapping = new Object();
 
-			for each (var individual:Individual in newIndividuals)
+			for each (var individual:Individual in newIndivids)
 			{
+				if (individual.login == currentLogin)
+				{
+					if (currentIndividual)
+					{
+						currentIndividual.populateFromObject( individual ); // Important to keep same instance
+						individual = currentIndividual;
+					}
+					else
+						currentIndividual = individual;
+				}
+				newIndividuals.addItem(individual);
 				newIndividualSelector.addItem(individual);
 				individualMapping[individual.id] = individual;
-				if (individual.login == currentLogin)
-					currentIndividual = individual;
 			}
 			
 			var individ:Individual = new Individual();

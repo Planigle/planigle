@@ -54,9 +54,14 @@ package org.planigle.planigle.model
 		// I have been successfully deleted.  Remove myself to reflect the changes.
 		public function destroyCompleted():void
 		{
-			var teamCollect:ArrayCollection = new ArrayCollection(project.teams);
-			teamCollect.removeItemAt(teamCollect.getItemIndex(this));
-			project.teams = teamCollect.source;
+			// Create copy to ensure any views get notified of changes.
+			var teams:ArrayCollection = new ArrayCollection();
+			for each (var team:Team in project.teams)
+			{
+				if (team != this)
+					teams.addItem(team);
+			}
+			project.teams = teams.source;
 
 			// Create copy to ensure any views get notified of changes.
 			var projects:ArrayCollection = new ArrayCollection();

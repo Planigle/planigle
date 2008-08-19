@@ -67,9 +67,9 @@
 					params['record[iteration_id]'] = updateFieldIteration.selectedItem.id ? updateFieldIteration.selectedItem.id : ""
 				if (updateFieldRelease.selectedItem.id != "-1")
 					params['record[release_id]'] = updateFieldRelease.selectedItem.id ? updateFieldRelease.selectedItem.id : ""
-				if (updateFieldOwner.selectedItem.id != "-1")
-					params['record[team_id]'] = updateFieldTeam.selectedItem.id ? updateFieldTeam.selectedItem.id : ""
 				if (updateFieldTeam.selectedItem.id != "-1")
+					params['record[team_id]'] = updateFieldTeam.selectedItem.id ? updateFieldTeam.selectedItem.id : ""
+				if (updateFieldOwner.selectedItem.id != "-1")
 					params['record[individual_id]'] = updateFieldOwner.selectedItem.id ? updateFieldOwner.selectedItem.id : ""
 				if (updateFieldStatus.selectedItem.value != "-1")
 					params['record[status_code]'] = updateFieldStatus.selectedItem.value
