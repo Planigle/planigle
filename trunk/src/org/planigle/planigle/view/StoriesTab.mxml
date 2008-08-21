@@ -246,7 +246,7 @@
 			var selection:Individual = null;
 
 			var newFilter:ArrayCollection = new ArrayCollection();
-			for each (var it:Individual in IndividualFactory.getInstance().individualSelector)
+			for each (var it:Individual in IndividualFactory.current().project.individuals)
 			{
 				newFilter.addItem(it);
 				if (it.id == id)
@@ -464,7 +464,7 @@
 			// Set default owner to that of the story.
 			var it:String = currentItem.individualId;
 			if (!it)
-				storyFieldOwner.selectedIndex = IndividualFactory.getInstance().individualSelector.length - 1;
+				storyFieldOwner.selectedIndex = IndividualFactory.current().project.individuals.length - 1;
 			else
 				storyFieldOwner.selectedItem = IndividualFactory.getInstance().find(it);
 		}
@@ -505,7 +505,7 @@
 			if (individual.selectedItem.id != "-1")
 				storyFieldOwner.selectedItem = individual.selectedItem;
 			else
-				storyFieldOwner.selectedIndex = IndividualFactory.getInstance().individualSelector.length - 1;
+				storyFieldOwner.selectedIndex = IndividualFactory.current().project.individuals.length - 1;
 
 			storyFieldEffort.text = '';
 			storyFieldStatus.selectedIndex = 0;
@@ -555,7 +555,7 @@
 	
 					var it2:String = currentItem.individualId;
 					if (!it2)
-						storyFieldOwner.selectedIndex = IndividualFactory.getInstance().individualSelector.length - 1;
+						storyFieldOwner.selectedIndex = IndividualFactory.current().project.individuals.length - 1;
 					else
 						storyFieldOwner.selectedItem = IndividualFactory.getInstance().find(it2);
 	
@@ -634,17 +634,20 @@
 			}
 			else if (storyBtnChange.label == 'Update')
 			{
-				updateItem(currentItem, getParams(currentItem.isStory()));
+				var params2:Object = getParams(currentItem.isStory());
+				updateItem(currentItem, params2);
+				if (!currentItem.isStory() && currentItem.statusCode == Story.CREATED && params2['record[status_code]'] != Story.CREATED && currentItem.story.statusCode == Story.CREATED)
+					updateItem(currentItem.story, {'record[status_code]': Story.IN_PROGRESS});
 				handleUpdateSuccess(); // Prime the processing.
 			}
 			else
 			{	// Split and default to priority between current story and next in priority
-				var params:Object = getParams(true);
+				var params3:Object = getParams(true);
 				var allStories:ArrayCollection = StoryFactory.getInstance().stories;
 				var index:int = allStories.getItemIndex(currentItem);
 				var nextPriority:Number = index + 1 == allStories.length ? currentItem.priority + 1 : allStories.getItemAt( index + 1 ).priority;
-				params['record[priority]'] = (currentItem.priority + nextPriority) / 2;
-				currentItem.split(params, handleSuccess, handleFailure);
+				params3['record[priority]'] = (currentItem.priority + nextPriority) / 2;
+				currentItem.split(params3, handleSuccess, handleFailure);
 			}
 		}
 
@@ -663,6 +666,17 @@
 		// Handle a successful create.
 		private function handleCreateSuccess():void
 		{
+			if (currentItem && currentItem.statusCode == Story.CREATED)
+			{
+				var inProgress:Boolean = false;
+				for each (var task:Task in currentItem.tasks)
+				{
+					if (task.statusCode != Story.CREATED)
+						inProgress = true;
+				}
+				if (inProgress)
+					currentItem.update({'record[status_code]': Story.IN_PROGRESS}, null, handleUpdateFailure);
+			}
 			showCreate(currentItem == null);
 			setError( currentItem == null ? "Story was successfully created." : "Task was successfully created.");
 		}
@@ -783,6 +797,8 @@
 		{
 			var recalc:Boolean = item.statusCode == 2 && event.target.selectedIndex < 2;
 			updateItem(item, {"record[status_code]": event.target.selectedIndex});
+			if (!item.isStory() && item.statusCode == Story.CREATED && event.target.selectedIndex != Story.CREATED && item.story.statusCode == Story.CREATED)
+				updateItem(item.story, {'record[status_code]': Story.IN_PROGRESS});
 			handleUpdateSuccess(); // Prime processing.
 			if (recalc)
 				new StoryChangedEvent().dispatch();
@@ -840,7 +856,7 @@
 							<mx:ComboBox id='storyFieldTeam' width="350" editable="false" dataProvider="{IndividualFactory.current().project.teamSelector}" labelField="name"></mx:ComboBox>
 						</mx:FormItem>
 						<mx:FormItem label='Owner'>
-							<mx:ComboBox id='storyFieldOwner' width="350" editable="false" dataProvider="{IndividualFactory.getInstance().individualSelector}" labelField="fullName"></mx:ComboBox>
+							<mx:ComboBox id='storyFieldOwner' width="350" editable="false" dataProvider="{IndividualFactory.current().project.individuals}" labelField="fullName"></mx:ComboBox>
 						</mx:FormItem>
 						<mx:FormItem label='Effort'>
 							<mx:TextInput id='storyFieldEffort' restrict="0-9." text='' width="350"/>

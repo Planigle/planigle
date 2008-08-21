@@ -76,6 +76,18 @@ package org.planigle.planigle.model
 			newTeamSelector.addItem( tm );
 			teamSelector = newTeamSelector;
 		}
+
+		// Answer my individuals.
+		public function get individuals():ArrayCollection
+		{
+			var individuals:ArrayCollection = new ArrayCollection();
+			for each (var individual:Individual in IndividualFactory.getInstance().individualSelector)
+			{
+				if (!individual.id || individual.projectId == id)
+					individuals.addItem(individual);
+			}
+			return individuals;
+		}
 		
 		// Update me.  Params should be of the format (record[param]).  Success function
 		// will be called if successfully updated.  FailureFunction will be called if failed (will
