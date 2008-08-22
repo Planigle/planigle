@@ -856,7 +856,7 @@
 							<mx:ComboBox id='storyFieldTeam' width="350" editable="false" dataProvider="{IndividualFactory.current().project.teamSelector}" labelField="name"></mx:ComboBox>
 						</mx:FormItem>
 						<mx:FormItem label='Owner'>
-							<mx:ComboBox id='storyFieldOwner' width="350" editable="false" dataProvider="{IndividualFactory.current().project.individuals}" labelField="fullName"></mx:ComboBox>
+							<mx:ComboBox id='storyFieldOwner' width="350" editable="false" dataProvider="{IndividualFactory.current().project.individuals()}" labelField="fullName"></mx:ComboBox>
 						</mx:FormItem>
 						<mx:FormItem label='Effort'>
 							<mx:TextInput id='storyFieldEffort' restrict="0-9." text='' width="350"/>

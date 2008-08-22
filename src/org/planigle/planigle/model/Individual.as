@@ -85,6 +85,12 @@ package org.planigle.planigle.model
 			return _project;
 		}
 
+		// Set my project.
+		private function set project(project:Project):void
+		{
+			_project = project;
+		}
+
 		// Answer my project id.
 		public function get projectId():String
 		{
@@ -95,7 +101,7 @@ package org.planigle.planigle.model
 		public function set projectId(newId:String):void
 		{
 			_projectId = newId;
-			_project = null;
+			project = null;
 		}
 
 		// Answer my team.
