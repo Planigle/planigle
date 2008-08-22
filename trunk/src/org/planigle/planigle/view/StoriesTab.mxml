@@ -246,7 +246,7 @@
 			var selection:Individual = null;
 
 			var newFilter:ArrayCollection = new ArrayCollection();
-			for each (var it:Individual in IndividualFactory.current().project.individuals)
+			for each (var it:Individual in IndividualFactory.current().project.individuals())
 			{
 				newFilter.addItem(it);
 				if (it.id == id)
@@ -464,7 +464,7 @@
 			// Set default owner to that of the story.
 			var it:String = currentItem.individualId;
 			if (!it)
-				storyFieldOwner.selectedIndex = IndividualFactory.current().project.individuals.length - 1;
+				storyFieldOwner.selectedIndex = IndividualFactory.current().project.individuals().length - 1;
 			else
 				storyFieldOwner.selectedItem = IndividualFactory.getInstance().find(it);
 		}
@@ -505,7 +505,7 @@
 			if (individual.selectedItem.id != "-1")
 				storyFieldOwner.selectedItem = individual.selectedItem;
 			else
-				storyFieldOwner.selectedIndex = IndividualFactory.current().project.individuals.length - 1;
+				storyFieldOwner.selectedIndex = IndividualFactory.current().project.individuals().length - 1;
 
 			storyFieldEffort.text = '';
 			storyFieldStatus.selectedIndex = 0;
@@ -555,7 +555,7 @@
 	
 					var it2:String = currentItem.individualId;
 					if (!it2)
-						storyFieldOwner.selectedIndex = IndividualFactory.current().project.individuals.length - 1;
+						storyFieldOwner.selectedIndex = IndividualFactory.current().project.individuals().length - 1;
 					else
 						storyFieldOwner.selectedItem = IndividualFactory.getInstance().find(it2);
 	
