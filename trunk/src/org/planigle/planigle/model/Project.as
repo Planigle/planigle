@@ -78,7 +78,7 @@ package org.planigle.planigle.model
 		}
 
 		// Answer my individuals.
-		public function get individuals():ArrayCollection
+		public function individuals():ArrayCollection
 		{
 			var individuals:ArrayCollection = new ArrayCollection();
 			for each (var individual:Individual in IndividualFactory.getInstance().individualSelector)

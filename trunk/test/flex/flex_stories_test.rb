@@ -26,50 +26,67 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
 
   # Test create failure.
-  def test_create_failure
+  def atest_create_failure
     init('admin2')
     create_story_failure
   end 
 
   # Test create failure.
-  def test_create_success
+  def atest_create_success
     init('admin2')
     create_story_success
   end 
 
   # Test create failure.
-  def test_create_cancel
+  def atest_create_cancel
     init('admin2')
     create_story_cancel
   end 
 
   # Test edit failure.
-  def test_an_edit_failure
+  def atest_an_edit_failure
     init('admin2')
     edit_story_failure
   end 
 
   # Test edit failure.
-  def test_an_edit_success
+  def atest_an_edit_success
     init('admin2')
     edit_story_success
   end 
 
   # Test edit failure.
-  def test_an_edit_cancel
+  def atest_an_edit_cancel
     init('admin2')
     edit_story_cancel
   end 
 
   # Test editing multiple.
-  def test_an_edit_multiple
+  def atest_an_edit_multiple
     init('admin2')
     edit_single
     edit_multiple
   end 
 
+  def test_a_split_failure
+    init('admin2')
+    split_story_failure
+  end 
+
+  # Test edit failure.
+  def test_a_split_success
+    init('admin2')
+    split_story_success
+  end 
+
+  # Test edit failure.
+  def test_a_split_cancel
+    init('admin2')
+    split_story_cancel
+  end 
+
   # Test misc (in one stream for more efficiency).
-  def test_misc
+  def atest_misc
     init('admin2')
     delete_story_cancel
     delete_story
@@ -77,14 +94,14 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
 
   # Test deleting multiple.
-  def test_z_misc_delete_multiple
+  def atest_z_misc_delete_multiple
     init('admin2')
     delete_single
     delete_multiple
   end 
 
   # Test logging in as a project admin
-  def test_project_admin
+  def atest_project_admin
     init('aaron')
     assert @ie.button("storyBtnCreate").visible
     assert @ie.button("storyBtnEdit")[1].visible
@@ -92,7 +109,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
 
   # Test logging in as a project user
-  def test_project_user
+  def atest_project_user
     init('user')
     assert @ie.button("storyBtnCreate").visible
     assert @ie.button("storyBtnEdit")[1].visible
@@ -100,7 +117,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
 
   # Test logging in as a read only user
-  def test_read_only
+  def atest_read_only
     init('readonly')
     assert !@ie.button("storyBtnCreate").visible
     assert !@ie.button("storyBtnEdit")[1].visible
@@ -316,6 +333,86 @@ private
     @ie.combo_box("storyFieldPublic").select(:item_renderer => public )
   end
     
+  # Test whether error handling works for splitting a story.
+  def split_story_failure
+    num_rows = @ie.data_grid("storyResourceGrid").num_rows
+    @ie.button("storyBtnSplit")[2].click
+    assert_equal 'test', @ie.text_area("storyFieldName").text
+    assert_equal 'description', @ie.text_area("storyFieldDescription").text
+    assert_equal 'criteria', @ie.text_area("storyFieldAcceptanceCriteria").text
+    assert_equal 'second', @ie.combo_box("storyFieldIteration").text
+    assert_equal 'first', @ie.combo_box("storyFieldRelease").text
+    assert_equal 'Test', @ie.combo_box("storyFieldTeam").text
+    assert_equal 'aaron hank', @ie.combo_box("storyFieldOwner").text
+    assert_equal '1', @ie.text_area("storyFieldEffort").text
+    assert_equal 'Created', @ie.combo_box("storyFieldStatus").text
+    assert_equal 'true', @ie.combo_box("storyFieldPublic").text
+    split_story(' ', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test', 'ted williams', '1', 'Created', 'true')
+    @ie.button("storyBtnChange").click
+    assert_equal "Name can't be blank", @ie.text_area("storyError").text
+    assert_equal ' ', @ie.text_area("storyFieldName").text
+    assert_equal 'description', @ie.text_area("storyFieldDescription").text
+    assert_equal 'acceptance_criteria', @ie.text_area("storyFieldAcceptanceCriteria").text
+    assert_equal 'fourth', @ie.combo_box("storyFieldIteration").text
+    assert_equal 'second', @ie.combo_box("storyFieldRelease").text
+    assert_equal 'Test', @ie.combo_box("storyFieldTeam").text
+    assert_equal 'ted williams', @ie.combo_box("storyFieldOwner").text
+    assert_equal '1', @ie.text_area("storyFieldEffort").text
+    assert_equal 'Created', @ie.combo_box("storyFieldStatus").text
+    assert_equal 'true', @ie.combo_box("storyFieldPublic").text
+    assert_not_nil @ie.button("storyBtnCancel")
+    assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
+    @ie.button("storyBtnCancel").click
+  end
+    
+  # Test whether you can successfully split a story.
+  def split_story_success
+    num_rows = @ie.data_grid("storyResourceGrid").num_rows
+    @ie.button("storyBtnSplit")[2].click
+    split_story('foo 1', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test', 'ted williams', '1', 'Created', 'true')
+    @ie.button("storyBtnChange").click
+    sleep 3 # Wait for results
+    assert_equal '', @ie.text_area("storyError").text
+    assert_nil @ie.button("storyBtnCancel")
+    rows = @ie.data_grid("storyResourceGrid").num_rows
+    assert_equal num_rows + 1, rows
+    assert_equal "+,foo 1,fourth,Test,ted williams,1.0,Created,true,3,,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-1, :end => rows-1)
+  end
+    
+  # Test whether you can successfully cancel splitting a story.
+  def split_story_cancel
+    num_rows = @ie.data_grid("storyResourceGrid").num_rows
+    @ie.button("storyBtnSplit")[2].click
+    split_story('foo 1', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test', 'ted williams', '1', 'Created', 'true')
+    @ie.button("storyBtnCancel").click
+    assert_equal '', @ie.text_area("storyError").text
+    assert_nil @ie.button("storyBtnCancel")
+    assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
+  end
+
+  # Split a story.
+  def split_story(name, description, acceptance_criteria, iteration, release, team, owner, effort, status, public)
+    @ie.text_area("storyFieldName").select_text(:beginIndex => "0", :endIndex => "4")
+    @ie.text_area("storyFieldName").input(:text => name )
+    @ie.text_area("storyFieldDescription").select_text(:beginIndex => "0", :endIndex => "11")
+    @ie.text_area("storyFieldDescription").input(:text => description )
+    @ie.text_area("storyFieldAcceptanceCriteria").select_text(:beginIndex => "0", :endIndex => "8")
+    @ie.text_area("storyFieldAcceptanceCriteria").input(:text => acceptance_criteria )
+    @ie.combo_box("storyFieldIteration").open
+    @ie.combo_box("storyFieldIteration").select(:item_renderer => iteration )
+    @ie.combo_box("storyFieldRelease").open
+    @ie.combo_box("storyFieldRelease").select(:item_renderer => release )
+    @ie.combo_box("storyFieldTeam").open
+    @ie.combo_box("storyFieldTeam").select(:item_renderer => team )
+    @ie.combo_box("storyFieldOwner").open
+    @ie.combo_box("storyFieldOwner").select(:item_renderer => owner )
+    @ie.text_area("storyFieldEffort").input(:text => effort )
+    @ie.combo_box("storyFieldStatus").open
+    @ie.combo_box("storyFieldStatus").select(:item_renderer => status )
+    @ie.combo_box("storyFieldPublic").open
+    @ie.combo_box("storyFieldPublic").select(:item_renderer => public )
+  end
+    
   # Test deleting a story.
   def delete_story_cancel
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
@@ -324,7 +421,7 @@ private
     assert_equal '', @ie.text_area("storyError").text
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
   end
-    
+
   # Test deleting a story.
   def delete_story
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
