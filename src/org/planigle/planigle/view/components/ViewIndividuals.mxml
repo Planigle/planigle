@@ -55,7 +55,14 @@
 			individuals = newIndividuals;
 
 			columnProject.visible = IndividualFactory.current().isAdmin() && !group;
-			columnTeam.visible = !group || group.isProject();
+
+			var teamsExist:Boolean = false;
+			for each (var project:Project in ProjectFactory.getInstance().projects)
+			{
+				if (project.teams.length > 0)
+					teamsExist = true;
+			}
+			columnTeam.visible = teamsExist && (!group || (group.isProject() && group.teams.length > 0));
 		}
 		
 		// Reset my state to how it was initially.
@@ -95,7 +102,6 @@
 			else
 				individualFieldProject.selectedIndex = ProjectFactory.getInstance().projectSelector.length - 1;
 
-			individualFieldTeam.dataProvider = individualFieldProject.selectedItem.teamSelector;
 			var it2:String = factory.currentIndividual.teamId;
 			if (it2)
 				individualFieldTeam.selectedItem = individualFieldProject.selectedItem.find(it2);
@@ -133,7 +139,6 @@
 				else
 					individualFieldProject.selectedIndex = ProjectFactory.getInstance().projectSelector.length - 1;
 
-				individualFieldTeam.dataProvider = individualFieldProject.selectedItem.teamSelector;
 				var it2:String = currentItem.teamId;
 				if (it2)
 					individualFieldTeam.selectedItem = individualFieldProject.selectedItem.find(it2);
@@ -255,8 +260,8 @@
 						<mx:FormItem id='individualFormProject' label='Project'>
 							<mx:ComboBox id='individualFieldProject' width="350" editable="false" dataProvider="{ProjectFactory.getInstance().projectSelector}" labelField="name"></mx:ComboBox>
 						</mx:FormItem>
-						<mx:FormItem id='individualFormTeam' label='Team'>
-							<mx:ComboBox id='individualFieldTeam' width="350" editable="false" labelField="name"></mx:ComboBox>
+						<mx:FormItem id='individualFormTeam' label='Team' visible="{individualFieldProject.selectedItem.teams.length > 0}" height="{individualFieldProject.selectedItem.teams.length > 0 ? 22 : 0}">
+							<mx:ComboBox id='individualFieldTeam' width="350" editable="false" labelField="name" dataProvider="{individualFieldProject.selectedItem.teamSelector}"></mx:ComboBox>
 						</mx:FormItem>
 						<mx:FormItem label='Login' required="true">
 							<mx:TextInput id='individualFieldLogin' maxChars="40" text='' width="350"/>
