@@ -28,7 +28,7 @@ package org.planigle.planigle.model
 		// Populate myself from XML.
 		public function populate(xml:XML):void
 		{
-			id = xml.id == "" ? null: xml.id;
+			id = xml.id.toString() == "" ? null: xml.id;
 			name = xml.name;
 			description = xml.description;
 			surveyKey = xml.child("survey-key");
@@ -223,6 +223,36 @@ package org.planigle.planigle.model
 		public function containsIndividual(individual:Individual):Boolean
 		{
 			return individual.projectId == id;
+		}
+
+		// Return my parent.
+		public function get parent():Object
+		{
+			return null;
+		}
+
+		// Answer my children.
+		public function get children():ArrayCollection
+		{
+			return (teamSelector.length > 1) ? teamSelector : individuals();
+		}
+
+		// Answer my velocity.
+		public function get velocity():Number
+		{
+			var sum:Number = 0;
+			for each(var child:Object in children)
+				sum += child.velocity;
+			return sum;
+		}
+
+		// Answer my velocity in the specified stories.
+		public function velocityIn(stories:ArrayCollection):Number
+		{
+			var sum:Number = 0;
+			for each(var child:Object in children)
+				sum += child.velocityIn(stories);
+			return sum;
 		}
 	}
 }

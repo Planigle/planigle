@@ -19,8 +19,8 @@ package org.planigle.planigle.model
 		// Populate myself from XML.
 		public function populate(xml:XML):void
 		{
-			id = xml.id == "" ? null: xml.id;
-			projectId = xml.child("project-id") == "" ? null : xml.child("project-id");
+			id = xml.id.toString() == "" ? null: xml.id;
+			projectId = xml.child("project-id").toString() == "" ? null : xml.child("project-id");
 			name = xml.name;
 			start = DateUtils.stringToDate(xml.start);		
 			finish = DateUtils.stringToDate(xml.finish);
