@@ -111,7 +111,7 @@
 					<mx:Object label="No Change" value="-1" />
 					<mx:Object label="Created" value="0" />
 					<mx:Object label="In Progress" value="1" />
-					<mx:Object label="Accepted" value="2" />
+					<mx:Object label="Done" value="2" />
 				</mx:ComboBox>
 			</mx:FormItem>
 			<mx:FormItem label='Public' id="form_public">
