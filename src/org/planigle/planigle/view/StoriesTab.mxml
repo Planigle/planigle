@@ -246,11 +246,14 @@
 			var selection:Individual = null;
 
 			var newFilter:ArrayCollection = new ArrayCollection();
-			for each (var it:Individual in IndividualFactory.current().project.individuals())
+			if (IndividualFactory.current().project)
 			{
-				newFilter.addItem(it);
-				if (it.id == id)
-					selection = it;
+				for each (var it:Individual in IndividualFactory.current().project.individuals())
+				{
+					newFilter.addItem(it);
+					if (it.id == id)
+						selection = it;
+				}
 			}
 			var all:Individual = new Individual();
 			all.populate( <individual><id>-1</id><first-name>All Owners</first-name></individual> );
@@ -317,7 +320,7 @@
 		public function handleFilter(event:Event):void
 		{
 			storyColumnIteration.visible = !iteration.selectedItem || iteration.selectedItem.id == "-1";
-			storyColumnTeam.visible = IndividualFactory.current().project.teams.length > 0 && (!team.selectedItem || team.selectedItem.id == "-1");
+			storyColumnTeam.visible = IndividualFactory.current().project && IndividualFactory.current().project.teams.length > 0 && (!team.selectedItem || team.selectedItem.id == "-1");
 			storyColumnIndividual.visible = !individual.selectedItem || individual.selectedItem.id == "-1";
 			var storiesAndTasks:ArrayCollection = new ArrayCollection;
 			for each (var story:Story in getFilteredStories())
@@ -329,6 +332,17 @@
 			}
 			filteredStories = storiesAndTasks;
 			storyBtnAddExisting.visible = shouldShowExisting();
+			updateVelocity(event);
+		}
+
+		// Update the velocity.
+		private function updateVelocity(event:Event):void
+		{
+			if (individual.selectedItem && individual.selectedItem.id != "-1")
+				velocity.dataProvider = individual.selectedItem;
+			else
+				velocity.dataProvider = IndividualFactory.current().project;
+			velocity.rowCount = 1;
 		}
 		
 		// Expand / collapse a story.
@@ -685,6 +699,7 @@
 		private function handleSuccess():void
 		{
 			resetState(null);
+			updateVelocity(null);
 		}
 
 		// Handle errors when making changes.
@@ -828,6 +843,69 @@
 			storyFieldRelease.dataProvider = storyFieldIteration.selectedItem.releases();
 			storyFieldRelease.selectedItem = (release.selectedItem.id == "-1" || !release.selectedItem.id) ? storyFieldIteration.selectedItem.defaultRelease() : release.selectedItem;
 		}
+
+		// Answer the velocity for an item.
+		private function velocityString(node:Object):String
+		{
+			var used:Number = node.velocityIn(filteredStories);
+			var vel:Number = node.velocity;
+			if (vel > 0)
+			{
+				var percent:int = 100 * used / vel;
+				return used + " of " + vel.toFixed(1) + " (" + percent + "%) - " + node.name;
+			}
+			else
+				return used + " of 0 - " + node.name;
+		}
+
+		// Answer the icon for velocity for an item.
+		private function velocityIcon(node:Object):String
+		{
+			return null;
+		}
+		
+		// Answer the color to use for velocity.
+		private function velocityColor(item:Object) : uint
+		{
+			var used:Number = item.velocityIn(filteredStories);
+			var vel:Number = item.velocity;
+			if (vel > 0)
+			{
+				var percent:int = 100 * used / vel;
+				return percent > 100 ? 0xFF0000 : 0x000000;
+			}
+			return used > 0 ? 0xFF0000 : 0x000000;
+		}
+
+		// Adjust the height of the velocity tree.
+		private function adjustVelocityHeight(event:Event):void
+		{
+			// Create a collection
+			var collect:ArrayCollection = new ArrayCollection();
+			for each (var openItem:Object in velocity.openItems)
+				collect.addItem(openItem);
+
+			var count:int = 1;
+
+			for each (var item:Object in collect)
+			{
+				var parent:Object = item.parent;
+				var shown:Boolean = true;
+				while (parent != null )
+				{
+					if (collect.getItemIndex(parent) < 0)
+					{
+						shown = false;
+						break;
+					}
+					parent = parent.parent;
+				}
+				if (shown)
+					count += velocity.dataDescriptor.getChildren(item).length;					
+			}
+
+			velocity.rowCount = count;
+		}
 		]]>
 	</mx:Script>
  	
@@ -907,7 +985,7 @@
 		<mx:Transition id="returnList" fromState="Change" toState="*">
 			<mx:Sequence targets="{[storyBtnBox, combinedPanel]}">
 				<mx:RemoveChildAction/>
-				<mx:SetPropertyAction target="{storyBtnBox}" name="height" value="22"/>
+				<mx:SetPropertyAction target="{storyBtnBox}" name="height" value="null"/>
 				<mx:SetPropertyAction target="{storyBtnBox}" name="visible" value="true"/>
 				<mx:Resize target="{combinedPanel}"/>
 				<mx:AddChildAction/>
@@ -937,26 +1015,32 @@
 	
 	<mx:Panel id="combinedPanel" height="100%" y="0" width="100%" x="0" borderThicknessTop="0" borderThicknessLeft="0" borderThicknessRight="0" headerHeight="0">
 		<mx:VBox id="vbox" width="100%" paddingTop="5" paddingLeft="5" paddingRight="5">
-			<mx:HBox id="storyBtnBox" width="100%" horizontalAlign="left">
-				<mx:HBox width="100%" id='topRow'>
-					<mx:ComboBox id='release' width="115" editable="false" dataProvider="{releaseFilter}" labelField="name" change="handleReleaseFilter(event)"></mx:ComboBox>
-					<mx:ComboBox id='iteration' width="115" editable="false" dataProvider="{iterationFilter}" labelField="name" change="handleFilter(event)"></mx:ComboBox>
-					<mx:ComboBox id='team' width="115" editable="false" dataProvider="{teamFilter}" labelField="name" change="handleFilter(event)"></mx:ComboBox>
-					<mx:ComboBox id='individual' width="115" editable="false" dataProvider="{individualFilter}" labelField="fullName" change="handleFilter(event)"></mx:ComboBox>
-					<mx:ComboBox id='storyStatus' width="116" editable="false" change="handleFilter(event)" selectedIndex="2">
-						<mx:Object label="Created" value="0" />
-						<mx:Object label="In Progress" value="1" />
-						<mx:Object label="Not Accepted" value="-2" />
-						<mx:Object label="Accepted" value="2" />
-						<mx:Object label="All Statuses" value="-1" />
-					</mx:ComboBox>
+			<mx:VBox id="storyBtnBox" width="100%">
+				<mx:HBox width="100%" horizontalAlign="left">
+					<mx:HBox width="100%" id='topRow'>
+						<mx:ComboBox id='release' width="115" editable="false" dataProvider="{releaseFilter}" labelField="name" change="handleReleaseFilter(event)"></mx:ComboBox>
+						<mx:ComboBox id='iteration' width="115" editable="false" dataProvider="{iterationFilter}" labelField="name" change="handleFilter(event)"></mx:ComboBox>
+						<mx:ComboBox id='team' width="115" editable="false" dataProvider="{teamFilter}" labelField="name" change="handleFilter(event)"></mx:ComboBox>
+						<mx:ComboBox id='individual' width="115" editable="false" dataProvider="{individualFilter}" labelField="fullName" change="handleFilter(event)"></mx:ComboBox>
+						<mx:ComboBox id='storyStatus' width="116" editable="false" change="handleFilter(event)" selectedIndex="2">
+							<mx:Object label="Created" value="0" />
+							<mx:Object label="In Progress" value="1" />
+							<mx:Object label="Not Accepted" value="-2" />
+							<mx:Object label="Accepted" value="2" />
+							<mx:Object label="All Statuses" value="-1" />
+						</mx:ComboBox>
+					</mx:HBox>
+					<mx:Button label="Add Existing" click="handleAdd(event);" id="storyBtnAddExisting" visible="{shouldShowExisting()}"/>
+					<mx:Button label="Create" click="showCreateStory(event);" id="storyBtnCreate" visible="{factory.currentIndividual.isAtLeastProjectUser()}"/>
+					<mx:Button label="Update" click="showUpdate(event);" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnUpdateMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser()}"/>
+					<mx:Button label="Delete" click="showDelete(event);" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnDeleteMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser()}"/>
+					<mx:Button label="View Surveys" click="handleSurveys(event);" id="storyBtnViewSurveys"/>
 				</mx:HBox>
-				<mx:Button label="Add Existing" click="handleAdd(event);" id="storyBtnAddExisting" visible="{shouldShowExisting()}"/>
-				<mx:Button label="Create" click="showCreateStory(event);" id="storyBtnCreate" visible="{factory.currentIndividual.isAtLeastProjectUser()}"/>
-				<mx:Button label="Update" click="showUpdate(event);" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnUpdateMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser()}"/>
-				<mx:Button label="Delete" click="showDelete(event);" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnDeleteMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser()}"/>
-				<mx:Button label="View Surveys" click="handleSurveys(event);" id="storyBtnViewSurveys"/>
-			</mx:HBox>
+				<mx:HBox width="100%" horizontalAlign="center">
+					<mx:Label text="Velocity Used:" fontWeight="bold"/>
+					<local:ColoredTree id="velocity" rowColorFunction="velocityColor" labelFunction="velocityString" iconFunction="velocityIcon" borderStyle="none" rowCount="1" itemOpen="adjustVelocityHeight(event)" itemClose="adjustVelocityHeight(event)" selectable="false" width="350"/>
+				</mx:HBox>
+			</mx:VBox>
 			<mx:Text id="storyError" styleName="error" htmlText="{_error}" color="#ff0033" width="100%" height="0"/>
 		</mx:VBox>
 		<local:ColoredBackgroundDataGrid id="storyResourceGrid" variableRowHeight="true" dataProvider="{filteredStories}" rowCount="{filteredStories.length}" width="100%" height="100%" dragEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" dropEnabled="true" dragMoveEnabled="true" dragStart="handleDrag(event)" dragDrop="handleReorder(event)" rowColorFunction="rowColor" headerRelease="prepareSort(event)" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" doubleClick="showUpdate(event)" allowMultipleSelection="true">

@@ -1,5 +1,6 @@
 package org.planigle.planigle.model
 {
+	import mx.utils.ObjectUtil;
 	import mx.collections.ArrayCollection;
 	
 	import org.planigle.planigle.commands.DeleteTeamCommand;
@@ -18,8 +19,8 @@ package org.planigle.planigle.model
 		// Populate myself from XML.
 		public function populate(xml:XML):void
 		{
-			id = xml.id == "" ? null: xml.id;
-			projectId = xml.child("project-id") == "" ? null : xml.child("project-id");
+			id = xml.id.toString() == "" ? null: xml.id;
+			projectId = xml.child("project-id").toString() == "" ? null : xml.child("project-id");
 			name = xml.name;
 			description = xml.description;
 		}
@@ -88,10 +89,57 @@ package org.planigle.planigle.model
 			return 0xDDDDDD;
 		}
 
+		// Answer my individuals.
+		public function individuals():ArrayCollection
+		{
+			var individuals:ArrayCollection = new ArrayCollection();
+			for each (var individual:Individual in IndividualFactory.getInstance().individualSelector)
+			{
+				if (!individual.id || individual.teamId == id)
+					individuals.addItem(individual);
+			}
+			return individuals;
+		}
+
 		// Answer whether I contain the specified individual.
 		public function containsIndividual(individual:Individual):Boolean
 		{
 			return individual.teamId == id;
+		}
+
+		// Return my parent.
+		public function get parent():Object
+		{
+			return IndividualFactory.current().project;
+		}
+
+		// Answer my children.  Change none to have me as its team.
+		public function get children():ArrayCollection
+		{
+			var children:ArrayCollection = individuals();
+			var none:Individual = Individual(children.removeItemAt(children.length - 1));
+			none = Individual(ObjectUtil.copy(none));
+			none.teamId = id;
+			children.addItem(none);
+			return children;
+		}
+
+		// Answer my velocity.
+		public function get velocity():Number
+		{
+			var sum:Number = 0;
+			for each(var child:Object in children)
+				sum += child.velocity;
+			return sum;
+		}
+
+		// Answer my velocity in the specified stories.
+		public function velocityIn(stories:ArrayCollection):Number
+		{
+			var sum:Number = 0;
+			for each(var child:Object in children)
+				sum += child.velocityIn(stories);
+			return sum;
 		}
 	}
 }

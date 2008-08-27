@@ -6,6 +6,8 @@ package org.planigle.planigle.model
 	import org.planigle.planigle.commands.UpdateIterationCommand;
 	import org.planigle.planigle.model.ReleaseFactory;
 	import org.planigle.planigle.model.Release;
+	import org.planigle.planigle.model.StoryFactory;
+	import org.planigle.planigle.model.Story;
 
 	[RemoteClass(alias='Iteration')]
 	[Bindable]
@@ -21,8 +23,8 @@ package org.planigle.planigle.model
 		// Populate myself from XML.
 		public function populate(xml:XML):void
 		{
-			id = xml.id == "" ? null: xml.id;
-			projectId = xml.child("project-id") == "" ? null : xml.child("project-id");
+			id = xml.id.toString() == "" ? null: xml.id;
+			projectId = xml.child("project-id").toString() == "" ? null : xml.child("project-id");
 			name = xml.name;
 			start = DateUtils.stringToDate(xml.start);			
 			length = xml.length;
@@ -127,6 +129,18 @@ package org.planigle.planigle.model
 		{
 			var releases:ArrayCollection = releases();
 			return Release((!id || releases.length < 2) ? releases.getItemAt(releases.length - 1) : releases.getItemAt(releases.length - 2));
+		}
+
+		// Answer the stories in me.
+		public function stories():ArrayCollection
+		{
+			var stories:ArrayCollection = new ArrayCollection();
+			for each(var story:Story in StoryFactory.getInstance().stories)
+			{
+				if (story.iterationId == id)
+					stories.addItem(story);
+			}
+			return stories;
 		}
 	}
 }

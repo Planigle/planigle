@@ -26,43 +26,43 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
 
   # Test create failure.
-  def atest_create_failure
+  def test_create_failure
     init('admin2')
     create_story_failure
   end 
 
   # Test create failure.
-  def atest_create_success
+  def test_create_success
     init('admin2')
     create_story_success
   end 
 
   # Test create failure.
-  def atest_create_cancel
+  def test_create_cancel
     init('admin2')
     create_story_cancel
   end 
 
   # Test edit failure.
-  def atest_an_edit_failure
+  def test_an_edit_failure
     init('admin2')
     edit_story_failure
   end 
 
   # Test edit failure.
-  def atest_an_edit_success
+  def test_an_edit_success
     init('admin2')
     edit_story_success
   end 
 
   # Test edit failure.
-  def atest_an_edit_cancel
+  def test_an_edit_cancel
     init('admin2')
     edit_story_cancel
   end 
 
   # Test editing multiple.
-  def atest_an_edit_multiple
+  def test_an_edit_multiple
     init('admin2')
     edit_single
     edit_multiple
@@ -86,7 +86,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   end 
 
   # Test misc (in one stream for more efficiency).
-  def atest_misc
+  def test_misc
     init('admin2')
     delete_story_cancel
     delete_story
@@ -94,14 +94,14 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
 
   # Test deleting multiple.
-  def atest_z_misc_delete_multiple
+  def test_z_misc_delete_multiple
     init('admin2')
     delete_single
     delete_multiple
   end 
 
   # Test logging in as a project admin
-  def atest_project_admin
+  def test_project_admin
     init('aaron')
     assert @ie.button("storyBtnCreate").visible
     assert @ie.button("storyBtnEdit")[1].visible
@@ -109,7 +109,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
 
   # Test logging in as a project user
-  def atest_project_user
+  def test_project_user
     init('user')
     assert @ie.button("storyBtnCreate").visible
     assert @ie.button("storyBtnEdit")[1].visible
@@ -117,11 +117,25 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
 
   # Test logging in as a read only user
-  def atest_read_only
+  def test_read_only
     init('readonly')
     assert !@ie.button("storyBtnCreate").visible
     assert !@ie.button("storyBtnEdit")[1].visible
     assert !@ie.button("storyBtnDelete")[1].visible
+  end
+  
+  # Test velocity
+  def test_velocity
+    init('admin2')
+    assert_equal '7 of 0.3 (2100%) - Test', @ie.tree('velocity').tabular_data
+    @ie.tree('velocity').open(:item_renderer => '7 of 0.3 (2100%) - Test')
+    assert_equal '5 of 0 - Test', @ie.tree('velocity').tabular_data(:start => 1, :end => 1)
+    @ie.tree('velocity').open(:item_renderer => '5 of 0 - Test')
+    assert_equal '5 of 0 - aaron hank', @ie.tree('velocity').tabular_data(:start => 2, :end => 2)
+
+    @ie.combo_box("individual").open
+    @ie.combo_box("individual").select(:item_renderer => 'No Owner')
+    assert_equal '2 of 0.3 (600%) - No Owner', @ie.tree('velocity').tabular_data
   end
 
 private
@@ -194,7 +208,7 @@ private
     assert_equal 'false', @ie.combo_box("storyFieldPublic").text
     assert_not_nil @ie.button("storyBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",foo,fourth,No Team,ted williams,1.0,Created,true,4,,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
+    assert_equal ",foo,fourth,Test,ted williams,1.0,Created,true,4,,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
     @ie.button("storyBtnCancel").click
   end
     
@@ -308,7 +322,7 @@ private
     @ie.button("updateBtnOk").click
     assert_equal '', @ie.text_area("storyError").text
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal "+,test,fourth,Test,aaron hank,1.0,Created,true,2,2.0,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 1, :end => 1)
+    assert_equal "+,test,fourth,Test,aaron hank,5,Created,true,2,2.0,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 1, :end => 1)
     assert_equal ",test3,fourth,Test,aaron hank,1.0,Created,true,1,2.0,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
   end
 
@@ -376,7 +390,7 @@ private
     assert_nil @ie.button("storyBtnCancel")
     rows = @ie.data_grid("storyResourceGrid").num_rows
     assert_equal num_rows + 1, rows
-    assert_equal "+,foo 1,fourth,Test,ted williams,1.0,Created,true,3,,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-1, :end => rows-1)
+    assert_equal "+,foo 1,fourth,Test,ted williams,3,Created,true,3,,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-1, :end => rows-1)
   end
     
   # Test whether you can successfully cancel splitting a story.

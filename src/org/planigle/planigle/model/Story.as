@@ -35,18 +35,18 @@ package org.planigle.planigle.model
 		// Populate myself from XML.
 		public function populate(xml:XML):void
 		{
-			projectId = xml.child("project-id") == "" ? null : xml.child("project-id");
-			teamId = xml.child("team-id") == "" ? null : xml.child("team-id");
+			projectId = xml.child("project-id").toString() == "" ? null : xml.child("project-id");
+			teamId = xml.child("team-id").toString() == "" ? null : xml.child("team-id");
 			id = xml.id;
 			name = xml.name;
 			description = xml.description;
 			acceptanceCriteria = xml.child("acceptance-criteria");
-			releaseId = xml.child("release-id") == "" ? null : xml.child("release-id");
-			iterationId = xml.child("iteration-id") == "" ? null : xml.child("iteration-id");
-			individualId = xml.child("individual-id") == "" ? null : xml.child("individual-id");
+			releaseId = xml.child("release-id").toString() == "" ? null : xml.child("release-id");
+			iterationId = xml.child("iteration-id").toString() == "" ? null : xml.child("iteration-id");
+			individualId = xml.child("individual-id").toString() == "" ? null : xml.child("individual-id");
 			effort = xml.effort;
 			statusCode = xml.child("status-code");
-			isPublic = xml.child("is-public") == "true";
+			isPublic = xml.child("is-public").toString() == "true";
 			priority = xml.priority;
 			userPriority = xml.child("user-priority");
 
@@ -83,18 +83,17 @@ package org.planigle.planigle.model
 		// For stories, if not set locally, the calculated effort is the sum of its tasks.
 		public function get calculatedEffort():String
 		{
-			if (!effort || effort == "")
+			var useTasks:Boolean = false;
+			var sum:Number = 0;
+			for each (var task:Task in tasks)
 			{
-				var sum:Number = 0;
-				for each (var task:Task in tasks)
+				if (task.effort != "")
 				{
-					if (task.effort != "")
-						sum += Number(task.effort);
+					sum += Number(task.effort);
+					useTasks = true;
 				}
-				return (sum == 0) ? "" : sum.toString();				
 			}
-			else
-				return effort;
+			return useTasks ? ((sum == 0) ? "" : sum.toString()) : effort;
 		}
 
 		// Only show user priority if not accepted.

@@ -102,6 +102,24 @@ package org.planigle.planigle.model
 			}
 			return iterationsInRelease;
 		}
+
+		// Answer the past n iterations (less if less have occurred).
+		public function getPastIterations(num:int):ArrayCollection
+		{
+			var today:Date = new Date();
+			var past:ArrayCollection = new ArrayCollection();
+			for (var i:int=iterations.length - 1; i>=0; i--)
+			{
+				var iteration:Iteration = Iteration(iterations.getItemAt(i));
+				if (iteration.end() < today)
+				{
+					past.addItemAt(iteration, 0);
+					if (past.length == num)
+						break;
+				}
+			}
+			return past;
+		}
 	}
 }
 

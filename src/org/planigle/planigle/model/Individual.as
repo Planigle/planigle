@@ -1,7 +1,6 @@
 package org.planigle.planigle.model
 {
 	import mx.collections.ArrayCollection;
-	
 	import org.planigle.planigle.commands.DeleteIndividualCommand;
 	import org.planigle.planigle.commands.UpdateIndividualCommand;
 
@@ -31,9 +30,9 @@ package org.planigle.planigle.model
 		// Populate myself from XML.
 		public function populate(xml:XML):void
 		{
-			id = xml.id == "" ? null: xml.id;
-			projectId = xml.child("project-id") == "" ? null : xml.child("project-id");
-			teamId = xml.child("team-id") == "" ? null : xml.child("team-id");
+			id = xml.id.toString() == "" ? null: xml.id;
+			projectId = xml.child("project-id").toString() == "" ? null : xml.child("project-id");
+			teamId = xml.child("team-id").toString() == "" ? null : xml.child("team-id");
 			login = xml.login;
 			email = xml.email;
 			firstName = xml.child("first-name");
@@ -181,6 +180,60 @@ package org.planigle.planigle.model
 		public function isAdminOnly():Boolean
 		{
 			return !projectId;
+		}
+
+		// Answer my name.
+		public function get name():String
+		{
+			return fullName;
+		}
+
+		// Return my parent.
+		public function get parent():Object
+		{
+			return IndividualFactory.current().project.find(teamId);
+		}
+
+		// Answer my children.
+		public function get children():ArrayCollection
+		{
+			return null;
+		}
+
+		// Answer my velocity.
+		public function get velocity():Number
+		{
+			var iterations:ArrayCollection = IterationFactory.getInstance().getPastIterations(3);
+			var sum:Number = 0;
+			for each (var iteration:Iteration in iterations)
+				sum += velocityIn(iteration.stories(), true);
+			return sum/iterations.length;
+		}
+
+		// Answer my velocity in the specified stories.
+		public function velocityIn(stories:ArrayCollection, onlyAccepted:Boolean = false):Number
+		{
+			var totalVelocity:Number = 0;
+			for each(var story:Object in stories)
+			{
+				if (story.isStory() && (!onlyAccepted || story.statusCode == Story.ACCEPTED) && (id || story.teamId == teamId))
+				{
+					if (story.tasks.length == 0)
+					{
+						if (story.individualId == id)
+							totalVelocity += Number(story.calculatedEffort);
+					}
+					else
+					{
+						for each(var task:Object in story.tasks)
+						{
+							if (task.individualId == id)
+								totalVelocity += Number(task.calculatedEffort);
+						}
+					}
+				}
+			}
+			return totalVelocity;
 		}
 	}
 }
