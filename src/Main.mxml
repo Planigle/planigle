@@ -27,15 +27,15 @@
 			[Bindable]
 			public var imgEdit:Class;
 			
-			[Embed(source="../public/images/active_scaffold/default/cross.png")]
+			[Embed(source="../public/images/cross.png")]
 			[Bindable]
 			public var imgCross:Class;
 		
-			[Embed(source="../public/images/active_scaffold/default/add.gif")]
+			[Embed(source="../public/images/add.gif")]
 			[Bindable]
 			public var imgAdd:Class;
 		
-			[Embed(source="../public/images/active_scaffold/default/export.png")]
+			[Embed(source="../public/images/export.png")]
 			[Bindable]
 			public var imgExport:Class;
 			
