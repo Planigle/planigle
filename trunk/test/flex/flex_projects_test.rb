@@ -154,7 +154,7 @@ private
   # Test whether error handling works for editing a project.
   def edit_project_failure
     num_rows = @ie.data_grid("projectResourceGrid").num_rows
-    edit_project(' ', 'description')
+    edit_project(' ', 'description', '10/10/2020', '10')
     @ie.button("projectBtnChange").click
     assert_equal "Name can't be blank", @ie.text_area("projectError").text
     assert_equal ' ', @ie.text_area("projectFieldName").text
@@ -167,7 +167,7 @@ private
   # Test whether you can successfully edit a project.
   def edit_project_success
     num_rows = @ie.data_grid("projectResourceGrid").num_rows
-    edit_project('foo 1', 'description')
+    edit_project('foo 1', 'description', '10/10/2020', '10')
 
     @ie.combo_box("projectFieldSurveyMode").open
     @ie.combo_box("projectFieldSurveyMode").select(:item_renderer => "Private")
@@ -187,7 +187,7 @@ private
   # Test whether you can successfully cancel editing a project.
   def edit_project_cancel
     num_rows = @ie.data_grid("projectResourceGrid").num_rows
-    edit_project('foo', 'description')
+    edit_project('foo', 'description', '10/10/2020', '10')
     @ie.button("projectBtnCancel").click
     assert_equal '', @ie.text_area("projectError").text
     assert_nil @ie.button("projectBtnCancel")
@@ -195,10 +195,12 @@ private
   end
 
   # Edit a project.
-  def edit_project(name, description)
+  def edit_project(name, description, premium_expiry, premium_limit)
     @ie.button("projectBtnEdit")[1].click
     @ie.text_area("projectFieldName").input(:text => name )
     @ie.text_area("projectFieldDescription").input(:text => description )
+    @ie.text_area("projectFieldPremiumExpiry").input(:text => premium_expiry )
+    @ie.text_area("projectFieldPremiumLimit")[0].input(:text => premium_limit ) # Not sure why the array is necessary
   end
 
   # Select a project to see what is displayed in individuals.

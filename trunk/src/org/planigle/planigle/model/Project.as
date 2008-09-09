@@ -17,6 +17,8 @@ package org.planigle.planigle.model
 		public var description:String;
 		public var surveyKey:String;
 		public var surveyMode:int;
+		public var premiumExpiry:Date;
+		public var premiumLimit:int;
 		private static const PRIVATE:int = 0;
 		private static const PRIVATE_BY_DEFAULT:int = 1;
 		private static const PUBLIC_BY_DEFAULT:int = 2;
@@ -33,6 +35,8 @@ package org.planigle.planigle.model
 			description = xml.description;
 			surveyKey = xml.child("survey-key");
 			surveyMode = int(xml.child("survey-mode"));
+			premiumExpiry = DateUtils.stringToDate(xml.child("premium-expiry"));			
+			premiumLimit = xml.child("premium-limit");			
 
 			var newTeams:ArrayCollection = new ArrayCollection();
 			for (var i:int = 0; i < xml.teams.team.length(); i++)
