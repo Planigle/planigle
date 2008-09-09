@@ -86,7 +86,7 @@ module RubyAMF
       :actionscript => 'Project',
       :ruby => 'Project',
       :type => 'active_record',
-      :attributes => ["id", "name", "description", "survey_key", "survey_mode"],
+      :attributes => ["id", "name", "description", "survey_key", "survey_mode", "premium_expiry", "premium_limit"],
       :associations => ["teams"])
 
     ClassMappings.register(

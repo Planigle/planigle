@@ -77,6 +77,8 @@
 			projectFieldName.setFocus();
 			projectFieldName.text = '';
 			projectFieldDescription.text = '';
+			projectFieldPremiumExpiry.selectedDate = new Date(new Date().time + 30*24*60*60*1000);
+			projectFieldPremiumLimit.text = '1000';
 			projectBtnChange.label = 'Create';
 		}
 
@@ -89,6 +91,20 @@
 			projectFormSurveyMode.height = 22;
 			projectFormSurveyUrl.visible = true;
 			projectFormSurveyUrl.height = 22;
+			if (IndividualFactory.current().isAdmin())
+			{
+				projectFormPremiumExpiry.visible = true;
+				projectFormPremiumExpiry.height = 22;
+				projectFormPremiumLimit.visible = true;
+				projectFormPremiumLimit.height = 22;
+			}
+			else
+			{
+				projectFormPremiumExpiry.visible = false;
+				projectFormPremiumExpiry.height = 0;
+				projectFormPremiumLimit.visible = false;
+				projectFormPremiumLimit.height = 0;
+			}
 		}
 
 		// Show user a form to create a resource.
@@ -108,6 +124,10 @@
 			projectFormSurveyMode.height = 0;
 			projectFormSurveyUrl.visible = false;
 			projectFormSurveyUrl.height = 0;
+			projectFormPremiumExpiry.visible = false;
+			projectFormPremiumExpiry.height = 0;
+			projectFormPremiumLimit.visible = false;
+			projectFormPremiumLimit.height = 0;
 		}
 
 		// Show user a form to create a resource.
@@ -139,6 +159,8 @@
 						index = base.indexOf( "/", index + 1 ); // Get the last /
 					base = base.substr( 0, index );
 					projectLabelSurveyUrl.text = base + "/survey.html?projectid=" + currentItem.id + "&surveykey=" + currentItem.surveyKey;
+					projectFieldPremiumExpiry.selectedDate = currentItem.premiumExpiry;
+					projectFieldPremiumLimit.text = currentItem.premiumLimit;
 				}
 				else
 					prepareForTeam();
@@ -167,7 +189,11 @@
 			params['record[name]'] = projectFieldName.text;
 			params['record[description]'] = projectFieldDescription.text;
 			if (isProject)
+			{
 				params['record[survey_mode]'] = projectFieldSurveyMode.selectedItem.value;
+				params['record[premium_expiry]'] = projectFieldPremiumExpiry.selectedDate;
+				params['record[premium_limit]'] = projectFieldPremiumLimit.text;
+			}
 			params['random'] = Math.random(); // Prevents caching
 			return params;
 		}
@@ -277,6 +303,12 @@
 						</mx:FormItem>
 						<mx:FormItem label='Description'>
 							<mx:TextArea id='projectFieldDescription' maxChars="4096" height="64" width="500"><mx:text/></mx:TextArea>
+						</mx:FormItem>
+						<mx:FormItem id='projectFormPremiumExpiry' label='Premium Expiry' required="true">
+							<mx:DateField id='projectFieldPremiumExpiry' editable="true" showToday="true" width="100"/>
+						</mx:FormItem>
+						<mx:FormItem id='projectFormPremiumLimit' label='Premium Limit (# Users)' required="true">
+							<mx:TextInput id='projectFieldPremiumLimit' restrict="0-9" text='' width="350"/>
 						</mx:FormItem>
 						<mx:FormItem id="projectFormSurveyMode" label='Stories'>
 							<mx:ComboBox id='projectFieldSurveyMode' width="350" editable="false">
