@@ -259,6 +259,16 @@ class IndividualsControllerTest < Test::Unit::TestCase
     assert_select "errors"
   end
     
+  # Can't change project id to a project that is already full.
+  def update_project_full( user )
+    login_as(user)
+    project(:first).premium_limit = 1
+    put :update, :id => 3, :project_id => 2, :format => 'xml'
+    put :update, :id => 6, :project_id => 2, :format => 'xml'
+    assert_equal 1, individuals(:admin2).reload.project_id
+    assert_select "errors"
+  end
+
   # Test deleting individuals (based on role).
   def test_delete_by_project_admin
     delete_by_role_successful(individuals(:aaron))

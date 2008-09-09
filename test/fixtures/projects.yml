@@ -5,9 +5,13 @@ first:
   name: Test
   survey_key: 1
   survey_mode: 1
+  premium_expiry: <%= (Time.now + 30*24*60*60).to_s :db %>
+  premium_limit: 100
 
 second:
   id: 2
   name: Test2
   survey_key: 2
   survey_mode: 0
+  premium_expiry: <%= (Time.now + 30*24*60*60).to_s :db %>
+  premium_limit: 100

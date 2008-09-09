@@ -70,4 +70,17 @@ protected
       @record.attributes = params[:record]
     end
   end
+
+  # Answer if this request is authorized for update.
+  def authorized_for_update?(record)
+    new_premium_expiry = is_amf ? params[0].premium_expiry : params[:record][:premium_expiry]
+    new_premium_limit = is_amf ? params[0].premium_limit : params[:record][:premium_limit]
+    if (current_individual.role > Individual::Admin && new_premium_expiry && record.premium_expiry != (new_premium_expiry.class == Time ? new_premium_expiry : Time.parse(new_premium_expiry)))
+      false # Must be admin to change premium_expiry
+    elsif (current_individual.role > Individual::Admin && new_premium_limit && record.premium_limit != new_premium_limit.to_i)
+      false # Must be admin to change premium_expiry
+    else
+      super
+    end
+  end
 end

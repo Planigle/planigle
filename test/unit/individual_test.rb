@@ -22,6 +22,17 @@ class IndividualTest < ActiveSupport::TestCase
     end
   end
 
+  # Test that too many individuals cannot be created.
+  def test_create_too_many_individuals
+    project = projects(:first)
+    project.premium_limit = 5
+    project.save(false)
+    assert_no_difference 'Individual.count' do
+      individual = create_individual
+      assert !individual.errors.empty?
+    end
+  end
+
   # Test the validation of login.
   def test_login
     validate_field(:login, false, 2, 40)
