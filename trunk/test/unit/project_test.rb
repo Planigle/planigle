@@ -36,6 +36,19 @@ class ProjectTest < ActiveSupport::TestCase
     assert_failure( :survey_mode, 3 )
   end
 
+  # Test the validation of premium_expiry.
+  def test_premium_expiry
+    assert_success(:premium_expiry, Date.today)
+  end
+
+  # Test the validation of premium_limit.
+  def test_premium_limit
+    assert_failure( :premium_limit, nil )
+    assert_failure( :premium_limit, 0 )
+    assert_failure( :premium_limit, 1.5 )
+    assert_success( :premium_limit, 1 )
+  end
+
   # Test deleting an project
   def test_delete_project
     assert_equal teams(:first).project, projects(:first)

@@ -148,7 +148,12 @@ class Individual < ActiveRecord::Base
       else false
     end
   end
- 
+   
+  # Too many users have been added.
+  def count_exceeded
+    errors.add_to_base("Too many users exist to create another one.  To add a user, delete one or contact support to extend your limits.")
+  end
+
 protected
 
   # Remember this individual on the browser for the specified amount of time so that they
@@ -184,6 +189,13 @@ protected
   # Set my activation code.
   def make_activation_code
     self.activation_code = Digest::SHA1.hexdigest( Time.now.to_s.split(//).sort_by {rand}.join )
+  end
+
+  # Ensure that the premium limit is not exceeded.
+  def validate_on_create
+    if project && !project.can_add_users
+      count_exceeded
+    end
   end
 
   # Add custom validation of the role field.

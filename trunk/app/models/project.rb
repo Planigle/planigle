@@ -12,17 +12,24 @@ class Project < ActiveRecord::Base
   validates_length_of       :description,            :maximum => 4096, :allow_nil => true
   validates_numericality_of :survey_mode
   validates_uniqueness_of   :survey_key
+  validates_numericality_of :premium_limit, :only_integer => true, :allow_nil => false, :greater_than => 0
 
   before_create :initialize_defaults
 
   # Prevent a user from submitting a crafted form that bypasses activation
   # Anything that the user can change should be added here.
-  attr_accessible :name, :description, :survey_mode
+  attr_accessible :name, :description, :survey_mode, :premium_limit, :premium_expiry
 
-  # Ensure that survey mode is initialized.
+  # Ensure that survey mode, premium expiry and premium limit are initialized.
   def initialize(attributes={})
     if (!attributes.include? :survey_mode)
       attributes[:survey_mode] = Private
+    end
+    if (!attributes.include? :premium_expiry)
+      attributes[:premium_expiry] = Time.now + 30*24*60*60
+    end
+    if (!attributes.include? :premium_limit)
+      attributes[:premium_limit] = 1000
     end
     super
   end
@@ -30,6 +37,11 @@ class Project < ActiveRecord::Base
   # Initialize the survey key to ensure we have a unique, non-guessable id for URLs.
   def initialize_defaults
     self.survey_key = Digest::SHA1.hexdigest( Time.now.to_s.split(//).sort_by {rand}.join )
+  end
+  
+  # Answer whether I can add new users.
+  def can_add_users
+    !premium_expiry || (premium_expiry < Time.now || individuals.count < premium_limit)
   end
 
   # Delete all non-admins
