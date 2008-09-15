@@ -22,13 +22,13 @@ class Project < ActiveRecord::Base
 
   # Ensure that survey mode, premium expiry and premium limit are initialized.
   def initialize(attributes={})
-    if (!attributes.include? :survey_mode)
+    if (self.class.column_names.include?('survey_mode') && !attributes.include?(:survey_mode))
       attributes[:survey_mode] = Private
     end
-    if (!attributes.include? :premium_expiry)
-      attributes[:premium_expiry] = Time.now # + 30*24*60*60
+    if (self.class.column_names.include?('premium_expiry') && !attributes.include?(:premium_expiry))
+      attributes[:premium_expiry] = Date.yesterday
     end
-    if (!attributes.include? :premium_limit)
+    if (self.class.column_names.include?('premium_limit') && !attributes.include?(:premium_limit))
       attributes[:premium_limit] = 1000
     end
     super
@@ -41,7 +41,7 @@ class Project < ActiveRecord::Base
   
   # Answer whether I can add new users.
   def can_add_users
-    !premium_expiry || (premium_expiry < Time.now || individuals.count < premium_limit)
+    !premium_expiry || (premium_expiry < Date.today || individuals.count < premium_limit)
   end
 
   # Delete all non-admins
