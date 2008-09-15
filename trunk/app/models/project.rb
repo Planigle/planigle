@@ -26,7 +26,7 @@ class Project < ActiveRecord::Base
       attributes[:survey_mode] = Private
     end
     if (!attributes.include? :premium_expiry)
-      attributes[:premium_expiry] = Time.now + 30*24*60*60
+      attributes[:premium_expiry] = Time.now # + 30*24*60*60
     end
     if (!attributes.include? :premium_limit)
       attributes[:premium_limit] = 1000
