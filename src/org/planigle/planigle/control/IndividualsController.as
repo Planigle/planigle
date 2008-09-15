@@ -1,8 +1,8 @@
 package org.planigle.planigle.control
 {
 	import com.adobe.cairngorm.control.FrontController;
-	import org.planigle.planigle.events.*;
-	import org.planigle.planigle.commands.*;
+	import org.planigle.planigle.commands.GetIndividualsCommand;
+	import org.planigle.planigle.events.IndividualChangedEvent;
 	
 	public class IndividualsController extends FrontController
 	{

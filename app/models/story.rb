@@ -16,7 +16,10 @@ class Story < ActiveRecord::Base
   validates_numericality_of :priority, :user_priority, :allow_nil => true # Needed for priority since not set until after check
   validates_numericality_of :status_code
 
-  StatusMapping = [ 'Created', 'In Progress', 'Accepted' ]
+  StatusMapping = [ 'Created', 'In Progress', 'Done' ]
+  Created = 0
+  InProgress = 1
+  Done = 2
 
   attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :release_id, :iteration_id, :individual_id, :project_id, :is_public, :priority, :user_priority, :team_id
 
@@ -41,12 +44,13 @@ class Story < ActiveRecord::Base
 
   # Answer true if I have been accepted.
   def accepted?
-    self.status_code == 2
+    self.status_code == Done
   end
   
   # My effort is either my value (if set) or the sum of my tasks.
-  def calculatedEffort
-    effort ? effort : tasks.inject(nil) {|sum, task| task.effort ? (sum ? sum + task.effort : task.effort) : sum } # Fewer queries than sum if tasks included
+  def calculated_effort
+    task_effort = tasks.inject(nil) {|sum, task| task.effort ? (sum ? sum + task.effort : task.effort) : sum}
+    task_effort ? task_effort : effort
   end
   
   # Create a new story based on this one.

@@ -90,6 +90,21 @@ package org.planigle.planigle.model
 			}
 			return null;
 		}
+		
+		// Answer the current iteration or if none, the most recent.  If no iterations, return null.
+		public function mostRecent():Iteration
+		{
+			var now:Date = new Date();
+			var currentIteration:Iteration = null;
+			for each (var iteration:Iteration in iterations)
+			{
+				if (iteration.start < now)
+					currentIteration = iteration;
+				else
+					break;
+			}
+			return currentIteration;
+		}
 
 		// Answer the iterations within the release.
 		public function iterationsInRelease(release:Release):ArrayCollection

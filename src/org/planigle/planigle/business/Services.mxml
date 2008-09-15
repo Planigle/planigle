@@ -67,4 +67,11 @@
 		method = "POST"
 		useProxy="false"
 		showBusyCursor="true"/>
+
+	<mx:RemoteObject id="reportRO"
+		source="SystemsController"
+		destination="rubyamf"
+		showBusyCursor="true">
+		<mx:method name="report"/>
+	</mx:RemoteObject>
 </cairngorm:ServiceLocator>

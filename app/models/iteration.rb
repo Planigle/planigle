@@ -2,6 +2,7 @@ class Iteration < ActiveRecord::Base
   include Utilities::Text
   belongs_to :project
   has_many :stories, :dependent => :nullify
+  has_many :iteration_total, :dependent => :nullify
   
   validates_presence_of     :project_id, :name, :start
   validates_length_of       :name,   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
@@ -31,6 +32,23 @@ class Iteration < ActiveRecord::Base
     else
       Iteration.find(:all, :order => 'start')
     end
+  end
+
+  # Summarize my current data.
+  def summarize
+    created = 0
+    in_progress = 0
+    done = 0
+    stories.each do |story|
+      effort = story.calculated_effort
+      effort = effort ? effort : 0
+      case story.status_code
+        when Story::Created then created += effort
+        when Story::InProgress then in_progress += effort
+        else done += effort
+      end
+    end
+    IterationTotal.capture( id, created, in_progress, done)
   end
 
   # Only project admins or higher can create iterations.
