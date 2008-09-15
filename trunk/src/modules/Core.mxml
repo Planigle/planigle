@@ -94,8 +94,8 @@
 					else
 					{
 						showTab(schedule, 0);
-						factory.currentIndividual.isPremium() ? showPremium() : hidePremium();
 						showTab(stories, 0);
+						factory.currentIndividual.isPremium() ? showPremium() : hidePremium();
 					}
 				}
 			}
@@ -133,7 +133,7 @@
 			private function showPremium():void
 			{
 				if (premium)
-					showTab(premium, 0);					
+					showTab(premium, 1);					
 				else if (!isLoading)
 					loadPremiumModule();
 			}

@@ -49,15 +49,7 @@ package org.planigle.planigle.model
 			for each (var individual:Individual in newIndivids)
 			{
 				if (individual.login == currentLogin)
-				{
-					if (currentIndividual)
-					{
-						currentIndividual.populateFromObject( individual ); // Important to keep same instance
-						individual = currentIndividual;
-					}
-					else
-						currentIndividual = individual;
-				}
+					currentIndividual = individual;
 				newIndividuals.addItem(individual);
 				newIndividualSelector.addItem(individual);
 				individualMapping[individual.id] = individual;

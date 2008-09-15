@@ -59,7 +59,7 @@
 		private function created(event:Event):void
 		{
 			panelHeight = combinedPanel.height;
-			ChangeWatcher.watch( factory, "currentIndividual", resetState ); // Reset if log out / logged back in
+			ChangeWatcher.watch( factory, "currentIndividual", updateIndividual ); // Reset if log out / logged back in
 			ChangeWatcher.watch( ReleaseFactory.getInstance(), "releaseSelector", updateReleaseFilterList );
 			ChangeWatcher.watch( IterationFactory.getInstance(), "iterationSelector", updateIterationFilterList );
 			ChangeWatcher.watch( IndividualFactory.current(), "projectId", updateTeamWatcher );
@@ -71,6 +71,13 @@
 			setTeamFilterList();
 			setIndividualFilterList();
 			handleFilter(event);
+		}
+
+		// An individual has been updated.
+		private function updateIndividual(event:Event):void
+		{
+			resetState(event);
+			updateTeamWatcher(event);
 		}
 		
 		// Set the error message.
@@ -199,6 +206,8 @@
 		private function updateTeamFilterList(event:Event):void
 		{
 			setTeamFilterList();
+			if (IndividualFactory.current().project)
+				storyFieldTeam.dataProvider = IndividualFactory.current().project.teamSelector;
 			handleFilter(event);
 		}
 		
@@ -235,6 +244,8 @@
 		private function updateIndividualFilterList(event:Event):void
 		{
 			setIndividualFilterList();
+			if (IndividualFactory.current().project)
+				storyFieldOwner.dataProvider = IndividualFactory.current().project.individuals();
 			handleFilter(event);
 		}
 		
