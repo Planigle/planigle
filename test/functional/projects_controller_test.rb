@@ -204,10 +204,10 @@ class ProjectsControllerTest < ActionController::TestCase
   # Update premium successfully based on role.
   def update_premium_by_role_successful( user )
     login_as(user)
-    new_expire = Time.now + 60*24*60*60
+    new_expire = Date.tomorrow
     put :update, :id => 1, resource_symbol => {:premium_expiry => new_expire}, :format => 'xml'
     assert_response :success
-    assert (new_expire - projects(:first).reload.premium_expiry).abs < 1
+    assert_equal new_expire, projects(:first).reload.premium_expiry
 
     put :update, :id => 1, resource_symbol => {:premium_limit => 2}, :format => 'xml'
     assert_response :success
@@ -218,7 +218,7 @@ class ProjectsControllerTest < ActionController::TestCase
   def update_premium_by_role_unsuccessful( user )
     login_as(user)
     old_expire = projects(:first).premium_expiry
-    new_expire = Time.now + 60*24*60*60
+    new_expire = Date.tomorrow
     put :update, :id => 1, resource_symbol => {:premium_expiry => new_expire}, :format => 'xml'
     assert_response 401
     assert_equal old_expire, projects(:first).reload.premium_expiry

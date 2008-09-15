@@ -29,15 +29,11 @@ class SurveyTest < ActiveSupport::TestCase
     assert_failure(:email, nil)
     assert_failure(:email, 'a@b.c')  # bad if 5 long (plus last bit must be two characters)
     assert_success(:email, 'a@b.ce') # ok if 6 long
-    assert_failure(:email, 'a@b.ce') # no duplicates
-    assert_failure(:email, 'A@b.ce') # no duplicates (case doesn't matter)
     assert_success(:email, 'a@abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcd.com')  # 100 ok
     assert_failure(:email, 'a@abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijkabcd.com') # 101 not so much
     assert_failure(:email, 'aaaaaa')
     assert_failure(:email, 'aaa@aa')
     assert_failure(:email, 'aa @a.aa')
-    assert_failure(:email, 'test@foo.com') # in use
-    assert_failure(:email, 'Test@foo.com') # case doesn't matter
   end
 
   # Test the validation of exclude.
