@@ -117,7 +117,7 @@ class FlexIndividualsTest < Test::Unit::TestCase
     @ie.button("individualBtnChange").click
     sleep 5 # Wait for data to load
 
-    assert_equal 4, @ie.button_bar("mainNavigation").numChildren
+    assert_equal 5, @ie.button_bar("mainNavigation").numChildren
     
     @ie.button_bar("mainNavigation").change(:related_object => "Schedule")
     assert_equal 2, @ie.data_grid("releaseResourceGrid").num_rows
