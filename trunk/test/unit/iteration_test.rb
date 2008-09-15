@@ -2,9 +2,11 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class IterationTest < ActiveSupport::TestCase
   fixtures :individuals
+  fixtures :iteration_totals
   fixtures :iterations
   fixtures :projects
   fixtures :stories
+  fixtures :tasks
 
   # Test that an iteration can be created.
   def test_create_iteration
@@ -37,10 +39,12 @@ class IterationTest < ActiveSupport::TestCase
   
   # Test deleting an iteration
   def test_delete_iteration
+    assert 4, IterationTotal.count
     assert_equal stories(:first).iteration, iterations(:first)
     iterations(:first).destroy
     stories(:first).reload
     assert_nil stories(:first).iteration
+    assert 1, IterationTotal.count
   end
   
   # Test updating the project
@@ -51,12 +55,19 @@ class IterationTest < ActiveSupport::TestCase
     assert_equal 2, stories(:first).project_id
   end
 
-  # Test finding individuals for a specific user.
+  # Test finding iterations for a specific user.
   def test_find
     assert_equal Iteration.count, Iteration.get_records(individuals(:quentin)).length
     assert_equal Iteration.find_all_by_project_id(1).length, Iteration.get_records(individuals(:aaron)).length
     assert_equal Iteration.find_all_by_project_id(1).length, Iteration.get_records(individuals(:user)).length
     assert_equal Iteration.find_all_by_project_id(1).length, Iteration.get_records(individuals(:readonly)).length
+  end
+  
+  # Test summarization.
+  def test_summarize
+    total = iterations(:first).summarize
+    assert 3, total.in_progress
+    assert 3, total.done
   end
 
 private

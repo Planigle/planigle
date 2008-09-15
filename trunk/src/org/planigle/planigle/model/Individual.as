@@ -90,6 +90,12 @@ package org.planigle.planigle.model
 			_project = project;
 		}
 
+		// Answer whether this user is a premium user.
+		public function isPremium():Boolean
+		{
+			return project && project.isPremium();
+		}
+
 		// Answer my project id.
 		public function get projectId():String
 		{

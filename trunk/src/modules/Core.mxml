@@ -11,6 +11,9 @@
 			import com.adobe.viewsource.ViewSource;
 			import mx.binding.utils.ChangeWatcher;
 			import flash.display.DisplayObject;
+			import mx.events.ModuleEvent;
+        	import mx.modules.ModuleManager;
+        	import mx.modules.IModuleInfo;
 			import org.planigle.planigle.model.IndividualFactory;
 			import org.planigle.planigle.events.ProjectChangedEvent;
 			import org.planigle.planigle.events.IndividualChangedEvent;
@@ -85,11 +88,13 @@
 					if (factory.currentIndividual.isAdminOnly())
 					{
 						hideTab(stories);
+						hidePremium();
 						hideTab(schedule);
 					}
 					else
 					{
 						showTab(schedule, 0);
+						factory.currentIndividual.isPremium() ? showPremium() : hidePremium();
 						showTab(stories, 0);
 					}
 				}
@@ -119,6 +124,43 @@
 			{
 				new LogoutEvent().dispatch();
 			}			
+
+			private var premiumModule:IModuleInfo;
+			private var premium:DisplayObject;
+			private var isLoading:Boolean = false;
+
+			// Show premium information.
+			private function showPremium():void
+			{
+				if (premium)
+					showTab(premium, 0);					
+				else if (!isLoading)
+					loadPremiumModule();
+			}
+
+			// Hide premium information.
+			private function hidePremium():void
+			{
+				if (premium)
+					hideTab(premium);
+			}
+
+			// Load the premium module.
+			private function loadPremiumModule():void
+			{
+				isLoading = true;
+				premiumModule = ModuleManager.getModule("modules/Premium.swf");
+				premiumModule.addEventListener(ModuleEvent.READY, moduleEventHandler);
+	            premiumModule.load(); 
+			}
+			
+			// The module has finished loading.
+			private function moduleEventHandler(event:ModuleEvent):void
+			{
+				isLoading = false;
+				premium = premiumModule.factory.create() as DisplayObject;
+				showTab(premium, 1);
+			}
 		]]>
 	</mx:Script>
 	<mx:HBox horizontalGap="5" width="100%">

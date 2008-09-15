@@ -107,6 +107,12 @@ package org.planigle.planigle.model
 			return start <= release.finish && end() >= release.start;
 		}
 
+		// Answer true if I am active on a given date (true if any part of me overlaps).
+		public function isActiveOn(date:Date):Boolean
+		{
+			return start <= date && end() >= date;
+		}
+
 		// Answer the releases that could be worked on during me.
 		public function releases():ArrayCollection
 		{

@@ -10,6 +10,23 @@ class SystemsControllerTest < ActionController::TestCase
 
   fixtures :systems
   fixtures :individuals
+  fixtures :iteration_totals
+  fixtures :iterations
+  fixtures :stories
+
+  # Test summarizing data.
+  def test_summarize
+    get :summarize
+  end
+
+  # Test getting report data.
+  def test_report
+    login_as(individuals(:admin2))
+    get :report
+    assert_select "iteration-totals" do
+      assert_select "iteration-total", 2
+    end
+  end
     
   # Test creating a new resource without credentials.
   def test_create_unauthorized

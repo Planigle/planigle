@@ -114,6 +114,12 @@ module RubyAMF
       :type => 'active_record',
       :attributes => ["id", "story_id", "name", "description", "individual_id", "effort", "status_code"])
 
+    ClassMappings.register(
+      :actionscript => 'IterationTotal',
+      :ruby => 'IterationTotal',
+      :type => 'active_record',
+      :attributes => ["id", "iteration_id", "date", "created", "in_progress", "done"])
+
     # => Class Mapping Scope (Advanced Usage)
     # You can also specify a class mapping scope if you want. For example, lets say you need certain attributes for a book when you are viewing a book
     # in flex as opposed to editing a book (where you would need more parameters). You can define a scope mapping parameter for ":attributes"

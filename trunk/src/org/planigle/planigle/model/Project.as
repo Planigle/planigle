@@ -92,6 +92,12 @@ package org.planigle.planigle.model
 			}
 			return individuals;
 		}
+
+		// Answer whether this project has premium features.
+		public function isPremium():Boolean
+		{
+			return premiumExpiry > new Date();
+		}
 		
 		// Update me.  Params should be of the format (record[param]).  Success function
 		// will be called if successfully updated.  FailureFunction will be called if failed (will

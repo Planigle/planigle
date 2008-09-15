@@ -23,6 +23,8 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resource :session
   map.resource :system
+  map.summarize '/summarize', :controller => 'systems', :action => 'summarize'
+  map.summarize '/report', :controller => 'systems', :action => 'report'
   map.activate '/activate/:activation_code', :controller => 'individuals', :action => 'activate'
   map.logout '/logout', :controller => 'sessions', :action => 'destroy'
 

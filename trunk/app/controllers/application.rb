@@ -49,6 +49,13 @@ protected
       format.amf { render :amf => ["You are not authorized to perform that action."] }
     end
   end
+
+  # A successful result has occurred.  Render the success message (a string) in xml.
+  def xml_result(result)
+    builder = Builder::XmlMarkup.new
+    builder.instruct!
+    builder.results { builder.result result }
+  end
   
   # An error has occurred.  Render the error (a string) in xml.
   def xml_error(error)

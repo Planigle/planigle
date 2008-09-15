@@ -1,6 +1,11 @@
 class System < ActiveRecord::Base
   attr_accessible :license_agreement
 
+  # Summarize my recent data for reporting.
+  def self.summarize
+    Iteration.find(:all, :conditions => ['start < ? and start + interval (length * 7) day > ?', Time.now, Time.now], :include => [:stories]).each { |iteration| iteration.summarize }
+  end
+
   # No one is authorized to create.  It is a singleton.
   def authorized_for_create?(current_user)
     false

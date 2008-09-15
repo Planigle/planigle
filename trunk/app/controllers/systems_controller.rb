@@ -1,5 +1,21 @@
 class SystemsController < ResourceController
-  before_filter :login_required
+  before_filter :login_required, :except => :summarize
+
+  # Summarize the system data.
+  # GET /summarize
+  def summarize
+    System.summarize
+    render :xml => xml_result('Recent data has now been summarized.')
+  end
+
+  # Return the system data.
+  # GET /report
+  def report
+    respond_to do |format|
+      format.xml { render :xml => data, :status => :success }
+      format.amf { render :amf => data }
+    end
+  end
 
 protected
 
@@ -47,5 +63,12 @@ protected
       end
       false
     end
+  end
+  
+  # Answer the reporting data
+  def data
+    report_data = {}
+    report_data['iteration_totals'] = IterationTotal.find(:all, :conditions => ['iterations.project_id = ?', project_id], :joins => :iteration)
+    report_data
   end
 end
