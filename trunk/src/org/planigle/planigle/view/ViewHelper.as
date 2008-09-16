@@ -121,7 +121,7 @@ package org.planigle.planigle.view
 		// Sort status based on its code.
 		public static function sortSurveyMode(item1:Object, item2:Object):int
 		{
-			return ObjectUtil.numericCompare(item1.child("survey-mode"), item2.child("survey-mode"));
+			return ObjectUtil.numericCompare(item1.surveyMode, item2.surveyMode);
 		}
 
 		// Sort effort numerically.
