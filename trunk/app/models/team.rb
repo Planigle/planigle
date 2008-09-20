@@ -2,6 +2,7 @@ class Team < ActiveRecord::Base
   belongs_to :project
   has_many :individuals, :dependent => :nullify
   has_many :stories, :dependent => :nullify
+  has_many :iteration_totals, :dependent => :nullify
 
   validates_presence_of     :name
   validates_length_of       :name,                   :maximum => 40, :allow_nil => true # Allow nil to workaround bug

@@ -137,6 +137,20 @@ package org.planigle.planigle.model
 		// I have been successfully deleted.  Remove myself to reflect the changes.
 		public function destroyCompleted():void
 		{
+			// Update stories and tasks.
+			for each (var story:Story in StoryFactory.getInstance().stories)
+			{
+				if (story.individualId == id)
+					story.individualId = null;
+				// Update tasks.
+				for each (var task:Task in story.tasks)
+				{
+					if (task.individualId == id)
+						task.individualId = null;
+				}
+			}
+
+
 			// Create copy to ensure any views get notified of changes.
 			var individuals:ArrayCollection = new ArrayCollection();
 			for each (var individual:Individual in IndividualFactory.getInstance().individuals)
@@ -207,19 +221,16 @@ package org.planigle.planigle.model
 			{
 				if (story.isStory() && (!onlyAccepted || story.statusCode == Story.ACCEPTED) && (id || story.teamId == teamId))
 				{
-					if (story.tasks.length == 0)
+					var useTaskEffort:Boolean = false;
+					for each(var task:Object in story.tasks)
 					{
-						if (story.individualId == id)
-							totalVelocity += Number(story.calculatedEffort);
+						if (task.individualId == id)
+							totalVelocity += Number(task.calculatedEffort);
+						if (task.calculatedEffort != null && task.calculatedEffort != "")
+							useTaskEffort = true;
 					}
-					else
-					{
-						for each(var task:Object in story.tasks)
-						{
-							if (task.individualId == id)
-								totalVelocity += Number(task.calculatedEffort);
-						}
-					}
+					if (!useTaskEffort && story.individualId == id)
+						totalVelocity += Number(story.calculatedEffort);
 				}
 			}
 			return totalVelocity;

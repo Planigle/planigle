@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class StoryTest < ActiveSupport::TestCase
+  fixtures :teams
   fixtures :individuals
   fixtures :stories
   fixtures :projects
@@ -56,6 +57,10 @@ class StoryTest < ActiveSupport::TestCase
   # Test calculating the effort from tasks.
   def test_calculated_effort
     assert_equal 5, stories(:first).calculated_effort
+    assert_equal 5, stories(:first).calculated_effort_for(teams(:first), individuals(:aaron))
+    assert_equal 0, stories(:first).calculated_effort_for(teams(:first), individuals(:quentin))
+    assert_equal 1, stories(:second).calculated_effort_for(nil, nil)
+    assert_equal 0, stories(:second).calculated_effort_for(teams(:first), nil)
   end
 
   # Test the validation of status.

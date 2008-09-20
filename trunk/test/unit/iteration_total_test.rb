@@ -8,12 +8,12 @@ class IterationTotalTest < ActiveSupport::TestCase
   # Test summarization.
   def test_summarize
     num = IterationTotal.count
-    total = IterationTotal.capture( 1, 2, 3, 4)
+    total = IterationTotal.capture( 1, nil, 2, 3, 4)
     assert_equal num + 1, IterationTotal.count
     assert_equal 2, total.created
     assert_equal 3, total.in_progress
     assert_equal 4, total.done
-    IterationTotal.capture( 1, 5, 6, 7)
+    IterationTotal.capture( 1, nil, 5, 6, 7)
     total.reload
     assert_equal num + 1, IterationTotal.count
     assert_equal 5, total.created

@@ -102,6 +102,7 @@
 			else
 				individualFieldProject.selectedIndex = ProjectFactory.getInstance().projectSelector.length - 1;
 
+			updateTeam(event);
 			var it2:String = factory.currentIndividual.teamId;
 			if (it2)
 				individualFieldTeam.selectedItem = individualFieldProject.selectedItem.find(it2);
@@ -139,6 +140,7 @@
 				else
 					individualFieldProject.selectedIndex = ProjectFactory.getInstance().projectSelector.length - 1;
 
+				updateTeam(event);
 				var it2:String = currentItem.teamId;
 				if (it2)
 					individualFieldTeam.selectedItem = individualFieldProject.selectedItem.find(it2);
@@ -163,6 +165,12 @@
 				labelPasswordConfirmation.required = false;
 				individualBtnChange.label = 'Update';
 			}
+		}
+
+		// Update the team.
+		private function updateTeam(event:Event):void
+		{
+			individualFieldTeam.dataProvider = individualFieldProject.selectedItem.teamSelector;
 		}
 
 		// Confirm that user wants to delete the resource.
@@ -258,10 +266,10 @@
 				<mx:target>
 					<mx:Form id="changeForm" defaultButton="{individualBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
 						<mx:FormItem id='individualFormProject' label='Project'>
-							<mx:ComboBox id='individualFieldProject' width="350" editable="false" dataProvider="{ProjectFactory.getInstance().projectSelector}" labelField="name"></mx:ComboBox>
+							<mx:ComboBox id='individualFieldProject' width="350" editable="false" dataProvider="{ProjectFactory.getInstance().projectSelector}" labelField="name" change="updateTeam(event)"></mx:ComboBox>
 						</mx:FormItem>
 						<mx:FormItem id='individualFormTeam' label='Team' visible="{individualFieldProject.selectedItem.teams.length > 0}" height="{individualFieldProject.selectedItem.teams.length > 0 ? 22 : 0}">
-							<mx:ComboBox id='individualFieldTeam' width="350" editable="false" labelField="name" dataProvider="{individualFieldProject.selectedItem.teamSelector}"></mx:ComboBox>
+							<mx:ComboBox id='individualFieldTeam' width="350" editable="false" labelField="name"></mx:ComboBox>
 						</mx:FormItem>
 						<mx:FormItem label='Login' required="true">
 							<mx:TextInput id='individualFieldLogin' maxChars="40" text='' width="350"/>

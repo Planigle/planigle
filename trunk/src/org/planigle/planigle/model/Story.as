@@ -87,13 +87,13 @@ package org.planigle.planigle.model
 			var sum:Number = 0;
 			for each (var task:Task in tasks)
 			{
-				if (task.effort != "")
+				if (task.effort != null && task.effort != "")
 				{
 					sum += Number(task.effort);
 					useTasks = true;
 				}
 			}
-			return useTasks ? ((sum == 0) ? "" : sum.toString()) : effort;
+			return useTasks ? ((sum == 0) ? "" : sum.toString()) : (effort != null ? Number(effort).toString() : effort);
 		}
 
 		// Only show user priority if not accepted.
