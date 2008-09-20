@@ -7,6 +7,8 @@ require 'rake'
 require 'rake/testtask'
 require 'rake/rdoctask'
 require 'tasks/rails'
+require 'win32/sound'
+include Win32
 
 namespace :build do
   desc "Build the Flex components in test mode"
@@ -15,6 +17,7 @@ namespace :build do
     puts %x[mxmlc.exe -compiler.debug --services=src/services-config.xml -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -load-externs=report.xml -output=public\\modules\\Core.swf src\\modules\\Core.mxml]
     puts %x[mxmlc.exe -compiler.debug --services=src/services-config.xml -compiler.source-path=src -compiler.source-path+=public -library-path+=libs --include-libraries libs\\FunFXAdapter.swc libs\\automation_agent.swc libs\\automation.swc libs\\automation_agent_rb.swc -output=public\\Survey.swf src\\Survey.mxml]
     puts %x[del report.xml]
+    Sound.play('tada.wav')
   end
 
   desc "Build the Flex components in debug mode"
@@ -23,6 +26,7 @@ namespace :build do
     puts %x[mxmlc.exe -compiler.debug --services=src/services-config.xml -compiler.incremental -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -load-externs=report.xml -output=public\\modules\\Core.swf src\\modules\\Core.mxml]
     puts %x[mxmlc.exe -compiler.debug --services=src/services-config.xml -compiler.incremental -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -output=public\\Survey.swf src\\Survey.mxml]
     puts %x[del report.xml]
+    Sound.play('tada.wav')
   end
 
   desc "Build the Flex components in production mode"
@@ -31,6 +35,7 @@ namespace :build do
     puts %x[mxmlc.exe --services=src/services-config.xml -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -load-externs=report.xml -output=public\\modules\\Core.swf src\\modules\\Core.mxml]
     puts %x[mxmlc.exe --services=src/services-config.xml -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -output=public\\Survey.swf src\\Survey.mxml]
     puts %x[del report.xml]
+    Sound.play('tada.wav')
   end
 end
 

@@ -14,9 +14,9 @@
 		import mx.binding.utils.ChangeWatcher;
 		import org.planigle.planigle.model.ViewModelLocator;
 		import org.planigle.planigle.model.ProjectFactory;
-		import org.planigle.planigle.model.Team;
 		import org.planigle.planigle.model.IndividualFactory;
 		import org.planigle.planigle.model.Individual;
+		import org.planigle.planigle.model.Team;
 		import org.planigle.planigle.model.ReleaseFactory;
 		import org.planigle.planigle.model.Release;
 		import org.planigle.planigle.model.IterationFactory;
@@ -59,27 +59,40 @@
 		private function created(event:Event):void
 		{
 			panelHeight = combinedPanel.height;
-			ChangeWatcher.watch( factory, "currentIndividual", updateIndividual ); // Reset if log out / logged back in
+			ChangeWatcher.watch( factory, "currentIndividual", setTeamWatcher );
+			ChangeWatcher.watch( IndividualFactory.current(), "projectId", setTeamWatcher );
+			ChangeWatcher.watch( factory, "currentIndividual", resetState ); // Reset if log out / logged back in
 			ChangeWatcher.watch( ReleaseFactory.getInstance(), "releaseSelector", updateReleaseFilterList );
 			ChangeWatcher.watch( IterationFactory.getInstance(), "iterationSelector", updateIterationFilterList );
-			ChangeWatcher.watch( IndividualFactory.current(), "projectId", updateTeamWatcher );
 			ChangeWatcher.watch( IndividualFactory.getInstance(), "individualSelector", updateIndividualFilterList );
 			ChangeWatcher.watch( StoryFactory.getInstance(), "stories", handleFilter );
 			setReleaseFilterList();
 			setIterationFilterList();
-			setTeamWatcher();
-			setTeamFilterList();
+			setTeamWatcher(event);
 			setIndividualFilterList();
 			handleFilter(event);
 		}
 
-		// An individual has been updated.
-		private function updateIndividual(event:Event):void
+		private var watcher:ChangeWatcher;
+
+		// Watch for changes to the teams.
+		private function setTeamWatcher(event:Event):void
 		{
-			resetState(event);
-			updateTeamWatcher(event);
+			if (watcher)
+				watcher.unwatch();
+			if (IndividualFactory.current().project)
+				watcher = ChangeWatcher.watch( IndividualFactory.current().project, "teams", updateTeamField );
+			else watcher = null;
+			updateTeamField(null);
 		}
-		
+
+		// Update the teams in the form.
+		private function updateTeamField(event:Event):void
+		{
+			if (IndividualFactory.current().project)
+				storyFieldTeam.dataProvider = IndividualFactory.current().project.teamSelector;
+		}
+
 		// Set the error message.
 		private function setError(message:String):void
 		{
@@ -181,63 +194,6 @@
 				else
 					iteration.selectedIndex = iterationFilter.length - 1;
 			}
-		}
-
-		private var watcher:ChangeWatcher;
-
-		// Watch for changes to the teams.
-		private function updateTeamWatcher(event:Event):void
-		{
-			setTeamWatcher();
-			updateTeamFilterList(event);
-		}
-
-		// Watch for changes to the teams.
-		private function setTeamWatcher():void
-		{
-			if (watcher)
-				watcher.unwatch();
-			if (IndividualFactory.current().project)
-				watcher = ChangeWatcher.watch( IndividualFactory.current().project, "teams", updateTeamFilterList );
-			else watcher = null;
-		}
-
-		// Update the teams in the filter list.
-		private function updateTeamFilterList(event:Event):void
-		{
-			setTeamFilterList();
-			if (IndividualFactory.current().project)
-				storyFieldTeam.dataProvider = IndividualFactory.current().project.teamSelector;
-			handleFilter(event);
-		}
-		
-		// Set the teams in the filter list.
-		private function setTeamFilterList():void
-		{
-			// Remember selection so that updating teams doesn't revert it.
-			var id:String = team.selectedItem ? team.selectedItem.id : "-1";
-			var selection:Team = null;
-
-			var newFilter:ArrayCollection = new ArrayCollection();
-			var teams:ArrayCollection = IndividualFactory.current().project ? IndividualFactory.current().project.teamSelector : new ArrayCollection();
-			for each (var it:Team in teams)
-			{
-				newFilter.addItem(it);
-				if (it.id == id)
-					selection = it;
-			}
-			var all:Team = new Team();
-			all.populate( <team><id>-1</id><name>All Teams</name></team> );
-			newFilter.addItem(all);
-			teamFilter = newFilter;
-			if (selection)
-				team.selectedItem = selection;
-			else if (IndividualFactory.current().team)
-				team.selectedItem = IndividualFactory.current().team
-			else
-				team.selectedIndex = teamFilter.length - 1;
-			team.visible = teamFilter.length > 2;
-			team.width = team.visible ? 130 : 0;
 		}
 		
 		// Update the individuals in the filter list.
@@ -1031,7 +987,7 @@
 					<mx:HBox width="100%" id='topRow'>
 						<mx:ComboBox id='release' width="115" editable="false" dataProvider="{releaseFilter}" labelField="name" change="handleReleaseFilter(event)"></mx:ComboBox>
 						<mx:ComboBox id='iteration' width="115" editable="false" dataProvider="{iterationFilter}" labelField="name" change="handleFilter(event)"></mx:ComboBox>
-						<mx:ComboBox id='team' width="115" editable="false" dataProvider="{teamFilter}" labelField="name" change="handleFilter(event)"></mx:ComboBox>
+						<component:TeamSelector id='team' change="handleFilter(event)"></component:TeamSelector>
 						<mx:ComboBox id='individual' width="115" editable="false" dataProvider="{individualFilter}" labelField="fullName" change="handleFilter(event)"></mx:ComboBox>
 						<mx:ComboBox id='storyStatus' width="116" editable="false" change="handleFilter(event)" selectedIndex="2">
 							<mx:Object label="Created" value="0" />

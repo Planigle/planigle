@@ -36,19 +36,23 @@ class Iteration < ActiveRecord::Base
 
   # Summarize my current data.
   def summarize
-    created = 0
-    in_progress = 0
-    done = 0
-    stories.each do |story|
-      effort = story.calculated_effort
-      effort = effort ? effort : 0
-      case story.status_code
-        when Story::Created then created += effort
-        when Story::InProgress then in_progress += effort
-        else done += effort
+    (Array.new(project.teams) << nil).collect do |team|
+      created = 0
+      in_progress = 0
+      done = 0
+      (Array.new((team == nil ? Individual.find(:all, :conditions => ['project_id = ? and team_id is null', project_id]) : team.individuals)) << nil).each do |individual|
+        stories.each do |story|
+          effort = story.calculated_effort_for(team, individual)
+          effort = effort != nil ? effort : 0
+          case story.status_code
+            when Story::Created then created += effort
+            when Story::InProgress then in_progress += effort
+            else done += effort
+          end
+        end
       end
+      IterationTotal.capture( id, team ? team.id : nil, created, in_progress, done)
     end
-    IterationTotal.capture( id, created, in_progress, done)
   end
 
   # Only project admins or higher can create iterations.

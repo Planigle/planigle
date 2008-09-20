@@ -208,7 +208,7 @@ private
     assert_equal 'false', @ie.combo_box("storyFieldPublic").text
     assert_not_nil @ie.button("storyBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",foo,fourth,Test,ted williams,1.0,Created,true,4,,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
+    assert_equal ",foo,fourth,Test,ted williams,1,Created,true,4,,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
     @ie.button("storyBtnCancel").click
   end
     
@@ -273,7 +273,7 @@ private
     assert_equal '', @ie.text_area("storyError").text
     assert_nil @ie.button("storyBtnCancel")
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",foo 1,fourth,Test,ted williams,1.0,Created,true,1,2.0,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
+    assert_equal ",foo 1,fourth,Test,ted williams,1,Created,true,1,2.0,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
   end
     
   # Test whether you can successfully cancel editing a story.
@@ -323,7 +323,7 @@ private
     assert_equal '', @ie.text_area("storyError").text
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
     assert_equal "+,test,fourth,Test,aaron hank,5,Created,true,2,2.0,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 1, :end => 1)
-    assert_equal ",test3,fourth,Test,aaron hank,1.0,Created,true,1,2.0,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
+    assert_equal ",test3,fourth,Test,aaron hank,1,Created,true,1,2.0,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
   end
 
   # Edit a story.

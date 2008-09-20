@@ -46,11 +46,18 @@ class Story < ActiveRecord::Base
   def accepted?
     self.status_code == Done
   end
+
+  # Answer the effort to complete me for an individual on a team.
+  def calculated_effort_for(team, individual)
+    if !individual && team != self.team then return 0; end
+    task_effort = tasks.inject(nil) {|sum, task| task.effort ? (sum ? sum + task.calculated_effort_for(individual) : task.calculated_effort_for(individual)) : sum}
+    task_effort != nil ? task_effort : (self.individual == individual ? effort : 0)
+  end
   
   # My effort is either my value (if set) or the sum of my tasks.
   def calculated_effort
     task_effort = tasks.inject(nil) {|sum, task| task.effort ? (sum ? sum + task.effort : task.effort) : sum}
-    task_effort ? task_effort : effort
+    task_effort != nil ? task_effort : effort
   end
   
   # Create a new story based on this one.

@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class IterationTest < ActiveSupport::TestCase
+  fixtures :teams
   fixtures :individuals
   fixtures :iteration_totals
   fixtures :iterations
@@ -65,9 +66,17 @@ class IterationTest < ActiveSupport::TestCase
   
   # Test summarization.
   def test_summarize
-    total = iterations(:first).summarize
-    assert 3, total.in_progress
-    assert 3, total.done
+    totals = iterations(:first).summarize
+    totals.each do |total|
+      if total.team == nil
+        assert 0, total.in_progress
+        assert 1, total.done
+      end
+      if total.team == teams(:first)
+        assert 3, total.in_progress
+        assert 2, total.done
+      end
+    end
   end
 
 private
