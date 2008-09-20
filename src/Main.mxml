@@ -19,6 +19,10 @@
 			import org.planigle.planigle.events.LoginEvent;
 			import org.planigle.planigle.model.ViewModelLocator;
 
+			// Hack to work around an issue with charts.  See http://gregjessup.com/flex-3-advanceddatagrid-cannot-convert-mxmanagersdragmanagerimpl-to-mxmanagersidragmanager/.
+			import mx.managers.IDragManager; 
+			private var iDragManager:IDragManager;  
+
 			[Bindable]
 			private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();			
 
