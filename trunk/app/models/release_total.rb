@@ -1,8 +1,8 @@
-class IterationTotal < Total
-  belongs_to :iteration
-
+class ReleaseTotal < Total
+  belongs_to :release
+  
   # This should be overridden in subclasses.
   def self.id_field
-    :iteration_id
+    :release_id
   end
 end

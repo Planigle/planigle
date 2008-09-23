@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class ReleaseTest < ActiveSupport::TestCase
+  fixtures :teams
   fixtures :individuals
   fixtures :releases
   fixtures :projects
@@ -37,10 +38,12 @@ class ReleaseTest < ActiveSupport::TestCase
   
   # Test deleting an release
   def test_delete_release
+    assert 3, ReleaseTotal.count
     assert_equal stories(:first).release, releases(:first)
     releases(:first).destroy
     stories(:first).reload
     assert_nil stories(:first).release
+    assert 1, ReleaseTotal.count
   end
 
   # Test finding individuals for a specific user.
@@ -49,6 +52,21 @@ class ReleaseTest < ActiveSupport::TestCase
     assert_equal Release.find_all_by_project_id(1).length, Release.get_records(individuals(:aaron)).length
     assert_equal Release.find_all_by_project_id(1).length, Release.get_records(individuals(:user)).length
     assert_equal Release.find_all_by_project_id(1).length, Release.get_records(individuals(:readonly)).length
+  end
+  
+  # Test summarization.
+  def test_summarize
+    totals = releases(:first).summarize
+    totals.each do |total|
+      if total.team == nil
+        assert 0, total.in_progress
+        assert 1, total.done
+      end
+      if total.team == teams(:first)
+        assert 3, total.in_progress
+        assert 2, total.done
+      end
+    end
   end
 
 private

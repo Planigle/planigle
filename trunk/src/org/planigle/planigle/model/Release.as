@@ -73,6 +73,12 @@ package org.planigle.planigle.model
 			var today:Date = new Date();
 			return today.time >= start.time && today.time <= finish.time;
 		}
+
+		// Answer true if I am active on a given date (true if any part of me overlaps).
+		public function isActiveOn(date:Date):Boolean
+		{
+			return start <= date && finish >= date;
+		}
 		
 		// Increment my name (or return an empty string if I cannot do so).
 		// Must end in numerics separated by .'s.  If one part, increment it.  If two or more, increment

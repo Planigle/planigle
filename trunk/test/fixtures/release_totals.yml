@@ -1,0 +1,23 @@
+first:
+  id: 1
+  release_id: 1
+  date: 2008-09-12
+  created: 1
+  in_progress: 2
+  done: 5
+
+second:
+  id: 2
+  release_id: 1
+  date: 2008-09-13
+  created: 0
+  in_progress: 2
+  done: 6
+
+third:
+  id: 3
+  release_id: 3
+  date: 2008-09-13
+  created: 0
+  in_progress: 2
+  done: 6

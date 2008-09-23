@@ -10,7 +10,9 @@ class SystemsControllerTest < ActionController::TestCase
 
   fixtures :systems
   fixtures :individuals
+  fixtures :release_totals
   fixtures :iteration_totals
+  fixtures :releases
   fixtures :iterations
   fixtures :stories
 
@@ -23,6 +25,9 @@ class SystemsControllerTest < ActionController::TestCase
   def test_report
     login_as(individuals(:admin2))
     get :report
+    assert_select "release-totals" do
+      assert_select "release-total", 2
+    end
     assert_select "iteration-totals" do
       assert_select "iteration-total", 2
     end

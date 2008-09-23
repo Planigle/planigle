@@ -90,6 +90,21 @@ package org.planigle.planigle.model
 			}
 			return null;
 		}
+		
+		// Answer the current release or if none, the most recent.  If no releases, return null.
+		public function mostRecent():Release
+		{
+			var now:Date = new Date();
+			var currentRelease:Release = null;
+			for each (var release:Release in releases)
+			{
+				if (release.start < now)
+					currentRelease = release;
+				else
+					break;
+			}
+			return currentRelease;
+		}
 	}
 }
 

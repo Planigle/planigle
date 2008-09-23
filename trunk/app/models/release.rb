@@ -2,7 +2,8 @@ class Release < ActiveRecord::Base
   include Utilities::Text
   belongs_to :project
   has_many :stories, :dependent => :nullify
-  
+  has_many :release_totals, :dependent => :nullify
+ 
   validates_presence_of     :project_id, :name, :start, :finish
   validates_length_of       :name,   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
 
@@ -17,6 +18,11 @@ class Release < ActiveRecord::Base
     else
       Release.find(:all, :order => 'start')
     end
+  end
+
+  # Summarize my current data.
+  def summarize
+    ReleaseTotal.summarize_for(self)
   end
   
   # Answer whether the user is authorized to create me.
