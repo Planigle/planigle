@@ -68,6 +68,7 @@ protected
   # Answer the reporting data
   def data
     report_data = {}
+    report_data['release_totals'] = ReleaseTotal.find(:all, :conditions => ['releases.project_id = ?', project_id], :joins => :release)
     report_data['iteration_totals'] = IterationTotal.find(:all, :conditions => ['iterations.project_id = ?', project_id], :joins => :iteration)
     report_data
   end

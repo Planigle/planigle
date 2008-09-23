@@ -79,7 +79,7 @@
 				var last:Iteration = Iteration(IterationFactory.getInstance().iterations.getItemAt(IterationFactory.getInstance().iterations.length - 1));
 				iterationFieldName.text = last.incrementName();
 				iterationFieldName.setSelection(0, iterationFieldName.text.length );
-				iterationFieldStart.selectedDate = last.end();
+				iterationFieldStart.selectedDate = last.finish;
 				iterationFieldLength.text = last.length.toString();
 			}
 			else

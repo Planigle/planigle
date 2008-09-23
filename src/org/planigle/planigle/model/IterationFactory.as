@@ -126,7 +126,7 @@ package org.planigle.planigle.model
 			for (var i:int=iterations.length - 1; i>=0; i--)
 			{
 				var iteration:Iteration = Iteration(iterations.getItemAt(i));
-				if (iteration.end() < today)
+				if (iteration.finish < today)
 				{
 					past.addItemAt(iteration, 0);
 					if (past.length == num)
