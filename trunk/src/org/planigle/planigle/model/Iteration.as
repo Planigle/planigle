@@ -148,5 +148,17 @@ package org.planigle.planigle.model
 			}
 			return stories;
 		}
+
+		// Answer the stories that have been accepted in me.
+		public function acceptedStories():ArrayCollection
+		{
+			var stories:ArrayCollection = new ArrayCollection();
+			for each(var story:Story in StoryFactory.getInstance().stories)
+			{
+				if (story.iterationId == id && story.statusCode == Story.ACCEPTED)
+					stories.addItem(story);
+			}
+			return stories;
+		}
 	}
 }
