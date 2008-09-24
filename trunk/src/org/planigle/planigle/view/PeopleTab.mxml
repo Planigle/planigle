@@ -16,6 +16,8 @@
 		}
 		]]>
 	</mx:Script>
-	<component:ViewProjects id="projects" height="40%" itemClick="selectProject(event)"/>
-	<component:ViewIndividuals id="individuals" height="60%"/>
+	<mx:VDividedBox height="100%" width="100%">
+		<component:ViewProjects id="projects" height="40%" itemClick="selectProject(event)"/>
+		<component:ViewIndividuals id="individuals" height="60%"/>
+	</mx:VDividedBox>
 </mx:Panel>
