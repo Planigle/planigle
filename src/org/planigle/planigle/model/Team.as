@@ -155,5 +155,11 @@ package org.planigle.planigle.model
 				sum += child.velocityIn(stories);
 			return sum;
 		}
+
+		// Answer my velocity in the specified iteration.
+		public function velocityInIteration(iteration:Iteration):Number
+		{
+			return velocityIn(iteration.acceptedStories());
+		}
 	}
 }
