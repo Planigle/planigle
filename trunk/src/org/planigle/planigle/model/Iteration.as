@@ -28,6 +28,7 @@ package org.planigle.planigle.model
 			name = xml.name;
 			start = DateUtils.stringToDate(xml.start);			
 			length = xml.length;
+			finish = finish;
 		}
 		
 		// Update me.  Params should be of the format (record[param]).  Success function
@@ -68,6 +69,11 @@ package org.planigle.planigle.model
 		public function get finish():Date
 		{
 			return new Date(start.time + length * MILLIS_IN_WEEK);
+		}
+		
+		// Set my end date.  Used to send changed event.
+		public function set finish(date:Date):void
+		{
 		}
 		
 		// Answer true if my dates include today.
