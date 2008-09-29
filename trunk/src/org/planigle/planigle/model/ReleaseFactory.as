@@ -83,8 +83,9 @@ package org.planigle.planigle.model
 		// Answer the first release whose dates include today.  If none, return null.
 		public function current():Release
 		{
-			for each (var release:Release in releases)
-			{
+			for (var i:int = releases.length - 1; i >= 0; i--)
+			{ // go backwards
+				var release:Release = Release(releases.getItemAt(i));
 				if(release.isCurrent())
 					return release;
 			}
@@ -94,11 +95,11 @@ package org.planigle.planigle.model
 		// Answer the current release or if none, the most recent.  If no releases, return null.
 		public function mostRecent():Release
 		{
-			var now:Date = new Date();
+			var now:Date = DateUtils.today();
 			var currentRelease:Release = null;
 			for each (var release:Release in releases)
 			{
-				if (release.start < now)
+				if (release.start <= now)
 					currentRelease = release;
 				else
 					break;

@@ -33,5 +33,16 @@ package org.planigle.planigle.model
 		{
 			return (date.month + 1) + "/" + date.date + "/" + date.fullYear;
 		}
+
+		// Answer a date that represents today.
+		public static function today():Date
+		{ // For some reason, the dates come across as 7 pm from RubyAMF.
+			var today:Date = new Date();
+			today.hours = 19;
+			today.minutes = 0;
+			today.seconds = 0;
+			today.milliseconds = 0;
+			return today;
+		}
 	}
 }

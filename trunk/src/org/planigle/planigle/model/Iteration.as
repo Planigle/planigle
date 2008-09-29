@@ -79,8 +79,8 @@ package org.planigle.planigle.model
 		// Answer true if my dates include today.
 		public function isCurrent():Boolean
 		{
-			var today:Date = new Date();
-			return today.time > start.time && today.time < start.time + length * MILLIS_IN_WEEK;
+			var today:Date = DateUtils.today();
+			return today.time >= start.time && today.time < start.time + length * MILLIS_IN_WEEK;
 		}
 		
 		// Answer the next iteration after this one.  If I am the backlog, return myself.
