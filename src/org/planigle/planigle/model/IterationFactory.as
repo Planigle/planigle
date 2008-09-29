@@ -83,8 +83,9 @@ package org.planigle.planigle.model
 		// Answer the first iteration whose dates include today.  If none, return null.
 		public function current():Iteration
 		{
-			for each (var iteration:Iteration in iterations)
-			{
+			for (var i:int = iterations.length - 1; i >= 0; i--)
+			{ // go backwards
+				var iteration:Iteration = Iteration(iterations.getItemAt(i));
 				if(iteration.isCurrent())
 					return iteration;
 			}
@@ -94,11 +95,11 @@ package org.planigle.planigle.model
 		// Answer the current iteration or if none, the most recent.  If no iterations, return null.
 		public function mostRecent():Iteration
 		{
-			var now:Date = new Date();
+			var now:Date = DateUtils.today();
 			var currentIteration:Iteration = null;
 			for each (var iteration:Iteration in iterations)
 			{
-				if (iteration.start < now)
+				if (iteration.start <= now)
 					currentIteration = iteration;
 				else
 					break;
@@ -121,12 +122,12 @@ package org.planigle.planigle.model
 		// Answer the past n iterations (less if less have occurred).
 		public function getPastIterations(num:int):ArrayCollection
 		{
-			var today:Date = new Date();
+			var today:Date = DateUtils.today();
 			var past:ArrayCollection = new ArrayCollection();
 			for (var i:int=iterations.length - 1; i>=0; i--)
 			{
 				var iteration:Iteration = Iteration(iterations.getItemAt(i));
-				if (iteration.finish < today)
+				if (iteration.finish <= today)
 				{
 					past.addItemAt(iteration, 0);
 					if (past.length == num)
