@@ -441,8 +441,12 @@
 			prepareForTask();
 			currentItem = storyResourceGrid.selectedItem;
 			showCreate(false);
+			defaultTaskOwner();
+		}
 
-			// Set default owner to that of the story.
+		// Default the task owner based on the story owner.
+		private function defaultTaskOwner():void
+		{
 			var it:String = currentItem.individualId;
 			if (!it)
 				storyFieldOwner.selectedIndex = IndividualFactory.current().project.individuals().length - 1;
@@ -659,6 +663,7 @@
 					currentItem.update({'record[status_code]': Story.IN_PROGRESS}, null, handleUpdateFailure);
 			}
 			showCreate(currentItem == null);
+			if (currentItem != null) defaultTaskOwner();
 			setError( currentItem == null ? "Story was successfully created." : "Task was successfully created.");
 		}
 
