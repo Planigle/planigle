@@ -289,8 +289,10 @@
 			storyColumnIteration.visible = !iteration.selectedItem || iteration.selectedItem.id == "-1";
 			storyColumnTeam.visible = IndividualFactory.current().project && IndividualFactory.current().project.teams.length > 0 && (!team.selectedItem || team.selectedItem.id == "-1");
 			storyColumnIndividual.visible = !individual.selectedItem || individual.selectedItem.id == "-1";
+			var justStories:ArrayCollection = getFilteredStories();
+			storiesCount.text = justStories.length.toString();
 			var storiesAndTasks:ArrayCollection = new ArrayCollection;
-			for each (var story:Story in getFilteredStories())
+			for each (var story:Story in justStories)
 			{
 				storiesAndTasks.addItem(story);
 				if (story.isExpanded())
@@ -1009,6 +1011,8 @@
 					<mx:Button label="View Surveys" click="handleSurveys(event);" id="storyBtnViewSurveys"/>
 				</mx:HBox>
 				<mx:HBox width="100%" horizontalAlign="center">
+					<mx:Label text="Number of Stories:" fontWeight="bold"/>
+					<mx:Label id="storiesCount" text=""/>
 					<mx:Label text="Velocity Used:" fontWeight="bold"/>
 					<local:ColoredTree id="velocity" rowColorFunction="velocityColor" labelFunction="velocityString" iconFunction="velocityIcon" borderStyle="none" rowCount="1" itemOpen="adjustVelocityHeight(event)" itemClose="adjustVelocityHeight(event)" selectable="false" width="350"/>
 				</mx:HBox>
