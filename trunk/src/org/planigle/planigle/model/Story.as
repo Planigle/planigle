@@ -93,7 +93,7 @@ package org.planigle.planigle.model
 					useTasks = true;
 				}
 			}
-			return useTasks ? ((sum == 0) ? "" : sum.toString()) : (effort != null ? Number(effort).toString() : effort);
+			return useTasks ? ((sum == 0) ? "" : sum.toString()) : (effort != null && effort != "" ? Number(effort).toString() : effort);
 		}
 
 		// Only show user priority if not accepted.
