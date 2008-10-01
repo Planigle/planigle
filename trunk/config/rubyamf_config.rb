@@ -118,13 +118,13 @@ module RubyAMF
       :actionscript => 'IterationTotal',
       :ruby => 'IterationTotal',
       :type => 'active_record',
-      :attributes => ["id", "iteration_id", "team_id", "date", "created", "in_progress", "done"])
+      :attributes => ["id", "iteration_id", "team_id", "date", "created", "in_progress", "done", "blocked"])
 
     ClassMappings.register(
       :actionscript => 'ReleaseTotal',
       :ruby => 'ReleaseTotal',
       :type => 'active_record',
-      :attributes => ["id", "release_id", "team_id", "date", "created", "in_progress", "done"])
+      :attributes => ["id", "release_id", "team_id", "date", "created", "in_progress", "done", "blocked"])
 
     # => Class Mapping Scope (Advanced Usage)
     # You can also specify a class mapping scope if you want. For example, lets say you need certain attributes for a book when you are viewing a book

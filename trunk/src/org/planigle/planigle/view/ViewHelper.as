@@ -92,7 +92,8 @@ package org.planigle.planigle.view
 			switch(item.statusCode)
 			{
 				case 1: return "In Progress";
-				case 2: return "Done";
+				case 2: return "Blocked";
+				case 3: return "Done";
 				default: return "Created";
 			}
 		}

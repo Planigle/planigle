@@ -457,6 +457,7 @@ private
   
   # Delete multiple stories through the button at the top.
   def delete_multiple
+    @ie.combo_box("storyStatus").open
     @ie.combo_box("storyStatus").select(:item_renderer => 'All Statuses' )
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
     @ie.data_grid("storyResourceGrid").select(:item_renderer => "test2")

@@ -67,7 +67,8 @@ class StoryTest < ActiveSupport::TestCase
   def test_status_code
     assert_success( :status_code, 0)
     assert_failure( :status_code, -1)
-    assert_failure( :status_code, 3)    
+    assert_success( :status_code, 3)    
+    assert_failure( :status_code, 4)    
   end
 
   # Test the validation of is_public.

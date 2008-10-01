@@ -8,13 +8,11 @@ class Task < ActiveRecord::Base
   validates_numericality_of :effort, :allow_nil => true
   validates_numericality_of :status_code
 
-  StatusMapping = [ 'Created', 'In Progress', 'Accepted' ]
-
   attr_accessible :name, :description, :effort, :status_code, :iteration_id, :individual_id, :story_id
 
   # Answer the valid values for status.
   def self.valid_status_values()
-    StatusMapping
+    Story::StatusMapping
   end
 
   # Map user displayable terms to the internal status codes.
@@ -30,7 +28,7 @@ class Task < ActiveRecord::Base
 
   # Answer true if I have been accepted.
   def accepted?
-    self.status_code == 2
+    self.status_code == Story::Done
   end
 
   # Answer the effort for the specified individual.
@@ -81,7 +79,7 @@ protected
   
   # Add custom validation of the status field and relationships to give a more specific message.
   def validate()
-    if status_code < 0 || status_code >= StatusMapping.length
+    if status_code < 0 || status_code >= Story::StatusMapping.length
       errors.add(:status_code, ' is invalid')
     end
     

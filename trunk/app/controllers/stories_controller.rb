@@ -33,7 +33,7 @@ class StoriesController < ResourceController
   def update
     Story.transaction do
       @record = get_record
-      should_update = (params["record"]["status_code"] !=2 and @record.status_code == 2)
+      should_update = (params["record"]["status_code"] != Story::Done and @record.status_code == Story::Done)
       super
       if should_update
         Survey.update_rankings(@record.project).each {|story| story.save(false)}

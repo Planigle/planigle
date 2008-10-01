@@ -272,7 +272,7 @@
 		private function matchesStatusFilter( story:Story ):Boolean
 		{
 			return storyStatus.selectedItem.value == -1 ||
-				(storyStatus.selectedItem.value == -2 && (story.statusCode == Story.CREATED || story.statusCode == Story.IN_PROGRESS)) ||
+				(storyStatus.selectedItem.value == -2 && (story.statusCode == Story.CREATED || story.statusCode == Story.IN_PROGRESS || story.statusCode == Story.BLOCKED)) ||
 				storyStatus.selectedItem.value == story.statusCode;
 		}
 
@@ -623,7 +623,9 @@
 			{
 				var params2:Object = getParams(currentItem.isStory());
 				updateItem(currentItem, params2);
-				if (!currentItem.isStory() && currentItem.statusCode == Story.CREATED && params2['record[status_code]'] != Story.CREATED && currentItem.story.statusCode == Story.CREATED)
+				if (!currentItem.isStory() && currentItem.statusCode == Story.BLOCKED)
+					updateItem(currentItem.story, {'record[status_code]': Story.BLOCKED});
+				else if (!currentItem.isStory() && currentItem.statusCode == Story.CREATED && params2['record[status_code]'] != Story.CREATED && currentItem.story.statusCode == Story.CREATED)
 					updateItem(currentItem.story, {'record[status_code]': Story.IN_PROGRESS});
 				handleUpdateSuccess(); // Prime the processing.
 			}
@@ -655,13 +657,18 @@
 		{
 			if (currentItem && currentItem.statusCode == Story.CREATED)
 			{
+				var blocked:Boolean = true;
 				var inProgress:Boolean = false;
 				for each (var task:Task in currentItem.tasks)
 				{
-					if (task.statusCode != Story.CREATED)
+					if (task.statusCode == Story.BLOCKED)
+						blocked = true;
+					else if (task.statusCode != Story.CREATED)
 						inProgress = true;
 				}
-				if (inProgress)
+				if (blocked)
+					currentItem.update({'record[status_code]': Story.BLOCKED}, null, handleUpdateFailure);
+				else if (inProgress)
 					currentItem.update({'record[status_code]': Story.IN_PROGRESS}, null, handleUpdateFailure);
 			}
 			showCreate(currentItem == null);
@@ -786,7 +793,9 @@
 		{
 			var recalc:Boolean = item.statusCode == 2 && event.target.selectedIndex < 2;
 			updateItem(item, {"record[status_code]": event.target.selectedIndex});
-			if (!item.isStory() && item.statusCode == Story.CREATED && event.target.selectedIndex != Story.CREATED && item.story.statusCode == Story.CREATED)
+			if (!item.isStory() && event.target.selectedIndex == Story.BLOCKED)
+				updateItem(item.story, {'record[status_code]': Story.BLOCKED});
+			else if (!item.isStory() && item.statusCode == Story.CREATED && event.target.selectedIndex != Story.CREATED && item.story.statusCode == Story.CREATED)
 				updateItem(item.story, {'record[status_code]': Story.IN_PROGRESS});
 			handleUpdateSuccess(); // Prime processing.
 			if (recalc)
@@ -917,7 +926,8 @@
 							<mx:ComboBox id='storyFieldStatus' width="350" editable="false">
 								<mx:Object label="Created" value="0" />
 								<mx:Object label="In Progress" value="1" />
-								<mx:Object label="Done" value="2" />
+								<mx:Object label="Blocked" value="2" />
+								<mx:Object label="Done" value="3" />
 							</mx:ComboBox>
 						</mx:FormItem>
 						<mx:FormItem label='Public' id="storyFormPublic">
@@ -996,11 +1006,12 @@
 						<mx:ComboBox id='iteration' width="115" editable="false" dataProvider="{iterationFilter}" labelField="name" change="handleFilter(event)"></mx:ComboBox>
 						<component:TeamSelector id='team' change="handleFilter(event)"></component:TeamSelector>
 						<mx:ComboBox id='individual' width="115" editable="false" dataProvider="{individualFilter}" labelField="fullName" change="handleFilter(event)"></mx:ComboBox>
-						<mx:ComboBox id='storyStatus' width="116" editable="false" change="handleFilter(event)" selectedIndex="2">
+						<mx:ComboBox id='storyStatus' width="116" editable="false" change="handleFilter(event)" selectedIndex="3">
 							<mx:Object label="Created" value="0" />
 							<mx:Object label="In Progress" value="1" />
+							<mx:Object label="Blocked" value="2" />
 							<mx:Object label="Not Done" value="-2" />
-							<mx:Object label="Done" value="2" />
+							<mx:Object label="Done" value="3" />
 							<mx:Object label="All Statuses" value="-1" />
 						</mx:ComboBox>
 					</mx:HBox>
@@ -1042,7 +1053,8 @@
 							<mx:ComboBox width="100%" editable="false" selectedIndex="{data.statusCode}" change="outerDocument.updateStatus(data, event)" enabled="{outerDocument.factory.currentIndividual.isAtLeastProjectUser()}">
 								<mx:Object label="Created" value="0" />
 								<mx:Object label="In Progress" value="1" />
-								<mx:Object label="Done" value="2" />
+								<mx:Object label="Blocked" value="2" />
+								<mx:Object label="Done" value="3" />
 							</mx:ComboBox>
 							</mx:Box>
 						</mx:Component>

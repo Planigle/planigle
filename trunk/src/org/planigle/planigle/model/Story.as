@@ -29,7 +29,8 @@ package org.planigle.planigle.model
 		private var myTasks:Array = new Array();
 		public static const CREATED:int = 0;
 		public static const IN_PROGRESS:int = 1;
-		public static const ACCEPTED:int = 2;
+		public static const BLOCKED:int = 2;
+		public static const ACCEPTED:int = 3;
 		private static var expanded:Object = new Object(); // Keep in static so that it persists after reloading
 
 		// Populate myself from XML.

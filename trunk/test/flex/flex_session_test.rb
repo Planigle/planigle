@@ -68,7 +68,7 @@ class FlexSessionTest < Test::Unit::TestCase
   end
 
   # Test canceling signing up.
-  def test_signup
+  def test_cancel_signup
     @ie.button("signupButton").click
     @ie.button("cancelButton").click
     assert @ie.button("loginButton").visible
