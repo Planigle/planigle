@@ -80,7 +80,7 @@ class Project < ActiveRecord::Base
     builder.instruct!
     builder.stories do
       i = 1
-      stories.find(:all, :order => 'priority', :conditions => 'status_code < 2 and is_public=true').each do |story|
+      stories.find(:all, :order => 'priority', :conditions => ['status_code != ? and is_public=true', Story::Done]).each do |story|
         builder.story do
           builder.id story.id
           builder.name story.name

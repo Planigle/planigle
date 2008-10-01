@@ -9,6 +9,7 @@ class Total < ActiveRecord::Base
       created = 0
       in_progress = 0
       done = 0
+      blocked = 0
       (Array.new((team == nil ? Individual.find(:all, :conditions => ['project_id = ? and team_id is null', object.project_id]) : team.individuals)) << nil).each do |individual|
         object.stories.each do |story|
           effort = story.calculated_effort_for(team, individual)
@@ -16,24 +17,26 @@ class Total < ActiveRecord::Base
           case story.status_code
             when Story::Created then created += effort
             when Story::InProgress then in_progress += effort
+            when Story::Blocked then blocked += effort
             else done += effort
           end
         end
       end
-      capture( object.id, team ? team.id : nil, created, in_progress, done)
+      capture( object.id, team ? team.id : nil, created, in_progress, done, blocked)
     end
   end
   
   # Create or update summarized data.
-  def self.capture(id, team_id, created, in_progress, done)
+  def self.capture(id, team_id, created, in_progress, done, blocked)
     total = find(:first, :conditions => {id_field => id, :team_id => team_id, :date => Time.today})
     if total
       total.created = created
       total.in_progress = in_progress
       total.done = done
+      total.blocked = blocked
       total.save(false)
     else
-      create(id_field => id, :team_id => team_id, :date => Time.today, :created => created, :in_progress => in_progress, :done => done) 
+      create(id_field => id, :team_id => team_id, :date => Time.today, :created => created, :in_progress => in_progress, :done => done, :blocked => blocked) 
     end
   end
   

@@ -35,7 +35,7 @@ class Survey < ActiveRecord::Base
     hash = {}
     project.surveys.find(:all, :conditions => 'excluded=false', :include => :survey_mappings).each do |survey|
       i = 1
-      survey.survey_mappings.find(:all, :conditions => 's.status_code < 2', :include => :story, :joins => 'inner join stories as s on survey_mappings.story_id = s.id', :order => 'survey_mappings.priority').each do |sm|
+      survey.survey_mappings.find(:all, :conditions => ['s.status_code != ?', Story::Done], :include => :story, :joins => 'inner join stories as s on survey_mappings.story_id = s.id', :order => 'survey_mappings.priority').each do |sm|
         if !hash.include? sm.story
           hash[sm.story] = []
         end

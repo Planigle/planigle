@@ -16,10 +16,11 @@ class Story < ActiveRecord::Base
   validates_numericality_of :priority, :user_priority, :allow_nil => true # Needed for priority since not set until after check
   validates_numericality_of :status_code
 
-  StatusMapping = [ 'Created', 'In Progress', 'Done' ]
+  StatusMapping = [ 'Created', 'In Progress', 'Blocked', 'Done' ]
   Created = 0
   InProgress = 1
-  Done = 2
+  Blocked = 2
+  Done = 3
 
   attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :release_id, :iteration_id, :individual_id, :project_id, :is_public, :priority, :user_priority, :team_id
 

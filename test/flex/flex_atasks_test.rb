@@ -176,7 +176,7 @@ private
     assert_equal 'Task was successfully created.', @ie.text_area("storyError").text
     assert_equal '', @ie.text_area("storyFieldName").text
     assert_equal '', @ie.text_area("storyFieldDescription").text
-    assert_equal 'No Owner', @ie.combo_box("storyFieldOwner").text
+    assert_equal 'aaron hank', @ie.combo_box("storyFieldOwner").text
     assert_equal '', @ie.text_area("storyFieldEffort").text
     assert_equal 'Created', @ie.combo_box("storyFieldStatus").text
     assert_not_nil @ie.button("storyBtnCancel")

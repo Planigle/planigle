@@ -12,7 +12,7 @@ two:
   name: test2
   description: 
   effort: 2
-  status_code: 2
+  status_code: 3
   story_id: 1
   individual_id: 2
 

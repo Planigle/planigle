@@ -23,7 +23,7 @@ second:
   description: ''
   acceptance_criteria: ''
   effort: 1
-  status_code: 2
+  status_code: 3
   priority: 2
   is_public: true
   user_priority: 1
