@@ -30,6 +30,11 @@ class TaskTest < ActiveSupport::TestCase
     validate_field(:description, true, nil, 4096)
   end
 
+  # Test the validation of reason blocked.
+  def test_reason_blocked
+    validate_field(:reason_blocked, true, nil, 4096)
+  end
+
   # Test the validation of effort.
   def test_effort
     assert_failure(:effort, 'a')

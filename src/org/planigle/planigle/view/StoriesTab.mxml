@@ -27,6 +27,7 @@
 		import org.planigle.planigle.events.StoryChangedEvent;
 		import org.planigle.planigle.view.components.SelectItem;
 		import org.planigle.planigle.view.components.UpdateItems;
+		import org.planigle.planigle.view.components.EnterText;
 		
 		[Bindable]
 		private var _error:String;
@@ -374,14 +375,41 @@
 		private function handleUpdateSuccess():void
 		{
 			if (updateQueue.length > 0)
-			{
-				var params:Object = updateQueue.removeItemAt(0);
-				params["item"].update(params["params"], handleUpdateSuccess, handleUpdateFailure);
-			}
+				processQueue();
 			else
 			{
-				handleSuccess();
-				handleFilter(null); // Update list of stories when done.
+				updateStories();
+				if (updateQueue.length > 0)
+					processQueue();
+				else
+				{
+					handleSuccess();
+					if (recalc)
+					{
+						new StoryChangedEvent().dispatch();
+						recalc = false;
+					}
+					else
+						handleFilter(null); // Update list of stories when done.
+				}
+			}
+		}
+
+		// Process the next item in the queue.
+		private function processQueue():void
+		{
+			var params:Object = updateQueue.removeItemAt(0);
+			params["item"].update(params["params"], handleUpdateSuccess, handleUpdateFailure);
+		}
+
+		// If task changes have resulted in any changes to the stories, update them.
+		private function updateStories():void
+		{
+			for each (var story:Story in StoryFactory.getInstance().stories)
+			{
+				var newStatus:int = story.newStatus();
+				if (newStatus != -1)
+					updateItem( story, {'record[status_code]': newStatus});
 			}
 		}
 
@@ -390,14 +418,20 @@
 		{
 			updateQueue = new ArrayCollection(); // Cancel remaining changes
 			handleFailure(xml);
-			handleFilter(null); // Update list of stories for any changes that did work.
+			if (recalc)
+			{
+				new StoryChangedEvent().dispatch();
+				recalc = false;
+			}
+			else
+				handleFilter(null); // Update list of stories when done.
 		}
 		
 		// Prepare the form for a story.
 		private function prepareForStory():void
 		{
 			storyFieldName.maxChars=250;
-			storyFieldName.width=700;
+			storyFieldName.width=500;
 			storyFormRelease.height = ReleaseFactory.getInstance().releaseSelector.length > 1 ? 22 : 0;
 			storyFormRelease.visible = ReleaseFactory.getInstance().releaseSelector.length > 1;
 			storyFormIteration.height = 22;
@@ -464,7 +498,10 @@
 			storyFieldName.setFocus();
 			storyFieldName.text = '';
 			storyFieldDescription.text = '';
-			
+			storyFieldReasonBlocked.text = '';
+			storyFormReasonBlocked.height = 0;
+			storyFormReasonBlocked.visible = false;
+
 			if (isStory)
 			{
 				storyFieldAcceptanceCriteria.text = '';
@@ -520,6 +557,10 @@
 					storyFieldName.setFocus();
 					storyFieldName.setSelection(0, storyFieldName.text.length );
 					storyFieldDescription.text = currentItem.description;
+					var blocked:Boolean = currentItem.statusCode == Story.BLOCKED;
+					storyFormReasonBlocked.height = blocked ? 64 : 0;
+					storyFormReasonBlocked.visible = blocked;
+					storyFieldReasonBlocked.text = currentItem.reasonBlocked;
 					if (currentItem.isStory())
 					{
 						var iteration:Iteration = IterationFactory.getInstance().find(currentItem.iterationId);
@@ -592,14 +633,15 @@
 		private function getParams(isStory:Boolean) : Object
 		{
 			var params:Object = new Object();
-			params['record[project_id]'] = factory.currentIndividual.projectId;
 			params['record[name]'] = storyFieldName.text;
 			params['record[description]'] = storyFieldDescription.text;
+			params['record[reason_blocked]'] = storyFieldReasonBlocked.text;
 			params['record[individual_id]'] = storyFieldOwner.selectedItem.id > 0 ? storyFieldOwner.selectedItem.id : "";
 			params['record[effort]'] = storyFieldEffort.text;
 			params['record[status_code]'] = storyFieldStatus.selectedItem.value;
 			if (isStory)
 			{
+				params['record[project_id]'] = factory.currentIndividual.projectId;
 				params['record[release_id]'] = storyFieldRelease.selectedItem.id > 0 ? storyFieldRelease.selectedItem.id : "";
 				params['record[iteration_id]'] = storyFieldIteration.selectedItem.id > 0 ? storyFieldIteration.selectedItem.id : "";
 				params['record[acceptance_criteria]'] = storyFieldAcceptanceCriteria.text;
@@ -623,10 +665,6 @@
 			{
 				var params2:Object = getParams(currentItem.isStory());
 				updateItem(currentItem, params2);
-				if (!currentItem.isStory() && currentItem.statusCode == Story.BLOCKED)
-					updateItem(currentItem.story, {'record[status_code]': Story.BLOCKED});
-				else if (!currentItem.isStory() && currentItem.statusCode == Story.CREATED && params2['record[status_code]'] != Story.CREATED && currentItem.story.statusCode == Story.CREATED)
-					updateItem(currentItem.story, {'record[status_code]': Story.IN_PROGRESS});
 				handleUpdateSuccess(); // Prime the processing.
 			}
 			else
@@ -640,37 +678,50 @@
 			}
 		}
 
+		private var recalc:Boolean = false;
+
 		// Update an item.
 		private function updateItem(item:Object, params:Object): void
 		{
+			recalc = recalc || (item.isStory() && item.statusCode == Story.ACCEPTED && params['record[status_code]'] != null && params['record[status_code]'] < Story.ACCEPTED);
 			updateQueue.addItem({"item": item, "params": params});
 		}
 		
 		// Tell the server to delete a resource.
 		private function deleteResource(resource:Object):void
 		{
-			resource.destroy(null, handleFailure);
+			resource.destroy(handleDeleteSuccess, handleFailure);
+		}
+
+		// Handle a successful delete.
+		private function handleDeleteSuccess():void
+		{
+			for each (var story:Story in StoryFactory.getInstance().stories)
+			{
+				var newStatus:int = story.newStatus();
+				if (newStatus != -1)
+					story.update({'record[status_code]': newStatus}, null, handleFailure);
+			}
 		}
 
 		// Handle a successful create.
 		private function handleCreateSuccess():void
 		{
-			if (currentItem && currentItem.statusCode == Story.CREATED)
+			if (currentItem)
 			{
-				var blocked:Boolean = true;
-				var inProgress:Boolean = false;
-				for each (var task:Task in currentItem.tasks)
+				var newStatus:int = currentItem.newStatus();
+				if (newStatus != -1)
 				{
-					if (task.statusCode == Story.BLOCKED)
-						blocked = true;
-					else if (task.statusCode != Story.CREATED)
-						inProgress = true;
+					currentItem.update({'record[status_code]': newStatus}, finalizeCreate, handleFailure);
+					return;
 				}
-				if (blocked)
-					currentItem.update({'record[status_code]': Story.BLOCKED}, null, handleUpdateFailure);
-				else if (inProgress)
-					currentItem.update({'record[status_code]': Story.IN_PROGRESS}, null, handleUpdateFailure);
 			}
+			finalizeCreate();
+		}
+
+		// Handle the final part of a successful create.
+		private function finalizeCreate():void
+		{
 			showCreate(currentItem == null);
 			if (currentItem != null) defaultTaskOwner();
 			setError( currentItem == null ? "Story was successfully created." : "Task was successfully created.");
@@ -787,19 +838,41 @@
 		{
 			return (item && item.backgroundColor() >= 0) ? item.backgroundColor() : color;
 		}
+
+		private var statusEvent:Event;
 		
 		// The user has updated the story / task status in the table.
 		public function updateStatus(item:Object, event:ListEvent):void
 		{
-			var recalc:Boolean = item.statusCode == 2 && event.target.selectedIndex < 2;
-			updateItem(item, {"record[status_code]": event.target.selectedIndex});
-			if (!item.isStory() && event.target.selectedIndex == Story.BLOCKED)
-				updateItem(item.story, {'record[status_code]': Story.BLOCKED});
-			else if (!item.isStory() && item.statusCode == Story.CREATED && event.target.selectedIndex != Story.CREATED && item.story.statusCode == Story.CREATED)
-				updateItem(item.story, {'record[status_code]': Story.IN_PROGRESS});
+			currentItem = item;
+			statusEvent = event;
+			if (event.target.selectedIndex == Story.BLOCKED)
+			{
+				var dialog:EnterText = EnterText(PopUpManager.createPopUp(this, EnterText, true));
+				dialog.title = "Enter reason for blockage";
+				dialog.init("Reason Blocked", updateStatusWithReason, cancelStatus);
+				PopUpManager.centerPopUp(dialog);
+			}
+			else
+			{
+				updateItem(currentItem, {"record[status_code]": statusEvent.target.selectedIndex, 'record[reason_blocked]': ''});
+				handleUpdateSuccess(); // Prime processing.
+			}
+		}
+
+		// The user has canceled the change of status.
+		public function cancelStatus():void
+		{
+			var current:int = currentItem.statusCode;
+			currentItem.statusCode = Story.BLOCKED;
+			currentItem.statusCode = current;
+		}
+		
+		// The user has entered a reason for blocking (if appropriate).
+		public function updateStatusWithReason(reason:String):void
+		{
+			updateItem(currentItem, {"record[status_code]": statusEvent.target.selectedIndex, 'record[reason_blocked]': reason});
 			handleUpdateSuccess(); // Prime processing.
-			if (recalc)
-				new StoryChangedEvent().dispatch();
 		}
 
 		// Answer whether to show (based on whether the item is a story and the user has rights).
@@ -889,6 +962,15 @@
 
 			velocity.rowCount = count;
 		}
+
+		// Update fields based on new status.
+		private function updateReasonBlocked(event:Event):void
+		{
+			var blocked:Boolean = storyFieldStatus.selectedIndex == Story.BLOCKED;
+			storyFormReasonBlocked.height = blocked ? 64 : 0;
+			storyFormReasonBlocked.visible = blocked;
+			blocked ? null : storyFieldReasonBlocked.text = "";
+		}
 		]]>
 	</mx:Script>
  	
@@ -897,51 +979,64 @@
 			<mx:RemoveChild target="{storyBtnCreate}"/>
 			<mx:AddChild relativeTo="{storyResourceGrid}" position="before">
 				<mx:target>
-					<mx:Form id="changeForm" defaultButton="{storyBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
-						<mx:FormItem label='Name' required="true">
-							<mx:TextInput id='storyFieldName' maxChars="250" text='' width="700"/>
-						</mx:FormItem>
-						<mx:FormItem label='Description'>
-							<mx:TextArea id='storyFieldDescription' maxChars="4096" height="64" width="500"><mx:text/></mx:TextArea>
-						</mx:FormItem>
-						<mx:FormItem label='Acceptance Criteria' id="storyFormAcceptanceCriteria">
-							<mx:TextArea id='storyFieldAcceptanceCriteria' maxChars="4096" height="64" width="500"><mx:text/></mx:TextArea>
-						</mx:FormItem>
-						<mx:FormItem label="Iteration" id="storyFormIteration">
-							<mx:ComboBox id='storyFieldIteration' width="350" editable="false" dataProvider="{IterationFactory.getInstance().iterationsInRelease(Release(release.selectedItem))}" labelField="name" change="updateRelease()"></mx:ComboBox>
-						</mx:FormItem>
-						<mx:FormItem label="Release" id="storyFormRelease">
-							<mx:ComboBox id='storyFieldRelease' width="350" editable="false" labelField="name"></mx:ComboBox>
-						</mx:FormItem>
-						<mx:FormItem label='Team' id="storyFormTeam">
-							<mx:ComboBox id='storyFieldTeam' width="350" editable="false" dataProvider="{IndividualFactory.current().project.teamSelector}" labelField="name"></mx:ComboBox>
-						</mx:FormItem>
-						<mx:FormItem label='Owner'>
-							<mx:ComboBox id='storyFieldOwner' width="350" editable="false" dataProvider="{IndividualFactory.current().project.individuals()}" labelField="fullName"></mx:ComboBox>
-						</mx:FormItem>
-						<mx:FormItem label='Effort'>
-							<mx:TextInput id='storyFieldEffort' restrict="0-9." text='' width="350"/>
-						</mx:FormItem>
-						<mx:FormItem label='Status'>
-							<mx:ComboBox id='storyFieldStatus' width="350" editable="false">
-								<mx:Object label="Created" value="0" />
-								<mx:Object label="In Progress" value="1" />
-								<mx:Object label="Blocked" value="2" />
-								<mx:Object label="Done" value="3" />
-							</mx:ComboBox>
-						</mx:FormItem>
-						<mx:FormItem label='Public' id="storyFormPublic">
-							<mx:ComboBox id='storyFieldPublic' width="350" editable="false">
-								<mx:Object label="true" value='true' />
-								<mx:Object label="false" value='false' />
-							</mx:ComboBox>
-						</mx:FormItem>
-						<mx:ControlBar width="100%">
-							<mx:Spacer width="50"/>
-							<mx:Button label="Change" id="storyBtnChange" click="changeResource(event)"/>
-							<mx:LinkButton label="Cancel" id="storyBtnCancel" click="resetState(event)"/>
-						</mx:ControlBar>
-					</mx:Form>	
+					<mx:Panel width="100%" borderThicknessTop="0" borderThicknessLeft="0" borderThicknessRight="0" headerHeight="0">
+						<mx:HBox>
+							<mx:VBox>
+								<mx:Form id="changeForm" defaultButton="{storyBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
+									<mx:FormItem label='Name' required="true">
+										<mx:TextInput id='storyFieldName' maxChars="250" text='' width="500"/>
+									</mx:FormItem>
+									<mx:FormItem label='Description'>
+										<mx:TextArea id='storyFieldDescription' maxChars="4096" height="64" width="500"><mx:text/></mx:TextArea>
+									</mx:FormItem>
+									<mx:FormItem label='Acceptance Criteria' id="storyFormAcceptanceCriteria">
+										<mx:TextArea id='storyFieldAcceptanceCriteria' maxChars="4096" height="64" width="500"><mx:text/></mx:TextArea>
+									</mx:FormItem>
+									<mx:FormItem label='Status'>
+										<mx:ComboBox id='storyFieldStatus' width="350" editable="false" change="updateReasonBlocked(event)">
+											<mx:Object label="Created" value="0" />
+											<mx:Object label="In Progress" value="1" />
+											<mx:Object label="Blocked" value="2" />
+											<mx:Object label="Done" value="3" />
+										</mx:ComboBox>
+									</mx:FormItem>
+									<mx:FormItem id='storyFormReasonBlocked' label='Reason Blocked'>
+										<mx:TextArea id='storyFieldReasonBlocked' maxChars="4096" width="500" height="64"><mx:text/></mx:TextArea>
+									</mx:FormItem>
+									<mx:ControlBar width="100%">
+										<mx:Spacer width="50"/>
+										<mx:Button label="Change" id="storyBtnChange" click="changeResource(event)"/>
+										<mx:LinkButton label="Cancel" id="storyBtnCancel" click="resetState(event)"/>
+									</mx:ControlBar>
+								</mx:Form>	
+							</mx:VBox>
+							<mx:VBox>
+								<mx:Form id="changeForm2" defaultButton="{storyBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
+									<mx:FormItem label="Iteration" id="storyFormIteration">
+										<mx:ComboBox id='storyFieldIteration' width="350" editable="false" dataProvider="{IterationFactory.getInstance().iterationsInRelease(Release(release.selectedItem))}" labelField="name" change="updateRelease()"></mx:ComboBox>
+									</mx:FormItem>
+									<mx:FormItem label="Release" id="storyFormRelease">
+										<mx:ComboBox id='storyFieldRelease' width="350" editable="false" labelField="name"></mx:ComboBox>
+									</mx:FormItem>
+									<mx:FormItem label='Team' id="storyFormTeam">
+										<mx:ComboBox id='storyFieldTeam' width="350" editable="false" dataProvider="{IndividualFactory.current().project.teamSelector}" labelField="name"></mx:ComboBox>
+									</mx:FormItem>
+									<mx:FormItem label='Owner'>
+										<mx:ComboBox id='storyFieldOwner' width="350" editable="false" dataProvider="{IndividualFactory.current().project.individuals()}" labelField="fullName"></mx:ComboBox>
+									</mx:FormItem>
+									<mx:FormItem label='Effort'>
+										<mx:TextInput id='storyFieldEffort' restrict="0-9." text='' width="350"/>
+									</mx:FormItem>
+									<mx:FormItem label='Public' id="storyFormPublic">
+										<mx:ComboBox id='storyFieldPublic' width="350" editable="false">
+											<mx:Object label="true" value='true' />
+											<mx:Object label="false" value='false' />
+										</mx:ComboBox>
+									</mx:FormItem>
+								</mx:Form>	
+							</mx:VBox>
+						</mx:HBox>
+					</mx:Panel>
 				</mx:target>
 			</mx:AddChild>
 		</mx:State>

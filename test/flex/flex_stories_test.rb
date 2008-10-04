@@ -157,6 +157,7 @@ private
     assert_equal 'false', @ie.combo_box("storyFieldPublic").text
 
     create_story(' ', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test', 'ted williams', '1', 'Created', 'true')
+    assert !@ie.form_item("storyFormReasonBlocked").visible
     @ie.button("storyBtnChange").click
 
     # Values should not change
@@ -192,7 +193,7 @@ private
     assert_equal 'Created', @ie.combo_box("storyFieldStatus").text
     assert_equal 'false', @ie.combo_box("storyFieldPublic").text
     
-    create_story('foo', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test', 'ted williams', '1', 'Created', 'true')
+    create_story('foo', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test', 'ted williams', '1', 'Blocked', 'true', "Senate")
     @ie.button("storyBtnChange").click
 
     assert_equal 'Story was successfully created.', @ie.text_area("storyError").text
@@ -208,7 +209,7 @@ private
     assert_equal 'false', @ie.combo_box("storyFieldPublic").text
     assert_not_nil @ie.button("storyBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",foo,fourth,Test,ted williams,1,Created,true,4,,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
+    assert_equal ",foo,fourth,Test,ted williams,1,Blocked,true,4,,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
     @ie.button("storyBtnCancel").click
   end
     
@@ -224,7 +225,7 @@ private
   end
 
   # Create a story.
-  def create_story(name, description, acceptance_criteria, iteration, release, team, owner, effort, status, public)
+  def create_story(name, description, acceptance_criteria, iteration, release, team, owner, effort, status, public, reason_blocked="")
     @ie.text_area("storyFieldName").input(:text => name )
     @ie.text_area("storyFieldDescription").input(:text => description )
     @ie.text_area("storyFieldAcceptanceCriteria").input(:text => acceptance_criteria )
@@ -241,12 +242,16 @@ private
     @ie.combo_box("storyFieldStatus").select(:item_renderer => status )
     @ie.combo_box("storyFieldPublic").open
     @ie.combo_box("storyFieldPublic").select(:item_renderer => public )
+    if reason_blocked != ""
+      @ie.text_area("storyFieldReasonBlocked").input(:text => reason_blocked )
+    end
   end
     
   # Test whether error handling works for editing a story.
   def edit_story_failure
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
     edit_story(' ', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test', 'ted williams', '1', 'Created', 'true')
+    assert !@ie.form_item("storyFormReasonBlocked").visible
     @ie.button("storyBtnChange").click
     assert_equal "Name can't be blank", @ie.text_area("storyError").text
     assert_equal ' ', @ie.text_area("storyFieldName").text
@@ -267,13 +272,13 @@ private
   # Test whether you can successfully edit a story.
   def edit_story_success
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
-    edit_story('foo 1', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test', 'ted williams', '1', 'Created', 'true')
+    edit_story('foo 1', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test', 'ted williams', '1', 'Blocked', 'true', "Fillibuster")
     @ie.button("storyBtnChange").click
     sleep 3 # Wait for results
     assert_equal '', @ie.text_area("storyError").text
     assert_nil @ie.button("storyBtnCancel")
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",foo 1,fourth,Test,ted williams,1,Created,true,1,2.0,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
+    assert_equal ",foo 1,fourth,Test,ted williams,1,Blocked,true,1,2.0,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
   end
     
   # Test whether you can successfully cancel editing a story.
@@ -316,18 +321,19 @@ private
     @ie.combo_box("updateFieldOwner").open
     @ie.combo_box("updateFieldOwner").select(:item_renderer => 'aaron hank' )
     @ie.combo_box("updateFieldStatus").open
-    @ie.combo_box("updateFieldStatus").select(:item_renderer => 'Created' )
+    @ie.combo_box("updateFieldStatus").select(:item_renderer => 'Blocked' )
     @ie.combo_box("updateFieldPublic").open
+    @ie.text_area("updateFieldReasonBlocked").input(:text => 'President' )
     @ie.combo_box("updateFieldPublic").select(:item_renderer => 'true' )
     @ie.button("updateBtnOk").click
     assert_equal '', @ie.text_area("storyError").text
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal "+,test,fourth,Test,aaron hank,5,Created,true,2,2.0,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 1, :end => 1)
-    assert_equal ",test3,fourth,Test,aaron hank,1,Created,true,1,2.0,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
+    assert_equal "+,test,fourth,Test,aaron hank,5,Blocked,true,2,2.0,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 1, :end => 1)
+    assert_equal ",test3,fourth,Test,aaron hank,1,Blocked,true,1,2.0,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
   end
 
   # Edit a story.
-  def edit_story(name, description, acceptance_criteria, iteration, release, team, owner, effort, status, public)
+  def edit_story(name, description, acceptance_criteria, iteration, release, team, owner, effort, status, public, reason_blocked="")
     @ie.button("storyBtnEdit")[1].click
     @ie.text_area("storyFieldName").input(:text => name )
     @ie.text_area("storyFieldDescription").input(:text => description )
@@ -345,6 +351,9 @@ private
     @ie.combo_box("storyFieldStatus").select(:item_renderer => status )
     @ie.combo_box("storyFieldPublic").open
     @ie.combo_box("storyFieldPublic").select(:item_renderer => public )
+    if reason_blocked != ""
+      @ie.text_area("storyFieldReasonBlocked").input(:text => reason_blocked )
+    end
   end
     
   # Test whether error handling works for splitting a story.

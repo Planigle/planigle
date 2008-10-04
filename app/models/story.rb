@@ -22,7 +22,7 @@ class Story < ActiveRecord::Base
   Blocked = 2
   Done = 3
 
-  attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :release_id, :iteration_id, :individual_id, :project_id, :is_public, :priority, :user_priority, :team_id
+  attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :release_id, :iteration_id, :individual_id, :project_id, :is_public, :priority, :user_priority, :team_id, :reason_blocked
 
   # Assign a priority on creation
   before_create :initialize_defaults

@@ -16,6 +16,7 @@ package org.planigle.planigle.model
 		public var teamId:String;
 		public var name:String;
 		public var description:String;
+		public var reasonBlocked:String;
 		public var acceptanceCriteria:String;
 		public var releaseId:String;
 		public var iterationId:String;
@@ -47,6 +48,7 @@ package org.planigle.planigle.model
 			individualId = xml.child("individual-id").toString() == "" ? null : xml.child("individual-id");
 			effort = xml.effort;
 			statusCode = xml.child("status-code");
+			reasonBlocked = xml.child("reason-blocked");
 			isPublic = xml.child("is-public").toString() == "true";
 			priority = xml.priority;
 			userPriority = xml.child("user-priority");
@@ -100,7 +102,29 @@ package org.planigle.planigle.model
 		// Only show user priority if not accepted.
 		public function get modifiedUserPriority():String
 		{
-			return statusCode < 2 ? userPriority : "";
+			return statusCode < ACCEPTED ? userPriority : "";
+		}
+
+		// Answer what my status should be if it is out of date (-1 otherwise).
+		public function newStatus():int
+		{
+			var blocked:Boolean = false;
+			var inProgress:Boolean = false;
+			for each (var task:Task in tasks)
+			{
+				if (task.statusCode == BLOCKED)
+					blocked = true;
+				else if (task.statusCode != CREATED)
+					inProgress = true;
+			}
+			if (blocked && statusCode != BLOCKED)
+				return BLOCKED;
+			else if (!blocked && statusCode == BLOCKED && reasonBlocked == "")
+				return IN_PROGRESS;
+			else if (inProgress && statusCode == CREATED)
+				return IN_PROGRESS;
+			else
+				return -1;
 		}
 
 		// Update me.  Params should be of the format (record[param]).  Success function

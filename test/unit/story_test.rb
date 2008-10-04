@@ -32,6 +32,11 @@ class StoryTest < ActiveSupport::TestCase
     validate_field(:acceptance_criteria, true, nil, 4096)
   end
 
+  # Test the validation of reason blocked.
+  def test_reason_blocked
+    validate_field(:reason_blocked, true, nil, 4096)
+  end
+
   # Test the validation of priority.
   def test_priority
     assert_failure(:priority, 'a')

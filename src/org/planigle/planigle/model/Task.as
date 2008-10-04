@@ -13,6 +13,7 @@ package org.planigle.planigle.model
 		public var storyId: int;
 		public var name:String;
 		public var description:String;
+		public var reasonBlocked:String;
 		public var individualId:String;
 		public var effort:String;
 		public var statusCode:int;
@@ -26,6 +27,7 @@ package org.planigle.planigle.model
 			individualId = xml.child("individual-id").toString() == "" ? null : xml.child("individual-id");
 			effort = xml.effort;
 			statusCode = xml.child("status-code");
+			reasonBlocked = xml.child("reason-blocked");
 		}
 
 		// For tasks, the list name is indented.
@@ -36,8 +38,8 @@ package org.planigle.planigle.model
 
 		// For tasks, the calculated effort is the same as the effort.
 		public function get calculatedEffort():String
-		{
-			return effort;
+		{ // Convert to Number to ensure consistent formatting.
+			return effort != null && effort != "" ? Number(effort).toString() : effort;
 		}
 
 		// Tasks aren't assigned directly to iterations.

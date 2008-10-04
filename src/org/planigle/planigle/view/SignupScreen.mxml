@@ -36,7 +36,7 @@
 		private function handleSuccess():void
 		{
 			_error = "You have successfully signed up for Planigle.  Shortly, you will receive an email to complete the signup process."
-			btnBox.visible = false;
+			signupBtnBox.visible = false;
 		}
 
 		// Handle errors when signing up.
@@ -74,7 +74,7 @@
 			<mx:FormItem label='Last Name' required="true">
 				<mx:TextInput id='signupFieldLastName' maxChars="40" text='' width="350"/>
 			</mx:FormItem>
-			<mx:HBox id="btnBox" width="100%" horizontalAlign="center">
+			<mx:HBox id="signupBtnBox" width="100%" horizontalAlign="center">
 				<mx:Button label="OK" id="okButton" click="ProjectFactory.getInstance().createProject(getParams(), handleSuccess, handleFailure);"/>
 				<mx:Button label="Cancel" id="cancelButton" click="ViewModelLocator.getInstance().workflowState = ViewModelLocator.LOGIN_SCREEN"/>
 			</mx:HBox>
