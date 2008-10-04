@@ -93,17 +93,30 @@
 			if (IndividualFactory.current().project)
 				storyFieldTeam.dataProvider = IndividualFactory.current().project.teamSelector;
 		}
-
 		// Set the error message.
-		private function setError(message:String):void
+		private function setMessage(message:String):void
 		{
 			_error = message;
 			storyError.height = message == "" ? 0 : 22;
 			vbox.setStyle( "verticalGap", message == "" ? 0 : 6 );
 		}
 
+		// Set the error message.
+		private function setErrorMessage(message:String):void
+		{
+			storyError.setStyle("color","Red");
+			setMessage(message);
+		}
+
+		// Set the success message.
+		private function setSuccessMessage(message:String):void
+		{
+			storyError.setStyle("color","Green");
+			setMessage(message);
+		}
+
 		// Clear the error message.
-		private function clearErrorMessage():void {setError("")}
+		private function clearErrorMessage():void {setMessage("")}
 		
 		// Reset my state to how it was initially.
 		public function resetState(event:Event):void
@@ -724,7 +737,7 @@
 		{
 			showCreate(currentItem == null);
 			if (currentItem != null) defaultTaskOwner();
-			setError( currentItem == null ? "Story was successfully created." : "Task was successfully created.");
+			setSuccessMessage( currentItem == null ? "Story was successfully created." : "Task was successfully created.");
 		}
 
 		// Handle a successful change.
@@ -737,7 +750,7 @@
 		// Handle errors when making changes.
 		private function handleFailure(error:XMLList):void
 		{
-			setError(error);
+			setErrorMessage(error);
 		}
 		
 		private const PRIORITY:int = 7;
@@ -1123,7 +1136,7 @@
 					<local:ColoredTree id="velocity" rowColorFunction="velocityColor" labelFunction="velocityString" iconFunction="velocityIcon" borderStyle="none" rowCount="1" itemOpen="adjustVelocityHeight(event)" itemClose="adjustVelocityHeight(event)" selectable="false" width="350"/>
 				</mx:HBox>
 			</mx:VBox>
-			<mx:Text id="storyError" styleName="error" htmlText="{_error}" color="#ff0033" width="100%" height="0"/>
+			<mx:Text id="storyError" styleName="error" htmlText="{_error}" width="100%" height="0"/>
 		</mx:VBox>
 		<local:ColoredBackgroundDataGrid id="storyResourceGrid" variableRowHeight="true" dataProvider="{filteredStories}" rowCount="{filteredStories.length}" width="100%" height="100%" dragEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" dropEnabled="true" dragMoveEnabled="true" dragStart="handleDrag(event)" dragDrop="handleReorder(event)" rowColorFunction="rowColor" headerRelease="prepareSort(event)" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" doubleClick="showUpdate(event)" allowMultipleSelection="true">
 			<local:columns>
