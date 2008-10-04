@@ -59,12 +59,11 @@ class FlexSessionTest < Test::Unit::TestCase
     @ie.text_area("signupFieldFirstName").input(:text => 'test' )
     @ie.text_area("signupFieldLastName").input(:text => 'ignore' )    
     @ie.button("okButton").click
-    assert_equal "Name can't be blank", @ie.text_area("projectError").text
+    assert_equal "Name can't be blank", @ie.text_area("signupError").text
     @ie.text_area("signupFieldName").input(:text => 'foobar' )
     @ie.button("okButton").click
-    assert_equal "You have successfully signed up for Planigle.  Shortly, you will receive an email to complete the signup process.", @ie.text_area("projectError").text
-    assert_nil @ie.button("okButton")
-    assert_nil @ie.button("cancelButton")
+    assert_equal "You have successfully signed up for Planigle.  Shortly, you will receive an email to complete the signup process.", @ie.text_area("signupError").text
+    assert !@ie.box("signupBtnBox").visible
   end
 
   # Test canceling signing up.
@@ -103,11 +102,11 @@ private
     login('Quentin', 'testit', true)
     sleep 3 # Wait to ensure data loaded
     @ie.goto("http://localhost:3000/index.html", "Main") 
-    sleep 7 # Wait to ensure data loaded
+    sleep 12 # Wait to ensure data loaded
     assert @ie.button("logoutButton") # should succeed because cookie skips log in.
     logout
     @ie.goto("http://localhost:3000/index.html", "Main") 
-    sleep 3 # Wait to ensure data not loaded
+    sleep 5 # Wait to ensure data not loaded
     assert_nil @ie.button("logoutButton") # should now fail since log out erases cookie
   end
   

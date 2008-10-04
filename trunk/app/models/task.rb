@@ -8,7 +8,7 @@ class Task < ActiveRecord::Base
   validates_numericality_of :effort, :allow_nil => true
   validates_numericality_of :status_code
 
-  attr_accessible :name, :description, :effort, :status_code, :iteration_id, :individual_id, :story_id
+  attr_accessible :name, :description, :effort, :status_code, :iteration_id, :individual_id, :story_id, :reason_blocked
 
   # Answer the valid values for status.
   def self.valid_status_values()

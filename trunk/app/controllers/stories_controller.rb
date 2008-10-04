@@ -73,6 +73,7 @@ protected
       @record.team_id = params[0].projectteam_id
       @record.name = params[0].name
       @record.description = params[0].description
+      @record.reason_blocked = params[0].reason_blocked
       @record.acceptance_criteria = params[0].acceptance_criteria
       @record.release_id = params[0].release_id
       @record.iteration_id = params[0].iteration_id
