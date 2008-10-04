@@ -41,8 +41,10 @@
 			resetState(event); // This is to catch it the first time (The event has already been sent).
 			setProjects(event);
 		}
-		
-		// Clear the error message.
+				
+		// Update the error message.
+		private function setErrorMessage(string:String):void {projectError.setStyle("color","Red"); _error = string}
+		private function setSuccessMessage(string:String):void {projectError.setStyle("color","Green"); _error = string}
 		private function clearErrorMessage():void {_error = ""}
 
 		// Set the projects to a copy (so that changes here won't affect elsewhere).
@@ -235,9 +237,9 @@
 		{
 			showCreate(null);
 			if (currentItem)
-				_error = "Team was successfully created."
+				setSuccessMessage("Team was successfully created.");
 			else
-				_error = "Project was successfully created."
+				setSuccessMessage("Project was successfully created.");
 		}
 
 		// Handle a successful change.
@@ -249,7 +251,7 @@
 		// Handle errors when making changes.
 		private function handleFailure(error:XMLList):void
 		{
-			_error = error;
+			setErrorMessage(error);
 		}
 
 		public var group:Object;
@@ -353,7 +355,7 @@
 	<mx:Panel id="projectCombinedPanel" height="100%" y="0" width="100%" x="0"  borderThicknessTop="0" borderThicknessLeft="0" borderThicknessRight="0" headerHeight="0">
 		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="8" verticalAlign="middle" id="projectHbox1" paddingTop="5" paddingLeft="5" paddingRight="5">
 			<mx:Label text="Projects" fontWeight="bold" textDecoration="underline"/>
-			<mx:Text id="projectError" styleName="error" htmlText="{_error}" color="#ff0033" width="100%"/>
+			<mx:Text id="projectError" styleName="error" htmlText="{_error}" width="100%"/>
 			<mx:Button label="Create" id="projectBtnCreate" click="showCreateProject(event);" visible="{factory.currentIndividual.isAdmin()}"/>
 		</mx:HBox>
 		<local:ColoredBackgroundDataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="projectResourceGrid" dataProvider="{projects}" rowCount="{projects.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)" itemClick="groupSelected(event)" rowColorFunction="rowColor">

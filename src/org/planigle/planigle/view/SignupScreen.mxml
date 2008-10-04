@@ -8,6 +8,11 @@
 
 		[Bindable]
 		private var _error:String = "";
+		
+		// Update the error message.
+		private function setErrorMessage(string:String):void {signupError.setStyle("color","Red"); _error = string}
+		private function setSuccessMessage(string:String):void {signupError.setStyle("color","Green"); _error = string}
+		private function clearErrorMessage():void {_error = ""}
 
 		// Initialize focus.
 		private function created(event:Event):void
@@ -35,21 +40,21 @@
 		// Handle a successful signup.
 		private function handleSuccess():void
 		{
-			_error = "You have successfully signed up for Planigle.  Shortly, you will receive an email to complete the signup process."
+			setSuccessMessage("You have successfully signed up for Planigle.  Shortly, you will receive an email to complete the signup process.");
 			signupBtnBox.visible = false;
 		}
 
 		// Handle errors when signing up.
 		private function handleFailure(error:XMLList):void
 		{
-			_error = error;
+			setErrorMessage(error);
 		}
 		]]>
 	</mx:Script>
 	
 	<mx:Panel title="Signup" horizontalAlign="center" verticalAlign="middle" backgroundAlpha="1.0" borderStyle="outset" backgroundColor="#F2F3AF" borderThicknessLeft="2" borderThicknessRight="2" headerHeight="10">
 		<mx:Form borderStyle="outset" cornerRadius="10" themeColor="#009DFF" backgroundColor="#FFFFFF" defaultButton="{okButton}">
-			<mx:Text id="signupError" styleName="error" htmlText="{_error}" color="#ff0033" width="100%"/>
+			<mx:Text id="signupError" styleName="error" htmlText="{_error}" width="100%"/>
 			<mx:FormItem label='Project Name' required="true">
 				<mx:TextInput id='signupFieldName' maxChars="40" text='' width="350"/>
 			</mx:FormItem>

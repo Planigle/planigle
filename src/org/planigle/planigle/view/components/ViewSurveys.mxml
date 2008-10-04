@@ -44,8 +44,10 @@
 			updateSurveys(event);
 			gridHeight = surveysResourceGrid.height;
 		}
-		
-		// Clear the error message.
+				
+		// Update the error message.
+		private function setErrorMessage(string:String):void {surveysError.setStyle("color","Red"); _error = string}
+		private function setSuccessMessage(string:String):void {surveysError.setStyle("color","Green"); _error = string}
 		private function clearErrorMessage():void {_error = ""}
 		
 		// Reset my state to how it was initially.
@@ -79,7 +81,7 @@
 			if (result.error.length() > 0)
 			{
 				updateSurveys(event);
-				_error = result.error;
+				setErrorMessage(result.error);
 			}
 			else
 				new StoryChangedEvent().dispatch();
@@ -201,7 +203,7 @@
 	
 	<mx:Canvas id="combinedPanel" height="100%" y="0" width="100%" x="0">
 		<mx:HBox id="btnBox" width="100%" horizontalAlign="left" verticalAlign="middle" paddingTop="5" paddingLeft="5" paddingRight="5">
-			<mx:Text id="surveysError" styleName="error" htmlText="{_error}" color="#ff0033" width="100%"/>
+			<mx:Text id="surveysError" styleName="error" htmlText="{_error}" width="100%"/>
 			<mx:Button label="Return to Stories" click="showStories(event);" id="btnShowStories"/>
 		</mx:HBox>
 		<mx:DataGrid id="surveysResourceGrid" dataProvider="{surveys}" y="32" width="100%" height="100%" doubleClickEnabled="true" doubleClick="showDetails(event)">
