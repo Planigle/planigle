@@ -252,38 +252,44 @@
 			var stories:ArrayCollection = new ArrayCollection();
 			for each (var story:Story in StoryFactory.getInstance().stories)
 			{
-				if (matchesReleaseFilter(story) && matchesIterationFilter(story) && matchesTeamFilter(story) && matchesIndividualFilter(story) && matchesStatusFilter(story))
+				if (matchesFilters(story))
 					stories.addItem(story);
 			}
 			return stories;
 		}
 
+		// Answer whether a story matches the filters.
+		private function matchesFilters(story:Story):Boolean
+		{
+			return matchesReleaseFilter(story) && matchesIterationFilter(story) && matchesTeamFilter(story) && matchesIndividualFilter(story) && matchesStatusFilter(story);
+		}
+
 		// Answer whether the story matches the release filter.
-		private function matchesReleaseFilter( story:Story ):Boolean
+		private function matchesReleaseFilter(story:Story):Boolean
 		{
 			return !release.selectedItem || release.selectedItem.id == "-1" || story.releaseId == release.selectedItem.id;
 		}
 
 		// Answer whether the story matches the iteration filter.
-		private function matchesIterationFilter( story:Story ):Boolean
+		private function matchesIterationFilter(story:Story):Boolean
 		{
 			return !iteration.selectedItem || iteration.selectedItem.id == "-1" || story.iterationId == iteration.selectedItem.id;
 		}
 
 		// Answer whether the story matches the team filter.
-		private function matchesTeamFilter( story:Story ):Boolean
+		private function matchesTeamFilter(story:Story):Boolean
 		{
 			return !team.selectedItem || team.selectedItem.id == "-1" || story.teamId == team.selectedItem.id;
 		}
 
 		// Answer whether the story matches the individual filter.
-		private function matchesIndividualFilter( story:Story ):Boolean
+		private function matchesIndividualFilter(story:Story):Boolean
 		{
 			return !individual.selectedItem || individual.selectedItem.id == "-1" || story.individualId == individual.selectedItem.id;
 		}
 
 		// Answer whether the story matches the storyStatus filter.
-		private function matchesStatusFilter( story:Story ):Boolean
+		private function matchesStatusFilter(story:Story):Boolean
 		{
 			return storyStatus.selectedItem.value == -1 ||
 				(storyStatus.selectedItem.value == -2 && (story.statusCode == Story.CREATED || story.statusCode == Story.IN_PROGRESS || story.statusCode == Story.BLOCKED)) ||
@@ -718,26 +724,20 @@
 		}
 
 		// Handle a successful create.
-		private function handleCreateSuccess():void
+		private function handleCreateSuccess(newItem:Object):void
 		{
 			if (currentItem)
 			{
 				var newStatus:int = currentItem.newStatus();
 				if (newStatus != -1)
 				{
-					currentItem.update({'record[status_code]': newStatus}, finalizeCreate, handleFailure);
+					currentItem.update({'record[status_code]': newStatus}, null, handleFailure);
 					return;
 				}
 			}
-			finalizeCreate();
-		}
-
-		// Handle the final part of a successful create.
-		private function finalizeCreate():void
-		{
 			showCreate(currentItem == null);
 			if (currentItem != null) defaultTaskOwner();
-			setSuccessMessage( currentItem == null ? "Story was successfully created." : "Task was successfully created.");
+			setSuccessMessage( currentItem == null ? "Story was successfully created." + (matchesFilters(Story(newItem)) ? "" : "  Story does not show in list due to current filtering.") : "Task was successfully created.");
 		}
 
 		// Handle a successful change.

@@ -40,9 +40,9 @@ package org.planigle.planigle.commands
 			}
 			else
 			{
-				factory.createCompleted(result);
+				var item:Object = factory.createCompleted(result);
 				if (notifySuccess != null)
-					notifySuccess();
+					notifySuccess(item);
 			}
 		}
 		
