@@ -233,7 +233,7 @@
 		}
 		
 		// Handle a successful create.
-		private function handleCreateSuccess():void
+		private function handleCreateSuccess(item:Object):void
 		{
 			showCreate(null);
 			if (currentItem)
