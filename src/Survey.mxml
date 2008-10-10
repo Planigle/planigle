@@ -114,7 +114,7 @@
 			<mx:columns>
 				<mx:DataGridColumn headerText="Name" width="350" dataField="name" sortable="false"/>
 				<mx:DataGridColumn headerText="Description" labelFunction="limitDescription" sortable="false" showDataTips="true" dataTipField="description"/>
-				<mx:DataGridColumn headerText="Priority" width="80" dataField="priority" sortable="false"/>
+				<mx:DataGridColumn headerText="Rank" width="80" dataField="priority" sortable="false"/>
 			</mx:columns>
 		</mx:DataGrid>
 	</mx:Panel>
