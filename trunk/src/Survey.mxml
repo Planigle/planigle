@@ -16,6 +16,11 @@
 			[Bindable]
 			public var _error:String="";
 
+			// Update the error message.
+			private function setErrorMessage(string:String):void {error.setStyle("color","Red"); _error = string}
+			private function setSuccessMessage(string:String):void {error.setStyle("color","Green"); _error = string}
+			private function clearErrorMessage():void {_error = ""}
+
 			[Bindable]
 			public var stories:XMLList = new XMLList();
 
@@ -32,16 +37,16 @@
 			{
 				var result:XML = XML(event.result);
 				if (result.error.length() > 0)
-					_error = result.error;
+					setSuccessMessage(result.error);
 				else
 				{
 					stories = result.children();
 					if (stories.length() < 2)
-						_error = "Not enough stories to prioritize";
+						setErrorMessage("Not enough stories to prioritize");
 					else
 					{
 						btnSubmit.visible = true;
-						_error = "Drag and drop the stories to order them from most important to least important and then hit Submit";
+						setSuccessMessage("Drag and drop the stories to order them from most important to least important and then hit Submit");
 					}
 				}
 			}
@@ -50,7 +55,7 @@
 			public function submit():void
 			{
 				btnSubmit.visible = false;
-				_error = "Submitting...";
+				setSuccessMessage("Submitting...");
 				var queryString:String = "?";
 				for each (var story:XML in stories)
 				{
@@ -74,11 +79,11 @@
 				var result:XML = XML(event.result);
 				if (result.error.length() > 0)
 				{
-					_error = result.error;
+					setErrorMessage(result.error);
 					btnSubmit.visible = true;
 				}
 				else
-					_error = result;
+					setSuccessMessage(result);
 			}
 
 			// Keep the description short.
