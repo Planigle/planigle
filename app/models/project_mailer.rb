@@ -22,7 +22,7 @@ class ProjectMailer < ActionMailer::Base
   # Set up common email properties.
   def setup_email(project)
     @recipients  = "#{who_to_notify}"
-    @from        = "#{IndividualMailer.admin_email}"
+    @from        = "#{PLANIGLE_ADMIN_EMAIL}"
     @sent_on     = Time.now
     @body[:project] = project.name
     @body[:email] = project.individuals.empty? ? "" : project.individuals.first.email

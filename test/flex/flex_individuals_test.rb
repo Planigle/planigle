@@ -13,7 +13,6 @@ class FlexIndividualsTest < Test::Unit::TestCase
     ActionMailer::Base.delivery_method = :test
     ActionMailer::Base.perform_deliveries = true
     ActionMailer::Base.deliveries = []
-    IndividualMailer.admin_email = 'testxyz@testxyz.com'
     IndividualMailer.site = 'www.testxyz.com'
     @ie = Funfx.instance 
     @ie.start(false) 
@@ -112,6 +111,7 @@ class FlexIndividualsTest < Test::Unit::TestCase
     assert_equal 2, @ie.button_bar("mainNavigation").numChildren
     
     @ie.button("individualBtnEdit")[find_row('quentin')].click
+    assert !@ie.form_item("individualFormNotificationType").visible
     @ie.combo_box("individualFieldProject").open
     @ie.combo_box("individualFieldProject").select(:item_renderer => 'Test' )
     @ie.button("individualBtnChange").click
@@ -132,7 +132,7 @@ private
 
     assert_equal 'Project Admin', @ie.combo_box("individualFieldRole").text
     
-    create_individual('Test', 'Test', ' ', 'testit', 'testit', 'testy2@testit.com', 'testy', 'test', 'Admin', 'true')
+    create_individual('Test', 'Test', ' ', 'testit', 'testit', 'testy2@testit.com', 'testy', 'test', 'Admin', 'true', '5555555555', 'Email')
     @ie.button("individualBtnChange").click
 
     # Values should not change
@@ -157,7 +157,7 @@ private
     num_rows = @ie.data_grid("individualResourceGrid").num_rows
     @ie.button("individualBtnCreate").click
     
-    create_individual('Test', 'Test', 'testy2', 'testit', 'testit', 'testy2@testit.com', 'testy', 'test', 'Admin', 'true')
+    create_individual('Test', 'Test', 'testy2', 'testit', 'testit', 'testy2@testit.com', 'testy', 'test', 'Admin', 'true' )
     @ie.button("individualBtnChange").click
 
     sleep 5 # Wait for results
@@ -193,7 +193,7 @@ private
   end
 
   # Create an individual.
-  def create_individual(project, team, login, password, password_confirmation, email, first_name, last_name, role, enabled)
+  def create_individual(project, team, login, password, password_confirmation, email, first_name, last_name, role, enabled, phone_number='5555555555', notification_type=nil)
     @ie.combo_box("individualFieldProject").open
     @ie.combo_box("individualFieldProject").select(:item_renderer => project )
     @ie.combo_box("individualFieldTeam").open
@@ -202,6 +202,11 @@ private
     @ie.text_area("individualFieldPassword").input(:text => password )
     @ie.text_area("individualFieldPasswordConfirmation").input(:text => password_confirmation )
     @ie.text_area("individualFieldEmail").input(:text => email )
+    @ie.text_area("individualFieldPhoneNumber").input(:text => phone_number )
+    if notification_type
+      @ie.combo_box("individualFieldNotificationType").open
+      @ie.combo_box("individualFieldNotificationType").select(:item_renderer => notification_type )
+    end
     @ie.text_area("individualFieldFirstName").input(:text => first_name )
     @ie.text_area("individualFieldLastName").input(:text => last_name )
     @ie.combo_box("individualFieldRole").open
@@ -263,7 +268,7 @@ private
   end
 
   # Edit an individual.
-  def edit_individual(row, project, team, login, password, password_confirmation, email, first_name, last_name, role, enabled)
+  def edit_individual(row, project, team, login, password, password_confirmation, email, first_name, last_name, role, enabled, phone_number='5555555555', notification_type=nil)
     @ie.button("individualBtnEdit")[row].click
     @ie.combo_box("individualFieldProject").open
     @ie.combo_box("individualFieldProject").select(:item_renderer => project )
@@ -273,6 +278,11 @@ private
     @ie.text_area("individualFieldPassword").input(:text => password )
     @ie.text_area("individualFieldPasswordConfirmation").input(:text => password_confirmation )
     @ie.text_area("individualFieldEmail").input(:text => email )
+    @ie.text_area("individualFieldPhoneNumber").input(:text => phone_number )
+    if notification_type
+      @ie.combo_box("individualFieldNotificationType").open
+      @ie.combo_box("individualFieldNotificationType").select(:item_renderer => notification_type )
+    end
     @ie.text_area("individualFieldFirstName").input(:text => first_name )
     @ie.text_area("individualFieldLastName").input(:text => last_name )
     @ie.combo_box("individualFieldRole").open

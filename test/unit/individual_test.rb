@@ -10,7 +10,6 @@ class IndividualTest < ActiveSupport::TestCase
     ActionMailer::Base.delivery_method = :test
     ActionMailer::Base.perform_deliveries = true
     ActionMailer::Base.deliveries = []
-    IndividualMailer.admin_email = 'testxyz@testxyz.com'
     IndividualMailer.site = 'www.testxyz.com'
   end
 
@@ -49,6 +48,14 @@ class IndividualTest < ActiveSupport::TestCase
     assert_failure( :role, 4)
   end
 
+  # Test the validation of notification_type.
+  def test_notification_type
+    assert_failure( :notification_type, -1)
+    assert_success( :notification_type, 0)
+    assert_success( :notification_type, 3)
+    assert_failure( :notification_type, 4)
+  end
+
   # Test the validation of email.
   def test_email
     assert_failure(:email, nil)
@@ -63,6 +70,24 @@ class IndividualTest < ActiveSupport::TestCase
     assert_failure(:email, 'aa @a.aa')
     assert_failure(:email, 'quentin@example.com') # in use
     assert_failure(:email, 'Quentin@example.com') # case doesn't matter
+  end
+
+  # Test the validation of phone number.
+  def test_phone_number
+    assert_failure(:phone_number, '123456789')
+    assert_success(:phone_number, '1234567890')
+    assert_success(:phone_number, '1234567890123456(). ')
+    assert_failure(:phone_number, '123456789012345678901')
+    assert_failure(:phone_number, 'abcdefghij')
+    
+    assert_success_multiple(:notification_type => Individual::NoNotifications, :phone_number => nil)
+    assert_success_multiple(:notification_type => Individual::NoNotifications, :phone_number => '')
+    assert_success_multiple(:notification_type => Individual::EmailNotifications, :phone_number => nil)
+    assert_success_multiple(:notification_type => Individual::EmailNotifications, :phone_number => '')
+    assert_failure_multiple(:notification_type => Individual::SMSNotifications, :phone_number => nil)
+    assert_failure_multiple(:notification_type => Individual::SMSNotifications, :phone_number => '')
+    assert_failure_multiple(:notification_type => Individual::BothNotifications, :phone_number => nil)
+    assert_failure_multiple(:notification_type => Individual::BothNotifications, :phone_number => '')
   end
 
   # Test the validation of last name.
@@ -283,11 +308,17 @@ class IndividualTest < ActiveSupport::TestCase
     assert_equal Individual.find_all_by_project_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:user)).length
     assert_equal Individual.find_all_by_project_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:readonly)).length
   end
+  
+  # Validate is_premium.
+  def test_is_premium
+    assert individuals(:aaron).is_premium
+    assert !individuals(:quentin).is_premium
+  end
 
 private
 
   # Create an individual with valid values.  Options will override default values (should be :attribute => value).
   def create_individual(options = {})
-    Individual.create({ :first_name => 'foo', :last_name => 'bar', :login => 'quire' << rand.to_s, :email => 'quire' << rand.to_s << '@example.com', :password => 'quired', :password_confirmation => 'quired', :role => 0, :project_id => 1 }.merge(options))
+    Individual.create({ :first_name => 'foo', :last_name => 'bar', :login => 'quire' << rand.to_s, :email => 'quire' << rand.to_s << '@example.com', :password => 'quired', :password_confirmation => 'quired', :role => 0, :project_id => 1, :phone_number => '5555555555' }.merge(options))
   end
 end

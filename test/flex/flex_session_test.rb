@@ -56,6 +56,7 @@ class FlexSessionTest < Test::Unit::TestCase
     @ie.text_area("signupFieldPassword").input(:text => 'password' )
     @ie.text_area("signupFieldPasswordConfirmation").input(:text => 'password' )
     @ie.text_area("signupFieldEmail").input(:text => 'xzcvg@kasjhuj.com' )
+    @ie.text_area("signupFieldPhoneNumber").input(:text => '5555555555' )
     @ie.text_area("signupFieldFirstName").input(:text => 'test' )
     @ie.text_area("signupFieldLastName").input(:text => 'ignore' )    
     @ie.button("okButton").click

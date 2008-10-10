@@ -33,10 +33,14 @@ class StoriesController < ResourceController
   def update
     Story.transaction do
       @record = get_record
+      blocked_before = @record.is_blocked
       should_update = (params["record"]["status_code"] != Story::Done and @record.status_code == Story::Done)
       super
       if should_update
         Survey.update_rankings(@record.project).each {|story| story.save(false)}
+      end
+      if !blocked_before && @record.is_blocked && (!current_individual.team_id || current_individual.team_id = @record.team_id)
+        current_individual.send_notification(@record.blocked_message)
       end
     end
   rescue ActiveRecord::RecordNotFound
@@ -82,6 +86,8 @@ protected
       @record.status_code = params[0].status_code
       @record.priority = params[0].priority
       @record.is_public = params[0].is_public
+      @record.phone_number = params[0].phone_number
+      @record.notification_type = params[0].notification_type
     else
       @record.attributes = params[:record]
     end

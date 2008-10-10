@@ -67,6 +67,13 @@ class TaskTest < ActiveSupport::TestCase
     mapping = Task.status_code_mapping
     assert_equal ['Created',0], mapping[0]
   end
+  
+  # Validate is_blocked.
+  def test_is_blocked
+    assert !tasks(:one).is_blocked
+    assert tasks(:three).is_blocked
+    assert tasks(:three).blocked_message
+  end
 
 private
 

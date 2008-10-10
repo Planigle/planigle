@@ -39,9 +39,14 @@ class Project < ActiveRecord::Base
     self.survey_key = Digest::SHA1.hexdigest( Time.now.to_s.split(//).sort_by {rand}.join )
   end
   
+  # Answer whether I am enabled for premium services.
+  def is_premium
+    premium_expiry && premium_expiry > Date.today
+  end
+  
   # Answer whether I can add new users.
   def can_add_users
-    !premium_expiry || (premium_expiry < Date.today || individuals.count < premium_limit)
+    !is_premium || individuals.count < premium_limit
   end
 
   # Delete all non-admins

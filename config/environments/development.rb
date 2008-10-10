@@ -20,3 +20,7 @@ config.action_mailer.delivery_method = :smtp
 
 # Set logging to debug
 RAILS_DEFAULT_LOGGER.level = Logger::DEBUG if defined? RAILS_DEFAULT_LOGGER
+
+# Set notification
+PLANIGLE_EMAIL_NOTIFIER = Notification::EmailNotifier.new
+PLANIGLE_SMS_NOTIFIER = Notification::Notifier.new

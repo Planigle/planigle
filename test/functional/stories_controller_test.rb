@@ -3,6 +3,7 @@ require "#{File.dirname(__FILE__)}/../stories_test_helper"
 require "#{File.dirname(__FILE__)}/controller_resource_helper"
 require "stories_controller"
 require "bigdecimal"
+require "notification/test_notifier"
 
 # Re-raise errors caught by the controller.
 class StoriesController; def rescue_action(e) raise e end; end
@@ -108,6 +109,30 @@ class StoriesControllerTest < ActionController::TestCase
     
     put :update, :id => 2, :record => {:status_code => 1}
     assert_equal BigDecimal("1.5"), stories(:first).reload.user_priority
+  end
+
+  # Test changing the status to blocked.
+  def test_change_to_blocked_not_premium
+    login_as(individuals(:quentin))
+    put :update, :id => 1, :record => {:status_code => 2}
+    assert 0, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
+    assert 0, PLANIGLE_SMS_NOTIFIER.number_of_notifications
+  end
+
+  # Test changing the status to blocked.
+  def test_change_to_blocked_same_team
+    login_as(individuals(:aaron))
+    put :update, :id => 1, :record => {:status_code => 2}
+    assert 1, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
+    assert 1, PLANIGLE_SMS_NOTIFIER.number_of_notifications
+  end
+
+  # Test changing the status to blocked.
+  def test_change_to_blocked_different_team
+    login_as(individuals(:aaron))
+    put :update, :id => 2, :record => {:status_code => 2}
+    assert 0, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
+    assert 0, PLANIGLE_SMS_NOTIFIER.number_of_notifications
   end
 
   # Test getting stories (based on role).

@@ -18,6 +18,8 @@ package org.planigle.planigle.model
 		public var enabled:Boolean;
 		public var lastLogin:Date;
 		public var acceptedAgreement:Date;
+		public var phoneNumber:String;
+		public var notificationType:int;
 		private var _projectId:String;
 		private var _project:Project;
 		private var _teamId:String;
@@ -45,6 +47,8 @@ package org.planigle.planigle.model
 			lastLogin = loginDate == "" ? null : DateUtils.stringToDate(loginDate);
 			var acceptedDate:String = xml.child("accepted-agreement");
 			acceptedAgreement = acceptedDate == "" ? null : DateUtils.stringToDate(acceptedDate);
+			phoneNumber = xml.child("phone-number");
+			notificationType = int(xml.child("notification-type"));
 		}
 
 		// Answer my full name.
