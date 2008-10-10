@@ -165,6 +165,13 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal Story.find_all_by_project_id(1).length, Story.get_records(individuals(:user)).length
     assert_equal Story.find_all_by_project_id(1).length, Story.get_records(individuals(:readonly)).length
   end
+  
+  # Validate is_blocked.
+  def test_is_blocked
+    assert !stories(:first).is_blocked
+    assert stories(:fifth).is_blocked
+    assert stories(:fifth).blocked_message
+  end
 
 private
 

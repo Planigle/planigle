@@ -9,7 +9,6 @@ class ProjectMailerTest < ActiveSupport::TestCase
     ActionMailer::Base.delivery_method = :test
     ActionMailer::Base.perform_deliveries = true
     ActionMailer::Base.deliveries = []
-    IndividualMailer.admin_email = 'testxyz@testxyz.com'
     IndividualMailer.site = 'www.testxyz.com'
     ProjectMailer.who_to_notify = 'ksksk@ksdkdaiu.com'
   end
@@ -17,7 +16,7 @@ class ProjectMailerTest < ActiveSupport::TestCase
   # Test notification on signup.
   def test_signup_notification
     response = ProjectMailer.create_signup_notification(projects(:first))
-    assert_equal IndividualMailer.admin_email, response.from[0]
+    assert_equal PLANIGLE_ADMIN_EMAIL, response.from[0]
     assert_equal ProjectMailer.who_to_notify, response.to[0]
     reg = /.*#{projects(:first).name}.*/
     assert_match reg, response.body

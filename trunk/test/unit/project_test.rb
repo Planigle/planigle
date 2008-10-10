@@ -86,6 +86,12 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal 1, Project.get_records(individuals(:user)).length
     assert_equal 1, Project.get_records(individuals(:readonly)).length
   end
+  
+  # Validate is_premium.
+  def test_is_premium
+    assert projects(:first).is_premium
+    assert !projects(:second).is_premium
+  end
 
 private
 

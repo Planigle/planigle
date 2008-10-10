@@ -10,6 +10,8 @@ quentin:
   crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
   activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9b 
   activated_at: <%= 5.days.ago.to_s :db %> 
+  notification_type: 3
+  phone_number: '5555555555'
 
 aaron:
   id: 2
@@ -24,6 +26,8 @@ aaron:
   crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
   activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9a 
   activated_at: <%= 5.days.ago.to_s :db %> 
+  notification_type: 3
+  phone_number: '5555555555'
 
 ted:
   id: 3

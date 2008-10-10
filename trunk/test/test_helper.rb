@@ -61,10 +61,26 @@ class Test::Unit::TestCase
     end
   end
 
+  # Assert that you can't set the fields to the specified value.
+  def assert_failure_multiple(fields_and_values)
+    assert_no_difference get_count do
+      obj = send( create_object, fields_and_values)
+      assert obj.errors
+    end
+  end
+
   # Assert that you can set the field to the specified value.
   def assert_success(field, value)
     assert_difference get_count do
       obj = send( create_object, field => value)
+      assert !obj.new_record?, "#{obj.errors.full_messages.to_sentence}"
+    end
+  end
+
+  # Assert that you can set the fields to the specified values.
+  def assert_success_multiple(fields_and_values)
+    assert_difference get_count do
+      obj = send( create_object, fields_and_values)
       assert !obj.new_record?, "#{obj.errors.full_messages.to_sentence}"
     end
   end

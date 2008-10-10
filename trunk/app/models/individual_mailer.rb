@@ -1,8 +1,6 @@
 class IndividualMailer < ActionMailer::Base
 
-  # Users can override the admin email address and site URL.
-  @@admin_email = ''
-  cattr_accessor :admin_email
+  # Users can override the site URL.
   @@site = ''
   cattr_accessor :site
 
@@ -18,7 +16,7 @@ class IndividualMailer < ActionMailer::Base
   # Set up common email properties.
   def setup_email(individual)
     @recipients  = "#{individual.email}"
-    @from        = "#{admin_email}"
+    @from        = "#{PLANIGLE_ADMIN_EMAIL}"
     @sent_on     = Time.now
     @body[:individual] = individual
     @content_type = 'text/html'

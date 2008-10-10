@@ -31,6 +31,7 @@
 			params['individual[password]'] = signupFieldPassword.text;
 			params['individual[password_confirmation]'] = signupFieldPasswordConfirmation.text;
 			params['individual[email]'] = signupFieldEmail.text;
+			params['individual[phone_number]'] = signupFieldPhoneNumber.text;
 			params['individual[first_name]'] = signupFieldFirstName.text;
 			params['individual[last_name]'] = signupFieldLastName.text;
 			params['random'] = Math.random(); // Prevents caching
@@ -38,7 +39,7 @@
 		}
 
 		// Handle a successful signup.
-		private function handleSuccess():void
+		private function handleSuccess(item:Object):void
 		{
 			setSuccessMessage("You have successfully signed up for Planigle.  Shortly, you will receive an email to complete the signup process.");
 			signupBtnBox.visible = false;
@@ -72,6 +73,9 @@
 			</mx:FormItem>
 			<mx:FormItem label='Email' required="true">
 				<mx:TextInput id='signupFieldEmail' maxChars="100" text='' width="350"/>
+			</mx:FormItem>
+			<mx:FormItem label='Phone Number' required="false">
+				<mx:TextInput id='signupFieldPhoneNumber' maxChars="20" text='' width="350"/>
 			</mx:FormItem>
 			<mx:FormItem label='First Name' required="true">
 				<mx:TextInput id='signupFieldFirstName' maxChars="40" text='' width="350"/>

@@ -8,7 +8,7 @@ class Individual < ActiveRecord::Base
   # Virtual attribute for the unencrypted password
   attr_accessor :password
 
-  validates_presence_of     :login, :email, :first_name, :last_name, :role
+  validates_presence_of     :login, :email, :first_name, :last_name, :role, :notification_type
   validates_presence_of     :password,                   :if => :password_required?
   validates_presence_of     :password_confirmation,      :if => :password_required?
   validates_length_of       :password, :within => 6..40, :if => :password_required?
@@ -19,7 +19,8 @@ class Individual < ActiveRecord::Base
   validates_length_of       :email,    :within => 6..100
   validates_uniqueness_of   :login, :email, :case_sensitive => false
   validates_format_of       :email, :with => /(^([^@\s]+)@((?:[-_a-z0-9]+\.)+[a-z]{2,})$)|(^$)/i
-  validates_numericality_of :role
+  validates_numericality_of :role, :notification_type
+  validates_format_of       :phone_number, :message => "must be a valid telephone number", :with => /^[\(\)0-9\- \+\.]{10,20}$/, :allow_nil => true, :allow_blank => true
 
   # Ensure that the individual's email address is validated.
   before_create :make_activation_code
@@ -29,12 +30,17 @@ class Individual < ActiveRecord::Base
 
   # Prevent a user from submitting a crafted form that bypasses activation
   # Anything that the user can change should be added here.
-  attr_accessible :login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled, :project_id, :role, :last_login, :accepted_agreement, :team_id
+  attr_accessible :login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled, :project_id, :role, :last_login, :accepted_agreement, :team_id, :phone_number, :notification_type
 
   Admin = 0
   ProjectAdmin = 1
   ProjectUser = 2
   ReadOnlyUser = 3
+  
+  NoNotifications = 0
+  EmailNotifications = 1
+  SMSNotifications = 2
+  BothNotifications = 3
 
   # Authenticates an individual by their login name and unencrypted password.  Returns the individual or nil.
   def self.authenticate(login, password)
@@ -154,6 +160,24 @@ class Individual < ActiveRecord::Base
     errors.add_to_base("Too many users exist to create another one.  To add a user, delete one or contact support to extend your limits.")
   end
 
+  # Answer whether I am enabled for premium services.
+  def is_premium
+    return project && project.is_premium
+  end
+
+  # Notify that something has occurred.
+  def send_notification(message)
+    if is_premium
+      if notification_type == EmailNotifications || notification_type == BothNotifications
+        PLANIGLE_EMAIL_NOTIFIER.send_notification(email, message)
+      end
+  
+      if (notification_type == SMSNotifications || notification_type == BothNotifications) && phone_number && phone_number != ''
+        PLANIGLE_SMS_NOTIFIER.send_notification(phone_number, message)
+      end
+    end
+  end
+
 protected
 
   # Remember this individual on the browser for the specified amount of time so that they
@@ -207,6 +231,14 @@ protected
     if role && (role > Admin && !project_id )
       errors.add(:project, ' must be set for users who are not admins')
     end
+
+    if notification_type && (notification_type < NoNotifications || notification_type > BothNotifications)
+      errors.add(:notification_type, ' is invalid')
+    end    
+    
+    if notification_type && (notification_type == SMSNotifications || notification_type == BothNotifications) && (!phone_number || phone_number == '')
+      errors.add(:phone_number, ' must be set in order to send SMS notifications')
+    end    
     
     if team && (!project || team.project != project )
       errors.add(:team, ' must be associated with project')

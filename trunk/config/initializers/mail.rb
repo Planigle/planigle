@@ -5,9 +5,12 @@ ActionMailer::Base.smtp_settings = {
   :domain => "<Replace with SMTP Server domain>",
   }
 
+PLANIGLE_ADMIN_EMAIL = 'noreply@test.com' # <Replace with Admin Email Address> The email address to send from
+
 require 'individual_mailer'
-IndividualMailer.admin_email = '<Replace with Admin Email Address>'   # The email address to send from
 IndividualMailer.site = '<Replace with web site host[:port]>'         # The host[:port] of the server (for URLs)
 
 require 'project_mailer'
 ProjectMailer.who_to_notify = ''                                      # The email address to notify of new projects
+
+require 'notification_mailer'

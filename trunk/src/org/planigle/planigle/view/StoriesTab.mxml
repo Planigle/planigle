@@ -730,10 +730,7 @@
 			{
 				var newStatus:int = currentItem.newStatus();
 				if (newStatus != -1)
-				{
 					currentItem.update({'record[status_code]': newStatus}, null, handleFailure);
-					return;
-				}
 			}
 			showCreate(currentItem == null);
 			if (currentItem != null) defaultTaskOwner();

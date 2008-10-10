@@ -58,6 +58,6 @@ fifth:
   description: ''
   acceptance_criteria: ''
   effort: 2
-  status_code: 1
+  status_code: 2
   priority: 1
   is_public: true

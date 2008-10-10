@@ -5,6 +5,7 @@ class Task < ActiveRecord::Base
   validates_presence_of     :name, :story_id
   validates_length_of       :name,                   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
   validates_length_of       :description,            :maximum => 4096, :allow_nil => true
+  validates_length_of       :reason_blocked,         :maximum => 4096, :allow_nil => true
   validates_numericality_of :effort, :allow_nil => true
   validates_numericality_of :status_code
 
@@ -73,6 +74,16 @@ class Task < ActiveRecord::Base
       when Individual::ProjectUser then story && current_user.project_id == story.project_id
       else false
     end
+  end
+
+  # Answer whether I am blocked.
+  def is_blocked
+    status_code == Story::Blocked
+  end
+  
+  # Answer a string which describes my blocked state.
+  def blocked_message
+    name + " is blocked" + (reason_blocked && reason_blocked != "" ? " because " + reason_blocked : "") + "."
   end
 
 protected
