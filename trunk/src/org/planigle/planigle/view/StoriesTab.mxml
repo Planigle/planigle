@@ -1166,8 +1166,8 @@
 					</mx:itemRenderer>
 				</mx:DataGridColumn>
 				<mx:DataGridColumn headerText="Public" width="60" dataField="isPublic"/>
-				<mx:DataGridColumn headerText="Priority" width="65" dataField="normalizedPriority" sortCompareFunction="ViewHelper.sortPriority"/>
-				<mx:DataGridColumn headerText="User Priority" width="90" dataField="modifiedUserPriority" sortCompareFunction="ViewHelper.sortUserPriority"/>
+				<mx:DataGridColumn headerText="Rank" width="65" dataField="normalizedPriority" sortCompareFunction="ViewHelper.sortPriority"/>
+				<mx:DataGridColumn headerText="User Rank" width="90" dataField="modifiedUserPriority" sortCompareFunction="ViewHelper.sortUserPriority"/>
 				<mx:DataGridColumn editable="false" width="140" minWidth="140" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>

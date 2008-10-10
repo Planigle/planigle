@@ -165,8 +165,8 @@
 						<mx:columns>
 							<mx:DataGridColumn headerText="Name" width="350" dataField="name"/>
 							<mx:DataGridColumn headerText="Description" labelFunction="limitDescription" dataField="description" showDataTips="true" dataTipField="description"/>
-							<mx:DataGridColumn headerText="Priority" width="80" dataField="normalizedPriority"/>
-							<mx:DataGridColumn headerText="User Priority" width="80" dataField="priority"/>
+							<mx:DataGridColumn headerText="Rank" width="80" dataField="normalizedPriority"/>
+							<mx:DataGridColumn headerText="User Rank" width="80" dataField="priority"/>
 						</mx:columns>
 					</mx:DataGrid>
 				</mx:target>
