@@ -127,15 +127,15 @@ class FlexStoriesTest < Test::Unit::TestCase
   # Test velocity
   def test_velocity
     init('admin2')
-    assert_equal '7 of 0.3 (2100%) - Test', @ie.tree('velocity').tabular_data
-    @ie.tree('velocity').open(:item_renderer => '7 of 0.3 (2100%) - Test')
+    assert_equal '7 of 0.33 (2100%) - Test', @ie.tree('velocity').tabular_data
+    @ie.tree('velocity').open(:item_renderer => '7 of 0.33 (2100%) - Test')
     assert_equal '5 of 0 - Test', @ie.tree('velocity').tabular_data(:start => 1, :end => 1)
     @ie.tree('velocity').open(:item_renderer => '5 of 0 - Test')
     assert_equal '5 of 0 - aaron hank', @ie.tree('velocity').tabular_data(:start => 2, :end => 2)
 
     @ie.combo_box("individual").open
     @ie.combo_box("individual").select(:item_renderer => 'No Owner')
-    assert_equal '2 of 0.3 (600%) - No Owner', @ie.tree('velocity').tabular_data
+    assert_equal '2 of 0.33 (600%) - No Owner', @ie.tree('velocity').tabular_data
   end
 
 private
