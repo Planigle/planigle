@@ -42,6 +42,14 @@
 			[Embed(source="../public/images/export.png")]
 			[Bindable]
 			public var imgExport:Class;
+		
+			[Embed(source="../public/images/logo_big.gif")]
+			[Bindable]
+			public var imgLogoBig:Class;
+		
+			[Embed(source="../public/images/logo_small.gif")]
+			[Bindable]
+			public var imgLogoSmall:Class;
 			
 			// See if a cookie is present which skips login.
 			private function created(event:Event):void
