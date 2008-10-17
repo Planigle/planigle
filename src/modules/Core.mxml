@@ -21,6 +21,7 @@
 			import org.planigle.planigle.events.IterationChangedEvent;
 			import org.planigle.planigle.events.StoryChangedEvent;
 			import org.planigle.planigle.events.LogoutEvent;
+			import org.planigle.planigle.events.URLEvent;
 			import org.planigle.planigle.view.ScheduleTab;
 			import org.planigle.planigle.view.StoriesTab;
 			import org.planigle.planigle.view.PeopleTab;
@@ -169,6 +170,7 @@
 		<mx:HBox horizontalAlign="right" width="100%">
 			<mx:LinkButton label="Refresh" id="refreshButton" click="{refresh()}"/>
 			<mx:LinkButton label="Log out" id="logoutButton" click="{logout()}"/>
+			<mx:LinkButton id="planigleButton" icon="{parentApplication.imgLogoSmall}" toolTip="Planigle Project Page" click="new URLEvent('http://code.google.com/p/planigle/').dispatch()"/>
 		</mx:HBox>
 	</mx:HBox>
 	<mx:ViewStack id="mainViewStack" y="20" width="100%" height="100%" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0">
