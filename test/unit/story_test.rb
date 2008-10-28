@@ -3,6 +3,8 @@ require File.dirname(__FILE__) + '/../test_helper'
 class StoryTest < ActiveSupport::TestCase
   fixtures :teams
   fixtures :individuals
+  fixtures :releases
+  fixtures :iterations
   fixtures :stories
   fixtures :projects
   fixtures :tasks
@@ -155,7 +157,7 @@ class StoryTest < ActiveSupport::TestCase
   # Test that we can get a mapping of status to code.
   def test_status_code_mapping
     mapping = Story.status_code_mapping
-    assert_equal ['Created',0], mapping[0]
+    assert_equal 0, mapping['Created']
   end
 
   # Test finding individuals for a specific user.
@@ -173,11 +175,142 @@ class StoryTest < ActiveSupport::TestCase
     assert stories(:fifth).blocked_message
   end
 
+  # Validate export.
+  def test_export
+    string = Story.export(individuals(:aaron))
+    assert_equal "PID,Name,Description,Acceptance Criteria,Effort,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank\n3,test3,\"\",\"\",1.0,In Progress,,\"\",\"\",\"\",\"\",false,2.0\n2,test2,\"\",\"\",1.0,Done,,first,first,\"\",\"\",true,1.0\n1,test,description,criteria,5.0,In Progress,,first,first,Test,aaron hank,true,2.0\n4,test4,\"\",\"\",1.0,In Progress,,\"\",\"\",\"\",\"\",true,\n", string
+  end
+
+  def test_import_invalid_id
+    name = stories(:first).name
+    verify_errors(Story.import(individuals(:aaron), "pid,name\n9999,Fred"))
+    assert_equal name, stories(:first).reload.name
+  end
+
+  def test_import_existing_story
+    count = Story.count
+    verify_no_errors(Story.import(individuals(:aaron), "pid,name\n1,Fred"))
+    assert_equal 'Fred', stories(:first).reload.name
+    assert_equal count, Story.count
+  end
+
+  def test_import_new_story
+    count = Story.count
+    verify_no_errors(Story.import(individuals(:aaron), "pid,name\n,Fred"))
+    assert Story.find(:first, :conditions => ["name = 'Fred'"])
+    assert_equal count + 1, Story.count
+  end
+
+  def test_import_blank_name
+    name = stories(:first).name
+    verify_errors(Story.import(individuals(:aaron), "pid,name\n1,"))
+    assert_equal name, stories(:first).reload.name
+  end
+
+  def test_import_extra column
+    verify_errors(Story.import(individuals(:aaron), "pid,name,foo\n1,Fred,"))
+    assert_equal 'Fred', stories(:first).reload.name
+  end
+
+  def test_import_irregular_shape
+    verify_no_errors(Story.import(individuals(:aaron), "pid,name\n1,Fred,"))
+    assert_equal 'Fred', stories(:first).reload.name
+  end
+
+  def test_import_valid_team
+    verify_no_errors(Story.import(individuals(:aaron), "pid,team\n1,Test2"))
+    assert_equal 'Test2', stories(:first).team.reload.name
+  end
+
+  def test_import_invalid_team
+    name = stories(:first).team.name
+    verify_errors(Story.import(individuals(:aaron), "pid,team\n1,Bogus"))
+    assert_equal name, stories(:first).team.reload.name
+  end
+
+  def test_import_valid_individual
+    verify_no_errors(Story.import(individuals(:aaron), "pid,owner\n1,user williams"))
+    assert_equal 'user williams', stories(:first).individual.reload.name
+  end
+
+  def test_import_invalid_individual
+    name = stories(:first).individual.name
+    verify_errors(Story.import(individuals(:aaron), "pid,owner\n1,Bogus"))
+    assert_equal name, stories(:first).individual.reload.name
+  end
+
+  def test_import_valid_release
+    verify_no_errors(Story.import(individuals(:aaron), "pid,release\n1,second"))
+    assert_equal 'second', stories(:first).release.reload.name
+  end
+
+  def test_import_valid_main_release
+    release = releases(:second)
+    release.name='1.0'
+    release.save(false)
+    verify_no_errors(Story.import(individuals(:aaron), "pid,release\n1,1"))
+    assert_equal '1.0', stories(:first).release.reload.name
+  end
+
+  def test_import_invalid_release
+    name = stories(:first).release.name
+    verify_errors(Story.import(individuals(:aaron), "pid,release\n1,Bogus"))
+    assert_equal name, stories(:first).release.reload.name
+  end
+
+  def test_import_valid_iteration
+    verify_no_errors(Story.import(individuals(:aaron), "pid,iteration\n1,second"))
+    assert_equal 'second', stories(:first).iteration.reload.name
+  end
+
+  def test_import_invalid_iteration
+    name = stories(:first).iteration.name
+    verify_errors(Story.import(individuals(:aaron), "pid,iteration\n1,Bogus"))
+    assert_equal name, stories(:first).iteration.reload.name
+  end
+
+  def test_import_valid_status_code
+    verify_no_errors(Story.import(individuals(:aaron), "pid,status\n1,Done"))
+    assert_equal Story::Done, stories(:first).reload.status_code
+  end
+
+  def test_import_invalid_status_code
+    status = stories(:first).status_code
+    verify_errors(Story.import(individuals(:aaron), "pid,status\n1,Bogus"))
+    assert_equal status, stories(:first).reload.status_code
+  end
+
+  def test_import_security
+    name = stories(:first).name
+    verify_errors(Story.import(individuals(:readonly), "pid,name\n1,Fred"))
+    assert_equal name, stories(:first).reload.name
+  end
+
 private
 
   # Create a story with valid values.  Options will override default values (should be :attribute => value).
   def create_story(options = {})
     Story.create({ :name => 'foo', :description => 'bar', :effort => 5.0, :acceptance_criteria => 'must',
       :status_code => 0, :project_id => 1 }.merge(options))
+  end
+  
+  # Check to ensure that there are no errors.
+  def verify_no_errors(errors)
+    errors.each do |err|
+      if err.full_messages.length>0
+        assert false
+      end
+    end
+  end
+  
+  # Check to ensure that there are errors.
+  def verify_errors(errors)
+    err = false
+    errors.each do |err2|
+      if err2.full_messages.length>0
+        err = true
+      end
+    end
+    assert err
   end
 end

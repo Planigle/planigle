@@ -27,21 +27,41 @@
 			private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();			
 
 			// Images to be leveraged by pages.
-			[Embed(source="../public/images/edit.png")]
+			[Embed(source="../public/images/modify.png")]
 			[Bindable]
 			public var imgEdit:Class;
 			
-			[Embed(source="../public/images/cross.png")]
+			[Embed(source="../public/images/delete.png")]
 			[Bindable]
 			public var imgCross:Class;
 		
-			[Embed(source="../public/images/add.gif")]
+			[Embed(source="../public/images/add.png")]
 			[Bindable]
 			public var imgAdd:Class;
+
+			[Embed(source="../public/images/load.png")]
+			[Bindable]
+			public var imgImport:Class;		
 		
-			[Embed(source="../public/images/export.png")]
+			[Embed(source="../public/images/save.png")]
 			[Bindable]
 			public var imgExport:Class;
+		
+			[Embed(source="../public/images/pie chart.png")]
+			[Bindable]
+			public var imgSplit:Class;
+		
+			[Embed(source="../public/images/search.png")]
+			[Bindable]
+			public var imgPlan:Class;
+		
+			[Embed(source="../public/images/comment.png")]
+			[Bindable]
+			public var imgSurveys:Class;
+		
+			[Embed(source="../public/images/existing.png")]
+			[Bindable]
+			public var imgExisting:Class;
 		
 			[Embed(source="../public/images/logo_big.gif")]
 			[Bindable]

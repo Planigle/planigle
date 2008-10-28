@@ -228,7 +228,7 @@
 					<mx:itemRenderer>
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0" width="100%">
-								<mx:LinkButton id="surveyDetails" icon="{parentApplication.imgExport}" toolTip="Split" click="outerDocument.showDetails(event);"/>
+								<mx:LinkButton id="surveyDetails" icon="{parentApplication.imgExisting}" toolTip="Show Details" click="outerDocument.showDetails(event);"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>

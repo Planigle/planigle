@@ -1,6 +1,12 @@
 ActionController::Routing::Routes.draw do |map|
   map.rubyamf_gateway 'rubyamf_gateway', :controller => 'rubyamf', :action => 'gateway'
 
+  map.import '/stories/import', :controller => 'stories', :action => 'import'
+  map.import_format '/stories/import', :controller => 'stories', :action => 'import'
+
+  map.export '/stories/export', :controller => 'stories', :action => 'export'
+  map.export_format '/stories/export', :controller => 'stories', :action => 'export'
+
   map.split '/stories/split/:id', :controller => 'stories', :action => 'split'
   map.split_format '/stories/split/:id.:format', :controller => 'stories', :action => 'split'
   

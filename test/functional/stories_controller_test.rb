@@ -4,6 +4,7 @@ require "#{File.dirname(__FILE__)}/controller_resource_helper"
 require "stories_controller"
 require "bigdecimal"
 require "notification/test_notifier"
+require "stringio"
 
 # Re-raise errors caught by the controller.
 class StoriesController; def rescue_action(e) raise e end; end
@@ -133,6 +134,79 @@ class StoriesControllerTest < ActionController::TestCase
     put :update, :id => 2, :record => {:status_code => 2}
     assert 0, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
     assert 0, PLANIGLE_SMS_NOTIFIER.number_of_notifications
+  end
+
+  # Test exporting stories (based on role).
+  def test_export_by_project_admin
+    export_by_role(individuals(:quentin), Story.count)
+  end
+    
+  # Test exporting stories (based on role).
+  def test_export_by_admin
+    export_by_role(individuals(:aaron), Story.find_all_by_project_id(1).length)
+  end
+
+  # Test exporting stories (based on role).
+  def test_export_by_project_user
+    export_by_role(individuals(:user), Story.find_all_by_project_id(1).length)
+  end
+
+  # Test exporting stories (based on role).
+  def test_export_by_readonly
+    export_by_role(individuals(:readonly), Story.find_all_by_project_id(1).length)
+  end
+
+  # Test exporting stories (based on role).
+  def export_by_role(user, count)
+    login_as(user)
+    get :export
+    assert_response :success
+    assert_equal count+1, @response.body.split("\n").length
+  end
+
+  # Test importing stories (based on role).
+  def test_import_by_admin
+    import_by_role(individuals(:quentin), true)
+  end
+    
+  # Test importing stories (based on role).
+  def test_import_by_project_admin
+    import_by_role(individuals(:aaron), true)
+  end
+
+  # Test importing stories (based on role).
+  def test_import_by_project_user
+    import_by_role(individuals(:user), true)
+  end
+
+  # Test importing stories (based on role).
+  def test_import_by_readonly_user
+    import_by_role(individuals(:readonly), false)
+  end
+
+  # Test importing stories (based on role).
+  def import_by_role(user, success)
+    name = stories(:first).name
+    login_as(user)
+    post :import, :Filedata => StringIO.new("PID,name\n1,Foo")
+    assert_response :success
+    if success
+      assert_select 'results'
+      assert_equal 'Foo', stories(:first).reload.name
+    else
+      assert_select 'errors'
+      assert_equal name, stories(:first).reload.name
+    end
+  end
+
+  # Test importing stories to wrong project.
+  def test_import_wrong_project
+    name = stories(:fifth).name
+    login_as(individuals(:user))
+    post :import, :Filedata => StringIO.new("PID,name\n5,Foo")
+    assert_response :success
+    assert_select 'errors'
+    assert_equal name, stories(:fifth).reload.name
   end
 
   # Test getting stories (based on role).

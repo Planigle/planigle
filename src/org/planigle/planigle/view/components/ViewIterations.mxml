@@ -265,7 +265,7 @@
 					<mx:itemRenderer>
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
-								<mx:LinkButton id="iterationBtnPlan" icon="{parentApplication.imgExport}" toolTip="Plan" click="outerDocument.showPlan(event);"/>
+								<mx:LinkButton id="iterationBtnPlan" icon="{parentApplication.imgPlan}" toolTip="Plan" click="outerDocument.showPlan(event);"/>
 								<mx:LinkButton id="iterationBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
 								<mx:LinkButton id="iterationBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
 							</mx:Box>

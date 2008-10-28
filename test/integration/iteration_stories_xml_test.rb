@@ -8,8 +8,10 @@ class IterationStoriesXmlTest < ActionController::IntegrationTest
 
   fixtures :systems
   fixtures :individuals
+  fixtures :releases
   fixtures :iterations
   fixtures :projects
+  fixtures :teams
   fixtures :stories
 
   # Re-raise errors caught by the controller.
