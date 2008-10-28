@@ -22,8 +22,8 @@ class StoriesController < ResourceController
         errors.each do |error|
           if error.full_messages.length>0
             error.full_messages.each {|message| builder.error('Row ' + row.to_s + ': ' + message)}
-            row += 1
           end
+          row += 1
         end
       end
     else

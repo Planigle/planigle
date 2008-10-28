@@ -361,7 +361,7 @@
 		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="8" verticalAlign="middle" id="hbox1" paddingTop="5" paddingLeft="5" paddingRight="5">
 			<mx:Label text="Individuals" fontWeight="bold" textDecoration="underline"/>
 			<mx:Text id="individualError" styleName="error" htmlText="{_error}" width="100%"/>
-			<mx:Button label="Create" id="individualBtnCreate" styleName="individualBtnCreate" click="showCreate(event);" visible="{factory.currentIndividual.isAtLeastProjectAdmin()}"/>
+			<mx:Button icon="{parentApplication.imgAdd}" toolTip="Create" id="individualBtnCreate" styleName="individualBtnCreate" click="showCreate(event);" visible="{factory.currentIndividual.isAtLeastProjectAdmin()}"/>
 		</mx:HBox>
 		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="individualResourceGrid" dataProvider="{individuals}" rowCount="{individuals.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" doubleClick="showUpdate(event)">
 				<mx:columns>
