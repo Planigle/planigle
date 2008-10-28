@@ -1,3 +1,5 @@
+require 'faster_csv'
+
 class Story < ActiveRecord::Base
   include Utilities::Text
   belongs_to :project
@@ -13,7 +15,7 @@ class Story < ActiveRecord::Base
   validates_length_of       :description,            :maximum => 4096, :allow_nil => true
   validates_length_of       :acceptance_criteria,    :maximum => 4096, :allow_nil => true
   validates_length_of       :reason_blocked,         :maximum => 4096, :allow_nil => true
-  validates_numericality_of :effort, :allow_nil => true
+  validates_numericality_of :effort, :allow_nil => true, :greater_than => 0
   validates_numericality_of :priority, :user_priority, :allow_nil => true # Needed for priority since not set until after check
   validates_numericality_of :status_code
 
@@ -23,11 +25,55 @@ class Story < ActiveRecord::Base
   Blocked = 2
   Done = 3
 
+  Headers = { 'pid'=>:id, 'name'=>:name, 'description'=>:description, 'acceptance criteria'=>:acceptance_criteria, 'effort'=>:effort, 'status'=>:status_code, 'reason blocked'=>:reason_blocked, 'release'=>:release_id, 'iteration'=>:iteration_id, 'team'=>:team_id, 'owner'=>:individual_id, 'public'=>:is_public}
+
   attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :release_id, :iteration_id, :individual_id, :project_id, :is_public, :priority, :user_priority, :team_id, :reason_blocked
 
   # Assign a priority on creation
   before_create :initialize_defaults
 
+  # Answer a CSV string representing the stories.
+  def self.export(current_user)
+    FasterCSV.generate(:row_sep => "\n") do |csv|
+      csv << ['PID', 'Name', 'Description', 'Acceptance Criteria', 'Effort', 'Status', 'Reason Blocked', 'Release', 'Iteration', 'Team', 'Owner', 'Public', 'User Rank']
+      get_records(current_user).each {|story| story.export(csv)}
+    end
+  end
+  
+  # Export given an instance of FasterCSV.
+  def export(csv)
+    csv << [
+      id,
+      name,
+      description,
+      acceptance_criteria,
+      calculated_effort,
+      StatusMapping[status_code],
+      reason_blocked,
+      release ? release.name : '',
+      iteration ? iteration.name : '',
+      team ? team.name : '',
+      individual ? individual.name : '',
+      is_public,
+      user_priority]
+  end
+
+  # Import from a CSV string representing the stories.
+  def self.import(current_user, import_string)
+    headers_shown = false
+    header_mapping = {}
+    errors = [] 
+    FasterCSV.parse(import_string) do |row|
+      if !headers_shown
+        headers_shown = true
+        process_headers(row, header_mapping)
+      else
+        errors.push(store_values(current_user, process_values(row, header_mapping)))
+      end
+    end
+    errors
+  end
+  
   # Answer the valid values for status.
   def self.valid_status_values()
     StatusMapping
@@ -35,8 +81,10 @@ class Story < ActiveRecord::Base
 
   # Map user displayable terms to the internal status codes.
   def self.status_code_mapping
+    map = {}
     i = -1
-    valid_status_values.collect { |val| i+=1;[val, i] }
+    valid_status_values.each { |val| i+=1; map[val]=i }
+    map
   end
 
   # Answer my status in a user friendly format.
@@ -159,26 +207,104 @@ protected
       errors.add(:status_code, 'is invalid')
     end
     
+    if release_id && !Release.find_by_id(release_id)
+      errors.add(:release, 'is invalid')
+    elsif release && project_id != release.project_id
+      errors.add(:release, 'is not from a valid project')
+    end
+    
     if iteration_id && !Iteration.find_by_id(iteration_id)
-      errors.add(:iteration_id, 'is invalid')
+      errors.add(:iteration, 'is invalid')
     elsif iteration && project_id != iteration.project_id
-      errors.add(:iteration_id, 'is not from a valid project')
+      errors.add(:iteration, 'is not from a valid project')
+    end
+    
+    if team_id && !Team.find_by_id(team_id)
+      errors.add(:team, 'is invalid')
+    elsif team && project_id != team.project_id
+      errors.add(:team, 'is not from a valid project')
     end
     
     if individual_id && !Individual.find_by_id(individual_id)
-      errors.add(:individual_id, 'is invalid')
+      errors.add(:individual, 'is invalid')
     elsif individual && project_id != individual.project_id
-      errors.add(:individual_id, 'is not from a valid project')
+      errors.add(:individual, 'is not from a valid project')
     end
-    
-    errors.add(:effort, 'must be greater than 0') if effort && effort <= 0
   end
   
   # Set the initial priority to the number of stories (+1 for me).  Set public to false if not set.
   def initialize_defaults
-    if !self.priority      
+    if !self.priority
       highest = Story.find(:first, :order=>'priority desc')
       self.priority = highest ? highest.priority + 1 : 1
     end
+  end
+
+private
+
+  # Process the import headers given a row and a hash to populate with index=>attribute.
+  def self.process_headers(row, header_mapping)
+    i = 0
+    row.each do |value|
+      if (value)
+        down = value.downcase;
+        header_mapping[i] = Headers.has_key?(down) ? Headers[down] : :ignore;
+      end
+      i += 1
+    end
+  end
+
+  # Process the import values given a row and a hash of headers mapping index=>attribute.  Return a hash
+  # of values (mapping attribute=>value).
+  def self.process_values(row, header_mapping)
+    values = {}
+    (0..row.length-1).each do |i|
+      if i < header_mapping.length  # ignore columns with no header
+        header = header_mapping[i]
+        value = row[i]
+        if (header && header != :ignore)
+          case header
+            when :team_id then value = find_object_id(value, Team, ['name = ?', value])
+            when :individual_id then value = find_object_id(value, Individual, ["concat(first_name, ' ', last_name) = ?", value])
+            when :release_id then temp = find_object_id(value, Release, ['name = ?', value]); value = temp == -1 ? value = find_object_id(value, Release, ['name like ?', value.to_s+'%']) : temp
+            when :iteration_id then value = find_object_id(value, Iteration, ['name = ?', value])
+            when :status_code then value = status_code_mapping.has_key?(value) ? status_code_mapping[value] : -1
+            when :effort then value = value ? value.to_f : value
+          end
+          values[header] = value
+        end
+      end
+    end
+    values
+  end
+  
+  # Store the values for the current_user.
+  def self.store_values(current_user, values)
+    story = nil
+    if values.has_key?(:id) && values[:id]
+      story = Story.find(:first, :conditions => ['id = ?', values[:id]])
+      if story && story.authorized_for_update?(current_user)
+        story.update_attributes(values)
+      elsif story
+        story.errors.add(:id, "is invalid")
+      end
+    else
+      values[:project_id] = current_user.project_id
+      story = Story.create(values)
+    end
+    if story
+      story.errors
+    else
+      err = ActiveRecord::Errors.new(new)
+      err.add(:id, "is invalid")
+      err
+    end
+  end
+
+  # Find the object id given a value, a class and conditions.
+  def self.find_object_id(value, klass, conditions)
+    if !value; return nil; end
+    object = klass.find(:first, :conditions => conditions)
+    object ? object.id : -1
   end
 end

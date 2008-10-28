@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Button xmlns:mx="http://www.adobe.com/2006/mxml" icon="{parentApplication.imgExport}" creationComplete="init()" click="exportFile(event)" toolTip="Export">
+	<mx:Script>
+		<![CDATA[
+			import flash.net.URLRequest;
+			import mx.controls.Alert;
+			import org.planigle.planigle.model.FileUtils;
+
+			private var fileRef:FileReference;
+
+			// Initialize my file reference.
+			private function init():void
+			{
+				fileRef = new FileReference();
+            }
+
+			// Show the browse window.
+			private function exportFile(event:Event):void
+			{
+				try
+				{
+					fileRef.download(new URLRequest("../stories/export?_planigle_session_id=" + FileUtils.getSession()), "stories.csv");
+				}
+				catch (error:Error)
+				{
+					Alert.show("Error exporting file");
+				}
+			}
+		]]>
+	</mx:Script>
+</mx:Button>

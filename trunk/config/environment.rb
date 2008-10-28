@@ -60,3 +60,42 @@ end
 
 # Include your application configuration below
 Mime::Type.register "application/x-amf", :amf
+
+# The following code is a work-around for the Flash 8 bug that prevents our multiple file uploader
+# from sending the _session_id.  Here, we hack the Session#initialize method and force the session_id
+# to load from the query string via the request uri. (Tested on Lighttpd, Mongrel, Apache)
+class CGI::Session
+  alias original_initialize initialize
+  def initialize(request, option = {})
+    if (!option[:cookie_only])
+      session_key = option['session_key'] || '_session_id'
+      query_string = if (qs = request.env_table["QUERY_STRING"]) and qs != ""
+        qs
+      elsif (ru = request.env_table["REQUEST_URI"][0..-1]).include?("?")
+        ru[(ru.index("?") + 1)..-1]
+      end
+      query_string = query_string ? CGI.unescape(query_string).sub('%25', '%') : query_string # need to un url encode; for some reason it is not catching %25 -> %
+      if query_string and query_string.include?(session_key)
+        option['session_id'] = query_string.scan(/#{session_key}=(.*?)(&.*?)*$/).flatten.first
+      end
+    end
+    original_initialize(request, option)
+  end
+end
+
+# Override CookieStore to use the session id (which might be from a parameter instead of the cookie).
+class CGI::Session::CookieStore
+  def read_cookie
+    query_string = if (qs = @session.cgi.env_table["QUERY_STRING"]) and qs != ""
+      qs
+    elsif (ru = @session.cgi.env_table["REQUEST_URI"][0..-1]).include?("?")
+      ru[(ru.index("?") + 1)..-1]
+    end
+    query_string = query_string ? CGI.unescape(query_string).sub('%25', '%') : query_string # need to un url encode; for some reason it is not catching %25 -> %
+    if query_string and query_string.include?("_planigle_session_id")
+      @session.session_id
+    else
+      @session.cgi.cookies[@cookie_options['name']].first
+    end
+  end
+end

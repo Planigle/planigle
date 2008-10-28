@@ -72,6 +72,7 @@
 			setTeamWatcher(event);
 			setIndividualFilterList();
 			handleFilter(event);
+			storyBtnImport.onCompletion(setSuccessMessage, setErrorMessage);
 		}
 
 		private var watcher:ChangeWatcher;
@@ -97,7 +98,7 @@
 		private function setMessage(message:String):void
 		{
 			_error = message;
-			storyError.height = message == "" ? 0 : 22;
+			storyError.height = message == "" ? 0 : NaN;
 			vbox.setStyle( "verticalGap", message == "" ? 0 : 6 );
 		}
 
@@ -1146,11 +1147,13 @@
 							<mx:Object label="All Statuses" value="-1" />
 						</mx:ComboBox>
 					</mx:HBox>
-					<mx:Button label="Add Existing" click="handleAdd(event);" id="storyBtnAddExisting" visible="{shouldShowExisting()}"/>
-					<mx:Button label="Create" click="showCreateStory(event);" id="storyBtnCreate" visible="{factory.currentIndividual.isAtLeastProjectUser()}"/>
-					<mx:Button label="Update" click="showUpdate(event);" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnUpdateMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser()}"/>
-					<mx:Button label="Delete" click="showDelete(event);" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnDeleteMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser()}"/>
-					<mx:Button label="View Surveys" click="handleSurveys(event);" id="storyBtnViewSurveys"/>
+					<mx:Button icon="{parentApplication.imgExisting}" toolTip="Move Existing" click="handleAdd(event);" id="storyBtnAddExisting" visible="{shouldShowExisting()}"/>
+					<mx:Button icon="{parentApplication.imgAdd}" toolTip="Create" click="showCreateStory(event);" id="storyBtnCreate" visible="{factory.currentIndividual.isAtLeastProjectUser()}"/>
+					<mx:Button icon="{parentApplication.imgEdit}" toolTip="Update" click="showUpdate(event);" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnUpdateMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser()}"/>
+					<mx:Button icon="{parentApplication.imgCross}" toolTip="Delete" click="showDelete(event);" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnDeleteMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser()}"/>
+					<component:ImportButton id="storyBtnImport" visible="{factory.currentIndividual.isAtLeastProjectUser()}"/>
+					<component:ExportButton id="storyBtnExport"/>
+					<mx:Button icon="{parentApplication.imgSurveys}" toolTip="View Surveys" click="handleSurveys(event);" id="storyBtnViewSurveys"/>
 				</mx:HBox>
 				<mx:HBox width="100%" horizontalAlign="center">
 					<mx:Label text="Number of Stories:" fontWeight="bold"/>
@@ -1194,14 +1197,14 @@
 				<mx:DataGridColumn headerText="Public" width="60" dataField="isPublic"/>
 				<mx:DataGridColumn headerText="Rank" width="65" dataField="normalizedPriority" sortCompareFunction="ViewHelper.sortPriority"/>
 				<mx:DataGridColumn headerText="User Rank" width="90" dataField="modifiedUserPriority" sortCompareFunction="ViewHelper.sortUserPriority"/>
-				<mx:DataGridColumn editable="false" width="140" minWidth="140" sortable="false">
+				<mx:DataGridColumn editable="false" width="170" minWidth="140" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0" width="100%">
 								<mx:LinkButton id="storyBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);" visible="{outerDocument.shouldShow(data)}"/>
 								<mx:LinkButton id="storyBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.shouldShow(data)}"/>
 								<mx:LinkButton id="taskBtnAdd" icon="{parentApplication.imgAdd}" toolTip="Add Task" click="outerDocument.showCreateTask(event);" visible="{outerDocument.shouldShowStory(data)}"/>
-								<mx:LinkButton id="storyBtnSplit" icon="{parentApplication.imgExport}" toolTip="Split" click="outerDocument.showSplit(event);" visible="{outerDocument.shouldShowStory(data)}"/>
+								<mx:LinkButton id="storyBtnSplit" icon="{parentApplication.imgSplit}" toolTip="Split" click="outerDocument.showSplit(event);" visible="{outerDocument.shouldShowStory(data)}"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>

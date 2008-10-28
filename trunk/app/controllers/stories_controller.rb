@@ -1,5 +1,42 @@
 class StoriesController < ResourceController
   before_filter :login_required
+  session :cookie_only => false, :only => [:import, :export]
+  
+  # POST /stories/import               Imports new/existing stories.
+  # POST /stories/import.xml
+  def import
+    errors = nil
+    Story.transaction do
+      errors = Story.import(current_individual, params['Filedata'].read)
+      if errors.detect {|error| !error.empty?}
+        raise "Errors importing data"
+      end
+      render :xml => xml_result("Data was successfully imported")
+    end
+  rescue
+    if errors
+      builder = Builder::XmlMarkup.new
+      builder.instruct!
+      result = builder.errors do
+        row = 2 # includes header row
+        errors.each do |error|
+          if error.full_messages.length>0
+            error.full_messages.each {|message| builder.error('Row ' + row.to_s + ': ' + message)}
+            row += 1
+          end
+        end
+      end
+    else
+      result = xml_error("File format is invalid (must be CSV / comma separated values)")
+    end
+    render :xml => result, :status => :unprocessable_entity
+  end
+  
+  # POST /stories/export               Exports stories.
+  # POST /stories/export.xml
+  def export
+    render :text => Story.export(current_individual)
+  end
   
   # Split the story (tasks which have not been accepted will automatically be put in the new story).
   # GET /stories/1/split                Returns a template for the new story.
