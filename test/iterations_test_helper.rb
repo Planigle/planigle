@@ -51,7 +51,7 @@ module IterationsTestHelper
 
   # Verify that the object was deleted.
   def assert_delete_succeeded
-    assert_nil Iteration.find_by_name('second')
+    assert_nil Iteration.find_by_name('second', :conditions => 'project_id=1')
   end
 
   # Verify that the object was not deleted.

@@ -51,7 +51,7 @@ module TeamsTestHelper
 
   # Verify that the object was deleted.
   def assert_delete_succeeded
-    assert_nil Team.find_by_name('test2')
+    assert_nil Team.find_by_name('test2', :conditions => 'project_id=1')
   end
 
   # Verify that the object was not deleted.

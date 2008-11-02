@@ -253,16 +253,31 @@
 			var stories:ArrayCollection = new ArrayCollection();
 			for each (var story:Story in StoryFactory.getInstance().stories)
 			{
-				if (matchesFilters(story))
+				if (matchesStoryFilters(story))
 					stories.addItem(story);
 			}
 			return stories;
 		}
 
 		// Answer whether a story matches the filters.
-		private function matchesFilters(story:Story):Boolean
+		private function matchesStoryFilters(story:Story):Boolean
 		{
-			return matchesReleaseFilter(story) && matchesIterationFilter(story) && matchesTeamFilter(story) && matchesIndividualFilter(story) && matchesStatusFilter(story);
+			var tasksMatchIndividual:Boolean = false;
+			for each (var task:Task in story.tasks)
+			{
+				if (matchesIndividualFilter(task))
+				{
+					tasksMatchIndividual = true;
+					break;
+				}
+			}
+			return matchesReleaseFilter(story) && matchesIterationFilter(story) && matchesTeamFilter(story) && (tasksMatchIndividual || matchesIndividualFilter(story)) && matchesStatusFilter(story);
+		}
+
+		// Answer whether a task matches the filters.
+		private function matchesTaskFilters(task:Task):Boolean
+		{
+			return matchesIndividualFilter(task) && matchesStatusFilter(task);
 		}
 
 		// Answer whether the story matches the release filter.
@@ -283,18 +298,18 @@
 			return !team.selectedItem || team.selectedItem.id == "-1" || story.teamId == team.selectedItem.id;
 		}
 
-		// Answer whether the story matches the individual filter.
-		private function matchesIndividualFilter(story:Story):Boolean
+		// Answer whether the story/task matches the individual filter.
+		private function matchesIndividualFilter(item:Object):Boolean
 		{
-			return !individual.selectedItem || individual.selectedItem.id == "-1" || story.individualId == individual.selectedItem.id;
+			return !individual.selectedItem || individual.selectedItem.id == "-1" || item.individualId == individual.selectedItem.id;
 		}
 
-		// Answer whether the story matches the storyStatus filter.
-		private function matchesStatusFilter(story:Story):Boolean
+		// Answer whether the story/task matches the status filter.
+		private function matchesStatusFilter(item:Object):Boolean
 		{
-			return storyStatus.selectedItem.value == -1 ||
-				(storyStatus.selectedItem.value == -2 && (story.statusCode == Story.CREATED || story.statusCode == Story.IN_PROGRESS || story.statusCode == Story.BLOCKED)) ||
-				storyStatus.selectedItem.value == story.statusCode;
+			return itemStatus.selectedItem.value == -1 ||
+				(itemStatus.selectedItem.value == -2 && (item.statusCode == Story.CREATED || item.statusCode == Story.IN_PROGRESS || item.statusCode == Story.BLOCKED)) ||
+				itemStatus.selectedItem.value == item.statusCode;
 		}
 
 		// Handle filtering by release.
@@ -309,7 +324,6 @@
 		{
 			storyColumnIteration.visible = !iteration.selectedItem || iteration.selectedItem.id == "-1";
 			storyColumnTeam.visible = IndividualFactory.current().project && IndividualFactory.current().project.teams.length > 0 && (!team.selectedItem || team.selectedItem.id == "-1");
-			storyColumnIndividual.visible = !individual.selectedItem || individual.selectedItem.id == "-1";
 			var justStories:ArrayCollection = getFilteredStories();
 			storiesCount.text = justStories.length.toString();
 			var storiesAndTasks:ArrayCollection = new ArrayCollection;
@@ -318,7 +332,10 @@
 				storiesAndTasks.addItem(story);
 				if (story.isExpanded())
 					for each (var task:Task in story.tasks)
-						storiesAndTasks.addItem(task);
+					{
+						if (matchesTaskFilters(task))
+							storiesAndTasks.addItem(task);
+					}
 			}
 			filteredStories = storiesAndTasks;
 			storyBtnAddExisting.visible = shouldShowExisting();
@@ -450,6 +467,7 @@
 		// Prepare the form for a story.
 		private function prepareForStory():void
 		{
+			storyNameForm.label = "Story Name";
 			storyFieldName.maxChars=250;
 			storyFieldName.width=500;
 			storyFormRelease.height = ReleaseFactory.getInstance().releaseSelector.length > 1 ? 22 : 0;
@@ -467,6 +485,7 @@
 		// Prepare the form for a task.
 		private function prepareForTask():void
 		{
+			storyNameForm.label = "Task Name";
 			storyFieldName.maxChars=40;
 			storyFieldName.width=350;
 			storyFormRelease.height = 0;
@@ -747,7 +766,9 @@
 			}
 			showCreate(currentItem == null);
 			if (currentItem != null) defaultTaskOwner();
-			setSuccessMessage( currentItem == null ? "Story was successfully created." + (matchesFilters(Story(newItem)) ? "" : "  Story does not show in list due to current filtering.") : "Task was successfully created.");
+			setSuccessMessage( currentItem == null ?
+				"Story was successfully created." + (matchesStoryFilters(Story(newItem)) ? "" : "  Story does not show in list due to current filtering.") :
+				"Task was successfully created." + (matchesTaskFilters(Task(newItem)) ? "" : "  Task does not show in list due to current filtering."));
 		}
 
 		// Handle a successful change.
@@ -1006,6 +1027,26 @@
 			storyFormReasonBlocked.visible = blocked;
 			blocked ? null : storyFieldReasonBlocked.text = "";
 		}
+		
+		// Answer a label for my expand button.
+		public function expandLabel(item:Object):String
+		{
+			if (item.isStory())
+			{
+				var hasTask:Boolean = false;
+				for each (var task:Task in item.tasks)
+				{
+					if (matchesTaskFilters(task))
+						hasTask = true;
+				}
+				if (hasTask)
+					return item.isExpanded() ? "-" : "+";
+				else
+					return "";			
+			}
+			else
+				return "";
+		}
 		]]>
 	</mx:Script>
  	
@@ -1019,7 +1060,7 @@
 							<mx:HBox>
 								<mx:VBox>
 									<mx:Form id="changeForm" defaultButton="{storyBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
-										<mx:FormItem label='Name' required="true">
+										<mx:FormItem id="storyNameForm" label='Name' required="true">
 											<mx:TextInput id='storyFieldName' maxChars="250" text='' width="500"/>
 										</mx:FormItem>
 										<mx:FormItem label='Description'>
@@ -1138,7 +1179,7 @@
 						<mx:ComboBox id='iteration' width="115" editable="false" dataProvider="{iterationFilter}" labelField="name" change="handleFilter(event)"></mx:ComboBox>
 						<component:TeamSelector id='team' change="handleFilter(event)"></component:TeamSelector>
 						<mx:ComboBox id='individual' width="115" editable="false" dataProvider="{individualFilter}" labelField="fullName" change="handleFilter(event)"></mx:ComboBox>
-						<mx:ComboBox id='storyStatus' width="116" editable="false" change="handleFilter(event)" selectedIndex="3">
+						<mx:ComboBox id='itemStatus' width="116" editable="false" change="handleFilter(event)" selectedIndex="3">
 							<mx:Object label="Created" value="0" />
 							<mx:Object label="In Progress" value="1" />
 							<mx:Object label="Blocked" value="2" />
@@ -1170,7 +1211,7 @@
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
-								<mx:LinkButton id="storyBtnExpand" label="{data.expandLabel()}" click="outerDocument.expand(event);"/>		 	
+								<mx:LinkButton id="storyBtnExpand" label="{outerDocument.expandLabel(data)}" click="outerDocument.expand(event);"/>		 	
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>
@@ -1184,7 +1225,7 @@
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
-							<mx:ComboBox width="100%" editable="false" selectedIndex="{data.statusCode}" change="outerDocument.updateStatus(data, event)" enabled="{outerDocument.factory.currentIndividual.isAtLeastProjectUser()}">
+							<mx:ComboBox maxHeight="18" width="100%" editable="false" selectedIndex="{data.statusCode}" change="outerDocument.updateStatus(data, event)" enabled="{outerDocument.factory.currentIndividual.isAtLeastProjectUser()}">
 								<mx:Object label="Created" value="0" />
 								<mx:Object label="In Progress" value="1" />
 								<mx:Object label="Blocked" value="2" />
@@ -1197,7 +1238,7 @@
 				<mx:DataGridColumn headerText="Public" width="60" dataField="isPublic"/>
 				<mx:DataGridColumn headerText="Rank" width="65" dataField="normalizedPriority" sortCompareFunction="ViewHelper.sortPriority"/>
 				<mx:DataGridColumn headerText="User Rank" width="90" dataField="modifiedUserPriority" sortCompareFunction="ViewHelper.sortUserPriority"/>
-				<mx:DataGridColumn editable="false" width="170" minWidth="140" sortable="false">
+				<mx:DataGridColumn editable="false" width="140" minWidth="140" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0" width="100%">

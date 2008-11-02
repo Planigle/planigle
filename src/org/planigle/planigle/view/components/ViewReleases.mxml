@@ -210,7 +210,7 @@
 			<mx:AddChild relativeTo="{releaseResourceGrid}" position="before">
 				<mx:target>
 					<mx:Form id="releaseChangeForm" defaultButton="{releaseBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
-						<mx:FormItem label='Name' required="true">
+						<mx:FormItem label='Release Name' required="true">
 							<mx:TextInput id='releaseFieldName' maxChars="40" text='' width="350"/>
 						</mx:FormItem>
 						<mx:FormItem label='Start' required="true">

@@ -68,7 +68,7 @@ class Story < ActiveRecord::Base
         headers_shown = true
         process_headers(row, header_mapping)
       else
-        errors.push(store_values(current_user, process_values(row, header_mapping)))
+        errors.push(store_values(current_user, process_values(current_user, row, header_mapping)))
       end
     end
     errors
@@ -256,7 +256,7 @@ private
 
   # Process the import values given a row and a hash of headers mapping index=>attribute.  Return a hash
   # of values (mapping attribute=>value).
-  def self.process_values(row, header_mapping)
+  def self.process_values(current_user, row, header_mapping)
     values = {}
     (0..row.length-1).each do |i|
       if i < header_mapping.length  # ignore columns with no header
@@ -264,10 +264,10 @@ private
         value = row[i]
         if (header && header != :ignore)
           case header
-            when :team_id then value = find_object_id(value, Team, ['name = ?', value])
-            when :individual_id then value = find_object_id(value, Individual, ["concat(first_name, ' ', last_name) = ?", value])
-            when :release_id then temp = find_object_id(value, Release, ['name = ?', value]); value = temp == -1 ? value = find_object_id(value, Release, ['name like ?', value.to_s+'%']) : temp
-            when :iteration_id then value = find_object_id(value, Iteration, ['name = ?', value])
+            when :team_id then value = find_object_id(value, Team, ['name = ? and project_id = ?', value, current_user.project_id])
+            when :individual_id then value = find_object_id(value, Individual, ["concat(first_name, ' ', last_name) = ? and project_id = ?", value, current_user.project_id])
+            when :release_id then temp = find_object_id(value, Release, ['name = ? and project_id = ?', value, current_user.project_id]); value = temp == -1 ? value = find_object_id(value, Release, ['name like ? and project_id = ?', value.to_s+'%', current_user.project_id]) : temp
+            when :iteration_id then value = find_object_id(value, Iteration, ['name = ? and project_id = ?', value, current_user.project_id])
             when :status_code then value = status_code_mapping.has_key?(value) ? status_code_mapping[value] : -1
             when :effort then value = value ? value.to_f : value
           end

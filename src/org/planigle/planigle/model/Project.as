@@ -1,12 +1,12 @@
 package org.planigle.planigle.model
 {
 	import mx.collections.ArrayCollection;
+	import mx.collections.Sort;
+	import mx.collections.SortField;
 	
-	import org.planigle.planigle.model.IndividualFactory;
-	import org.planigle.planigle.model.Individual;
+	import org.planigle.planigle.commands.CreateTeamCommand;
 	import org.planigle.planigle.commands.DeleteProjectCommand;
 	import org.planigle.planigle.commands.UpdateProjectCommand;
-	import org.planigle.planigle.commands.CreateTeamCommand;
 
 	[RemoteClass(alias='Project')]
 	[Bindable]
@@ -63,22 +63,34 @@ package org.planigle.planigle.model
 		// Set my teams.
 		public function set teams(teams:Array):void
 		{
-			myTeams = teams;
-
+			teams.sortOn("name", Array.CASEINSENSITIVE);
 			var newTeamSelector:ArrayCollection = new ArrayCollection();
 			teamMapping = new Object();
-
 			for each (var team:Team in teams)
 			{
 				team.project = this;
 				newTeamSelector.addItem(team);
 				teamMapping[team.id] = team;
 			}
+				
+			myTeams = teams;
 			
 			var tm:Team = new Team();
 			tm.populate( <team><id nil="true" /><name>No Team</name></team> );
 			newTeamSelector.addItem( tm );
 			teamSelector = newTeamSelector;
+		}
+
+		// Resort my teams.
+		public function resort():void
+		{
+			teams=teams.concat(); // set to a copy
+
+			// Create copy to ensure any views get notified of changes.
+			var projects:ArrayCollection = new ArrayCollection();
+			for each (var project:Project in ProjectFactory.getInstance().projects)
+				projects.addItem(project);
+			ProjectFactory.getInstance().updateProjects(projects);
 		}
 
 		// Answer my individuals.

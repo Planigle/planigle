@@ -60,6 +60,7 @@ package org.planigle.planigle.model
 		public function updateCompleted(xml:XML):void
 		{
 			populate(xml);
+			story.resort();
 		}
 		
 		// Delete me.  Success function if successfully deleted.  FailureFunction will be called if failed
@@ -87,12 +88,6 @@ package org.planigle.planigle.model
 		public function isStory():Boolean
 		{
 			return false;
-		}
-
-		// Answer a label for my expand button.
-		public function expandLabel():String
-		{
-			return "";	
 		}
 		
 		// Answer my background color.

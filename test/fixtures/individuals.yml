@@ -79,3 +79,16 @@ admin2:
   crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
   activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9c 
   activated_at: <%= 5.days.ago.to_s :db %> 
+
+user2:
+  id: 7
+  role: 2
+  project_id: 2
+  login: user2
+  first_name: user
+  last_name: williams
+  email: user2@example.com
+  salt: salt
+  crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
+  activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9c 
+  activated_at: <%= 5.days.ago.to_s :db %> 
