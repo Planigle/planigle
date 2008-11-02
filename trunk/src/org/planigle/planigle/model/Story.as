@@ -1,6 +1,8 @@
 package org.planigle.planigle.model
 {
 	import mx.collections.ArrayCollection;
+	import mx.collections.Sort;
+	import mx.collections.SortField;
 	
 	import org.planigle.planigle.commands.CreateTaskCommand;
 	import org.planigle.planigle.commands.DeleteStoryCommand;
@@ -72,9 +74,17 @@ package org.planigle.planigle.model
 		// Set my tasks.
 		public function set tasks(tasks:Array):void
 		{
-			myTasks = tasks;
-			for each (var task:Task in myTasks)
+			tasks.sortOn(["statusCode", "name"], [Array.NUMERIC | Array.DESCENDING, Array.CASEINSENSITIVE]);
+			for each (var task:Task in tasks)
 				task.story = this;
+
+			myTasks = tasks;
+		}
+
+		// Resort my tasks.
+		public function resort():void
+		{
+			tasks=tasks.concat(); // set to a copy
 		}
 
 		// For stories, the list name is the same as the name.
@@ -138,8 +148,17 @@ package org.planigle.planigle.model
 		// I have been successfully updated.  Change myself to reflect the changes.
 		public function updateCompleted(xml:XML):void
 		{
+			var currentStatus:int = statusCode;
 			populate(xml);
 			StoryFactory.getInstance().normalizePriorities()
+			if (currentStatus != ACCEPTED && statusCode == ACCEPTED)
+			{
+				for each (var task:Task in tasks)
+				{
+					if (task.statusCode != ACCEPTED)
+						task.update({'record[status_code]': ACCEPTED}, null, null);
+				}
+			}
 		}
 		
 		// Split me.  Params should be of the format (record[param]).  Success function
@@ -252,15 +271,6 @@ package org.planigle.planigle.model
 		public function isStory():Boolean
 		{
 			return true;
-		}
-		
-		// Answer a label for my expand button.
-		public function expandLabel():String
-		{
-			if (tasks.length == 0)
-				return "";
-			else
-				return isExpanded() ? "-" : "+";
 		}
 		
 		// Answer my background color.  -1 means use the default.

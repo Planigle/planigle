@@ -89,6 +89,7 @@
 		// Prepare the fields to create / edit a project.
 		private function prepareForProject():void
 		{
+			projectNameForm.label = "Project Name";
 			projectFormSurveyMode.visible = true;
 			projectFormSurveyMode.height = 22;
 			projectFormSurveyUrl.visible = true;
@@ -122,6 +123,7 @@
 		// Prepare the fields to create / edit a team.
 		private function prepareForTeam():void
 		{
+			projectNameForm.label = "Team Name";
 			projectFormSurveyMode.visible = false;
 			projectFormSurveyMode.height = 0;
 			projectFormSurveyUrl.visible = false;
@@ -299,27 +301,37 @@
 			<mx:RemoveChild target="{projectBtnCreate}"/>
 			<mx:AddChild relativeTo="{projectResourceGrid}" position="before">
 				<mx:target>
-					<mx:Form id="projectChangeForm" defaultButton="{projectBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
-						<mx:FormItem label='Name' required="true">
-							<mx:TextInput id='projectFieldName' maxChars="40" text='' width="350"/>
-						</mx:FormItem>
-						<mx:FormItem label='Description'>
-							<mx:TextArea id='projectFieldDescription' maxChars="4096" height="64" width="500"><mx:text/></mx:TextArea>
-						</mx:FormItem>
-						<mx:FormItem id='projectFormPremiumExpiry' label='Premium Expiry' required="true">
-							<mx:DateField id='projectFieldPremiumExpiry' editable="true" showToday="true" width="100"/>
-						</mx:FormItem>
-						<mx:FormItem id='projectFormPremiumLimit' label='Premium Limit (# Users)' required="true">
-							<mx:TextInput id='projectFieldPremiumLimit' restrict="0-9" text='' width="350"/>
-						</mx:FormItem>
-						<mx:FormItem id="projectFormSurveyMode" label='Stories'>
-							<mx:ComboBox id='projectFieldSurveyMode' width="350" editable="false">
-								<mx:Object label="Private" value="0" />
-								<mx:Object label="Private by Default" value="1" />
-								<mx:Object label="Public by Default" value="2" />
-							</mx:ComboBox>
-						</mx:FormItem>
-						<mx:FormItem id="projectFormSurveyUrl" label='Survey URL' visible="{projectFieldSurveyMode.selectedIndex > 0}" height="{projectFieldSurveyMode.selectedIndex > 0 ? 20 : 0}">
+					<mx:VBox>
+						<mx:HBox>
+							<mx:VBox>
+								<mx:Form id="projectChangeForm" defaultButton="{projectBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
+									<mx:FormItem id="projectNameForm" label='Name' required="true">
+										<mx:TextInput id='projectFieldName' maxChars="40" text='' width="350"/>
+									</mx:FormItem>
+									<mx:FormItem label='Description'>
+										<mx:TextArea id='projectFieldDescription' maxChars="4096" height="64" width="500"><mx:text/></mx:TextArea>
+									</mx:FormItem>
+								</mx:Form>
+							</mx:VBox>
+							<mx:VBox>
+								<mx:Form id="projectChangeForm2" defaultButton="{projectBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
+									<mx:FormItem id="projectFormSurveyMode" label='Stories'>
+										<mx:ComboBox id='projectFieldSurveyMode' width="350" editable="false">
+											<mx:Object label="Private" value="0" />
+											<mx:Object label="Private by Default" value="1" />
+											<mx:Object label="Public by Default" value="2" />
+										</mx:ComboBox>
+									</mx:FormItem>
+									<mx:FormItem id='projectFormPremiumExpiry' label='Premium Expiry' required="true">
+										<mx:DateField id='projectFieldPremiumExpiry' editable="true" showToday="true" width="100"/>
+									</mx:FormItem>
+									<mx:FormItem id='projectFormPremiumLimit' label='Premium Limit (# Users)' required="true">
+										<mx:TextInput id='projectFieldPremiumLimit' restrict="0-9" text='' width="350"/>
+									</mx:FormItem>
+								</mx:Form>
+							</mx:VBox>
+						</mx:HBox>
+						<mx:FormItem id="projectFormSurveyUrl" label='      Survey URL' visible="{projectFieldSurveyMode.selectedIndex > 0}" height="{projectFieldSurveyMode.selectedIndex > 0 ? 20 : 0}">
 							<mx:Label id="projectLabelSurveyUrl" selectable="true"/>
 						</mx:FormItem>
 						<mx:ControlBar width="100%">
@@ -327,7 +339,7 @@
 							<mx:Button label="Change" id="projectBtnChange" click="changeResource(event)"/>
 							<mx:LinkButton label="Cancel" id="projectBtnCancel" click="resetState(event)"/>
 						</mx:ControlBar>
-					</mx:Form>	
+					</mx:VBox>
 				</mx:target>
 			</mx:AddChild>
 		</mx:State>

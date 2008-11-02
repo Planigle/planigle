@@ -58,6 +58,8 @@ class FlexAtasksTest < Test::Unit::TestCase
   
   # Edit multiple tasks through the button at the top.
   def edit_multiple
+    @ie.combo_box("itemStatus").open
+    @ie.combo_box("itemStatus").select(:item_renderer => 'All Statuses' )
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
     @ie.data_grid("storyResourceGrid").select(:item_renderer => "     test")
     @ie.data_grid("storyResourceGrid").select(:item_renderer => "     test2", :ctrl_key => "true")
@@ -74,14 +76,14 @@ class FlexAtasksTest < Test::Unit::TestCase
     @ie.button("updateBtnOk").click
     assert_equal '', @ie.text_area("storyError").text
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",     test,,,aaron hank,3,Created, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 2, :end => 2)
-    assert_equal ",     test2,,,aaron hank,2,Created, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 3, :end => 3)
+    assert_equal ",     test,,,aaron hank,3,Created, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 3, :end => 3)
+    assert_equal ",     test2,,,aaron hank,2,Created, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 4, :end => 4)
   end
 
   # Test edit (in one stream for more efficiency).
   def test_edit
     init('admin2')
-    assert_equal Story.count(:conditions => ['project_id = ? and status_code < 2', projects(:first).id]) + Task.count(:conditions => ['story_id = ?', stories(:first).id]), @ie.data_grid("storyResourceGrid").num_rows
+    assert_equal Story.count(:conditions => ['project_id = ? and status_code < 2', projects(:first).id]) + Task.count(:conditions => ['story_id = ? and status_code < 3', stories(:first).id]), @ie.data_grid("storyResourceGrid").num_rows
     edit_task_failure
     edit_task_success
   end 
@@ -104,7 +106,7 @@ class FlexAtasksTest < Test::Unit::TestCase
   def test_project_admin
     init('aaron')
     @ie.button("storyBtnExpand")[1].click # In position 1 in some cases
-    assert_equal Story.count(:conditions => ['project_id = ? and status_code < 2', projects(:first).id]) + Task.count(:conditions => ['story_id = ?', stories(:first).id]), @ie.data_grid("storyResourceGrid").num_rows
+    assert_equal Story.count(:conditions => ['project_id = ? and status_code < 2', projects(:first).id]) + Task.count(:conditions => ['story_id = ? and status_code < 3', stories(:first).id]), @ie.data_grid("storyResourceGrid").num_rows
     assert @ie.button("taskBtnAdd")[2].visible
     assert @ie.button("storyBtnEdit")[3].visible
     assert @ie.button("storyBtnDelete")[3].visible
@@ -113,7 +115,7 @@ class FlexAtasksTest < Test::Unit::TestCase
   # Test logging in as a story user
   def test_project_user
     init('user')
-    assert_equal Story.count(:conditions => ['project_id = ? and status_code < 2', projects(:first).id]) + Task.count(:conditions => ['story_id = ?', stories(:first).id]), @ie.data_grid("storyResourceGrid").num_rows
+    assert_equal Story.count(:conditions => ['project_id = ? and status_code < 2', projects(:first).id]) + Task.count(:conditions => ['story_id = ? and status_code < 3', stories(:first).id]), @ie.data_grid("storyResourceGrid").num_rows
     assert @ie.button("taskBtnAdd")[2].visible
     assert @ie.button("storyBtnEdit")[3].visible
     assert @ie.button("storyBtnDelete")[3].visible
@@ -122,7 +124,7 @@ class FlexAtasksTest < Test::Unit::TestCase
   # Test logging in as a read only user
   def test_read_only
     init('readonly')
-    assert_equal Story.count(:conditions => ['project_id = ? and status_code < 2', projects(:first).id]) + Task.count(:conditions => ['story_id = ?', stories(:first).id]), @ie.data_grid("storyResourceGrid").num_rows
+    assert_equal Story.count(:conditions => ['project_id = ? and status_code < 2', projects(:first).id]) + Task.count(:conditions => ['story_id = ? and status_code < 3', stories(:first).id]), @ie.data_grid("storyResourceGrid").num_rows
     assert !@ie.button("taskBtnAdd")[2].visible
     assert !@ie.button("storyBtnEdit")[3].visible
     assert !@ie.button("storyBtnDelete")[3].visible
@@ -183,7 +185,7 @@ private
     assert_equal 'Created', @ie.combo_box("storyFieldStatus").text
     assert_not_nil @ie.button("storyBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",     foo,,,ted williams,1,Blocked, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 4, :end => 4)
+    assert_equal ",     foo,,,ted williams,1,Blocked, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 2, :end => 2)
     @ie.button("storyBtnCancel").click
   end
     
@@ -245,7 +247,7 @@ private
     assert_equal '', @ie.text_area("storyError").text
     assert_nil @ie.button("storyBtnCancel")
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",     foo 1,,,ted williams,1,Blocked, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 3, :end => 3)
+    assert_equal ",     foo 1,,,ted williams,1,Blocked, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 2, :end => 2)
   end
     
   # Test whether you can successfully cancel editing a task.
@@ -260,7 +262,7 @@ private
 
   # Edit a task.
   def edit_task(name, description, owner, effort, status, reason_blocked="")
-    @ie.button("storyBtnEdit")[3].click
+    @ie.button("storyBtnEdit")[4].click
     @ie.text_area("storyFieldName").input(:text => name )
     @ie.text_area("storyFieldDescription").input(:text => description )
     @ie.combo_box("storyFieldOwner").open
@@ -276,7 +278,7 @@ private
   # Test deleting a task.
   def delete_task_cancel
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
-    @ie.button("storyBtnDelete")[3].click
+    @ie.button("storyBtnDelete")[4].click
     @ie.alert("Delete")[0].button("No").click
     assert_equal '', @ie.text_area("storyError").text
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
@@ -285,7 +287,7 @@ private
   # Test deleting a task.
   def delete_task
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
-    @ie.button("storyBtnDelete")[3].click
+    @ie.button("storyBtnDelete")[4].click
     @ie.alert("Delete")[0].button("Yes").click
     sleep 1 # Wait for it to take effect.
     assert_equal '', @ie.text_area("storyError").text

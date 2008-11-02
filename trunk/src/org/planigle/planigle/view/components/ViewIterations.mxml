@@ -211,7 +211,7 @@
 			<mx:AddChild relativeTo="{iterationResourceGrid}" position="before">
 				<mx:target>
 					<mx:Form id="iterationChangeForm" defaultButton="{iterationBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
-						<mx:FormItem label='Name' required="true">
+						<mx:FormItem label='Iteration Name' required="true">
 							<mx:TextInput id='iterationFieldName' maxChars="40" text='' width="350"/>
 						</mx:FormItem>
 						<mx:FormItem label='Start' required="true">

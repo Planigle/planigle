@@ -97,16 +97,18 @@
 			factory.currentIndividual.isAdmin() ? individualFieldProject.setFocus() : (individualFormTeam.visible ? individualFieldTeam.setFocus() : individualFieldLogin.setFocus());
 
 			var it:String = factory.currentIndividual.projectId;
-			if (it)
+			if (group)
+				individualFieldProject.selectedItem = group.isProject() ? group : group.project;
+			else if (it)
 				individualFieldProject.selectedItem = ProjectFactory.getInstance().find(it);
-			else if (group)
-				individualFieldProject.selectedItem = group;
 			else
 				individualFieldProject.selectedIndex = ProjectFactory.getInstance().projectSelector.length - 1;
 
 			updateTeam(event);
 			var it2:String = factory.currentIndividual.teamId;
-			if (it2)
+			if (group && !group.isProject())
+				individualFieldTeam.selectedItem = group;
+			else if (it2)
 				individualFieldTeam.selectedItem = individualFieldProject.selectedItem.find(it2);
 			else
 				individualFieldTeam.selectedIndex = individualFieldProject.selectedItem.teamSelector.length - 1;
