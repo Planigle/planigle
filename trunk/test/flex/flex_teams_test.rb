@@ -143,8 +143,8 @@ private
 
   # Create a team.
   def create_team(name, description)
-    @ie.text_area("projectFieldName").input(:text => name )
     @ie.text_area("projectFieldDescription").input(:text => description )
+    @ie.text_area("projectFieldName").input(:text => name ) # Do name last due to timing issue
   end
     
   # Test whether error handling works for editing a team.
@@ -186,8 +186,8 @@ private
   # Edit a team.
   def edit_team(name, description)
     @ie.button("projectBtnEdit")[2].click
-    @ie.text_area("projectFieldName").input(:text => name )
     @ie.text_area("projectFieldDescription").input(:text => description )
+    @ie.text_area("projectFieldName").input(:text => name ) # Do name last due to timing issue
   end
 
   # Select a team to see what is displayed in individuals.

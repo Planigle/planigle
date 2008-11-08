@@ -76,8 +76,12 @@ class StoriesController < ResourceController
       if should_update
         Survey.update_rankings(@record.project).each {|story| story.save(false)}
       end
-      if !blocked_before && @record.is_blocked && (!current_individual.team_id || current_individual.team_id = @record.team_id)
-        current_individual.send_notification(@record.blocked_message)
+      if !blocked_before && @record.is_blocked
+        @record.project.individuals.each do |individual|
+          if !individual.team_id || individual.team_id == @record.team_id
+            individual.send_notification(@record.blocked_message)
+          end
+        end
       end
     end
   rescue ActiveRecord::RecordNotFound

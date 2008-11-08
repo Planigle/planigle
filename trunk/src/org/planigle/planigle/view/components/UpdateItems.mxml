@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="670" height="360">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:component="org.planigle.planigle.view.components.*" width="670" height="360">
 	<mx:Script>
 		<![CDATA[
 			// Update items provided via items variable..
@@ -56,37 +56,44 @@
 					teams.addItem(team);
 
 				individuals.addItem(noChange);
-				for each (var individual:Individual in IndividualFactory.getInstance().individualSelector)
+				for each (var individual:Individual in IndividualFactory.current().project.individuals())
 					individuals.addItem(individual);
 			}
 						
 			// Update the specified items.
 			private function updateItems(event:Event):void
 			{
-				var params:Object = new Object();
+				var storyParams:Object = new Object();
+				var taskParams:Object = new Object();
 				if (updateFieldIteration.selectedItem.id != "-1")
-					params['record[iteration_id]'] = updateFieldIteration.selectedItem.id ? updateFieldIteration.selectedItem.id : ""
+					storyParams['record[iteration_id]'] = updateFieldIteration.selectedItem.id ? updateFieldIteration.selectedItem.id : ""
 				if (updateFieldRelease.selectedItem.id != "-1")
-					params['record[release_id]'] = updateFieldRelease.selectedItem.id ? updateFieldRelease.selectedItem.id : ""
+					storyParams['record[release_id]'] = updateFieldRelease.selectedItem.id ? updateFieldRelease.selectedItem.id : ""
 				if (updateFieldTeam.selectedItem.id != "-1")
-					params['record[team_id]'] = updateFieldTeam.selectedItem.id ? updateFieldTeam.selectedItem.id : ""
+					storyParams['record[team_id]'] = updateFieldTeam.selectedItem.id ? updateFieldTeam.selectedItem.id : ""
 				if (updateFieldOwner.selectedItem.id != "-1")
-					params['record[individual_id]'] = updateFieldOwner.selectedItem.id ? updateFieldOwner.selectedItem.id : ""
+				{
+					storyParams['record[individual_id]'] = updateFieldOwner.selectedItem.id ? updateFieldOwner.selectedItem.id : ""
+					taskParams['record[individual_id]'] = storyParams['record[individual_id]']
+				}
 				if (updateFieldStatus.selectedItem.value != "-1")
 				{
-					params['record[status_code]'] = updateFieldStatus.selectedItem.value
-					params['record[reason_blocked]'] = updateFieldReasonBlocked.text
+					storyParams['record[status_code]'] = updateFieldStatus.selectedItem.value
+					taskParams['record[status_code]'] = storyParams['record[status_code]']
+					storyParams['record[reason_blocked]'] = updateFieldReasonBlocked.text
+					taskParams['record[reason_blocked]'] = storyParams['record[reason_blocked]']
 				}
 				if (updateFieldPublic.selectedItem.value != "-1")
-					params['record[is_public]'] = updateFieldPublic.selectedItem.value
+					storyParams['record[is_public]'] = updateFieldPublic.selectedItem.value
 
-				for (var key:Object in params)
-				{
-					for each (var item:Object in items)
-						updateFunction( item, params );
-					updateCompleteFunction();
-					break; // This is a hack to ensure that update is only called if something has changed.
-				}
+				// Do tasks first since changing stories will cause tasks to reload.
+				for each (var item1:Object in items)
+					!item1.isStory() ? updateFunction( item1, taskParams ) : null;
+
+				for each (var item2:Object in items)
+					item2.isStory() ? updateFunction( item2, storyParams ) : null;
+
+				updateCompleteFunction();
 				PopUpManager.removePopUp(this);
 			}
 
@@ -129,7 +136,7 @@
 				</mx:ComboBox>
 			</mx:FormItem>
 			<mx:FormItem id='updateFormReasonBlocked' label='Reason Blocked' height="0" visible="false">
-				<mx:TextArea id='updateFieldReasonBlocked' maxChars="4096" width="500" height="64"><mx:text/></mx:TextArea>
+				<component:HTMLTextArea id='updateFieldReasonBlocked'/>
 			</mx:FormItem>
 			<mx:FormItem label='Public' id="form_public">
 				<mx:ComboBox id='updateFieldPublic' width="350" editable="false">

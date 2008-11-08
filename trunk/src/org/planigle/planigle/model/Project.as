@@ -99,7 +99,7 @@ package org.planigle.planigle.model
 			var individuals:ArrayCollection = new ArrayCollection();
 			for each (var individual:Individual in IndividualFactory.getInstance().individualSelector)
 			{
-				if (!individual.id || individual.projectId == id)
+				if (!individual.id || (!individual.isAdmin() && individual.projectId == id))
 					individuals.addItem(individual);
 			}
 			return individuals;

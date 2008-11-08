@@ -122,18 +122,18 @@ class StoriesControllerTest < ActionController::TestCase
 
   # Test changing the status to blocked.
   def test_change_to_blocked_same_team
-    login_as(individuals(:aaron))
+    login_as(individuals(:ted))
     put :update, :id => 1, :record => {:status_code => 2}
-    assert 1, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
-    assert 1, PLANIGLE_SMS_NOTIFIER.number_of_notifications
+    assert 2, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
+    assert 2, PLANIGLE_SMS_NOTIFIER.number_of_notifications
   end
 
   # Test changing the status to blocked.
   def test_change_to_blocked_different_team
-    login_as(individuals(:aaron))
+    login_as(individuals(:ted))
     put :update, :id => 2, :record => {:status_code => 2}
-    assert 0, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
-    assert 0, PLANIGLE_SMS_NOTIFIER.number_of_notifications
+    assert 1, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
+    assert 1, PLANIGLE_SMS_NOTIFIER.number_of_notifications
   end
 
   # Test exporting stories (based on role).

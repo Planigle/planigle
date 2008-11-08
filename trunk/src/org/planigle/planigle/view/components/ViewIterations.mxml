@@ -218,7 +218,7 @@
 							<mx:DateField id='iterationFieldStart' editable="true" showToday="true" width="100"/>
 						</mx:FormItem>
 						<mx:FormItem label='Length (in weeks)' required="true">
-							<mx:TextInput id='iterationFieldLength' restrict="0-9" text='' width="350"/>
+							<mx:TextInput id='iterationFieldLength' restrict="0-9" text='' width="100"/>
 						</mx:FormItem>
 						<mx:ControlBar width="100%">
 							<mx:Spacer width="50"/>

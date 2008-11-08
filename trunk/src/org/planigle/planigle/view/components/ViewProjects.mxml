@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:local="org.planigle.planigle.view.controls.*" height="100%" y="0" width="100%" x="0" label="Projects" creationComplete="created(event)">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:local="org.planigle.planigle.view.controls.*" xmlns:component="org.planigle.planigle.view.components.*" height="100%" y="0" width="100%" x="0" label="Projects" creationComplete="created(event)">
 	<mx:Metadata>
 		[Event(name="itemClick", type="flash.events.Event")]
 	</mx:Metadata>
@@ -309,14 +309,14 @@
 										<mx:TextInput id='projectFieldName' maxChars="40" text='' width="350"/>
 									</mx:FormItem>
 									<mx:FormItem label='Description'>
-										<mx:TextArea id='projectFieldDescription' maxChars="4096" height="64" width="500"><mx:text/></mx:TextArea>
+										<component:HTMLTextArea id='projectFieldDescription'/>
 									</mx:FormItem>
 								</mx:Form>
 							</mx:VBox>
 							<mx:VBox>
 								<mx:Form id="projectChangeForm2" defaultButton="{projectBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
 									<mx:FormItem id="projectFormSurveyMode" label='Stories'>
-										<mx:ComboBox id='projectFieldSurveyMode' width="350" editable="false">
+										<mx:ComboBox id='projectFieldSurveyMode' width="150" editable="false">
 											<mx:Object label="Private" value="0" />
 											<mx:Object label="Private by Default" value="1" />
 											<mx:Object label="Public by Default" value="2" />
@@ -326,7 +326,7 @@
 										<mx:DateField id='projectFieldPremiumExpiry' editable="true" showToday="true" width="100"/>
 									</mx:FormItem>
 									<mx:FormItem id='projectFormPremiumLimit' label='Premium Limit (# Users)' required="true">
-										<mx:TextInput id='projectFieldPremiumLimit' restrict="0-9" text='' width="350"/>
+										<mx:TextInput id='projectFieldPremiumLimit' restrict="0-9" text='' width="100"/>
 									</mx:FormItem>
 								</mx:Form>
 							</mx:VBox>
@@ -384,7 +384,7 @@
 				<mx:DataGridColumn headerText="Name" dataField="listName"/>
 				<mx:DataGridColumn headerText="Description" dataField="description"/>
 				<mx:DataGridColumn headerText="Stories" width="120" labelFunction="ViewHelper.formatSurveyMode" sortCompareFunction="ViewHelper.sortSurveyMode"/>
-				<mx:DataGridColumn editable="false" width="60" minWidth="60" sortable="false">
+				<mx:DataGridColumn editable="false" width="80" minWidth="80" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
