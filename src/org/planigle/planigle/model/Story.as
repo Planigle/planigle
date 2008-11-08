@@ -112,7 +112,7 @@ package org.planigle.planigle.model
 		// Only show user priority if not accepted.
 		public function get modifiedUserPriority():String
 		{
-			return statusCode < ACCEPTED ? userPriority : "";
+			return statusCode < ACCEPTED ? (userPriority != null && userPriority != "" ? Number(userPriority).toString() : userPriority) : "";
 		}
 
 		// Answer what my status should be if it is out of date (-1 otherwise).

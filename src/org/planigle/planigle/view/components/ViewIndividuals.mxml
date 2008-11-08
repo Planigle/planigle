@@ -279,25 +279,25 @@
 							<mx:VBox>
 								<mx:Form id="changeForm" defaultButton="{individualBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
 									<mx:FormItem id='individualFormProject' label='Project'>
-										<mx:ComboBox id='individualFieldProject' width="350" editable="false" dataProvider="{ProjectFactory.getInstance().projectSelector}" labelField="name" change="updateTeam(event)"></mx:ComboBox>
+										<mx:ComboBox id='individualFieldProject' width="200" editable="false" dataProvider="{ProjectFactory.getInstance().projectSelector}" labelField="name" change="updateTeam(event)"></mx:ComboBox>
 									</mx:FormItem>
 									<mx:FormItem id='individualFormTeam' label='Team' visible="{individualFieldProject.selectedItem.teams.length > 0}" height="{individualFieldProject.selectedItem.teams.length > 0 ? 22 : 0}">
-										<mx:ComboBox id='individualFieldTeam' width="350" editable="false" labelField="name"></mx:ComboBox>
+										<mx:ComboBox id='individualFieldTeam' width="200" editable="false" labelField="name"></mx:ComboBox>
 									</mx:FormItem>
 									<mx:FormItem label='Login' required="true">
-										<mx:TextInput id='individualFieldLogin' maxChars="40" text='' width="350"/>
+										<mx:TextInput id='individualFieldLogin' maxChars="40" text='' width="300"/>
 									</mx:FormItem>
 									<mx:FormItem label='Password' id="labelPassword">
-										<mx:TextInput id='individualFieldPassword' maxChars="40" text='' width="350" displayAsPassword="true"/>
+										<mx:TextInput id='individualFieldPassword' maxChars="40" text='' width="300" displayAsPassword="true"/>
 									</mx:FormItem>
 									<mx:FormItem label='Password Confirmation' id="labelPasswordConfirmation">
-										<mx:TextInput id='individualFieldPasswordConfirmation' maxChars="40" text='' width="350" displayAsPassword="true"/>
+										<mx:TextInput id='individualFieldPasswordConfirmation' maxChars="40" text='' width="300" displayAsPassword="true"/>
 									</mx:FormItem>
 									<mx:FormItem id='individualFormRole' label='Role' visible="{currentItem != factory.currentIndividual}" height="{currentItem != factory.currentIndividual ? 25 : 0}">
-										<mx:ComboBox id='individualFieldRole' width="350" editable="false"/>
+										<mx:ComboBox id='individualFieldRole' width="150" editable="false"/>
 									</mx:FormItem>
 									<mx:FormItem id='individualFormEnabled' label='Enabled' visible="{currentItem != factory.currentIndividual}" height="{currentItem != factory.currentIndividual ? 25 : 0}">
-										<mx:ComboBox id='individualFieldEnabled' width="350" editable="false">
+										<mx:ComboBox id='individualFieldEnabled' width="100" editable="false">
 											<mx:Object label="true" value='true' />
 											<mx:Object label="false" value='false' />
 										</mx:ComboBox>
@@ -307,19 +307,19 @@
 							<mx:VBox>
 								<mx:Form id="changeForm2" defaultButton="{individualBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
 									<mx:FormItem label='First Name' required="true">
-										<mx:TextInput id='individualFieldFirstName' maxChars="40" text='' width="350"/>
+										<mx:TextInput id='individualFieldFirstName' maxChars="40" text='' width="300"/>
 									</mx:FormItem>
 									<mx:FormItem label='Last Name' required="true">
-										<mx:TextInput id='individualFieldLastName' maxChars="40" text='' width="350"/>
+										<mx:TextInput id='individualFieldLastName' maxChars="40" text='' width="300"/>
 									</mx:FormItem>
 									<mx:FormItem label='Email' required="true">
-										<mx:TextInput id='individualFieldEmail' maxChars="100" text='' width="350"/>
+										<mx:TextInput id='individualFieldEmail' maxChars="100" text='' width="300"/>
 									</mx:FormItem>
 									<mx:FormItem label='Phone Number' required="false">
-										<mx:TextInput id='individualFieldPhoneNumber' maxChars="20" text='' width="350"/>
+										<mx:TextInput id='individualFieldPhoneNumber' maxChars="20" text='' width="300"/>
 									</mx:FormItem>
 									<mx:FormItem id='individualFormNotificationType' label='Notify Via' visible="{factory.currentIndividual.isPremium()}" height="{factory.currentIndividual.isPremium() ? 25 : 0}">
-										<mx:ComboBox id='individualFieldNotificationType' width="350" editable="false">
+										<mx:ComboBox id='individualFieldNotificationType' width="200" editable="false">
 											<mx:Object label="Neither Email nor SMS" value="0" />
 											<mx:Object label="Email" value="1" />
 											<mx:Object label="SMS" value="2" />

@@ -14,7 +14,7 @@ class FlexStoriesTest < Test::Unit::TestCase
 
   def setup
     @ie = Funfx.instance 
-    @ie.start(false) 
+    @ie.start(true) 
     @ie.speed = 1
     @ie.goto("http://localhost:3000/index.html", "Main") 
     sleep 1 # Wait to ensure remember me check is made
@@ -278,7 +278,7 @@ private
     assert_equal '', @ie.text_area("storyError").text
     assert_nil @ie.button("storyBtnCancel")
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",foo 1,fourth,Test,ted williams,1,Blocked,true,1,2.0,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
+    assert_equal ",foo 1,fourth,Test,ted williams,1,Blocked,true,1,2,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
   end
     
   # Test whether you can successfully cancel editing a story.
@@ -322,14 +322,14 @@ private
     @ie.combo_box("updateFieldOwner").select(:item_renderer => 'aaron hank' )
     @ie.combo_box("updateFieldStatus").open
     @ie.combo_box("updateFieldStatus").select(:item_renderer => 'Blocked' )
-    @ie.combo_box("updateFieldPublic").open
     @ie.text_area("updateFieldReasonBlocked").input(:text => 'President' )
+    @ie.combo_box("updateFieldPublic").open
     @ie.combo_box("updateFieldPublic").select(:item_renderer => 'true' )
     @ie.button("updateBtnOk").click
     assert_equal '', @ie.text_area("storyError").text
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal "+,test,fourth,Test,aaron hank,5,Blocked,true,2,2.0,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 1, :end => 1)
-    assert_equal ",test3,fourth,Test,aaron hank,1,Blocked,true,1,2.0,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
+    assert_equal "+,test,fourth,Test,aaron hank,5,Blocked,true,2,2,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 1, :end => 1)
+    assert_equal ",test3,fourth,Test,aaron hank,1,Blocked,true,1,2,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
   end
 
   # Edit a story.
@@ -349,11 +349,11 @@ private
     @ie.text_area("storyFieldEffort").input(:text => effort )
     @ie.combo_box("storyFieldStatus").open
     @ie.combo_box("storyFieldStatus").select(:item_renderer => status )
-    @ie.combo_box("storyFieldPublic").open
-    @ie.combo_box("storyFieldPublic").select(:item_renderer => public )
     if reason_blocked != ""
       @ie.text_area("storyFieldReasonBlocked").input(:text => reason_blocked )
     end
+    @ie.combo_box("storyFieldPublic").open
+    @ie.combo_box("storyFieldPublic").select(:item_renderer => public )
   end
     
   # Test whether error handling works for splitting a story.

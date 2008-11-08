@@ -1064,13 +1064,13 @@
 											<mx:TextInput id='storyFieldName' maxChars="250" text='' width="500"/>
 										</mx:FormItem>
 										<mx:FormItem label='Description'>
-											<mx:TextArea id='storyFieldDescription' maxChars="4096" height="64" width="500"><mx:text/></mx:TextArea>
+											<component:HTMLTextArea id='storyFieldDescription'/>
 										</mx:FormItem>
 										<mx:FormItem label='Acceptance Criteria' id="storyFormAcceptanceCriteria">
-											<mx:TextArea id='storyFieldAcceptanceCriteria' maxChars="4096" height="64" width="500"><mx:text/></mx:TextArea>
+											<component:HTMLTextArea id='storyFieldAcceptanceCriteria'/>
 										</mx:FormItem>
 										<mx:FormItem label='Status'>
-											<mx:ComboBox id='storyFieldStatus' width="350" editable="false" change="updateReasonBlocked(event)">
+											<mx:ComboBox id='storyFieldStatus' width="120" editable="false" change="updateReasonBlocked(event)">
 												<mx:Object label="Created" value="0" />
 												<mx:Object label="In Progress" value="1" />
 												<mx:Object label="Blocked" value="2" />
@@ -1078,29 +1078,29 @@
 											</mx:ComboBox>
 										</mx:FormItem>
 										<mx:FormItem id='storyFormReasonBlocked' label='Reason Blocked'>
-											<mx:TextArea id='storyFieldReasonBlocked' maxChars="4096" width="500" height="64"><mx:text/></mx:TextArea>
+											<component:HTMLTextArea id='storyFieldReasonBlocked'/>
 										</mx:FormItem>
 									</mx:Form>	
 								</mx:VBox>
 								<mx:VBox>
 									<mx:Form id="changeForm2" defaultButton="{storyBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
 										<mx:FormItem label="Iteration" id="storyFormIteration">
-											<mx:ComboBox id='storyFieldIteration' width="350" editable="false" labelField="name" change="updateRelease()"></mx:ComboBox>
+											<mx:ComboBox id='storyFieldIteration' width="200" editable="false" labelField="name" change="updateRelease()"></mx:ComboBox>
 										</mx:FormItem>
 										<mx:FormItem label="Release" id="storyFormRelease">
-											<mx:ComboBox id='storyFieldRelease' width="350" editable="false" labelField="name"></mx:ComboBox>
+											<mx:ComboBox id='storyFieldRelease' width="200" editable="false" labelField="name"></mx:ComboBox>
 										</mx:FormItem>
 										<mx:FormItem label='Team' id="storyFormTeam">
-											<mx:ComboBox id='storyFieldTeam' width="350" editable="false" dataProvider="{IndividualFactory.current().project.teamSelector}" labelField="name"></mx:ComboBox>
+											<mx:ComboBox id='storyFieldTeam' width="200" editable="false" dataProvider="{IndividualFactory.current().project.teamSelector}" labelField="name"></mx:ComboBox>
 										</mx:FormItem>
 										<mx:FormItem label='Owner'>
-											<mx:ComboBox id='storyFieldOwner' width="350" editable="false" dataProvider="{IndividualFactory.current().project.individuals()}" labelField="fullName"></mx:ComboBox>
+											<mx:ComboBox id='storyFieldOwner' width="200" editable="false" dataProvider="{IndividualFactory.current().project.individuals()}" labelField="fullName"></mx:ComboBox>
 										</mx:FormItem>
 										<mx:FormItem label='Effort'>
-											<mx:TextInput id='storyFieldEffort' restrict="0-9." text='' width="350"/>
+											<mx:TextInput id='storyFieldEffort' restrict="0-9." text='' width="100"/>
 										</mx:FormItem>
 										<mx:FormItem label='Public' id="storyFormPublic">
-											<mx:ComboBox id='storyFieldPublic' width="350" editable="false">
+											<mx:ComboBox id='storyFieldPublic' width="100" editable="false">
 												<mx:Object label="true" value='true' />
 												<mx:Object label="false" value='false' />
 											</mx:ComboBox>
