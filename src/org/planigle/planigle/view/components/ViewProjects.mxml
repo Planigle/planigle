@@ -223,7 +223,7 @@
 		// Tell the server to update a resource.
 		private function updateResource(event:Event) : void
 		{
-			currentItem.update(getParams(currentItem.isProject()), handleSuccess, handleFailure);
+			currentItem.update(getParams(currentItem.isProject()), currentItem.isProject() ? handleUpdateProjectSuccess : handleSuccess, handleFailure);
 		}
 
 		// Tell the server to delete a resource.
@@ -242,6 +242,13 @@
 				setSuccessMessage("Team was successfully created.");
 			else
 				setSuccessMessage("Project was successfully created.");
+		}
+
+		// Handle a successful project change.
+		private function handleUpdateProjectSuccess():void
+		{
+			setProjects(null);
+			handleSuccess();
 		}
 
 		// Handle a successful change.
