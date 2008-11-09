@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" horizontalAlign="center" creationComplete="created(event)">
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:component="org.planigle.planigle.view.components.*" horizontalAlign="center" creationComplete="created(event)">
 
 	<mx:Script>
 		<![CDATA[
@@ -60,7 +60,7 @@
 				<mx:TextInput id='signupFieldName' maxChars="40" text='' width="350"/>
 			</mx:FormItem>
 			<mx:FormItem label='Project Description'>
-				<mx:TextArea id='signupFieldDescription' maxChars="4096" height="64" width="500"><mx:text/></mx:TextArea>
+				<component:HTMLTextArea id='signupFieldDescription'/>
 			</mx:FormItem>
 			<mx:FormItem label='Login' required="true">
 				<mx:TextInput id='signupFieldLogin' maxChars="40" text='' width="350"/>
