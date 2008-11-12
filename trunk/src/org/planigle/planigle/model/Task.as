@@ -30,10 +30,10 @@ package org.planigle.planigle.model
 			reasonBlocked = xml.child("reason-blocked");
 		}
 
-		// For tasks, the list name is indented.
-		public function get listName():String
+		// Answer how much to indent this kind of item.
+		public function get indent():int
 		{
-			return "     " + name;
+			return 25;
 		}
 
 		// For tasks, the calculated effort is the same as the effort.

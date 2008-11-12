@@ -48,10 +48,10 @@ package org.planigle.planigle.model
 			teams = newTeams.source;
 		}
 
-		// For projects, the list name is not indented.
-		public function get listName():String
+		// Answer how much to indent this kind of item.
+		public function get indent():int
 		{
-			return name;
+			return 5;
 		}
 
 		// Answer my teams.

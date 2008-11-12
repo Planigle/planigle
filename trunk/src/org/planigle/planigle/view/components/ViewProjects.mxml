@@ -388,7 +388,13 @@
 						</mx:Component>
 					</mx:itemRenderer>
 				</mx:DataGridColumn>
-				<mx:DataGridColumn headerText="Name" dataField="listName"/>
+				<mx:DataGridColumn headerText="Name">
+					<mx:itemRenderer> 
+						<mx:Component>
+							<mx:Text paddingLeft="{data.indent}" text="{data.name}" selectable="false"/>
+						</mx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
 				<mx:DataGridColumn headerText="Description" dataField="description"/>
 				<mx:DataGridColumn headerText="Stories" width="120" labelFunction="ViewHelper.formatSurveyMode" sortCompareFunction="ViewHelper.sortSurveyMode"/>
 				<mx:DataGridColumn editable="false" width="80" minWidth="80" sortable="false">

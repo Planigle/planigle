@@ -87,10 +87,10 @@ package org.planigle.planigle.model
 			tasks=tasks.concat(); // set to a copy
 		}
 
-		// For stories, the list name is the same as the name.
-		public function get listName():String
+		// Answer how much to indent this kind of item.
+		public function get indent():int
 		{
-			return name;
+			return 5;
 		}
 
 		// For stories, if not set locally, the calculated effort is the sum of its tasks.

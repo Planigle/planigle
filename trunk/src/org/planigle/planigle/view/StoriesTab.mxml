@@ -427,7 +427,11 @@
 						recalc = false;
 					}
 					else
+					{
+						var scroll:Number = storyResourceGrid.verticalScrollPosition;
 						handleFilter(null); // Update list of stories when done.
+						storyResourceGrid.verticalScrollPosition = scroll;
+					}
 				}
 			}
 		}
@@ -1216,7 +1220,13 @@
 						</mx:Component>
 					</mx:itemRenderer>
 				</mx:DataGridColumn>
-				<mx:DataGridColumn headerText="Name" wordWrap="true" dataField="listName" showDataTips="true" dataTipField="description" />
+				<mx:DataGridColumn headerText="Name" wordWrap="true" showDataTips="true" dataTipField="description">
+					<mx:itemRenderer> 
+						<mx:Component>
+							<mx:Text paddingLeft="{data.indent}" text="{data.name}" selectable="false"/>
+						</mx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
 				<mx:DataGridColumn id="storyColumnIteration" width="135" headerText="Iteration" labelFunction="ViewHelper.formatIteration" sortCompareFunction="ViewHelper.sortIteration"/>
 				<mx:DataGridColumn id="storyColumnTeam" headerText="Team" width="135" labelFunction="ViewHelper.formatTeam" sortCompareFunction="ViewHelper.sortTeam"/>
 				<mx:DataGridColumn id="storyColumnIndividual" headerText="Owner" width="135" labelFunction="ViewHelper.formatIndividual" sortCompareFunction="ViewHelper.sortIndividual"/>
