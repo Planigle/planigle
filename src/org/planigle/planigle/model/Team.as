@@ -25,10 +25,10 @@ package org.planigle.planigle.model
 			description = xml.description;
 		}
 
-		// For teams, the list name is indented.
-		public function get listName():String
+		// Answer how much to indent this kind of item.
+		public function get indent():int
 		{
-			return "     " + name;
+			return 25;
 		}
 		
 		// Update me.  Params should be of the format (record[param]).  Success function
