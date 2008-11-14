@@ -123,7 +123,7 @@ private
     assert_equal '', @ie.text_area("projectFieldDescription").text
     assert_not_nil @ie.button("projectBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("projectResourceGrid").num_rows
-    assert_equal ",     zfoo 1,description,,Edit | Delete | Add Team", @ie.data_grid("projectResourceGrid").tabular_data(:start => 3, :end => 3)
+    assert_equal ",zfoo 1,description,,Edit | Delete | Add Team", @ie.data_grid("projectResourceGrid").tabular_data(:start => 3, :end => 3)
     @ie.button("projectBtnCancel").click
   end
     
@@ -170,7 +170,7 @@ private
     assert_equal '', @ie.text_area("projectError").text
     assert_nil @ie.button("projectBtnCancel")
     assert_equal num_rows, @ie.data_grid("projectResourceGrid").num_rows
-    assert_equal ",     foo 1,description,,Edit | Delete | Add Team", @ie.data_grid("projectResourceGrid").tabular_data(:start => 1, :end => 1)
+    assert_equal ",foo 1,description,,Edit | Delete | Add Team", @ie.data_grid("projectResourceGrid").tabular_data(:start => 1, :end => 1)
   end
     
   # Test whether you can successfully cancel editing a team.
@@ -192,7 +192,7 @@ private
 
   # Select a team to see what is displayed in individuals.
   def select_team
-    @ie.data_grid("projectResourceGrid").select(:item_renderer => "     Test")
+    @ie.data_grid("projectResourceGrid").select(:item_renderer => "Test_team")
     assert_equal 1, @ie.data_grid("individualResourceGrid").num_rows
   end
     

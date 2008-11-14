@@ -207,37 +207,32 @@ package org.planigle.planigle.model
 			return null;
 		}
 
-		// Answer my velocity.
-		public function get velocity():Number
+		// Answer my typical utilization I am capable of.
+		public function get utilization():Number
 		{
 			var iterations:ArrayCollection = IterationFactory.getInstance().getPastIterations(3);
 			var sum:Number = 0;
 			for each (var iteration:Iteration in iterations)
-				sum += velocityIn(iteration.stories(), true);
+				sum += utilizationIn(iteration.stories(), true);
 			return sum/iterations.length;
 		}
 
-		// Answer my velocity in the specified stories.
-		public function velocityIn(stories:ArrayCollection, onlyAccepted:Boolean = false):Number
+		// Answer my utilization in the specified stories.
+		public function utilizationIn(stories:ArrayCollection, onlyAccepted:Boolean = false):Number
 		{
-			var totalVelocity:Number = 0;
+			var totalUtilization:Number = 0;
 			for each(var story:Object in stories)
 			{
-				if (story.isStory() && (!onlyAccepted || story.statusCode == Story.ACCEPTED) && (id || story.teamId == teamId))
+				if (story.isStory() && (id || story.teamId == teamId))
 				{
-					var useTaskEffort:Boolean = false;
 					for each(var task:Object in story.tasks)
 					{
-						if (task.individualId == id)
-							totalVelocity += Number(task.calculatedEffort);
-						if (task.calculatedEffort != null && task.calculatedEffort != "")
-							useTaskEffort = true;
+						if (task.individualId == id && (!onlyAccepted || task.statusCode == Story.ACCEPTED))
+							totalUtilization += Number(task.calculatedEffort);
 					}
-					if (!useTaskEffort && story.individualId == id)
-						totalVelocity += Number(story.calculatedEffort);
 				}
 			}
-			return totalVelocity;
+			return totalUtilization;
 		}
 	}
 }

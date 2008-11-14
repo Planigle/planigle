@@ -49,7 +49,7 @@ class FlexAtasksTest < Test::Unit::TestCase
   # Edit a single task through the button at the top.
   def edit_single
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
-    @ie.data_grid("storyResourceGrid").select(:item_renderer => "     test")
+    @ie.data_grid("storyResourceGrid").select(:item_renderer => "test_task")
     @ie.button("storyBtnUpdateMultiple").click
     @ie.button("storyBtnCancel").click
     assert_equal '', @ie.text_area("storyError").text
@@ -61,8 +61,8 @@ class FlexAtasksTest < Test::Unit::TestCase
     @ie.combo_box("itemStatus").open
     @ie.combo_box("itemStatus").select(:item_renderer => 'All Statuses' )
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
-    @ie.data_grid("storyResourceGrid").select(:item_renderer => "     test")
-    @ie.data_grid("storyResourceGrid").select(:item_renderer => "     test2", :ctrl_key => "true")
+    @ie.data_grid("storyResourceGrid").select(:item_renderer => "test_task")
+    @ie.data_grid("storyResourceGrid").select(:item_renderer => "test2_task", :ctrl_key => "true")
     @ie.button("storyBtnUpdateMultiple").click
     assert_equal 'No Change', @ie.combo_box("updateFieldIteration").text
     assert_equal 'No Change', @ie.combo_box("updateFieldRelease").text
@@ -76,8 +76,8 @@ class FlexAtasksTest < Test::Unit::TestCase
     @ie.button("updateBtnOk").click
     assert_equal '', @ie.text_area("storyError").text
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",     test,,,aaron hank,3,Created, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 3, :end => 3)
-    assert_equal ",     test2,,,aaron hank,2,Created, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 4, :end => 4)
+    assert_equal ",test2_task,,,aaron hank,,2,Created, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 3, :end => 3)
+    assert_equal ",test_task,,,aaron hank,,3,Created, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 4, :end => 4)
   end
 
   # Test edit (in one stream for more efficiency).
@@ -185,7 +185,7 @@ private
     assert_equal 'Created', @ie.combo_box("storyFieldStatus").text
     assert_not_nil @ie.button("storyBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",     foo,,,ted williams,1,Blocked, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 2, :end => 2)
+    assert_equal ",foo,,,ted williams,,1,Blocked, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 2, :end => 2)
     @ie.button("storyBtnCancel").click
   end
     
@@ -247,7 +247,7 @@ private
     assert_equal '', @ie.text_area("storyError").text
     assert_nil @ie.button("storyBtnCancel")
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",     foo 1,,,ted williams,1,Blocked, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 2, :end => 2)
+    assert_equal ",foo 1,,,ted williams,,1,Blocked, , , ,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 2, :end => 2)
   end
     
   # Test whether you can successfully cancel editing a task.

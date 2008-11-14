@@ -93,20 +93,22 @@ package org.planigle.planigle.model
 			return 5;
 		}
 
+		// Answer my sizing.
+		public function get size():String
+		{
+			return effort != null && effort != "" ? Number(effort).toString() : effort;
+		}
+
 		// For stories, if not set locally, the calculated effort is the sum of its tasks.
 		public function get calculatedEffort():String
 		{
-			var useTasks:Boolean = false;
 			var sum:Number = 0;
 			for each (var task:Task in tasks)
 			{
 				if (task.effort != null && task.effort != "")
-				{
 					sum += Number(task.effort);
-					useTasks = true;
-				}
 			}
-			return useTasks ? ((sum == 0) ? "" : sum.toString()) : (effort != null && effort != "" ? Number(effort).toString() : effort);
+			return ((sum == 0) ? "" : sum.toString());
 		}
 
 		// Only show user priority if not accepted.

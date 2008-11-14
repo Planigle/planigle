@@ -2,7 +2,6 @@ package org.planigle.planigle.model
 {
 	import mx.utils.ObjectUtil;
 	import mx.collections.ArrayCollection;
-	
 	import org.planigle.planigle.commands.DeleteTeamCommand;
 	import org.planigle.planigle.commands.UpdateTeamCommand;
 
@@ -24,7 +23,7 @@ package org.planigle.planigle.model
 			name = xml.name;
 			description = xml.description;
 		}
-
+		
 		// Answer how much to indent this kind of item.
 		public function get indent():int
 		{
@@ -142,25 +141,47 @@ package org.planigle.planigle.model
 		// Answer my velocity.
 		public function get velocity():Number
 		{
+			var iterations:ArrayCollection = IterationFactory.getInstance().getPastIterations(3);
 			var sum:Number = 0;
-			for each(var child:Object in children)
-				sum += child.velocity;
-			return sum;
+			for each (var iteration:Iteration in iterations)
+				sum += velocityInIteration(iteration);
+			return sum/iterations.length;
 		}
 
 		// Answer my velocity in the specified stories.
 		public function velocityIn(stories:ArrayCollection):Number
 		{
-			var sum:Number = 0;
-			for each(var child:Object in children)
-				sum += child.velocityIn(stories);
-			return sum;
+			var totalVelocity:Number = 0;
+			for each(var story:Object in stories)
+			{
+				if (story.isStory() && story.teamId == id)
+					totalVelocity += Number(story.size);
+			}
+			return totalVelocity;
 		}
 
 		// Answer my velocity in the specified iteration.
 		public function velocityInIteration(iteration:Iteration):Number
 		{
 			return velocityIn(iteration.acceptedStories());
+		}
+
+		// Answer my utilization.
+		public function get utilization():Number
+		{
+			var sum:Number = 0;
+			for each(var child:Object in children)
+				sum += child.utilization;
+			return sum;
+		}
+
+		// Answer my utilization in the specified stories.
+		public function utilizationIn(stories:ArrayCollection):Number
+		{
+			var sum:Number = 0;
+			for each(var child:Object in children)
+				sum += child.utilizationIn(stories);
+			return sum;
 		}
 	}
 }

@@ -42,12 +42,6 @@ class TaskTest < ActiveSupport::TestCase
     assert_failure(:effort, 0)
   end
 
-  # Test the validation of calculated effort.
-  def test_calculated_effort
-    assert_equal 3, tasks(:one).calculated_effort_for(individuals(:aaron))
-    assert_equal 0, tasks(:one).calculated_effort_for(individuals(:quentin))
-  end
-
   # Test the validation of status code.
   def test_status_code
     assert_success( :status_code, 0)

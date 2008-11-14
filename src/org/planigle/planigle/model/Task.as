@@ -36,6 +36,12 @@ package org.planigle.planigle.model
 			return 25;
 		}
 
+		// Answer my sizing.
+		public function get size():String
+		{
+			return "";
+		}
+
 		// For tasks, the calculated effort is the same as the effort.
 		public function get calculatedEffort():String
 		{ // Convert to Number to ensure consistent formatting.

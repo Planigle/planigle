@@ -132,13 +132,13 @@ private
 
     assert_equal 'Project Admin', @ie.combo_box("individualFieldRole").text
     
-    create_individual('Test', 'Test', ' ', 'testit', 'testit', 'testy2@testit.com', 'testy', 'test', 'Admin', 'true', '5555555555', 'Email')
+    create_individual('Test', 'Test_team', ' ', 'testit', 'testit', 'testy2@testit.com', 'testy', 'test', 'Admin', 'true', '5555555555', 'Email')
     @ie.button("individualBtnChange").click
 
     # Values should not change
     assert_equal "Login can't be blank\rLogin is too short (minimum is 2 characters)", @ie.text_area("individualError").text
     assert_equal 'Test', @ie.combo_box("individualFieldProject").text
-    assert_equal 'Test', @ie.combo_box("individualFieldTeam").text
+    assert_equal 'Test_team', @ie.combo_box("individualFieldTeam").text
     assert_equal ' ', @ie.text_area("individualFieldLogin").text
     assert_equal 'testit', @ie.text_area("individualFieldPassword").text
     assert_equal 'testit', @ie.text_area("individualFieldPasswordConfirmation").text
@@ -157,7 +157,7 @@ private
     num_rows = @ie.data_grid("individualResourceGrid").num_rows
     @ie.button("individualBtnCreate").click
     
-    create_individual('Test', 'Test', 'testy2', 'testit', 'testit', 'testy2@testit.com', 'testy', 'test', 'Admin', 'true' )
+    create_individual('Test', 'Test_team', 'testy2', 'testit', 'testit', 'testy2@testit.com', 'testy', 'test', 'Admin', 'true' )
     @ie.button("individualBtnChange").click
 
     sleep 5 # Wait for results
@@ -174,7 +174,7 @@ private
     assert_equal 'true', @ie.combo_box("individualFieldEnabled").text
     assert_not_nil @ie.button("individualBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("individualResourceGrid").num_rows
-    assert_equal "Test,Test,testy2,testy,test,Admin,false,true, ,Edit | Delete", @ie.data_grid("individualResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
+    assert_equal "Test,Test_team,testy2,testy,test,Admin,false,true, ,Edit | Delete", @ie.data_grid("individualResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
     @ie.button("individualBtnCancel").click
   end
     
@@ -185,7 +185,7 @@ private
     
     num_rows = @ie.data_grid("individualResourceGrid").num_rows
     @ie.button("individualBtnCreate").click
-    create_individual('Test', 'Test', 'testy2', 'testit', 'testit', 'testy2@testit.com', 'testy', 'test', 'Admin', 'true')
+    create_individual('Test', 'Test_team', 'testy2', 'testit', 'testit', 'testy2@testit.com', 'testy', 'test', 'Admin', 'true')
     @ie.button("individualBtnCancel").click
     assert_equal '', @ie.text_area("individualError").text
     assert_nil @ie.button("individualBtnCancel")
@@ -218,12 +218,12 @@ private
   # Test whether error handling works for editing an individual.
   def edit_individual_failure
     num_rows = @ie.data_grid("individualResourceGrid").num_rows
-    edit_individual(find_row('ted'), 'Test', 'Test', ' ', 'testit', 'testit', 'testy3@testit.com', 'testy', 'test', 'Project Admin', 'true')
+    edit_individual(find_row('ted'), 'Test', 'Test_team', ' ', 'testit', 'testit', 'testy3@testit.com', 'testy', 'test', 'Project Admin', 'true')
     @ie.button("individualBtnChange").click
 
     assert_equal "Login can't be blank\rLogin is too short (minimum is 2 characters)", @ie.text_area("individualError").text
     assert_equal 'Test', @ie.combo_box("individualFieldProject").text
-    assert_equal 'Test', @ie.combo_box("individualFieldTeam").text
+    assert_equal 'Test_team', @ie.combo_box("individualFieldTeam").text
     assert_equal ' ', @ie.text_area("individualFieldLogin").text
     assert_equal 'testit', @ie.text_area("individualFieldPassword").text
     assert_equal 'testit', @ie.text_area("individualFieldPasswordConfirmation").text
@@ -260,7 +260,7 @@ private
   # Test whether you can successfully cancel editing an individual.
   def edit_individual_cancel
     num_rows = @ie.data_grid("individualResourceGrid").num_rows
-    edit_individual(find_row('ted'), 'Test', 'Test', 'testy2', 'testit', 'testit', 'testy3@testit.com', 'testy', 'test', 'Project Admin', 'true')
+    edit_individual(find_row('ted'), 'Test', 'Test_team', 'testy2', 'testit', 'testit', 'testy3@testit.com', 'testy', 'test', 'Project Admin', 'true')
     @ie.button("individualBtnCancel").click
     assert_equal '', @ie.text_area("individualError").text
     assert_nil @ie.button("individualBtnCancel")

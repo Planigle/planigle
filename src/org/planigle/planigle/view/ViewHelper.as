@@ -125,8 +125,14 @@ package org.planigle.planigle.view
 			return ObjectUtil.numericCompare(item1.surveyMode, item2.surveyMode);
 		}
 
+		// Sort size numerically.
+		public static function sortSize(item1:Object, item2:Object):int
+		{
+			return ObjectUtil.numericCompare(Number(item1.size),Number(item2.size));
+		}
+
 		// Sort effort numerically.
-		public static function sortEffort(item1:Object, item2:Object):int
+		public static function sortCalculatedEffort(item1:Object, item2:Object):int
 		{
 			return ObjectUtil.numericCompare(Number(item1.calculatedEffort),Number(item2.calculatedEffort));
 		}

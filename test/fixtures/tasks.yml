@@ -1,6 +1,6 @@
 one:
   id: 1
-  name: test
+  name: test_task
   description: 
   effort: 3
   status_code: 1
@@ -9,7 +9,7 @@ one:
 
 two:
   id: 2
-  name: test2
+  name: test2_task
   description: 
   effort: 2
   status_code: 3
