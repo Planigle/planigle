@@ -35,7 +35,7 @@ class Story < ActiveRecord::Base
   # Answer a CSV string representing the stories.
   def self.export(current_user)
     FasterCSV.generate(:row_sep => "\n") do |csv|
-      csv << ['PID', 'Name', 'Description', 'Acceptance Criteria', 'Effort', 'Status', 'Reason Blocked', 'Release', 'Iteration', 'Team', 'Owner', 'Public', 'User Rank']
+      csv << ['PID', 'Name', 'Description', 'Acceptance Criteria', 'Size', 'Time', 'Status', 'Reason Blocked', 'Release', 'Iteration', 'Team', 'Owner', 'Public', 'User Rank']
       get_records(current_user).each {|story| story.export(csv)}
     end
   end
@@ -47,6 +47,7 @@ class Story < ActiveRecord::Base
       name,
       description,
       acceptance_criteria,
+      effort,
       calculated_effort,
       StatusMapping[status_code],
       reason_blocked,
@@ -95,13 +96,6 @@ class Story < ActiveRecord::Base
   # Answer true if I have been accepted.
   def accepted?
     self.status_code == Done
-  end
-
-  # Answer the effort to complete me for an individual on a team.
-  def calculated_effort_for(team, individual)
-    if !individual && team != self.team then return 0; end
-    task_effort = tasks.inject(nil) {|sum, task| task.effort ? (sum ? sum + task.calculated_effort_for(individual) : task.calculated_effort_for(individual)) : sum}
-    task_effort != nil ? task_effort : (self.individual == individual ? effort : 0)
   end
   
   # My effort is either my value (if set) or the sum of my tasks.

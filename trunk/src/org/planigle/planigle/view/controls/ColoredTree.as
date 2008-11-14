@@ -31,5 +31,35 @@ package org.planigle.planigle.view.controls
 				TreeItemRenderer(item).setStyle("color", rowColorFunction(item.data));
 			super.drawItem(item, selected, highlighted, caret, transition);
 		}
+		
+		// Adjust the height of the tree.
+		public function adjustHeight():void
+		{
+			// Create a collection
+			var collect:ArrayCollection = new ArrayCollection();
+			for each (var openItem:Object in openItems)
+				collect.addItem(openItem);
+
+			var count:int = 1;
+
+			for each (var item:Object in collect)
+			{
+				var parent:Object = item.parent;
+				var shown:Boolean = true;
+				while (parent != null )
+				{
+					if (collect.getItemIndex(parent) < 0)
+					{
+						shown = false;
+						break;
+					}
+					parent = parent.parent;
+				}
+				if (shown)
+					count += dataDescriptor.getChildren(item).length;					
+			}
+
+			rowCount = count;
+		}
 	}
 }

@@ -51,11 +51,11 @@ module TasksTestHelper
 
   # Verify that the object was deleted.
   def assert_delete_succeeded
-    assert_nil Task.find_by_name('test2')
+    assert_nil Task.find_by_name('test2_task')
   end
 
   # Verify that the object was not deleted.
   def assert_delete_failed
-    assert Task.find_by_name('test2')
+    assert Task.find_by_name('test2_task')
   end
 end

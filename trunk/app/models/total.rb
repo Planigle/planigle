@@ -10,16 +10,14 @@ class Total < ActiveRecord::Base
       in_progress = 0
       done = 0
       blocked = 0
-      (Array.new((team == nil ? Individual.find(:all, :conditions => ['project_id = ? and team_id is null', object.project_id]) : team.individuals)) << nil).each do |individual|
-        object.stories.each do |story|
-          effort = story.calculated_effort_for(team, individual)
-          effort = effort != nil ? effort : 0
-          case story.status_code
-            when Story::Created then created += effort
-            when Story::InProgress then in_progress += effort
-            when Story::Blocked then blocked += effort
-            else done += effort
-          end
+      object.stories.each do |story|
+        effort = story.team == team ? story.effort : 0;
+        effort = effort != nil ? effort : 0
+        case story.status_code
+          when Story::Created then created += effort
+          when Story::InProgress then in_progress += effort
+          when Story::Blocked then blocked += effort
+          else done += effort
         end
       end
       capture( object.id, team ? team.id : nil, created, in_progress, done, blocked)

@@ -166,7 +166,7 @@ class TeamsControllerTest < ActionController::TestCase
     login_as(user)
     delete :destroy, :id => 1, :format => 'xml', :project_id => 1
     assert_response :success
-    assert_nil Team.find_by_name('test')
+    assert_nil Team.find_by_name('Test_team')
   end
 
   # Delete unsuccessfully based on role.
@@ -174,7 +174,7 @@ class TeamsControllerTest < ActionController::TestCase
     login_as(user)
     delete :destroy, :id => 1, :format => 'xml', :project_id => 1
     assert_response 401
-    assert Team.find_by_name('test')
+    assert Team.find_by_name('Test_team')
     assert_select "errors"
   end
 end

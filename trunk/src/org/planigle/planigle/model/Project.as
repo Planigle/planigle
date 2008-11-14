@@ -3,7 +3,6 @@ package org.planigle.planigle.model
 	import mx.collections.ArrayCollection;
 	import mx.collections.Sort;
 	import mx.collections.SortField;
-	
 	import org.planigle.planigle.commands.CreateTeamCommand;
 	import org.planigle.planigle.commands.DeleteProjectCommand;
 	import org.planigle.planigle.commands.UpdateProjectCommand;
@@ -47,7 +46,7 @@ package org.planigle.planigle.model
 			}
 			teams = newTeams.source;
 		}
-
+		
 		// Answer how much to indent this kind of item.
 		public function get indent():int
 		{
@@ -263,17 +262,58 @@ package org.planigle.planigle.model
 		public function get velocity():Number
 		{
 			var sum:Number = 0;
-			for each(var child:Object in children)
-				sum += child.velocity;
-			return sum;
+			if (teamSelector.length > 1)
+			{
+				for each(var child:Object in children)
+					sum += child.velocity;
+				return sum;
+			}
+			else
+			{
+				var iterations:ArrayCollection = IterationFactory.getInstance().getPastIterations(3);
+				for each (var iteration:Iteration in iterations)
+					sum += velocityIn(iteration.acceptedStories());
+				return sum/iterations.length;
+			}
 		}
 
 		// Answer my velocity in the specified stories.
 		public function velocityIn(stories:ArrayCollection):Number
 		{
+			if (teamSelector.length > 1)
+			{
+				var sum:Number = 0;
+				for each(var child:Object in children)
+					sum += child.velocityIn(stories);
+				return sum;
+			}
+			else
+			{
+				var totalVelocity:Number = 0;
+				for each(var story:Object in stories)
+				{
+					if (story.isStory())
+						totalVelocity += Number(story.size);
+				}
+				return totalVelocity;
+			}
+		}
+
+		// Answer my utilization.
+		public function get utilization():Number
+		{
 			var sum:Number = 0;
 			for each(var child:Object in children)
-				sum += child.velocityIn(stories);
+				sum += child.utilization;
+			return sum;
+		}
+
+		// Answer my utilization in the specified stories.
+		public function utilizationIn(stories:ArrayCollection):Number
+		{
+			var sum:Number = 0;
+			for each(var child:Object in children)
+				sum += child.utilizationIn(stories);
 			return sum;
 		}
 	}

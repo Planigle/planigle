@@ -181,7 +181,7 @@ class TasksControllerTest < ActionController::TestCase
     login_as(user)
     delete :destroy, :id => 1, :format => 'xml', :story_id => 1
     assert_response :success
-    assert_nil Task.find_by_name('test')
+    assert_nil Task.find_by_name('test_task')
   end
 
   # Delete unsuccessfully based on role.
@@ -189,7 +189,7 @@ class TasksControllerTest < ActionController::TestCase
     login_as(user)
     delete :destroy, :id => 1, :format => 'xml', :story_id => 1
     assert_response 401
-    assert Task.find_by_name('test')
+    assert Task.find_by_name('test_task')
     assert_select "errors"
   end
 end

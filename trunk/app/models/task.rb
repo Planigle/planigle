@@ -32,11 +32,6 @@ class Task < ActiveRecord::Base
     self.status_code == Story::Done
   end
 
-  # Answer the effort for the specified individual.
-  def calculated_effort_for(individual)
-    effort && self.individual == individual ? effort : 0
-  end
-
   # Only project users or higher can create tasks.
   def authorized_for_create?(current_user)
     if current_user.role <= Individual::Admin

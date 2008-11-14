@@ -64,10 +64,6 @@ class StoryTest < ActiveSupport::TestCase
   # Test calculating the effort from tasks.
   def test_calculated_effort
     assert_equal 5, stories(:first).calculated_effort
-    assert_equal 5, stories(:first).calculated_effort_for(teams(:first), individuals(:aaron))
-    assert_equal 0, stories(:first).calculated_effort_for(teams(:first), individuals(:quentin))
-    assert_equal 1, stories(:second).calculated_effort_for(nil, nil)
-    assert_equal 0, stories(:second).calculated_effort_for(teams(:first), nil)
   end
 
   # Test the validation of status.
@@ -178,7 +174,7 @@ class StoryTest < ActiveSupport::TestCase
   # Validate export.
   def test_export
     string = Story.export(individuals(:aaron))
-    assert_equal "PID,Name,Description,Acceptance Criteria,Effort,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank\n3,test3,\"\",\"\",1.0,In Progress,,\"\",\"\",\"\",\"\",false,2.0\n2,test2,\"\",\"\",1.0,Done,,first,first,\"\",\"\",true,1.0\n1,test,description,criteria,5.0,In Progress,,first,first,Test,aaron hank,true,2.0\n4,test4,\"\",\"\",1.0,In Progress,,\"\",\"\",\"\",\"\",true,\n", string
+    assert_equal "PID,Name,Description,Acceptance Criteria,Size,Time,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank\n3,test3,\"\",\"\",1.0,1.0,In Progress,,\"\",\"\",\"\",\"\",false,2.0\n2,test2,\"\",\"\",1.0,1.0,Done,,first,first,\"\",\"\",true,1.0\n1,test,description,criteria,1.0,5.0,In Progress,,first,first,Test_team,aaron hank,true,2.0\n4,test4,\"\",\"\",1.0,1.0,In Progress,,\"\",\"\",\"\",\"\",true,\n", string
   end
 
   def test_import_invalid_id
