@@ -3,6 +3,7 @@ package org.planigle.planigle.model
 	import mx.collections.ArrayCollection;
 	import mx.collections.Sort;
 	import mx.collections.SortField;
+	import org.planigle.planigle.commands.CreateStoryAttributeCommand;
 	import org.planigle.planigle.commands.CreateTeamCommand;
 	import org.planigle.planigle.commands.DeleteProjectCommand;
 	import org.planigle.planigle.commands.UpdateProjectCommand;
@@ -21,6 +22,7 @@ package org.planigle.planigle.model
 		private static const PRIVATE:int = 0;
 		private static const PRIVATE_BY_DEFAULT:int = 1;
 		private static const PUBLIC_BY_DEFAULT:int = 2;
+		private var myStoryAttributes:Array = new Array();
 		private var myTeams:Array = new Array();
 		public var teamSelector:ArrayCollection = new ArrayCollection();
 		private var teamMapping:Object = new Object();
@@ -37,20 +39,50 @@ package org.planigle.planigle.model
 			premiumExpiry = DateUtils.stringToDate(xml.child("premium-expiry"));			
 			premiumLimit = xml.child("premium-limit");			
 
+			var newStoryAttributes:ArrayCollection = new ArrayCollection();
+			for (var i:int = 0; i < xml.child("story-attributes").child("story-attribute").length(); i++)
+			{
+				var storyAttribute:StoryAttribute = new StoryAttribute();
+				storyAttribute.populate(XML(xml.child("story-attributes").child("story-attribute")[i]));
+				newStoryAttributes.addItem(storyAttribute);
+			}
+			storyAttributes = newStoryAttributes.source;
+
 			var newTeams:ArrayCollection = new ArrayCollection();
-			for (var i:int = 0; i < xml.teams.team.length(); i++)
+			for (var j:int = 0; j < xml.teams.team.length(); j++)
 			{
 				var team:Team = new Team();
-				team.populate(XML(xml.teams.team[i]));
+				team.populate(XML(xml.teams.team[j]));
 				newTeams.addItem(team);
 			}
 			teams = newTeams.source;
+		}
+
+		// Answer my story attributes.
+		public function get storyAttributes():Array
+		{
+			return myStoryAttributes;
+		}
+
+		// Set my story attributes.
+		public function set storyAttributes(storyAttributes:Array):void
+		{
+			storyAttributes.sortOn(["name"], [Array.CASEINSENSITIVE]);
+			for each (var storyAttribute:StoryAttribute in storyAttributes)
+				storyAttribute.project = this;
+
+			myStoryAttributes = storyAttributes;
 		}
 		
 		// Answer how much to indent this kind of item.
 		public function get indent():int
 		{
 			return 5;
+		}
+
+		// Set the indent (currently ignored; used to prevent binding issue).
+		public function set indent(indent:int):void
+		{
 		}
 
 		// Answer my teams.
@@ -83,6 +115,7 @@ package org.planigle.planigle.model
 		// Resort my teams.
 		public function resort():void
 		{
+			storyAttributes=storyAttributes.concat(); // set to a copy
 			teams=teams.concat(); // set to a copy
 
 			// Create copy to ensure any views get notified of changes.
@@ -155,16 +188,40 @@ package org.planigle.planigle.model
 			ProjectFactory.getInstance().updateProjects(projects);
 		}
 
+		// Create a new story attribute.  Params should be of the format (record[param]).  Success function
+		// will be called if successfully updated.  FailureFunction will be called if failed (will
+		// be passed an XMLList with errors).
+		public function createStoryAttribute(params:Object, successFunction:Function, failureFunction:Function):void
+		{
+			new CreateStoryAttributeCommand(this, params, successFunction, failureFunction, createStoryAttributeCompleted).execute(null);
+		}
+		
+		// A story attribute has been successfully created.  Change myself to reflect the changes.
+		public function createStoryAttributeCompleted(xml:XML):StoryAttribute
+		{
+			var newStoryAttribute:StoryAttribute = new StoryAttribute();
+			newStoryAttribute.populate(xml);
+
+			// Create copy to ensure any views get notified of changes.
+			var newStoryAttributes:ArrayCollection = new ArrayCollection();
+			for each (var storyAttribute:StoryAttribute in storyAttributes)
+				newStoryAttributes.addItem(storyAttribute);
+			newStoryAttributes.addItem(newStoryAttribute);
+			storyAttributes = newStoryAttributes.source;
+
+			return newStoryAttribute;
+		}
+
 		// Create a new team.  Params should be of the format (record[param]).  Success function
 		// will be called if successfully updated.  FailureFunction will be called if failed (will
 		// be passed an XMLList with errors).
 		public function createTeam(params:Object, successFunction:Function, failureFunction:Function):void
 		{
-			new CreateTeamCommand(this, params, successFunction, failureFunction).execute(null);
+			new CreateTeamCommand(this, params, successFunction, failureFunction, createTeamCompleted).execute(null);
 		}
 		
 		// An team has been successfully created.  Change myself to reflect the changes.
-		public function createCompleted(xml:XML):Team
+		public function createTeamCompleted(xml:XML):Team
 		{
 			var newTeam:Team = new Team();
 			newTeam.populate(xml);

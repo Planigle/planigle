@@ -1,0 +1,23 @@
+first:
+  id: 1
+  project_id: 1
+  name: Test_String
+  value_type: 0
+
+second:
+  id: 2
+  project_id: 1
+  name: Test_Text
+  value_type: 1
+
+third:
+  id: 3
+  project_id: 1
+  name: Test_Number
+  value_type: 2
+
+fourth:
+  id: 4
+  project_id: 2
+  name: Test_String2
+  value_type: 0

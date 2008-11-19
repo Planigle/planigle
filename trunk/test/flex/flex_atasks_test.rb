@@ -11,6 +11,8 @@ class FlexAtasksTest < Test::Unit::TestCase
   fixtures :stories
   fixtures :releases
   fixtures :iterations
+  fixtures :story_attributes
+  fixtures :story_values
   fixtures :tasks
 
   def setup
@@ -142,6 +144,7 @@ private
     assert !@ie.text_area("storyFormAcceptanceCriteria").visible
     assert !@ie.combo_box("storyFormIteration").visible
     assert !@ie.combo_box("storyFormRelease").visible
+    assert !@ie.button("storyBtnEditAttributes").visible
     assert_equal 'aaron hank', @ie.combo_box("storyFieldOwner").text
     assert_equal '', @ie.text_area("storyFieldEffort").text
     assert_equal 'Created', @ie.combo_box("storyFieldStatus").text
@@ -229,6 +232,7 @@ private
     assert !@ie.text_area("storyFormAcceptanceCriteria").visible
     assert !@ie.combo_box("storyFormIteration").visible
     assert !@ie.combo_box("storyFormRelease").visible
+    assert !@ie.button("storyBtnEditAttributes").visible
     assert_equal 'ted williams', @ie.combo_box("storyFieldOwner").text
     assert_equal '1', @ie.text_area("storyFieldEffort").text
     assert_equal 'Created', @ie.combo_box("storyFieldStatus").text

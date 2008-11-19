@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:component="org.planigle.planigle.view.components.*" width="550" height="300">
+	<mx:Script>
+		<![CDATA[
+			import mx.collections.ArrayCollection;
+			import mx.managers.PopUpManager;
+			import mx.utils.ObjectUtil;
+			import org.planigle.planigle.model.IndividualFactory;
+			import org.planigle.planigle.model.StoryAttribute;
+
+			[Bindable]
+			private var attributes:ArrayCollection = new ArrayCollection();
+
+			private var selectedAttribute:StoryAttribute;			
+			private var updateCompleteFunction:Function;
+			private var queue:int = 0;
+
+			public function init(updateCompleteFunction:Function):void
+			{
+				this.updateCompleteFunction = updateCompleteFunction;
+				
+				for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
+					attributes.addItem(ObjectUtil.copy(attrib));
+					
+				if (attributes.length == 0)
+					createAttribute(null);
+				else
+					editAttributeAttributes.selectedIndex = 0;
+				selectAttribute(null);
+			}
+						
+			// Update the attributes.
+			private function createAttribute(event:Event):void
+			{
+				var attrib:StoryAttribute = new StoryAttribute();
+				attrib.id = -1;
+				attrib.name = "New Attribute";
+				attrib.valueType = StoryAttribute.STRING;
+				attributes.addItem(attrib);
+				editAttributeAttributes.selectedItem = attrib;
+				selectAttribute(event);
+			}
+						
+			// Update the attributes.
+			private function selectAttribute(event:Event):void
+			{
+				updateSelectedAttribute();
+				selectedAttribute = StoryAttribute(editAttributeAttributes.selectedItem);
+				if (selectedAttribute != null)
+				{
+					editAttributeFieldName.text = selectedAttribute.name;
+					editAttributeFieldName.setFocus();
+					editAttributeFieldName.setSelection(0, selectedAttribute.name.length);
+					editAttributeFieldType.selectedIndex = selectedAttribute.valueType;
+				}
+			}
+						
+			// Update the attributes.
+			private function deleteAttribute(event:Event):void
+			{
+				if (editAttributeAttributes.selectedItem != null)
+					attributes.removeItemAt(attributes.getItemIndex(editAttributeAttributes.selectedItem));
+				selectedAttribute = null;
+				if (attributes.length > 0)
+				{
+					editAttributeAttributes.selectedItem = attributes.getItemAt(0);
+					selectAttribute(null);
+				}
+			}
+			
+			// Update the selected attribute based on the fields.
+			private function updateSelectedAttribute():void
+			{
+				if (selectedAttribute)
+				{
+					selectedAttribute.name = editAttributeFieldName.text;
+					selectedAttribute.valueType = editAttributeFieldType.selectedIndex;
+				}
+			}
+						
+			// Update the attributes.
+			private function updateAttributes(event:Event):void
+			{
+				updateSelectedAttribute();
+				PopUpManager.removePopUp(this);
+
+				var original:Array = IndividualFactory.current().project.storyAttributes;
+				for each (var oldAttrib:StoryAttribute in original)
+				{
+					var exists:Boolean = false;
+					for each (var newAttrib:StoryAttribute in attributes)
+					{
+						if (newAttrib.id == oldAttrib.id)
+						{
+							queue++;
+							oldAttrib.update({"record[name]": newAttrib.name, "record[value_type]": newAttrib.valueType}, done, done);
+							exists = true;
+							break;
+						}
+					}
+					if (!exists)
+					{
+						queue++;
+						oldAttrib.destroy(done, done);
+					}
+				}
+				for each (var newAttribute:StoryAttribute in attributes)
+				{
+					if (newAttribute.id == -1)
+					{
+						queue++;
+						IndividualFactory.current().project.createStoryAttribute({"record[name]": newAttribute.name, "record[value_type]": newAttribute.valueType}, done, done);
+					}
+				}
+			}
+			
+			// Call when done.
+			public function done(newItem:Object = null):void
+			{
+				queue--;
+				if (queue == 0)
+					updateCompleteFunction(null);
+			}
+		]]>
+	</mx:Script>
+	<mx:Form defaultButton="{editAttributeBtnOk}" height="100%" width="100%">
+		<mx:VBox>
+			<mx:HBox>
+				<mx:VBox>
+					<mx:List id="editAttributeAttributes" labelField="name" width="200" dataProvider="{attributes}" itemClick="selectAttribute(event)"/>
+					<mx:HBox horizontalAlign="center" width="200">						
+						<mx:LinkButton id="editAttributeBtnAdd" icon="{parentApplication.imgAdd}" toolTip="Add Attribute" click="createAttribute(event)"/>
+						<mx:LinkButton id="editAttributeBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete Attribute" click="deleteAttribute(event)"/>
+					</mx:HBox>
+				</mx:VBox>
+				<mx:VBox id="editAttributeForm" visible="{editAttributeAttributes.selectedItem != null}">
+					<mx:FormItem label="Name">
+						<mx:TextInput id='editAttributeFieldName' maxChars="40" text='' width="200"/>
+					</mx:FormItem>
+					<mx:FormItem label="Type">
+						<mx:ComboBox id='editAttributeFieldType' width="100" editable="false">
+							<mx:Object label="String" value="0" />
+							<mx:Object label="Text" value="1" />
+							<mx:Object label="Number" value="2" />
+						</mx:ComboBox>
+					</mx:FormItem>
+				</mx:VBox>
+			</mx:HBox>
+			<mx:HBox y="270" width="100%" horizontalAlign="center">
+				<mx:Button id="editAttributeBtnOk" label="OK" click="updateAttributes(event)"/>
+				<mx:Button id="editAttributeBtnCancel" label="Cancel" click="PopUpManager.removePopUp(this)"/>
+			</mx:HBox>	
+		</mx:VBox>
+	</mx:Form>
+</mx:TitleWindow>
