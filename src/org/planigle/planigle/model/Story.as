@@ -1,8 +1,6 @@
 package org.planigle.planigle.model
 {
 	import mx.collections.ArrayCollection;
-	import mx.collections.Sort;
-	import mx.collections.SortField;
 	
 	import org.planigle.planigle.commands.CreateTaskCommand;
 	import org.planigle.planigle.commands.DeleteStoryCommand;
@@ -29,6 +27,7 @@ package org.planigle.planigle.model
 		public var priority:Number;
 		public var userPriority:String = "";
 		public var normalizedPriority:String = ""; // Calculated by StoryFactory
+		private var myStoryValues:Array = new Array();
 		private var myTasks:Array = new Array();
 		public static const CREATED:int = 0;
 		public static const IN_PROGRESS:int = 1;
@@ -55,14 +54,49 @@ package org.planigle.planigle.model
 			priority = xml.priority;
 			userPriority = xml.child("user-priority");
 
+			var newStoryValues:ArrayCollection = new ArrayCollection();
+			for (var i:int = 0; i < xml.child("story-values").child("story-value").length(); i++)
+			{
+				var storyValue:StoryValue = new StoryValue();
+				storyValue.populate(XML(xml.child("story-values").child("story-value")[i]));
+				newStoryValues.addItem(storyValue);
+			}
+			storyValues = newStoryValues.source;
+
 			var newTasks:ArrayCollection = new ArrayCollection();
-			for (var i:int = 0; i < xml.tasks.task.length(); i++)
+			for (var j:int = 0; j < xml.tasks.task.length(); j++)
 			{
 				var task:Task = new Task();
-				task.populate(XML(xml.tasks.task[i]));
+				task.populate(XML(xml.tasks.task[j]));
 				newTasks.addItem(task);
 			}
 			tasks = newTasks.source;
+		}
+		
+		// Answer the value for a custom value (or nil if it does not exist).
+		public function getCustomValue(id:int):String
+		{
+			for each (var val:StoryValue in storyValues)
+			{
+				if (val.storyAttributeId == id)
+					return val.value;
+			}
+			return null;
+		}
+		
+		// Answer my story values.
+		public function get storyValues():Array
+		{
+			return myStoryValues;
+		}
+
+		// Set my story values.
+		public function set storyValues(storyValues:Array):void
+		{
+			for each (var storyValue:StoryValue in storyValues)
+				storyValue.story = this;
+
+			myStoryValues = storyValues;
 		}
 
 		// Answer my tasks.
@@ -91,6 +125,11 @@ package org.planigle.planigle.model
 		public function get indent():int
 		{
 			return 5;
+		}
+
+		// Set the indent (currently ignored; used to prevent binding issue).
+		public function set indent(indent:int):void
+		{
 		}
 
 		// Answer my sizing.

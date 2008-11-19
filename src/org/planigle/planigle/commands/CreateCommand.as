@@ -5,7 +5,7 @@ package org.planigle.planigle.commands
 	
 	import mx.controls.Alert;
 	import mx.rpc.IResponder;
-
+	
 	import org.planigle.planigle.business.Delegate;
 	
 	public class CreateCommand implements ICommand, IResponder
@@ -14,13 +14,15 @@ package org.planigle.planigle.commands
 		private var params:Object;
 		private var notifySuccess:Function;
 		private var notifyFailure:Function;
+		private var completedFunction:Function;
 		
-		public function CreateCommand(factory:Object, someParams:Object, aSuccessFunction:Function, aFailureFunction:Function)
+		public function CreateCommand(factory:Object, someParams:Object, aSuccessFunction:Function, aFailureFunction:Function, completedFunction:Function = null)
 		{
 			this.factory = factory;
 			params = someParams;
 			notifySuccess = aSuccessFunction;
 			notifyFailure = aFailureFunction;
+			this.completedFunction = completedFunction;
 		}
 		
 		// Required for the ICommand interface.  Event must be of type Cairngorm event.
@@ -40,7 +42,7 @@ package org.planigle.planigle.commands
 			}
 			else
 			{
-				var item:Object = factory.createCompleted(result);
+				var item:Object = completedFunction != null ? completedFunction(result) : factory.createCompleted(result);
 				if (notifySuccess != null)
 					notifySuccess(item);
 			}

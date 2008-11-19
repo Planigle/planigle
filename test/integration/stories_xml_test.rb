@@ -11,6 +11,8 @@ class StoriesXmlTest < ActionController::IntegrationTest
   fixtures :stories
   fixtures :projects
   fixtures :tasks
+  fixtures :story_attributes
+  fixtures :story_values
 
   # Re-raise errors caught by the controller.
   class StoriesController; def rescue_action(e) raise e end; end
@@ -174,25 +176,31 @@ class StoriesXmlTest < ActionController::IntegrationTest
     assert_not_equal stories(:first).reload.individual_id, 999
   end
 
-  # Test getting tasks for a story.
-  def test_show_tasks
+  # Test getting tasks and values for a story.
+  def test_show_tasks_and_values
     get resource_url << '/1', {}, authorization_header
     assert_response :success
     assert_select resource_string
     assert_select 'story' do
+      assert_select 'story-values' do
+        assert_select 'story-value'
+      end
       assert_select 'tasks' do
         assert_select 'task'
       end
     end
   end
 
-  # Test getting tasks for a story in Flex.
-  def test_show_tasks_flex
+  # Test getting tasks and values for a story in Flex.
+  def test_show_tasks_and_values_flex
     flex_login
     get resource_url << '/1.xml', {}, flex_header
     assert_response :success
     assert_select resource_string
     assert_select 'story' do
+      assert_select 'story-values' do
+        assert_select 'story-value'
+      end
       assert_select 'tasks' do
         assert_select 'task'
       end

@@ -6,6 +6,7 @@ class ProjectTest < ActiveSupport::TestCase
   fixtures :individuals
   fixtures :releases
   fixtures :iterations
+  fixtures :story_attributes
   fixtures :stories
   fixtures :surveys
 
@@ -57,6 +58,7 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal iterations(:first).project, projects(:first)
     assert_equal stories(:first).project, projects(:first)
     assert_equal surveys(:first).project, projects(:first)
+    assert_equal story_attributes(:first).project, projects(:first)
     projects(:first).destroy
     assert_nil Team.find_by_id(1)
     assert_nil Individual.find_by_id(2)
@@ -64,6 +66,7 @@ class ProjectTest < ActiveSupport::TestCase
     assert_nil Iteration.find_by_id(1)
     assert_nil Story.find_by_id(1)
     assert_nil Survey.find_by_id(1)
+    assert_nil StoryAttribute.find_by_id(1)
     assert_nil Individual.find_by_id(2) # non-admin deleted
     assert Individual.find_by_id(6) # admin set to nil
   end

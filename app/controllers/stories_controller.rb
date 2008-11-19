@@ -65,6 +65,13 @@ class StoriesController < ResourceController
   rescue ActiveRecord::RecordNotFound
     head 404
   end
+
+  # Wrap story creation in a transaction since sub instances may be created.
+  def create
+    Story.transaction do
+      super
+    end
+  end
   
   # Update the surveys if the story is unaccepted.
   def update
@@ -102,6 +109,9 @@ protected
   
   # Create a new record given the params.
   def create_record
+    if (!params[:record][:project_id])
+      params[:record][:project_id] = current_individual.project_id
+    end
     story = is_amf ? params[0] : Story.new(params[:record])
     if @tasks
       @tasks.each do |task|

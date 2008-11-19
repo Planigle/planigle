@@ -24,6 +24,9 @@ protected
   
   # Create a new record given the params.
   def create_record
+    if (!params[:record].has_key?(:project_id))
+      params[:record][:project_id] = current_individual.project_id
+    end
     is_amf ? params[0] : Individual.new(params[:record])
   end
   

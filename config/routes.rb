@@ -26,6 +26,7 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :individuals
   map.resources :surveys
+  map.resources :story_attributes
 
   map.resource :session
   map.resource :system

@@ -87,7 +87,7 @@ module RubyAMF
       :ruby => 'Project',
       :type => 'active_record',
       :attributes => ["id", "name", "description", "survey_key", "survey_mode", "premium_expiry", "premium_limit"],
-      :associations => ["teams"])
+      :associations => ["teams", "story_attributes"])
 
     ClassMappings.register(
       :actionscript => 'Team',
@@ -106,7 +106,7 @@ module RubyAMF
       :ruby => 'Story',
       :type => 'active_record',
       :attributes => ["id", "project_id", "name", "description", "acceptance_criteria", "release_id", "iteration_id", "individual_id", "effort", "status_code", "priority", "user_priority", "is_public", "team_id", "reason_blocked"],
-      :associations => ["tasks"])
+      :associations => ["story_values", "tasks"])
 
     ClassMappings.register(
       :actionscript => 'Task',
@@ -125,6 +125,18 @@ module RubyAMF
       :ruby => 'ReleaseTotal',
       :type => 'active_record',
       :attributes => ["id", "release_id", "team_id", "date", "created", "in_progress", "done", "blocked"])
+
+    ClassMappings.register(
+      :actionscript => 'StoryAttribute',
+      :ruby => 'StoryAttribute',
+      :type => 'active_record',
+      :attributes => ["id", "project_id", "name", "value_type"])
+
+    ClassMappings.register(
+      :actionscript => 'StoryValue',
+      :ruby => 'StoryValue',
+      :type => 'active_record',
+      :attributes => ["id", "story_id", "story_attribute_id", "value"])
 
     # => Class Mapping Scope (Advanced Usage)
     # You can also specify a class mapping scope if you want. For example, lets say you need certain attributes for a book when you are viewing a book

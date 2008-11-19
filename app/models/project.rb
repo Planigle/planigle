@@ -5,6 +5,7 @@ class Project < ActiveRecord::Base
   has_many :releases, :dependent => :destroy
   has_many :iterations, :dependent => :destroy
   has_many :stories, :dependent => :destroy
+  has_many :story_attributes, :dependent => :destroy
   has_many :surveys, :dependent => :destroy
 
   validates_presence_of     :name
@@ -58,7 +59,7 @@ class Project < ActiveRecord::Base
   # Override to_xml to include teams.
   def to_xml(options = {})
     if !options[:include]
-      options[:include] = [:teams]
+      options[:include] = [:story_attributes, :teams]
     end
     super(options)
   end
@@ -100,9 +101,9 @@ class Project < ActiveRecord::Base
   # Answer the records for a particular user.
   def self.get_records(current_user)
     if current_user.role >= Individual::ProjectAdmin
-      Project.find(:all, :include => :teams, :conditions => ["projects.id = ?", current_user.project_id])
+      Project.find(:all, :include => [:story_attributes, :teams], :conditions => ["projects.id = ?", current_user.project_id])
     else
-      Project.find(:all, :include => :teams, :order => 'projects.name')
+      Project.find(:all, :include => [:story_attributes, :teams], :order => 'projects.name')
     end
   end
 

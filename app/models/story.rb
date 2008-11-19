@@ -7,6 +7,7 @@ class Story < ActiveRecord::Base
   belongs_to :release
   belongs_to :iteration
   belongs_to :individual
+  has_many :story_values, :dependent => :destroy
   has_many :tasks, :dependent => :destroy
   has_many :survey_mappings, :dependent => :destroy
   
@@ -35,14 +36,18 @@ class Story < ActiveRecord::Base
   # Answer a CSV string representing the stories.
   def self.export(current_user)
     FasterCSV.generate(:row_sep => "\n") do |csv|
-      csv << ['PID', 'Name', 'Description', 'Acceptance Criteria', 'Size', 'Time', 'Status', 'Reason Blocked', 'Release', 'Iteration', 'Team', 'Owner', 'Public', 'User Rank']
+      attribs = ['PID', 'Name', 'Description', 'Acceptance Criteria', 'Size', 'Time', 'Status', 'Reason Blocked', 'Release', 'Iteration', 'Team', 'Owner', 'Public', 'User Rank']
+      if (current_user.project)
+        current_user.project.story_attributes.find(:all, :order => :name).each {|attrib| attribs << attrib.name}
+      end
+      csv << attribs
       get_records(current_user).each {|story| story.export(csv)}
     end
   end
   
   # Export given an instance of FasterCSV.
   def export(csv)
-    csv << [
+    values = [
       id,
       name,
       description,
@@ -57,6 +62,11 @@ class Story < ActiveRecord::Base
       individual ? individual.name : '',
       is_public,
       user_priority]
+    project.story_attributes.find(:all, :order => :name).each do |attrib|
+      value = story_values.find(:first, :conditions => {:story_attribute_id => attrib.id})
+      values << (value ? value.value : '')
+    end
+    csv << values
   end
 
   # Import from a CSV string representing the stories.
@@ -67,7 +77,7 @@ class Story < ActiveRecord::Base
     FasterCSV.parse(import_string) do |row|
       if !headers_shown
         headers_shown = true
-        process_headers(row, header_mapping)
+        process_headers(current_user, row, header_mapping)
       else
         errors.push(store_values(current_user, process_values(current_user, row, header_mapping)))
       end
@@ -120,7 +130,7 @@ class Story < ActiveRecord::Base
   # Override to_xml to include tasks.
   def to_xml(options = {})
     if !options[:include]
-      options[:include] = [:tasks]
+      options[:include] = [:story_values, :tasks]
     end
     super(options)
   end
@@ -129,15 +139,15 @@ class Story < ActiveRecord::Base
   def self.get_records(current_user, iteration_id=nil)
     if iteration_id
       if current_user.role >= Individual::ProjectAdmin or current_user.project_id
-        Story.find(:all, :include => :tasks, :conditions => ["iteration_id = ? and project_id = ?", iteration_id, current_user.project_id], :order => 'priority')
+        Story.find(:all, :include => [:story_values, :tasks], :conditions => ["iteration_id = ? and project_id = ?", iteration_id, current_user.project_id], :order => 'priority')
       else
-        Story.find(:all, :include => :tasks, :conditions => ["iteration_id = ?", iteration_id], :order => 'priority')
+        Story.find(:all, :include => [:story_values, :tasks], :conditions => ["iteration_id = ?", iteration_id], :order => 'priority')
       end
     else
       if current_user.role >= Individual::ProjectAdmin or current_user.project_id
-        Story.find(:all, :include => :tasks, :conditions => ["project_id = ?", current_user.project_id], :order => 'priority')
+        Story.find(:all, :include => [:story_values, :tasks], :conditions => ["project_id = ?", current_user.project_id], :order => 'priority')
       else
-        Story.find(:all, :include => :tasks, :order => 'priority')
+        Story.find(:all, :include => [:story_values, :tasks], :order => 'priority')
       end
     end
   end
@@ -193,6 +203,27 @@ class Story < ActiveRecord::Base
     message
   end
 
+  # Override attributes= to handle story values set through custom_<StoryAttribute.id>.
+  def attributes=(new_attributes, guard_protected_attributes = true)
+    modified_attributes = {}
+    new_attributes.each_pair do |key, value|
+      if attrib_id = key.to_s.match(/custom_(.*)/)
+        val = story_values.find(:first, :conditions => {:story_attribute_id => attrib_id[1]})
+        if val && value != nil and value != ""
+          val.value = value
+          val.save(false)
+        elsif val
+          val.destroy
+        elsif value != nil and value != ""
+          story_values << StoryValue.new({:story_attribute_id => attrib_id[1], :value => value})
+        end
+      else
+        modified_attributes[key] = value
+      end
+    end
+    super(modified_attributes, guard_protected_attributes)
+  end
+
 protected
 
   # Add custom validation of the status field and relationships to give a more specific message.
@@ -237,12 +268,22 @@ protected
 private
 
   # Process the import headers given a row and a hash to populate with index=>attribute.
-  def self.process_headers(row, header_mapping)
+  def self.process_headers(current_user, row, header_mapping)
     i = 0
     row.each do |value|
       if (value)
         down = value.downcase;
-        header_mapping[i] = Headers.has_key?(down) ? Headers[down] : :ignore;
+        if Headers.has_key?(down)
+          header_mapping[i] = Headers[down]
+        else # Check for custom attribute
+          header_mapping[i] = :ignore
+          current_user.project.story_attributes.each do |attrib|
+            if attrib.name.downcase == down
+              header_mapping[i] = "custom_" + attrib.id.to_s
+              break;
+            end
+          end
+        end
       end
       i += 1
     end

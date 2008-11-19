@@ -36,6 +36,11 @@ package org.planigle.planigle.model
 			return 25;
 		}
 
+		// Set the indent (currently ignored; used to prevent binding issue).
+		public function set indent(indent:int):void
+		{
+		}
+
 		// Answer my sizing.
 		public function get size():String
 		{

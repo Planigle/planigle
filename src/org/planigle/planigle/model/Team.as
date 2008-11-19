@@ -29,6 +29,11 @@ package org.planigle.planigle.model
 		{
 			return 25;
 		}
+
+		// Set the indent (currently ignored; used to prevent binding issue).
+		public function set indent(indent:int):void
+		{
+		}
 		
 		// Update me.  Params should be of the format (record[param]).  Success function
 		// will be called if successfully updated.  FailureFunction will be called if failed (will

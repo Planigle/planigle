@@ -15,6 +15,9 @@ protected
   
   # Create a new record given the params.
   def create_record
+    if (!params[:record][:project_id])
+      params[:record][:project_id] = current_individual.project_id
+    end
     is_amf ? params[0] : Release.new(params[:record])
   end
   

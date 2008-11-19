@@ -2,6 +2,7 @@
 <mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:local="org.planigle.planigle.view.controls.*" xmlns:component="org.planigle.planigle.view.components.*" name="Stories" label="Stories" borderThicknessLeft="2" borderThicknessRight="2" headerHeight="0" creationComplete="created(event)">
 	<mx:Script>
 		<![CDATA[
+		import flash.display.DisplayObject;
 		import mx.collections.ArrayCollection;
 		import mx.rpc.events.ResultEvent;
 		import mx.managers.PopUpManager;
@@ -12,6 +13,8 @@
 		import mx.events.CloseEvent;
 		import mx.events.ListEvent;
 		import mx.binding.utils.ChangeWatcher;
+		import mx.containers.FormItem;
+		import mx.controls.TextInput;
 		import org.planigle.planigle.model.ViewModelLocator;
 		import org.planigle.planigle.model.ProjectFactory;
 		import org.planigle.planigle.model.IndividualFactory;
@@ -23,11 +26,14 @@
 		import org.planigle.planigle.model.Iteration;
 		import org.planigle.planigle.model.StoryFactory;
 		import org.planigle.planigle.model.Story;
+		import org.planigle.planigle.model.StoryAttribute;
 		import org.planigle.planigle.model.Task;
 		import org.planigle.planigle.events.StoryChangedEvent;
+		import org.planigle.planigle.view.components.EditAttributes;
 		import org.planigle.planigle.view.components.SelectItem;
 		import org.planigle.planigle.view.components.UpdateItems;
 		import org.planigle.planigle.view.components.EnterText;
+		import org.planigle.planigle.view.components.HTMLTextArea;
 		
 		[Bindable]
 		private var _error:String;
@@ -55,6 +61,9 @@
 
 		[Bindable]
 		private var panelHeight:int;
+		
+		private var baseChildren:int;
+		private var customChildren:Object = new Object();
 
 		// Set up event listeners.  Called when the canvas has been created.
 		private function created(event:Event):void
@@ -67,12 +76,15 @@
 			ChangeWatcher.watch( IterationFactory.getInstance(), "iterationSelector", updateIterationFilterList );
 			ChangeWatcher.watch( IndividualFactory.getInstance(), "individualSelector", updateIndividualFilterList );
 			ChangeWatcher.watch( StoryFactory.getInstance(), "stories", handleFilter );
+			ChangeWatcher.watch( IndividualFactory.current(), "projectId", updateAttributes );
 			setReleaseFilterList();
 			setIterationFilterList();
 			setTeamWatcher(event);
 			setIndividualFilterList();
 			handleFilter(event);
 			storyBtnImport.onCompletion(setSuccessMessage, setErrorMessage);
+			baseChildren = changeForm.numChildren;
+			updateAttributes(null);
 		}
 
 		private var watcher:ChangeWatcher;
@@ -494,6 +506,13 @@
 			storyFormAcceptanceCriteria.visible = true;
 			storyFormPublic.height = 22;
 			storyFormPublic.visible = true;
+			storyBtnEditAttributes.visible = factory.currentIndividual.isAtLeastProjectAdmin();
+			for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
+			{
+				var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
+				disp.visible = true;
+				disp.height = (attrib.valueType == StoryAttribute.TEXT) ? 65 : 22;
+			}
 		}
 		
 		// Prepare the form for a task.
@@ -513,6 +532,13 @@
 			storyFormAcceptanceCriteria.visible = false;
 			storyFormPublic.height = 0;
 			storyFormPublic.visible = false;
+			storyBtnEditAttributes.visible = false;
+			for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
+			{
+				var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
+				disp.visible = false;
+				disp.height = 0;
+			}
 		}
 
 		private var currentItem:Object; // Remember in case selection changes while form is open.
@@ -580,6 +606,8 @@
 					storyFieldTeam.selectedIndex = IndividualFactory.current().project.teamSelector.length - 1;
 
 				storyFieldPublic.selectedIndex = ProjectFactory.getInstance().projects.getItemAt(0).surveyMode  == 2 ? 0 : 1;
+
+				clearCustomAttributes()
 			}
 
 			if (individual.selectedItem.id != "-1")
@@ -640,6 +668,7 @@
 							storyFieldTeam.selectedItem = IndividualFactory.current().project.find(it);
 
 						storyFieldPublic.selectedIndex = currentItem.isPublic ? 0 : 1;
+						setCustomAttributes();
 					}
 					else
 						prepareForTask();
@@ -654,6 +683,35 @@
 					storyFieldStatus.selectedIndex = currentItem.statusCode;
 					storyBtnChange.label = 'Update';
 				}
+			}
+		}
+
+		// Fill in the custom attribute fields.
+		public function setCustomAttributes(): void
+		{
+			if (currentItem && currentItem.isStory())
+			{
+				for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
+				{
+					var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
+					if (attrib.valueType == StoryAttribute.TEXT)
+						HTMLTextArea(disp).text = currentItem.getCustomValue(attrib.id);
+					else
+						TextInput(disp).text = currentItem.getCustomValue(attrib.id);
+				}
+			}
+		}
+
+		// Clear the custom attribute fields.
+		public function clearCustomAttributes(): void
+		{
+			for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
+			{
+				var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
+				if (attrib.valueType == StoryAttribute.TEXT)
+					HTMLTextArea(disp).text = "";
+				else
+					TextInput(disp).text = "";
 			}
 		}
 
@@ -713,6 +771,12 @@
 				params['record[acceptance_criteria]'] = storyFieldAcceptanceCriteria.text;
 				params['record[team_id]'] = storyFieldTeam.selectedItem.id > 0 ? storyFieldTeam.selectedItem.id : "";
 				params['record[is_public]'] = storyFieldPublic.selectedItem.value;
+
+				for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
+				{
+					var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
+					params['record[custom_' + attrib.id + ']'] = attrib.valueType == StoryAttribute.TEXT ? HTMLTextArea(disp).text : TextInput(disp).text;
+				}
 			}
 			return params;
 		}
@@ -1011,6 +1075,58 @@
 		{
 			return utilization.adjustHeight();
 		}
+		
+		// Edit the story attributes.
+		protected function editAttributes(event:Event):void
+		{
+			var editor:EditAttributes = EditAttributes(PopUpManager.createPopUp(this, EditAttributes, true));
+			editor.title = "Edit Custom Story Attributes";
+			editor.init(updateAttributes);
+			PopUpManager.centerPopUp(editor);
+		}
+		
+		// Update the story attributes.
+		protected function updateAttributes(event:Event):void
+		{
+			customChildren = new Object();
+			for (var i:int = changeForm.numChildren-1; i>=baseChildren; i--)
+				changeForm.removeChildAt(i);
+
+			for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
+			{
+				var formItem:FormItem = new FormItem();
+				formItem.label = attrib.name;
+				var id:String = "storyField" + attrib.id.toString();
+				switch (attrib.valueType)
+				{
+				  case StoryAttribute.STRING:
+				  	var input:TextInput = new TextInput();
+				  	input.id = id;
+				  	input.maxChars = 4096;
+				  	input.width = 500;
+				  	formItem.addChild(input);
+				  	customChildren[id] = input;
+				    break;
+				  case StoryAttribute.TEXT:
+				    var text:HTMLTextArea = new HTMLTextArea();
+				    text.id = id;
+				  	formItem.addChild(text);
+				  	customChildren[id] = text;
+				    break;
+				  case StoryAttribute.NUMBER:
+				  	var input2:TextInput = new TextInput();
+				  	input2.id = id;
+				  	input2.maxChars = 4096;
+				  	input2.width = 100;
+				  	input2.restrict = "0-9.";
+				  	formItem.addChild(input2);
+				  	customChildren[id] = input2;
+				    break;
+				}
+				changeForm.addChild(formItem);
+			}
+			setCustomAttributes();
+		}
 		]]>
 	</mx:Script>
  	
@@ -1069,6 +1185,7 @@
 												<mx:Object label="false" value='false' />
 											</mx:ComboBox>
 										</mx:FormItem>
+										<mx:Button label="Edit Attributes" id="storyBtnEditAttributes" click="editAttributes(event)" visible="{factory.currentIndividual.isAtLeastProjectAdmin()}"/>
 									</mx:Form>	
 								</mx:VBox>
 							</mx:HBox>

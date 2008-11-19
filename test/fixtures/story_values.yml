@@ -1,0 +1,23 @@
+first:
+  id: 1
+  story_id: 1
+  story_attribute_id: 1
+  value: test
+
+second:
+  id: 2
+  story_id: 1
+  story_attribute_id: 2
+  value: testy
+
+third:
+  id: 3
+  story_id: 1
+  story_attribute_id: 3
+  value: 5
+
+fourth:
+  id: 4
+  story_id: 5
+  story_attribute_id: 4
+  value: testit

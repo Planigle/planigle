@@ -10,6 +10,8 @@ class FlexStoriesTest < Test::Unit::TestCase
   fixtures :releases
   fixtures :iterations
   fixtures :stories
+  fixtures :story_attributes
+  fixtures :story_values
   fixtures :tasks
 
   def setup
@@ -98,6 +100,8 @@ class FlexStoriesTest < Test::Unit::TestCase
     init('admin2')
     delete_single
     delete_multiple
+    @ie.button("storyBtnCreate").click
+    assert @ie.button("storyBtnEditAttributes").visible
   end 
 
   # Test logging in as a project admin
@@ -106,6 +110,8 @@ class FlexStoriesTest < Test::Unit::TestCase
     assert @ie.button("storyBtnCreate").visible
     assert @ie.button("storyBtnEdit")[1].visible
     assert @ie.button("storyBtnDelete")[1].visible
+    @ie.button("storyBtnCreate").click
+    assert @ie.button("storyBtnEditAttributes").visible
   end
 
   # Test logging in as a project user
@@ -114,6 +120,8 @@ class FlexStoriesTest < Test::Unit::TestCase
     assert @ie.button("storyBtnCreate").visible
     assert @ie.button("storyBtnEdit")[1].visible
     assert @ie.button("storyBtnDelete")[1].visible
+    @ie.button("storyBtnCreate").click
+    assert !@ie.button("storyBtnEditAttributes").visible
   end
 
   # Test logging in as a read only user
@@ -154,6 +162,22 @@ class FlexStoriesTest < Test::Unit::TestCase
     @ie.combo_box("individual").open
     @ie.combo_box("individual").select(:item_renderer => 'No Owner')
     assert_equal '0 of 0 - No Owner', @ie.tree('utilization').tabular_data
+  end
+  
+  # Test changing custom attributes.
+  def test_custom_attribute
+    init('admin2')
+    @ie.button("storyBtnCreate").click
+    @ie.button("storyBtnEditAttributes").click
+    @ie.button("editAttributeBtnDelete").click # Delete Test_Number Attribute
+    @ie.button("editAttributeBtnAdd").click # Add a new one
+    @ie.text_area("editAttributeFieldName").input(:text => 'Beta' )
+    @ie.combo_box("editAttributeFieldType").open
+    @ie.combo_box("editAttributeFieldType").select(:item_renderer => 'Number' )
+    @ie.button("editAttributeBtnOk").click
+    sleep 5
+    assert_nil @ie.text_area("storyField3")
+    assert @ie.text_area("storyField5")
   end
 
 private
@@ -211,7 +235,7 @@ private
     assert_equal 'Created', @ie.combo_box("storyFieldStatus").text
     assert_equal 'false', @ie.combo_box("storyFieldPublic").text
     
-    create_story('foo', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Blocked', 'true', "Senate")
+    create_story('foo', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Blocked', 'true', "custom", "Senate")
     @ie.button("storyBtnChange").click
 
     assert_equal 'Story was successfully created.', @ie.text_area("storyError").text
@@ -225,6 +249,7 @@ private
     assert_equal '', @ie.text_area("storyFieldEffort").text
     assert_equal 'Created', @ie.combo_box("storyFieldStatus").text
     assert_equal 'false', @ie.combo_box("storyFieldPublic").text
+    assert_equal '', @ie.text_area("storyField1").text
     assert_not_nil @ie.button("storyBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("storyResourceGrid").num_rows
     assert_equal ",foo,fourth,Test_team,ted williams,1,,Blocked,true,4,,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
@@ -243,7 +268,7 @@ private
   end
 
   # Create a story.
-  def create_story(name, description, acceptance_criteria, iteration, release, team, owner, effort, status, public, reason_blocked="")
+  def create_story(name, description, acceptance_criteria, iteration, release, team, owner, effort, status, public, custom="", reason_blocked="")
     @ie.text_area("storyFieldName").input(:text => name )
     @ie.text_area("storyFieldDescription").input(:text => description )
     @ie.text_area("storyFieldAcceptanceCriteria").input(:text => acceptance_criteria )
@@ -263,6 +288,7 @@ private
     if reason_blocked != ""
       @ie.text_area("storyFieldReasonBlocked").input(:text => reason_blocked )
     end
+    @ie.text_area("storyField1").input(:text => custom )
   end
     
   # Test whether error handling works for editing a story.
@@ -290,7 +316,7 @@ private
   # Test whether you can successfully edit a story.
   def edit_story_success
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
-    edit_story('foo 1', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Blocked', 'true', "Fillibuster")
+    edit_story('foo 1', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Blocked', 'true', "custom", "Fillibuster")
     @ie.button("storyBtnChange").click
     sleep 3 # Wait for results
     assert_equal '', @ie.text_area("storyError").text
@@ -351,7 +377,7 @@ private
   end
 
   # Edit a story.
-  def edit_story(name, description, acceptance_criteria, iteration, release, team, owner, effort, status, public, reason_blocked="")
+  def edit_story(name, description, acceptance_criteria, iteration, release, team, owner, effort, status, public, custom="", reason_blocked="")
     @ie.button("storyBtnEdit")[1].click
     @ie.text_area("storyFieldName").input(:text => name )
     @ie.text_area("storyFieldDescription").input(:text => description )
@@ -372,6 +398,7 @@ private
     end
     @ie.combo_box("storyFieldPublic").open
     @ie.combo_box("storyFieldPublic").select(:item_renderer => public )
+    @ie.text_area("storyField1").input(:text => custom )
   end
     
   # Test whether error handling works for splitting a story.
