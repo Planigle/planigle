@@ -63,6 +63,14 @@
 			[Bindable]
 			public var imgExisting:Class;
 		
+			[Embed(source="../public/images/expanded.png")]
+			[Bindable]
+			public var imgExpanded:Class;
+		
+			[Embed(source="../public/images/collapsed.png")]
+			[Bindable]
+			public var imgCollapsed:Class;
+		
 			[Embed(source="../public/images/logo_big.gif")]
 			[Bindable]
 			public var imgLogoBig:Class;
