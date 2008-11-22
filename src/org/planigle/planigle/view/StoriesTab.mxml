@@ -1294,7 +1294,7 @@
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
-								<mx:LinkButton id="storyBtnExpand" width="16" icon="{outerDocument.expandIcon(data)}" click="outerDocument.expand(event);" visible="{outerDocument.shouldShow(data)}"/>
+								<mx:LinkButton id="storyBtnExpand" width="16" icon="{outerDocument.expandIcon(data)}" click="outerDocument.expand(event);"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>

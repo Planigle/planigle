@@ -320,6 +320,7 @@ private
     @ie.button_bar("mainNavigation").change(:related_object => "Stories")
     @ie.combo_box("team").open
     @ie.combo_box("team").select(:item_renderer => 'All Teams' )
+sleep 5
     @ie.button("storyBtnExpand")[2].click
   end
 end

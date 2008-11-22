@@ -137,7 +137,7 @@ class FlexStoriesTest < Test::Unit::TestCase
     init('admin2')
     assert_equal '3 of 0.33 (900%) - Test', @ie.tree('velocity').tabular_data
     @ie.tree('velocity').open(:item_renderer => '3 of 0.33 (900%) - Test')
-    assert_equal '1 of 0 - Test_team', @ie.tree('velocity').tabular_data(:start => 2, :end => 2)
+    assert_equal '1 of 0 - Test_team', @ie.tree('velocity').tabular_data(:start => 3, :end => 3)
 
     @ie.combo_box("team").open
     @ie.combo_box("team").select(:item_renderer => 'Test_team')
@@ -149,9 +149,9 @@ class FlexStoriesTest < Test::Unit::TestCase
     init('admin2')
     assert_equal '5 of 0.67 (750%) - Test', @ie.tree('utilization').tabular_data
     @ie.tree('utilization').open(:item_renderer => '5 of 0.67 (750%) - Test')
-    assert_equal '5 of 0.67 (750%) - Test_team', @ie.tree('utilization').tabular_data(:start => 2, :end => 2)
+    assert_equal '5 of 0.67 (750%) - Test_team', @ie.tree('utilization').tabular_data(:start => 1, :end => 1)
     @ie.tree('utilization').open(:item_renderer => '5 of 0.67 (750%) - Test_team')
-    assert_equal '5 of 0.67 (750%) - aaron hank', @ie.tree('utilization').tabular_data(:start => 3, :end => 3)
+    assert_equal '5 of 0.67 (750%) - aaron hank', @ie.tree('utilization').tabular_data(:start => 2, :end => 2)
 
     @ie.combo_box("team").open
     @ie.combo_box("team").select(:item_renderer => 'Test_team')
@@ -372,7 +372,7 @@ private
     @ie.button("updateBtnOk").click
     assert_equal '', @ie.text_area("storyError").text
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal "+,test,fourth,Test_team,aaron hank,1,5,Blocked,true,2,2,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 1, :end => 1)
+    assert_equal ",test,fourth,Test_team,aaron hank,1,5,Blocked,true,2,2,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 1, :end => 1)
     assert_equal ",test3,fourth,Test_team,aaron hank,1,,Blocked,true,1,2,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
   end
 
@@ -444,7 +444,7 @@ private
     assert_nil @ie.button("storyBtnCancel")
     rows = @ie.data_grid("storyResourceGrid").num_rows
     assert_equal num_rows + 1, rows
-    assert_equal "+,foo 1,fourth,Test_team,ted williams,1,3,Created,true,3,,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-1, :end => rows-1)
+    assert_equal ",foo 1,fourth,Test_team,ted williams,1,3,Created,true,3,,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-1, :end => rows-1)
   end
     
   # Test whether you can successfully cancel splitting a story.
