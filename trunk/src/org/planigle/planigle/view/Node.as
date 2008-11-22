@@ -22,6 +22,10 @@ package org.planigle.planigle.view
 					addNode(child, levels - 1);
 			}
 			
+			var source:Array = children.source;
+			source.sortOn(["rawUtilization", "capacity", "name"], [Array.NUMERIC | Array.DESCENDING, Array.NUMERIC | Array.DESCENDING, Array.CASEINSENSITIVE]);
+			children = new ArrayCollection(source);
+			
 			if (children.length == 0)
 				children = null;
 		}
@@ -31,23 +35,28 @@ package org.planigle.planigle.view
 		{
 		}
 		
-		// Answer how much I am utilized.
-		protected function utilized():Number
+		// Answer how much I can be utilized.
+		public function get capacity():Number
 		{
 			return 0;
 		}
 		
 		// Answer how much I am utilized in the subset.
-		protected function utilizedIn():Number
+		public function get utilized():Number
 		{
 			return 0;
+		}
+		
+		public function get name():String
+		{
+			return model.name;
 		}
 		
 		// Answer the color to use.
 		public function get color():uint
 		{
-			var used:Number = utilizedIn();
-			var total:Number = utilized();
+			var used:Number = utilized;
+			var total:Number = capacity;
 			if (total > 0)
 			{
 				var percent:int = 100 * used / total;
@@ -56,19 +65,26 @@ package org.planigle.planigle.view
 			return used > 0 ? 0xFF0000 : 0x000000;
 		}
 
+		// Answer the utilization as a number.
+		public function get rawUtilization():Number
+		{
+			var used:Number = utilized;
+			var total:Number = capacity;
+			return total > 0 ? used / total : 0;
+		}
 
-		// Answer the utilization.
+		// Answer the utilization as a string.
 		public function get utilization():String
 		{
-			var used:Number = utilizedIn();
-			var total:Number = utilized();
+			var used:Number = utilized;
+			var total:Number = capacity;
 			if (total > 0)
 			{
 				var percent:int = 100 * used / total;
 				return formatNumber(used) + " of " + formatNumber(total) + " (" + percent + "%) - " + model.name;
 			}
 			else
-				return formatNumber(used) + " of 0 - " + model.name;
+				return formatNumber(used) + " of 0 - " + name;
 		}
 
 		// Format a number for display.

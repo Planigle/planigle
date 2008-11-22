@@ -282,6 +282,20 @@
 				}
 		}
 		
+		// Answer an icon for my expand button.
+		public function expandIcon(item:Object):Class
+		{
+			switch (item.expandLabel())
+			{
+				case '+':
+					return parentApplication.imgCollapsed;
+				case '-':
+					return parentApplication.imgExpanded;
+				default:
+					return null;
+			}
+		}
+		
 		// Answer the color to use for a row.
 		private function rowColor(item:Object, color:uint) : uint
 		{
@@ -379,11 +393,11 @@
 		</mx:HBox>
 		<local:ColoredBackgroundDataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="projectResourceGrid" dataProvider="{projects}" rowCount="{projects.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)" itemClick="groupSelected(event)" rowColorFunction="rowColor">
 			<local:columns>
-				<mx:DataGridColumn editable="false" minWidth="20" width="20" sortable="false"> 
+				<mx:DataGridColumn editable="false" minWidth="16" width="16" sortable="false" textAlign="center"> 
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
-								<mx:LinkButton id="projectBtnExpand" label="{data.expandLabel()}" click="outerDocument.expand(event);"/>		 	
+								<mx:LinkButton width="16" id="projectBtnExpand" icon="{outerDocument.expandIcon(data)}" click="outerDocument.expand(event);"/>		 	
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>

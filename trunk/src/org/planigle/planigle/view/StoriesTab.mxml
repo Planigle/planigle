@@ -1032,8 +1032,8 @@
 			blocked ? null : storyFieldReasonBlocked.text = "";
 		}
 		
-		// Answer a label for my expand button.
-		public function expandLabel(item:Object):String
+		// Answer an icon for my expand button.
+		public function expandIcon(item:Object):Class
 		{
 			if (item.isStory())
 			{
@@ -1044,12 +1044,12 @@
 						hasTask = true;
 				}
 				if (hasTask)
-					return item.isExpanded() ? "-" : "+";
+					return item.isExpanded() ? parentApplication.imgExpanded : parentApplication.imgCollapsed;
 				else
-					return "";			
+					return null;
 			}
 			else
-				return "";
+				return null;
 		}
 		
 		// Answer a color for an item.
@@ -1277,24 +1277,24 @@
 					<component:ExportButton id="storyBtnExport"/>
 					<mx:Button icon="{parentApplication.imgSurveys}" toolTip="View Surveys" click="handleSurveys(event);" id="storyBtnViewSurveys"/>
 				</mx:HBox>
-				<mx:HBox width="100%" horizontalAlign="center">
+				<mx:HBox width="100%" horizontalAlign="left">
 					<mx:Label text="Number of Stories:" fontWeight="bold"/>
 					<mx:Label id="storiesCount" text=""/>
-					<mx:Label text="Velocity:" fontWeight="bold"/>
-					<local:ColoredTree id="velocity" rowColorFunction="color" labelField="utilization" iconFunction="iconString" borderStyle="none" rowCount="1" itemOpen="adjustVelocityHeight(event)" itemClose="adjustVelocityHeight(event)" selectable="false" width="300"/>
-					<mx:Label text="Utilization:" fontWeight="bold"/>
-					<local:ColoredTree id="utilization" rowColorFunction="color" labelField="utilization" iconFunction="iconString" borderStyle="none" rowCount="1" itemOpen="adjustUtilizationHeight(event)" itemClose="adjustUtilizationHeight(event)" selectable="false" width="300"/>
+					<mx:Label text="Velocity Allocation:" fontWeight="bold" visible="{IndividualFactory.current().isPremium()}"/>
+					<local:ColoredTree id="velocity" rowColorFunction="color" labelField="utilization" iconFunction="iconString" borderStyle="none" rowCount="1" itemOpen="adjustVelocityHeight(event)" itemClose="adjustVelocityHeight(event)" selectable="false" width="300" visible="{IndividualFactory.current().isPremium()}"/>
+					<mx:Label text="Utilization:" fontWeight="bold" visible="{IndividualFactory.current().isPremium()}"/>
+					<local:ColoredTree id="utilization" rowColorFunction="color" labelField="utilization" iconFunction="iconString" borderStyle="none" rowCount="1" itemOpen="adjustUtilizationHeight(event)" itemClose="adjustUtilizationHeight(event)" selectable="false" width="300" visible="{IndividualFactory.current().isPremium()}"/>
 				</mx:HBox>
 			</mx:VBox>
 			<mx:Text id="storyError" styleName="error" htmlText="{_error}" width="100%" height="0"/>
 		</mx:VBox>
 		<local:ColoredBackgroundDataGrid id="storyResourceGrid" variableRowHeight="true" dataProvider="{filteredStories}" rowCount="{filteredStories.length}" width="100%" height="100%" dragEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" dropEnabled="true" dragMoveEnabled="true" dragStart="handleDrag(event)" dragDrop="handleReorder(event)" rowColorFunction="rowColor" headerRelease="prepareSort(event)" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" doubleClick="showUpdate(event)" allowMultipleSelection="true">
 			<local:columns>
-				<mx:DataGridColumn editable="false" minWidth="20" width="20" sortable="false"> 
+				<mx:DataGridColumn editable="false" minWidth="16" width="16" sortable="false" textAlign="center"> 
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
-								<mx:LinkButton id="storyBtnExpand" label="{outerDocument.expandLabel(data)}" click="outerDocument.expand(event);"/>		 	
+								<mx:LinkButton id="storyBtnExpand" width="16" icon="{outerDocument.expandIcon(data)}" click="outerDocument.expand(event);" visible="{outerDocument.shouldShow(data)}"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>

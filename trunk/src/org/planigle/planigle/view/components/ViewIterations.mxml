@@ -169,7 +169,7 @@
 		private function handleCreateSuccess(item:Object):void
 		{
 			showCreate(null);
-			setSuccessMessage("Iteration was successfully created.");
+			setSuccessMessage("Iteration was successfully created." + ((release == null || item.isIn(release)) ? "" : "  Iteration does not show in the list since it is not in the currently selected release."));
 		}
 
 		// Handle a successful change.

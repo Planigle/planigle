@@ -15,14 +15,14 @@ package org.planigle.planigle.view
 			children.addItem(new VelocityNode(this, object, levels, subset));
 		}
 		
-		// Answer how utilized I am.
-		protected override function utilized():Number
+		// Answer how much I can be utilized.
+		public override function get capacity():Number
 		{
 			return model.velocity;
 		}
 		
-		// Answer how utilized I am.
-		protected override function utilizedIn():Number
+		// Answer how much I am utilized in the subset.
+		public override function get utilized():Number
 		{
 			return model.velocityIn(subset);
 		}
