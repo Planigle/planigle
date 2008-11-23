@@ -23,7 +23,7 @@ package org.planigle.planigle.view
 			}
 			
 			var source:Array = children.source;
-			source.sortOn(["rawUtilization", "capacity", "name"], [Array.NUMERIC | Array.DESCENDING, Array.NUMERIC | Array.DESCENDING, Array.CASEINSENSITIVE]);
+			source.sortOn(["rawUtilization", "capacity", "utilized", "name"], [Array.NUMERIC | Array.DESCENDING, Array.NUMERIC | Array.DESCENDING, Array.NUMERIC | Array.DESCENDING, Array.CASEINSENSITIVE]);
 			children = new ArrayCollection(source);
 			
 			if (children.length == 0)
