@@ -363,6 +363,7 @@
 			else
 				velocity.dataProvider = new VelocityNode(null, IndividualFactory.current().project, 1+teamLevel, filteredStories);
 			velocity.rowCount = 1;
+			velocity.width = NaN;
 
 			if (individual.selectedItem && individual.selectedItem.id != "-1")
 				utilization.dataProvider = new UtilizationNode(null, individual.selectedItem, 1, filteredStories);
@@ -371,6 +372,7 @@
 			else
 				utilization.dataProvider = new UtilizationNode(null, IndividualFactory.current().project, 2+teamLevel, filteredStories);
 			utilization.rowCount = 1;
+			utilization.width = NaN;
 		}
 		
 		// Expand / collapse a story.
@@ -1064,16 +1066,18 @@
 			return null;
 		}
 		
-		// Answer velocity tree height.
-		public function adjustVelocityHeight(event:Event):void
+		// Answer velocity tree size.
+		public function adjustVelocitySize(event:Event):void
 		{
-			return velocity.adjustHeight();
+			velocity.width = velocity.measureWidthOfItems();
+			velocity.adjustHeight();
 		}
 		
-		// Answer utilization tree height.
-		public function adjustUtilizationHeight(event:Event):void
+		// Answer utilization tree size.
+		public function adjustUtilizationSize(event:Event):void
 		{
-			return utilization.adjustHeight();
+			utilization.width = utilization.measureWidthOfItems();
+			utilization.adjustHeight();
 		}
 		
 		// Edit the story attributes.
@@ -1277,13 +1281,13 @@
 					<component:ExportButton id="storyBtnExport"/>
 					<mx:Button icon="{parentApplication.imgSurveys}" toolTip="View Surveys" click="handleSurveys(event);" id="storyBtnViewSurveys"/>
 				</mx:HBox>
-				<mx:HBox width="100%" horizontalAlign="left">
+				<mx:HBox id="statusRow" width="100%" horizontalAlign="center" verticalAlign="middle">
 					<mx:Label text="Number of Stories:" fontWeight="bold"/>
 					<mx:Label id="storiesCount" text=""/>
 					<mx:Label text="Velocity Allocation:" fontWeight="bold" visible="{IndividualFactory.current().isPremium()}"/>
-					<local:ColoredTree id="velocity" rowColorFunction="color" labelField="utilization" iconFunction="iconString" borderStyle="none" rowCount="1" itemOpen="adjustVelocityHeight(event)" itemClose="adjustVelocityHeight(event)" selectable="false" width="300" visible="{IndividualFactory.current().isPremium()}"/>
+					<local:ColoredTree id="velocity" rowColorFunction="color" labelField="utilization" iconFunction="iconString" borderStyle="none" rowCount="1" itemOpen="adjustVelocitySize(event)" itemClose="adjustVelocitySize(event)" selectable="false" visible="{IndividualFactory.current().isPremium()}"/>
 					<mx:Label text="Utilization:" fontWeight="bold" visible="{IndividualFactory.current().isPremium()}"/>
-					<local:ColoredTree id="utilization" rowColorFunction="color" labelField="utilization" iconFunction="iconString" borderStyle="none" rowCount="1" itemOpen="adjustUtilizationHeight(event)" itemClose="adjustUtilizationHeight(event)" selectable="false" width="300" visible="{IndividualFactory.current().isPremium()}"/>
+					<local:ColoredTree id="utilization" rowColorFunction="color" labelField="utilization" iconFunction="iconString" borderStyle="none" rowCount="1" itemOpen="adjustUtilizationSize(event)" itemClose="adjustUtilizationSize(event)" selectable="false" visible="{IndividualFactory.current().isPremium()}"/>
 				</mx:HBox>
 			</mx:VBox>
 			<mx:Text id="storyError" styleName="error" htmlText="{_error}" width="100%" height="0"/>
