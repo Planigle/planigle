@@ -58,7 +58,7 @@
 				selectedIndex = teamSelector.length - 1;
 			visible = teamSelector.length > 2;
 			height = visible ? 22 : 0;
-			width = visible ? 130 : 0;
+			width = visible ? 130 : -8;
 		}
 		]]>
 	</mx:Script>

@@ -69,8 +69,8 @@
 		private function created(event:Event):void
 		{
 			panelHeight = combinedPanel.height;
-			ChangeWatcher.watch( factory, "currentIndividual", setTeamWatcher );
-			ChangeWatcher.watch( IndividualFactory.current(), "projectId", setTeamWatcher );
+			ChangeWatcher.watch( factory, "currentIndividual", updateIndividual );
+			ChangeWatcher.watch( IndividualFactory.current(), "projectId", updateIndividual );
 			ChangeWatcher.watch( factory, "currentIndividual", resetState ); // Reset if log out / logged back in
 			ChangeWatcher.watch( ReleaseFactory.getInstance(), "releaseSelector", updateReleaseFilterList );
 			ChangeWatcher.watch( IterationFactory.getInstance(), "iterationSelector", updateIterationFilterList );
@@ -79,7 +79,7 @@
 			ChangeWatcher.watch( IndividualFactory.current(), "projectId", updateAttributes );
 			setReleaseFilterList();
 			setIterationFilterList();
-			setTeamWatcher(event);
+			updateIndividual(event);
 			setIndividualFilterList();
 			handleFilter(event);
 			storyBtnImport.onCompletion(setSuccessMessage, setErrorMessage);
@@ -90,7 +90,7 @@
 		private var watcher:ChangeWatcher;
 
 		// Watch for changes to the teams.
-		private function setTeamWatcher(event:Event):void
+		private function updateIndividual(event:Event):void
 		{
 			if (watcher)
 				watcher.unwatch();
@@ -98,6 +98,8 @@
 				watcher = ChangeWatcher.watch( IndividualFactory.current().project, "teams", updateTeamField );
 			else watcher = null;
 			updateTeamField(null);
+			storyUtilizationRow.visible = IndividualFactory.current().isPremium();
+			storyUtilizationRow.width = IndividualFactory.current().isPremium() ? NaN : 0;
 		}
 
 		// Update the teams in the form.
@@ -178,7 +180,7 @@
 					release.selectedIndex = releaseFilter.length - 1;
 			}
 			release.visible = releaseFilter.length > 2;
-			release.width = release.visible ? 130 : 0;
+			release.width = release.visible ? 130 : -8;
 		}
 				
 		// Update the iterations in the filter list.
@@ -1281,13 +1283,15 @@
 					<component:ExportButton id="storyBtnExport"/>
 					<mx:Button icon="{parentApplication.imgSurveys}" toolTip="View Surveys" click="handleSurveys(event);" id="storyBtnViewSurveys"/>
 				</mx:HBox>
-				<mx:HBox id="statusRow" width="100%" horizontalAlign="center" verticalAlign="middle">
+				<mx:HBox id="storyStatusRow" width="100%" horizontalAlign="center" verticalAlign="middle">
 					<mx:Label text="Number of Stories:" fontWeight="bold"/>
 					<mx:Label id="storiesCount" text=""/>
-					<mx:Label text="Velocity Allocation:" fontWeight="bold" visible="{IndividualFactory.current().isPremium()}"/>
-					<local:ColoredTree id="velocity" rowColorFunction="color" labelField="utilization" iconFunction="iconString" borderStyle="none" rowCount="1" itemOpen="adjustVelocitySize(event)" itemClose="adjustVelocitySize(event)" selectable="false" visible="{IndividualFactory.current().isPremium()}"/>
-					<mx:Label text="Utilization:" fontWeight="bold" visible="{IndividualFactory.current().isPremium()}"/>
-					<local:ColoredTree id="utilization" rowColorFunction="color" labelField="utilization" iconFunction="iconString" borderStyle="none" rowCount="1" itemOpen="adjustUtilizationSize(event)" itemClose="adjustUtilizationSize(event)" selectable="false" visible="{IndividualFactory.current().isPremium()}"/>
+					<mx:HBox id="storyUtilizationRow" verticalAlign="middle">
+						<mx:Label text="Velocity Allocation:" fontWeight="bold"/>
+						<local:ColoredTree id="velocity" rowColorFunction="color" labelField="utilization" iconFunction="iconString" borderStyle="none" rowCount="1" itemOpen="adjustVelocitySize(event)" itemClose="adjustVelocitySize(event)" selectable="false"/>
+						<mx:Label text="Utilization:" fontWeight="bold"/>
+						<local:ColoredTree id="utilization" rowColorFunction="color" labelField="utilization" iconFunction="iconString" borderStyle="none" rowCount="1" itemOpen="adjustUtilizationSize(event)" itemClose="adjustUtilizationSize(event)" selectable="false"/>
+					</mx:HBox>
 				</mx:HBox>
 			</mx:VBox>
 			<mx:Text id="storyError" styleName="error" htmlText="{_error}" width="100%" height="0"/>
