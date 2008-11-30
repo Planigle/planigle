@@ -13,6 +13,7 @@ Flex - MPL
 Embedded Components - License:
 Ruby AMF (Rails Plugin) - MIT
 Restful Authentication (Rails Plugin) - MIT
+acts_as_audited (Rails Plugin) - MIT
 Cairngorm (Flex library) - BSD
 Flex automation libraries - MPL (included for build convenience; part of Flex SDK)
 Icons - http://www.visual-blast.com/graphics/icons/free-web-application-icons-set/ - Free (no restrictions)

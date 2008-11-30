@@ -13,12 +13,15 @@
 		import mx.events.ListEvent;
 		import mx.events.CloseEvent;
 		import mx.binding.utils.ChangeWatcher;
+		import modules.Core;
 		import org.planigle.planigle.model.ViewModelLocator;
 		import org.planigle.planigle.model.ProjectFactory;
 		import org.planigle.planigle.model.Project;
 		import org.planigle.planigle.model.Team;
 		import org.planigle.planigle.model.IndividualFactory;
+		import org.planigle.planigle.view.ChangesTab;
 		import org.planigle.planigle.view.ViewHelper;
+		import org.planigle.planigle.events.AuditChangedEvent;
 		import org.planigle.planigle.events.ProjectChangedEvent;
 		
 		[Bindable]
@@ -314,6 +317,14 @@
 		{
 			return data.isProject() && factory.currentIndividual.isAtLeastProjectAdmin();
 		}
+		
+		// Show the history for the current object.
+		public function showHistory(event:Event) : void
+		{
+			new AuditChangedEvent(null, projectResourceGrid.selectedItem.isProject() ? 'Project' : 'Team', null, null, String(projectResourceGrid.selectedItem.id)).dispatch();
+			var core:Core = Core(parentApplication.mainViewStack.getChildByName("core").getChildAt(0));
+			core.mainViewStack.selectedChild = ChangesTab(core.mainViewStack.getChildByName("Changes"));
+		}
 		]]>
 	</mx:Script>
  	
@@ -391,7 +402,7 @@
 			<mx:Text id="projectError" styleName="error" htmlText="{_error}" width="100%"/>
 			<mx:Button icon="{parentApplication.imgAdd}" toolTip="Create" id="projectBtnCreate" click="showCreateProject(event);" visible="{factory.currentIndividual.isAdmin()}"/>
 		</mx:HBox>
-		<local:ColoredBackgroundDataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="projectResourceGrid" dataProvider="{projects}" rowCount="{projects.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)" itemClick="groupSelected(event)" rowColorFunction="rowColor">
+		<local:ColoredBackgroundDataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="projectResourceGrid" dataProvider="{projects}" rowCount="{projects.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)" itemClick="groupSelected(event)" rowColorFunction="rowColor" variableRowHeight="true">
 			<local:columns>
 				<mx:DataGridColumn editable="false" minWidth="16" width="16" sortable="false" textAlign="center"> 
 					<mx:itemRenderer> 
@@ -411,13 +422,14 @@
 				</mx:DataGridColumn>
 				<mx:DataGridColumn headerText="Description" dataField="description"/>
 				<mx:DataGridColumn headerText="Stories" width="120" labelFunction="ViewHelper.formatSurveyMode" sortCompareFunction="ViewHelper.sortSurveyMode"/>
-				<mx:DataGridColumn editable="false" width="80" minWidth="80" sortable="false">
+				<mx:DataGridColumn editable="false" width="140" minWidth="140" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
 								<mx:LinkButton id="projectBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
 								<mx:LinkButton id="projectBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.shouldShowDeleteProject(data)}"/>
 								<mx:LinkButton id="teamBtnAdd" icon="{parentApplication.imgAdd}" toolTip="Add Team" click="outerDocument.showCreateTeam(event);" visible="{outerDocument.shouldShowAddTeam(data)}"/>
+								<mx:LinkButton id="projectBtnInfo" icon="{parentApplication.imgInfo}" toolTip="History" click="outerDocument.showHistory(event);"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>

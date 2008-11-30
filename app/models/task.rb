@@ -1,6 +1,8 @@
 class Task < ActiveRecord::Base
   belongs_to :individual
   belongs_to :story
+  attr_accessible :name, :description, :effort, :status_code, :iteration_id, :individual_id, :story_id, :reason_blocked
+  acts_as_audited :except => [:story_id]
   
   validates_presence_of     :name, :story_id
   validates_length_of       :name,                   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
@@ -8,8 +10,6 @@ class Task < ActiveRecord::Base
   validates_length_of       :reason_blocked,         :maximum => 4096, :allow_nil => true
   validates_numericality_of :effort, :allow_nil => true
   validates_numericality_of :status_code
-
-  attr_accessible :name, :description, :effort, :status_code, :iteration_id, :individual_id, :story_id, :reason_blocked
 
   # Answer the valid values for status.
   def self.valid_status_values()

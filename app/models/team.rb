@@ -4,14 +4,12 @@ class Team < ActiveRecord::Base
   has_many :stories, :dependent => :nullify
   has_many :release_totals, :dependent => :nullify
   has_many :iteration_totals, :dependent => :nullify
+  attr_accessible :name, :description
+  acts_as_audited :except => [:project_id]
 
   validates_presence_of     :name
   validates_length_of       :name,                   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
   validates_length_of       :description,            :maximum => 4096, :allow_nil => true
-
-  # Prevent a user from submitting a crafted form that bypasses activation
-  # Anything that the user can change should be added here.
-  attr_accessible :name, :description
 
   # Only admins can create projects.
   def authorized_for_create?(current_user)

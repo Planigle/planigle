@@ -7,6 +7,8 @@ class Project < ActiveRecord::Base
   has_many :stories, :dependent => :destroy
   has_many :story_attributes, :dependent => :destroy
   has_many :surveys, :dependent => :destroy
+  attr_accessible :name, :description, :survey_mode, :premium_limit, :premium_expiry
+  acts_as_audited :except => [:survey_key]
 
   validates_presence_of     :name
   validates_length_of       :name,                   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
@@ -16,10 +18,6 @@ class Project < ActiveRecord::Base
   validates_numericality_of :premium_limit, :only_integer => true, :allow_nil => false, :greater_than => 0
 
   before_create :initialize_defaults
-
-  # Prevent a user from submitting a crafted form that bypasses activation
-  # Anything that the user can change should be added here.
-  attr_accessible :name, :description, :survey_mode, :premium_limit, :premium_expiry
 
   # Ensure that survey mode, premium expiry and premium limit are initialized.
   def initialize(attributes={})

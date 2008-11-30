@@ -9,12 +9,14 @@ module AuthenticatedSystem
     # Accesses the current individual from the session. 
     def current_individual
       @current_individual ||= (login_from_session || login_from_basic_auth || login_from_cookie)
+      Thread.current[:user] = @current_individual
     end
 
     # Store the given individual id in the session.
     def current_individual=(new_individual)
       session[:individual_id] = new_individual ? new_individual.id : nil
       @current_individual = new_individual
+      Thread.current[:user] = @current_individual
     end
 
     # Check if the individual is authorized

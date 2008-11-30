@@ -1,6 +1,8 @@
 class StoryAttribute < ActiveRecord::Base
   belongs_to :project
   has_many :story_values, :dependent => :destroy
+  attr_accessible :project_id, :name, :value_type
+  acts_as_audited :except => [:project_id]
 
   validates_presence_of     :name, :value_type
   validates_length_of       :name,                   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
@@ -9,10 +11,6 @@ class StoryAttribute < ActiveRecord::Base
   String = 0
   Text = 1
   Number = 2
-
-  # Prevent a user from submitting a crafted form that bypasses activation
-  # Anything that the user can change should be added here.
-  attr_accessible :project_id, :name, :value_type
 
   # Answer the records for a particular user.
   def self.get_records(current_user)

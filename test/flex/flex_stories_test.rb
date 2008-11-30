@@ -13,6 +13,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   fixtures :story_attributes
   fixtures :story_values
   fixtures :tasks
+  fixtures :audits
 
   def setup
     @ie = Funfx.instance 
@@ -179,6 +180,14 @@ class FlexStoriesTest < Test::Unit::TestCase
     assert_nil @ie.text_area("storyField3")
     assert @ie.text_area("storyField5")
   end
+  
+  # Test showing the history
+  def test_history
+    init('admin2')
+    @ie.button("storyBtnInfo")[2].click
+    assert_equal 4, @ie.button_bar("mainNavigation").selectedIndex
+    assert_equal 2, @ie.data_grid("changeGrid").num_rows
+  end
 
 private
 
@@ -252,7 +261,7 @@ private
     assert_equal '', @ie.text_area("storyField1").text
     assert_not_nil @ie.button("storyBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",foo,fourth,Test_team,ted williams,1,,Blocked,true,4,,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
+    assert_equal ",foo,fourth,Test_team,ted williams,1,,Blocked,true,4,,Edit | Delete | Add Task | Split | History", @ie.data_grid("storyResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
     @ie.button("storyBtnCancel").click
   end
     
@@ -322,7 +331,7 @@ private
     assert_equal '', @ie.text_area("storyError").text
     assert_nil @ie.button("storyBtnCancel")
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",foo 1,fourth,Test_team,ted williams,1,,Blocked,true,1,2,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
+    assert_equal ",foo 1,fourth,Test_team,ted williams,1,,Blocked,true,1,2,Edit | Delete | Add Task | Split | History", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
   end
     
   # Test whether you can successfully cancel editing a story.
@@ -372,8 +381,8 @@ private
     @ie.button("updateBtnOk").click
     assert_equal '', @ie.text_area("storyError").text
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",test,fourth,Test_team,aaron hank,1,5,Blocked,true,2,2,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 1, :end => 1)
-    assert_equal ",test3,fourth,Test_team,aaron hank,1,,Blocked,true,1,2,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
+    assert_equal ",test,fourth,Test_team,aaron hank,1,5,Blocked,true,2,2,Edit | Delete | Add Task | Split | History", @ie.data_grid("storyResourceGrid").tabular_data(:start => 1, :end => 1)
+    assert_equal ",test3,fourth,Test_team,aaron hank,1,,Blocked,true,1,2,Edit | Delete | Add Task | Split | History", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
   end
 
   # Edit a story.
@@ -444,7 +453,7 @@ private
     assert_nil @ie.button("storyBtnCancel")
     rows = @ie.data_grid("storyResourceGrid").num_rows
     assert_equal num_rows + 1, rows
-    assert_equal ",foo 1,fourth,Test_team,ted williams,1,3,Created,true,3,,Edit | Delete | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-1, :end => rows-1)
+    assert_equal ",foo 1,fourth,Test_team,ted williams,1,3,Created,true,3,,Edit | Delete | Add Task | Split | History", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-1, :end => rows-1)
   end
     
   # Test whether you can successfully cancel splitting a story.
@@ -524,7 +533,7 @@ private
     
   # Test sorting the various columns.
   def sort_columns
-    (1..8).each do |i|
+    (1..10).each do |i|
       @ie.data_grid("storyResourceGrid").header_click(:columnIndex => i.to_s)
       @ie.data_grid("storyResourceGrid").header_click(:columnIndex => i.to_s) # Sort both ways
     end

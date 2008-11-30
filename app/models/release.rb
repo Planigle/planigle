@@ -3,13 +3,11 @@ class Release < ActiveRecord::Base
   belongs_to :project
   has_many :stories, :dependent => :nullify
   has_many :release_totals, :dependent => :nullify
+  attr_accessible :name, :start, :finish, :project_id
+  acts_as_audited
  
   validates_presence_of     :project_id, :name, :start, :finish
   validates_length_of       :name,   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
-
-  # Prevent a user from submitting a crafted form that bypasses activation
-  # Anything that the user can change should be added here.
-  attr_accessible :name, :start, :finish, :project_id
 
   # Answer the records for a particular user.
   def self.get_records(current_user)
