@@ -17,6 +17,8 @@
 		import org.planigle.planigle.model.DateUtils;
 		import org.planigle.planigle.view.CoreApplicationScreen;
 		import org.planigle.planigle.view.StoriesTab;
+		import org.planigle.planigle.view.ChangesTab;
+		import org.planigle.planigle.events.AuditChangedEvent;
 		import org.planigle.planigle.events.IterationChangedEvent;
 		import modules.Core;
 
@@ -202,6 +204,14 @@
 		{
 			return DateUtils.formatDate(item.start);
 		}
+		
+		// Show the history for the current object.
+		public function showHistory(event:Event) : void
+		{
+			new AuditChangedEvent(null, 'Iteration', null, null, String(iterationResourceGrid.selectedItem.id)).dispatch();
+			var core:Core = Core(parentApplication.mainViewStack.getChildByName("core").getChildAt(0));
+			core.mainViewStack.selectedChild = ChangesTab(core.mainViewStack.getChildByName("Changes"));
+		}
 		]]>
 	</mx:Script>
  	
@@ -261,13 +271,14 @@
 				<mx:DataGridColumn headerText="Name" dataField="name"/>
 				<mx:DataGridColumn headerText="Start" width="120" dataField="start" labelFunction="formatDate" />
 				<mx:DataGridColumn headerText="Length (in weeks)" width="80" dataField="length"/>
-				<mx:DataGridColumn editable="false" width="90" minWidth="90" sortable="false">
+				<mx:DataGridColumn editable="false" width="140" minWidth="140" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
 								<mx:LinkButton id="iterationBtnPlan" icon="{parentApplication.imgPlan}" toolTip="Plan" click="outerDocument.showPlan(event);"/>
 								<mx:LinkButton id="iterationBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
 								<mx:LinkButton id="iterationBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
+								<mx:LinkButton id="iterationBtnInfo" icon="{parentApplication.imgInfo}" toolTip="History" click="outerDocument.showHistory(event);"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>

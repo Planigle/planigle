@@ -19,6 +19,8 @@
 		import org.planigle.planigle.model.DateUtils;
 		import org.planigle.planigle.view.CoreApplicationScreen;
 		import org.planigle.planigle.view.StoriesTab;
+		import org.planigle.planigle.view.ChangesTab;
+		import org.planigle.planigle.events.AuditChangedEvent;
 		import org.planigle.planigle.events.ReleaseChangedEvent;
 		import modules.Core;
 		
@@ -201,6 +203,14 @@
 			release = Release(releaseResourceGrid.selectedItem);
 			dispatchEvent(new Event("itemClick"));
 		}
+		
+		// Show the history for the current object.
+		public function showHistory(event:Event) : void
+		{
+			new AuditChangedEvent(null, 'Release', null, null, String(releaseResourceGrid.selectedItem.id)).dispatch();
+			var core:Core = Core(parentApplication.mainViewStack.getChildByName("core").getChildAt(0));
+			core.mainViewStack.selectedChild = ChangesTab(core.mainViewStack.getChildByName("Changes"));
+		}
 		]]>
 	</mx:Script>
  	
@@ -260,12 +270,13 @@
 				<mx:DataGridColumn headerText="Name" dataField="name"/>
 				<mx:DataGridColumn headerText="Start" width="120" dataField="start" labelFunction="formatStart" />
 				<mx:DataGridColumn headerText="Finish" width="120" dataField="finish" labelFunction="formatFinish" />
-				<mx:DataGridColumn editable="false" width="90" minWidth="90" sortable="false">
+				<mx:DataGridColumn editable="false" width="105" minWidth="105" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
 								<mx:LinkButton id="releaseBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
 								<mx:LinkButton id="releaseBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
+								<mx:LinkButton id="releaseBtnInfo" icon="{parentApplication.imgInfo}" toolTip="History" click="outerDocument.showHistory(event);"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>

@@ -7,12 +7,15 @@
 		import mx.controls.Alert;
 		import mx.events.CloseEvent;
 		import mx.binding.utils.ChangeWatcher;
+		import modules.Core;
 		import org.planigle.planigle.model.ViewModelLocator;
 		import org.planigle.planigle.model.ProjectFactory;
 		import org.planigle.planigle.model.Project;
 		import org.planigle.planigle.model.IndividualFactory;
 		import org.planigle.planigle.model.Individual;
+		import org.planigle.planigle.view.ChangesTab;
 		import org.planigle.planigle.view.ViewHelper;
+		import org.planigle.planigle.events.AuditChangedEvent;
 		import org.planigle.planigle.events.IndividualChangedEvent;
 
 		[Bindable]
@@ -266,6 +269,14 @@
 		{
 			return factory.currentIndividual.isAtLeastProjectAdmin() || (factory.currentIndividual.isAtLeastProjectUser() && data == factory.currentIndividual);
 		}
+		
+		// Show the history for the current object.
+		public function showHistory(event:Event) : void
+		{
+			new AuditChangedEvent(null, 'Individual', null, null, String(individualResourceGrid.selectedItem.id)).dispatch();
+			var core:Core = Core(parentApplication.mainViewStack.getChildByName("core").getChildAt(0));
+			core.mainViewStack.selectedChild = ChangesTab(core.mainViewStack.getChildByName("Changes"));
+		}
 		]]>
 	</mx:Script>
  	
@@ -375,13 +386,14 @@
 				<mx:DataGridColumn headerText="Role" width="75" dataField="role" labelFunction="ViewHelper.formatRole"/>
 				<mx:DataGridColumn width="55" headerText="Activated" dataField="activated"/>
 				<mx:DataGridColumn width="50" headerText="Enabled" dataField="enabled"/>
-				<mx:DataGridColumn width="155" headerText="Last Logged In" dataField="lastLogin"/>
-				<mx:DataGridColumn editable="false" width="60" minWidth="60" sortable="false">
+				<mx:DataGridColumn width="155" headerText="Last Logged In" dataField="lastLoginTime"/>
+				<mx:DataGridColumn editable="false" width="105" minWidth="105" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
 								<mx:LinkButton id="individualBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);" visible="{outerDocument.showEdit(data)}"/>
 								<mx:LinkButton id="individualBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
+								<mx:LinkButton id="individualBtnInfo" icon="{parentApplication.imgInfo}" toolTip="History" click="outerDocument.showHistory(event);"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>

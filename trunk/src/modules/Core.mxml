@@ -25,6 +25,7 @@
 			import org.planigle.planigle.view.ScheduleTab;
 			import org.planigle.planigle.view.StoriesTab;
 			import org.planigle.planigle.view.PeopleTab;
+			import org.planigle.planigle.view.ChangesTab;
 			import org.planigle.planigle.view.SystemTab;
 
 			[Bindable]
@@ -33,6 +34,7 @@
 			private var schedule:ScheduleTab = new ScheduleTab();
 			private var stories:StoriesTab = new StoriesTab();
 			private var people:PeopleTab = new PeopleTab();
+			private var changes:ChangesTab = new ChangesTab();
 			private var system:SystemTab = new SystemTab();
 
 			// Add the base tabs.
@@ -88,12 +90,14 @@
 
 					if (factory.currentIndividual.isAdminOnly())
 					{
+						hideTab(changes);
 						hideTab(stories);
 						hidePremium();
 						hideTab(schedule);
 					}
 					else
 					{
+						showTab(changes, 1);
 						showTab(schedule, 0);
 						showTab(stories, 0);
 						factory.currentIndividual.isPremium() ? showPremium() : hidePremium();

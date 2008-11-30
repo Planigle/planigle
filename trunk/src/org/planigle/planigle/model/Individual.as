@@ -1,6 +1,7 @@
 package org.planigle.planigle.model
 {
 	import mx.collections.ArrayCollection;
+	
 	import org.planigle.planigle.commands.DeleteIndividualCommand;
 	import org.planigle.planigle.commands.UpdateIndividualCommand;
 
@@ -61,6 +62,16 @@ package org.planigle.planigle.model
 		public function get activated():Boolean
 		{
 			return activatedAt != null;
+		}
+		
+		// Answer a prettier formatted login time.
+		public function get lastLoginTime():String
+		{
+			return lastLogin ? DateUtils.formatTime(lastLogin) : "";
+		}
+		
+		public function set lastLoginTime(time:String):void
+		{
 		}
 
 		// Answer my project.

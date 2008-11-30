@@ -89,7 +89,13 @@ package org.planigle.planigle.view
 		// 	Display the user facing status in the table (rather than a code).	
 		public static function formatStatus(item:Object, column:DataGridColumn):String
 		{
-			switch(item.statusCode)
+			return formatStatusValue(item.statusCode);
+		}
+		
+		// 	Display the user facing status in the table (rather than a code).	
+		public static function formatStatusValue(value:int):String
+		{
+			switch(value)
 			{
 				case 1: return "In Progress";
 				case 2: return "Blocked";
@@ -107,16 +113,18 @@ package org.planigle.planigle.view
 		// 	Display the user facing survey mode in the table (rather than a code).	
 		public static function formatSurveyMode(item:Object, column:DataGridColumn):String
 		{
-			if (item.isProject())
+			return item.isProject() ? formatSurveyModeValue(item.surveyMode) : "";
+		}
+		
+		// 	Display the user facing survey mode in the table (rather than a code).	
+		public static function formatSurveyModeValue(value:int):String
+		{
+			switch(value)
 			{
-				switch(item.surveyMode)
-				{
-					case 1: return "Private by Default";
-					case 2: return "Public by Default";
-					default: return "Private";
-				}
+				case 1: return "Private by Default";
+				case 2: return "Public by Default";
+				default: return "Private";
 			}
-			else return "";
 		}
 		
 		// Sort status based on its code.
@@ -152,12 +160,41 @@ package org.planigle.planigle.view
 		// 	Display the user facing role in the table (rather than a code).	
 		public static function formatRole(item:Object, column:DataGridColumn):String
 		{
-			switch(int(item.role))
+			return formatRoleValue(int(item.role));
+		}		
+
+		// 	Display the user facing role in the table (rather than a code).	
+		public static function formatRoleValue(value:int):String
+		{
+			switch(value)
 			{
 				case 0: return "Admin";
 				case 1: return "Project Admin";
 				case 2: return "Project User";
 				default: return "Read Only User";
+			}
+		}		
+
+		// 	Display the user facing notification type in the table (rather than a code).	
+		public static function formatNotificationTypeValue(value:int):String
+		{
+			switch(value)
+			{
+				case 0: return "Neither Email nor SMS";
+				case 1: return "Email";
+				case 2: return "SMS";
+				default: return "Email and SMS";
+			}
+		}		
+
+		// 	Display the user facing attribute type in the table (rather than a code).	
+		public static function formatAttributeTypeValue(value:int):String
+		{
+			switch(value)
+			{
+				case 0: return "String";
+				case 1: return "Text";
+				default: return "Number";
 			}
 		}		
 	}

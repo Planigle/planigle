@@ -15,11 +15,20 @@ package org.planigle.planigle.business
 			this.responder = responder;
 		}
 		
+		// Answer the parameters to send.
+		protected function params():Object
+		{
+			return null;
+		}
+		
 		// Get the latest objects (subclasses should override getRemoteObjectName).
 		public function get():void 
 		{
 			var remoteObject:RemoteObject = ServiceLocator.getInstance().getRemoteObject(getRemoteObjectName());
-			remoteObject.index.send().addResponder(responder);
+			if (params() == null)
+				remoteObject.index.send().addResponder(responder);
+			else
+				remoteObject.index.send(params()).addResponder(responder);
 		}	
 
 		// Create the object as specified.

@@ -15,6 +15,7 @@
 		import mx.binding.utils.ChangeWatcher;
 		import mx.containers.FormItem;
 		import mx.controls.TextInput;
+		import modules.Core;
 		import org.planigle.planigle.model.ViewModelLocator;
 		import org.planigle.planigle.model.ProjectFactory;
 		import org.planigle.planigle.model.IndividualFactory;
@@ -28,6 +29,7 @@
 		import org.planigle.planigle.model.Story;
 		import org.planigle.planigle.model.StoryAttribute;
 		import org.planigle.planigle.model.Task;
+		import org.planigle.planigle.events.AuditChangedEvent;
 		import org.planigle.planigle.events.StoryChangedEvent;
 		import org.planigle.planigle.view.components.EditAttributes;
 		import org.planigle.planigle.view.components.SelectItem;
@@ -513,7 +515,7 @@
 			storyBtnEditAttributes.visible = factory.currentIndividual.isAtLeastProjectAdmin();
 			for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
 			{
-				var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
+				var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()].parent;
 				disp.visible = true;
 				disp.height = (attrib.valueType == StoryAttribute.TEXT) ? 65 : 22;
 			}
@@ -539,7 +541,7 @@
 			storyBtnEditAttributes.visible = false;
 			for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
 			{
-				var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
+				var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()].parent;
 				disp.visible = false;
 				disp.height = 0;
 			}
@@ -755,6 +757,14 @@
 						deleteResource(item);
 				}
 			});
+		}
+		
+		// Show the history for the current object.
+		public function showHistory(event:Event) : void
+		{
+			new AuditChangedEvent(null, storyResourceGrid.selectedItem.isStory() ? 'Story' : 'Task', null, null, String(storyResourceGrid.selectedItem.id)).dispatch();
+			var core:Core = Core(parentApplication.mainViewStack.getChildByName("core").getChildAt(0));
+			core.mainViewStack.selectedChild = ChangesTab(core.mainViewStack.getChildByName("Changes"));
 		}
 		
 		// Create parameters for the user's request to the server.
@@ -1336,7 +1346,7 @@
 				<mx:DataGridColumn headerText="Public" width="60" dataField="isPublic"/>
 				<mx:DataGridColumn headerText="Rank" width="65" dataField="normalizedPriority" sortCompareFunction="ViewHelper.sortPriority"/>
 				<mx:DataGridColumn headerText="User Rank" width="90" dataField="modifiedUserPriority" sortCompareFunction="ViewHelper.sortUserPriority"/>
-				<mx:DataGridColumn editable="false" width="140" minWidth="140" sortable="false">
+				<mx:DataGridColumn editable="false" width="175" minWidth="175" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0" width="100%">
@@ -1344,6 +1354,7 @@
 								<mx:LinkButton id="storyBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.shouldShow(data)}"/>
 								<mx:LinkButton id="taskBtnAdd" icon="{parentApplication.imgAdd}" toolTip="Add Task" click="outerDocument.showCreateTask(event);" visible="{outerDocument.shouldShowStory(data)}"/>
 								<mx:LinkButton id="storyBtnSplit" icon="{parentApplication.imgSplit}" toolTip="Split" click="outerDocument.showSplit(event);" visible="{outerDocument.shouldShowStory(data)}"/>
+								<mx:LinkButton id="storyBtnInfo" icon="{parentApplication.imgInfo}" toolTip="History" click="outerDocument.showHistory(event);"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>

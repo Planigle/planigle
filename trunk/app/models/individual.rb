@@ -4,6 +4,8 @@ class Individual < ActiveRecord::Base
   belongs_to :team
   has_many :stories, :dependent => :nullify
   has_many :tasks, :dependent => :nullify
+  attr_accessible :login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled, :project_id, :role, :last_login, :accepted_agreement, :team_id, :phone_number, :notification_type
+  acts_as_audited :except => [:crypted_password, :salt, :remember_token, :remember_token_expires_at, :activation_code, :activated_at, :last_login, :accepted_agreement]
 
   # Virtual attribute for the unencrypted password
   attr_accessor :password
@@ -27,10 +29,6 @@ class Individual < ActiveRecord::Base
   
   # Ensure that the password is encrypted
   before_save :encrypt_password
-
-  # Prevent a user from submitting a crafted form that bypasses activation
-  # Anything that the user can change should be added here.
-  attr_accessible :login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled, :project_id, :role, :last_login, :accepted_agreement, :team_id, :phone_number, :notification_type
 
   Admin = 0
   ProjectAdmin = 1

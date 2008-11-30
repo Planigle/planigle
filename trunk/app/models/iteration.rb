@@ -3,14 +3,12 @@ class Iteration < ActiveRecord::Base
   belongs_to :project
   has_many :stories, :dependent => :nullify
   has_many :iteration_total, :dependent => :nullify
+  attr_accessible :name, :start, :length, :project_id
+  acts_as_audited
   
   validates_presence_of     :project_id, :name, :start
   validates_length_of       :name,   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
   validates_numericality_of :length
-
-  # Prevent a user from submitting a crafted form that bypasses activation
-  # Anything that the user can change should be added here.
-  attr_accessible :name, :start, :length, :project_id
 
   # If project is set, set the default values based on that project.
   def project=(project)

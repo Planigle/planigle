@@ -61,6 +61,13 @@
 		<mx:method name="destroy"/>
 	</mx:RemoteObject>
 
+	<mx:RemoteObject id="auditRO"
+		source="AuditsController"
+		destination="rubyamf"
+		showBusyCursor="true">
+		<mx:method name="index"/>
+	</mx:RemoteObject>
+
 	<mx:HTTPService id="xmlService"
 		resultFormat = "e4x"
 		headers = "Accept: text/xml"

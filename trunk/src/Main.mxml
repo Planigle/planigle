@@ -71,6 +71,10 @@
 			[Bindable]
 			public var imgCollapsed:Class;
 		
+			[Embed(source="../public/images/info.png")]
+			[Bindable]
+			public var imgInfo:Class;
+		
 			[Embed(source="../public/images/logo_big.gif")]
 			[Bindable]
 			public var imgLogoBig:Class;
@@ -104,6 +108,7 @@
 	<control:StoriesController id ="storiesController"/>
 	<control:ProjectsController id ="projectsController"/>
 	<control:IndividualsController id ="individualsController"/>
+	<control:AuditsController id ="auditsController"/>
 	<business:Services id="services"/>
 	
 	<mx:ViewStack id="mainViewStack" selectedIndex="{viewModelLocator.workflowState}" width="100%" height="100%">		

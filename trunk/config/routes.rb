@@ -10,6 +10,8 @@ ActionController::Routing::Routes.draw do |map|
   map.split '/stories/split/:id', :controller => 'stories', :action => 'split'
   map.split_format '/stories/split/:id.:format', :controller => 'stories', :action => 'split'
   
+  map.resources :audits
+  
   map.resources :stories do |stories|
     stories.resources :tasks
   end

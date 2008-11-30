@@ -10,6 +10,8 @@ class Story < ActiveRecord::Base
   has_many :story_values, :dependent => :destroy
   has_many :tasks, :dependent => :destroy
   has_many :survey_mappings, :dependent => :destroy
+  attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :release_id, :iteration_id, :individual_id, :project_id, :is_public, :priority, :user_priority, :team_id, :reason_blocked
+  acts_as_audited :except => [:user_priority]
   
   validates_presence_of     :project_id, :name
   validates_length_of       :name,                   :maximum => 250, :allow_nil => true # Allow nil to workaround bug
@@ -27,8 +29,6 @@ class Story < ActiveRecord::Base
   Done = 3
 
   Headers = { 'pid'=>:id, 'name'=>:name, 'description'=>:description, 'acceptance criteria'=>:acceptance_criteria, 'effort'=>:effort, 'status'=>:status_code, 'reason blocked'=>:reason_blocked, 'release'=>:release_id, 'iteration'=>:iteration_id, 'team'=>:team_id, 'owner'=>:individual_id, 'public'=>:is_public}
-
-  attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :release_id, :iteration_id, :individual_id, :project_id, :is_public, :priority, :user_priority, :team_id, :reason_blocked
 
   # Assign a priority on creation
   before_create :initialize_defaults
