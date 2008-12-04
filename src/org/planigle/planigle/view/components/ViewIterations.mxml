@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" height="100%" y="0" width="100%" x="0" creationComplete="created(event)">
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:component="org.planigle.planigle.view.components.*" height="100%" y="0" width="100%" x="0" creationComplete="created(event)">
 	<mx:Script>
 		<![CDATA[
 		import mx.rpc.events.ResultEvent;
@@ -92,6 +92,7 @@
 				iterationFieldStart.selectedDate = new Date();
 				iterationFieldLength.text = '2';
 			}
+			iterationFieldRetrospectiveResults.text = '';
 			iterationBtnChange.label = 'Create';
 		}
 
@@ -110,6 +111,7 @@
 				iterationFieldName.setSelection(0, iterationFieldName.text.length );
 				iterationFieldStart.selectedDate = currentItem.start;
 				iterationFieldLength.text = currentItem.length;
+				iterationFieldRetrospectiveResults.text = currentItem.retrospectiveResults;
 				iterationBtnChange.label = 'Update';
 			}
 		}
@@ -136,6 +138,7 @@
 			params['record[name]'] = iterationFieldName.text;
 			params['record[start]'] = iterationFieldStart.selectedDate;
 			params['record[length]'] = iterationFieldLength.text;
+			params['record[retrospective_results]'] = iterationFieldRetrospectiveResults.text;
 			params['random'] = Math.random(); // Prevents caching
 			return params;
 		}
@@ -229,6 +232,9 @@
 						</mx:FormItem>
 						<mx:FormItem label='Length (in weeks)' required="true">
 							<mx:TextInput id='iterationFieldLength' restrict="0-9" text='' width="100"/>
+						</mx:FormItem>
+						<mx:FormItem label='Retrospective Results'>
+							<component:HTMLTextArea id='iterationFieldRetrospectiveResults'/>
 						</mx:FormItem>
 						<mx:ControlBar width="100%">
 							<mx:Spacer width="50"/>

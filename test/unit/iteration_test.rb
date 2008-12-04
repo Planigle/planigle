@@ -37,6 +37,11 @@ class IterationTest < ActiveSupport::TestCase
     assert_success(:length, 2)
     assert_failure(:length, 'foo')
   end
+
+  # Test the validation of retrospective results.
+  def test_retrospective_results
+    validate_field(:retrospective_results, true, nil, 4096)
+  end
   
   # Test deleting an iteration
   def test_delete_iteration

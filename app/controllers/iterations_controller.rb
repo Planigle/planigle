@@ -27,6 +27,7 @@ protected
       @record.name = params[0].name
       @record.start = params[0].start
       @record.length = params[0].length
+      @record.retrospective_results = params[0].retrospective_results
     else
       @record.attributes = params[:record]
     end

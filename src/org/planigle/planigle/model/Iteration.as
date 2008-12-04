@@ -19,6 +19,7 @@ package org.planigle.planigle.model
 		public var name:String;
 		public var start:Date;
 		public var length:int;
+		public var retrospectiveResults:String;
 	
 		// Populate myself from XML.
 		public function populate(xml:XML):void
@@ -28,6 +29,7 @@ package org.planigle.planigle.model
 			name = xml.name;
 			start = DateUtils.stringToDate(xml.start);			
 			length = xml.length;
+			retrospectiveResults = xml.child("retrospective-results");
 			finish = finish;
 		}
 		

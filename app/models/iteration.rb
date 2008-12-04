@@ -3,11 +3,12 @@ class Iteration < ActiveRecord::Base
   belongs_to :project
   has_many :stories, :dependent => :nullify
   has_many :iteration_total, :dependent => :nullify
-  attr_accessible :name, :start, :length, :project_id
+  attr_accessible :name, :start, :length, :project_id, :retrospective_results
   acts_as_audited
   
   validates_presence_of     :project_id, :name, :start
   validates_length_of       :name,   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
+  validates_length_of       :retrospective_results, :maximum => 4096, :allow_nil => true
   validates_numericality_of :length
 
   # If project is set, set the default values based on that project.
