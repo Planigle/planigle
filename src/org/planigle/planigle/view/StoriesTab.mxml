@@ -338,6 +338,7 @@
 		// The iteration filter has changed.
 		public function handleFilter(event:Event):void
 		{
+			var scroll:Number = storyResourceGrid.verticalScrollPosition;
 			storyColumnIteration.visible = !iteration.selectedItem || iteration.selectedItem.id == "-1";
 			storyColumnTeam.visible = IndividualFactory.current().project && IndividualFactory.current().project.teams.length > 0 && (!team.selectedItem || team.selectedItem.id == "-1");
 			var justStories:ArrayCollection = getFilteredStories();
@@ -356,6 +357,7 @@
 			filteredStories = storiesAndTasks;
 			storyBtnAddExisting.visible = shouldShowExisting();
 			updateVelocityAndUtilization(event);
+			storyResourceGrid.verticalScrollPosition = scroll;
 		}
 
 		// Update the velocity and utilization.
@@ -454,11 +456,7 @@
 						recalc = false;
 					}
 					else
-					{
-						var scroll:Number = storyResourceGrid.verticalScrollPosition;
 						handleFilter(null); // Update list of stories when done.
-						storyResourceGrid.verticalScrollPosition = scroll;
-					}
 				}
 			}
 		}
@@ -853,6 +851,8 @@
 		{
 			if (currentItem)
 			{
+				currentItem.expand();
+				handleFilter(null);
 				var newStatus:int = currentItem.newStatus();
 				if (newStatus != -1)
 					currentItem.update({'record[status_code]': newStatus}, null, handleFailure);
@@ -1328,7 +1328,7 @@
 				<mx:DataGridColumn id="storyColumnTeam" headerText="Team" width="135" labelFunction="ViewHelper.formatTeam" sortCompareFunction="ViewHelper.sortTeam"/>
 				<mx:DataGridColumn id="storyColumnIndividual" headerText="Owner" width="135" labelFunction="ViewHelper.formatIndividual" sortCompareFunction="ViewHelper.sortIndividual"/>
 				<mx:DataGridColumn headerText="Size" width="65" dataField="size" sortCompareFunction="ViewHelper.sortSize"/>
-				<mx:DataGridColumn headerText="Effort" width="65" dataField="calculatedEffort" sortCompareFunction="ViewHelper.sortCalculatedEffort"/>
+				<mx:DataGridColumn headerText="Time" width="65" dataField="calculatedEffort" sortCompareFunction="ViewHelper.sortCalculatedEffort"/>
 				<mx:DataGridColumn editable="false" width="100" minWidth="115" headerText="Status" sortCompareFunction="ViewHelper.sortStatus">
 					<mx:itemRenderer> 
 						<mx:Component>
