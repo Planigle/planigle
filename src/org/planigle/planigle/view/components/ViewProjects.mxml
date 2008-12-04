@@ -242,7 +242,11 @@
 		{
 			showCreate(null);
 			if (currentItem)
+			{
 				setSuccessMessage("Team was successfully created.");
+				currentItem.expand();
+				setProjects(null);
+			}
 			else
 				setSuccessMessage("Project was successfully created.");
 		}
