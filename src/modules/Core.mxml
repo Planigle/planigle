@@ -169,14 +169,14 @@
 		]]>
 	</mx:Script>
 	<mx:HBox horizontalGap="5" width="100%">
-		<mx:TabBar id="mainNavigation" dataProvider="{mainViewStack}" itemClick="resetTab(event)" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0">
+		<mx:TabBar id="mainNavigation" dataProvider="{mainViewStack}" itemClick="resetTab(event)">
 		</mx:TabBar>
 		<mx:HBox horizontalAlign="right" width="100%">
-			<mx:LinkButton label="Refresh" id="refreshButton" click="{refresh()}"/>
-			<mx:LinkButton label="Log out" id="logoutButton" click="{logout()}"/>
+			<mx:LinkButton label="Refresh" styleName="ToolbarLink" id="refreshButton" click="{refresh()}"/>
+			<mx:LinkButton label="Log out" styleName="ToolbarLink" id="logoutButton" click="{logout()}"/>
 			<mx:LinkButton id="planigleButton" icon="{parentApplication.imgLogoSmall}" toolTip="Planigle Project Page" click="new URLEvent('http://code.google.com/p/planigle/').dispatch()"/>
 		</mx:HBox>
 	</mx:HBox>
-	<mx:ViewStack id="mainViewStack" y="20" width="100%" height="100%" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0">
+	<mx:ViewStack id="mainViewStack" y="25" width="100%" height="100%" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0">
 	</mx:ViewStack>
 </mx:Module>
