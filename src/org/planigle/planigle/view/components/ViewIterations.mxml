@@ -83,13 +83,13 @@
 				var last:Iteration = Iteration(IterationFactory.getInstance().iterations.getItemAt(IterationFactory.getInstance().iterations.length - 1));
 				iterationFieldName.text = last.incrementName();
 				iterationFieldName.setSelection(0, iterationFieldName.text.length );
-				iterationFieldStart.selectedDate = last.finish;
+				iterationFieldStart.selectedDate = release ? (release.start.getTime() > last.finish.getTime() ? release.start : last.finish) : last.finish;
 				iterationFieldLength.text = last.length.toString();
 			}
 			else
 			{
 	 			iterationFieldName.text = 'Iteration 1';
-				iterationFieldStart.selectedDate = new Date();
+				iterationFieldStart.selectedDate = release ? release.start : new Date();
 				iterationFieldLength.text = '2';
 			}
 			iterationFieldRetrospectiveResults.text = '';
