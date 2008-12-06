@@ -18,7 +18,7 @@ package org.planigle.planigle.commands
 			var request:URLRequest = new URLRequest(urlEvent.url);
 			try
 			{
-				navigateToURL(request, "_blank");
+				navigateToURL(request, urlEvent.newWindow ? '_blank' : '_top');
 			}
 			catch (e:Error) {}
 		}

@@ -3,8 +3,10 @@
 
 	<mx:Script>
 		<![CDATA[
+		import flash.external.ExternalInterface;
 		import org.planigle.planigle.model.ViewModelLocator;
 		import org.planigle.planigle.model.ProjectFactory;
+		import org.planigle.planigle.events.URLEvent;
 
 		[Bindable]
 		private var _error:String = "";
@@ -41,8 +43,11 @@
 		// Handle a successful signup.
 		private function handleSuccess(item:Object):void
 		{
-			setSuccessMessage("You have successfully signed up for Planigle.  Shortly, you will receive an email to complete the signup process.");
 			signupBtnBox.visible = false;
+			if (ExternalInterface.available && ExternalInterface.call('function get_url(){return window.location;}')['hostname'] == 'www.planigle.com')
+				new URLEvent("https://www.planigle.com/node/23", false).dispatch();
+			else
+				setSuccessMessage("You have successfully signed up for Planigle.  Shortly, you will receive an email to complete the signup process.");
 		}
 
 		// Handle errors when signing up.
