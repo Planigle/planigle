@@ -22,7 +22,7 @@ class TaskTest < ActiveSupport::TestCase
   
   # Test the validation of name.
   def test_name
-    validate_field(:name, false, nil, 40)
+    validate_field(:name, false, nil, 250)
   end
 
   # Test the validation of description.

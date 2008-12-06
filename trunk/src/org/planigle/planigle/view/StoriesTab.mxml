@@ -498,8 +498,6 @@
 		{
 			storyNameForm.label = "Story Name";
 			storyEffortForm.label = "Size";
-			storyFieldName.maxChars=250;
-			storyFieldName.width=500;
 			storyFormRelease.height = ReleaseFactory.getInstance().releaseSelector.length > 1 ? 22 : 0;
 			storyFormRelease.visible = ReleaseFactory.getInstance().releaseSelector.length > 1;
 			storyFormIteration.height = 22;
@@ -524,8 +522,6 @@
 		{
 			storyNameForm.label = "Task Name";
 			storyEffortForm.label = "Time";
-			storyFieldName.maxChars=40;
-			storyFieldName.width=350;
 			storyFormRelease.height = 0;
 			storyFormRelease.visible = false;
 			storyFormIteration.height = 0;
