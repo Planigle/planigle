@@ -26,7 +26,9 @@ class FlexAuditsTest < Test::Unit::TestCase
 
   # Test searching.
   def test_search
+    init('admin2')
     @ie.combo_box("changesChanger").open
+    @ie.combo_box("changesChanger").scroll(:position => '0')
     @ie.combo_box("changesChanger").select(:item_renderer => 'aaron hank' )
     @ie.combo_box("changesObjectType").open
     @ie.combo_box("changesObjectType").select(:item_renderer => 'Story' )
@@ -62,8 +64,8 @@ private
   # Test sorting the various columns.
   def sort_columns
     (0..5).each do |i|
-      @ie.data_grid("changeResourceGrid").header_click(:columnIndex => i.to_s)
-      @ie.data_grid("changeResourceGrid").header_click(:columnIndex => i.to_s) # Sort both ways
+      @ie.data_grid("changeGrid").header_click(:columnIndex => i.to_s)
+      @ie.data_grid("changeGrid").header_click(:columnIndex => i.to_s) # Sort both ways
     end
   end
       
