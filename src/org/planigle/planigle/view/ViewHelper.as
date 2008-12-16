@@ -157,6 +157,12 @@ package org.planigle.planigle.view
 			return ObjectUtil.numericCompare(Number(item1.userPriority),Number(item2.userPriority));
 		}
 
+		// Sort last login numerically.
+		public static function sortLastLogin(item1:Object, item2:Object):int
+		{
+			return ObjectUtil.numericCompare(Number(item1.lastLogin ? item1.lastLogin.time : 0),Number(item2.lastLogin ? item2.lastLogin.time : 0));
+		}
+
 		// 	Display the user facing role in the table (rather than a code).	
 		public static function formatRole(item:Object, column:DataGridColumn):String
 		{

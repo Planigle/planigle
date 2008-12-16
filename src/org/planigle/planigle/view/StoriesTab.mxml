@@ -605,7 +605,7 @@
 				else
 					storyFieldTeam.selectedIndex = IndividualFactory.current().project.teamSelector.length - 1;
 
-				storyFieldPublic.selectedIndex = ProjectFactory.getInstance().projects.getItemAt(0).surveyMode  == 2 ? 0 : 1;
+				storyFieldPublic.selectedIndex = IndividualFactory.current().project.surveyMode  == 2 ? 0 : 1;
 
 				clearCustomAttributes()
 			}
@@ -873,8 +873,7 @@
 			setErrorMessage(error);
 		}
 		
-		private const PRIORITY:int = 7;
-		private var sort:int = PRIORITY;
+		private var shouldSort:Boolean = true;
 
 		// The user is reordering the stories.  Don't allow them to move tasks.
 		private function handleDrag(event:DragEvent):void
@@ -888,7 +887,7 @@
 					return;
 				}
 			}
-			if (sort != PRIORITY)
+			if (!shouldSort)
 			{
 				Alert.show("You can only drag and drop to prioritize after sorting by priority.");
 				event.preventDefault();
@@ -952,7 +951,7 @@
 		// Prepare for sorting by collapsing all stories.
 		private function prepareSort(event:DataGridEvent):void
 		{
-			sort = event.columnIndex;
+			shouldSort = storyResourceGrid.columns[event.columnIndex].headerText == "Rank";
 			var changes:Boolean = false;
 			for each (var object:Object in filteredStories)
 			{
