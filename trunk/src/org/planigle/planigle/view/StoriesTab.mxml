@@ -363,22 +363,25 @@
 		// Update the velocity and utilization.
 		private function updateVelocityAndUtilization(event:Event):void
 		{
-			var teamLevel:int = IndividualFactory.current().project.teamSelector.length > 1 ? 1 : 0;
-			if (team.selectedItem && team.selectedItem.id != "-1")
-				velocity.dataProvider = new VelocityNode(null, team.selectedItem, 1, filteredStories);
-			else
-				velocity.dataProvider = new VelocityNode(null, IndividualFactory.current().project, 1+teamLevel, filteredStories);
-			velocity.rowCount = 1;
-			velocity.width = NaN;
-
-			if (individual.selectedItem && individual.selectedItem.id != "-1")
-				utilization.dataProvider = new UtilizationNode(null, individual.selectedItem, 1, filteredStories);
-			else if (team.selectedItem && team.selectedItem.id != "-1")
-				utilization.dataProvider = new UtilizationNode(null, team.selectedItem, 2, filteredStories);
-			else
-				utilization.dataProvider = new UtilizationNode(null, IndividualFactory.current().project, 2+teamLevel, filteredStories);
-			utilization.rowCount = 1;
-			utilization.width = NaN;
+			if (IndividualFactory.current().project)
+			{
+				var teamLevel:int = IndividualFactory.current().project.teamSelector.length > 1 ? 1 : 0;
+				if (team.selectedItem && team.selectedItem.id != "-1")
+					velocity.dataProvider = new VelocityNode(null, team.selectedItem, 1, filteredStories);
+				else
+					velocity.dataProvider = new VelocityNode(null, IndividualFactory.current().project, 1+teamLevel, filteredStories);
+				velocity.rowCount = 1;
+				velocity.width = NaN;
+	
+				if (individual.selectedItem && individual.selectedItem.id != "-1")
+					utilization.dataProvider = new UtilizationNode(null, individual.selectedItem, 1, filteredStories);
+				else if (team.selectedItem && team.selectedItem.id != "-1")
+					utilization.dataProvider = new UtilizationNode(null, team.selectedItem, 2, filteredStories);
+				else
+					utilization.dataProvider = new UtilizationNode(null, IndividualFactory.current().project, 2+teamLevel, filteredStories);
+				utilization.rowCount = 1;
+				utilization.width = NaN;
+			}
 		}
 		
 		// Expand / collapse a story.
@@ -1103,40 +1106,43 @@
 			for (var i:int = changeForm.numChildren-1; i>=baseChildren; i--)
 				changeForm.removeChildAt(i);
 
-			for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
+			if (IndividualFactory.current().project)
 			{
-				var formItem:FormItem = new FormItem();
-				formItem.label = attrib.name;
-				var id:String = "storyField" + attrib.id.toString();
-				switch (attrib.valueType)
+				for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
 				{
-				  case StoryAttribute.STRING:
-				  	var input:TextInput = new TextInput();
-				  	input.id = id;
-				  	input.maxChars = 4096;
-				  	input.width = 500;
-				  	formItem.addChild(input);
-				  	customChildren[id] = input;
-				    break;
-				  case StoryAttribute.TEXT:
-				    var text:HTMLTextArea = new HTMLTextArea();
-				    text.id = id;
-				  	formItem.addChild(text);
-				  	customChildren[id] = text;
-				    break;
-				  case StoryAttribute.NUMBER:
-				  	var input2:TextInput = new TextInput();
-				  	input2.id = id;
-				  	input2.maxChars = 4096;
-				  	input2.width = 100;
-				  	input2.restrict = "0-9.";
-				  	formItem.addChild(input2);
-				  	customChildren[id] = input2;
-				    break;
+					var formItem:FormItem = new FormItem();
+					formItem.label = attrib.name;
+					var id:String = "storyField" + attrib.id.toString();
+					switch (attrib.valueType)
+					{
+					  case StoryAttribute.STRING:
+					  	var input:TextInput = new TextInput();
+					  	input.id = id;
+					  	input.maxChars = 4096;
+					  	input.width = 500;
+					  	formItem.addChild(input);
+					  	customChildren[id] = input;
+					    break;
+					  case StoryAttribute.TEXT:
+					    var text:HTMLTextArea = new HTMLTextArea();
+					    text.id = id;
+					  	formItem.addChild(text);
+					  	customChildren[id] = text;
+					    break;
+					  case StoryAttribute.NUMBER:
+					  	var input2:TextInput = new TextInput();
+					  	input2.id = id;
+					  	input2.maxChars = 4096;
+					  	input2.width = 100;
+					  	input2.restrict = "0-9.";
+					  	formItem.addChild(input2);
+					  	customChildren[id] = input2;
+					    break;
+					}
+					changeForm.addChild(formItem);
 				}
-				changeForm.addChild(formItem);
+				setCustomAttributes();
 			}
-			setCustomAttributes();
 		}
 		]]>
 	</mx:Script>
