@@ -166,7 +166,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
   
   # Test changing custom attributes.
-  def atest_custom_attribute
+  def test_custom_attribute
     init('admin2')
     @ie.button("storyBtnCreate").click
     @ie.button("storyBtnEditAttributes").click

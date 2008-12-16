@@ -386,7 +386,7 @@
 				<mx:DataGridColumn headerText="Role" width="75" dataField="role" labelFunction="ViewHelper.formatRole"/>
 				<mx:DataGridColumn width="55" headerText="Activated" dataField="activated"/>
 				<mx:DataGridColumn width="50" headerText="Enabled" dataField="enabled"/>
-				<mx:DataGridColumn width="155" headerText="Last Logged In" dataField="lastLoginTime"/>
+				<mx:DataGridColumn width="155" headerText="Last Logged In" dataField="lastLoginTime" sortCompareFunction="ViewHelper.sortLastLogin"/>
 				<mx:DataGridColumn editable="false" width="105" minWidth="105" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>
