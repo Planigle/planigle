@@ -40,9 +40,9 @@ namespace :build do
 
   desc "Build the Flex components in production mode"
   task(:production) do
-    puts %x[mxmlc.exe --services=src/services-config.xml -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -link-report=report.xml -output=public\\Main.swf src\\Main.mxml]
+    puts %x[mxmlc.exe -show-unused-type-selector-warnings=false --services=src/services-config.xml -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -link-report=report.xml -output=public\\Main.swf src\\Main.mxml]
     puts %x[mxmlc.exe --services=src/services-config.xml -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -load-externs=report.xml -output=public\\modules\\Core.swf src\\modules\\Core.mxml]
-    puts %x[mxmlc.exe --services=src/services-config.xml -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -output=public\\Survey.swf src\\Survey.mxml]
+    puts %x[mxmlc.exe -show-unused-type-selector-warnings=false --services=src/services-config.xml -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -output=public\\Survey.swf src\\Survey.mxml]
     puts %x[del report.xml]
     if @@Windows
       Sound.play('tada.wav')
