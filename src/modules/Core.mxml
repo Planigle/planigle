@@ -46,6 +46,7 @@
 			}
 
 			private var watcher:ChangeWatcher;
+			private var watcher2:ChangeWatcher;
 
 			// The user has changed.
 			private function changeIndividual(event:Event):void
@@ -54,12 +55,16 @@
 					watcher.unwatch();
 
 				watcher = factory.currentIndividual ? ChangeWatcher.watch( factory.currentIndividual, "projectId", changeProject ) : null;
+				watcher2 = factory.currentIndividual && factory.currentIndividual.project ? ChangeWatcher.watch( factory.currentIndividual.project, "premiumExpiry", resetState ) : null;
 				resetState(event);
 			}
 
 			// The project has changed.
 			private function changeProject(event:Event):void
 			{
+				if (watcher2)
+					watcher2.unwatch();
+				watcher2 = factory.currentIndividual.project ? ChangeWatcher.watch( factory.currentIndividual.project, "premiumExpiry", resetState ) : null;
 				resetState(event);
 				refresh();
 			}
