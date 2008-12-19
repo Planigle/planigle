@@ -14,6 +14,7 @@ class StoriesControllerTest < ActionController::TestCase
   include StoriesTestHelper
 
   fixtures :systems
+  fixtures :teams
   fixtures :individuals
   fixtures :stories
   fixtures :projects
@@ -114,26 +115,32 @@ class StoriesControllerTest < ActionController::TestCase
 
   # Test changing the status to blocked.
   def test_change_to_blocked_not_premium
-    login_as(individuals(:quentin))
-    put :update, :id => 1, :record => {:status_code => 2}
-    assert 0, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
-    assert 0, PLANIGLE_SMS_NOTIFIER.number_of_notifications
+    email_count = PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
+    sms_count = PLANIGLE_SMS_NOTIFIER.number_of_notifications
+    login_as(individuals(:user2))
+    put :update, :id => 5, :record => {:status_code => 2}
+    assert_equal email_count, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
+    assert_equal sms_count, PLANIGLE_SMS_NOTIFIER.number_of_notifications
   end
 
   # Test changing the status to blocked.
-  def test_change_to_blocked_same_team
-    login_as(individuals(:ted))
+  def test_change_to_blocked_premium_team
+    email_count = PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
+    sms_count = PLANIGLE_SMS_NOTIFIER.number_of_notifications
+    login_as(individuals(:aaron))
     put :update, :id => 1, :record => {:status_code => 2}
-    assert 2, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
-    assert 2, PLANIGLE_SMS_NOTIFIER.number_of_notifications
+    assert_equal email_count+2, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
+    assert_equal sms_count+2, PLANIGLE_SMS_NOTIFIER.number_of_notifications
   end
 
   # Test changing the status to blocked.
-  def test_change_to_blocked_different_team
-    login_as(individuals(:ted))
+  def test_change_to_blocked_premium_no_team
+    email_count = PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
+    sms_count = PLANIGLE_SMS_NOTIFIER.number_of_notifications
+    login_as(individuals(:aaron))
     put :update, :id => 2, :record => {:status_code => 2}
-    assert 1, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
-    assert 1, PLANIGLE_SMS_NOTIFIER.number_of_notifications
+    assert_equal email_count+1, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
+    assert_equal sms_count+1, PLANIGLE_SMS_NOTIFIER.number_of_notifications
   end
 
   # Test exporting stories (based on role).

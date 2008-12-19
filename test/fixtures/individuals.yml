@@ -33,6 +33,7 @@ ted:
   id: 3
   role: 1
   project_id: 1
+  team_id: 2
   login: ted
   first_name: ted
   last_name: williams
@@ -94,3 +95,5 @@ user2:
   crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
   activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9c 
   activated_at: <%= 5.days.ago.to_s :db %> 
+  notification_type: 3
+  phone_number: '5555555555'

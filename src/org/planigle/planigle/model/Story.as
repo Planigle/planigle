@@ -138,7 +138,7 @@ package org.planigle.planigle.model
 			return effort != null && effort != "" ? Number(effort).toString() : effort;
 		}
 
-		// For stories, if not set locally, the calculated effort is the sum of its tasks.
+		// For stories, the calculated effort is the sum of the effort of its tasks.
 		public function get calculatedEffort():String
 		{
 			var sum:Number = 0;

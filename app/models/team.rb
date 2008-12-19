@@ -2,8 +2,9 @@ class Team < ActiveRecord::Base
   belongs_to :project
   has_many :individuals, :dependent => :nullify
   has_many :stories, :dependent => :nullify
-  has_many :release_totals, :dependent => :nullify
-  has_many :iteration_totals, :dependent => :nullify
+  has_many :release_totals, :dependent => :destroy
+  has_many :iteration_totals, :dependent => :destroy
+  has_many :iteration_velocities, :dependent => :destroy
   attr_accessible :name, :description
   acts_as_audited :except => [:project_id]
 

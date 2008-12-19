@@ -10,10 +10,10 @@ class Total < ActiveRecord::Base
       in_progress = 0
       done = 0
       blocked = 0
-      object.stories.each do |story|
-        effort = story.team == team ? story.effort : 0;
+      find_items(object, team).each do |item|
+        effort = item.effort
         effort = effort != nil ? effort : 0
-        case story.status_code
+        case item.status_code
           when Story::Created then created += effort
           when Story::InProgress then in_progress += effort
           when Story::Blocked then blocked += effort
@@ -33,6 +33,7 @@ class Total < ActiveRecord::Base
       total.done = done
       total.blocked = blocked
       total.save(false)
+      total
     else
       create(id_field => id, :team_id => team_id, :date => Time.today, :created => created, :in_progress => in_progress, :done => done, :blocked => blocked) 
     end
@@ -41,5 +42,15 @@ class Total < ActiveRecord::Base
   # This should be overridden in subclasses.
   def self.id_field
     raise NotImplementedError, "id_field must be implemented by subclass"
+  end
+  
+  # This should be overridden in subclasses.
+  def self.find_items(object, team)
+    raise NotImplementedError, "find_items must be implemented by subclass"
+  end
+  
+  # This should be overridden in subclasses.
+  def self.calculate_effort(item)
+    raise NotImplementedError, "calculate_effort must be implemented by subclass"
   end
 end

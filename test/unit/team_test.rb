@@ -4,6 +4,9 @@ class TeamTest < ActiveSupport::TestCase
   fixtures :projects
   fixtures :teams
   fixtures :individuals
+  fixtures :iteration_velocities
+  fixtures :iteration_totals
+  fixtures :release_totals
   fixtures :stories
 
   # Test that an test can be created.
@@ -26,11 +29,17 @@ class TeamTest < ActiveSupport::TestCase
 
   # Test deleting an team
   def test_delete_team
+    release_total_count = ReleaseTotal.count
+    iteration_total_count = IterationTotal.count
+    velocity_count = IterationVelocity.count
     assert_equal individuals(:aaron).team, teams(:first)
     assert_equal stories(:first).team, teams(:first)
     teams(:first).destroy
     assert_nil Individual.find_by_id(2).team_id
     assert_nil Story.find_by_id(1).team_id
+    assert_equal release_total_count - 1, ReleaseTotal.count
+    assert_equal iteration_total_count - 1, IterationTotal.count
+    assert_equal velocity_count - 1, IterationVelocity.count
   end
 
 private

@@ -12,6 +12,7 @@ class SystemsControllerTest < ActionController::TestCase
   fixtures :individuals
   fixtures :release_totals
   fixtures :iteration_totals
+  fixtures :iteration_velocities
   fixtures :releases
   fixtures :iterations
   fixtures :stories
@@ -30,6 +31,9 @@ class SystemsControllerTest < ActionController::TestCase
     end
     assert_select "iteration-totals" do
       assert_select "iteration-total", 2
+    end
+    assert_select "iteration-velocities" do
+      assert_select "iteration-velocity", 2
     end
   end
     

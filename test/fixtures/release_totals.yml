@@ -9,6 +9,7 @@ first:
 second:
   id: 2
   release_id: 1
+  team_id: 1
   date: 2008-09-13
   created: 0
   in_progress: 2
