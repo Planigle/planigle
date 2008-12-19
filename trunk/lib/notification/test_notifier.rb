@@ -8,7 +8,7 @@ class Notification::TestNotifier < Notification::Notifier
   
   # Answer the number of notifications that have been sent.
   def number_of_notifications
-    @number_of_notifications
+    @number_of_notifications || 0
   end
   
   # Reset the number of notifications.

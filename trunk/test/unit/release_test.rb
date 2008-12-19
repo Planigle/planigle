@@ -4,6 +4,7 @@ class ReleaseTest < ActiveSupport::TestCase
   fixtures :teams
   fixtures :individuals
   fixtures :releases
+  fixtures :release_totals
   fixtures :projects
   fixtures :iterations
   fixtures :stories
@@ -38,12 +39,12 @@ class ReleaseTest < ActiveSupport::TestCase
   
   # Test deleting an release
   def test_delete_release
-    assert 3, ReleaseTotal.count
+    total_count = ReleaseTotal.count
     assert_equal stories(:first).release, releases(:first)
     releases(:first).destroy
     stories(:first).reload
     assert_nil stories(:first).release
-    assert 1, ReleaseTotal.count
+    assert_equal total_count - 2, ReleaseTotal.count
   end
 
   # Test finding individuals for a specific user.
@@ -59,12 +60,12 @@ class ReleaseTest < ActiveSupport::TestCase
     totals = releases(:first).summarize
     totals.each do |total|
       if total.team == nil
-        assert 0, total.in_progress
-        assert 1, total.done
+        assert_equal 0, total.in_progress
+        assert_equal 1, total.done
       end
       if total.team == teams(:first)
-        assert 3, total.in_progress
-        assert 2, total.done
+        assert_equal 1, total.in_progress
+        assert_equal 0, total.done
       end
     end
   end

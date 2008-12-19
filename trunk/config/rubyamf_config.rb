@@ -121,6 +121,12 @@ module RubyAMF
       :attributes => ["id", "iteration_id", "team_id", "date", "created", "in_progress", "done", "blocked"])
 
     ClassMappings.register(
+      :actionscript => 'IterationVelocity',
+      :ruby => 'IterationVelocity',
+      :type => 'active_record',
+      :attributes => ["id", "iteration_id", "team_id", "attempted", "completed"])
+
+    ClassMappings.register(
       :actionscript => 'ReleaseTotal',
       :ruby => 'ReleaseTotal',
       :type => 'active_record',

@@ -60,12 +60,12 @@ class StoryTest < ActiveSupport::TestCase
     story.effort=nil
     story.save(false)
     assert_nil story.effort
-    assert_equal 5, story.calculated_effort
+    assert_equal 5, story.time
   end
   
   # Test calculating the effort from tasks.
   def test_calculated_effort
-    assert_equal 5, stories(:first).calculated_effort
+    assert_equal 5, stories(:first).time
   end
 
   # Test the validation of status.
@@ -140,9 +140,9 @@ class StoryTest < ActiveSupport::TestCase
     story.effort = nil
     story.save(false)
     assert_nil story.effort
-    assert_equal 5, story.calculated_effort # Total of tasks
+    assert_equal 5, story.time # Total of tasks
     story = story.split
-    assert_nil story.calculated_effort
+    assert_nil story.time
   end
 
   # Test that added stories are put at the end of the list.
@@ -185,7 +185,7 @@ class StoryTest < ActiveSupport::TestCase
   # Validate export.
   def test_export
     string = Story.export(individuals(:aaron))
-    assert_equal "PID,Name,Description,Acceptance Criteria,Size,Time,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Test_Number,Test_String,Test_Text\n3,test3,\"\",\"\",1.0,1.0,In Progress,,\"\",\"\",\"\",\"\",false,2.0,\"\",\"\",\"\"\n2,test2,\"\",\"\",1.0,1.0,Done,,first,first,\"\",\"\",true,1.0,\"\",\"\",\"\"\n1,test,description,criteria,1.0,5.0,In Progress,,first,first,Test_team,aaron hank,true,2.0,5,test,testy\n4,test4,\"\",\"\",1.0,1.0,In Progress,,\"\",\"\",\"\",\"\",true,,\"\",\"\",\"\"\n", string
+    assert_equal "PID,Name,Description,Acceptance Criteria,Size,Time,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Test_Number,Test_String,Test_Text\n3,test3,\"\",\"\",1.0,,In Progress,,\"\",\"\",\"\",\"\",false,2.0,\"\",\"\",\"\"\n2,test2,\"\",\"\",1.0,,Done,,first,first,\"\",\"\",true,1.0,\"\",\"\",\"\"\n1,test,description,criteria,1.0,5.0,In Progress,,first,first,Test_team,aaron hank,true,2.0,5,test,testy\n4,test4,\"\",\"\",1.0,,In Progress,,\"\",\"\",\"\",\"\",true,,\"\",\"\",\"\"\n", string
   end
 
   def test_import_invalid_id

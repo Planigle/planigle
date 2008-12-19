@@ -4,6 +4,7 @@ class IterationTest < ActiveSupport::TestCase
   fixtures :teams
   fixtures :individuals
   fixtures :iteration_totals
+  fixtures :iteration_velocities
   fixtures :iterations
   fixtures :projects
   fixtures :stories
@@ -45,12 +46,14 @@ class IterationTest < ActiveSupport::TestCase
   
   # Test deleting an iteration
   def test_delete_iteration
-    assert 4, IterationTotal.count
+    total_count = IterationTotal.count
+    velocity_count = IterationVelocity.count
     assert_equal stories(:first).iteration, iterations(:first)
     iterations(:first).destroy
     stories(:first).reload
     assert_nil stories(:first).iteration
-    assert 1, IterationTotal.count
+    assert_equal total_count - 2, IterationTotal.count
+    assert_equal velocity_count - 1, IterationVelocity.count
   end
   
   # Test updating the project
@@ -71,17 +74,31 @@ class IterationTest < ActiveSupport::TestCase
   
   # Test summarization.
   def test_summarize
-    totals = iterations(:first).summarize
+    totals = IterationTotal.summarize_for(iterations(:first))
     totals.each do |total|
       if total.team == nil
-        assert 0, total.in_progress
-        assert 1, total.done
+        assert_equal 0, total.in_progress
+        assert_equal 0, total.done
       end
       if total.team == teams(:first)
-        assert 3, total.in_progress
-        assert 2, total.done
+        assert_equal 3, total.in_progress
+        assert_equal 2, total.done
       end
     end
+
+    totals = IterationVelocity.summarize_for(iterations(:first))
+    totals.each do |total|
+      if total.team == nil
+        assert_equal 1, total.attempted
+        assert_equal 1, total.completed
+      end
+      if total.team == teams(:first)
+        assert_equal 1, total.attempted
+        assert_equal 0, total.completed
+      end
+    end
+    
+    iterations(:first).summarize
   end
 
 private

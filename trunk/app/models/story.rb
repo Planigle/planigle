@@ -53,7 +53,7 @@ class Story < ActiveRecord::Base
       description,
       acceptance_criteria,
       effort,
-      calculated_effort,
+      time,
       StatusMapping[status_code],
       reason_blocked,
       release ? release.name : '',
@@ -108,10 +108,9 @@ class Story < ActiveRecord::Base
     self.status_code == Done
   end
   
-  # My effort is either my value (if set) or the sum of my tasks.
-  def calculated_effort
-    task_effort = tasks.inject(nil) {|sum, task| task.effort ? (sum ? sum + task.effort : task.effort) : sum}
-    task_effort != nil ? task_effort : effort
+  # My time is the sum of my tasks.
+  def time
+    tasks.inject(nil) {|sum, task| task.effort ? (sum ? sum + task.effort : task.effort) : sum}
   end
   
   # Create a new story based on this one.

@@ -5,4 +5,9 @@ class ReleaseTotal < Total
   def self.id_field
     :release_id
   end
+  
+  # Answer the items to measure the effort (stories in this case).
+  def self.find_items(object, team)
+    object.stories.find(:all, :conditions => {:team_id => team ? team.id : nil})
+  end
 end

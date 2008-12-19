@@ -2,7 +2,7 @@ class Release < ActiveRecord::Base
   include Utilities::Text
   belongs_to :project
   has_many :stories, :dependent => :nullify
-  has_many :release_totals, :dependent => :nullify
+  has_many :release_totals, :dependent => :destroy
   attr_accessible :name, :start, :finish, :project_id
   acts_as_audited
  

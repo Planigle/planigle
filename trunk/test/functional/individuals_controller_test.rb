@@ -233,7 +233,7 @@ class IndividualsControllerTest < Test::Unit::TestCase
   end
   
   # Update project successfully based on role.
-  def update_project_by_role_successful( user, params = {:project_id => 2} )
+  def update_project_by_role_successful( user, params = {:project_id => 2, :team_id => nil} )
     login_as(user)
     put :update, :id => 3, resource_symbol => params, :format => 'xml'
     assert_response :success
@@ -250,7 +250,7 @@ class IndividualsControllerTest < Test::Unit::TestCase
   end
   
   # Update project unsuccessfully based on role.
-  def update_project_by_role_unsuccessful( user, params = {:project_id => 2} )
+  def update_project_by_role_unsuccessful( user, params = {:project_id => 2, :team_id => nil} )
     login_as(user)
     put :update, :id => 3, resource_symbol => params, :format => 'xml'
     assert_response 401
