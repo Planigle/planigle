@@ -59,7 +59,7 @@ class TaskTest < ActiveSupport::TestCase
   # Test that we can get a mapping of status to code.
   def test_status_code_mapping
     mapping = Task.status_code_mapping
-    assert_equal ['Created',0], mapping[0]
+    assert_equal ['Not Started',0], mapping[0]
   end
   
   # Validate is_blocked.

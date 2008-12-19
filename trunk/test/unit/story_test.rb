@@ -164,7 +164,7 @@ class StoryTest < ActiveSupport::TestCase
   # Test that we can get a mapping of status to code.
   def test_status_code_mapping
     mapping = Story.status_code_mapping
-    assert_equal 0, mapping['Created']
+    assert_equal 0, mapping['Not Started']
   end
 
   # Test finding individuals for a specific user.

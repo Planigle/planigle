@@ -22,7 +22,7 @@ class Story < ActiveRecord::Base
   validates_numericality_of :priority, :user_priority, :allow_nil => true # Needed for priority since not set until after check
   validates_numericality_of :status_code
 
-  StatusMapping = [ 'Created', 'In Progress', 'Blocked', 'Done' ]
+  StatusMapping = [ 'Not Started', 'In Progress', 'Blocked', 'Done' ]
   Created = 0
   InProgress = 1
   Blocked = 2
@@ -337,7 +337,7 @@ private
 
   # Find the object id given a value, a class and conditions.
   def self.find_object_id(value, klass, conditions)
-    if !value; return nil; end
+    if !value || value == ""; return nil; end
     object = klass.find(:first, :conditions => conditions)
     object ? object.id : -1
   end
