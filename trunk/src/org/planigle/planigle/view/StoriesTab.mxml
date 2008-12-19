@@ -1168,7 +1168,7 @@
 										</mx:FormItem>
 										<mx:FormItem label='Status'>
 											<mx:ComboBox id='storyFieldStatus' width="120" editable="false" change="updateReasonBlocked(event)">
-												<mx:Object label="Created" value="0" />
+												<mx:Object label="Not Started" value="0" />
 												<mx:Object label="In Progress" value="1" />
 												<mx:Object label="Blocked" value="2" />
 												<mx:Object label="Done" value="3" />
@@ -1278,7 +1278,7 @@
 						<component:TeamSelector id='team' change="handleFilter(event)"></component:TeamSelector>
 						<mx:ComboBox id='individual' width="115" editable="false" dataProvider="{individualFilter}" labelField="fullName" change="handleFilter(event)"></mx:ComboBox>
 						<mx:ComboBox id='itemStatus' width="116" editable="false" change="handleFilter(event)" selectedIndex="3">
-							<mx:Object label="Created" value="0" />
+							<mx:Object label="Not Started" value="0" />
 							<mx:Object label="In Progress" value="1" />
 							<mx:Object label="Blocked" value="2" />
 							<mx:Object label="Not Done" value="-2" />
@@ -1335,7 +1335,7 @@
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
 							<mx:ComboBox maxHeight="18" width="100%" editable="false" selectedIndex="{data.statusCode}" change="outerDocument.updateStatus(data, event)" enabled="{outerDocument.factory.currentIndividual.isAtLeastProjectUser()}">
-								<mx:Object label="Created" value="0" />
+								<mx:Object label="Not Started" value="0" />
 								<mx:Object label="In Progress" value="1" />
 								<mx:Object label="Blocked" value="2" />
 								<mx:Object label="Done" value="3" />
