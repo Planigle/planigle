@@ -129,7 +129,7 @@
 			<mx:FormItem label='Status'>
 				<mx:ComboBox id='updateFieldStatus' width="350" editable="false" change="updateReasonBlocked(event)">
 					<mx:Object label="No Change" value="-1" />
-					<mx:Object label="Created" value="0" />
+					<mx:Object label="Not Started" value="0" />
 					<mx:Object label="In Progress" value="1" />
 					<mx:Object label="Blocked" value="2" />
 					<mx:Object label="Done" value="3" />

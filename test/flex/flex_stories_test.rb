@@ -204,10 +204,10 @@ private
     assert_equal 'No Team', @ie.combo_box("storyFieldTeam").text
     assert_equal 'No Owner', @ie.combo_box("storyFieldOwner").text
     assert_equal '', @ie.text_area("storyFieldEffort").text
-    assert_equal 'Created', @ie.combo_box("storyFieldStatus").text
+    assert_equal 'Not Started', @ie.combo_box("storyFieldStatus").text
     assert_equal 'false', @ie.combo_box("storyFieldPublic").text
 
-    create_story(' ', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Created', 'true')
+    create_story(' ', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Not Started', 'true')
     assert !@ie.form_item("storyFormReasonBlocked").visible
     @ie.button("storyBtnChange").click
 
@@ -221,7 +221,7 @@ private
     assert_equal 'Test_team', @ie.combo_box("storyFieldTeam").text
     assert_equal 'ted williams', @ie.combo_box("storyFieldOwner").text
     assert_equal '1', @ie.text_area("storyFieldEffort").text
-    assert_equal 'Created', @ie.combo_box("storyFieldStatus").text
+    assert_equal 'Not Started', @ie.combo_box("storyFieldStatus").text
     assert_equal 'true', @ie.combo_box("storyFieldPublic").text
     assert_not_nil @ie.button("storyBtnCancel")
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
@@ -241,7 +241,7 @@ private
     assert_equal 'No Team', @ie.combo_box("storyFieldTeam").text
     assert_equal 'No Owner', @ie.combo_box("storyFieldOwner").text
     assert_equal '', @ie.text_area("storyFieldEffort").text
-    assert_equal 'Created', @ie.combo_box("storyFieldStatus").text
+    assert_equal 'Not Started', @ie.combo_box("storyFieldStatus").text
     assert_equal 'false', @ie.combo_box("storyFieldPublic").text
     
     create_story('foo', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Blocked', 'true', "custom", "Senate")
@@ -256,7 +256,7 @@ private
     assert_equal 'No Team', @ie.combo_box("storyFieldTeam").text
     assert_equal 'No Owner', @ie.combo_box("storyFieldOwner").text
     assert_equal '', @ie.text_area("storyFieldEffort").text
-    assert_equal 'Created', @ie.combo_box("storyFieldStatus").text
+    assert_equal 'Not Started', @ie.combo_box("storyFieldStatus").text
     assert_equal 'false', @ie.combo_box("storyFieldPublic").text
     assert_equal '', @ie.text_area("storyField1").text
     assert_not_nil @ie.button("storyBtnCancel")
@@ -269,7 +269,7 @@ private
   def create_story_cancel
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
     @ie.button("storyBtnCreate").click
-    create_story('foo', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Created', 'true')
+    create_story('foo', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Not Started', 'true')
     @ie.button("storyBtnCancel").click
     assert_equal '', @ie.text_area("storyError").text
     assert_nil @ie.button("storyBtnCancel")
@@ -303,7 +303,7 @@ private
   # Test whether error handling works for editing a story.
   def edit_story_failure
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
-    edit_story(' ', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Created', 'true')
+    edit_story(' ', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Not Started', 'true')
     assert !@ie.form_item("storyFormReasonBlocked").visible
     @ie.button("storyBtnChange").click
     assert_equal "Name can't be blank", @ie.text_area("storyError").text
@@ -315,7 +315,7 @@ private
     assert_equal 'Test_team', @ie.combo_box("storyFieldTeam").text
     assert_equal 'ted williams', @ie.combo_box("storyFieldOwner").text
     assert_equal '1', @ie.text_area("storyFieldEffort").text
-    assert_equal 'Created', @ie.combo_box("storyFieldStatus").text
+    assert_equal 'Not Started', @ie.combo_box("storyFieldStatus").text
     assert_equal 'true', @ie.combo_box("storyFieldPublic").text
     assert_not_nil @ie.button("storyBtnCancel")
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
@@ -337,7 +337,7 @@ private
   # Test whether you can successfully cancel editing a story.
   def edit_story_cancel
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
-    edit_story('foo 1', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Created', 'true')
+    edit_story('foo 1', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Not Started', 'true')
     @ie.button("storyBtnCancel").click
     assert_equal '', @ie.text_area("storyError").text
     assert_nil @ie.button("storyBtnCancel")
@@ -422,9 +422,9 @@ private
     assert_equal 'Test_team', @ie.combo_box("storyFieldTeam").text
     assert_equal 'aaron hank', @ie.combo_box("storyFieldOwner").text
     assert_equal '1', @ie.text_area("storyFieldEffort").text
-    assert_equal 'Created', @ie.combo_box("storyFieldStatus").text
+    assert_equal 'Not Started', @ie.combo_box("storyFieldStatus").text
     assert_equal 'true', @ie.combo_box("storyFieldPublic").text
-    split_story(' ', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Created', 'true')
+    split_story(' ', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Not Started', 'true')
     @ie.button("storyBtnChange").click
     assert_equal "Name can't be blank", @ie.text_area("storyError").text
     assert_equal ' ', @ie.text_area("storyFieldName").text
@@ -435,7 +435,7 @@ private
     assert_equal 'Test_team', @ie.combo_box("storyFieldTeam").text
     assert_equal 'ted williams', @ie.combo_box("storyFieldOwner").text
     assert_equal '1', @ie.text_area("storyFieldEffort").text
-    assert_equal 'Created', @ie.combo_box("storyFieldStatus").text
+    assert_equal 'Not Started', @ie.combo_box("storyFieldStatus").text
     assert_equal 'true', @ie.combo_box("storyFieldPublic").text
     assert_not_nil @ie.button("storyBtnCancel")
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
@@ -446,21 +446,21 @@ private
   def split_story_success
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
     @ie.button("storyBtnSplit")[2].click
-    split_story('foo 1', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Created', 'true')
+    split_story('foo 1', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Not Started', 'true')
     @ie.button("storyBtnChange").click
     sleep 3 # Wait for results
     assert_equal '', @ie.text_area("storyError").text
     assert_nil @ie.button("storyBtnCancel")
     rows = @ie.data_grid("storyResourceGrid").num_rows
     assert_equal num_rows + 1, rows
-    assert_equal ",foo 1,fourth,Test_team,ted williams,1,3,Created,true,3,,Edit | Delete | Add Task | Split | History", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-1, :end => rows-1)
+    assert_equal ",foo 1,fourth,Test_team,ted williams,1,3,Not Started,true,3,,Edit | Delete | Add Task | Split | History", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-1, :end => rows-1)
   end
     
   # Test whether you can successfully cancel splitting a story.
   def split_story_cancel
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
     @ie.button("storyBtnSplit")[2].click
-    split_story('foo 1', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Created', 'true')
+    split_story('foo 1', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Not Started', 'true')
     @ie.button("storyBtnCancel").click
     assert_equal '', @ie.text_area("storyError").text
     assert_nil @ie.button("storyBtnCancel")
