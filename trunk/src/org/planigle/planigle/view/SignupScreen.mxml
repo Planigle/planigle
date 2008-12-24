@@ -58,7 +58,7 @@
 		]]>
 	</mx:Script>
 	
-	<mx:Panel title="Signup" horizontalAlign="center" verticalAlign="middle" backgroundAlpha="1.0" borderStyle="outset" backgroundColor="#F2F3AF" borderThicknessLeft="2" borderThicknessRight="2" headerHeight="10">
+	<mx:Panel title="Sign up for a free Planigle account:" horizontalAlign="center" verticalAlign="middle" backgroundAlpha="1.0" borderStyle="outset" backgroundColor="#F2F3AF" borderThicknessLeft="2" borderThicknessRight="2" headerHeight="14">
 		<mx:Form borderStyle="outset" cornerRadius="10" themeColor="#009DFF" backgroundColor="#FFFFFF" defaultButton="{okButton}">
 			<mx:Text id="signupError" styleName="error" htmlText="{_error}" width="100%"/>
 			<mx:FormItem label='Project Name' required="true">

@@ -88,6 +88,8 @@
 			{
 				if (ExternalInterface.available && containsCookie("auth_token"))
 					new LoginEvent( new LoginVO('', '', true, false, true) ).dispatch();
+				else if (ExternalInterface.available && containsRequestParameter("signup"))
+					viewModelLocator.workflowState = ViewModelLocator.SIGNUP;
 				else
 					viewModelLocator.workflowState = ViewModelLocator.LOGIN_SCREEN;
 			}
@@ -97,6 +99,15 @@
 			{
 				var js:String = "function get_cookie(){return document.cookie;}"
 				return ExternalInterface.call(js).toString().indexOf(cookie + "=") != -1;
+			}
+
+			// Answer true if a request parameter exists with the given name.
+			private function containsRequestParameter(parameter:String):Boolean
+			{
+				var js:String = "function get_request_parameter(){return window.location.href;}"
+				var url:String = ExternalInterface.call(js).toString();
+				var queryString:String = url.substring(url.indexOf("?")+1);
+				return queryString.indexOf(parameter) != -1;
 			}
 		]]>
 	</mx:Script>
