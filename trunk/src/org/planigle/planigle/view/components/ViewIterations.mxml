@@ -15,12 +15,10 @@
 		import org.planigle.planigle.model.IterationFactory;
 		import org.planigle.planigle.model.Iteration;
 		import org.planigle.planigle.model.DateUtils;
-		import org.planigle.planigle.view.CoreApplicationScreen;
 		import org.planigle.planigle.view.StoriesTab;
 		import org.planigle.planigle.view.ChangesTab;
 		import org.planigle.planigle.events.AuditChangedEvent;
 		import org.planigle.planigle.events.IterationChangedEvent;
-		import modules.Core;
 
 		[Bindable]
 		public var release:Release;
@@ -192,14 +190,12 @@
 		// Go to iteration planning.
 		public function showPlan(event:Event):void
 		{
-			var coreApp:CoreApplicationScreen = parentApplication.mainViewStack.getChildByName("core");
-			var core:Core = Core(coreApp.getChildAt(0));
-			var stories:StoriesTab = StoriesTab(core.mainViewStack.getChildByName("Stories"));
+			var stories:StoriesTab = viewModelLocator.stories;
 			stories.release.selectedIndex = ReleaseFactory.getInstance().releases.length + 1;
 			stories.handleReleaseFilter(null); // ensure filter affect occurs.
 			stories.iteration.selectedItem = iterationResourceGrid.selectedItem;
 			stories.handleFilter(null); // ensure filter affect occurs.
-			core.mainViewStack.selectedChild = stories;
+			viewModelLocator.selectedTab = stories;
 		}
 		
 		// Format the start date into a more readable format.
@@ -212,8 +208,7 @@
 		public function showHistory(event:Event) : void
 		{
 			new AuditChangedEvent(null, 'Iteration', null, null, String(iterationResourceGrid.selectedItem.id)).dispatch();
-			var core:Core = Core(parentApplication.mainViewStack.getChildByName("core").getChildAt(0));
-			core.mainViewStack.selectedChild = ChangesTab(core.mainViewStack.getChildByName("Changes"));
+			viewModelLocator.selectedTab = viewModelLocator.changes;
 		}
 		]]>
 	</mx:Script>

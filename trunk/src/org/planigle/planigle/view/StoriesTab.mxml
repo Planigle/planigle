@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:local="org.planigle.planigle.view.controls.*" xmlns:component="org.planigle.planigle.view.components.*" name="Stories" label="Stories" borderThicknessLeft="2" borderThicknessRight="2" headerHeight="0" creationComplete="created(event)">
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:local="org.planigle.planigle.view.controls.*" xmlns:component="org.planigle.planigle.view.components.*" name="Stories" label="Stories" borderThicknessLeft="2" borderThicknessRight="2" headerHeight="0" creationComplete="created(event)" height="100%" width="100%">
+	<mx:Metadata>
+		[Event(name="dataChange", type="flash.events.Event")]
+	</mx:Metadata>
 	<mx:Script>
 		<![CDATA[
 		import flash.display.DisplayObject;
 		import mx.collections.ArrayCollection;
 		import mx.rpc.events.ResultEvent;
 		import mx.managers.PopUpManager;
+		import mx.core.Container;
 		import mx.controls.Alert;
 		import mx.controls.DataGrid;
 		import mx.events.DataGridEvent;
@@ -15,7 +19,6 @@
 		import mx.binding.utils.ChangeWatcher;
 		import mx.containers.FormItem;
 		import mx.controls.TextInput;
-		import modules.Core;
 		import org.planigle.planigle.model.ViewModelLocator;
 		import org.planigle.planigle.model.ProjectFactory;
 		import org.planigle.planigle.model.IndividualFactory;
@@ -59,7 +62,7 @@
 		private var individualFilter:ArrayCollection = new ArrayCollection();
 
 		[Bindable] // List of stories (filtered for selected iteration)
-		private var filteredStories:ArrayCollection = new ArrayCollection();
+		public var filteredStories:ArrayCollection = new ArrayCollection();
 
 		[Bindable]
 		private var panelHeight:int;
@@ -70,6 +73,7 @@
 		// Set up event listeners.  Called when the canvas has been created.
 		private function created(event:Event):void
 		{
+			viewModelLocator.stories = this;
 			panelHeight = combinedPanel.height;
 			ChangeWatcher.watch( factory, "currentIndividual", updateIndividual );
 			ChangeWatcher.watch( IndividualFactory.current(), "projectId", updateIndividual );
@@ -356,32 +360,8 @@
 			}
 			filteredStories = storiesAndTasks;
 			storyBtnAddExisting.visible = shouldShowExisting();
-			updateVelocityAndUtilization(event);
 			storyResourceGrid.verticalScrollPosition = scroll;
-		}
-
-		// Update the velocity and utilization.
-		private function updateVelocityAndUtilization(event:Event):void
-		{
-			if (IndividualFactory.current().project)
-			{
-				var teamLevel:int = IndividualFactory.current().project.teamSelector.length > 1 ? 1 : 0;
-				if (team.selectedItem && team.selectedItem.id != "-1")
-					velocity.dataProvider = new VelocityNode(null, team.selectedItem, 1, filteredStories);
-				else
-					velocity.dataProvider = new VelocityNode(null, IndividualFactory.current().project, 1+teamLevel, filteredStories);
-				velocity.rowCount = 1;
-				velocity.width = NaN;
-	
-				if (individual.selectedItem && individual.selectedItem.id != "-1")
-					utilization.dataProvider = new UtilizationNode(null, individual.selectedItem, 1, filteredStories);
-				else if (team.selectedItem && team.selectedItem.id != "-1")
-					utilization.dataProvider = new UtilizationNode(null, team.selectedItem, 2, filteredStories);
-				else
-					utilization.dataProvider = new UtilizationNode(null, IndividualFactory.current().project, 2+teamLevel, filteredStories);
-				utilization.rowCount = 1;
-				utilization.width = NaN;
-			}
+			dispatchEvent(new Event("dataChanged"));
 		}
 		
 		// Expand / collapse a story.
@@ -760,8 +740,7 @@
 		public function showHistory(event:Event) : void
 		{
 			new AuditChangedEvent(null, storyResourceGrid.selectedItem.isStory() ? 'Story' : 'Task', null, null, String(storyResourceGrid.selectedItem.id)).dispatch();
-			var core:Core = Core(parentApplication.mainViewStack.getChildByName("core").getChildAt(0));
-			core.mainViewStack.selectedChild = ChangesTab(core.mainViewStack.getChildByName("Changes"));
+			viewModelLocator.selectedTab = Container(viewModelLocator.changes);
 		}
 		
 		// Create parameters for the user's request to the server.
@@ -867,7 +846,7 @@
 		private function handleSuccess():void
 		{
 			resetState(null);
-			updateVelocityAndUtilization(null);
+			dispatchEvent(new Event("dataChanged"));
 		}
 
 		// Handle errors when making changes.
