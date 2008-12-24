@@ -13,7 +13,6 @@
 		import mx.events.ListEvent;
 		import mx.events.CloseEvent;
 		import mx.binding.utils.ChangeWatcher;
-		import modules.Core;
 		import org.planigle.planigle.model.ViewModelLocator;
 		import org.planigle.planigle.model.ProjectFactory;
 		import org.planigle.planigle.model.Project;
@@ -326,8 +325,7 @@
 		public function showHistory(event:Event) : void
 		{
 			new AuditChangedEvent(null, projectResourceGrid.selectedItem.isProject() ? 'Project' : 'Team', null, null, String(projectResourceGrid.selectedItem.id)).dispatch();
-			var core:Core = Core(parentApplication.mainViewStack.getChildByName("core").getChildAt(0));
-			core.mainViewStack.selectedChild = ChangesTab(core.mainViewStack.getChildByName("Changes"));
+			viewModelLocator.selectedTab = viewModelLocator.changes;
 		}
 		]]>
 	</mx:Script>

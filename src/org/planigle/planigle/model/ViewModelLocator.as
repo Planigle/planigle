@@ -1,6 +1,11 @@
 package org.planigle.planigle.model
 {
 	import com.adobe.cairngorm.model.IModelLocator;
+	
+	import mx.core.Container;
+	
+	import org.planigle.planigle.view.ChangesTab;
+	import org.planigle.planigle.view.StoriesTab;
 
 	[Bindable]
 	public class ViewModelLocator implements IModelLocator
@@ -30,6 +35,10 @@ package org.planigle.planigle.model
 		public static const LICENSE_AGREEMENT_SCREEN:uint = 2;
 		public static const LOGIN_SCREEN:uint = 3;
 		public static const CORE_APPLICATION_SCREEN:uint = 4;
+		
+		public var selectedTab:Container;
+		public var stories:StoriesTab;
+		public var changes:ChangesTab;
 	}
 }
 

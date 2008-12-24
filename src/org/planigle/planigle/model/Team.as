@@ -96,6 +96,12 @@ package org.planigle.planigle.model
 			return false;
 		}
 
+		//  No, I'm not an individual.
+		public function isIndividual():Boolean
+		{
+			return false;
+		}
+
 		// Answer a label for my expand button.
 		public function expandLabel():String
 		{
@@ -141,52 +147,6 @@ package org.planigle.planigle.model
 			none.teamId = id;
 			children.addItem(none);
 			return children;
-		}
-
-		// Answer my velocity.
-		public function get velocity():Number
-		{
-			var iterations:ArrayCollection = IterationFactory.getInstance().getPastIterations(3);
-			var sum:Number = 0;
-			for each (var iteration:Iteration in iterations)
-				sum += velocityInIteration(iteration);
-			return sum/iterations.length;
-		}
-
-		// Answer my velocity in the specified stories.
-		public function velocityIn(stories:ArrayCollection):Number
-		{
-			var totalVelocity:Number = 0;
-			for each(var story:Object in stories)
-			{
-				if (story.isStory() && story.teamId == id)
-					totalVelocity += Number(story.size);
-			}
-			return totalVelocity;
-		}
-
-		// Answer my velocity in the specified iteration.
-		public function velocityInIteration(iteration:Iteration):Number
-		{
-			return velocityIn(iteration.acceptedStories());
-		}
-
-		// Answer my utilization.
-		public function get utilization():Number
-		{
-			var sum:Number = 0;
-			for each(var child:Object in children)
-				sum += child.utilization;
-			return sum;
-		}
-
-		// Answer my utilization in the specified stories.
-		public function utilizationIn(stories:ArrayCollection):Number
-		{
-			var sum:Number = 0;
-			for each(var child:Object in children)
-				sum += child.utilizationIn(stories);
-			return sum;
 		}
 	}
 }

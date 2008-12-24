@@ -88,6 +88,18 @@ package org.planigle.planigle.model
 			_project = project;
 		}
 
+		//  No, I'm not a project.
+		public function isProject():Boolean
+		{
+			return false;
+		}
+
+		//  Yes, I'm an individual.
+		public function isIndividual():Boolean
+		{
+			return true;
+		}
+
 		// Answer whether this user is a premium user.
 		public function isPremium():Boolean
 		{
@@ -216,34 +228,6 @@ package org.planigle.planigle.model
 		public function get children():ArrayCollection
 		{
 			return null;
-		}
-
-		// Answer my typical utilization I am capable of.
-		public function get utilization():Number
-		{
-			var iterations:ArrayCollection = IterationFactory.getInstance().getPastIterations(3);
-			var sum:Number = 0;
-			for each (var iteration:Iteration in iterations)
-				sum += utilizationIn(iteration.stories(), true);
-			return sum/iterations.length;
-		}
-
-		// Answer my utilization in the specified stories.
-		public function utilizationIn(stories:ArrayCollection, onlyAccepted:Boolean = false):Number
-		{
-			var totalUtilization:Number = 0;
-			for each(var story:Object in stories)
-			{
-				if (story.isStory() && (id || story.teamId == teamId))
-				{
-					for each(var task:Object in story.tasks)
-					{
-						if (task.individualId == id && (!onlyAccepted || task.statusCode == Story.ACCEPTED))
-							totalUtilization += Number(task.calculatedEffort);
-					}
-				}
-			}
-			return totalUtilization;
 		}
 	}
 }

@@ -17,12 +17,10 @@
 		import org.planigle.planigle.model.ReleaseFactory;
 		import org.planigle.planigle.model.Release;
 		import org.planigle.planigle.model.DateUtils;
-		import org.planigle.planigle.view.CoreApplicationScreen;
 		import org.planigle.planigle.view.StoriesTab;
 		import org.planigle.planigle.view.ChangesTab;
 		import org.planigle.planigle.events.AuditChangedEvent;
 		import org.planigle.planigle.events.ReleaseChangedEvent;
-		import modules.Core;
 		
 		[Bindable]
 		private var _error:String;
@@ -208,8 +206,7 @@
 		public function showHistory(event:Event) : void
 		{
 			new AuditChangedEvent(null, 'Release', null, null, String(releaseResourceGrid.selectedItem.id)).dispatch();
-			var core:Core = Core(parentApplication.mainViewStack.getChildByName("core").getChildAt(0));
-			core.mainViewStack.selectedChild = ChangesTab(core.mainViewStack.getChildByName("Changes"));
+			viewModelLocator.selectedTab = viewModelLocator.changes;
 		}
 		]]>
 	</mx:Script>

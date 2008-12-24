@@ -9,12 +9,14 @@
 	<mx:Script>
 		<![CDATA[
 			import com.adobe.viewsource.ViewSource;
-			import mx.binding.utils.ChangeWatcher;
 			import flash.display.DisplayObject;
+			import mx.binding.utils.ChangeWatcher;
+			import mx.binding.utils.BindingUtils;
 			import mx.events.ModuleEvent;
         	import mx.modules.ModuleManager;
         	import mx.modules.IModuleInfo;
 			import org.planigle.planigle.model.IndividualFactory;
+			import org.planigle.planigle.model.ViewModelLocator;
 			import org.planigle.planigle.events.ProjectChangedEvent;
 			import org.planigle.planigle.events.IndividualChangedEvent;
 			import org.planigle.planigle.events.ReleaseChangedEvent;
@@ -43,6 +45,8 @@
 				mainViewStack.addChild(people);
 				ChangeWatcher.watch( factory, "currentIndividual", changeIndividual );
 				changeIndividual(event); // This is to catch it the first time (The event has already been sent).
+				ViewModelLocator.getInstance().selectedTab = mainViewStack.getChildAt(0) == stories ? stories : people;
+				BindingUtils.bindProperty(mainViewStack, "selectedChild", ViewModelLocator.getInstance(), "selectedTab");
 			}
 
 			private var watcher:ChangeWatcher;
@@ -171,6 +175,12 @@
 				premium = premiumModule.factory.create() as DisplayObject;
 				showTab(premium, 1);
 			}
+			
+			// A different child has been selected.
+			private function updateChild(event:Event):void
+			{
+				ViewModelLocator.getInstance().selectedTab = mainViewStack.selectedChild;
+			}
 		]]>
 	</mx:Script>
 	<mx:HBox horizontalGap="5" width="100%">
@@ -182,6 +192,6 @@
 			<mx:LinkButton id="planigleButton" icon="{parentApplication.imgLogoSmall}" toolTip="Planigle Project Page" click="new URLEvent('http://code.google.com/p/planigle/').dispatch()"/>
 		</mx:HBox>
 	</mx:HBox>
-	<mx:ViewStack id="mainViewStack" y="25" width="100%" height="100%" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0">
+	<mx:ViewStack id="mainViewStack" y="25" width="100%" height="100%" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" change="updateChild(event)">
 	</mx:ViewStack>
 </mx:Module>
