@@ -141,41 +141,32 @@ class FlexStoriesTest < Test::Unit::TestCase
     assert !@ie.button("taskBtnAdd")[1].visible
     assert !@ie.button("storyBtnSplit")[1].visible
   end
+
+  # Test changing custom attributes.
+  def test_custom_attribute
+    init('admin2')
+    @ie.button("storyBtnCreate").click
+    @ie.button("storyBtnEditAttributes").click
+    @ie.button("editAttributeBtnDelete").click # Delete Test_Number Attribute
+    @ie.button("editAttributeBtnAdd").click # Add a new one
+    @ie.text_area("editAttributeFieldName").input(:text => 'Beta' )
+    @ie.combo_box("editAttributeFieldType").open
+    @ie.combo_box("editAttributeFieldType").select(:item_renderer => 'Number' )
+    @ie.button("editAttributeBtnOk").click
+    sleep 5
+    assert_nil @ie.text_area("storyField3")
+    assert @ie.text_area("storyField5")
+  end
   
-  # Test velocity
-  def test_velocity
+  # Test showing the history
+  def test_history
     init('admin2')
-    sleep 15 # Wait for data to load
-    assert_equal '3 of 0.33 (900%) - Test', @ie.tree('velocity').tabular_data
-    @ie.tree('velocity').open(:item_renderer => '3 of 0.33 (900%) - Test')
-    assert_equal '1 of 0 - Test_team', @ie.tree('velocity').tabular_data(:start => 2, :end => 2)
-
-    @ie.combo_box("team").open
-    @ie.combo_box("team").select(:item_renderer => 'Test_team')
-    assert_equal '1 of 0 - Test_team', @ie.tree('velocity').tabular_data
+    @ie.button("storyBtnEdit")[2].click
+    @ie.button("storyBtnInfo").click
+    assert_equal 4, @ie.button_bar("mainNavigation").selectedIndex
+    assert_equal 2, @ie.data_grid("changeGrid").num_rows
   end
-
-  # Test utilization
-  def test_utilization
-    init('admin2')
-    sleep 15 # Wait for data to load
-    assert_equal '5 of 0.67 (750%) - Test', @ie.tree('utilization').tabular_data
-    @ie.tree('utilization').open(:item_renderer => '5 of 0.67 (750%) - Test')
-    assert_equal '5 of 0.67 (750%) - Test_team', @ie.tree('utilization').tabular_data(:start => 1, :end => 1)
-    @ie.tree('utilization').open(:item_renderer => '5 of 0.67 (750%) - Test_team')
-    assert_equal '5 of 0.67 (750%) - aaron hank', @ie.tree('utilization').tabular_data(:start => 2, :end => 2)
-
-    @ie.combo_box("team").open
-    @ie.combo_box("team").select(:item_renderer => 'Test_team')
-    assert_equal '5 of 0.67 (750%) - Test_team', @ie.tree('utilization').tabular_data
-    @ie.tree('utilization').open(:item_renderer => '5 of 0.67 (750%) - Test_team')
-    assert_equal '5 of 0.67 (750%) - aaron hank', @ie.tree('utilization').tabular_data(:start => 1, :end => 1)
-
-    @ie.combo_box("individual").open
-    @ie.combo_box("individual").select(:item_renderer => 'No Owner')
-    assert_equal '0 of 0 - No Owner', @ie.tree('utilization').tabular_data
-  end
-
+  
   # Test moving to the top
   def test_move_up
     init('admin2')
