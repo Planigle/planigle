@@ -324,7 +324,7 @@
 		// Show the history for the current object.
 		public function showHistory(event:Event) : void
 		{
-			new AuditChangedEvent(null, projectResourceGrid.selectedItem.isProject() ? 'Project' : 'Team', null, null, String(projectResourceGrid.selectedItem.id)).dispatch();
+			new AuditChangedEvent(null, currentItem.isProject() ? 'Project' : 'Team', null, null, String(currentItem.id)).dispatch();
 			viewModelLocator.selectedTab = viewModelLocator.changes;
 		}
 		]]>
@@ -372,6 +372,7 @@
 							<mx:Spacer width="50"/>
 							<mx:Button label="Change" id="projectBtnChange" click="changeResource(event)"/>
 							<mx:LinkButton label="Cancel" id="projectBtnCancel" click="resetState(event)"/>
+							<mx:LinkButton id="projectBtnInfo" icon="{parentApplication.imgInfo}" toolTip="History" click="showHistory(event);"/>
 						</mx:ControlBar>
 					</mx:VBox>
 				</mx:target>
@@ -431,7 +432,6 @@
 								<mx:LinkButton id="projectBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
 								<mx:LinkButton id="projectBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.shouldShowDeleteProject(data)}"/>
 								<mx:LinkButton id="teamBtnAdd" icon="{parentApplication.imgAdd}" toolTip="Add Team" click="outerDocument.showCreateTeam(event);" visible="{outerDocument.shouldShowAddTeam(data)}"/>
-								<mx:LinkButton id="projectBtnInfo" icon="{parentApplication.imgInfo}" toolTip="History" click="outerDocument.showHistory(event);"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>

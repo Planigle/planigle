@@ -739,7 +739,7 @@
 		// Show the history for the current object.
 		public function showHistory(event:Event) : void
 		{
-			new AuditChangedEvent(null, storyResourceGrid.selectedItem.isStory() ? 'Story' : 'Task', null, null, String(storyResourceGrid.selectedItem.id)).dispatch();
+			new AuditChangedEvent(null, currentItem.isStory() ? 'Story' : 'Task', null, null, String(currentItem.id)).dispatch();
 			viewModelLocator.selectedTab = Container(viewModelLocator.changes);
 		}
 		
@@ -927,6 +927,17 @@
 				before = (before+after)/2;
 				updateItem(story, {"record[priority]": before });
 			}
+			handleUpdateSuccess(); // Prime the processing.
+		}
+
+		// The user has moved a story to the top.
+		public function moveToTop(event:Event):void
+		{
+			var story:Story = Story(storyResourceGrid.selectedItem);
+			var itemAtIndex:Story = Story(filteredStories.getItemAt(0));
+			if (itemAtIndex == story)
+				return; // Not moved
+			updateItem(story, {"record[priority]": itemAtIndex.priority - 0.5 });
 			handleUpdateSuccess(); // Prime the processing.
 		}
 
@@ -1189,6 +1200,7 @@
 								<mx:Spacer width="50"/>
 								<mx:Button label="Change" id="storyBtnChange" click="changeResource(event)"/>
 								<mx:LinkButton label="Cancel" id="storyBtnCancel" click="resetState(event)"/>
+								<mx:LinkButton id="storyBtnInfo" icon="{parentApplication.imgInfo}" toolTip="History" click="showHistory(event);"/>
 							</mx:ControlBar>
 						</mx:VBox>
 					</mx:Panel>
@@ -1332,9 +1344,9 @@
 							<mx:Box direction="horizontal" horizontalGap="0" width="100%">
 								<mx:LinkButton id="storyBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);" visible="{outerDocument.shouldShow(data)}"/>
 								<mx:LinkButton id="storyBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.shouldShow(data)}"/>
+								<mx:LinkButton id="storyBtnMoveUp" icon="{parentApplication.imgMoveUp}" toolTip="Move To Top" click="outerDocument.moveToTop(event);" visible="{outerDocument.shouldShowStory(data)}"/>
 								<mx:LinkButton id="taskBtnAdd" icon="{parentApplication.imgAdd}" toolTip="Add Task" click="outerDocument.showCreateTask(event);" visible="{outerDocument.shouldShowStory(data)}"/>
 								<mx:LinkButton id="storyBtnSplit" icon="{parentApplication.imgSplit}" toolTip="Split" click="outerDocument.showSplit(event);" visible="{outerDocument.shouldShowStory(data)}"/>
-								<mx:LinkButton id="storyBtnInfo" icon="{parentApplication.imgInfo}" toolTip="History" click="outerDocument.showHistory(event);"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>

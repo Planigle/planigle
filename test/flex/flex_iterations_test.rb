@@ -76,7 +76,8 @@ class FlexIterationsTest < Test::Unit::TestCase
   # Test showing the history
   def test_history
     init('admin2')
-    @ie.button("iterationBtnInfo")[1].click
+    @ie.button("iterationBtnEdit")[1].click
+    @ie.button("iterationBtnInfo").click
     assert_equal 4, @ie.button_bar("mainNavigation").selectedIndex
     assert_equal 0, @ie.data_grid("changeGrid").num_rows
   end
@@ -126,7 +127,7 @@ private
     assert_equal '2', @ie.text_area("iterationFieldLength").text
     assert_not_nil @ie.button("iterationBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("iterationResourceGrid").num_rows
-    assert_equal "foo 1,5/28/2008,2,Plan | Edit | Delete | History", @ie.data_grid("iterationResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
+    assert_equal "foo 1,5/28/2008,2,Plan | Edit | Delete", @ie.data_grid("iterationResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
     @ie.button("iterationBtnCancel").click
   end
     
@@ -173,7 +174,7 @@ private
     assert_equal '', @ie.text_area("iterationError").text
     assert_nil @ie.button("iterationBtnCancel")
     assert_equal num_rows, @ie.data_grid("iterationResourceGrid").num_rows
-    assert_equal "foo 1,5/28/2008,2,Plan | Edit | Delete | History", @ie.data_grid("iterationResourceGrid").tabular_data
+    assert_equal "foo 1,5/28/2008,2,Plan | Edit | Delete", @ie.data_grid("iterationResourceGrid").tabular_data
   end
     
   # Test whether you can successfully cancel editing an iteration.
