@@ -127,7 +127,8 @@ class FlexIndividualsTest < Test::Unit::TestCase
   # Test showing the history
   def test_history
     init('admin2')
-    @ie.button("individualBtnInfo")[1].click
+    @ie.button("individualBtnEdit")[1].click
+    @ie.button("individualBtnInfo").click
     assert_equal 4, @ie.button_bar("mainNavigation").selectedIndex
     assert_equal 0, @ie.data_grid("changeGrid").num_rows
   end
@@ -183,7 +184,7 @@ private
     assert_equal 'true', @ie.combo_box("individualFieldEnabled").text
     assert_not_nil @ie.button("individualBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("individualResourceGrid").num_rows
-    assert_equal "Test,Test_team,testy2,testy,test,Admin,false,true,,Edit | Delete | History", @ie.data_grid("individualResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
+    assert_equal "Test,Test_team,testy2,testy,test,Admin,false,true,,Edit | Delete", @ie.data_grid("individualResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
     @ie.button("individualBtnCancel").click
   end
     
@@ -255,7 +256,7 @@ private
     assert_equal '', @ie.text_area("individualError").text
     assert_nil @ie.button("individualBtnCancel")
     assert_equal num_rows, @ie.data_grid("individualResourceGrid").num_rows
-    assert_equal "Test,Test,testy3,testy,test,Project Admin,false,true,Edit | Delete | History", @ie.data_grid("individualResourceGrid").tabular_data(:start => row-1, :end => row-1)
+    assert_equal "Test,Test,testy3,testy,test,Project Admin,false,true,Edit | Delete", @ie.data_grid("individualResourceGrid").tabular_data(:start => row-1, :end => row-1)
   end
     
   # Test that you can't change your own role / enabledness.

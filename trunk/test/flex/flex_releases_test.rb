@@ -85,7 +85,8 @@ class FlexReleasesTest < Test::Unit::TestCase
   # Test showing the history
   def test_history
     init('admin2')
-    @ie.button("releaseBtnInfo")[1].click
+    @ie.button("releaseBtnEdit")[1].click
+    @ie.button("releaseBtnInfo").click
     assert_equal 4, @ie.button_bar("mainNavigation").selectedIndex
     assert_equal 0, @ie.data_grid("changeGrid").num_rows
   end
@@ -135,7 +136,7 @@ private
     assert_equal '11/28/2008', @ie.text_area("releaseFieldFinish").text
     assert_not_nil @ie.button("releaseBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("releaseResourceGrid").num_rows
-    assert_equal "foo 1.0,5/28/2008,8/28/2008,Edit | Delete | History", @ie.data_grid("releaseResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
+    assert_equal "foo 1.0,5/28/2008,8/28/2008,Edit | Delete", @ie.data_grid("releaseResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
     @ie.button("releaseBtnCancel").click
   end
     
@@ -182,7 +183,7 @@ private
     assert_equal '', @ie.text_area("releaseError").text
     assert_nil @ie.button("releaseBtnCancel")
     assert_equal num_rows, @ie.data_grid("releaseResourceGrid").num_rows
-    assert_equal "foo 1,5/28/2008,8/28/2008,Edit | Delete | History", @ie.data_grid("releaseResourceGrid").tabular_data
+    assert_equal "foo 1,5/28/2008,8/28/2008,Edit | Delete", @ie.data_grid("releaseResourceGrid").tabular_data
   end
     
   # Test whether you can successfully cancel editing an release.

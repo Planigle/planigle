@@ -75,6 +75,10 @@
 			[Bindable]
 			public var imgInfo:Class;
 		
+			[Embed(source="../public/images/move_up.png")]
+			[Bindable]
+			public var imgMoveUp:Class;
+		
 			[Embed(source="../public/images/logo_big.gif")]
 			[Bindable]
 			public var imgLogoBig:Class;
