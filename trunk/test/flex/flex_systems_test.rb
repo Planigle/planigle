@@ -4,6 +4,7 @@ require 'funfx'
 
 class FlexSystemsTest < Test::Unit::TestCase
   fixtures :systems
+  fixtures :companies
   fixtures :individuals
 
   def setup

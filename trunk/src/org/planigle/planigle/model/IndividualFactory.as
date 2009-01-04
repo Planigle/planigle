@@ -3,11 +3,6 @@ package org.planigle.planigle.model
 	import mx.collections.ArrayCollection;
 	
 	import org.planigle.planigle.commands.CreateIndividualCommand;
-	import org.planigle.planigle.events.ProjectChangedEvent;
-	import org.planigle.planigle.events.IndividualChangedEvent;
-	import org.planigle.planigle.events.ReleaseChangedEvent;
-	import org.planigle.planigle.events.IterationChangedEvent;
-	import org.planigle.planigle.events.StoryChangedEvent;
 	
 	[Bindable]
 	public class IndividualFactory

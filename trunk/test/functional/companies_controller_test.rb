@@ -1,18 +1,19 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
-require "#{File.dirname(__FILE__)}/../projects_test_helper"
+require "#{File.dirname(__FILE__)}/../companies_test_helper"
 require "#{File.dirname(__FILE__)}/controller_resource_helper"
-require "projects_controller"
+require "companies_controller"
 require "project_mailer"
 
 # Re-raise errors caught by the controller.
-class ProjectsController; def rescue_action(e) raise e end; end
+class CompaniesController; def rescue_action(e) raise e end; end
 
-class ProjectsControllerTest < Test::Unit::TestCase
+class CompaniesControllerTest < Test::Unit::TestCase
   include ControllerResourceHelper
-  include ProjectsTestHelper
+  include CompaniesTestHelper
 
   fixtures :systems
   fixtures :individuals
+  fixtures :companies
   fixtures :projects
   fixtures :teams
 
@@ -22,9 +23,66 @@ class ProjectsControllerTest < Test::Unit::TestCase
     ActionMailer::Base.deliveries = []
     IndividualMailer.site = 'www.testxyz.com'
     ProjectMailer.who_to_notify = 'test@testit.com'
-    @controller = ProjectsController.new
+    @controller = CompaniesController.new
     @request    = ActionController::TestRequest.new
     @response   = ActionController::TestResponse.new
+  end
+
+  # Test successfully signing up.
+  def test_signup_success
+    ActionMailer::Base.deliveries = []
+    num = resource_count
+    individuals = Individual.count
+    projects = Project.count
+    post :create, create_success_parameters.merge( {:project => {:name => 'foo'}, :individual => {:login => 'foo', :email => 'foo@sample.com', :last_name => 'bar', :role => 1, :company_id => 1,
+      :first_name => 'foo', :password => 'testit', :password_confirmation => 'testit'}} )
+    assert_equal num + 1, resource_count
+    assert_equal projects + 1, Project.count
+    assert_equal individuals + 1, Individual.count
+    assert_create_succeeded
+    assert_equal 2, ActionMailer::Base.deliveries.length
+    assert_select "company"
+      assert_select "project"
+    assert_select "individual"
+  end
+
+  # Test signing up unsuccessfully.
+  def test_signup_failure
+    ActionMailer::Base.deliveries = []
+    num = resource_count
+    individuals = Individual.count
+    projects = Project.count
+    post :create, create_success_parameters.merge( {:project => {:name => 'foo'}, :individual => {:login => '', :email => 'foo@sample.com', :last_name => 'bar', :role => 1, :company_id => 1,
+      :first_name => 'foo', :password => 'testit', :password_confirmation => 'testit'}} )
+    assert_response :success
+    assert_equal num, resource_count
+    assert_equal projects, Project.count
+    assert_equal individuals, Individual.count
+    assert_change_failed
+    assert_equal 0, ActionMailer::Base.deliveries.length
+    assert_select "errors"
+  end
+
+  # Test successfully updating (with project).
+  def test_update_success
+    ActionMailer::Base.deliveries = []
+    login_as(individuals(:quentin))
+    put :update, {:id => 1}.merge(update_success_parameters).merge( {:project => {:name => 'foo'}} )
+    assert_update_succeeded
+    assert_equal 0, ActionMailer::Base.deliveries.length
+    assert_select "company"
+      assert_select "project"
+  end
+
+  # Test updating (with project) unsuccessfully.
+  def test_update_failure
+    ActionMailer::Base.deliveries = []
+    login_as(individuals(:quentin))
+    put :update, {:id => 1}.merge(update_failure_parameters).merge( {:project => {:name => 'foo'}} )
+    assert_response :success
+    assert_change_failed
+    assert_equal 0, ActionMailer::Base.deliveries.length
+    assert_select "errors"
   end
 
   # Test that the teams are included in the xml.
@@ -32,63 +90,67 @@ class ProjectsControllerTest < Test::Unit::TestCase
     login_as(individuals(:aaron))
     get :index, :format => 'xml'
     assert_response :success
-    assert_select "projects" do
-      assert_select "project", 1 do
-        assert_select "teams" do
-          assert_select "team", 2
+    assert_select "companies" do
+      assert_select "company", 1 do
+        assert_select "projects" do
+        assert_select "project", 1 do
+            assert_select "teams" do
+              assert_select "team", 2
+            end
+          end
         end
       end
     end
   end
   
-  # Test getting projects (based on role).
+  # Test getting companies (based on role).
   def test_index_by_admin
-    index_by_role(individuals(:quentin), Project.count)
+    index_by_role(individuals(:quentin), Company.count)
   end
     
-  # Test getting projects (based on role).
+  # Test getting companies (based on role).
   def test_index_by_project_admin
     index_by_role(individuals(:aaron), 1)
   end
     
-  # Test getting projects (based on role).
+  # Test getting companies (based on role).
   def test_index_by_project_user
     index_by_role(individuals(:user), 1)
   end
     
-  # Test getting projects (based on role).
+  # Test getting companies (based on role).
   def test_index_by_read_only_user
     index_by_role(individuals(:readonly), 1)
   end
 
-  # Test getting projects (based on role).
+  # Test getting companies (based on role).
   def index_by_role(user, count)
     login_as(user)
     get :index, :format => 'xml'
     assert_response :success
-    assert_select "projects" do
-      assert_select "project", count
+    assert_select "companies" do
+      assert_select "company", count
     end
   end
 
-  # Test showing another project.
-  def test_show_wrong_project
+  # Test showing another company.
+  def test_show_wrong_company
     login_as(individuals(:aaron))
     get :show, :id => 2, :format => 'xml'
     assert_response 401
   end
     
-  # Test creating projects (based on role).
+  # Test creating companies (based on role).
   def test_create_by_project_admin
     create_by_role_unsuccessful(individuals(:aaron))
   end
     
-  # Test creating projects (based on role).
+  # Test creating companies (based on role).
   def test_create_by_project_user
     create_by_role_unsuccessful(individuals(:user))
   end
     
-  # Test creating projects (based on role).
+  # Test creating companies (based on role).
   def test_create_by_read_only_user
     create_by_role_unsuccessful(individuals(:readonly))
   end
@@ -113,23 +175,23 @@ class ProjectsControllerTest < Test::Unit::TestCase
     assert_select "errors"
   end
     
-  # Test updating projects (based on role).
+  # Test updating companies (based on role).
   def test_update_by_project_admin
     update_by_role_successful(individuals(:aaron))
   end
     
-  # Test updating projects (based on role).
+  # Test updating companies (based on role).
   def test_update_by_project_user
     update_by_role_unsuccessful(individuals(:user))
   end
     
-  # Test updating projects (based on role).
+  # Test updating companies (based on role).
   def test_update_by_read_only_user
     update_by_role_unsuccessful(individuals(:readonly))
   end
     
-  # Test updating another project.
-  def test_update_wrong_project
+  # Test updating another company.
+  def test_update_wrong_company
     login_as(individuals(:aaron))
     put :update, {:id => 2, :format => 'xml'}.merge(update_success_parameters)
     assert_response 401
@@ -153,68 +215,18 @@ class ProjectsControllerTest < Test::Unit::TestCase
     assert_change_failed
     assert_select "errors"
   end
-    
-  # Test updating project by role.
-  def test_update_premium_by_admin
-    update_premium_by_role_successful( individuals(:quentin) )
-  end
-    
-  # Test updating project by role.
-  def test_update_premium_by_project_admin
-    update_premium_by_role_unsuccessful( individuals(:aaron) )
-  end
-    
-  # Test updating project by role.
-  def test_update_premium_by_project_user
-    update_premium_by_role_unsuccessful( individuals(:user) )
-  end
-    
-  # Test updating project by role.
-  def test_update_premium_by_readonly_user
-    update_premium_by_role_unsuccessful( individuals(:readonly) )
-  end
 
-  # Update premium successfully based on role.
-  def update_premium_by_role_successful( user )
-    login_as(user)
-    new_expire = Date.tomorrow
-    put :update, :id => 1, resource_symbol => {:premium_expiry => new_expire}, :format => 'xml'
-    assert_response :success
-    assert_equal new_expire, projects(:first).reload.premium_expiry
-
-    put :update, :id => 1, resource_symbol => {:premium_limit => 2}, :format => 'xml'
-    assert_response :success
-    assert_equal 2, projects(:first).reload.premium_limit
-  end
-  
-  # Update premium unsuccessfully based on role.
-  def update_premium_by_role_unsuccessful( user )
-    login_as(user)
-    old_expire = projects(:first).premium_expiry
-    new_expire = Date.tomorrow
-    put :update, :id => 1, resource_symbol => {:premium_expiry => new_expire}, :format => 'xml'
-    assert_response 401
-    assert_equal old_expire, projects(:first).reload.premium_expiry
-    assert_select "errors"
-
-    old_limit = projects(:first).premium_limit
-    put :update, :id => 1, resource_symbol => {:premium_limit => 2}, :format => 'xml'
-    assert_response 401
-    assert_equal old_limit, projects(:first).reload.premium_limit
-    assert_select "errors"
-  end
-
-  # Test deleting projects (based on role).
+  # Test deleting companies (based on role).
   def test_delete_by_project_admin
     delete_by_role_unsuccessful(individuals(:aaron))
   end
     
-  # Test deleting projects (based on role).
+  # Test deleting companies (based on role).
   def test_delete_by_project_user
     delete_by_role_unsuccessful(individuals(:user))
   end
     
-  # Test deleting projects (based on role).
+  # Test deleting companies (based on role).
   def test_delete_by_read_only_user
     delete_by_role_unsuccessful(individuals(:readonly))
   end
@@ -224,7 +236,7 @@ class ProjectsControllerTest < Test::Unit::TestCase
     login_as(user)
     delete :destroy, :id => 1, :format => 'xml'
     assert_response :success
-    assert_nil Project.find_by_name('Test')
+    assert_nil Company.find_by_name('Test')
   end
 
   # Delete unsuccessfully based on role.
@@ -232,7 +244,7 @@ class ProjectsControllerTest < Test::Unit::TestCase
     login_as(user)
     delete :destroy, :id => 1, :format => 'xml'
     assert_response 401
-    assert Project.find_by_name('Test')
+    assert Company.find_by_name('Test')
     assert_select "errors"
   end
 end

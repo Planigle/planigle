@@ -63,7 +63,7 @@ protected
     result = {}
     result['system'] = System.find(:first)
     result['current_individual'] = current_individual
-    result['projects'] = Project.get_records(current_individual)
+    result['companies'] = Company.get_records(current_individual)
     result['individuals'] = Individual.get_records(current_individual)
     if current_individual.project_id
       result['releases'] = Release.get_records(current_individual)

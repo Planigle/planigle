@@ -1,8 +1,7 @@
 package org.planigle.planigle.model
 {
 	import mx.collections.ArrayCollection;
-	import mx.collections.Sort;
-	import mx.collections.SortField;
+	
 	import org.planigle.planigle.commands.CreateStoryAttributeCommand;
 	import org.planigle.planigle.commands.CreateTeamCommand;
 	import org.planigle.planigle.commands.DeleteProjectCommand;
@@ -13,6 +12,8 @@ package org.planigle.planigle.model
 	public class Project
 	{
 		public var id:String;
+		public var company:Company;
+		public var companyId:String;
 		public var name:String;
 		public var description:String;
 		public var surveyKey:String;
@@ -32,6 +33,7 @@ package org.planigle.planigle.model
 		public function populate(xml:XML):void
 		{
 			id = xml.id.toString() == "" ? null: xml.id;
+			companyId = xml.child("company-id").toString() == "" ? null : xml.child("company-id");
 			name = xml.name;
 			description = xml.description;
 			surveyKey = xml.child("survey-key");
@@ -120,9 +122,9 @@ package org.planigle.planigle.model
 
 			// Create copy to ensure any views get notified of changes.
 			var projects:ArrayCollection = new ArrayCollection();
-			for each (var project:Project in ProjectFactory.getInstance().projects)
+			for each (var project:Project in company.projects)
 				projects.addItem(project);
-			ProjectFactory.getInstance().updateProjects(projects);
+			company.projects = projects.source;
 		}
 
 		// Answer my individuals.
@@ -180,12 +182,12 @@ package org.planigle.planigle.model
 
 			// Create copy to ensure any views get notified of changes.
 			var projects:ArrayCollection = new ArrayCollection();
-			for each (var project:Project in ProjectFactory.getInstance().projects)
+			for each (var project:Project in company.projects)
 			{
 				if (project != this)
 					projects.addItem(project);
 			}
-			ProjectFactory.getInstance().updateProjects(projects);
+			company.projects = projects.source;
 		}
 
 		// Create a new story attribute.  Params should be of the format (record[param]).  Success function
@@ -235,9 +237,9 @@ package org.planigle.planigle.model
 
 			// Create copy to ensure any views get notified of changes.
 			var projects:ArrayCollection = new ArrayCollection();
-			for each (var project:Project in ProjectFactory.getInstance().projects)
+			for each (var project:Project in company.projects)
 				projects.addItem(project);
-			ProjectFactory.getInstance().projects = projects;
+			company.projects = projects.source;
 
 			return newTeam;
 		}
@@ -274,6 +276,12 @@ package org.planigle.planigle.model
 		public function isExpanded():Boolean
 		{
 			return expanded.hasOwnProperty(String(id)) && expanded[String(id)];
+		}
+
+		//  No, I'm not a company.
+		public function isCompany():Boolean
+		{
+			return false;
 		}
 
 		//  Yes, I'm a project.

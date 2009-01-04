@@ -22,6 +22,8 @@ ActionController::Routing::Routes.draw do |map|
 
   map.resources :releases
 
+  map.resources :companies
+
   map.resources :projects do |projects|
     projects.resources :teams
   end

@@ -10,6 +10,9 @@ package org.planigle.planigle.model
 	public class Individual
 	{
 		public var id:String;
+		public var companyId:String;
+		public var projectId:String
+		public var teamId:String;
 		public var login:String;
 		public var email:String;
 		public var firstName:String;
@@ -21,10 +24,6 @@ package org.planigle.planigle.model
 		public var acceptedAgreement:Date;
 		public var phoneNumber:String;
 		public var notificationType:int;
-		private var _projectId:String;
-		private var _project:Project;
-		private var _teamId:String;
-		private var _team:Team;
 		private static const ADMIN:int = 0;
 		private static const PROJECT_ADMIN:int = 1;
 		private static const PROJECT_USER:int = 2;
@@ -34,6 +33,7 @@ package org.planigle.planigle.model
 		public function populate(xml:XML):void
 		{
 			id = xml.id.toString() == "" ? null: xml.id;
+			companyId = xml.child("company-id").toString() == "" ? null : xml.child("company-id");
 			projectId = xml.child("project-id").toString() == "" ? null : xml.child("project-id");
 			teamId = xml.child("team-id").toString() == "" ? null : xml.child("team-id");
 			login = xml.login;
@@ -74,18 +74,26 @@ package org.planigle.planigle.model
 		{
 		}
 
+		// Answer my company.
+		public function get company():Company
+		{
+			return CompanyFactory.getInstance().find(companyId);
+		}
+
+		// Set my company.
+		private function set company(company:Company):void
+		{
+		}
+
 		// Answer my project.
 		public function get project():Project
 		{
-			if (!_project && projectId)
-				_project = ProjectFactory.getInstance().find(projectId);
-			return _project;
+			return company.find(projectId);
 		}
 
 		// Set my project.
 		private function set project(project:Project):void
 		{
-			_project = project;
 		}
 
 		//  No, I'm not a project.
@@ -106,40 +114,17 @@ package org.planigle.planigle.model
 			return project && project.isPremium();
 		}
 
-		// Answer my project id.
-		public function get projectId():String
-		{
-			return _projectId;
-		}
-
-		// Set my project id.
-		public function set projectId(newId:String):void
-		{
-			_projectId = newId;
-			project = null;
-		}
-
 		// Answer my team.
 		public function get team():Team
 		{
-			if (!_team && teamId)
-				_team = project.find(teamId);
-			return _team;
+			return project.find(teamId);
 		}
 
-		// Answer my team id.
-		public function get teamId():String
+		// Set my team.
+		public function set team(team:Team):void
 		{
-			return _teamId;
 		}
 
-		// Set my team id.
-		public function set teamId(newId:String):void
-		{
-			_teamId = newId;
-			_team = null;
-		}
-		
 		// Update me.  Params should be of the format (record[param]).  Success function
 		// will be called if successfully updated.  FailureFunction will be called if failed (will
 		// be passed an XMLList with errors).

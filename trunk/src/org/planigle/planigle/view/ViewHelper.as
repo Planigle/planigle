@@ -2,10 +2,12 @@ package org.planigle.planigle.view
 {
 	import mx.controls.dataGridClasses.DataGridColumn;
 	import mx.utils.ObjectUtil;
-	import org.planigle.planigle.model.ProjectFactory;
-	import org.planigle.planigle.model.Project;
+	
+	import org.planigle.planigle.model.Company;
+	import org.planigle.planigle.model.CompanyFactory;
 	import org.planigle.planigle.model.IndividualFactory;
 	import org.planigle.planigle.model.IterationFactory;
+	import org.planigle.planigle.model.Project;
 	
 	// Provide static helper methods for formatting and sorting common fields.
 	public class ViewHelper
@@ -49,35 +51,34 @@ package org.planigle.planigle.view
 			return ObjectUtil.numericCompare( indexIndividual(item1), indexIndividual(item2) );
 		}
 
-		// Display the project's name in the table (rather than ID).
-		public static function formatProject(item:Object, column:DataGridColumn):String
+		// Display the company's name in the table (rather than ID).
+		public static function formatCompany(item:Object, column:DataGridColumn):String
 		{
-			return ProjectFactory.getInstance().find(item.projectId).name;
+			return CompanyFactory.getInstance().find(item.companyId).name;
 		}
 
-		// Answer the index of the project in the list of projects (or -1 if no project).
-		private static function indexProject(item:Object):int
+		// Answer the index of the company in the list of companies (or -1 if no companies).
+		private static function indexCompany(item:Object):int
 		{
-			return ProjectFactory.getInstance().projectSelector.getItemIndex(ProjectFactory.getInstance().find(item.projectId));
+			return CompanyFactory.getInstance().companySelector.getItemIndex(item.project.company);
 		}
 		
-		// Answer the sort order for the specified items (based on where they are in the list of projects).
-		public static function sortProject(item1:Object, item2:Object):int
+		// Answer the sort order for the specified items (based on where they are in the list of companies).
+		public static function sortCompany(item1:Object, item2:Object):int
 		{
-			return ObjectUtil.numericCompare( indexProject(item1), indexProject(item2) );
+			return ObjectUtil.numericCompare( indexCompany(item1), indexCompany(item2) );
 		}
 
 		// Display the team's name in the table (rather than ID).
 		public static function formatTeam(item:Object, column:DataGridColumn):String
 		{
-			return item.hasOwnProperty("teamId") ? ProjectFactory.getInstance().find(item.projectId).find(item.teamId).name : "";
+			return item.hasOwnProperty("team") ? item.team.name : "";
 		}
 
 		// Answer the index of the team in the list of teams (or -1 if no team).
 		private static function indexTeam(item:Object):int
 		{
-			var project:Project = ProjectFactory.getInstance().find(item.projectId);
-			return indexProject(item)*100 + project.teamSelector.getItemIndex(project.find(item.teamId));
+			return indexCompany(item)*100 + item.project.teamSelector.getItemIndex(item.project.find(item.teamId));
 		}
 		
 		// Answer the sort order for the specified items (based on where they are in the list of projects).
@@ -113,7 +114,7 @@ package org.planigle.planigle.view
 		// 	Display the user facing survey mode in the table (rather than a code).	
 		public static function formatSurveyMode(item:Object, column:DataGridColumn):String
 		{
-			return item.isProject() ? formatSurveyModeValue(item.surveyMode) : "";
+			return item.isCompany() ? formatSurveyModeValue(item.surveyMode) : "";
 		}
 		
 		// 	Display the user facing survey mode in the table (rather than a code).	

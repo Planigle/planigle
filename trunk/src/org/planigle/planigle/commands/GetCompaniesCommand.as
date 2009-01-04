@@ -4,12 +4,12 @@ package org.planigle.planigle.commands
 	import com.adobe.cairngorm.control.CairngormEvent;
 	import mx.controls.Alert;
 	import mx.rpc.IResponder;
-	import org.planigle.planigle.business.ProjectsDelegate;
-	import org.planigle.planigle.model.ProjectFactory;
+	import org.planigle.planigle.business.CompaniesDelegate;
+	import org.planigle.planigle.model.CompanyFactory;
 	
-	public class GetProjectsCommand implements ICommand, IResponder
+	public class GetCompaniesCommand implements ICommand, IResponder
 	{
-		public function GetProjectsCommand()
+		public function GetCompaniesCommand()
 		{
 		}
 		
@@ -17,7 +17,7 @@ package org.planigle.planigle.commands
 		public function execute(event:CairngormEvent):void
 		{
 			//  Delegate acts as both delegate and responder.
-			var delegate:ProjectsDelegate = new ProjectsDelegate( this );
+			var delegate:CompaniesDelegate = new CompaniesDelegate( this );
 			
 			delegate.get();
 		}
@@ -25,7 +25,7 @@ package org.planigle.planigle.commands
 		// Handle successful server request.
 		public function result( event:Object ):void
 		{
-			ProjectFactory.getInstance().populate(event.result as Array);
+			CompanyFactory.getInstance().populate(event.result as Array);
 		}
 		
 		// Handle case where error occurs.

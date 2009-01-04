@@ -14,14 +14,14 @@
 		import mx.events.CloseEvent;
 		import mx.binding.utils.ChangeWatcher;
 		import org.planigle.planigle.model.ViewModelLocator;
-		import org.planigle.planigle.model.ProjectFactory;
+		import org.planigle.planigle.model.CompanyFactory;
+		import org.planigle.planigle.model.Company;
 		import org.planigle.planigle.model.Project;
 		import org.planigle.planigle.model.Team;
 		import org.planigle.planigle.model.IndividualFactory;
 		import org.planigle.planigle.view.ChangesTab;
 		import org.planigle.planigle.view.ViewHelper;
 		import org.planigle.planigle.events.AuditChangedEvent;
-		import org.planigle.planigle.events.ProjectChangedEvent;
 		
 		[Bindable]
 		private var _error:String;
@@ -30,7 +30,7 @@
 		private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
 
 		[Bindable]
-		public var projects:ArrayCollection = new ArrayCollection();
+		public var companies:ArrayCollection = new ArrayCollection();
 
 		[Bindable]
 		public var factory:IndividualFactory = IndividualFactory.getInstance();
@@ -39,9 +39,9 @@
 		private function created(event:Event):void
 		{
 			ChangeWatcher.watch( factory, "currentIndividual", resetState );			
-			ChangeWatcher.watch( ProjectFactory.getInstance(), "projects", setProjects );			
+			ChangeWatcher.watch( CompanyFactory.getInstance(), "companies", setCompanies );			
 			resetState(event); // This is to catch it the first time (The event has already been sent).
-			setProjects(event);
+			setCompanies(event);
 		}
 				
 		// Update the error message.
@@ -49,20 +49,21 @@
 		private function setSuccessMessage(string:String):void {projectError.setStyle("color","Green"); _error = string}
 		private function clearErrorMessage():void {_error = ""}
 
-		// Set the projects to a copy (so that changes here won't affect elsewhere).
-		private function setProjects(event:Event):void
+		// Set the companies to a copy (so that changes here won't affect elsewhere).
+		private function setCompanies(event:Event):void
 		{
-			var newProjects:ArrayCollection = new ArrayCollection();
-			for each (var project:Project in ProjectFactory.getInstance().projects)
+			var newCompanies:ArrayCollection = new ArrayCollection();
+			for each (var company:Company in CompanyFactory.getInstance().companies)
 			{
-				newProjects.addItem(project);
-				if (project.isExpanded())
+				newCompanies.addItem(company);
+				if (company.isExpanded())
 				{
-					for each (var team:Team in project.teams)
-						newProjects.addItem(team);
+					for each (var project:Project in company.projects)
+						for each (var team:Team in project.teams)
+							newCompanies.addItem(team);
 				}
 			}
-			projects = newProjects;
+			companies = newCompanies;
 		}
 		
 		// Reset my state to how it was initially.
@@ -78,7 +79,7 @@
 		{
 			clearErrorMessage();
 			currentState = 'Change';
-			projectFieldName.setFocus();
+			projectFieldCompany.text = '';
 			projectFieldName.text = '';
 			projectFieldDescription.text = '';
 			projectFieldPremiumExpiry.selectedDate = new Date(new Date().time + 30*24*60*60*1000);
@@ -91,6 +92,10 @@
 		// Prepare the fields to create / edit a project.
 		private function prepareForProject():void
 		{
+			projectFieldCompany.setFocus();
+			projectFieldCompany.setSelection(0, projectFieldCompany.text.length );
+			projectFormCompany.visible = true;
+			projectFormCompany.height = 22;
 			projectNameForm.label = "Project Name";
 			projectFormSurveyMode.visible = true;
 			projectFormSurveyMode.height = 22;
@@ -125,6 +130,10 @@
 		// Prepare the fields to create / edit a team.
 		private function prepareForTeam():void
 		{
+			projectFormCompany.visible = false;
+			projectFormCompany.height = 0;
+			projectFieldName.setFocus();
+			projectFieldName.setSelection(0, projectFieldName.text.length );
 			projectNameForm.label = "Team Name";
 			projectFormSurveyMode.visible = false;
 			projectFormSurveyMode.height = 0;
@@ -150,23 +159,23 @@
 			currentItem = projectResourceGrid.selectedItem;
 			if (currentItem)
 			{
+				var editableItem:Object = currentItem.isCompany() ? currentItem.projects[0] : currentItem;
 				clearErrorMessage();
 				currentState = 'Change';
-				projectFieldName.text = currentItem.name;
-				projectFieldName.setFocus();
-				projectFieldName.setSelection(0, projectFieldName.text.length );
-				projectFieldDescription.text = currentItem.description;
-				if (currentItem.isProject())
+				projectFieldName.text = editableItem.name;
+				projectFieldDescription.text = editableItem.description;
+				if (currentItem.isCompany())
 				{
 					prepareForProject();
-					projectFieldSurveyMode.selectedIndex = currentItem.surveyMode;
+					projectFieldCompany.text = currentItem.name;
+					projectFieldSurveyMode.selectedIndex = editableItem.surveyMode;
 					var base:String = ExternalInterface.call("BrowserHistory.getURL");
 					for (var index:int = base.indexOf( "/" ); base.indexOf( "/", index + 1 ) >= 0; )
 						index = base.indexOf( "/", index + 1 ); // Get the last /
 					base = base.substr( 0, index );
-					projectLabelSurveyUrl.text = base + "/survey.html?projectid=" + currentItem.id + "&surveykey=" + currentItem.surveyKey;
-					projectFieldPremiumExpiry.selectedDate = currentItem.premiumExpiry;
-					projectFieldPremiumLimit.text = currentItem.premiumLimit;
+					projectLabelSurveyUrl.text = base + "/survey.html?projectid=" + editableItem.id + "&surveykey=" + editableItem.surveyKey;
+					projectFieldPremiumExpiry.selectedDate = editableItem.premiumExpiry;
+					projectFieldPremiumLimit.text = editableItem.premiumLimit;
 				}
 				else
 					prepareForTeam();
@@ -189,16 +198,22 @@
 		}
 		
 		// Create parameters for the user's request to the server.
-		private function getParams(isProject:Boolean) : Object
+		private function getParams(isCompany:Boolean) : Object
 		{
 			var params:Object = new Object();
-			params['record[name]'] = projectFieldName.text;
-			params['record[description]'] = projectFieldDescription.text;
-			if (isProject)
+			if (isCompany)
 			{
-				params['record[survey_mode]'] = projectFieldSurveyMode.selectedItem.value;
-				params['record[premium_expiry]'] = projectFieldPremiumExpiry.selectedDate;
-				params['record[premium_limit]'] = projectFieldPremiumLimit.text;
+				params['record[name]'] = projectFieldCompany.text;
+				params['project[name]'] = projectFieldName.text;
+				params['project[description]'] = projectFieldDescription.text;
+				params['project[survey_mode]'] = projectFieldSurveyMode.selectedItem.value;
+				params['project[premium_expiry]'] = projectFieldPremiumExpiry.selectedDate;
+				params['project[premium_limit]'] = projectFieldPremiumLimit.text;
+			}
+			else
+			{
+				params['record[name]'] = projectFieldName.text;
+				params['record[description]'] = projectFieldDescription.text;
 			}
 			params['random'] = Math.random(); // Prevents caching
 			return params;
@@ -217,15 +232,15 @@
 		private function createResource(event:Event) : void 
 		{
 			if (currentItem)
-				currentItem.createTeam(getParams(false), handleCreateSuccess, handleFailure);
+				currentItem.projects[0].createTeam(getParams(false), handleCreateSuccess, handleFailure);
 			else
-				ProjectFactory.getInstance().createProject(getParams(true), handleCreateSuccess, handleFailure);
+				CompanyFactory.getInstance().createCompany(getParams(true), handleCreateSuccess, handleFailure);
 		}
 		
 		// Tell the server to update a resource.
 		private function updateResource(event:Event) : void
 		{
-			currentItem.update(getParams(currentItem.isProject()), currentItem.isProject() ? handleUpdateProjectSuccess : handleSuccess, handleFailure);
+			currentItem.update(getParams(currentItem.isCompany()), currentItem.isCompany() ? handleUpdateCompanySuccess : handleSuccess, handleFailure);
 		}
 
 		// Tell the server to delete a resource.
@@ -244,16 +259,16 @@
 			{
 				setSuccessMessage("Team was successfully created.");
 				currentItem.expand();
-				setProjects(null);
+				setCompanies(null);
 			}
 			else
 				setSuccessMessage("Project was successfully created.");
 		}
 
 		// Handle a successful project change.
-		private function handleUpdateProjectSuccess():void
+		private function handleUpdateCompanySuccess():void
 		{
-			setProjects(null);
+			setCompanies(null);
 			handleSuccess();
 		}
 
@@ -281,10 +296,10 @@
 		// Expand / collapse a project.
 		public function expand(event:Event) : void
 		{
-			if (projectResourceGrid.selectedItem.isProject())
+			if (projectResourceGrid.selectedItem.isCompany())
 				{
 				projectResourceGrid.selectedItem.toggleExpanded();
-				setProjects(event);
+				setCompanies(event);
 				}
 		}
 		
@@ -311,20 +326,20 @@
 		// Answer whether to show (based on whether the item is a project and the user has rights).
 		public function shouldShowDeleteProject(data:Object):Boolean
 		{
-			return (data.isProject() && factory.currentIndividual.isAdmin()) ||
-				(!data.isProject() && factory.currentIndividual.isAtLeastProjectAdmin());
+			return (data.isCompany() && factory.currentIndividual.isAdmin()) ||
+				(!data.isCompany() && factory.currentIndividual.isAtLeastProjectAdmin());
 		}
 
 		// Answer whether to show (based on whether the item is a project and the user has rights).
 		public function shouldShowAddTeam(data:Object):Boolean
 		{
-			return data.isProject() && factory.currentIndividual.isAtLeastProjectAdmin();
+			return data.isCompany() && factory.currentIndividual.isAtLeastProjectAdmin();
 		}
 		
 		// Show the history for the current object.
 		public function showHistory(event:Event) : void
 		{
-			new AuditChangedEvent(null, currentItem.isProject() ? 'Project' : 'Team', null, null, String(currentItem.id)).dispatch();
+			new AuditChangedEvent(null, currentItem.isCompany() ? 'Project' : 'Team', null, null, currentItem.isCompany() ? String(currentItem.projects[0].id) : String(currentItem.id)).dispatch();
 			viewModelLocator.selectedTab = viewModelLocator.changes;
 		}
 		]]>
@@ -339,6 +354,9 @@
 						<mx:HBox>
 							<mx:VBox>
 								<mx:Form id="projectChangeForm" defaultButton="{projectBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
+									<mx:FormItem id="projectFormCompany" label='Company Name' required="true">
+										<mx:TextInput id='projectFieldCompany' maxChars="40" text='' width="350"/>
+									</mx:FormItem>
 									<mx:FormItem id="projectNameForm" label='Name' required="true">
 										<mx:TextInput id='projectFieldName' maxChars="40" text='' width="350"/>
 									</mx:FormItem>
@@ -405,7 +423,7 @@
 			<mx:Text id="projectError" styleName="error" htmlText="{_error}" width="100%"/>
 			<mx:Button icon="{parentApplication.imgAdd}" toolTip="Create" id="projectBtnCreate" click="showCreateProject(event);" visible="{factory.currentIndividual.isAdmin()}"/>
 		</mx:HBox>
-		<local:ColoredBackgroundDataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="projectResourceGrid" dataProvider="{projects}" rowCount="{projects.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)" itemClick="groupSelected(event)" rowColorFunction="rowColor" variableRowHeight="true">
+		<local:ColoredBackgroundDataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="projectResourceGrid" dataProvider="{companies}" rowCount="{companies.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)" itemClick="groupSelected(event)" rowColorFunction="rowColor" variableRowHeight="true">
 			<local:columns>
 				<mx:DataGridColumn editable="false" minWidth="16" width="16" sortable="false" textAlign="center"> 
 					<mx:itemRenderer> 
@@ -419,7 +437,7 @@
 				<mx:DataGridColumn headerText="Name">
 					<mx:itemRenderer> 
 						<mx:Component>
-							<mx:Text paddingLeft="{data.indent}" text="{data.name}" selectable="false"/>
+							<mx:Text paddingLeft="{data.indent}" text="{data.displayName}" selectable="false"/>
 						</mx:Component>
 					</mx:itemRenderer>
 				</mx:DataGridColumn>

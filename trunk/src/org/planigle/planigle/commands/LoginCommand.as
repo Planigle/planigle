@@ -8,7 +8,7 @@ package org.planigle.planigle.commands
 	import org.planigle.planigle.events.LoginEvent;
 	import org.planigle.planigle.model.ViewModelLocator;
 	import org.planigle.planigle.model.PlanigleSystem;
-	import org.planigle.planigle.model.ProjectFactory;
+	import org.planigle.planigle.model.CompanyFactory;
 	import org.planigle.planigle.model.IndividualFactory;
 	import org.planigle.planigle.model.ReleaseFactory;
 	import org.planigle.planigle.model.IterationFactory;
@@ -61,7 +61,7 @@ package org.planigle.planigle.commands
 			{
 				PlanigleSystem.getInstance().populateFromObject( result.system );
 				IndividualFactory.getInstance().setCurrent( result.currentIndividual.login );
-				ProjectFactory.getInstance().populate( result.projects as Array );
+				CompanyFactory.getInstance().populate( result.companies as Array );
 				IndividualFactory.getInstance().populate( result.individuals as Array );
 				ReleaseFactory.getInstance().populate( result.releases ? result.releases as Array : new Array() );
 				IterationFactory.getInstance().populate( result.iterations ? result.iterations as Array : new Array() );

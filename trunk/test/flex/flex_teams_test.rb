@@ -6,6 +6,7 @@ class FlexTeamsTest < Test::Unit::TestCase
   fixtures :systems
   fixtures :teams
   fixtures :individuals
+  fixtures :companies
   fixtures :projects
   fixtures :stories
   fixtures :iterations
@@ -195,7 +196,7 @@ private
 
   # Edit a team.
   def edit_team(name, description)
-    @ie.button("projectBtnEdit")[2].click
+    @ie.button("projectBtnEdit")[3].click
     @ie.text_area("projectFieldDescription").input(:text => description )
     @ie.text_area("projectFieldName").input(:text => name ) # Do name last due to timing issue
   end

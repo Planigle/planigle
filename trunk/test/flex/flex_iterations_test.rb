@@ -5,6 +5,7 @@ require 'funfx'
 class FlexIterationsTest < Test::Unit::TestCase
   fixtures :systems
   fixtures :individuals
+  fixtures :companies
   fixtures :projects
   fixtures :stories
   fixtures :iterations

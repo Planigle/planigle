@@ -17,7 +17,7 @@
         	import mx.modules.IModuleInfo;
 			import org.planigle.planigle.model.IndividualFactory;
 			import org.planigle.planigle.model.ViewModelLocator;
-			import org.planigle.planigle.events.ProjectChangedEvent;
+			import org.planigle.planigle.events.CompanyChangedEvent;
 			import org.planigle.planigle.events.IndividualChangedEvent;
 			import org.planigle.planigle.events.ReleaseChangedEvent;
 			import org.planigle.planigle.events.IterationChangedEvent;
@@ -123,7 +123,7 @@
 			// Refresh any cached data.
 			private function refresh():void
 			{
-				new ProjectChangedEvent().dispatch();
+				new CompanyChangedEvent().dispatch();
 				new IndividualChangedEvent().dispatch();
 				if (!factory.currentIndividual.isAdminOnly())
 				{

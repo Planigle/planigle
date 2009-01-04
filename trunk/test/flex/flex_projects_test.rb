@@ -5,6 +5,7 @@ require 'funfx'
 class FlexProjectsTest < Test::Unit::TestCase
   fixtures :systems
   fixtures :individuals
+  fixtures :companies
   fixtures :projects
   fixtures :stories
   fixtures :iterations
@@ -13,7 +14,7 @@ class FlexProjectsTest < Test::Unit::TestCase
 
   def setup
     @ie = Funfx.instance 
-    @ie.start(false) 
+    @ie.start(false)
     @ie.speed = 1
     @ie.goto("http://localhost:3000/index.html", "Main") 
     sleep 1 # Wait to ensure remember me check is made
@@ -101,7 +102,7 @@ private
     assert_equal '', @ie.text_area("projectFieldName").text
     assert_equal '', @ie.text_area("projectFieldDescription").text
 
-    create_project('', 'description')
+    create_project('', '', 'description')
     @ie.button("projectBtnChange").click
 
     # Values should not change
@@ -121,7 +122,7 @@ private
     assert_equal '', @ie.text_area("projectFieldName").text
     assert_equal '', @ie.text_area("projectFieldDescription").text
     
-    create_project('zfoo 1', 'description')
+    create_project('company', 'zfoo 1', 'description')
 
     assert @ie.form_item("projectFormSurveyUrl").visible
     assert_equal "Will be assigned on creation", @ie.label("projectLabelSurveyUrl").text
@@ -137,7 +138,7 @@ private
     assert_equal '', @ie.text_area("projectFieldDescription").text
     assert_not_nil @ie.button("projectBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("projectResourceGrid").num_rows
-    assert_equal ",zfoo 1,description,Private,Edit | Delete | Add Team", @ie.data_grid("projectResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
+    assert_equal ",company,description,Private,Edit | Delete | Add Team", @ie.data_grid("projectResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
     @ie.button("projectBtnCancel").click
   end
     
@@ -148,7 +149,7 @@ private
     
     num_rows = @ie.data_grid("projectResourceGrid").num_rows
     @ie.button("projectBtnCreate").click
-    create_project('foo', 'description')
+    create_project('company', 'foo', 'description')
     @ie.button("projectBtnCancel").click
     assert_equal '', @ie.text_area("projectError").text
     assert_nil @ie.button("projectBtnCancel")
@@ -156,7 +157,8 @@ private
   end
 
   # Create a project.
-  def create_project(name, description)
+  def create_project(company, name, description)
+    @ie.text_area("projectFieldCompany").input(:text => company )
     @ie.text_area("projectFieldName").input(:text => name )
     @ie.text_area("projectFieldDescription").input(:text => description )
   end
@@ -164,7 +166,7 @@ private
   # Test whether error handling works for editing a project.
   def edit_project_failure
     num_rows = @ie.data_grid("projectResourceGrid").num_rows
-    edit_project(' ', 'description', '10/10/2020', '10')
+    edit_project('', ' ', 'description', '10/10/2020', '10')
     @ie.button("projectBtnChange").click
     assert_equal "Name can't be blank", @ie.text_area("projectError").text
     assert_equal ' ', @ie.text_area("projectFieldName").text
@@ -177,7 +179,7 @@ private
   # Test whether you can successfully edit a project.
   def edit_project_success
     num_rows = @ie.data_grid("projectResourceGrid").num_rows
-    edit_project('foo 1', 'description', '10/10/2020', '10')
+    edit_project('company', 'foo 1', 'description', '10/10/2020', '10')
 
     @ie.combo_box("projectFieldSurveyMode").open
     @ie.combo_box("projectFieldSurveyMode").select(:item_renderer => "Private")
@@ -191,13 +193,13 @@ private
     assert_equal '', @ie.text_area("projectError").text
     assert_nil @ie.button("projectBtnCancel")
     assert_equal num_rows, @ie.data_grid("projectResourceGrid").num_rows
-    assert_equal ",foo 1,description,Public by Default,Edit | Delete | Add Team", @ie.data_grid("projectResourceGrid").tabular_data
+    assert_equal ",company,description,Public by Default,Edit | Delete | Add Team", @ie.data_grid("projectResourceGrid").tabular_data
   end
     
   # Test whether you can successfully cancel editing a project.
   def edit_project_cancel
     num_rows = @ie.data_grid("projectResourceGrid").num_rows
-    edit_project('foo', 'description', '10/10/2020', '10')
+    edit_project('company', 'foo', 'description', '10/10/2020', '10')
     @ie.button("projectBtnCancel").click
     assert_equal '', @ie.text_area("projectError").text
     assert_nil @ie.button("projectBtnCancel")
@@ -205,8 +207,9 @@ private
   end
 
   # Edit a project.
-  def edit_project(name, description, premium_expiry, premium_limit)
+  def edit_project(company, name, description, premium_expiry, premium_limit)
     @ie.button("projectBtnEdit")[1].click
+    @ie.text_area("projectFieldCompany").input(:text => company )
     @ie.text_area("projectFieldName").input(:text => name )
     @ie.text_area("projectFieldDescription").input(:text => description )
     @ie.text_area("projectFieldPremiumExpiry").input(:text => premium_expiry )

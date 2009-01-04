@@ -99,6 +99,18 @@ package org.planigle.planigle.model
 			myStoryValues = storyValues;
 		}
 
+		// Answer my project.
+		public function get project():Project
+		{
+			return IndividualFactory.current().project;
+		}
+
+		// Answer my team.
+		public function get team():Team
+		{
+			return project.find(teamId);
+		}
+
 		// Answer my tasks.
 		public function get tasks():Array
 		{

@@ -121,7 +121,7 @@
 	<control:ReleasesController id ="releasesController"/>
 	<control:IterationsController id ="iterationsController"/>
 	<control:StoriesController id ="storiesController"/>
-	<control:ProjectsController id ="projectsController"/>
+	<control:CompaniesController id ="companiesController"/>
 	<control:IndividualsController id ="individualsController"/>
 	<control:AuditsController id ="auditsController"/>
 	<business:Services id="services"/>

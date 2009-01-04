@@ -83,10 +83,17 @@ module RubyAMF
       :attributes => ["id", "project_id", "name", "start", "length", "retrospective_results"])
 
     ClassMappings.register(
+      :actionscript => 'Company',
+      :ruby => 'Company',
+      :type => 'active_record',
+      :attributes => ["id", "name"],
+      :associations => ["projects"])
+
+    ClassMappings.register(
       :actionscript => 'Project',
       :ruby => 'Project',
       :type => 'active_record',
-      :attributes => ["id", "name", "description", "survey_key", "survey_mode", "premium_expiry", "premium_limit"],
+      :attributes => ["id", "company_id", "name", "description", "survey_key", "survey_mode", "premium_expiry", "premium_limit"],
       :associations => ["teams", "story_attributes"])
 
     ClassMappings.register(
@@ -99,7 +106,7 @@ module RubyAMF
       :actionscript => 'Individual',
       :ruby => 'Individual',
       :type => 'active_record',
-      :attributes => ["id", "project_id", "login", "email", "first_name", "last_name", "activated_at", "enabled", "accepted_agreement", "last_login", "role", "team_id", "phone_number", "notification_type"])
+      :attributes => ["id", "company_id", "project_id", "login", "email", "first_name", "last_name", "activated_at", "enabled", "accepted_agreement", "last_login", "role", "team_id", "phone_number", "notification_type"])
 
     ClassMappings.register(
       :actionscript => 'Story',

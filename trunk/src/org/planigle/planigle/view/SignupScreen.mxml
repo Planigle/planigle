@@ -5,7 +5,8 @@
 		<![CDATA[
 		import flash.external.ExternalInterface;
 		import org.planigle.planigle.model.ViewModelLocator;
-		import org.planigle.planigle.model.ProjectFactory;
+		import org.planigle.planigle.model.CompanyFactory;
+		import org.planigle.planigle.model.Company;
 		import org.planigle.planigle.events.URLEvent;
 
 		[Bindable]
@@ -19,16 +20,17 @@
 		// Initialize focus.
 		private function created(event:Event):void
 		{
-			signupFieldName.setFocus();
+			signupFieldCompany.setFocus();
 		}
 
 		// Create parameters for the user's request to the server.
 		private function getParams() : Object
 		{
 			var params:Object = new Object();
-			params['record[name]'] = signupFieldName.text;
-			params['record[description]'] = signupFieldDescription.text;
-			params['record[survey_mode]'] = 1;
+			params['record[name]'] = signupFieldCompany.text;
+			params['project[name]'] = signupFieldName.text;
+			params['project[description]'] = signupFieldDescription.text;
+			params['project[survey_mode]'] = 1;
 			params['individual[login]'] = signupFieldLogin.text;
 			params['individual[password]'] = signupFieldPassword.text;
 			params['individual[password_confirmation]'] = signupFieldPasswordConfirmation.text;
@@ -45,7 +47,7 @@
 		{
 			signupBtnBox.visible = false;
 			if (ExternalInterface.available && ExternalInterface.call('function get_url(){return window.location;}')['hostname'] == 'www.planigle.com')
-				new URLEvent("https://www.planigle.com/node/23", false).dispatch();
+				new URLEvent("https://www.planigle.com/products/signup_successful", false).dispatch();
 			else
 				setSuccessMessage("You have successfully signed up for Planigle.  Shortly, you will receive an email to complete the signup process.");
 		}
@@ -61,6 +63,9 @@
 	<mx:Panel title="Sign up for a free Planigle account:" horizontalAlign="center" verticalAlign="middle" backgroundAlpha="1.0" borderStyle="outset" backgroundColor="#F2F3AF" borderThicknessLeft="2" borderThicknessRight="2" headerHeight="14">
 		<mx:Form borderStyle="outset" cornerRadius="10" themeColor="#009DFF" backgroundColor="#FFFFFF" defaultButton="{okButton}">
 			<mx:Text id="signupError" styleName="error" htmlText="{_error}" width="100%"/>
+			<mx:FormItem label='Company Name' required="true">
+				<mx:TextInput id='signupFieldCompany' maxChars="40" text='' width="350"/>
+			</mx:FormItem>
 			<mx:FormItem label='Project Name' required="true">
 				<mx:TextInput id='signupFieldName' maxChars="40" text='' width="350"/>
 			</mx:FormItem>
@@ -89,7 +94,7 @@
 				<mx:TextInput id='signupFieldLastName' maxChars="40" text='' width="350"/>
 			</mx:FormItem>
 			<mx:HBox id="signupBtnBox" width="100%" horizontalAlign="center">
-				<mx:Button label="OK" id="okButton" click="ProjectFactory.getInstance().createProject(getParams(), handleSuccess, handleFailure);"/>
+				<mx:Button label="OK" id="okButton" click="CompanyFactory.getInstance().createCompany(getParams(), handleSuccess, handleFailure);"/>
 				<mx:Button label="Cancel" id="cancelButton" click="ViewModelLocator.getInstance().workflowState = ViewModelLocator.LOGIN_SCREEN"/>
 			</mx:HBox>
 		</mx:Form>
