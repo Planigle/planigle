@@ -111,7 +111,7 @@
 		// Confirm that user wants to delete the resource.
 		public function showDelete(event:Event) : void
 		{
-			Alert.show("Are you sure you want to delete this?", "Delete", 3, this,
+			Alert.show("Are you sure you want to delete '" + releaseResourceGrid.selectedItem.name + "'?", "Delete", 3, this,
 			function(event:CloseEvent):void
 			{
 				if (event.detail==Alert.YES)

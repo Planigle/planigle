@@ -412,6 +412,7 @@ private
     assert_equal 'true', @ie.combo_box("storyFieldPublic").text
     split_story(' ', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Not Started', 'true')
     @ie.button("storyBtnChange").click
+    @ie.alert("Abort")[0].button("Yes").click
     assert_equal "Name can't be blank", @ie.text_area("storyError").text
     assert_equal ' ', @ie.text_area("storyFieldName").text
     assert_equal 'description', @ie.text_area("storyFieldDescription").text
@@ -434,6 +435,7 @@ private
     @ie.button("storyBtnSplit")[2].click
     split_story('foo 1', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Not Started', 'true')
     @ie.button("storyBtnChange").click
+    @ie.alert("Abort")[0].button("Yes").click
     sleep 3 # Wait for results
     assert_equal '', @ie.text_area("storyError").text
     assert_nil @ie.button("storyBtnCancel")
