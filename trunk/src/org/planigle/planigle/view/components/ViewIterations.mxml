@@ -92,6 +92,7 @@
 			}
 			iterationFieldRetrospectiveResults.text = '';
 			iterationBtnChange.label = 'Create';
+			iterationBtnInfo.visible = false;
 		}
 
 		private var currentItem:Object;
@@ -111,6 +112,7 @@
 				iterationFieldLength.text = currentItem.length;
 				iterationFieldRetrospectiveResults.text = currentItem.retrospectiveResults;
 				iterationBtnChange.label = 'Update';
+				iterationBtnInfo.visible = true;
 			}
 		}
 

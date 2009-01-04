@@ -600,6 +600,7 @@
 			storyFieldEffort.text = '';
 			storyFieldStatus.selectedIndex = 0;
 			storyBtnChange.label = 'Create';
+			storyBtnInfo.visible = false;
 		}
 
 		// Show user a form to update a resource.
@@ -664,6 +665,7 @@
 					storyFieldEffort.text = currentItem.effort;
 					storyFieldStatus.selectedIndex = currentItem.statusCode;
 					storyBtnChange.label = 'Update';
+					storyBtnInfo.visible = true;
 				}
 			}
 		}
