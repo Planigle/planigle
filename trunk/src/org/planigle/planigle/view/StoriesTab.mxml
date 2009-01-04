@@ -722,8 +722,8 @@
 		// Confirm that user wants to delete the resource.
 		public function showDelete(event:Event) : void
 		{
-			var plural:String = storyResourceGrid.selectedItems.length > 1 ? 'items' : 'item';
-			Alert.show("Are you sure you want to delete the selected "+plural+"?", "Delete", 3, this,
+			var plural:String = storyResourceGrid.selectedItems.length > 1 ? 'the selected items' : "'" + storyResourceGrid.selectedItems[0].name + "'";
+			Alert.show("Are you sure you want to delete "+plural+"?", "Delete", 3, this,
 			function(event:CloseEvent):void
 			{
 				if (event.detail==Alert.YES)
@@ -788,13 +788,27 @@
 			}
 			else
 			{	// Split and default to priority between current story and next in priority
-				var params3:Object = getParams(true);
-				var allStories:ArrayCollection = StoryFactory.getInstance().stories;
-				var index:int = allStories.getItemIndex(currentItem);
-				var nextPriority:Number = index + 1 == allStories.length ? currentItem.priority + 1 : allStories.getItemAt( index + 1 ).priority;
-				params3['record[priority]'] = (currentItem.priority + nextPriority) / 2;
-				currentItem.split(params3, handleSuccess, handleFailure);
+				Alert.show("Would you like to abort the previous story (change its size to 0 and mark as done)?", "Abort", Alert.YES | Alert.NO | Alert.CANCEL, this,
+				function(event:CloseEvent):void
+				{
+					if (event.detail!=Alert.CANCEL)
+					{
+						var params3:Object = getParams(true);
+						var allStories:ArrayCollection = StoryFactory.getInstance().stories;
+						var index:int = allStories.getItemIndex(currentItem);
+						var nextPriority:Number = index + 1 == allStories.length ? currentItem.priority + 1 : allStories.getItemAt( index + 1 ).priority;
+						params3['record[priority]'] = (currentItem.priority + nextPriority) / 2;
+						currentItem.split(params3, event.detail==Alert.YES ? handleSplitSuccess : handleSuccess, handleFailure);
+					}
+				}, null, Alert.YES);
 			}
+		}
+
+		// An item was successfully split.  Abort it.
+		private function handleSplitSuccess():void
+		{
+			updateItem(currentItem, {'record[effort]': 0, 'record[status_code]': Story.ACCEPTED});
+			handleUpdateSuccess(); // Prime the processing.	
 		}
 
 		private var recalc:Boolean = false;
@@ -860,15 +874,16 @@
 		private function handleDrag(event:DragEvent):void
 		{
 			var movedItems:Array = DataGrid(event.dragInitiator).selectedItems;
+			var areStories:Boolean = movedItems.length > 0 ? movedItems[0].isStory() : true;
 			for each (var object:Object in movedItems)
 			{
-				if (!object.isStory()) // Can't drag tasks
+				if (object.isStory() != areStories) // Can't drag mixed stories and tasks.
 				{
 					event.preventDefault();
 					return;
 				}
 			}
-			if (!shouldSort)
+			if (areStories && !shouldSort)
 			{
 				Alert.show("You can only drag and drop to prioritize after sorting by priority.");
 				event.preventDefault();
@@ -878,23 +893,29 @@
 		// The user has reordered the stories.
 		private function handleReorder(event:DragEvent):void
 		{
+			var movedItems:Array = event.dragSource.dataForFormat("items") as Array;
+			var newIndex:int = storyResourceGrid.calculateDropIndex(event);
+			if (movedItems.length > 0 && movedItems[0].isStory())
+				handleReorderStories(movedItems, newIndex);
+			else
+				handleMoveTasks(movedItems, newIndex);
+		}
+		
+		// The user has reordered the stories.
+		private function handleReorderStories(movedItems:Array, newIndex:int):void
+		{
 			// Eliminate the tasks from the list
 			var stories:ArrayCollection = new ArrayCollection();
 			for each (var item:Object in filteredStories)
 				if (item.isStory()) stories.addItem(item);
 
-			// Get the items to move
-			var movedItems:Array = event.dragSource.dataForFormat("items") as Array;
-
-			// Get the new index
-			var newIndex:int = storyResourceGrid.calculateDropIndex(event);
+			// Adjust the new index
 			if (newIndex == filteredStories.length)
 				newIndex = stories.length;
 			else if (filteredStories.getItemAt(newIndex).isStory())
 				newIndex = stories.getItemIndex(filteredStories.getItemAt(newIndex));
 			else
 				newIndex = stories.getItemIndex(filteredStories.getItemAt(newIndex).story) + 1;
-
 
 			var before:Number = -1;
 			var after:Number = -1;
@@ -926,6 +947,16 @@
 				before = (before+after)/2;
 				updateItem(story, {"record[priority]": before });
 			}
+			handleUpdateSuccess(); // Prime the processing.
+		}
+		
+		// The user has moved the tasks.
+		private function handleMoveTasks(movedItems:Array, newIndex:int):void
+		{
+			newIndex = newIndex == 0 ? 0 : newIndex - 1;
+			var story:Story = filteredStories.getItemAt(newIndex).isStory() ? Story(filteredStories.getItemAt(newIndex)) : filteredStories.getItemAt(newIndex).story;
+			for each (var task:Task in movedItems)
+				updateItem(task, {"record[story_id]": story.id});
 			handleUpdateSuccess(); // Prime the processing.
 		}
 

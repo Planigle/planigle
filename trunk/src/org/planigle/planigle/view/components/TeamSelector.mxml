@@ -35,7 +35,7 @@
 		private function setTeamSelector(event:Event):void
 		{
 			// Remember selection so that updating teams doesn't revert it.
-			var id:String = selectedItem ? selectedItem.id : "-1";
+			var id:String = selectedItem ? selectedItem.id : "-2";
 			var selection:Team = null;
 
 			var newFilter:ArrayCollection = new ArrayCollection();
@@ -49,6 +49,8 @@
 			var all:Team = new Team();
 			all.populate( <team><id>-1</id><name>All Teams</name></team> );
 			newFilter.addItem(all);
+			if (id == "-1")
+				selection = all;
 			teamSelector = newFilter;
 			if (selection)
 				selectedItem = selection;

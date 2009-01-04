@@ -22,6 +22,7 @@ package org.planigle.planigle.model
 		public function populate(xml:XML):void
 		{
 			id = xml.id;
+			storyId = xml.child("story-id");
 			name = xml.name;
 			description = xml.description;
 			individualId = xml.child("individual-id").toString() == "" ? null : xml.child("individual-id");
@@ -72,6 +73,15 @@ package org.planigle.planigle.model
 		{
 			populate(xml);
 			story.resort();
+			if (storyId != story.id)
+			{
+				var index:int = story.tasks.indexOf(this);
+				story.tasks = story.tasks.concat().splice(index,index);
+				story = StoryFactory.getInstance().find(storyId);
+				story.tasks = story.tasks.concat([this]);
+				story.resort();
+				story.expand();
+			}
 		}
 		
 		// Delete me.  Success function if successfully deleted.  FailureFunction will be called if failed
