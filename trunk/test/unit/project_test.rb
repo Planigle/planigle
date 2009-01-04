@@ -18,6 +18,10 @@ class ProjectTest < ActiveSupport::TestCase
     end
   end
 
+  def test_company_id
+    assert_failure(:company_id, nil)
+  end
+
   # Test the validation of name.
   def test_name
     validate_field(:name, false, 1, 40)
@@ -101,6 +105,6 @@ private
 
   # Create an project with valid values.  Options will override default values (should be :attribute => value).
   def create_project(options = {})
-    Project.create({ :name => 'foo' }.merge(options))
+    Project.create({ :company_id => 1, :name => 'foo' }.merge(options))
   end
 end

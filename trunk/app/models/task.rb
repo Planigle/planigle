@@ -8,7 +8,7 @@ class Task < ActiveRecord::Base
   validates_length_of       :name,                   :maximum => 250, :allow_nil => true # Allow nil to workaround bug
   validates_length_of       :description,            :maximum => 4096, :allow_nil => true
   validates_length_of       :reason_blocked,         :maximum => 4096, :allow_nil => true
-  validates_numericality_of :effort, :allow_nil => true
+  validates_numericality_of :effort, :allow_nil => true, :greater_than_or_equal_to => 0
   validates_numericality_of :status_code
 
   # Answer the valid values for status.
@@ -98,7 +98,5 @@ protected
     if story_id && !Story.find_by_id(story_id)
       errors.add(:story_id, ' is invalid')
     end
-    
-    errors.add(:effort, 'must be greater than 0') if effort && effort <= 0
   end
 end

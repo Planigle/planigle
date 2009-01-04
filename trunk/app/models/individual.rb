@@ -227,6 +227,10 @@ protected
       errors.add(:role, ' is invalid')
     end
     
+    if role && (role > Admin && !company_id )
+      errors.add(:company, ' must be set for users who are not admins')
+    end
+    
     if role && (role > Admin && !project_id )
       errors.add(:project, ' must be set for users who are not admins')
     end
@@ -241,6 +245,10 @@ protected
     
     if team && (!project || team.project != project )
       errors.add(:team, ' must be associated with project')
+    end
+    
+    if project && (!company || project.company != company )
+      errors.add(:project, ' must be associated with company')
     end
   end
 end

@@ -152,6 +152,36 @@ class IndividualTest < ActiveSupport::TestCase
 
     indiv = create_individual( :role => 3, :project_id => 1 )
     assert_nil indiv.errors.on(:project)
+
+    indiv = create_individual( :company_id => nil, :project_id => 1 )
+    assert indiv.errors.on(:project)
+
+    indiv = create_individual( :company_id => 2, :project_id => 1 )
+    assert indiv.errors.on(:project)
+
+    indiv = create_individual( :company_id => 1, :project_id => 1 )
+    assert_nil indiv.errors.on(:project)
+  end
+  
+  # Test setting company_id
+  def test_company_id
+    indiv = create_individual( :role => 1, :company_id => nil )
+    assert indiv.errors.on(:company)
+
+    indiv = create_individual( :role => 2, :company_id => nil )
+    assert indiv.errors.on(:company)
+
+    indiv = create_individual( :role => 3, :company_id => nil )
+    assert indiv.errors.on(:company)
+
+    indiv = create_individual( :role => 1, :company_id => 1 )
+    assert_nil indiv.errors.on(:company)
+
+    indiv = create_individual( :role => 2, :company_id => 1 )
+    assert_nil indiv.errors.on(:company)
+
+    indiv = create_individual( :role => 3, :company_id => 1 )
+    assert_nil indiv.errors.on(:company)
   end
 
   # Test the validation of last_login.
@@ -319,6 +349,6 @@ private
 
   # Create an individual with valid values.  Options will override default values (should be :attribute => value).
   def create_individual(options = {})
-    Individual.create({ :first_name => 'foo', :last_name => 'bar', :login => 'quire' << rand.to_s, :email => 'quire' << rand.to_s << '@example.com', :password => 'quired', :password_confirmation => 'quired', :role => 0, :project_id => 1, :phone_number => '5555555555' }.merge(options))
+    Individual.create({ :first_name => 'foo', :last_name => 'bar', :login => 'quire' << rand.to_s, :email => 'quire' << rand.to_s << '@example.com', :password => 'quired', :password_confirmation => 'quired', :role => 0, :company_id => 1, :project_id => 1, :phone_number => '5555555555' }.merge(options))
   end
 end

@@ -53,7 +53,7 @@ class StoryTest < ActiveSupport::TestCase
   def test_effort
     assert_failure(:effort, 'a')
     assert_failure(:effort, -1)
-    assert_failure(:effort, 0)
+    assert_success(:effort, 0)
     
     story = stories(:first)
     assert_equal 1, story.effort
@@ -206,6 +206,19 @@ class StoryTest < ActiveSupport::TestCase
     verify_no_errors(Story.import(individuals(:aaron), "pid,name\n,Fred"))
     assert Story.find(:first, :conditions => ["name = 'Fred'"])
     assert_equal count + 1, Story.count
+  end
+
+  def test_import_non_relational_attributes
+    count = Story.count
+    verify_no_errors(Story.import(individuals(:aaron), "pid,name,description,acceptance criteria,size,status,reason blocked,public\n,Fred,description,acceptance,1,Blocked,because I said so,false"))
+    story = Story.find(:first, :conditions => ["name = 'Fred'"])
+    assert story
+    assert_equal count + 1, Story.count
+    assert_equal 'description', story.description
+    assert_equal 'acceptance', story.acceptance_criteria
+    assert_equal 1, story.effort
+    assert_equal 'because I said so', story.reason_blocked
+    assert_equal false, story.is_public
   end
 
   def test_import_blank_name

@@ -1,12 +1,12 @@
 module ProjectsTestHelper
   # Return the parameters to use for a successful create.
   def create_success_parameters
-    {:record => {:name => 'foo'}}
+    {:record => {:company_id => 1, :name => 'foo'}}
   end
 
   # Return the parameters to use for a failed create.
   def create_failure_parameters
-    {:record => {:name => ''}}
+    {:record => {:company_id => 1, :name => ''}}
   end
 
   # Return the parameters to use for a successful update.

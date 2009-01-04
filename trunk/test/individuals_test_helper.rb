@@ -1,13 +1,13 @@
 module IndividualsTestHelper
   # Return the parameters to use for a successful create.
   def create_success_parameters
-    {:record => {:login => 'foo', :email => 'foo@sample.com', :last_name => 'bar', :role => 1, :project_id => 1,
+    {:record => {:login => 'foo', :email => 'foo@sample.com', :last_name => 'bar', :role => 1, :company_id => 1, :project_id => 1,
       :first_name => 'foo', :password => 'testit', :password_confirmation => 'testit'}}
   end
 
   # Return the parameters to use for a failed create.
   def create_failure_parameters
-    {:record => {:login => '', :email => 'foo@sample.com', :last_name => 'bar', :role => 1, :project_id => 1,
+    {:record => {:login => '', :email => 'foo@sample.com', :last_name => 'bar', :role => 1, :company_id => 1, :project_id => 1,
       :first_name => 'foo', :password => 'testit', :password_confirmation => 'testit'}}
   end
 
