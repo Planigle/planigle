@@ -84,10 +84,27 @@ package org.planigle.planigle.model
 			project.teams = teams.source;
 
 			// Create copy to ensure any views get notified of changes.
-			var projects:ArrayCollection = new ArrayCollection();
-			for each (var aProject:Project in ProjectFactory.getInstance().projects)
-				projects.addItem(aProject);
-			ProjectFactory.getInstance().projects = projects;
+			var companies:ArrayCollection = new ArrayCollection();
+			for each (var aCompany:Company in CompanyFactory.getInstance().companies)
+				companies.addItem(aCompany);
+			CompanyFactory.getInstance().updateCompanies(companies);
+		}
+
+		// Answer my display name.
+		public function get displayName():String
+		{
+			return name;
+		}
+
+		// Set the display name (currently ignored; used to prevent binding issue).
+		public function set displayName(displayName:String):void
+		{
+		}
+
+		//  No, I'm not a company.
+		public function isCompany():Boolean
+		{
+			return false;
 		}
 
 		//  No, I'm not a project.

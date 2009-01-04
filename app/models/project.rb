@@ -1,13 +1,14 @@
 require 'digest/sha1'
 class Project < ActiveRecord::Base
+  belongs_to :company
   has_many :teams, :dependent => :destroy
-  has_many :individuals, :dependent => :nullify # Delete non-admins
+  has_many :individuals, :dependent => :nullify
   has_many :releases, :dependent => :destroy
   has_many :iterations, :dependent => :destroy
   has_many :stories, :dependent => :destroy
   has_many :story_attributes, :dependent => :destroy
   has_many :surveys, :dependent => :destroy
-  attr_accessible :name, :description, :survey_mode, :premium_limit, :premium_expiry
+  attr_accessible :company_id, :name, :description, :survey_mode, :premium_limit, :premium_expiry
   acts_as_audited :except => [:survey_key]
 
   validates_presence_of     :name
@@ -46,12 +47,6 @@ class Project < ActiveRecord::Base
   # Answer whether I can add new users.
   def can_add_users
     !is_premium || individuals.count < premium_limit
-  end
-
-  # Delete all non-admins
-  def destroy
-    Individual.delete_all(["project_id = ? and role != 0", id])
-    super
   end
   
   # Override to_xml to include teams.

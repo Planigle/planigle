@@ -5,6 +5,7 @@ require 'funfx'
 class FlexSessionTest < Test::Unit::TestCase
   fixtures :systems
   fixtures :individuals
+  fixtures :companies
   fixtures :projects
   fixtures :stories
   fixtures :iterations
@@ -50,6 +51,7 @@ class FlexSessionTest < Test::Unit::TestCase
   # Test signing up for an account.
   def test_signup
     @ie.button("signupButton").click
+    @ie.text_area("signupFieldCompany").input(:text => ' ' )
     @ie.text_area("signupFieldName").input(:text => ' ' )
     @ie.text_area("signupFieldDescription").input(:text => 'description' )
     @ie.text_area("signupFieldLogin").input(:text => 'login' )
@@ -61,6 +63,7 @@ class FlexSessionTest < Test::Unit::TestCase
     @ie.text_area("signupFieldLastName").input(:text => 'ignore' )    
     @ie.button("okButton").click
     assert_equal "Name can't be blank", @ie.text_area("signupError").text
+    @ie.text_area("signupFieldCompany").input(:text => 'company' )
     @ie.text_area("signupFieldName").input(:text => 'foobar' )
     @ie.button("okButton").click
     assert_equal "You have successfully signed up for Planigle.  Shortly, you will receive an email to complete the signup process.", @ie.text_area("signupError").text

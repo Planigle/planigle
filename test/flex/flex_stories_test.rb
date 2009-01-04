@@ -6,6 +6,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   fixtures :systems
   fixtures :teams
   fixtures :individuals
+  fixtures :companies
   fixtures :projects
   fixtures :releases
   fixtures :iterations
@@ -536,7 +537,7 @@ private
     login(logon, 'testit')
     sleep 5 # Wait to ensure data loaded
     @ie.button_bar("mainNavigation").change(:related_object => "Stories")
-    @ie.combo_box("release").open
-    @ie.combo_box("release").select(:item_renderer => 'All Releases' )
+    @ie.combo_box("team").open
+    @ie.combo_box("team").select(:item_renderer => 'All Teams' )
   end
 end

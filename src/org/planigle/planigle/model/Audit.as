@@ -57,6 +57,8 @@ package org.planigle.planigle.model
 		{
 			switch (key)
 			{
+				case 'companyId':
+					return 'Company';
 				case 'projectId':
 					return 'Project';
 				case 'teamId':
@@ -103,8 +105,11 @@ package org.planigle.planigle.model
 			var object:Object = null;
 			switch (key)
 			{
+				case 'companyId':
+					object = CompanyFactory.getInstance().find(String(value));
+					break;
 				case 'projectId':
-					object = ProjectFactory.getInstance().find(String(value));
+					object = IndividualFactory.current().company.find(String(value));
 					break;
 				case 'teamId':
 					object = IndividualFactory.current().project.find(String(value));

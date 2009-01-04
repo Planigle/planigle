@@ -20,7 +20,6 @@
 		import mx.containers.FormItem;
 		import mx.controls.TextInput;
 		import org.planigle.planigle.model.ViewModelLocator;
-		import org.planigle.planigle.model.ProjectFactory;
 		import org.planigle.planigle.model.IndividualFactory;
 		import org.planigle.planigle.model.Individual;
 		import org.planigle.planigle.model.Team;

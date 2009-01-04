@@ -5,6 +5,7 @@ require 'funfx'
 class FlexReleasesTest < Test::Unit::TestCase
   fixtures :systems
   fixtures :individuals
+  fixtures :companies
   fixtures :projects
   fixtures :releases
   fixtures :iterations

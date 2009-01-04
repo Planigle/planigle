@@ -31,6 +31,16 @@
 		<mx:method name="destroy"/>
 	</mx:RemoteObject>
 
+	<mx:RemoteObject id="companyRO"
+		source="CompaniesController"
+		destination="rubyamf"
+		showBusyCursor="true">
+		<mx:method name="index"/>
+		<mx:method name="create"/>
+		<mx:method name="update"/>
+		<mx:method name="destroy"/>
+	</mx:RemoteObject>
+
 	<mx:RemoteObject id="projectRO"
 		source="ProjectsController"
 		destination="rubyamf"

@@ -16,6 +16,7 @@ quentin:
 aaron:
   id: 2
   role: 1
+  company_id: 1
   project_id: 1
   team_id: 1
   login: aaron
@@ -32,6 +33,7 @@ aaron:
 ted:
   id: 3
   role: 1
+  company_id: 1
   project_id: 1
   team_id: 2
   login: ted
@@ -45,6 +47,7 @@ ted:
 user:
   id: 4
   role: 2
+  company_id: 1
   project_id: 1
   login: user
   first_name: user
@@ -60,6 +63,7 @@ user:
 readonly:
   id: 5
   role: 3
+  company_id: 1
   project_id: 1
   login: readonly
   first_name: readonly
@@ -73,6 +77,7 @@ readonly:
 admin2:
   id: 6
   role: 0
+  company_id: 1
   project_id: 1
   login: admin2
   first_name: admin2
@@ -86,6 +91,7 @@ admin2:
 user2:
   id: 7
   role: 2
+  company_id: 2
   project_id: 2
   login: user2
   first_name: user

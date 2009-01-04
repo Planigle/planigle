@@ -1,4 +1,4 @@
-module ProjectsTestHelper
+module CompaniesTestHelper
   # Return the parameters to use for a successful create.
   def create_success_parameters
     {:record => {:name => 'foo'}}
@@ -26,37 +26,36 @@ module ProjectsTestHelper
   
   # Answer the number of resources that exist.
   def resource_count
-    Project.count
+    Company.count
   end
 
   # Verify that the object was created.
   def assert_create_succeeded
-    assert Project.find_by_name('foo')
-    assert_equal ActionMailer::Base.deliveries.length, 1
+    assert Company.find_by_name('foo')
   end
 
   # Verify that the object was updated.
   def assert_update_succeeded
-    assert Project.find_by_name('foo')
+    assert Company.find_by_name('foo')
   end
 
   # Verify that the object was not created / updated.
   def assert_change_failed
-    assert_nil Project.find_by_name('')
+    assert_nil Company.find_by_name('')
   end
 
   # Verify that the object was not created / updated with valid changes.
   def assert_valid_change_failed
-    assert_nil Project.find_by_name('foo')
+    assert_nil Company.find_by_name('foo')
   end
 
   # Verify that the object was deleted.
   def assert_delete_succeeded
-    assert_nil Project.find_by_name('test2')
+    assert_nil Company.find_by_name('test2')
   end
 
   # Verify that the object was not deleted.
   def assert_delete_failed
-    assert Project.find_by_name('test2')
+    assert Company.find_by_name('test2')
   end
 end

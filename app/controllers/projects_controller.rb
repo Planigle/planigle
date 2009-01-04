@@ -1,49 +1,7 @@
 class ProjectsController < ResourceController
-  before_filter :login_required, :except => :create
-  before_filter :login_or_signup_required, :only => :create
-
-  # POST /projects
-  # POST /projects.xml
-  def create
-    if params[:individual] && params[:individual].include?( :login )
-      respond_to do |format|
-        begin
-          @record = create_record          
-          @record.transaction do
-            @individual = is_amf ? params[1] : Individual.new(params[:individual])
-            @individual.project_id = @record.id ? @record.id : 0 # To prevent project must be set error.
-            @individual.role = Individual::ProjectAdmin
-            if @record.valid? and @individual.valid? and @record.individuals << @individual and @record.save
-              format.xml { render :xml => '<?xml version="1.0" encoding="UTF-8"?><records>' + @record.to_xml(:skip_instruct => true) + @individual.to_xml(:skip_instruct => true) + "</records>", :status => :created }
-              format.amf { render :amf => [@record, @individual] }
-            else
-              raise ActiveRecord::RecordNotSaved;
-            end
-          end
-        rescue Exception => e
-          format.xml { render :xml => merge_errors(@record, @individual), :status => :unprocessable_entity }
-          format.amf { render :amf => @record.errors.full_messages.concat(@individual.errors.full_messages) }
-        end
-      end
-    else
-      super
-    end
-  end
-
+  before_filter :login_required
+  
 protected
-
-  # Merge the errors from the project and individal on signup.
-  def merge_errors(project, individual)
-    errors = project.errors.full_messages.concat(individual.errors.full_messages)
-    builder = Builder::XmlMarkup.new(:indent => 2)
-    builder.instruct!
-    builder.errors {|e| errors.each { |msg| e.error(msg)}}
-  end
-
-  # For creating projects, you either need to be logged in or it needs to be a signup.
-  def login_or_signup_required
-    (params[:individual] && params[:individual].include?( :login )) || login_required
-  end
 
   # Get the records based on the current individual.
   def get_records

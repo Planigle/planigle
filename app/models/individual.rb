@@ -1,10 +1,11 @@
 require 'digest/sha1'
 class Individual < ActiveRecord::Base
+  belongs_to :company
   belongs_to :project
   belongs_to :team
   has_many :stories, :dependent => :nullify
   has_many :tasks, :dependent => :nullify
-  attr_accessible :login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled, :project_id, :role, :last_login, :accepted_agreement, :team_id, :phone_number, :notification_type
+  attr_accessible :login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled, :project_id, :role, :last_login, :accepted_agreement, :team_id, :phone_number, :notification_type, :company_id
   acts_as_audited :except => [:crypted_password, :salt, :remember_token, :remember_token_expires_at, :activation_code, :activated_at, :last_login, :accepted_agreement]
 
   # Virtual attribute for the unencrypted password

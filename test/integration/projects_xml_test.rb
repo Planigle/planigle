@@ -15,6 +15,13 @@ class ProjectsXmlTest < ActionController::IntegrationTest
   # Re-raise errors caught by the controller.
   class ProjectsController; def rescue_action(e) raise e end; end
 
+  def setup
+    ActionMailer::Base.delivery_method = :test
+    ActionMailer::Base.perform_deliveries = true
+    ActionMailer::Base.deliveries = []
+    ProjectMailer.who_to_notify = 'foo@bar.com'
+  end
+
   # Test getting teams and attributes for a project.
   def test_show_teams_and_attributes
     get resource_url << '/1', {}, authorization_header
