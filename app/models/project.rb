@@ -11,7 +11,7 @@ class Project < ActiveRecord::Base
   attr_accessible :company_id, :name, :description, :survey_mode, :premium_limit, :premium_expiry
   acts_as_audited :except => [:survey_key]
 
-  validates_presence_of     :name
+  validates_presence_of     :name, :company_id
   validates_length_of       :name,                   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
   validates_length_of       :description,            :maximum => 4096, :allow_nil => true
   validates_numericality_of :survey_mode

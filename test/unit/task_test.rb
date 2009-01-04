@@ -39,7 +39,7 @@ class TaskTest < ActiveSupport::TestCase
   def test_effort
     assert_failure(:effort, 'a')
     assert_failure(:effort, -1)
-    assert_failure(:effort, 0)
+    assert_success(:effort, 0)
   end
 
   # Test the validation of status code.

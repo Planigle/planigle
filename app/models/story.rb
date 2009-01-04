@@ -18,7 +18,7 @@ class Story < ActiveRecord::Base
   validates_length_of       :description,            :maximum => 4096, :allow_nil => true
   validates_length_of       :acceptance_criteria,    :maximum => 4096, :allow_nil => true
   validates_length_of       :reason_blocked,         :maximum => 4096, :allow_nil => true
-  validates_numericality_of :effort, :allow_nil => true, :greater_than => 0
+  validates_numericality_of :effort, :allow_nil => true, :greater_than_or_equal_to => 0
   validates_numericality_of :priority, :user_priority, :allow_nil => true # Needed for priority since not set until after check
   validates_numericality_of :status_code
 
@@ -28,7 +28,7 @@ class Story < ActiveRecord::Base
   Blocked = 2
   Done = 3
 
-  Headers = { 'pid'=>:id, 'name'=>:name, 'description'=>:description, 'acceptance criteria'=>:acceptance_criteria, 'effort'=>:effort, 'status'=>:status_code, 'reason blocked'=>:reason_blocked, 'release'=>:release_id, 'iteration'=>:iteration_id, 'team'=>:team_id, 'owner'=>:individual_id, 'public'=>:is_public}
+  Headers = { 'pid'=>:id, 'name'=>:name, 'description'=>:description, 'acceptance criteria'=>:acceptance_criteria, 'size'=>:effort, 'status'=>:status_code, 'reason blocked'=>:reason_blocked, 'release'=>:release_id, 'iteration'=>:iteration_id, 'team'=>:team_id, 'owner'=>:individual_id, 'public'=>:is_public}
 
   # Assign a priority on creation
   before_create :initialize_defaults
