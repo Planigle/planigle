@@ -87,6 +87,7 @@
 				releaseFieldFinish.selectedDate = new Date( new Date().valueOf() + 91*24*60*60*1000 );
 			}
 			releaseBtnChange.label = 'Create';
+			releaseBtnInfo.visible = false;
 		}
 
 		private var currentItem:Object;
@@ -105,6 +106,7 @@
 				releaseFieldStart.selectedDate = currentItem.start;
 				releaseFieldFinish.selectedDate = currentItem.finish;
 				releaseBtnChange.label = 'Update';
+				releaseBtnInfo.visible = true;
 			}
 		}
 

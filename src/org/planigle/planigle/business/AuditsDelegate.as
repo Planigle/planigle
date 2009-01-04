@@ -16,7 +16,7 @@ package org.planigle.planigle.business
 			this.changer = changer;
 			this.objectType = objectType;
 			this.startDate = startDate;
-			this.endDate = startDate;
+			this.endDate = endDate;
 			this.objectId = objectId;
 		}
 		

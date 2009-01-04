@@ -129,6 +129,7 @@
 			labelPassword.required = true;
 			labelPasswordConfirmation.required = true;
 			individualBtnChange.label = 'Create';
+			individualBtnInfo.visible = false;
 		}
 		
 		[Bindable]
@@ -175,6 +176,7 @@
 				labelPassword.required = false;
 				labelPasswordConfirmation.required = false;
 				individualBtnChange.label = 'Update';
+				individualBtnInfo.visible = true;
 			}
 		}
 
