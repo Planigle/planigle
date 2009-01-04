@@ -35,7 +35,7 @@ package org.planigle.planigle.model
 		// Answer my display name.
 		public function get displayName():String
 		{
-			return IndividualFactory.current().isAdmin() ? name : projects[0].name;
+			return IndividualFactory.current() ? (IndividualFactory.current().isAdmin() ? name : projects[0].name) : '';
 		}
 
 		// Set the display name (currently ignored; used to prevent binding issue).
