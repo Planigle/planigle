@@ -8,7 +8,6 @@
 		import org.planigle.planigle.model.Audit;
 		import org.planigle.planigle.model.Individual;
 		import org.planigle.planigle.model.IndividualFactory;
-		import org.planigle.planigle.model.ViewModelLocator;
 		
 		[Bindable]
 		private var users:ArrayCollection = new ArrayCollection;
@@ -21,7 +20,6 @@
 		// Initialize me.
 		public function created(event:Event):void
 		{
-			ViewModelLocator.getInstance().changes = this;
 			ChangeWatcher.watch( IndividualFactory.getInstance(), "individuals", updateIndividuals );
 			updateIndividuals(null);
 		}
