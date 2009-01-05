@@ -109,7 +109,11 @@ private
     sleep 12 # Wait to ensure data loaded
     assert @ie.button("logoutButton") # should succeed because cookie skips log in.
     logout
+    @ie.unload
     sleep 2
+    @ie = Funfx.instance 
+    @ie.start(false) 
+    @ie.speed = 1
     @ie.goto("http://localhost:3000/index.html", "Main") 
     sleep 5 # Wait to ensure data not loaded
     assert_nil @ie.button("logoutButton") # should now fail since log out erases cookie
