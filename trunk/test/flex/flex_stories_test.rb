@@ -77,13 +77,16 @@ class FlexStoriesTest < Test::Unit::TestCase
     split_story_failure
   end 
 
-  # Test edit failure.
-  def test_a_split_success
+  def test_a_split_success_abort
     init('admin2')
-    split_story_success
+    split_story_success_abort
   end 
 
-  # Test edit failure.
+  def test_a_split_success_no_abort
+    init('admin2')
+    split_story_success_no_abort
+  end 
+
   def test_a_split_cancel
     init('admin2')
     split_story_cancel
@@ -412,7 +415,7 @@ private
     assert_equal 'true', @ie.combo_box("storyFieldPublic").text
     split_story(' ', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Not Started', 'true')
     @ie.button("storyBtnChange").click
-    @ie.alert("Abort")[0].button("Yes").click
+    @ie.alert("Abort").button("Yes").click
     assert_equal "Name can't be blank", @ie.text_area("storyError").text
     assert_equal ' ', @ie.text_area("storyFieldName").text
     assert_equal 'description', @ie.text_area("storyFieldDescription").text
@@ -429,18 +432,39 @@ private
     @ie.button("storyBtnCancel").click
   end
     
-  # Test whether you can successfully split a story.
-  def split_story_success
+  # Test whether you can successfully split a story (aborting the old story).
+  def split_story_success_abort
+    @ie.combo_box("itemStatus").open
+    @ie.combo_box("itemStatus").select(:item_renderer => 'All Statuses' )
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
     @ie.button("storyBtnSplit")[2].click
     split_story('foo 1', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Not Started', 'true')
     @ie.button("storyBtnChange").click
-    @ie.alert("Abort")[0].button("Yes").click
+    @ie.alert("Abort").button("Yes").click
     sleep 3 # Wait for results
     assert_equal '', @ie.text_area("storyError").text
     assert_nil @ie.button("storyBtnCancel")
     rows = @ie.data_grid("storyResourceGrid").num_rows
     assert_equal num_rows + 1, rows
+    assert_equal ",test,first,Test_team,aaron hank,0,2,Done,true,,,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-3, :end => rows-3)
+    assert_equal ",foo 1,fourth,Test_team,ted williams,1,3,In Progress,true,2,,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-2, :end => rows-2)
+  end
+    
+  # Test whether you can successfully split a story (without aborting).
+  def split_story_success_no_abort
+    @ie.combo_box("itemStatus").open
+    @ie.combo_box("itemStatus").select(:item_renderer => 'All Statuses' )
+    num_rows = @ie.data_grid("storyResourceGrid").num_rows
+    @ie.button("storyBtnSplit")[2].click
+    split_story('foo 1', 'description', 'acceptance_criteria', 'fourth', 'second', 'Test_team', 'ted williams', '1', 'Not Started', 'true')
+    @ie.button("storyBtnChange").click
+    @ie.alert("Abort").button("No").click
+    sleep 3 # Wait for results
+    assert_equal '', @ie.text_area("storyError").text
+    assert_nil @ie.button("storyBtnCancel")
+    rows = @ie.data_grid("storyResourceGrid").num_rows
+    assert_equal num_rows + 1, rows
+    assert_equal ",test,first,Test_team,aaron hank,1,2,In Progress,true,2,2,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-3, :end => rows-3)
     assert_equal ",foo 1,fourth,Test_team,ted williams,1,3,Not Started,true,3,,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-1, :end => rows-1)
   end
     
