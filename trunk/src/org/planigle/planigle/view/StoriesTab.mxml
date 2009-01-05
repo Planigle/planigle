@@ -72,7 +72,6 @@
 		// Set up event listeners.  Called when the canvas has been created.
 		private function created(event:Event):void
 		{
-			viewModelLocator.stories = this;
 			panelHeight = combinedPanel.height;
 			ChangeWatcher.watch( factory, "currentIndividual", updateIndividual );
 			ChangeWatcher.watch( IndividualFactory.current(), "projectId", updateIndividual );
