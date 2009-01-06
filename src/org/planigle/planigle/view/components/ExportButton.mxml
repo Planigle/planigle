@@ -3,6 +3,7 @@
 	<mx:Script>
 		<![CDATA[
 			import flash.net.URLRequest;
+			import flash.events.IOErrorEvent;
 			import mx.controls.Alert;
 			import org.planigle.planigle.model.FileUtils;
 
@@ -12,6 +13,7 @@
 			private function init():void
 			{
 				fileRef = new FileReference();
+				fileRef.addEventListener(IOErrorEvent.IO_ERROR, exportUnsuccessful);
             }
 
 			// Show the browse window.
@@ -19,12 +21,18 @@
 			{
 				try
 				{
-					fileRef.download(new URLRequest("../stories/export?_planigle_session_id=" + FileUtils.getSession()), "stories.csv");
+					fileRef.download(new URLRequest("stories/export?_planigle_session_id=" + FileUtils.getSession()), "stories.csv");
 				}
 				catch (error:Error)
 				{
 					Alert.show("Error exporting file");
 				}
+			}
+
+			// The file has not been downloaded.
+			private function exportUnsuccessful(event:IOErrorEvent):void
+			{
+				Alert.show("The data could not be exported: " + event.text);
 			}
 		]]>
 	</mx:Script>
