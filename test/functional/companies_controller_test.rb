@@ -63,28 +63,6 @@ class CompaniesControllerTest < Test::Unit::TestCase
     assert_select "errors"
   end
 
-  # Test successfully updating (with project).
-  def test_update_success
-    ActionMailer::Base.deliveries = []
-    login_as(individuals(:quentin))
-    put :update, {:id => 1}.merge(update_success_parameters).merge( {:project => {:name => 'foo'}} )
-    assert_update_succeeded
-    assert_equal 0, ActionMailer::Base.deliveries.length
-    assert_select "company"
-      assert_select "project"
-  end
-
-  # Test updating (with project) unsuccessfully.
-  def test_update_failure
-    ActionMailer::Base.deliveries = []
-    login_as(individuals(:quentin))
-    put :update, {:id => 1}.merge(update_failure_parameters).merge( {:project => {:name => 'foo'}} )
-    assert_response :success
-    assert_change_failed
-    assert_equal 0, ActionMailer::Base.deliveries.length
-    assert_select "errors"
-  end
-
   # Test that the teams are included in the xml.
   def test_xml
     login_as(individuals(:aaron))
@@ -93,7 +71,7 @@ class CompaniesControllerTest < Test::Unit::TestCase
     assert_select "companies" do
       assert_select "company", 1 do
         assert_select "projects" do
-        assert_select "project", 1 do
+        assert_select "project", 2 do
             assert_select "teams" do
               assert_select "team", 2
             end
@@ -236,7 +214,7 @@ class CompaniesControllerTest < Test::Unit::TestCase
     login_as(user)
     delete :destroy, :id => 1, :format => 'xml'
     assert_response :success
-    assert_nil Company.find_by_name('Test')
+    assert_nil Company.find_by_name('Test_company')
   end
 
   # Delete unsuccessfully based on role.
@@ -244,7 +222,7 @@ class CompaniesControllerTest < Test::Unit::TestCase
     login_as(user)
     delete :destroy, :id => 1, :format => 'xml'
     assert_response 401
-    assert Company.find_by_name('Test')
+    assert Company.find_by_name('Test_company')
     assert_select "errors"
   end
 end

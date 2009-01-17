@@ -16,6 +16,7 @@ class StoriesControllerTest < ActionController::TestCase
   fixtures :systems
   fixtures :teams
   fixtures :individuals
+  fixtures :iterations
   fixtures :stories
   fixtures :projects
   fixtures :tasks

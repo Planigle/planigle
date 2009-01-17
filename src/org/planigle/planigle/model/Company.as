@@ -1,9 +1,10 @@
 package org.planigle.planigle.model
 {
 	import mx.collections.ArrayCollection;
+	
 	import org.planigle.planigle.commands.CreateProjectCommand;
-	import org.planigle.planigle.commands.UpdateCompanyCommand;
 	import org.planigle.planigle.commands.DeleteCompanyCommand;
+	import org.planigle.planigle.commands.UpdateCompanyCommand;
 
 	[RemoteClass(alias='Company')]
 	[Bindable]
@@ -32,17 +33,6 @@ package org.planigle.planigle.model
 			projects = newProjects.source;
 		}
 
-		// Answer my display name.
-		public function get displayName():String
-		{
-			return IndividualFactory.current() ? (IndividualFactory.current().isAdmin() ? name : projects.length > 0 ? projects[0].name : '') : '';
-		}
-
-		// Set the display name (currently ignored; used to prevent binding issue).
-		public function set displayName(displayName:String):void
-		{
-		}
-		
 		// Answer how much to indent this kind of item.
 		public function get indent():int
 		{
@@ -58,6 +48,12 @@ package org.planigle.planigle.model
 		public function get projects():Array
 		{
 			return myProjects;
+		}
+
+		// Set my projects.
+		public function set filteredProjects(someProjects:Array):void
+		{
+			projects = someProjects;
 		}
 
 		// Set my projects.
@@ -85,15 +81,9 @@ package org.planigle.planigle.model
 		// Answer the description of my first project.
 		public function get description():String
 		{
-			return projects[0].description;
+			return "";
 		}
 		
-		// Answer the survey mode of my first project.
-		public function get surveyMode():int
-		{
-			return projects[0].surveyMode;
-		}
-
 		// Resort my projects.
 		public function resort():void
 		{
@@ -172,7 +162,7 @@ package org.planigle.planigle.model
 		}
 		
 		// A project has been successfully created.  Change myself to reflect the changes.
-		public function createProjectCompleted(xml:XML):Project
+		public function createCompleted(xml:XML):Project
 		{
 			var newProject:Project = new Project();
 			newProject.populate(xml);
@@ -211,6 +201,29 @@ package org.planigle.planigle.model
 		{
 			return false;
 		}
+
+		//  No, I'm not a team.
+		public function isTeam():Boolean
+		{
+			return false;
+		}
+		
+		// Answer whether I have any projects.
+		public function hasProjects():Boolean
+		{
+			return projects.length > 0;
+		}
+				
+		// Answer whether I have any teams.
+		public function hasTeams():Boolean
+		{
+			for each (var project:Project in projects)
+			{
+				if (project.hasTeams())
+					return true;
+			}
+			return false;
+		}
 		
 		// Expand the project to show its projects.
 		public function expand():void
@@ -236,13 +249,15 @@ package org.planigle.planigle.model
 		// Answer whether the project is expanded.
 		public function isExpanded():Boolean
 		{
-			return expanded.hasOwnProperty(String(id)) && expanded[String(id)];
+			if (!expanded.hasOwnProperty(String(id)))
+				expanded[String(id)] = !IndividualFactory.current().isAdmin();
+			return expanded[String(id)];
 		}
 		
 		// Answer a label for my expand button.
 		public function expandLabel():String
 		{
-			if (projects[0].teams.length == 0)
+			if (projects.length == 0)
 				return "";
 			else
 				return isExpanded() ? "-" : "+";

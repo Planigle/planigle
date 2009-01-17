@@ -61,13 +61,17 @@
 
 			columnCompany.visible = IndividualFactory.current().isAdmin() && !group;
 
+			var projectsExist:Boolean = false;
 			var teamsExist:Boolean = false;
 			for each (var company:Company in CompanyFactory.getInstance().companies)
 			{
-				if (company.projects[0].teams.length > 0)
+				if (company.hasProjects())
+					projectsExist = true;
+				if (company.hasTeams())
 					teamsExist = true;
 			}
-			columnTeam.visible = teamsExist && (!group || (group.isCompany() && group.projects[0].teams.length > 0));
+			columnProject.visible = (factory.currentIndividual.isAdmin() || factory.currentIndividual.isPremium()) && (!group || (group.isCompany() && group.hasProjects()));
+			columnTeam.visible = teamsExist && (!group || (!group.isTeam() && group.hasTeams()));
 		}
 		
 		// Reset my state to how it was initially.
@@ -78,12 +82,16 @@
 			currentState = '';
 			if (IndividualFactory.current())
 			{
-				var show:Boolean = IndividualFactory.current().isAdmin();
+				var show:Boolean = factory.currentIndividual.isAdmin();
 				individualFormCompany.visible = show;
 				individualFormCompany.maxHeight = show ? 25 : 0;
 
+				show = factory.currentIndividual.isAdmin() || (factory.currentIndividual.isAtLeastProjectAdmin() && factory.currentIndividual.isPremium());
+				individualFormProject.visible = show;
+				individualFormProject.maxHeight = show ? 25 : 0;
+
 				var collect:ArrayCollection = new ArrayCollection();
-				if (show)
+				if (factory.currentIndividual.isAdmin())
 					collect.addItem({label:"Admin", value:0});
 				collect.addItem({label:"Project Admin", value:1});
 				collect.addItem({label:"Project User", value:2});
@@ -97,24 +105,30 @@
 		{
 			clearErrorMessage();
 			currentState = 'Change';
-			factory.currentIndividual.isAdmin() ? individualFieldCompany.setFocus() : (individualFormTeam.visible ? individualFieldTeam.setFocus() : individualFieldLogin.setFocus());
+			factory.currentIndividual.isAdmin() ? individualFieldCompany.setFocus() : (individualFormProject.visible ? individualFormProject.setFocus() : (individualFormTeam.visible ? individualFieldTeam.setFocus() : individualFieldLogin.setFocus()));
 
-			var it:String = factory.currentIndividual.companyId;
 			if (group)
-				individualFieldCompany.selectedItem = group.isCompany() ? group : group.project.company;
-			else if (it)
-				individualFieldCompany.selectedItem = CompanyFactory.getInstance().find(it);
+				individualFieldCompany.selectedItem = group.isCompany() ? group : group.company;
+			else if (factory.currentIndividual.companyId)
+				individualFieldCompany.selectedItem = factory.currentIndividual.company;
 			else
 				individualFieldCompany.selectedIndex = CompanyFactory.getInstance().companySelector.length - 1;
 
-			updateTeam(event);
-			var it2:String = factory.currentIndividual.teamId;
-			if (group && !group.isCompany())
-				individualFieldTeam.selectedItem = group;
-			else if (it2)
-				individualFieldTeam.selectedItem = individualFieldCompany.selectedItem.projectSelector[0].find(it2);
+			updateProject(event);
+			if (group)
+				individualFieldProject.selectedItem = group.isProject() ? group : (group.isTeam() ? group.project : group.projectSelector[0]);
+			else if (factory.currentIndividual.projectId)
+				individualFieldProject.selectedItem = factory.currentIndividual.project;
 			else
-				individualFieldTeam.selectedIndex = individualFieldCompany.selectedItem.projectSelector[0].teamSelector.length - 1;
+				individualFieldProject.selectedIndex = individualFieldCompany.selectedItem.projectSelector.length - 1;
+
+			updateTeam(event);
+			if (group)
+				individualFieldTeam.selectedItem = group.isTeam() ? group : individualFieldProject.selectedItem.teamSelector.getItemAt(individualFieldProject.selectedItem.teamSelector.length - 1);
+			else if (factory.currentIndividual.teamId)
+				individualFieldTeam.selectedItem = factory.currentIndividual.team;
+			else
+				individualFieldTeam.selectedIndex = individualFieldProject.selectedItem.teamSelector.length - 1;
 
 			individualFieldLogin.text = '';
 			individualFieldPassword.text = '';
@@ -150,20 +164,22 @@
 				else
 					individualFieldCompany.selectedIndex = CompanyFactory.getInstance().companySelector.length - 1;
 
+				updateProject(event);
+				it = currentItem.projectId;
+				if (it)
+					individualFieldProject.selectedItem = individualFieldCompany.selectedItem.find(it);
+				else
+					individualFieldProject.selectedIndex = individualFieldCompany.selectedItem.projectSelector.length - 1;
+	
 				updateTeam(event);
-				var it2:String = currentItem.teamId;
-				if (it2)
-					individualFieldTeam.selectedItem = individualFieldCompany.selectedItem.projectSelector[0].find(it2);
+				it = currentItem.teamId;
+				if (it)
+					individualFieldTeam.selectedItem = individualFieldProject.selectedItem.find(it);
 				else
-					individualFieldTeam.selectedIndex = individualFieldCompany.selectedItem.projectSelector[0].teamSelector.length - 1;
+					individualFieldTeam.selectedIndex = individualFieldProject.selectedItem.teamSelector.length - 1;
 	
-				if (IndividualFactory.current().isAdmin())
-					individualFieldCompany.setFocus();
-				else
-					individualFieldTeam.setFocus();
-	
+				factory.currentIndividual.isAdmin() ? individualFieldCompany.setFocus() : (individualFormProject.visible ? individualFormProject.setFocus() : (individualFormTeam.visible ? individualFieldTeam.setFocus() : individualFieldLogin.setFocus()));
 				individualFieldLogin.text = currentItem.login;
-	
 				individualFieldPassword.text = '';
 				individualFieldPasswordConfirmation.text = '';
 				individualFieldEmail.text = currentItem.email;
@@ -180,10 +196,16 @@
 			}
 		}
 
+		// Update the project.
+		private function updateProject(event:Event):void
+		{
+			individualFieldProject.dataProvider = individualFieldCompany.selectedItem.projectSelector;
+		}
+
 		// Update the team.
 		private function updateTeam(event:Event):void
 		{
-			individualFieldTeam.dataProvider = individualFieldCompany.selectedItem.projectSelector[0].teamSelector;
+			individualFieldTeam.dataProvider = individualFieldProject.selectedItem.teamSelector;
 		}
 
 		// Confirm that user wants to delete the resource.
@@ -205,7 +227,7 @@
 		{
 			var params:Object = new Object();
 			params['record[company_id]'] = individualFieldCompany.selectedItem.id ? individualFieldCompany.selectedItem.id : "";
-			params['record[project_id]'] = individualFieldCompany.selectedItem.id ? individualFieldCompany.selectedItem.projectSelector[0].id : "";
+			params['record[project_id]'] = individualFieldProject.selectedItem.id ? individualFieldProject.selectedItem.id : "";
 			params['record[team_id]'] = individualFieldTeam.selectedItem.id ? individualFieldTeam.selectedItem.id : "";
 			params['record[login]'] = individualFieldLogin.text;
 			params['record[password]'] = individualFieldPassword.text;
@@ -292,9 +314,12 @@
 							<mx:VBox>
 								<mx:Form id="changeForm" defaultButton="{individualBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
 									<mx:FormItem id='individualFormCompany' label='Company'>
-										<mx:ComboBox id='individualFieldCompany' width="200" editable="false" dataProvider="{CompanyFactory.getInstance().companySelector}" labelField="name" change="updateTeam(event)"></mx:ComboBox>
+										<mx:ComboBox id='individualFieldCompany' width="200" editable="false" dataProvider="{CompanyFactory.getInstance().companySelector}" labelField="name" change="updateProject(event)"></mx:ComboBox>
 									</mx:FormItem>
-									<mx:FormItem id='individualFormTeam' label='Team' visible="{individualFieldCompany.selectedItem.teams.length > 0}" height="{individualFieldCompany.selectedItem.teams.length > 0 ? 22 : 0}">
+									<mx:FormItem id='individualFormProject' label='Project'>
+										<mx:ComboBox id='individualFieldProject' width="200" editable="false" labelField="name" change="updateTeam(event)"></mx:ComboBox>
+									</mx:FormItem>
+									<mx:FormItem id='individualFormTeam' label='Team' visible="{individualFieldProject.selectedItem.teams.length > 0}" height="{individualFieldProject.selectedItem.teams.length > 0 ? 22 : 0}">
 										<mx:ComboBox id='individualFieldTeam' width="200" editable="false" labelField="name"></mx:ComboBox>
 									</mx:FormItem>
 									<mx:FormItem label='Login' required="true">
@@ -382,6 +407,7 @@
 		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="individualResourceGrid" dataProvider="{individuals}" rowCount="{individuals.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" doubleClick="showUpdate(event)">
 				<mx:columns>
 				<mx:DataGridColumn width="70" headerText="Company" labelFunction="ViewHelper.formatCompany" sortCompareFunction="ViewHelper.sortCompany" id="columnCompany"/>
+				<mx:DataGridColumn width="70" headerText="Project" labelFunction="ViewHelper.formatProject" sortCompareFunction="ViewHelper.sortProject" id="columnProject"/>
 				<mx:DataGridColumn width="70" headerText="Team" labelFunction="ViewHelper.formatTeam" sortCompareFunction="ViewHelper.sortTeam" id="columnTeam"/>
 				<mx:DataGridColumn width="70" headerText="Login" dataField="login"/>
 				<mx:DataGridColumn headerText="First Name" width="70" dataField="firstName"/>

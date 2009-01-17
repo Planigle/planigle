@@ -2,8 +2,8 @@
 
 first:
   id: 1
-  name: Test
+  name: Test_company
 
 second:
   id: 2
-  name: Test2
+  name: Test2_company

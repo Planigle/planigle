@@ -334,9 +334,12 @@ class IndividualTest < ActiveSupport::TestCase
   # Test finding individuals for a specific user.
   def test_find
     assert_equal Individual.count, Individual.get_records(individuals(:quentin)).length
-    assert_equal Individual.find_all_by_project_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:aaron)).length
-    assert_equal Individual.find_all_by_project_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:user)).length
-    assert_equal Individual.find_all_by_project_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:readonly)).length
+    assert_equal Individual.find_all_by_company_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:aaron)).length
+    assert_equal Individual.find_all_by_company_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:user)).length
+    assert_equal Individual.find_all_by_company_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:readonly)).length
+    assert_equal Individual.find_all_by_project_id(2, :conditions => "role != 0").length, Individual.get_records(individuals(:project_admin2)).length
+    assert_equal Individual.find_all_by_project_id(2, :conditions => "role != 0").length, Individual.get_records(individuals(:user2)).length
+    assert_equal Individual.find_all_by_project_id(4, :conditions => "role != 0").length, Individual.get_records(individuals(:ro2)).length
   end
   
   # Validate is_premium.

@@ -79,7 +79,7 @@ package org.planigle.planigle.model
 		// Answer how much to indent this kind of item.
 		public function get indent():int
 		{
-			return 5;
+			return 25;
 		}
 
 		// Set the indent (currently ignored; used to prevent binding issue).
@@ -188,6 +188,12 @@ package org.planigle.planigle.model
 					projects.addItem(project);
 			}
 			company.projects = projects.source;
+
+			// Create copy to ensure any views get notified of changes.
+			var companies:ArrayCollection = new ArrayCollection();
+			for each (var aCompany:Company in CompanyFactory.getInstance().companies)
+				companies.addItem(aCompany);
+			CompanyFactory.getInstance().updateCompanies(companies);
 		}
 
 		// Create a new story attribute.  Params should be of the format (record[param]).  Success function
@@ -288,6 +294,18 @@ package org.planigle.planigle.model
 		public function isProject():Boolean
 		{
 			return true;
+		}
+
+		//  No, I'm not a team.
+		public function isTeam():Boolean
+		{
+			return false;
+		}
+		
+		// Answer whether I have any teams.
+		public function hasTeams():Boolean
+		{
+			return teams.length > 0;
 		}
 
 		//  No, I'm not an individual.

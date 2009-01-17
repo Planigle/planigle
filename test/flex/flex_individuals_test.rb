@@ -61,7 +61,7 @@ class FlexIndividualsTest < Test::Unit::TestCase
   end 
 
   # Test edit (in two streams for more efficiency).
-  def test_edit_success
+  def test_edit_cancel
     init('admin2')
     edit_individual_cancel
   end 
@@ -76,23 +76,35 @@ class FlexIndividualsTest < Test::Unit::TestCase
 
   # Test logging in as a project admin
   def test_project_admin
+    init('pa2')
+    project_grid(Individual.find_all_by_project_id(2, :conditions => "role != 0").length)
+    assert @ie.button("individualBtnCreate").visible
+    row = find_row('pa2') + 1
+    assert @ie.button("individualBtnEdit")[row].visible
+    assert @ie.button("individualBtnDelete")[row].visible
+    verify_create(true)
+    verify_edit(true, false)
+  end
+
+  # Test logging in as a project admin
+  def test_project_admin_premium
     init('aaron')
-    project_grid
+    project_grid(Individual.find_all_by_company_id(1, :conditions => "role != 0").length)
     assert @ie.button("individualBtnCreate").visible
     row = find_row('aaron') + 1
     assert @ie.button("individualBtnEdit")[row].visible
     assert @ie.button("individualBtnDelete")[row].visible
-    verify_create
-    verify_edit(false)
+    verify_create(false)
+    verify_edit(false, false)
   end
 
   # Test logging in as a project user
   def test_project_user
     init('user')
-    project_grid
+    project_grid(Individual.find_all_by_company_id(1, :conditions => "role != 0").length)
     assert !@ie.button("individualBtnCreate").visible
     assert !@ie.button("individualBtnDelete")[find_row('user')-1].visible
-    verify_edit(true)
+    verify_edit(true, true)
     row = find_row('readonly')-1
     assert !@ie.button("individualBtnEdit")[row].visible
   end
@@ -100,7 +112,7 @@ class FlexIndividualsTest < Test::Unit::TestCase
   # Test logging in as a read only user
   def test_read_only
     init('readonly')
-    project_grid
+    project_grid(Individual.find_all_by_company_id(1, :conditions => "role != 0").length)
     assert !@ie.button("individualBtnCreate").visible
     row = find_row('readonly')-1
     assert !@ie.button("individualBtnEdit")[row].visible
@@ -115,7 +127,9 @@ class FlexIndividualsTest < Test::Unit::TestCase
     @ie.button("individualBtnEdit")[find_row('quentin')].click
     assert !@ie.form_item("individualFormNotificationType").visible
     @ie.combo_box("individualFieldCompany").open
-    @ie.combo_box("individualFieldCompany").select(:item_renderer => 'Test' )
+    @ie.combo_box("individualFieldCompany").select(:item_renderer => 'Test_company' )
+    @ie.combo_box("individualFieldProject").open
+    @ie.combo_box("individualFieldProject").select(:item_renderer => 'Test' )
     @ie.button("individualBtnChange").click
     sleep 5 # Wait for data to load
 
@@ -143,12 +157,13 @@ private
 
     assert_equal 'Project Admin', @ie.combo_box("individualFieldRole").text
     
-    create_individual('Test', 'Test_team', ' ', 'testit', 'testit', 'testy2@testit.com', 'testy', 'test', 'Admin', 'true', '5555555555', 'Email')
+    create_individual('Test_company', 'Test', 'Test_team', ' ', 'testit', 'testit', 'testy2@testit.com', 'testy', 'test', 'Admin', 'true', '5555555555', 'Email')
     @ie.button("individualBtnChange").click
 
     # Values should not change
     assert_equal "Login can't be blank\rLogin is too short (minimum is 2 characters)", @ie.text_area("individualError").text
-    assert_equal 'Test', @ie.combo_box("individualFieldCompany").text
+    assert_equal 'Test_company', @ie.combo_box("individualFieldCompany").text
+    assert_equal 'Test', @ie.combo_box("individualFieldProject").text
     assert_equal 'Test_team', @ie.combo_box("individualFieldTeam").text
     assert_equal ' ', @ie.text_area("individualFieldLogin").text
     assert_equal 'testit', @ie.text_area("individualFieldPassword").text
@@ -168,12 +183,13 @@ private
     num_rows = @ie.data_grid("individualResourceGrid").num_rows
     @ie.button("individualBtnCreate").click
     
-    create_individual('Test', 'Test_team', 'testy2', 'testit', 'testit', 'testy2@testit.com', 'testy', 'test', 'Admin', 'true' )
+    create_individual('Test_company', 'Test', 'Test_team', 'testy2', 'testit', 'testit', 'testy2@testit.com', 'testy', 'test', 'Admin', 'true' )
     @ie.button("individualBtnChange").click
 
     sleep 5 # Wait for results
     assert_equal 'Individual was successfully created.', @ie.text_area("individualError").text
-    assert_equal 'Test', @ie.combo_box("individualFieldCompany").text
+    assert_equal 'Test_company', @ie.combo_box("individualFieldCompany").text
+    assert_equal 'Test', @ie.combo_box("individualFieldProject").text
     assert_equal 'No Team', @ie.combo_box("individualFieldTeam").text
     assert_equal '', @ie.text_area("individualFieldLogin").text
     assert_equal '', @ie.text_area("individualFieldPassword").text
@@ -185,7 +201,7 @@ private
     assert_equal 'true', @ie.combo_box("individualFieldEnabled").text
     assert_not_nil @ie.button("individualBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("individualResourceGrid").num_rows
-    assert_equal "Test,Test_team,testy2,testy,test,Admin,false,true,,Edit | Delete", @ie.data_grid("individualResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
+    assert_equal "Test_company,Test,Test_team,testy2,testy,test,Admin,false,true,,Edit | Delete", @ie.data_grid("individualResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
     @ie.button("individualBtnCancel").click
   end
     
@@ -196,7 +212,7 @@ private
     
     num_rows = @ie.data_grid("individualResourceGrid").num_rows
     @ie.button("individualBtnCreate").click
-    create_individual('Test', 'Test_team', 'testy2', 'testit', 'testit', 'testy2@testit.com', 'testy', 'test', 'Admin', 'true')
+    create_individual('Test_company', 'Test', 'Test_team', 'testy2', 'testit', 'testit', 'testy2@testit.com', 'testy', 'test', 'Admin', 'true')
     @ie.button("individualBtnCancel").click
     assert_equal '', @ie.text_area("individualError").text
     assert_nil @ie.button("individualBtnCancel")
@@ -204,9 +220,11 @@ private
   end
 
   # Create an individual.
-  def create_individual(project, team, login, password, password_confirmation, email, first_name, last_name, role, enabled, phone_number='5555555555', notification_type=nil)
+  def create_individual(company, project, team, login, password, password_confirmation, email, first_name, last_name, role, enabled, phone_number='5555555555', notification_type=nil)
     @ie.combo_box("individualFieldCompany").open
-    @ie.combo_box("individualFieldCompany").select(:item_renderer => project )
+    @ie.combo_box("individualFieldCompany").select(:item_renderer => company )
+    @ie.combo_box("individualFieldProject").open
+    @ie.combo_box("individualFieldProject").select(:item_renderer => project )
     @ie.combo_box("individualFieldTeam").open
     @ie.combo_box("individualFieldTeam").select(:item_renderer => team )
     @ie.text_area("individualFieldLogin").input(:text => login )
@@ -229,11 +247,12 @@ private
   # Test whether error handling works for editing an individual.
   def edit_individual_failure
     num_rows = @ie.data_grid("individualResourceGrid").num_rows
-    edit_individual(find_row('ted'), 'Test', 'Test_team', ' ', 'testit', 'testit', 'testy3@testit.com', 'testy', 'test', 'Project Admin', 'true')
+    edit_individual(find_row('ted'), 'Test_company', 'Test', 'Test_team', ' ', 'testit', 'testit', 'testy3@testit.com', 'testy', 'test', 'Project Admin', 'true')
     @ie.button("individualBtnChange").click
 
     assert_equal "Login can't be blank\rLogin is too short (minimum is 2 characters)", @ie.text_area("individualError").text
-    assert_equal 'Test', @ie.combo_box("individualFieldCompany").text
+    assert_equal 'Test_company', @ie.combo_box("individualFieldCompany").text
+    assert_equal 'Test', @ie.combo_box("individualFieldProject").text
     assert_equal 'Test_team', @ie.combo_box("individualFieldTeam").text
     assert_equal ' ', @ie.text_area("individualFieldLogin").text
     assert_equal 'testit', @ie.text_area("individualFieldPassword").text
@@ -252,12 +271,12 @@ private
   def edit_individual_success
     num_rows = @ie.data_grid("individualResourceGrid").num_rows
     row = find_row('ted')
-    edit_individual(row, 'Test', 'Test', 'testy3', 'testit', 'testit', 'testy3@testit.com', 'testy', 'test', 'Project Admin', 'true')
+    edit_individual(row, 'Test_company', 'Test', 'Test_team', 'testy3', 'testit', 'testit', 'testy3@testit.com', 'testy', 'test', 'Project Admin', 'true')
     @ie.button("individualBtnChange").click
     assert_equal '', @ie.text_area("individualError").text
     assert_nil @ie.button("individualBtnCancel")
     assert_equal num_rows, @ie.data_grid("individualResourceGrid").num_rows
-    assert_equal "Test,Test,testy3,testy,test,Project Admin,false,true,Edit | Delete", @ie.data_grid("individualResourceGrid").tabular_data(:start => row-1, :end => row-1)
+    assert_equal "Test_company,Test,Test_team,testy3,testy,test,Project Admin,false,true,,Edit | Delete", @ie.data_grid("individualResourceGrid").tabular_data(:start => row-1, :end => row-1)
   end
     
   # Test that you can't change your own role / enabledness.
@@ -271,7 +290,7 @@ private
   # Test whether you can successfully cancel editing an individual.
   def edit_individual_cancel
     num_rows = @ie.data_grid("individualResourceGrid").num_rows
-    edit_individual(find_row('ted'), 'Test', 'Test_team', 'testy2', 'testit', 'testit', 'testy3@testit.com', 'testy', 'test', 'Project Admin', 'true')
+    edit_individual(find_row('ted'), 'Test_company', 'Test', 'Test_team', 'testy2', 'testit', 'testit', 'testy3@testit.com', 'testy', 'test', 'Project Admin', 'true')
     @ie.button("individualBtnCancel").click
     assert_equal '', @ie.text_area("individualError").text
     assert_nil @ie.button("individualBtnCancel")
@@ -279,10 +298,12 @@ private
   end
 
   # Edit an individual.
-  def edit_individual(row, project, team, login, password, password_confirmation, email, first_name, last_name, role, enabled, phone_number='5555555555', notification_type=nil)
+  def edit_individual(row, company, project, team, login, password, password_confirmation, email, first_name, last_name, role, enabled, phone_number='5555555555', notification_type=nil)
     @ie.button("individualBtnEdit")[row].click
     @ie.combo_box("individualFieldCompany").open
-    @ie.combo_box("individualFieldCompany").select(:item_renderer => project )
+    @ie.combo_box("individualFieldCompany").select(:item_renderer => company )
+    @ie.combo_box("individualFieldProject").open
+    @ie.combo_box("individualFieldProject").select(:item_renderer => project )
     @ie.combo_box("individualFieldTeam").open
     @ie.combo_box("individualFieldTeam").select(:item_renderer => team )
     @ie.text_area("individualFieldLogin").input(:text => login )
@@ -322,21 +343,22 @@ private
       
   # Test sorting the various columns.
   def sort_columns
-    (0..8).each do |i|
+    (0..9).each do |i|
       @ie.data_grid("individualResourceGrid").header_click(:columnIndex => i.to_s)
       @ie.data_grid("individualResourceGrid").header_click(:columnIndex => i.to_s) # Sort both ways
     end
   end
 
   # Verify all users for project are shown.
-  def project_grid
-    assert_equal Individual.find_all_by_project_id(1, :conditions => "role != 0").length, @ie.data_grid("individualResourceGrid").num_rows
+  def project_grid(count)
+    assert_equal count, @ie.data_grid("individualResourceGrid").num_rows
   end
   
   # Verify that the create panel doesn't show project, nor allow creation of admins.
-  def verify_create
+  def verify_create(hide_project)
     @ie.button("individualBtnCreate").click
     assert !@ie.form_item("individualFormCompany").visible
+    assert_equal hide_project, !@ie.form_item("individualFormProject").visible
     assert_equal 'Project User', @ie.combo_box("individualFieldRole").text
     begin
       @ie.combo_box("individualFieldRole").open
@@ -348,9 +370,10 @@ private
   end
 
   # Verify that the edit panel doesn't show project, nor allow creation of admins.
-  def verify_edit( is_self )
+  def verify_edit(hide_project, is_self)
     @ie.button("individualBtnEdit")[find_row('user')].click
     assert !@ie.form_item("individualFormCompany").visible
+    assert_equal hide_project, !@ie.form_item("individualFormProject").visible
     if is_self
       assert !@ie.form_item("individualFormRole").visible
       assert !@ie.form_item("individualFormEnabled").visible
@@ -384,7 +407,7 @@ private
     (0..@ie.data_grid("individualResourceGrid").num_rows - 1).each do |i|
       row = @ie.data_grid("individualResourceGrid").tabular_data(:start => i, :end => i)
       columns = row.split(',')
-      if columns[2] == login
+      if columns[3] == login
         return i+1;
       end
     end

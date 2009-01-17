@@ -51,11 +51,11 @@ module CompaniesTestHelper
 
   # Verify that the object was deleted.
   def assert_delete_succeeded
-    assert_nil Company.find_by_name('test2')
+    assert_nil Company.find_by_name('Test2_company')
   end
 
   # Verify that the object was not deleted.
   def assert_delete_failed
-    assert Company.find_by_name('test2')
+    assert Company.find_by_name('Test2_company')
   end
 end

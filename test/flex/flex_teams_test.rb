@@ -43,7 +43,7 @@ class FlexTeamsTest < Test::Unit::TestCase
   # Test edit (in one stream for more efficiency).
   def test_edit
     init('admin2')
-    assert_equal Project.count + Team.count(:conditions => ['project_id = ?', projects(:first).id]), @ie.data_grid("projectResourceGrid").num_rows
+    assert_equal 4 + Team.count(:conditions => ['project_id = ?', projects(:first).id]), @ie.data_grid("projectResourceGrid").num_rows
     edit_team_failure
     edit_team_success
     edit_team_cancel
@@ -60,34 +60,34 @@ class FlexTeamsTest < Test::Unit::TestCase
   # Test logging in as a project admin
   def test_project_admin
     init('aaron')
-    assert_equal 1 + Team.count(:conditions => ['project_id = ?', projects(:first).id]), @ie.data_grid("projectResourceGrid").num_rows
-    assert @ie.button("teamBtnAdd")[1].visible
-    assert @ie.button("projectBtnEdit")[2].visible
-    assert @ie.button("projectBtnDelete")[2].visible
+    assert_equal 3 + Team.count(:conditions => ['project_id = ?', projects(:first).id]), @ie.data_grid("projectResourceGrid").num_rows
+    assert !@ie.button("teamBtnAdd")[4].visible
+    assert @ie.button("projectBtnEdit")[4].visible
+    assert @ie.button("projectBtnDelete")[4].visible
   end
 
   # Test logging in as a project user
   def test_project_user
     init('user')
-    assert_equal 1 + Team.count(:conditions => ['project_id = ?', projects(:first).id]), @ie.data_grid("projectResourceGrid").num_rows
-    assert !@ie.button("teamBtnAdd")[1].visible
-    assert !@ie.button("projectBtnEdit")[2].visible
-    assert !@ie.button("projectBtnDelete")[2].visible
+    assert_equal 3 + Team.count(:conditions => ['project_id = ?', projects(:first).id]), @ie.data_grid("projectResourceGrid").num_rows
+    assert !@ie.button("teamBtnAdd")[4].visible
+    assert !@ie.button("projectBtnEdit")[4].visible
+    assert !@ie.button("projectBtnDelete")[4].visible
   end
 
   # Test logging in as a read only user
   def test_read_only
     init('readonly')
-    assert_equal 1 + Team.count(:conditions => ['project_id = ?', projects(:first).id]), @ie.data_grid("projectResourceGrid").num_rows
-    assert !@ie.button("teamBtnAdd")[1].visible
-    assert !@ie.button("projectBtnEdit")[2].visible
-    assert !@ie.button("projectBtnDelete")[2].visible
+    assert_equal 3 + Team.count(:conditions => ['project_id = ?', projects(:first).id]), @ie.data_grid("projectResourceGrid").num_rows
+    assert !@ie.button("teamBtnAdd")[4].visible
+    assert !@ie.button("projectBtnEdit")[4].visible
+    assert !@ie.button("projectBtnDelete")[4].visible
   end
   
   # Test showing the history
   def test_history
     init('admin2')
-    @ie.button("projectBtnEdit")[1].click
+    @ie.button("projectBtnEdit")[4].click
     @ie.button("projectBtnInfo").click
     assert_equal 4, @ie.button_bar("mainNavigation").selectedIndex
     assert_equal 0, @ie.data_grid("changeGrid").num_rows
@@ -98,7 +98,7 @@ private
   # Test whether error handling works for creating a team.
   def create_team_failure
     num_rows = @ie.data_grid("projectResourceGrid").num_rows
-    @ie.button("teamBtnAdd")[1].click
+    @ie.button("teamBtnAdd")[3].click
     
     assert_equal '', @ie.text_area("projectFieldName").text
     assert_equal '', @ie.text_area("projectFieldDescription").text
@@ -119,7 +119,7 @@ private
   # Test whether you can successfully create a team.
   def create_team_success
     num_rows = @ie.data_grid("projectResourceGrid").num_rows
-    @ie.button("teamBtnAdd")[1].click
+    @ie.button("teamBtnAdd")[3].click
     
     assert_equal '', @ie.text_area("projectFieldName").text
     assert_equal '', @ie.text_area("projectFieldDescription").text
@@ -133,9 +133,9 @@ private
     assert_equal '', @ie.text_area("projectFieldName").text
     assert_equal '', @ie.text_area("projectFieldDescription").text
     assert_not_nil @ie.button("projectBtnCancel")
-    assert_equal num_rows + 1, @ie.data_grid("projectResourceGrid").num_rows
-    assert_equal ",zfoo 1,description,,Edit | Delete | Add Team", @ie.data_grid("projectResourceGrid").tabular_data(:start => 3, :end => 3)
     @ie.button("projectBtnCancel").click
+    assert_equal num_rows + 1, @ie.data_grid("projectResourceGrid").num_rows
+    assert_equal ",zfoo 1,description,,Edit | Delete | Add Team", @ie.data_grid("projectResourceGrid").tabular_data(:start => 5, :end => 5)
   end
     
   # Test whether you can successfully cancel creation of a team.
@@ -144,7 +144,7 @@ private
     Project.find(:all).each{|team| team.destroy}
     
     num_rows = @ie.data_grid("projectResourceGrid").num_rows
-    @ie.button("teamBtnAdd")[1].click
+    @ie.button("teamBtnAdd")[3].click
     create_team('foo', 'description')
     @ie.button("projectBtnCancel").click
     assert_equal '', @ie.text_area("projectError").text
@@ -181,7 +181,7 @@ private
     assert_equal '', @ie.text_area("projectError").text
     assert_nil @ie.button("projectBtnCancel")
     assert_equal num_rows, @ie.data_grid("projectResourceGrid").num_rows
-    assert_equal ",foo 1,description,,Edit | Delete | Add Team", @ie.data_grid("projectResourceGrid").tabular_data(:start => 1, :end => 1)
+    assert_equal ",foo 1,description,,Edit | Delete | Add Team", @ie.data_grid("projectResourceGrid").tabular_data(:start => 4, :end => 4)
   end
     
   # Test whether you can successfully cancel editing a team.
@@ -196,7 +196,7 @@ private
 
   # Edit a team.
   def edit_team(name, description)
-    @ie.button("projectBtnEdit")[3].click
+    @ie.button("projectBtnEdit")[4].click
     @ie.text_area("projectFieldDescription").input(:text => description )
     @ie.text_area("projectFieldName").input(:text => name ) # Do name last due to timing issue
   end
@@ -210,7 +210,7 @@ private
   # Test deleting a team.
   def delete_team_cancel
     num_rows = @ie.data_grid("projectResourceGrid").num_rows
-    @ie.button("projectBtnDelete")[2].click
+    @ie.button("projectBtnDelete")[5].click
     @ie.alert("Delete")[0].button("No").click
     assert_equal '', @ie.text_area("projectError").text
     assert_equal num_rows, @ie.data_grid("projectResourceGrid").num_rows
@@ -219,7 +219,7 @@ private
   # Test deleting a team.
   def delete_team
     num_rows = @ie.data_grid("projectResourceGrid").num_rows
-    @ie.button("projectBtnDelete")[2].click
+    @ie.button("projectBtnDelete")[5].click
     @ie.alert("Delete")[0].button("Yes").click
     sleep 1 # Wait for it to take effect.
     assert_equal '', @ie.text_area("projectError").text
@@ -228,7 +228,7 @@ private
     
   # Test sorting the various columns.
   def sort_columns
-    (1..2).each do |i|
+    (1..3).each do |i|
       @ie.data_grid("projectResourceGrid").header_click(:columnIndex => i.to_s)
       @ie.data_grid("projectResourceGrid").header_click(:columnIndex => i.to_s) # Sort both ways
     end
@@ -246,6 +246,7 @@ private
     login(logon, 'testit')
     sleep 3 # Wait to ensure data loaded
     @ie.button_bar("mainNavigation").change(:related_object => "People")
-    @ie.button("projectBtnExpand")[1].click
+    @ie.button("projectBtnExpand")[2].click
+    @ie.button("projectBtnExpand")[3].click
   end
 end

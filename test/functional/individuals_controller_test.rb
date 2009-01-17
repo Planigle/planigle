@@ -56,17 +56,32 @@ class IndividualsControllerTest < Test::Unit::TestCase
     
   # Test getting individuals (based on role).
   def test_index_by_project_admin
-    index_by_role(individuals(:aaron), Individual.find_all_by_project_id(1, :conditions => "role != 0").length)
+    index_by_role(individuals(:project_admin2), Individual.find_all_by_project_id(2, :conditions => "role != 0").length)
+  end
+    
+  # Test getting individuals (based on role).
+  def test_index_by_project_admin_premium
+    index_by_role(individuals(:aaron), Individual.find_all_by_company_id(1, :conditions => "role != 0").length)
   end
     
   # Test getting individuals (based on role).
   def test_index_by_project_user
-    index_by_role(individuals(:user), Individual.find_all_by_project_id(1, :conditions => "role != 0").length)
+    index_by_role(individuals(:user2), Individual.find_all_by_project_id(2, :conditions => "role != 0").length)
+  end
+    
+  # Test getting individuals (based on role).
+  def test_index_by_project_user_premium
+    index_by_role(individuals(:user), Individual.find_all_by_company_id(1, :conditions => "role != 0").length)
   end
     
   # Test getting individuals (based on role).
   def test_index_by_read_only_user
-    index_by_role(individuals(:readonly), Individual.find_all_by_project_id(1, :conditions => "role != 0").length)
+    index_by_role(individuals(:ro2), Individual.find_all_by_project_id(4, :conditions => "role != 0").length)
+  end
+
+  # Test getting individuals (based on role).
+  def test_index_by_read_only_user_premium
+    index_by_role(individuals(:readonly), Individual.find_all_by_company_id(1, :conditions => "role != 0").length)
   end
 
   # Test getting individuals (based on role).
@@ -81,8 +96,23 @@ class IndividualsControllerTest < Test::Unit::TestCase
 
   # Test showing an individual for another project.
   def test_show_wrong_project
+    login_as(individuals(:project_admin2))
+    get :show, :id => 10, :format => 'xml'
+    assert_response 401
+  end
+
+  # Test showing an individual for another project.
+  def test_show_wrong_project_premium
     login_as(individuals(:aaron))
-    get :show, :id => 1, :format => 'xml'
+    get :show, :id => 9, :format => 'xml'
+    assert_response :success
+    assert_select "individual"
+  end
+
+  # Test showing an individual for another company.
+  def test_show_wrong_company
+    login_as(individuals(:aaron))
+    get :show, :id => 7, :format => 'xml'
     assert_response 401
   end
 
@@ -105,7 +135,7 @@ class IndividualsControllerTest < Test::Unit::TestCase
     
   # Test creating individuals (based on role).
   def test_create_by_read_only_user
-    create_by_role_unsuccessful(individuals(:readonly))
+    create_by_role_unsuccessful(individuals(:ro2))
   end
 
   # Test that a project admin can't create an admin.
@@ -122,10 +152,34 @@ class IndividualsControllerTest < Test::Unit::TestCase
 
   # Test creating an individual for another project.
   def test_create_wrong_project
+    login_as(individuals(:project_admin2))
+    num = resource_count
+    params = create_success_parameters.merge( :format => 'xml' )
+    params[:record] = params[:record].merge( :project_id => '4' )
+    post :create, params
+    assert_response 401
+    assert_equal num, resource_count
+    assert_select 'errors'
+  end
+
+  # Test creating an individual for another project.
+  def test_create_wrong_project_premium
     login_as(individuals(:aaron))
     num = resource_count
     params = create_success_parameters.merge( :format => 'xml' )
-    params[:record] = params[:record].merge( :project_id => '2' )
+    params[:record] = params[:record].merge( :project_id => '3' )
+    post :create, params
+    assert_response 201
+    assert_equal num + 1, resource_count
+    assert_create_succeeded
+  end
+
+  # Test creating an individual for another company.
+  def test_create_wrong_company
+    login_as(individuals(:aaron))
+    num = resource_count
+    params = create_success_parameters.merge( :format => 'xml' )
+    params[:record] = params[:record].merge( :company_id =>'2', :project_id => '2' )
     post :create, params
     assert_response 401
     assert_equal num, resource_count
@@ -197,6 +251,32 @@ class IndividualsControllerTest < Test::Unit::TestCase
 
   # Test updating an individual for another project.
   def test_update_wrong_project
+    login_as(individuals(:project_admin2))
+    put :update, {:id => 10, :format => 'xml' }.merge(update_success_parameters)
+    assert_response 401
+    assert_change_failed
+    assert_select 'errors'
+  end
+
+  # Test updating an individual for another project.
+  def test_update_wrong_project_premium
+    login_as(individuals(:aaron))
+    put :update, {:id => 9, :format => 'xml' }.merge(update_success_parameters)
+    assert_response :success
+    assert_update_succeeded
+  end
+
+  # Test updating an individual for another company.
+  def test_update_wrong_company
+    login_as(individuals(:aaron))
+    put :update, {:id => 7, :format => 'xml' }.merge(update_success_parameters)
+    assert_response 401
+    assert_change_failed
+    assert_select 'errors'
+  end
+
+  # Test updating an individual with no company.
+  def test_update_no_company
     login_as(individuals(:aaron))
     put :update, {:id => 1, :format => 'xml' }.merge(update_success_parameters)
     assert_response 401
@@ -285,10 +365,36 @@ class IndividualsControllerTest < Test::Unit::TestCase
   
   # Delete someone from a different project.
   def test_delete_wrong_project
+    login_as(individuals(:project_admin2))
+    delete :destroy, :id => 10, :format => 'xml'
+    assert_response 401
+    assert Individual.find_by_login('quentin')
+    assert_select "errors"
+  end
+  
+  # Delete someone from a different project.
+  def test_delete_wrong_project_premium
+    login_as(individuals(:aaron))
+    delete :destroy, :id => 9, :format => 'xml'
+    assert_response :success
+    assert_nil Individual.find_by_login('user3')
+  end
+  
+  # Delete someone from a different company.
+  def test_delete_wrong_company
+    login_as(individuals(:aaron))
+    delete :destroy, :id => 7, :format => 'xml'
+    assert_response 401
+    assert Individual.find_by_login('user2')
+    assert_select "errors"
+  end
+  
+  # Delete someone from no company.
+  def test_delete_no_company
     login_as(individuals(:aaron))
     delete :destroy, :id => 1, :format => 'xml'
     assert_response 401
-    assert Individual.find_by_login('quentin')
+    assert Individual.find_by_login('ro2')
     assert_select "errors"
   end
 
