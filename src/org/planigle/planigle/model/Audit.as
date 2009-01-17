@@ -1,11 +1,13 @@
 package org.planigle.planigle.model
 {
+	import mx.binding.utils.ChangeWatcher;
 	import org.planigle.planigle.view.ViewHelper;
 	
 	[RemoteClass(alias='Audit')]
 	[Bindable]
 	public class Audit
 	{
+		ChangeWatcher.watch(IndividualFactory.getInstance(), "currentIndividual", Audit.clearAudits);
 		public static var audits:Array;
 		public var id:int;
 		public var projectId:String;
@@ -16,6 +18,12 @@ package org.planigle.planigle.model
 		public var action:String;
 		public var changes:Object;
 		public var createdAt:Date;
+
+		// Clear any audits.
+		public static function clearAudits(event:Event):void
+		{
+			audits = new Array();
+		}
 		
 		// Answer the name of the object changed.
 		public function get name():String
