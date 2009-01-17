@@ -52,40 +52,6 @@ class CompaniesController < ResourceController
     end
   end
 
-  # PUT /companies/1
-  # PUT /companies/1.xml
-  def update
-    if params[:project]
-      respond_to do |format|
-        @record = get_record
-        @project = @record.projects[0]
-        if (authorized_for_update?(@record) && authorized_for_update?(@project))
-          begin
-            @record.transaction do
-              update_record
-              update_project
-              if save_record && @project.save
-                format.xml { render :xml => @record }
-                format.amf { render :amf => @record }
-              else
-                raise ActiveRecord::RecordNotSaved
-              end
-            end
-          rescue
-            format.xml {render :xml => merge_errors(@record, @project), :status => :unprocessable_entity}
-            format.amf { render :amf => @record.errors.full_messages.concat(@project.errors.full_messages) }
-          end
-        else
-          unauthorized
-        end
-      end
-    else
-      super
-    end
-  rescue ActiveRecord::RecordNotFound
-    head 404
-  end
-
 protected
 
   # Merge the errors from the company, project and individal on signup.

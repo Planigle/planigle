@@ -30,8 +30,8 @@ class SessionsControllerTest < ActionController::TestCase
     assert_select 'release', Release.find_all_by_project_id(1).length
     assert_select 'iteration', Iteration.find_all_by_project_id(1).length
     assert_select 'story', Story.find_all_by_project_id(1).length
-    assert_select 'project', 1
-    assert_select 'individual', Individual.find_all_by_project_id(1, :conditions => "role != 0").length
+    assert_select 'project', 2
+    assert_select 'individual', Individual.find_all_by_company_id(1, :conditions => "role != 0").length
   end
 
   # Test failure to log in.

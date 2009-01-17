@@ -24,10 +24,21 @@ class Company < ActiveRecord::Base
   
   # Override to_xml to include projects.
   def to_xml(options = {})
-    if !options[:include]
-      options[:include] = [:projects]
+    if !options[:procs]
+      proc = Proc.new {|opt| opt[:builder]<< filtered_projects.to_xml(:skip_instruct => true)}
+      options[:procs] = [proc]
     end
     super(options)
+  end
+  
+  # If premium, answer all projects; if not, answer just my project
+  def filtered_projects
+    user = Thread.current[:user]
+    if !user || user.role == Individual::Admin || user.is_premium
+      projects
+    else
+      [user.project]
+    end
   end
 
   # Only admins can create projects.

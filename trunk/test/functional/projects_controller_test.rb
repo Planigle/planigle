@@ -33,7 +33,7 @@ class ProjectsControllerTest < Test::Unit::TestCase
     get :index, :format => 'xml'
     assert_response :success
     assert_select "projects" do
-      assert_select "project", 1 do
+      assert_select "project", 2 do
         assert_select "teams" do
           assert_select "team", 2
         end
@@ -48,17 +48,32 @@ class ProjectsControllerTest < Test::Unit::TestCase
     
   # Test getting projects (based on role).
   def test_index_by_project_admin
-    index_by_role(individuals(:aaron), 1)
+    index_by_role(individuals(:project_admin2), 1)
+  end
+    
+  # Test getting projects (based on role).
+  def test_index_by_project_admin_premium
+    index_by_role(individuals(:aaron), 2)
   end
     
   # Test getting projects (based on role).
   def test_index_by_project_user
-    index_by_role(individuals(:user), 1)
+    index_by_role(individuals(:user2), 1)
+  end
+    
+  # Test getting projects (based on role).
+  def test_index_by_project_user_premium
+    index_by_role(individuals(:user), 2)
   end
     
   # Test getting projects (based on role).
   def test_index_by_read_only_user
-    index_by_role(individuals(:readonly), 1)
+    index_by_role(individuals(:ro2), 1)
+  end
+    
+  # Test getting projects (based on role).
+  def test_index_by_read_only_user_premium
+    index_by_role(individuals(:readonly), 2)
   end
 
   # Test getting projects (based on role).
@@ -73,6 +88,21 @@ class ProjectsControllerTest < Test::Unit::TestCase
 
   # Test showing another project.
   def test_show_wrong_project
+    login_as(individuals(:project_admin2))
+    get :show, :id => 4, :format => 'xml'
+    assert_response 401
+  end
+
+  # Test showing another project.
+  def test_show_wrong_project_premium
+    login_as(individuals(:aaron))
+    get :show, :id => 3, :format => 'xml'
+    assert_response :success
+    assert_select "project"
+  end
+
+  # Test showing another project.
+  def test_show_wrong_company
     login_as(individuals(:aaron))
     get :show, :id => 2, :format => 'xml'
     assert_response 401
@@ -80,7 +110,12 @@ class ProjectsControllerTest < Test::Unit::TestCase
     
   # Test creating projects (based on role).
   def test_create_by_project_admin
-    create_by_role_unsuccessful(individuals(:aaron))
+    create_by_role_unsuccessful(individuals(:project_admin2))
+  end
+    
+  # Test creating projects (based on role).
+  def test_create_by_project_admin_premium
+    create_by_role_successful(individuals(:aaron))
   end
     
   # Test creating projects (based on role).
@@ -98,7 +133,7 @@ class ProjectsControllerTest < Test::Unit::TestCase
     login_as(user)
     num = resource_count
     post :create, create_success_parameters.merge( :format => 'xml' )
-    assert_response :success
+    assert_response 201
     assert_equal num + 1, resource_count
     assert_create_succeeded
   end    
@@ -108,6 +143,18 @@ class ProjectsControllerTest < Test::Unit::TestCase
     login_as(user)
     num = resource_count
     post :create, create_success_parameters.merge( :format => 'xml' )
+    assert_response 401
+    assert_equal num, resource_count
+    assert_select "errors"
+  end
+  
+  # Create unsuccessfully for the wrong company.
+  def create_wrong_company
+    login_as(individuals(:aaron))
+    num = resource_count
+    params = create_success_parameters.merge( :format => 'xml' )
+    params[:record].merge( :company_id => 2 )
+    post :create, params
     assert_response 401
     assert_equal num, resource_count
     assert_select "errors"
@@ -130,6 +177,23 @@ class ProjectsControllerTest < Test::Unit::TestCase
     
   # Test updating another project.
   def test_update_wrong_project
+    login_as(individuals(:project_admin2))
+    put :update, {:id => 4, :format => 'xml'}.merge(update_success_parameters)
+    assert_response 401
+    assert_change_failed
+    assert_select 'errors'
+  end
+    
+  # Test updating another project.
+  def test_update_wrong_project_premium
+    login_as(individuals(:aaron))
+    put :update, {:id => 3, :format => 'xml'}.merge(update_success_parameters)
+    assert_response :success
+    assert_update_succeeded
+  end
+    
+  # Test updating another project.
+  def test_update_wrong_company
     login_as(individuals(:aaron))
     put :update, {:id => 2, :format => 'xml'}.merge(update_success_parameters)
     assert_response 401
@@ -206,7 +270,12 @@ class ProjectsControllerTest < Test::Unit::TestCase
 
   # Test deleting projects (based on role).
   def test_delete_by_project_admin
-    delete_by_role_unsuccessful(individuals(:aaron))
+    delete_by_role_unsuccessful(individuals(:project_admin2))
+  end
+
+  # Test deleting projects (based on role).
+  def test_delete_by_project_admin_premium
+    delete_by_role_successful(individuals(:aaron))
   end
     
   # Test deleting projects (based on role).
@@ -231,6 +300,15 @@ class ProjectsControllerTest < Test::Unit::TestCase
   def delete_by_role_unsuccessful( user )
     login_as(user)
     delete :destroy, :id => 1, :format => 'xml'
+    assert_response 401
+    assert Project.find_by_name('Test')
+    assert_select "errors"
+  end
+      
+  # Delete unsuccessfully based on role.
+  def delete_wrong_company
+    login_as(individuals(:aaron))
+    delete :destroy, :id => 2, :format => 'xml'
     assert_response 401
     assert Project.find_by_name('Test')
     assert_select "errors"

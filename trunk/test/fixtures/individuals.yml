@@ -103,3 +103,51 @@ user2:
   activated_at: <%= 5.days.ago.to_s :db %> 
   notification_type: 3
   phone_number: '5555555555'
+  
+project_admin2:
+  id: 8
+  role: 1
+  company_id: 2
+  project_id: 2
+  login: pa2
+  first_name: project
+  last_name: admin
+  email: pa@example.com
+  salt: salt
+  crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
+  activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9c 
+  activated_at: <%= 5.days.ago.to_s :db %> 
+  notification_type: 3
+  phone_number: '5555555555'
+
+user3:
+  id: 9
+  role: 2
+  company_id: 1
+  project_id: 3
+  login: user3
+  first_name: user3
+  last_name: williams
+  email: user3@example.com
+  salt: salt
+  crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
+  activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9c 
+  activated_at: <%= 5.days.ago.to_s :db %> 
+  notification_type: 3
+  phone_number: '5555555555'
+
+ro2:
+  id: 10
+  role: 3
+  company_id: 2
+  project_id: 4
+  login: ro2
+  first_name: ro2
+  last_name: williams
+  email: ro2@example.com
+  salt: salt
+  crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
+  activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9c 
+  activated_at: <%= 5.days.ago.to_s :db %> 
+  notification_type: 3
+  phone_number: '5555555555'

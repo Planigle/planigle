@@ -87,7 +87,7 @@ module RubyAMF
       :ruby => 'Company',
       :type => 'active_record',
       :attributes => ["id", "name"],
-      :associations => ["projects"])
+      :methods => ["filtered_projects"])
 
     ClassMappings.register(
       :actionscript => 'Project',

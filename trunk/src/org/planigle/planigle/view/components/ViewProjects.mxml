@@ -23,6 +23,10 @@
 		import org.planigle.planigle.view.ViewHelper;
 		import org.planigle.planigle.events.AuditChangedEvent;
 		
+		private static const COMPANY:int = 0;
+		private static const PROJECT:int = 1;
+		private static const TEAM:int = 2;
+		
 		[Bindable]
 		private var _error:String;
 
@@ -59,8 +63,14 @@
 				if (company.isExpanded())
 				{
 					for each (var project:Project in company.projects)
-						for each (var team:Team in project.teams)
-							newCompanies.addItem(team);
+					{
+						newCompanies.addItem(project);
+						if (project.isExpanded())
+						{
+							for each (var team:Team in project.teams)
+								newCompanies.addItem(team);
+						}
+					}
 				}
 			}
 			companies = newCompanies;
@@ -79,7 +89,6 @@
 		{
 			clearErrorMessage();
 			currentState = 'Change';
-			projectFieldCompany.text = '';
 			projectFieldName.text = '';
 			projectFieldDescription.text = '';
 			projectFieldPremiumExpiry.selectedDate = new Date(new Date().time + 30*24*60*60*1000);
@@ -90,14 +99,40 @@
 
 		private var currentItem:Object; // Remember in case selection changes while form is open.
 
+		// Prepare the fields to create / edit a company.
+		private function prepareForCompany():void
+		{
+			projectFieldName.setFocus();
+			projectFieldName.setSelection(0, projectFieldName.text.length );
+			projectNameForm.label = "Company Name";
+			projectFormDescription.visible = false;
+			projectFormDescription.height = 0;
+			projectFormSurveyMode.visible = false;
+			projectFormSurveyMode.height = 0;
+			projectFormSurveyUrl.visible = false;
+			projectFormSurveyUrl.height = 0;
+			projectFormPremiumExpiry.visible = false;
+			projectFormPremiumExpiry.height = 0;
+			projectFormPremiumLimit.visible = false;
+			projectFormPremiumLimit.height = 0;
+		}
+
+		// Show user a form to create a resource.
+		public function showCreateCompany(event:Event):void
+		{
+			currentItem = projectResourceGrid.selectedItem;
+			showCreate(event);
+			prepareForCompany();
+		}
+
 		// Prepare the fields to create / edit a project.
 		private function prepareForProject():void
 		{
-			projectFieldCompany.setFocus();
-			projectFieldCompany.setSelection(0, projectFieldCompany.text.length );
-			projectFormCompany.visible = true;
-			projectFormCompany.height = 22;
+			projectFieldName.setFocus();
+			projectFieldName.setSelection(0, projectFieldName.text.length );
 			projectNameForm.label = "Project Name";
+			projectFormDescription.visible = true;
+			projectFormDescription.height = 64;
 			projectFormSurveyMode.visible = true;
 			projectFormSurveyMode.height = 22;
 			projectFormSurveyUrl.visible = true;
@@ -119,22 +154,27 @@
 		}
 
 		// Show user a form to create a resource.
-		private function showCreateProject(event:Event):void
+		public function showCreateProjectOrTeam(event:Event):void
 		{
-			currentItem = null;
+			currentItem = projectResourceGrid.selectedItem;
 			showCreate(event);
-			prepareForProject();
-			projectFieldSurveyMode.selectedIndex = 1;
-			projectLabelSurveyUrl.text = "Will be assigned on creation";
+			if (currentItem.isCompany())
+			{
+				prepareForProject()
+				projectFieldSurveyMode.selectedIndex = 1;
+				projectLabelSurveyUrl.text = "Will be assigned on creation";
+			}
+			else
+				prepareForTeam();
 		}
 
 		// Prepare the fields to create / edit a team.
 		private function prepareForTeam():void
 		{
-			projectFormCompany.visible = false;
-			projectFormCompany.height = 0;
 			projectFieldName.setFocus();
 			projectFieldName.setSelection(0, projectFieldName.text.length );
+			projectFormDescription.visible = true;
+			projectFormDescription.height = 64;
 			projectNameForm.label = "Team Name";
 			projectFormSurveyMode.visible = false;
 			projectFormSurveyMode.height = 0;
@@ -146,42 +186,37 @@
 			projectFormPremiumLimit.height = 0;
 		}
 
-		// Show user a form to create a resource.
-		public function showCreateTeam(event:Event):void
-		{
-			currentItem = projectResourceGrid.selectedItem;
-			showCreate(event);
-			prepareForTeam();
-		}
-
 		// Show user a form to update a resource.
 		public function showUpdate(event:Event) : void
 		{
 			currentItem = projectResourceGrid.selectedItem;
 			if (currentItem)
 			{
-				var editableItem:Object = currentItem.isCompany() ? currentItem.projects[0] : currentItem;
 				clearErrorMessage();
 				currentState = 'Change';
-				projectFieldName.text = editableItem.name;
-				projectFieldDescription.text = editableItem.description;
+				projectFieldName.text = currentItem.name;
 				if (currentItem.isCompany())
+					prepareForCompany();
+				else if (currentItem.isTeam())
+				{
+					prepareForTeam();
+					projectFieldDescription.text = currentItem.description;
+				}
+				else
 				{
 					prepareForProject();
-					projectFieldCompany.text = currentItem.name;
-					projectFieldSurveyMode.selectedIndex = editableItem.surveyMode;
+					projectFieldDescription.text = currentItem.description;
+					projectFieldSurveyMode.selectedIndex = currentItem.surveyMode;
 					var base:String = ExternalInterface.call("BrowserHistory.getURL");
 					for (var index:int = base.indexOf( "/" ); base.indexOf( "/", index + 1 ) >= 0; )
 						index = base.indexOf( "/", index + 1 ); // Get the last /
 					base = base.substr( 0, index );
-					projectLabelSurveyUrl.text = base + "/survey.html?projectid=" + editableItem.id + "&surveykey=" + editableItem.surveyKey;
-					projectFieldPremiumExpiry.selectedDate = editableItem.premiumExpiry;
-					projectFieldPremiumLimit.text = editableItem.premiumLimit;
+					projectLabelSurveyUrl.text = base + "/survey.html?projectid=" + currentItem.id + "&surveykey=" + currentItem.surveyKey;
+					projectFieldPremiumExpiry.selectedDate = currentItem.premiumExpiry;
+					projectFieldPremiumLimit.text = currentItem.premiumLimit;
 				}
-				else
-					prepareForTeam();
 				projectBtnChange.label = 'Update';
-				projectBtnInfo.visible = true;
+				projectBtnInfo.visible = !currentItem.isCompany();
 			}
 		}
 
@@ -200,22 +235,18 @@
 		}
 		
 		// Create parameters for the user's request to the server.
-		private function getParams(isCompany:Boolean) : Object
+		private function getParams(type:int) : Object
 		{
 			var params:Object = new Object();
-			if (isCompany)
-			{
-				params['record[name]'] = projectFieldCompany.text;
-				params['project[name]'] = projectFieldName.text;
-				params['project[description]'] = projectFieldDescription.text;
-				params['project[survey_mode]'] = projectFieldSurveyMode.selectedItem.value;
-				params['project[premium_expiry]'] = projectFieldPremiumExpiry.selectedDate;
-				params['project[premium_limit]'] = projectFieldPremiumLimit.text;
-			}
-			else
-			{
-				params['record[name]'] = projectFieldName.text;
+			params['record[name]'] = projectFieldName.text;
+			if (type == TEAM)
 				params['record[description]'] = projectFieldDescription.text;
+			else if (type == PROJECT)
+			{
+				params['record[description]'] = projectFieldDescription.text;
+				params['record[survey_mode]'] = projectFieldSurveyMode.selectedItem.value;
+				params['record[premium_expiry]'] = projectFieldPremiumExpiry.selectedDate;
+				params['record[premium_limit]'] = projectFieldPremiumLimit.text;
 			}
 			params['random'] = Math.random(); // Prevents caching
 			return params;
@@ -233,16 +264,22 @@
 		// Tell the server to create a resource.
 		private function createResource(event:Event) : void 
 		{
-			if (currentItem)
-				currentItem.projects[0].createTeam(getParams(false), handleCreateSuccess, handleFailure);
+			if (currentItem && currentItem.isCompany())
+			{
+				var params:Object = getParams(PROJECT);
+				params['record[company_id]'] = currentItem.id;
+				currentItem.createProject(params, handleCreateSuccess, handleFailure);
+			}
+			else if (currentItem)
+				currentItem.createTeam(getParams(TEAM), handleCreateSuccess, handleFailure);
 			else
-				CompanyFactory.getInstance().createCompany(getParams(true), handleCreateSuccess, handleFailure);
+				CompanyFactory.getInstance().createCompany(getParams(COMPANY), handleCreateSuccess, handleFailure);
 		}
 		
 		// Tell the server to update a resource.
 		private function updateResource(event:Event) : void
 		{
-			currentItem.update(getParams(currentItem.isCompany()), currentItem.isCompany() ? handleUpdateCompanySuccess : handleSuccess, handleFailure);
+			currentItem.update(getParams(currentItem.isCompany() ? COMPANY : (currentItem.isTeam() ? TEAM : PROJECT)), handleSuccess, handleFailure);
 		}
 
 		// Tell the server to delete a resource.
@@ -259,19 +296,12 @@
 			showCreate(null);
 			if (currentItem)
 			{
-				setSuccessMessage("Team was successfully created.");
+				setSuccessMessage( (currentItem.isCompany() ? "Project" : "Team") + " was successfully created.");
 				currentItem.expand();
 				setCompanies(null);
 			}
 			else
-				setSuccessMessage("Project was successfully created.");
-		}
-
-		// Handle a successful project change.
-		private function handleUpdateCompanySuccess():void
-		{
-			setCompanies(null);
-			handleSuccess();
+				setSuccessMessage("Company was successfully created.");
 		}
 
 		// Handle a successful change.
@@ -298,7 +328,7 @@
 		// Expand / collapse a project.
 		public function expand(event:Event) : void
 		{
-			if (projectResourceGrid.selectedItem.isCompany())
+			if (!projectResourceGrid.selectedItem.isTeam())
 				{
 				projectResourceGrid.selectedItem.toggleExpanded();
 				setCompanies(event);
@@ -326,22 +356,23 @@
 		}
 
 		// Answer whether to show (based on whether the item is a project and the user has rights).
-		public function shouldShowDeleteProject(data:Object):Boolean
+		public function shouldShowDelete(data:Object):Boolean
 		{
 			return (data.isCompany() && factory.currentIndividual.isAdmin()) ||
-				(!data.isCompany() && factory.currentIndividual.isAtLeastProjectAdmin());
+				(data.isProject() && factory.currentIndividual.isAtLeastProjectAdmin() && factory.currentIndividual.isPremium()) ||
+				(data.isTeam() && factory.currentIndividual.isAtLeastProjectAdmin());
 		}
 
 		// Answer whether to show (based on whether the item is a project and the user has rights).
-		public function shouldShowAddTeam(data:Object):Boolean
+		public function shouldShowAdd(data:Object):Boolean
 		{
-			return data.isCompany() && factory.currentIndividual.isAtLeastProjectAdmin();
+			return !data.isTeam() && factory.currentIndividual.isAtLeastProjectAdmin() && (factory.currentIndividual.isPremium() || !data.isCompany());
 		}
 		
 		// Show the history for the current object.
 		public function showHistory(event:Event) : void
 		{
-			new AuditChangedEvent(null, currentItem.isCompany() ? 'Project' : 'Team', null, null, currentItem.isCompany() ? String(currentItem.projects[0].id) : String(currentItem.id)).dispatch();
+			new AuditChangedEvent(null, currentItem.isTeam() ? 'Team' : 'Project', null, null, String(currentItem.id)).dispatch();
 			viewModelLocator.selectedTab = viewModelLocator.changes;
 		}
 		]]>
@@ -356,13 +387,10 @@
 						<mx:HBox>
 							<mx:VBox>
 								<mx:Form id="projectChangeForm" defaultButton="{projectBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
-									<mx:FormItem id="projectFormCompany" label='Company Name' required="true">
-										<mx:TextInput id='projectFieldCompany' maxChars="40" text='' width="350"/>
-									</mx:FormItem>
 									<mx:FormItem id="projectNameForm" label='Name' required="true">
 										<mx:TextInput id='projectFieldName' maxChars="40" text='' width="350"/>
 									</mx:FormItem>
-									<mx:FormItem label='Description'>
+									<mx:FormItem id="projectFormDescription" label='Description'>
 										<component:HTMLTextArea id='projectFieldDescription'/>
 									</mx:FormItem>
 								</mx:Form>
@@ -423,7 +451,7 @@
 		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="8" verticalAlign="middle" id="projectHbox1" paddingTop="5" paddingLeft="5" paddingRight="5">
 			<mx:Label text="Projects" fontWeight="bold" textDecoration="underline"/>
 			<mx:Text id="projectError" styleName="error" htmlText="{_error}" width="100%"/>
-			<mx:Button icon="{parentApplication.imgAdd}" toolTip="Create" id="projectBtnCreate" click="showCreateProject(event);" visible="{factory.currentIndividual.isAdmin()}"/>
+			<mx:Button icon="{parentApplication.imgAdd}" toolTip="Create" id="projectBtnCreate" click="showCreateCompany(event);" visible="{factory.currentIndividual.isAdmin()}"/>
 		</mx:HBox>
 		<local:ColoredBackgroundDataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="projectResourceGrid" dataProvider="{companies}" rowCount="{companies.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)" itemClick="groupSelected(event)" rowColorFunction="rowColor" variableRowHeight="true">
 			<local:columns>
@@ -431,7 +459,7 @@
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
-								<mx:LinkButton width="16" id="projectBtnExpand" icon="{outerDocument.expandIcon(data)}" click="outerDocument.expand(event);"/>		 	
+								<mx:LinkButton paddingLeft="{data.indent}" width="16" id="projectBtnExpand" icon="{outerDocument.expandIcon(data)}" click="outerDocument.expand(event);"/>		 	
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>
@@ -439,7 +467,7 @@
 				<mx:DataGridColumn headerText="Name">
 					<mx:itemRenderer> 
 						<mx:Component>
-							<mx:Text paddingLeft="{data.indent}" text="{data.displayName}" selectable="false"/>
+							<mx:Text paddingLeft="{data.indent}" text="{data.name}" selectable="false"/>
 						</mx:Component>
 					</mx:itemRenderer>
 				</mx:DataGridColumn>
@@ -450,8 +478,8 @@
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
 								<mx:LinkButton id="projectBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
-								<mx:LinkButton id="projectBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.shouldShowDeleteProject(data)}"/>
-								<mx:LinkButton id="teamBtnAdd" icon="{parentApplication.imgAdd}" toolTip="Add Team" click="outerDocument.showCreateTeam(event);" visible="{outerDocument.shouldShowAddTeam(data)}"/>
+								<mx:LinkButton id="projectBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.shouldShowDelete(data)}"/>
+								<mx:LinkButton id="teamBtnAdd" icon="{parentApplication.imgAdd}" toolTip="Add Team" click="outerDocument.showCreateProjectOrTeam(event);" visible="{outerDocument.shouldShowAdd(data)}"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>

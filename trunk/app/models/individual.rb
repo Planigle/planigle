@@ -110,7 +110,11 @@ class Individual < ActiveRecord::Base
   # Answer the records for a particular user.
   def self.get_records(current_user)
     if current_user.role >= Individual::ProjectAdmin
-      find(:all, :conditions => ["project_id = ? and role in (1,2,3)", current_user.project_id], :order => 'first_name, last_name')
+      if current_user.is_premium
+        find(:all, :conditions => ["company_id = ? and role in (1,2,3)", current_user.company_id], :order => 'first_name, last_name')
+      else
+        find(:all, :conditions => ["project_id = ? and role in (1,2,3)", current_user.project_id], :order => 'first_name, last_name')
+      end
     else
       find(:all, :order => 'first_name, last_name')
     end
@@ -120,8 +124,8 @@ class Individual < ActiveRecord::Base
   def authorized_for_create?(current_user)
     if current_user.role <= Individual::Admin
       true
-    elsif current_user.role <= Individual::ProjectAdmin && current_user.project_id == project_id && role != Individual::Admin
-      true
+    elsif current_user.role <= Individual::ProjectAdmin
+      (current_user.project_id == project_id || (current_user.is_premium && current_user.company_id == company_id)) && role != Individual::Admin
     else
       false
     end
@@ -131,7 +135,7 @@ class Individual < ActiveRecord::Base
   def authorized_for_read?(current_user)
     case current_user.role
       when Individual::Admin then true
-      else current_user.project_id == project_id && role != Individual::Admin
+      else (current_user.project_id == project_id || (current_user.is_premium && current_user.company_id == company_id)) && role != Individual::Admin
     end
   end
 
@@ -139,7 +143,7 @@ class Individual < ActiveRecord::Base
   def authorized_for_update?(current_user)
     case current_user.role
       when Individual::Admin then true
-      when Individual::ProjectAdmin then current_user.project_id == project_id && role != Individual::Admin
+      when Individual::ProjectAdmin then (current_user.project_id == project_id || (current_user.is_premium && current_user.company_id == company_id)) && role != Individual::Admin
       when Individual::ProjectUser then current_user.id == id
       else false
     end
@@ -149,7 +153,7 @@ class Individual < ActiveRecord::Base
   def authorized_for_destroy?(current_user)
     case current_user.role
       when Individual::Admin then id != current_user.id
-      when Individual::ProjectAdmin then id != current_user.id && current_user.project_id == project_id && role != Individual::Admin
+      when Individual::ProjectAdmin then id != current_user.id && (current_user.project_id == project_id || (current_user.is_premium && current_user.company_id == company_id)) && role != Individual::Admin
       else false
     end
   end

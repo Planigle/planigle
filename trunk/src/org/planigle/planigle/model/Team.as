@@ -1,7 +1,8 @@
 package org.planigle.planigle.model
 {
-	import mx.utils.ObjectUtil;
 	import mx.collections.ArrayCollection;
+	import mx.utils.ObjectUtil;
+	
 	import org.planigle.planigle.commands.DeleteTeamCommand;
 	import org.planigle.planigle.commands.UpdateTeamCommand;
 
@@ -27,7 +28,7 @@ package org.planigle.planigle.model
 		// Answer how much to indent this kind of item.
 		public function get indent():int
 		{
-			return 25;
+			return 45;
 		}
 
 		// Set the indent (currently ignored; used to prevent binding issue).
@@ -90,17 +91,6 @@ package org.planigle.planigle.model
 			CompanyFactory.getInstance().updateCompanies(companies);
 		}
 
-		// Answer my display name.
-		public function get displayName():String
-		{
-			return name;
-		}
-
-		// Set the display name (currently ignored; used to prevent binding issue).
-		public function set displayName(displayName:String):void
-		{
-		}
-
 		//  No, I'm not a company.
 		public function isCompany():Boolean
 		{
@@ -113,10 +103,22 @@ package org.planigle.planigle.model
 			return false;
 		}
 
+		//  Yes, I'm a team.
+		public function isTeam():Boolean
+		{
+			return true;
+		}
+
 		//  No, I'm not an individual.
 		public function isIndividual():Boolean
 		{
 			return false;
+		}
+		
+		// Answer my company.
+		public function get company():Company
+		{
+			return project ? project.company : null;
 		}
 
 		// Answer a label for my expand button.

@@ -94,7 +94,11 @@ class Project < ActiveRecord::Base
   # Answer the records for a particular user.
   def self.get_records(current_user)
     if current_user.role >= Individual::ProjectAdmin
-      Project.find(:all, :include => [:story_attributes, :teams], :conditions => ["projects.id = ?", current_user.project_id])
+      if (current_user.is_premium)
+        Project.find(:all, :include => [:story_attributes, :teams], :conditions => ["projects.company_id = ?", current_user.company_id])
+      else
+        Project.find(:all, :include => [:story_attributes, :teams], :conditions => ["projects.id = ?", current_user.project_id])
+      end
     else
       Project.find(:all, :include => [:story_attributes, :teams], :order => 'projects.name')
     end
@@ -102,18 +106,14 @@ class Project < ActiveRecord::Base
 
   # Only admins can create projects.
   def authorized_for_create?(current_user)
-    if current_user.role <= Individual::Admin
-      true
-    else
-      false
-    end
+    current_user.role <= Individual::Admin || (current_user.role <= Individual::ProjectAdmin && current_user.is_premium && current_user.company_id == company_id)
   end
 
   # Answer whether the user is authorized to see me.
   def authorized_for_read?(current_user)
     case current_user.role
       when Individual::Admin then true
-      else current_user.project_id == id
+      else current_user.project_id == id || (current_user.is_premium && current_user.company_id == company_id)
     end
   end
 
@@ -121,14 +121,18 @@ class Project < ActiveRecord::Base
   def authorized_for_update?(current_user)    
     case current_user.role
       when Individual::Admin then true
-      when Individual::ProjectAdmin then current_user.project_id == id
+      when Individual::ProjectAdmin then current_user.project_id == id || (current_user.is_premium && current_user.company_id == company_id)
       else false
     end
   end
 
   # Answer whether the user is authorized for delete.
   def authorized_for_destroy?(current_user)
-    current_user.role <= Individual::Admin
+    case current_user.role
+      when Individual::Admin then true
+      when Individual::ProjectAdmin then current_user.is_premium && current_user.company_id == company_id
+      else false
+    end
   end
 
 protected

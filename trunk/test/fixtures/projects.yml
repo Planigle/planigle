@@ -17,3 +17,22 @@ second:
   survey_mode: 0
   premium_expiry: <%= (Time.now - 30*24*60*60).to_s :db %>
   premium_limit: 100
+
+third:
+  id: 3
+  company_id: 1
+  name: Test3
+  survey_key: 3
+  survey_mode: 1
+  premium_expiry: <%= (Time.now + 30*24*60*60).to_s :db %>
+  premium_limit: 100
+
+fourth:
+  id: 4
+  company_id: 2
+  name: Test4
+  survey_key: 4
+  survey_mode: 0
+  premium_expiry: <%= (Time.now - 30*24*60*60).to_s :db %>
+  premium_limit: 100
+
