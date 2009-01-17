@@ -56,6 +56,7 @@
 		// Set the companies to a copy (so that changes here won't affect elsewhere).
 		private function setCompanies(event:Event):void
 		{
+			var scroll:Number = projectResourceGrid.verticalScrollPosition;
 			var newCompanies:ArrayCollection = new ArrayCollection();
 			for each (var company:Company in CompanyFactory.getInstance().companies)
 			{
@@ -74,6 +75,7 @@
 				}
 			}
 			companies = newCompanies;
+			projectResourceGrid.verticalScrollPosition = scroll;
 		}
 		
 		// Reset my state to how it was initially.
