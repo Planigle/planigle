@@ -242,10 +242,10 @@ package org.planigle.planigle.model
 			teams = newTeams.source;
 
 			// Create copy to ensure any views get notified of changes.
-			var projects:ArrayCollection = new ArrayCollection();
-			for each (var project:Project in company.projects)
-				projects.addItem(project);
-			company.projects = projects.source;
+			var companies:ArrayCollection = new ArrayCollection();
+			for each (var aCompany:Company in CompanyFactory.getInstance().companies)
+				companies.addItem(aCompany);
+			CompanyFactory.getInstance().updateCompanies(companies);
 
 			return newTeam;
 		}
