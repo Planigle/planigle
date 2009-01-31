@@ -24,7 +24,7 @@ class Task < ActiveRecord::Base
 
   # Answer my status in a user friendly format.
   def status
-    StatusMapping[status_code]
+    Story::StatusMapping[status_code]
   end
 
   # Answer true if I have been accepted.

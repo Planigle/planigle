@@ -1,6 +1,20 @@
 class StoriesController < ResourceController
   before_filter :login_required
   session :cookie_only => false, :only => [:import, :export]
+
+  # GET /records
+  # GET /records.xml
+  def index
+    respond_to do |format|
+      format.iphone do
+        iteration = Iteration.find_current(current_individual)
+        @records = Story.get_records(current_individual, iteration ? iteration.id : nil, current_individual.team_id ? ["team_id = ?", current_individual.team_id] : nil)
+        render
+      end
+      format.xml { @records = get_records; render :xml => @records }
+      format.amf { @records = get_records; render :amf => @records }
+    end
+  end
   
   # POST /stories/import               Imports new/existing stories.
   # POST /stories/import.xml

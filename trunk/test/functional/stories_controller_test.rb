@@ -145,12 +145,12 @@ class StoriesControllerTest < ActionController::TestCase
   end
 
   # Test exporting stories (based on role).
-  def test_export_by_project_admin
-    export_by_role(individuals(:quentin), Story.count)
+  def test_export_by_admin
+    export_by_role(individuals(:quentin), 0)
   end
     
   # Test exporting stories (based on role).
-  def test_export_by_admin
+  def test_export_by_project_admin
     export_by_role(individuals(:aaron), Story.find_all_by_project_id(1).length)
   end
 
@@ -219,7 +219,7 @@ class StoriesControllerTest < ActionController::TestCase
 
   # Test getting stories (based on role).
   def test_index_by_admin
-    index_by_role(individuals(:quentin), Story.count)
+    index_by_role(individuals(:quentin), 0)
   end
     
   # Test getting stories (based on role).
@@ -242,8 +242,12 @@ class StoriesControllerTest < ActionController::TestCase
     login_as(user)
     get :index, :format => 'xml'
     assert_response :success
-    assert_select "stories" do
-      assert_select "story", count
+    if count == 0
+      assert_select "stories", false
+    else
+      assert_select "stories" do
+        assert_select "story", count
+      end
     end
   end
 
@@ -431,5 +435,38 @@ class StoriesControllerTest < ActionController::TestCase
     assert_response 401
     assert Story.find_by_name('test')
     assert_select "errors"
+  end
+  
+  # Test showing on an iPhone.
+  def test_show_iphone
+    login_as(individuals(:admin2))
+    get :show, {:id => 1, :format => 'iphone'}
+    assert_response :success
+  end
+  
+  # Test showing on an iPhone without logging in.
+  def test_show_iphone_project_admin_unauthorized
+    get :show, {:id => 1, :format => 'iphone'}
+    assert_redirected_to :controller => :sessions, :action => :new
+  end
+  
+  # Test index on an iPhone.
+  def test_index_iphone_admin
+    login_as(individuals(:quentin))
+    get :index, {:format => 'iphone'}
+    assert_response :success
+  end
+  
+  # Test index on an iPhone.
+  def test_index_iphone_project_admin
+    login_as(individuals(:admin2))
+    get :index, {:format => 'iphone'}
+    assert_response :success
+  end
+  
+  # Test index on an iPhone without logging in.
+  def test_index_iphone_project_admin_unauthorized
+    get :index, {:format => 'iphone'}
+    assert_redirected_to :controller => :sessions, :action => :new
   end
 end

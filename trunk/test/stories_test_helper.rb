@@ -26,7 +26,7 @@ module StoriesTestHelper
   
   # Answer the number of resources that exist.
   def resource_count
-    Story.count
+    Story.count(:conditions => {:project_id => 1})
   end
 
   # Verify that the object was created.

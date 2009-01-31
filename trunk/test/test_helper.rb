@@ -112,7 +112,7 @@ private
 
   # Log in as Flex would.
   def flex_login
-    post '/session.xml', {:login => 'quentin', :password => 'testit'}, flex_header
+    post '/session.xml', {:login => 'admin2', :password => 'testit'}, flex_header
   end
 
   # Answer the string to get the current count of this object.
@@ -145,6 +145,6 @@ private
 
   # Answer the authorization and accepts headers that xml clients should send.
   def authorization_header
-    {'Authorization' => Base64.encode64('quentin' << ':' << 'testit'), 'Accept' => 'text/xml'}
+    {'Authorization' => Base64.encode64('admin2' << ':' << 'testit'), 'Accept' => 'text/xml'}
   end
 end

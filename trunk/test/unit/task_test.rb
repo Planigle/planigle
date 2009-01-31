@@ -50,6 +50,13 @@ class TaskTest < ActiveSupport::TestCase
     assert_failure( :status_code, 4 )
   end
 
+  # Test the validation of status.
+  def test_status
+    assert_equal "In Progress", tasks(:one).status
+    assert_equal "Done", tasks(:two).status
+    assert_equal "Blocked", tasks(:three).status
+  end
+
   # Test the accepted? method.
   def test_accepted
     assert !tasks(:one).accepted?
