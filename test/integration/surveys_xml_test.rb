@@ -146,7 +146,7 @@ class SurveysXmlTest < ActionController::IntegrationTest
     assert_response :success
 
     assert_select 'surveys' do
-      assert_select 'survey', Survey.count do
+      assert_select 'survey', Survey.count( :conditions => {:project_id => 1} ) do
         assert_select 'id'
         assert_select 'name'
         assert_select 'company'
@@ -163,7 +163,7 @@ class SurveysXmlTest < ActionController::IntegrationTest
     assert_response :success
 
     assert_select 'surveys' do
-      assert_select 'survey', Survey.count do
+      assert_select 'survey', Survey.count(:conditions => {:project_id => 1}) do
         assert_select 'id'
         assert_select 'name'
         assert_select 'company'

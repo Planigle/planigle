@@ -1,13 +1,12 @@
 # This controller handles the login/logout function of the site.  
 class SessionsController < ApplicationController
-
   # Login screen or failure to log in from xml
   # GET /sessions/new
   # GET /sessions/new.xml
   def new
     respond_to do |format|
-      # Access Denied
-      format.xml  { render :xml => xml_error('Invalid Credentials'), :status => 401 }
+      format.iphone
+      format.xml { render :xml => xml_error('Invalid Credentials'), :status => 401 }
     end
   end
 
@@ -22,13 +21,21 @@ class SessionsController < ApplicationController
         if info[:accept_agreement] == "true" || info[:accept_agreement] == true
           self.current_individual.accepted_agreement = Time.now
         end
-        if self.current_individual.accepted_agreement || System.find(:first).license_agreement == ""
+        if self.current_individual.accepted_agreement || System.find(:first).license_agreement == "" || request.format == :iphone
           self.current_individual.last_login = Time.now
           if info[:remember_me] == "true" || info[:remember_me] == true
             self.current_individual.remember_me
             cookies[:auth_token] = { :value => self.current_individual.remember_token , :expires => self.current_individual.remember_token_expires_at }
           end
           self.current_individual.save(false)
+          format.iphone do
+            if self.current_individual.is_premium
+              redirect_to :controller => :stories, :action => :index
+            else
+              flash[:notice] = 'You must be a premium customer to use the IPhone interface'
+              render :action => 'new'
+            end
+          end
           format.xml { render :xml => data, :status => :created }
           format.amf { render :amf => data }
         else
@@ -37,6 +44,7 @@ class SessionsController < ApplicationController
           format.amf { render :amf => license_agreement }
         end
       else
+        format.iphone { flash[:notice] = 'Invalid Credentials'; render :action => 'new' }
         format.xml { render :xml => xml_error('Invalid Credentials'), :status => :unprocessable_entity }
         format.amf { render :amf => {:error => 'Invalid Credentials'} }
       end
@@ -51,6 +59,7 @@ class SessionsController < ApplicationController
       self.current_individual.forget_me if logged_in?
       cookies.delete :auth_token
       reset_session
+      format.iphone { redirect_to :controller => :sessions, :action => :new }
       format.xml { head :ok }
       format.amf { render :amf => 'success' }
     end

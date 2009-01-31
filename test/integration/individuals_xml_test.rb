@@ -31,7 +31,7 @@ class IndividualsXmlTest < ActionController::IntegrationTest
 
   # Test that you can't delete yourself.
   def test_destroy_self
-    delete resource_url << '/1', {}, authorization_header
+    delete resource_url << '/6', {}, authorization_header
     assert_response 401 # Unprocessable Entity
     assert Individual.find_by_login('quentin')
   end
@@ -39,7 +39,7 @@ class IndividualsXmlTest < ActionController::IntegrationTest
   # Test that you can't delete yourself from Flex.
   def test_destroy_self_flex
     flex_login
-    delete resource_url << '/1.xml', {}, flex_header
+    delete resource_url << '/6.xml', {}, flex_header
     assert_response 200 # Success
     assert Individual.find_by_login('quentin')
     assert_select 'errors'

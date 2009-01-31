@@ -95,6 +95,16 @@ class StoryTest < ActiveSupport::TestCase
     assert stories(:second).accepted?
   end
   
+  # Test the caption function.
+  def test_caption
+    assert_equal 'test - In Progress', stories(:first).caption
+  end
+  
+  # Test the url function.
+  def test_url
+    assert_equal '/planigle/stories/1', stories(:first).url
+  end
+  
   # Test splitting a story.
   def test_split
     story = stories(:first).split
@@ -169,10 +179,13 @@ class StoryTest < ActiveSupport::TestCase
 
   # Test finding individuals for a specific user.
   def test_find
-    assert_equal Story.count, Story.get_records(individuals(:quentin)).length
+    assert_equal 0, Story.get_records(individuals(:quentin)).length
     assert_equal Story.find_all_by_project_id(1).length, Story.get_records(individuals(:aaron)).length
     assert_equal Story.find_all_by_project_id(1).length, Story.get_records(individuals(:user)).length
     assert_equal Story.find_all_by_project_id(1).length, Story.get_records(individuals(:readonly)).length
+    assert_equal Story.find(:all, :conditions => {:project_id => 1, :iteration_id => 1}).length, Story.get_records(individuals(:readonly), iterations(:first).id).length
+    assert_equal Story.find(:all, :conditions => {:project_id => 1, :iteration_id => 1, :status_code => 1}).length, Story.get_records(individuals(:readonly), iterations(:first).id, ['stories.status_code = ?', 1]).length
+    assert_equal Story.find(:all, :conditions => {:project_id => 1, :status_code => 1}).length, Story.get_records(individuals(:readonly), nil, ['stories.status_code = ?', 1]).length
   end
   
   # Validate is_blocked.

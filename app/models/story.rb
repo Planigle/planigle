@@ -54,7 +54,7 @@ class Story < ActiveRecord::Base
       acceptance_criteria,
       effort,
       time,
-      StatusMapping[status_code],
+      status,
       reason_blocked,
       release ? release.name : '',
       iteration ? iteration.name : '',
@@ -98,6 +98,16 @@ class Story < ActiveRecord::Base
     map
   end
 
+  # Answer an abbreviated label for me.
+  def caption
+    name + ' - ' + status
+  end
+  
+  # Answer a url for more details on me.
+  def url
+    '/planigle/stories/' + id.to_s
+  end
+
   # Answer my status in a user friendly format.
   def status
     StatusMapping[status_code]
@@ -135,18 +145,20 @@ class Story < ActiveRecord::Base
   end
 
   # Answer the records for a particular user.
-  def self.get_records(current_user, iteration_id=nil)
+  def self.get_records(current_user, iteration_id=nil, conditions=nil)
     if iteration_id
       if current_user.role >= Individual::ProjectAdmin or current_user.project_id
-        Story.find(:all, :include => [:story_values, :tasks], :conditions => ["iteration_id = ? and project_id = ?", iteration_id, current_user.project_id], :order => 'priority')
+        Story.find(:all, :include => [:story_values, :tasks], :conditions => merge_conditions(["iteration_id = ? and project_id = ?", iteration_id, current_user.project_id], conditions), :order => 'priority')
       else
-        Story.find(:all, :include => [:story_values, :tasks], :conditions => ["iteration_id = ?", iteration_id], :order => 'priority')
+        Story.find(:all, :include => [:story_values, :tasks], :conditions => merge_conditions(["iteration_id = ?", iteration_id], conditions), :order => 'priority')
       end
     else
       if current_user.role >= Individual::ProjectAdmin or current_user.project_id
-        Story.find(:all, :include => [:story_values, :tasks], :conditions => ["project_id = ?", current_user.project_id], :order => 'priority')
-      else
-        Story.find(:all, :include => [:story_values, :tasks], :order => 'priority')
+        Story.find(:all, :include => [:story_values, :tasks], :conditions => merge_conditions(["project_id = ?", current_user.project_id], conditions), :order => 'priority')
+      elsif conditions
+        Story.find(:all, :include => [:story_values, :tasks], :conditions => conditions, :order => 'priority')
+      else # Doesn't make sense to show all stories in system
+        []
       end
     end
   end
@@ -340,5 +352,18 @@ private
     if !value || value == ""; return nil; end
     object = klass.find(:first, :conditions => conditions)
     object ? object.id : -1
+  end
+
+  # Merge the conditions clauses.
+  def self.merge_conditions(conditions, additional)
+    if conditions
+      if additional
+        [conditions[0] + " and " + additional[0]] + conditions[1, conditions.length - 1] + additional[1, additional.length - 1]
+      else
+        conditions
+      end
+    else
+      additional
+    end
   end
 end

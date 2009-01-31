@@ -16,6 +16,7 @@ class ResourceController < ApplicationController
     @record = get_record
     if (authorized_for_read?(@record))
       respond_to do |format|
+        format.iphone { render :layout => false }
         format.xml { render :xml => @record }
         format.amf { render :amf => @record }
       end

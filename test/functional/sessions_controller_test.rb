@@ -8,6 +8,12 @@ class SessionsController; def rescue_action(e) raise e end; end
 class SessionsControllerTest < ActionController::TestCase
   fixtures :systems
   fixtures :individuals
+  fixtures :projects
+  fixtures :companies
+  fixtures :stories
+  fixtures :tasks
+  fixtures :releases
+  fixtures :iterations
 
   # Test successfully logging in.
   def test_should_login
@@ -19,6 +25,7 @@ class SessionsControllerTest < ActionController::TestCase
     assert_select 'release', false
     assert_select 'iteration', false
     assert_select 'story', false
+    assert_select 'company', Company.count
     assert_select 'project', Project.count
     assert_select 'individual', Individual.count
 
@@ -30,6 +37,7 @@ class SessionsControllerTest < ActionController::TestCase
     assert_select 'release', Release.find_all_by_project_id(1).length
     assert_select 'iteration', Iteration.find_all_by_project_id(1).length
     assert_select 'story', Story.find_all_by_project_id(1).length
+    assert_select 'company', 1
     assert_select 'project', 2
     assert_select 'individual', Individual.find_all_by_company_id(1, :conditions => "role != 0").length
   end
@@ -111,6 +119,41 @@ class SessionsControllerTest < ActionController::TestCase
     post :create, :login => 'quentin', :password => 'testit', :accept_agreement => "true", :format => 'xml'
     assert session[:individual_id]
     assert individuals(:quentin).accepted_agreement > (Time.now - 10)
+  end
+
+  # Test the login screen on an iphone
+  def test_new_iphone
+    login_as(individuals(:admin2))
+    get :new, {:format => 'iphone'}
+    assert_response :success
+  end
+
+  # Test logging in on an iphone
+  def test_create_iphone
+    post :create, :format => 'iphone', :login => 'admin2', :password => 'testit', :remember_me => "true"
+    assert_redirected_to :controller => :stories, :action => :index
+  end
+
+  # Test logging in on an iphone w/o the agreement
+  def test_create_iphone_no_agreement
+    individ = individuals(:admin2)
+    individ.accepted_agreement = nil
+    individ.save(false)
+    post :create, :format => 'iphone', :login => 'admin2', :password => 'testit', :remember_me => "true"
+    assert_redirected_to :controller => :stories, :action => :index
+  end
+
+  # Test logging in on an iphone as a community customer
+  def test_create_iphone_community
+    post :create, :format => 'iphone', :login => 'pa2', :password => 'testit', :remember_me => "true"
+    assert_response :success
+  end
+
+  # Test the logout link on an iphone
+  def test_destroy_iphone
+    post :create, :format => 'iphone', :login => 'admin2', :password => 'testit', :remember_me => "true"
+    delete :destroy, :format => 'iphone'
+    assert_redirected_to :controller => :sessions, :action => :new
   end
 
 private

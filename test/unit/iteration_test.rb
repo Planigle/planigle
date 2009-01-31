@@ -72,6 +72,13 @@ class IterationTest < ActiveSupport::TestCase
     assert_equal Iteration.find_all_by_project_id(1).length, Iteration.get_records(individuals(:readonly)).length
   end
   
+  # Test finding the current iteration
+  def test_find_current
+    assert_nil Iteration.find_current(individuals(:admin2))
+    iteration = create_iteration(:start => Time.now)
+    assert_equal iteration, Iteration.find_current(individuals(:admin2))
+  end
+  
   # Test summarization.
   def test_summarize
     totals = IterationTotal.summarize_for(iterations(:first))

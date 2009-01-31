@@ -95,13 +95,19 @@ if ( hasProductInstall && !hasRequestedVersion ) {
 			"pluginspage", "http://www.adobe.com/go/getflashplayer"
 	);
   } else {  // flash is too old or we can't detect the plugin
-    var alternateContent = 'Alternate HTML content should be placed here. '
-  	+ 'This content requires the Adobe Flash Player. '
-   	+ '<a href=http://www.adobe.com/go/getflash/>Get Flash</a>';
-    document.write(alternateContent);  // insert non-flash content
+	  var agent = navigator.userAgent.toLowerCase();
+	  var is_iphone = agent.indexOf('mobile')!=-1 && agent.indexOf('safari') != -1;
+      if (is_iphone) {
+	  	location.href = 'session/new';
+	  }
+	  else {
+	  	var alternateContent = 'Planigle requires the Adobe Flash Player.  To get Flash, ' +
+	  	'<a href=http://www.adobe.com/go/getflash/>click here</a>';
+	  	document.write(alternateContent); // insert non-flash content
+	  }
   }
+  Main.focus();
 // -->
-  Main.focus()
 </script>
 <noscript>
   	<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"

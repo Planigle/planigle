@@ -26,7 +26,7 @@ module ReleasesTestHelper
   
   # Answer the number of resources that exist.
   def resource_count
-    Release.count
+    Release.count(:conditions => {:project_id => 1})
   end
 
   # Verify that the object was created.

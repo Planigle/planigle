@@ -49,7 +49,7 @@ module ControllerResourceHelper
   # Test successfully showing a resource.
   def test_show_success
     login_as(individuals(:quentin))
-    get :show, {:id => 1}.merge(context)
+    get :show, {:id => 1, :format => 'xml'}.merge(context)
     assert_response :success
     assert_not_nil assigns(resource_symbol)
     assert assigns(resource_symbol).valid?
