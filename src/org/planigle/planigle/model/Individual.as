@@ -136,7 +136,11 @@ package org.planigle.planigle.model
 		// I have been successfully updated.  Change myself to reflect the changes.
 		public function updateCompleted(xml:XML):void
 		{
+			var oldProjectId:String = projectId;
+			var oldTeamId:String = teamId;
 			populate(xml);
+			if (oldProjectId != projectId || oldTeamId != teamId)
+				StructuralChangeNotifier.getInstance().structureChanged();
 		}
 		
 		// Delete me.  Success function if successfully deleted.  FailureFunction will be called if failed
@@ -171,6 +175,8 @@ package org.planigle.planigle.model
 					individuals.addItem(individual);
 			}
 			IndividualFactory.getInstance().updateIndividuals(individuals);
+			
+			StructuralChangeNotifier.getInstance().structureChanged();
 		}
 		
 		// Answer whether I am an admin.

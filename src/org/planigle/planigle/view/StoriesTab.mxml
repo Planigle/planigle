@@ -75,6 +75,7 @@
 			panelHeight = combinedPanel.height;
 			ChangeWatcher.watch( factory, "currentIndividual", updateIndividual );
 			ChangeWatcher.watch( IndividualFactory.current(), "projectId", updateIndividual );
+			ChangeWatcher.watch( IndividualFactory.current().project, "premiumExpiry", updateIndividual );
 			ChangeWatcher.watch( factory, "currentIndividual", resetState ); // Reset if log out / logged back in
 			ChangeWatcher.watch( ReleaseFactory.getInstance(), "releaseSelector", updateReleaseFilterList );
 			ChangeWatcher.watch( IterationFactory.getInstance(), "iterationSelector", updateIterationFilterList );
