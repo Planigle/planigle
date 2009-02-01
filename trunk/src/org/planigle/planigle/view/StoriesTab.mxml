@@ -72,10 +72,11 @@
 		// Set up event listeners.  Called when the canvas has been created.
 		private function created(event:Event):void
 		{
+			baseChildren = changeForm.numChildren;
 			panelHeight = combinedPanel.height;
 			ChangeWatcher.watch( factory, "currentIndividual", updateIndividual );
 			ChangeWatcher.watch( IndividualFactory.current(), "projectId", updateIndividual );
-			ChangeWatcher.watch( IndividualFactory.current().project, "premiumExpiry", updateIndividual );
+			ChangeWatcher.watch( IndividualFactory.current().project, "premiumExpiry", updatePremium );
 			ChangeWatcher.watch( factory, "currentIndividual", resetState ); // Reset if log out / logged back in
 			ChangeWatcher.watch( ReleaseFactory.getInstance(), "releaseSelector", updateReleaseFilterList );
 			ChangeWatcher.watch( IterationFactory.getInstance(), "iterationSelector", updateIterationFilterList );
@@ -88,8 +89,6 @@
 			setIndividualFilterList();
 			handleFilter(event);
 			storyBtnImport.onCompletion(setSuccessMessage, setErrorMessage);
-			baseChildren = changeForm.numChildren;
-			updateAttributes(null);
 		}
 
 		private var watcher:ChangeWatcher;
@@ -103,6 +102,13 @@
 				watcher = ChangeWatcher.watch( IndividualFactory.current().project, "teams", updateTeamField );
 			else watcher = null;
 			updateTeamField(null);
+			updatePremium(null);
+			updateAttributes(null);
+		}
+
+		// Update premium attributes.
+		private function updatePremium(event:Event):void		
+		{
 			storyUtilizationRow.visible = IndividualFactory.current().isPremium();
 			storyUtilizationRow.width = IndividualFactory.current().isPremium() ? NaN : 0;
 		}
