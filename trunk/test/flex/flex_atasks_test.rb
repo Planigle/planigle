@@ -332,6 +332,6 @@ private
     @ie.combo_box("team").open
     @ie.combo_box("team").select(:item_renderer => 'All Teams' )
     sleep 2
-    @ie.button("storyBtnExpand")[3].click
+    @ie.button("storyBtnExpand")[2].click
   end
 end
