@@ -240,7 +240,7 @@ package org.planigle.planigle.model
 			for each (var team:Team in teams)
 				newTeams.addItem(team);
 			newTeams.addItem(newTeam);
-			teams = newTeams.source;
+			teams = newTeams.toArray();
 
 			// Create copy to ensure any views get notified of changes.
 			var companies:ArrayCollection = new ArrayCollection();

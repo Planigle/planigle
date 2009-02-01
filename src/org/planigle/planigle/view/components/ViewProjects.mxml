@@ -455,7 +455,7 @@
 			<mx:Text id="projectError" styleName="error" htmlText="{_error}" width="100%"/>
 			<mx:Button icon="{parentApplication.imgAdd}" toolTip="Create" id="projectBtnCreate" click="showCreateCompany(event);" visible="{factory.currentIndividual.isAdmin()}"/>
 		</mx:HBox>
-		<local:ColoredBackgroundDataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="projectResourceGrid" dataProvider="{companies}" rowCount="{companies.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)" itemClick="groupSelected(event)" rowColorFunction="rowColor" variableRowHeight="true">
+		<local:ColoredBackgroundDataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="projectResourceGrid" dataProvider="{companies}" rowCount="{companies.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)" itemClick="groupSelected(event)" rowColorFunction="rowColor" variableRowHeight="true" sortableColumns="false">
 			<local:columns>
 				<mx:DataGridColumn editable="false" minWidth="16" width="16" sortable="false" textAlign="center"> 
 					<mx:itemRenderer> 

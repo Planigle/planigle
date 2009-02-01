@@ -247,10 +247,6 @@ sleep 5
     
   # Test sorting the various columns.
   def sort_columns
-    (1..3).each do |i|
-      @ie.data_grid("projectResourceGrid").header_click(:columnIndex => i.to_s)
-      @ie.data_grid("projectResourceGrid").header_click(:columnIndex => i.to_s) # Sort both ways
-    end
   end
       
   # Log in to the system with the specified credentials.
