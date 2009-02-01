@@ -1,8 +1,9 @@
 package org.planigle.planigle.model
 {
 	import mx.collections.ArrayCollection;
-	import org.planigle.planigle.commands.UpdateTaskCommand;
+	
 	import org.planigle.planigle.commands.DeleteTaskCommand;
+	import org.planigle.planigle.commands.UpdateTaskCommand;
 
 	[RemoteClass(alias='Task')]
 	[Bindable]
@@ -75,10 +76,21 @@ package org.planigle.planigle.model
 			story.resort();
 			if (storyId != story.id)
 			{
-				var index:int = story.tasks.indexOf(this);
-				story.tasks = story.tasks.concat().splice(index,index);
+				var oldTasks:ArrayCollection = new ArrayCollection();
+				for each (var oldTask:Task in story.tasks)
+				{
+					if (oldTask != this)
+						oldTasks.addItem(oldTask);
+				}
+				story.tasks = oldTasks.toArray();
+
 				story = StoryFactory.getInstance().find(storyId);
-				story.tasks = story.tasks.concat([this]);
+
+				var newTasks:ArrayCollection = new ArrayCollection();
+				for each (var newTask:Task in story.tasks)
+					newTasks.addItem(newTask);
+				newTasks.addItem(this);
+				story.tasks = newTasks.toArray();
 				story.resort();
 				story.expand();
 			}
