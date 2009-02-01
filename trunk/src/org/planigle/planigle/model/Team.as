@@ -89,6 +89,8 @@ package org.planigle.planigle.model
 			for each (var aCompany:Company in CompanyFactory.getInstance().companies)
 				companies.addItem(aCompany);
 			CompanyFactory.getInstance().updateCompanies(companies);
+			
+			StructuralChangeNotifier.getInstance().structureChanged();
 		}
 
 		//  No, I'm not a company.
@@ -139,7 +141,7 @@ package org.planigle.planigle.model
 			var individuals:ArrayCollection = new ArrayCollection();
 			for each (var individual:Individual in IndividualFactory.getInstance().individualSelector)
 			{
-				if (!individual.id || (!individual.isAdmin() && individual.teamId == id))
+				if (!individual.id || (!individual.isAdmin() && individual.teamId == id && individual.projectId == projectId))
 					individuals.addItem(individual);
 			}
 			return individuals;

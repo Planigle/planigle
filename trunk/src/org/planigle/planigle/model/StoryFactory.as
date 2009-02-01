@@ -54,8 +54,7 @@ package org.planigle.planigle.model
 			for each (var story:Story in stories)
 				newStories.addItem(story);
 			newStories.addItem(newStory);
-			stories = newStories;
-			normalizePriorities();
+			populate(newStories.toArray());
 			return newStory;
 		}
 

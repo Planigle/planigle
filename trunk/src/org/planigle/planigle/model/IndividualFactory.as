@@ -82,6 +82,9 @@ package org.planigle.planigle.model
 				newIndividuals.addItem(individual);
 			newIndividuals.addItem(newIndividual);
 			updateIndividuals(newIndividuals);
+			
+			StructuralChangeNotifier.getInstance().structureChanged();
+
 			return newIndividual;
 		}
 

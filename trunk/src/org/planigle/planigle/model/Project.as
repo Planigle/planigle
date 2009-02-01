@@ -110,6 +110,7 @@ package org.planigle.planigle.model
 			
 			var tm:Team = new Team();
 			tm.populate( <team><id nil="true" /><name>No Team</name></team> );
+			tm.projectId = id;
 			newTeamSelector.addItem( tm );
 			teamSelector = newTeamSelector;
 		}
@@ -246,6 +247,8 @@ package org.planigle.planigle.model
 			for each (var aCompany:Company in CompanyFactory.getInstance().companies)
 				companies.addItem(aCompany);
 			CompanyFactory.getInstance().updateCompanies(companies);
+			
+			StructuralChangeNotifier.getInstance().structureChanged();
 
 			return newTeam;
 		}

@@ -199,13 +199,18 @@
 		// Update the project.
 		private function updateProject(event:Event):void
 		{
-			individualFieldProject.dataProvider = individualFieldCompany.selectedItem.projectSelector;
+			var selector:ArrayCollection = individualFieldCompany.selectedItem.projectSelector;
+			individualFieldProject.dataProvider = selector;
+			individualFieldProject.selectedIndex = 0;
+			updateTeam(event);
 		}
 
 		// Update the team.
 		private function updateTeam(event:Event):void
 		{
-			individualFieldTeam.dataProvider = individualFieldProject.selectedItem.teamSelector;
+			var selector:ArrayCollection = individualFieldProject.selectedItem.teamSelector;
+			individualFieldTeam.dataProvider = selector;
+			individualFieldTeam.selectedIndex = 0;
 		}
 
 		// Confirm that user wants to delete the resource.
