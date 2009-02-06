@@ -97,7 +97,11 @@ class StoryTest < ActiveSupport::TestCase
   
   # Test the caption function.
   def test_caption
-    assert_equal 'test - In Progress', stories(:first).caption
+
+  assert_equal 'test<br/>In Progress - 1 of 2 tasks done', stories(:first).caption
+  assert_equal 'test2<br/>Done', stories(:second).caption
+  assert_equal 'test3<br/>In Progress', stories(:third).caption
+  assert_equal 'test5<br/>Blocked - 0 of 1 task done', stories(:fifth).caption
   end
   
   # Test the url function.

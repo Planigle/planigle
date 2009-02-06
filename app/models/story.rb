@@ -100,7 +100,9 @@ class Story < ActiveRecord::Base
 
   # Answer an abbreviated label for me.
   def caption
-    name + ' - ' + status
+    task_count = tasks.length
+    task_status = (tasks.empty? || status_code == Created || status_code == Done) ? '' : ' - ' + tasks.select {|task| task.status_code == Done }.size.to_s + ' of ' + task_count.to_s + ' task' + (task_count == 1 ? '' : 's') + ' done'
+    name + '<br/>' + status + task_status
   end
   
   # Answer a url for more details on me.
