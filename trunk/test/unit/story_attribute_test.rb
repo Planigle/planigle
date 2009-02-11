@@ -4,6 +4,7 @@ class StoryAttributeTest < ActiveSupport::TestCase
   fixtures :projects
   fixtures :stories
   fixtures :story_attributes
+  fixtures :story_attribute_values
   fixtures :story_values
 
   # Test that a story attribute can be created.
@@ -24,8 +25,33 @@ class StoryAttributeTest < ActiveSupport::TestCase
     validate_field(:value_type, false, nil, nil)
     assert_failure(:value_type, -1)
     assert_success(:value_type, 0)
-    assert_success(:value_type, 2)
-    assert_failure(:value_type, 3)
+    assert_success(:value_type, 4)
+    assert_failure(:value_type, 5)
+  end
+  
+  def test_values
+    attrib = create_storyattribute(:value_type => 3, :values => "val 1,val 2,val 3")
+    assert_equal 3, attrib.story_attribute_values.length
+    val = attrib.story_attribute_values.find(:all, :conditions => {:value => 'val 1'})
+    assert_equal 1, val.length
+    assert_equal 1, attrib.story_attribute_values.find(:all, :conditions => {:value => 'val 2'}).length
+    assert_equal 1, attrib.story_attribute_values.find(:all, :conditions => {:value => 'val 3'}).length
+
+    attrib.update_values(["val 1","v2"])
+    attrib.reload # Blow cache
+    assert_equal 2, attrib.story_attribute_values.length
+    val2 = attrib.story_attribute_values.find(:all, :conditions => {:value => 'val 1'})
+    assert_equal 1, val2.length
+    assert_equal val[0].id, val2[0].id
+    values = attrib.story_attribute_values
+    assert_equal 1, attrib.story_attribute_values.find(:all, :conditions => {:value => 'v2'}).length
+  end
+
+  # Test deleting a story attribute (should delete story attribute values).
+  def test_delete_story_attribute
+    assert_equal story_attribute_values(:first).story_attribute, story_attributes(:fifth)
+    story_attributes(:fifth).destroy
+    assert_nil StoryAttributeValue.find_by_id(1)
   end
 
 private

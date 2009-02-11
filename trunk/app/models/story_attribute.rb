@@ -1,5 +1,6 @@
 class StoryAttribute < ActiveRecord::Base
   belongs_to :project
+  has_many :story_attribute_values, :dependent => :destroy
   has_many :story_values, :dependent => :destroy
   attr_accessible :project_id, :name, :value_type
   acts_as_audited :except => [:project_id]
@@ -11,6 +12,23 @@ class StoryAttribute < ActiveRecord::Base
   String = 0
   Text = 1
   Number = 2
+  List = 3
+  ReleaseList = 4
+
+  # Override attributes to allow setting of values.
+  def attributes=(new_attributes, guard_protected_attributes = true)
+    if new_attributes.include? :values
+      update_values(new_attributes[:values].split(','))
+      new_attributes.delete(:values)
+    end
+    super
+  end
+  
+  # Update the values based on the new values.
+  def update_values(new_values)
+    story_attribute_values.each {|value| if !new_values.include?(value.value); value.destroy; end }
+    new_values.each {|value| if !story_attribute_values.find(:first, :conditions=>{:value => value}); story_attribute_values << StoryAttributeValue.new(:value => value); end}
+  end
 
   # Answer the records for a particular user.
   def self.get_records(current_user)
@@ -58,8 +76,16 @@ class StoryAttribute < ActiveRecord::Base
   
   # Validate my values.
   def validate()
-    if value_type && (value_type < 0 || value_type > Number)
+    if value_type && (value_type < 0 || value_type > ReleaseList)
       errors.add(:value_type, 'is invalid')
     end
   end  
+  
+  # Override to_xml to include story attribute values.
+  def to_xml(options = {})
+    if !options[:include]
+      options[:include] = [:story_attribute_values]
+    end
+    super(options)
+  end
 end

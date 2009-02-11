@@ -14,9 +14,12 @@ package org.planigle.planigle.model
 		public var projectId:int;
 		public var name:String;
 		public var valueType:int;
+		private var myStoryAttributeValues:Array = new Array();
 		public static const STRING:int = 0;
 		public static const TEXT:int = 1;
 		public static const NUMBER:int = 2;
+		public static const LIST:int = 3;
+		public static const RELEASE_LIST:int = 4;
 
 		// Populate myself from XML.
 		public function populate(xml:XML):void
@@ -25,6 +28,28 @@ package org.planigle.planigle.model
 			id = xml.id;
 			name = xml.name;
 			valueType = xml.child("value-type");
+
+			var newValues:ArrayCollection = new ArrayCollection();
+			for (var i:int = 0; i < xml.child("story-attribute-values").child("story-attribute-value").length(); i++)
+			{
+				var value:StoryAttributeValue = new StoryAttributeValue();
+				value.populate(XML(xml.child("story-attribute-values").child("story-attribute-value")[i]));
+				newValues.addItem(value);
+			}
+			storyAttributeValues = newValues.toArray();
+		}
+
+		// Answer my tasks.
+		public function get storyAttributeValues():Array
+		{
+			return myStoryAttributeValues;
+		}
+
+		// Set my tasks.
+		public function set storyAttributeValues(values:Array):void
+		{
+			values.sortOn(["value"], [Array.CASEINSENSITIVE]);
+			myStoryAttributeValues = values;
 		}
 
 		// Update me.  Params should be of the format (record[param]).  Success function

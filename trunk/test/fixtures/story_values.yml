@@ -21,3 +21,9 @@ fourth:
   story_id: 5
   story_attribute_id: 4
   value: testit
+  
+fifth:
+  id: 5
+  story_id: 1
+  story_attribute_id: 5
+  value: 1

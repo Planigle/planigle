@@ -13,6 +13,7 @@ class FlexAtasksTest < Test::Unit::TestCase
   fixtures :releases
   fixtures :iterations
   fixtures :story_attributes
+  fixtures :story_attribute_values
   fixtures :story_values
   fixtures :tasks
   fixtures :audits
@@ -149,7 +150,6 @@ private
   def create_task_failure
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
     @ie.button("taskBtnAdd")[2].click
-    
     assert_equal '', @ie.text_area("storyFieldName").text
     assert_equal '', @ie.text_area("storyFieldDescription").text
     assert !@ie.text_area("storyFormAcceptanceCriteria").visible
@@ -210,6 +210,7 @@ private
     
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
     @ie.button("taskBtnAdd")[2].click
+
     create_task('foo', 'description', 'ted williams', '1', 'Not Started')
     @ie.button("storyBtnCancel").click
     assert_equal '', @ie.text_area("storyError").text

@@ -143,7 +143,14 @@ module RubyAMF
       :actionscript => 'StoryAttribute',
       :ruby => 'StoryAttribute',
       :type => 'active_record',
-      :attributes => ["id", "project_id", "name", "value_type"])
+      :attributes => ["id", "project_id", "name", "value_type"],
+      :associations => ["story_attribute_values"])
+
+    ClassMappings.register(
+      :actionscript => 'StoryAttributeValue',
+      :ruby => 'StoryAttributeValue',
+      :type => 'active_record',
+      :attributes => ["id", "story_attribute_id", "release_id", "value"])
 
     ClassMappings.register(
       :actionscript => 'StoryValue',

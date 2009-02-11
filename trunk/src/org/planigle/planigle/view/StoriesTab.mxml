@@ -5,6 +5,7 @@
 	</mx:Metadata>
 	<mx:Script>
 		<![CDATA[
+			import org.planigle.planigle.model.StoryAttributeValue;
 		import flash.display.DisplayObject;
 		import mx.collections.ArrayCollection;
 		import mx.rpc.events.ResultEvent;
@@ -684,10 +685,21 @@
 				for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
 				{
 					var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
+					var value:Object = currentItem.getCustomValue(attrib.id);
 					if (attrib.valueType == StoryAttribute.TEXT)
-						HTMLTextArea(disp).text = currentItem.getCustomValue(attrib.id);
+						HTMLTextArea(disp).text = value ? String(value) : "";
+					else if (attrib.valueType >= StoryAttribute.LIST)
+					{
+						var selected:StoryAttributeValue = null;
+						for each (var attribValue:StoryAttributeValue in attrib.storyAttributeValues)
+						{
+							if (attribValue.id == int(value))
+								selected = attribValue;
+						}
+						ComboBox(disp).selectedItem = selected;
+					}
 					else
-						TextInput(disp).text = currentItem.getCustomValue(attrib.id);
+						TextInput(disp).text = value ? String(value) : "";
 				}
 			}
 		}
@@ -700,6 +712,8 @@
 				var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
 				if (attrib.valueType == StoryAttribute.TEXT)
 					HTMLTextArea(disp).text = "";
+				else if (attrib.valueType >= StoryAttribute.LIST)
+					ComboBox(disp).selectedIndex = 0;
 				else
 					TextInput(disp).text = "";
 			}
@@ -772,7 +786,8 @@
 				for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
 				{
 					var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
-					params['record[custom_' + attrib.id + ']'] = attrib.valueType == StoryAttribute.TEXT ? HTMLTextArea(disp).text : TextInput(disp).text;
+					if (attrib.valueType < StoryAttribute.LIST || ComboBox(disp).selectedItem)
+						params['record[custom_' + attrib.id + ']'] = attrib.valueType == StoryAttribute.TEXT ? HTMLTextArea(disp).text : (attrib.valueType >= StoryAttribute.LIST ? ComboBox(disp).selectedItem.id : TextInput(disp).text);
 				}
 			}
 			return params;
@@ -1165,6 +1180,17 @@
 					  	input2.restrict = "0-9.";
 					  	formItem.addChild(input2);
 					  	customChildren[id] = input2;
+					    break;
+					  case StoryAttribute.LIST:
+					  case StoryAttribute.RELEASE_LIST:
+					  	var combo:ComboBox = new ComboBox();
+					  	combo.id = id;
+					  	combo.width = 200;
+					  	combo.editable = false;
+					  	combo.dataProvider = attrib.storyAttributeValues;
+					  	combo.labelField = "value";
+					  	formItem.addChild(combo);
+					  	customChildren[id] = combo;
 					    break;
 					}
 					changeForm.addChild(formItem);
