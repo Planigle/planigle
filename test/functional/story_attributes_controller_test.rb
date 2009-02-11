@@ -14,7 +14,30 @@ class StoryAttributesControllerTest < ActionController::TestCase
   fixtures :projects
   fixtures :individuals
   fixtures :story_attributes
-    
+  fixtures :story_attribute_values
+  
+  # Test index getting attribute values.
+  def test_index_get_values
+    login_as(individuals(:aaron))
+    get :index, :format => 'xml', :project_id => 1
+    assert_response :success
+    assert_select "story-attributes" do
+      assert_select "story-attribute", Project.find(1).story_attributes.length
+    end
+  end
+  
+  # Test show getting attribute values.
+  def test_show_get_values
+    login_as(individuals(:aaron))
+    get :show, :format => 'xml', :id => 5
+    assert_response :success
+    assert_select "story-attribute" do
+      assert_select "story-attribute-values" do
+        assert_select "story-attribute-value", 3
+      end
+    end
+  end
+  
   # Test getting story attributes (based on role).
   def test_index_by_admin
     index_by_role(individuals(:quentin), StoryAttribute.count)

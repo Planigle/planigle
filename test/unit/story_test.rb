@@ -9,6 +9,7 @@ class StoryTest < ActiveSupport::TestCase
   fixtures :projects
   fixtures :tasks
   fixtures :story_attributes
+  fixtures :story_attribute_values
   fixtures :story_values
   fixtures :surveys
   fixtures :survey_mappings
@@ -87,6 +88,21 @@ class StoryTest < ActiveSupport::TestCase
     assert_success(:custom_1, "test")
     story = create_story(:custom_2 => 'testy')
     assert_equal 'testy', StoryValue.find(:first, :conditions => {:story_id => story.id, :story_attribute_id => 2}).value
+  end
+  
+  # Test a custom list attribute.
+  def test_custom_list
+    story = create_story(:custom_5 => 1)
+    assert_equal "1", StoryValue.find(:first, :conditions => {:story_id => story.id, :story_attribute_id => 5}).value
+    story_attribute_values(:first).destroy
+    assert_nil StoryValue.find(:first, :conditions => {:story_id => story.id, :story_attribute_id => 5})
+  end
+  
+  # Test a custom list attribute with an invalid value.
+  def test_custom_list_invalid
+    story = create_story(:custom_5 => 6)
+    assert_equal 0, story.errors.length
+    assert_nil StoryValue.find(:first, :conditions => {:story_id => story.id, :story_attribute_id => 6})
   end
 
   # Test the accepted? method.
@@ -202,7 +218,7 @@ class StoryTest < ActiveSupport::TestCase
   # Validate export.
   def test_export
     string = Story.export(individuals(:aaron))
-    assert_equal "PID,Name,Description,Acceptance Criteria,Size,Time,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Test_Number,Test_String,Test_Text\n3,test3,\"\",\"\",1.0,,In Progress,,\"\",\"\",\"\",\"\",false,2.0,\"\",\"\",\"\"\n2,test2,\"\",\"\",1.0,,Done,,first,first,\"\",\"\",true,1.0,\"\",\"\",\"\"\n1,test,description,criteria,1.0,5.0,In Progress,,first,first,Test_team,aaron hank,true,2.0,5,test,testy\n4,test4,\"\",\"\",1.0,,In Progress,,\"\",\"\",\"\",\"\",true,,\"\",\"\",\"\"\n", string
+    assert_equal "PID,Name,Description,Acceptance Criteria,Size,Time,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Test_List,Test_Number,Test_Release,Test_String,Test_Text\n3,test3,\"\",\"\",1.0,,In Progress,,\"\",\"\",\"\",\"\",false,2.0,\"\",\"\",\"\",\"\"\,\"\"\n2,test2,\"\",\"\",1.0,,Done,,first,first,\"\",\"\",true,1.0,\"\",\"\",\"\",\"\",\"\"\n1,test,description,criteria,1.0,5.0,In Progress,,first,first,Test_team,aaron hank,true,2.0,Value 1,5,\"\",test,testy\n4,test4,\"\",\"\",1.0,,In Progress,,\"\",\"\",\"\",\"\",true,,\"\",\"\",\"\",\"\",\"\"\n", string
   end
 
   def test_import_invalid_id
@@ -326,6 +342,11 @@ class StoryTest < ActiveSupport::TestCase
   def test_import_custom_update
     verify_no_errors(Story.import(individuals(:admin2), "pid,Test_String\n1,5"))
     assert_equal "5", StoryValue.find(:first, :conditions => {:story_id => 1, :story_attribute_id => 1}).reload.value
+  end
+
+  def test_import_custom_update_list
+    verify_no_errors(Story.import(individuals(:admin2), "pid,Test_List\n1,value 1"))
+    assert_equal "1", StoryValue.find(:first, :conditions => {:story_id => 1, :story_attribute_id => 5}).reload.value
   end
 
   def test_import_custom_create

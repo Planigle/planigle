@@ -12,6 +12,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   fixtures :iterations
   fixtures :stories
   fixtures :story_attributes
+  fixtures :story_attribute_values
   fixtures :story_values
   fixtures :tasks
   fixtures :audits
@@ -151,15 +152,30 @@ class FlexStoriesTest < Test::Unit::TestCase
     init('admin2')
     @ie.button("storyBtnCreate").click
     @ie.button("storyBtnEditAttributes").click
+    @ie.list("editAttributeAttributes").select(:item_renderer => 'Test_Number')
     @ie.button("editAttributeBtnDelete").click # Delete Test_Number Attribute
-    @ie.button("editAttributeBtnAdd").click # Add a new one
+
+    @ie.button("editAttributeBtnAdd").click # Add a new number attribute: Beta
     @ie.text_area("editAttributeFieldName").input(:text => 'Beta' )
     @ie.combo_box("editAttributeFieldType").open
     @ie.combo_box("editAttributeFieldType").select(:item_renderer => 'Number' )
+
+    @ie.button("editAttributeBtnAdd").click # Add a new listattribute: Gamma
+    @ie.text_area("editAttributeFieldName").input(:text => 'Gamma' )
+    @ie.combo_box("editAttributeFieldType").open
+    @ie.combo_box("editAttributeFieldType").select(:item_renderer => 'List' )
+    @ie.button("editValueBtnAdd").click # Add a new value
+    @ie.text_area("editValueFieldName").input(:text => 'Gamma' )
+    @ie.button("editValueBtnAdd").click # Add a new value
+    @ie.text_area("editValueFieldName").input(:text => 'Zeta' )
     @ie.button("editAttributeBtnOk").click
     sleep 5
+
     assert_nil @ie.text_area("storyField3")
-    assert @ie.text_area("storyField5")
+    @ie.text_area("storyField7").input(:text => 'custom text')
+    @ie.combo_box("storyField8").click
+    @ie.combo_box("storyField8").select(:item_renderer => 'Zeta')
+    @ie.button("storyBtnChange").click
   end
   
   # Test showing the history

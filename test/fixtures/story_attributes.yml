@@ -21,3 +21,15 @@ fourth:
   project_id: 2
   name: Test_String2
   value_type: 0
+
+fifth:
+  id: 5
+  project_id: 1
+  name: Test_List
+  value_type: 3
+  
+sixth:
+  id: 6
+  project_id: 1
+  name: Test_Release
+  value_type: 4

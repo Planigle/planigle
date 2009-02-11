@@ -64,6 +64,9 @@ class Story < ActiveRecord::Base
       user_priority]
     project.story_attributes.find(:all, :order => :name).each do |attrib|
       value = story_values.find(:first, :conditions => {:story_attribute_id => attrib.id})
+      if attrib.value_type == StoryAttribute::List && value
+        value = attrib.story_attribute_values.find(:first, :conditions => {:id => value.value})
+      end
       values << (value ? value.value : '')
     end
     csv << values
@@ -221,14 +224,17 @@ class Story < ActiveRecord::Base
     modified_attributes = {}
     new_attributes.each_pair do |key, value|
       if attrib_id = key.to_s.match(/custom_(.*)/)
-        val = story_values.find(:first, :conditions => {:story_attribute_id => attrib_id[1]})
-        if val && value != nil and value != ""
-          val.value = value
-          val.save(false)
-        elsif val
-          val.destroy
-        elsif value != nil and value != ""
-          story_values << StoryValue.new({:story_attribute_id => attrib_id[1], :value => value})
+        attrib = StoryAttribute.find(:first, :conditions => {:id => attrib_id[1]})
+        if attrib.value_type != StoryAttribute::List || attrib.story_attribute_values.find(:first, :conditions => {:id => value}) # Ignore invalid values for lists
+          val = story_values.find(:first, :conditions => {:story_attribute_id => attrib_id[1]})
+          if val && value != nil and value != ""
+            val.value = value
+            val.save(false)
+          elsif val
+            val.destroy
+          elsif value != nil and value != ""
+            story_values << StoryValue.new({:story_attribute_id => attrib.id, :value => value})
+          end
         end
       else
         modified_attributes[key] = value

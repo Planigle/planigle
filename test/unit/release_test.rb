@@ -8,6 +8,7 @@ class ReleaseTest < ActiveSupport::TestCase
   fixtures :projects
   fixtures :iterations
   fixtures :stories
+  fixtures :story_attribute_values
 
   # Test that a release can be created.
   def test_create_release
@@ -41,8 +42,10 @@ class ReleaseTest < ActiveSupport::TestCase
   def test_delete_release
     total_count = ReleaseTotal.count
     assert_equal stories(:first).release, releases(:first)
+    assert_equal story_attribute_values(:fourth).release, releases(:first)
     releases(:first).destroy
     stories(:first).reload
+    assert_nil StoryAttributeValue.find_by_id(4)
     assert_nil stories(:first).release
     assert_equal total_count - 2, ReleaseTotal.count
   end
