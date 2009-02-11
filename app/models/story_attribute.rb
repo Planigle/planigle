@@ -24,10 +24,21 @@ class StoryAttribute < ActiveRecord::Base
     super
   end
   
-  # Update the values based on the new values.
+  # Update the values based on the new values.  Values are of the format of either the raw value or @id@value.
   def update_values(new_values)
-    story_attribute_values.each {|value| if !new_values.include?(value.value); value.destroy; end }
-    new_values.each {|value| if !story_attribute_values.find(:first, :conditions=>{:value => value}); story_attribute_values << StoryAttributeValue.new(:value => value); end}
+    story_attribute_values.each {|oldval| if !new_values.include?(oldval.value) && !(new_values.detect{|newval| newval.match(/@#{oldval.id}@.*/)}); oldval.destroy; end}
+    new_values.each do |newval|
+      match = /@(.*)@(.*)/.match(newval)
+      if match
+        value = StoryAttributeValue.find(:first, :conditions => {:id => match[1]})
+        if value
+          value.value = match[2]
+          value.save(false)
+        end
+      elsif !story_attribute_values.find(:first, :conditions=>{:value => newval})
+        story_attribute_values << StoryAttributeValue.new(:value => newval)
+      end
+    end
   end
 
   # Answer the records for a particular user.

@@ -101,7 +101,7 @@
 			{
 				var valueString:String = "";
 				for each (var value:StoryAttributeValue in attrib.storyAttributeValues)
-					valueString += (valueString == "" ? "" : ",") + value.value;
+					valueString += (valueString == "" ? "" : ",") + (value.id == -1 ? "" : ('@' + value.id + '@')) + value.value;
 				return {"record[name]": attrib.name, "record[value_type]": attrib.valueType, "record[values]": valueString};
 			}
 						
@@ -206,7 +206,7 @@
 							<mx:LinkButton id="editValueBtnAdd" icon="{parentApplication.imgAdd}" toolTip="Add Value" click="createValue(event)"/>
 							<mx:LinkButton id="editValueBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete Value" click="deleteValue(event)" visible="{editAttributeValues.selectedItem != null}"/>
 						</mx:HBox>
-						<mx:TextInput id='editValueFieldName' maxChars="100" width="200" visible="{editAttributeValues.selectedItem != null}" change="editAttributeValues.selectedItem.value = editValueFieldName.text" restrict="^,"/>
+						<mx:TextInput id='editValueFieldName' maxChars="100" width="200" visible="{editAttributeValues.selectedItem != null}" change="editAttributeValues.selectedItem.value = editValueFieldName.text" restrict="^,@"/>
 					</mx:FormItem>
 				</mx:Form>
 			</mx:HBox>

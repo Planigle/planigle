@@ -46,6 +46,19 @@ class StoryAttributeTest < ActiveSupport::TestCase
     values = attrib.story_attribute_values
     assert_equal 1, attrib.story_attribute_values.find(:all, :conditions => {:value => 'v2'}).length
   end
+  
+  # Test updating existing values.
+  def test_update_existing_values
+    attrib = story_attributes(:fifth)
+    attrib.attributes = {:values => '@1@replace,new'}
+    val = attrib.story_attribute_values
+    val.reload
+    assert_equal 2, val.length
+    assert_equal 1, val[0].id
+    assert_equal 'replace', val[0].reload.value
+    assert val[1].id > 3
+    assert_equal 'new', val[1].value
+  end
 
   # Test deleting a story attribute (should delete story attribute values).
   def test_delete_story_attribute
