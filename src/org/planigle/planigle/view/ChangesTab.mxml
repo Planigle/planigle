@@ -50,13 +50,15 @@
 						<mx:ComboBox id='changesChanger' width="200" dataProvider="{users}" labelField="name"/>
 					</mx:FormItem>
 					<mx:FormItem label='Object Type'>
-						<mx:ComboBox id='changesObjectType' width="200" selectedIndex="8">
+						<mx:ComboBox id='changesObjectType' width="200" selectedIndex="10">
+							<mx:Object label="Company" value="Company" />
 							<mx:Object label="Individual" value="Individual" />
 							<mx:Object label="Iteration" value="Iteration" />
 							<mx:Object label="Project" value="Project" />
 							<mx:Object label="Release" value="Release" />
 							<mx:Object label="Story" value="Story" />
 							<mx:Object label="Story Attribute" value="StoryAttribute" />
+							<mx:Object label="Story Attribute Value" value="StoryAttributeValue" />
 							<mx:Object label="Task" value="Task" />
 							<mx:Object label="Team" value="Team" />
 							<mx:Object label="All Types" value='' />

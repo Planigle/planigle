@@ -43,7 +43,6 @@ class StoryAttributeTest < ActiveSupport::TestCase
     val2 = attrib.story_attribute_values.find(:all, :conditions => {:value => 'val 1'})
     assert_equal 1, val2.length
     assert_equal val[0].id, val2[0].id
-    values = attrib.story_attribute_values
     assert_equal 1, attrib.story_attribute_values.find(:all, :conditions => {:value => 'v2'}).length
   end
   
@@ -63,10 +62,10 @@ class StoryAttributeTest < ActiveSupport::TestCase
   # Test updating release values.
   def test_update_release_values
     attrib = story_attributes(:sixth)
-    attrib.attributes = {:values => '@4@replace,1@new'}
+    attrib.attributes = {:values => '@4@replace,1@new,@test'}
     val = attrib.story_attribute_values
     val.reload
-    assert_equal 2, val.length
+    assert_equal 3, val.length
     assert_equal 4, val[0].id
     val[0].reload
     assert_equal 1, val[0].release_id
@@ -74,6 +73,9 @@ class StoryAttributeTest < ActiveSupport::TestCase
     assert val[1].id > 5
     assert_equal 1, val[1].release_id
     assert_equal 'new', val[1].value
+    assert val[2].id > 5
+    assert_equal nil, val[2].release_id
+    assert_equal 'test', val[2].value
   end
 
   # Test deleting a story attribute (should delete story attribute values).
