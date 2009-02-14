@@ -3,6 +3,7 @@ class StoryAttributeValue < ActiveRecord::Base
   belongs_to :release
   attr_accessible :value, :story_attribute_id, :release_id
   acts_as_audited
+  acts_as_audited :except => [:release_id, :story_attribute_id]
 
   validates_length_of       :value, :maximum => 100, :allow_nil => true # Allow nil to workaround bug
   

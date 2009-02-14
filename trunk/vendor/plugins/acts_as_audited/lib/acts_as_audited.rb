@@ -179,7 +179,14 @@ module CollectiveIdea #:nodoc:
         def write_audit(action = :update, user = nil)
 #          self.audits.create :changes => changed_attributes, :action => action.to_s, :user => user # WRB - Changed to look to thread for user
           if self.class == StoryValue
-            story.audits.create :auditable_name => story.name, :changes => {story_attribute.name => changed_attributes['value']}, :action => 'update', :project_id => Thread.current[:user] ? Thread.current[:user].project_id : nil, :user => Thread.current[:user], :username => Thread.current[:user] ? Thread.current[:user].name : nil 
+            if (story_attribute.value_type == StoryAttribute::List || story_attribute.value_type == StoryAttribute::ReleaseList) && changed_attributes['value']
+              old_value = StoryAttributeValue.find(:first, :conditions => {:id => changed_attributes['value'][0]})
+              new_value = StoryAttributeValue.find(:first, :conditions => {:id => changed_attributes['value'][1]})
+              value = [old_value ? old_value.value : '', new_value ? new_value.value : '']
+            else
+              value = changed_attributes['value']
+            end
+            story.audits.create :auditable_name => story.name, :changes => {story_attribute.name => value}, :action => 'update', :project_id => Thread.current[:user] ? Thread.current[:user].project_id : nil, :user => Thread.current[:user], :username => Thread.current[:user] ? Thread.current[:user].name : nil 
           else
             self.audits.create :auditable_name => name, :changes => changed_attributes, :action => action.to_s, :project_id => Thread.current[:user] ? Thread.current[:user].project_id : nil, :user => Thread.current[:user], :username => Thread.current[:user] ? Thread.current[:user].name : nil 
           end

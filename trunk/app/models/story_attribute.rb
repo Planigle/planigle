@@ -38,8 +38,8 @@ class StoryAttribute < ActiveRecord::Base
       else
         match = /(.*)@(.*)/.match(newval)
         if match
-          if !story_attribute_values.find(:first, :conditions=>{:release_id => match[1], :value => match[2]})
-            story_attribute_values << StoryAttributeValue.new(:release_id => match[1], :value => match[2])
+          if !story_attribute_values.find(:first, :conditions=>{:release_id => match[1], :value => (match[2] == "" ? nil : match[2])})
+            story_attribute_values << StoryAttributeValue.new(:release_id => match[1], :value => (match[2] == "" ? nil : match[2]))
           end  
         elsif !story_attribute_values.find(:first, :conditions=>{:value => newval})
           story_attribute_values << StoryAttributeValue.new(:value => newval)

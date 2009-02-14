@@ -164,7 +164,12 @@ package org.planigle.planigle.model
 		// Answer the type of object that was changed.
 		public function get objectType():String
 		{
-			return auditableType == 'StoryAttribute' ? 'Story Attribute' : auditableType;
+			switch (auditableType)
+			{
+				case 'StoryAttribute': return 'Story Attribute';
+				case 'StoryAttributeValue': return 'Story Attribute Value';
+				default: return auditableType;
+			}
 		}
 		
 		public function set objectType(type:String):void

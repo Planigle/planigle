@@ -103,7 +103,7 @@
 			{
 				var valueString:String = "";
 				for each (var value:StoryAttributeValue in attrib.storyAttributeValues)
-					valueString += (valueString == "" ? "" : ",") + (value.id == -1 ? (attrib.valueType == StoryAttribute.RELEASE_LIST ? (value.releaseId + '@') : "") : ('@' + value.id + '@')) + value.value;
+					valueString += (valueString == "" ? "" : ",") + (value.id == -1 ? (attrib.valueType == StoryAttribute.RELEASE_LIST ? ((value.releaseId == null ? '' : value.releaseId) + '@') : "") : ('@' + value.id + '@')) + value.value;
 				return {"record[name]": attrib.name, "record[value_type]": attrib.valueType, "record[values]": valueString};
 			}
 						
@@ -177,6 +177,11 @@
 							valueSelected(event);
 						}
 					}
+					else
+					{
+						editAttributeRelease.visible = false;
+						editAttributeRelease.height = 0;
+					}
 				}
 			}
 
@@ -229,9 +234,9 @@
 							<mx:Object label="List" value="3" />
 							<mx:Object label="List Per Release" value="4" />
 						</mx:ComboBox>
+						<mx:ComboBox id='editAttributeRelease' width="200" editable="false" dataProvider="{ReleaseFactory.getInstance().releaseSelector}" labelField="name" change="updateRelease(event)"/>
 					</mx:FormItem>
 					<mx:FormItem id="formValues" label="Values">
-						<mx:ComboBox id='editAttributeRelease' width="200" editable="false" dataProvider="{ReleaseFactory.getInstance().releaseSelector}" labelField="name" change="updateRelease(event)"/>
 						<mx:List id="editAttributeValues" labelField="value" width="200" height="80" itemClick="valueSelected(event)"/>
 						<mx:HBox id="valueButtons" horizontalAlign="center" width="200">						
 							<mx:LinkButton id="editValueBtnAdd" icon="{parentApplication.imgAdd}" toolTip="Add Value" click="createValue(event)"/>
