@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:component="org.planigle.planigle.view.components.*" width="560" height="320">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:component="org.planigle.planigle.view.components.*" width="560" height="330">
 	<mx:Script>
 		<![CDATA[
 			import mx.collections.ArrayCollection;
 			import mx.managers.PopUpManager;
 			import mx.utils.ObjectUtil;
 			import org.planigle.planigle.model.IndividualFactory;
+			import org.planigle.planigle.model.ReleaseFactory;
+			import org.planigle.planigle.model.Release;
 			import org.planigle.planigle.model.StoryAttribute;
 			import org.planigle.planigle.model.StoryAttributeValue;
 
@@ -54,7 +56,6 @@
 					editAttributeFieldName.setFocus();
 					editAttributeFieldName.setSelection(0, selectedAttribute.name.length);
 					editAttributeFieldType.selectedIndex = selectedAttribute.valueType;
-					editAttributeValues.dataProvider = selectedAttribute.storyAttributeValues;
 				}
 				updateType(event);
 			}
@@ -75,8 +76,9 @@
 				var value:StoryAttributeValue = new StoryAttributeValue();
 				value.id = -1;
 				value.value = "New Value";
+				value.releaseId = selectedAttribute.valueType == StoryAttribute.RELEASE_LIST ? editAttributeRelease.selectedItem.id : null;
 				selectedAttribute.storyAttributeValues.push(value);
-				editAttributeValues.dataProvider = selectedAttribute.storyAttributeValues;
+				updateValueProvider();
 				editAttributeValues.selectedIndex = selectedAttribute.storyAttributeValues.length - 1;
 				valueSelected(event);
 			}
@@ -90,7 +92,7 @@
 					var values:ArrayCollection = new ArrayCollection(selectedAttribute.storyAttributeValues);
 					values.removeItemAt(values.getItemIndex(editAttributeValues.selectedItem));
 					selectedAttribute.storyAttributeValues = values.toArray();
-					editAttributeValues.dataProvider = selectedAttribute.storyAttributeValues;
+					updateValueProvider();
 					editAttributeValues.selectedIndex = currentIndex == 0 ? 0 : currentIndex - 1;
 					valueSelected(event);
 				}
@@ -101,7 +103,7 @@
 			{
 				var valueString:String = "";
 				for each (var value:StoryAttributeValue in attrib.storyAttributeValues)
-					valueString += (valueString == "" ? "" : ",") + (value.id == -1 ? "" : ('@' + value.id + '@')) + value.value;
+					valueString += (valueString == "" ? "" : ",") + (value.id == -1 ? (attrib.valueType == StoryAttribute.RELEASE_LIST ? (value.releaseId + '@') : "") : ('@' + value.id + '@')) + value.value;
 				return {"record[name]": attrib.name, "record[value_type]": attrib.valueType, "record[values]": valueString};
 			}
 						
@@ -157,13 +159,40 @@
 					selectedAttribute.valueType = editAttributeFieldType.selectedIndex
 					if (formValues.visible)
 					{
-						if (selectedAttribute.storyAttributeValues.length == 0)
-							createValue(event);
-						editAttributeValues.dataProvider = selectedAttribute.storyAttributeValues;
-						editAttributeValues.selectedItem = selectedAttribute.storyAttributeValues[0];
-						valueSelected(event);
+						if (editAttributeFieldType.selectedIndex == StoryAttribute.RELEASE_LIST)
+						{
+							editAttributeRelease.visible = true;
+							editAttributeRelease.height = 22;
+							editAttributeRelease.selectedItem = ReleaseFactory.getInstance().releaseSelector[0];
+							updateRelease(event);
+						}
+						else
+						{
+							editAttributeRelease.visible = false;
+							editAttributeRelease.height = 0;
+							if (selectedAttribute.storyAttributeValues.length == 0)
+								createValue(event);
+							updateValueProvider();
+							editAttributeValues.selectedItem = selectedAttribute.storyAttributeValues[0];
+							valueSelected(event);
+						}
 					}
 				}
+			}
+
+			// Update the data values.
+			private function updateValueProvider():void
+			{
+				editAttributeValues.dataProvider = selectedAttribute.valueType == StoryAttribute.LIST ? selectedAttribute.storyAttributeValues : selectedAttribute.valuesFor(Release(editAttributeRelease.selectedItem));
+			}
+			
+			// A release has been selected.
+			private function updateRelease(event:Event):void
+			{
+				updateValueProvider();
+				if (editAttributeValues.dataProvider.length > 0)
+					editAttributeValues.selectedItem = editAttributeValues.dataProvider[0];
+				valueSelected(event);
 			}
 			
 			// A value has been selected.
@@ -198,11 +227,13 @@
 							<mx:Object label="Text" value="1" />
 							<mx:Object label="Number" value="2" />
 							<mx:Object label="List" value="3" />
+							<mx:Object label="List Per Release" value="4" />
 						</mx:ComboBox>
 					</mx:FormItem>
 					<mx:FormItem id="formValues" label="Values">
+						<mx:ComboBox id='editAttributeRelease' width="200" editable="false" dataProvider="{ReleaseFactory.getInstance().releaseSelector}" labelField="name" change="updateRelease(event)"/>
 						<mx:List id="editAttributeValues" labelField="value" width="200" height="80" itemClick="valueSelected(event)"/>
-						<mx:HBox horizontalAlign="center" width="200">						
+						<mx:HBox id="valueButtons" horizontalAlign="center" width="200">						
 							<mx:LinkButton id="editValueBtnAdd" icon="{parentApplication.imgAdd}" toolTip="Add Value" click="createValue(event)"/>
 							<mx:LinkButton id="editValueBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete Value" click="deleteValue(event)" visible="{editAttributeValues.selectedItem != null}"/>
 						</mx:HBox>

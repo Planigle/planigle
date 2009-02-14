@@ -52,6 +52,45 @@ package org.planigle.planigle.model
 			myStoryAttributeValues = values;
 		}
 
+		// Answer the values for a particular release.
+		public function valuesFor(release:Release):ArrayCollection
+		{
+			var values:ArrayCollection = new ArrayCollection();
+			var releaseId:String = release ? release.id : null;
+			for each(var value:StoryAttributeValue in storyAttributeValues)
+			{
+				if (value.releaseId == releaseId)
+					values.addItem(value);
+			}
+			return values;
+		}
+
+		// Answer the values for a particular release (including None).
+		public function allValuesFor(release:Release):ArrayCollection
+		{
+			var values:ArrayCollection = valuesFor(release);
+			values.addItem(noneValue);
+			return values;
+		}
+		
+		// Answer the values (including None).
+		public function get allValues():ArrayCollection
+		{
+			var values:ArrayCollection = new ArrayCollection();
+			for each(var value:StoryAttributeValue in storyAttributeValues)
+				values.addItem(value);
+			values.addItem(noneValue);
+			return values;
+		}
+		
+		// Answer a value for none.
+		private function get noneValue():StoryAttributeValue
+		{
+			var value:StoryAttributeValue = new StoryAttributeValue();
+			value.value = "None";
+			return value;
+		}
+		
 		// Update me.  Params should be of the format (record[param]).  Success function
 		// will be called if successfully updated.  FailureFunction will be called if failed (will
 		// be passed an XMLList with errors).

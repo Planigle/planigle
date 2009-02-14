@@ -588,6 +588,7 @@
 					storyFieldRelease.selectedItem = release.selectedItem;
 				else
 					storyFieldRelease.selectedItem = storyFieldIteration.selectedItem.defaultRelease();
+				updateRelease();
 
 				if (team.selectedItem.id != "-1")
 					storyFieldTeam.selectedItem = team.selectedItem;
@@ -649,6 +650,7 @@
 						else
 							storyFieldRelease.dataProvider = ReleaseFactory.getInstance().releaseSelector;
 						storyFieldRelease.selectedItem = ReleaseFactory.getInstance().find(currentItem.releaseId);
+						updateRelease();
 						storyFieldAcceptanceCriteria.text = currentItem.acceptanceCriteria;
 
 						var it:String = currentItem.teamId;
@@ -690,7 +692,7 @@
 						HTMLTextArea(disp).text = value ? String(value) : "";
 					else if (attrib.valueType >= StoryAttribute.LIST)
 					{
-						var selected:StoryAttributeValue = null;
+						var selected:StoryAttributeValue = ComboBox(disp).dataProvider.getItemAt(ComboBox(disp).dataProvider.length - 1);
 						for each (var attribValue:StoryAttributeValue in attrib.storyAttributeValues)
 						{
 							if (attribValue.id == int(value))
@@ -1072,10 +1074,26 @@
 		}
 
 		// Update the release based on the change to the iteration.
-		public function updateRelease():void
+		public function updateIteration():void
 		{
 			storyFieldRelease.dataProvider = storyFieldIteration.selectedItem.releases();
 			storyFieldRelease.selectedItem = (release.selectedItem.id == "-1" || !release.selectedItem.id) ? storyFieldIteration.selectedItem.defaultRelease() : release.selectedItem;
+			updateRelease();
+		}
+
+		// The selected release has changed.
+		public function updateRelease():void
+		{
+			for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
+			{
+				if (attrib.valueType == StoryAttribute.RELEASE_LIST)
+				{
+					var id:String = "storyField" + attrib.id.toString();
+					var values:ArrayCollection = attrib.allValuesFor(Release(storyFieldRelease.selectedItem));
+					ComboBox(customChildren[id]).dataProvider = values;
+					ComboBox(customChildren[id]).selectedIndex = values.length - 1;
+				}
+			}
 		}
 		
 		// Update fields based on new status.
@@ -1187,14 +1205,16 @@
 					  	combo.id = id;
 					  	combo.width = 200;
 					  	combo.editable = false;
-					  	combo.dataProvider = attrib.storyAttributeValues;
 					  	combo.labelField = "value";
+					  	combo.dataProvider = attrib.allValues;
+					  	combo.selectedIndex = attrib.allValues.length - 1;
 					  	formItem.addChild(combo);
 					  	customChildren[id] = combo;
 					    break;
 					}
 					changeForm.addChild(formItem);
 				}
+			  	updateRelease();
 				setCustomAttributes();
 			}
 		}
@@ -1236,10 +1256,10 @@
 								<mx:VBox>
 									<mx:Form id="changeForm2" defaultButton="{storyBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
 										<mx:FormItem label="Iteration" id="storyFormIteration">
-											<mx:ComboBox id='storyFieldIteration' width="200" editable="false" labelField="name" change="updateRelease()"></mx:ComboBox>
+											<mx:ComboBox id='storyFieldIteration' width="200" editable="false" labelField="name" change="updateIteration()"></mx:ComboBox>
 										</mx:FormItem>
 										<mx:FormItem label="Release" id="storyFormRelease">
-											<mx:ComboBox id='storyFieldRelease' width="200" editable="false" labelField="name"></mx:ComboBox>
+											<mx:ComboBox id='storyFieldRelease' width="200" editable="false" labelField="name" change="updateRelease()"></mx:ComboBox>
 										</mx:FormItem>
 										<mx:FormItem label='Team' id="storyFormTeam">
 											<mx:ComboBox id='storyFieldTeam' width="200" editable="false" dataProvider="{IndividualFactory.current().project.teamSelector}" labelField="name"></mx:ComboBox>

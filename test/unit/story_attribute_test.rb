@@ -59,6 +59,22 @@ class StoryAttributeTest < ActiveSupport::TestCase
     assert val[1].id > 3
     assert_equal 'new', val[1].value
   end
+  
+  # Test updating release values.
+  def test_update_release_values
+    attrib = story_attributes(:sixth)
+    attrib.attributes = {:values => '@4@replace,1@new'}
+    val = attrib.story_attribute_values
+    val.reload
+    assert_equal 2, val.length
+    assert_equal 4, val[0].id
+    val[0].reload
+    assert_equal 1, val[0].release_id
+    assert_equal 'replace', val[0].value
+    assert val[1].id > 5
+    assert_equal 1, val[1].release_id
+    assert_equal 'new', val[1].value
+  end
 
   # Test deleting a story attribute (should delete story attribute values).
   def test_delete_story_attribute
