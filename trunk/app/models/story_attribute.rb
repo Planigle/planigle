@@ -24,19 +24,26 @@ class StoryAttribute < ActiveRecord::Base
     super
   end
   
-  # Update the values based on the new values.  Values are of the format of either the raw value or @id@value.
+  # Update the values based on the new values.  Values are of the format of either the raw value or @id@value or release_id@value.
   def update_values(new_values)
-    story_attribute_values.each {|oldval| if !new_values.include?(oldval.value) && !(new_values.detect{|newval| newval.match(/@#{oldval.id}@.*/)}); oldval.destroy; end}
+    story_attribute_values.each {|oldval| if !new_values.include?(oldval.value) && !new_values.include?(oldval.release_id.to_s + '@' + oldval.value) && !(new_values.detect{|newval| newval.match(/@#{oldval.id}@.*/)}); oldval.destroy; end}
     new_values.each do |newval|
       match = /@(.*)@(.*)/.match(newval)
       if match
-        value = StoryAttributeValue.find(:first, :conditions => {:id => match[1]})
+        value = story_attribute_values.find(:first, :conditions => {:id => match[1]})
         if value
           value.value = match[2]
           value.save(false)
         end
-      elsif !story_attribute_values.find(:first, :conditions=>{:value => newval})
-        story_attribute_values << StoryAttributeValue.new(:value => newval)
+      else
+        match = /(.*)@(.*)/.match(newval)
+        if match
+          if !story_attribute_values.find(:first, :conditions=>{:release_id => match[1], :value => match[2]})
+            story_attribute_values << StoryAttributeValue.new(:release_id => match[1], :value => match[2])
+          end  
+        elsif !story_attribute_values.find(:first, :conditions=>{:value => newval})
+          story_attribute_values << StoryAttributeValue.new(:value => newval)
+        end
       end
     end
   end

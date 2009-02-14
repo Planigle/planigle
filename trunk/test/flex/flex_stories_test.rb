@@ -168,6 +168,19 @@ class FlexStoriesTest < Test::Unit::TestCase
     @ie.text_area("editValueFieldName").input(:text => 'Gamma' )
     @ie.button("editValueBtnAdd").click # Add a new value
     @ie.text_area("editValueFieldName").input(:text => 'Zeta' )
+
+    @ie.button("editAttributeBtnAdd").click # Add a new listattribute: Theme
+    @ie.text_area("editAttributeFieldName").input(:text => 'Theme' )
+    @ie.combo_box("editAttributeFieldType").open
+    @ie.combo_box("editAttributeFieldType").select(:item_renderer => 'List Per Release' )
+    @ie.button("editValueBtnAdd").click # Add a new value
+    @ie.text_area("editValueFieldName").input(:text => 'Do it' )
+    @ie.button("editValueBtnAdd").click # Add a new value
+    @ie.text_area("editValueFieldName").input(:text => 'Do it right' )
+    @ie.combo_box("editAttributeRelease").open
+    @ie.combo_box("editAttributeRelease").select(:item_renderer => 'second' )
+    @ie.button("editValueBtnAdd").click # Add a new value
+    @ie.text_area("editValueFieldName").input(:text => 'Do it fast' )
     @ie.button("editAttributeBtnOk").click
     sleep 5
 
@@ -175,6 +188,23 @@ class FlexStoriesTest < Test::Unit::TestCase
     @ie.text_area("storyField7").input(:text => 'custom text')
     @ie.combo_box("storyField8").click
     @ie.combo_box("storyField8").select(:item_renderer => 'Zeta')
+    @ie.combo_box("storyFieldRelease").click
+    @ie.combo_box("storyFieldRelease").select(:item_renderer => 'first')
+    @ie.combo_box("storyField9").click
+    @ie.combo_box("storyField9").select(:item_renderer => 'Do it right')
+    @ie.combo_box("storyFieldRelease").click
+    @ie.combo_box("storyFieldRelease").select(:item_renderer => 'No Release')    
+    begin
+      @ie.combo_box("storyField9").click
+      @ie.combo_box("storyField9").select(:item_renderer => 'Do it right')
+      assert false #shouldn't get to this point
+    rescue Exception
+    end
+    @ie.combo_box("storyField9").click
+    @ie.combo_box("storyField9").select(:item_renderer => 'None')
+    @ie.combo_box("storyFieldRelease").select(:item_renderer => 'second')
+    @ie.combo_box("storyField9").click
+    @ie.combo_box("storyField9").select(:item_renderer => 'Do it fast')
     @ie.button("storyBtnChange").click
   end
   

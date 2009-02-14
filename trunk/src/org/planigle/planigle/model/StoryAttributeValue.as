@@ -8,7 +8,7 @@ package org.planigle.planigle.model
 	{
 		public var id:int;
 		public var storyAttributeId:int;
-		public var releaseId:int;
+		public var releaseId:String;
 		public var value:String;
 
 		// Populate myself from XML.
