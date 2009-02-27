@@ -6,12 +6,34 @@ package org.planigle.planigle.view
 	import org.planigle.planigle.model.Company;
 	import org.planigle.planigle.model.CompanyFactory;
 	import org.planigle.planigle.model.IndividualFactory;
+	import org.planigle.planigle.model.ReleaseFactory;
 	import org.planigle.planigle.model.IterationFactory;
 	import org.planigle.planigle.model.Project;
 	
 	// Provide static helper methods for formatting and sorting common fields.
 	public class ViewHelper
 	{
+		// Display the release's name in the table (rather than ID).
+		public static function formatRelease(item:Object, column:DataGridColumn):String
+		{
+			if (item.releaseId != "-1")
+				return ReleaseFactory.getInstance().find(item.releaseId).name;
+			else
+				return "";
+		}
+
+		// Answer the index of the release in the list of releases (or -1 if none).
+		private static function indexRelease(item:Object):int
+		{
+			return ReleaseFactory.getInstance().releaseSelector.getItemIndex(ReleaseFactory.getInstance().find(item.releaseId));
+		}
+		
+		// Answer the sort order for the specified items (based on where they are in the list of releases).
+		public static function sortRelease(item1:Object, item2:Object):int
+		{
+			return ObjectUtil.numericCompare( indexRelease(item1), indexRelease(item2) );
+		}
+
 		// Display the iteration's name in the table (rather than ID).
 		public static function formatIteration(item:Object, column:DataGridColumn):String
 		{

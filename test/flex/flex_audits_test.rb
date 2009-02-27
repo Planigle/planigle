@@ -32,8 +32,9 @@ class FlexAuditsTest < Test::Unit::TestCase
     @ie.combo_box("changesChanger").scroll(:position => '0')
     @ie.combo_box("changesChanger").select(:item_renderer => 'aaron hank' )
     @ie.combo_box("changesObjectType").open
+    @ie.combo_box("changesObjectType").scroll(:position => '4')
     @ie.combo_box("changesObjectType").select(:item_renderer => 'Story' )
-    @ie.text_area("changesStartDate").input(:text => '11/02/08' )
+    @ie.text_area("changesStartDate").input(:text => '11/01/08' )
     @ie.text_area("changesEndDate").input(:text => '11/02/08' )
     @ie.button("searchBtn").click
     assert_equal 1, @ie.data_grid("changeGrid").num_rows

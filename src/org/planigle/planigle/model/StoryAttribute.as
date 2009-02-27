@@ -14,6 +14,10 @@ package org.planigle.planigle.model
 		public var projectId:int;
 		public var name:String;
 		public var valueType:int;
+		public var isCustom:Boolean;
+		public var width:int;
+		public var ordering:Number;
+		public var show:Boolean;
 		private var myStoryAttributeValues:Array = new Array();
 		public static const STRING:int = 0;
 		public static const TEXT:int = 1;
@@ -28,6 +32,10 @@ package org.planigle.planigle.model
 			id = xml.id;
 			name = xml.name;
 			valueType = xml.child("value-type");
+			isCustom = xml.child("is-custom");
+			width = xml.width;
+			ordering = xml.ordering;
+			show = xml.show;
 
 			var newValues:ArrayCollection = new ArrayCollection();
 			for (var i:int = 0; i < xml.child("story-attribute-values").child("story-attribute-value").length(); i++)

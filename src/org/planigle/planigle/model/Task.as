@@ -61,6 +61,12 @@ package org.planigle.planigle.model
 			return -1;
 		}
 
+		// Tasks aren't assigned directly to releases.
+		public function get releaseId():int
+		{
+			return -1;
+		}
+
 		// Update the task.  Params should be of the format (record[param]).  Success function
 		// will be called if successfully updated.  FailureFunction will be called if failed (will
 		// be passed an XMLList with errors).

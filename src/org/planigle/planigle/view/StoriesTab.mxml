@@ -5,7 +5,6 @@
 	</mx:Metadata>
 	<mx:Script>
 		<![CDATA[
-			import org.planigle.planigle.model.StoryAttributeValue;
 		import flash.display.DisplayObject;
 		import mx.collections.ArrayCollection;
 		import mx.rpc.events.ResultEvent;
@@ -13,6 +12,7 @@
 		import mx.core.Container;
 		import mx.controls.Alert;
 		import mx.controls.DataGrid;
+		import mx.controls.dataGridClasses.DataGridColumn;
 		import mx.events.DataGridEvent;
 		import mx.events.DragEvent;
 		import mx.events.CloseEvent;
@@ -20,6 +20,7 @@
 		import mx.binding.utils.ChangeWatcher;
 		import mx.containers.FormItem;
 		import mx.controls.TextInput;
+		import org.planigle.planigle.model.StoryAttributeValue;
 		import org.planigle.planigle.model.ViewModelLocator;
 		import org.planigle.planigle.model.IndividualFactory;
 		import org.planigle.planigle.model.Individual;
@@ -69,10 +70,13 @@
 		
 		private var baseChildren:int;
 		private var customChildren:Object = new Object();
+		private var originalColumns:Array;
 
 		// Set up event listeners.  Called when the canvas has been created.
 		private function created(event:Event):void
 		{
+			originalColumns = storyResourceGrid.columns;
+			setColumns();
 			baseChildren = changeForm.numChildren;
 			panelHeight = combinedPanel.height;
 			ChangeWatcher.watch( factory, "currentIndividual", updateIndividual );
@@ -349,8 +353,10 @@
 		public function handleFilter(event:Event):void
 		{
 			var scroll:Number = storyResourceGrid.verticalScrollPosition;
-			storyColumnIteration.visible = !iteration.selectedItem || iteration.selectedItem.id == "-1";
-			storyColumnTeam.visible = IndividualFactory.current().project && IndividualFactory.current().project.teams.length > 0 && (!team.selectedItem || team.selectedItem.id == "-1");
+			if (storyColumnIteration)
+				storyColumnIteration.visible = !iteration.selectedItem || iteration.selectedItem.id == "-1";
+			if (storyColumnTeam)
+				storyColumnTeam.visible = IndividualFactory.current().project && IndividualFactory.current().project.teams.length > 0 && (!team.selectedItem || team.selectedItem.id == "-1");
 			var justStories:ArrayCollection = getFilteredStories();
 			storiesCount.text = justStories.length.toString();
 			var storiesAndTasks:ArrayCollection = new ArrayCollection;
@@ -498,7 +504,7 @@
 			storyFormPublic.height = 22;
 			storyFormPublic.visible = true;
 			storyBtnEditAttributes.visible = factory.currentIndividual.isAtLeastProjectAdmin();
-			for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
+			for each (var attrib:StoryAttribute in IndividualFactory.current().project.customStoryAttributes)
 			{
 				var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()].parent;
 				disp.visible = true;
@@ -522,7 +528,7 @@
 			storyFormPublic.height = 0;
 			storyFormPublic.visible = false;
 			storyBtnEditAttributes.visible = false;
-			for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
+			for each (var attrib:StoryAttribute in IndividualFactory.current().project.customStoryAttributes)
 			{
 				var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()].parent;
 				disp.visible = false;
@@ -684,7 +690,7 @@
 		{
 			if (currentItem && currentItem.isStory())
 			{
-				for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
+				for each (var attrib:StoryAttribute in IndividualFactory.current().project.customStoryAttributes)
 				{
 					var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
 					var value:Object = currentItem.getCustomValue(attrib.id);
@@ -709,13 +715,13 @@
 		// Clear the custom attribute fields.
 		public function clearCustomAttributes(): void
 		{
-			for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
+			for each (var attrib:StoryAttribute in IndividualFactory.current().project.customStoryAttributes)
 			{
 				var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
 				if (attrib.valueType == StoryAttribute.TEXT)
 					HTMLTextArea(disp).text = "";
 				else if (attrib.valueType >= StoryAttribute.LIST)
-					ComboBox(disp).selectedIndex = 0;
+					ComboBox(disp).selectedIndex = ComboBox(disp).dataProvider.length - 1;
 				else
 					TextInput(disp).text = "";
 			}
@@ -785,7 +791,7 @@
 				params['record[team_id]'] = storyFieldTeam.selectedItem.id > 0 ? storyFieldTeam.selectedItem.id : "";
 				params['record[is_public]'] = storyFieldPublic.selectedItem.value;
 
-				for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
+				for each (var attrib:StoryAttribute in IndividualFactory.current().project.customStoryAttributes)
 				{
 					var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
 					if (attrib.valueType < StoryAttribute.LIST || ComboBox(disp).selectedItem)
@@ -1011,6 +1017,7 @@
 			}
 			if (changes)
 				handleFilter(event);
+			sortCustomData(event);
 		}
 		
 		// Answer the color to use for a row.
@@ -1084,7 +1091,7 @@
 		// The selected release has changed.
 		public function updateRelease():void
 		{
-			for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
+			for each (var attrib:StoryAttribute in IndividualFactory.current().project.customStoryAttributes)
 			{
 				if (attrib.valueType == StoryAttribute.RELEASE_LIST)
 				{
@@ -1169,7 +1176,7 @@
 
 			if (IndividualFactory.current().project)
 			{
-				for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
+				for each (var attrib:StoryAttribute in IndividualFactory.current().project.customStoryAttributes)
 				{
 					var formItem:FormItem = new FormItem();
 					formItem.label = attrib.name;
@@ -1217,6 +1224,61 @@
 			  	updateRelease();
 				setCustomAttributes();
 			}
+		}
+
+		private var columnMapping:Object = new Object();
+
+		// Set the columns for the table.
+		private function setColumns():void
+		{
+			var newColumns:ArrayCollection = new ArrayCollection();
+			newColumns.addItem(originalColumns[0]);
+			for each(var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
+			{
+				if (!attrib.isCustom)
+				{
+					for each(var column:DataGridColumn in originalColumns)
+					{
+						if (column.headerText == attrib.name)
+						{
+							newColumns.addItem(column);
+							column.width = attrib.width;
+							column.visible = attrib.show;
+						}
+					}
+				}
+				else if (attrib.show)
+				{
+					var newColumn:DataGridColumn = new DataGridColumn();
+					newColumn.headerText = attrib.name;
+					newColumn.width = attrib.width;
+					newColumn.wordWrap = true;
+					newColumn.itemRenderer = CustomAttributeRenderer;
+					newColumn.dataField = "custom";
+					columnMapping[newColumn.headerText] = attrib.id;
+					newColumns.addItem(newColumn);
+				}
+			}
+			newColumns.addItem(originalColumns[originalColumns.length - 1]);
+			storyResourceGrid.columns = newColumns.toArray();
+		}
+		
+		// Handle an attempt to sort based on custom data.  Do so by setting the value to sort on.
+		private function sortCustomData(event:DataGridEvent):void
+		{
+			var id:Object = columnMapping[storyResourceGrid.columns[event.columnIndex].headerText];
+			if (id != null)
+			{
+				for each (var item:Object in filteredStories)
+					item.custom = item.getCustomFormattedValue(id);
+			}
+		}
+		
+		// Get the custom data for a particular field for a particular object.
+		public function getCustomData(columnIndex:int, item:Object):String
+		{
+			var id:Object = columnMapping[storyResourceGrid.columns[columnIndex].headerText];
+			return item.getCustomFormattedValue(id);
 		}
 		]]>
 	</mx:Script>
@@ -1343,6 +1405,21 @@
 		</mx:Transition>
 	</mx:transitions>
 	
+	<mx:Component id="CustomAttributeRenderer">	
+		<mx:Text paddingLeft="5" text="{outerDocument.getCustomData(getColumnIndex(), data)}" selectable="false">
+			<mx:Script>
+				<![CDATA[
+					// This class is used for the cells on a custom attribute column.
+					import mx.controls.dataGridClasses.DataGridListData;
+					private function getColumnIndex():int
+					{
+						return DataGridListData(listData).columnIndex;
+					}
+				]]>
+			</mx:Script>
+		</mx:Text>
+	</mx:Component>
+
 	<mx:Panel id="combinedPanel" height="100%" y="0" width="100%" x="0" borderThicknessTop="0" borderThicknessLeft="0" borderThicknessRight="0" headerHeight="0">
 		<mx:VBox id="vbox" width="100%" paddingTop="5" paddingLeft="5" paddingRight="5">
 			<mx:VBox id="storyBtnBox" width="100%">
@@ -1400,12 +1477,12 @@
 						</mx:Component>
 					</mx:itemRenderer>
 				</mx:DataGridColumn>
-				<mx:DataGridColumn id="storyColumnIteration" width="135" headerText="Iteration" labelFunction="ViewHelper.formatIteration" sortCompareFunction="ViewHelper.sortIteration"/>
-				<mx:DataGridColumn id="storyColumnTeam" headerText="Team" width="135" labelFunction="ViewHelper.formatTeam" sortCompareFunction="ViewHelper.sortTeam"/>
-				<mx:DataGridColumn id="storyColumnIndividual" headerText="Owner" width="135" labelFunction="ViewHelper.formatIndividual" sortCompareFunction="ViewHelper.sortIndividual"/>
-				<mx:DataGridColumn headerText="Size" width="65" dataField="size" sortCompareFunction="ViewHelper.sortSize"/>
-				<mx:DataGridColumn headerText="Time" width="65" dataField="calculatedEffort" sortCompareFunction="ViewHelper.sortCalculatedEffort"/>
-				<mx:DataGridColumn editable="false" width="100" minWidth="115" headerText="Status" sortCompareFunction="ViewHelper.sortStatus">
+				<mx:DataGridColumn id="storyColumnIteration" headerText="Iteration" labelFunction="ViewHelper.formatIteration" sortCompareFunction="ViewHelper.sortIteration"/>
+				<mx:DataGridColumn id="storyColumnTeam" headerText="Team" labelFunction="ViewHelper.formatTeam" sortCompareFunction="ViewHelper.sortTeam"/>
+				<mx:DataGridColumn id="storyColumnIndividual" headerText="Owner" labelFunction="ViewHelper.formatIndividual" sortCompareFunction="ViewHelper.sortIndividual"/>
+				<mx:DataGridColumn headerText="Size" dataField="size" sortCompareFunction="ViewHelper.sortSize"/>
+				<mx:DataGridColumn headerText="Time" dataField="calculatedEffort" sortCompareFunction="ViewHelper.sortCalculatedEffort"/>
+				<mx:DataGridColumn editable="false" minWidth="115" headerText="Status" sortCompareFunction="ViewHelper.sortStatus">
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
@@ -1419,9 +1496,12 @@
 						</mx:Component>
 					</mx:itemRenderer>
 				</mx:DataGridColumn>
-				<mx:DataGridColumn headerText="Public" width="60" dataField="isPublic"/>
-				<mx:DataGridColumn headerText="Rank" width="65" dataField="normalizedPriority" sortCompareFunction="ViewHelper.sortPriority"/>
-				<mx:DataGridColumn headerText="User Rank" width="90" dataField="modifiedUserPriority" sortCompareFunction="ViewHelper.sortUserPriority"/>
+				<mx:DataGridColumn headerText="Public" dataField="isPublic"/>
+				<mx:DataGridColumn headerText="Rank" dataField="normalizedPriority" sortCompareFunction="ViewHelper.sortPriority"/>
+				<mx:DataGridColumn headerText="User Rank" dataField="modifiedUserPriority" sortCompareFunction="ViewHelper.sortUserPriority"/>
+				<mx:DataGridColumn headerText="Description" dataField="description"/>
+				<mx:DataGridColumn headerText="Acceptance Criteria" dataField="acceptanceCriteria"/>
+				<mx:DataGridColumn headerText="Release" labelFunction="ViewHelper.formatRelease" sortCompareFunction="ViewHelper.sortRelease"/>
 				<mx:DataGridColumn editable="false" width="175" minWidth="175" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>

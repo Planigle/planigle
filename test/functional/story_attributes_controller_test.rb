@@ -120,6 +120,19 @@ class StoryAttributesControllerTest < ActionController::TestCase
     assert_equal num, resource_count
     assert_select "errors"
   end
+
+  # Create successfully ignoring the is_custom field.
+  def test_create_no_custom
+    login_as(individuals(:admin2))
+    num = resource_count
+    params = create_success_parameters
+    params[:record][:is_custom] = false
+    post :create, params.merge( :format => 'xml' )
+    assert_select "is-custom", "true"
+    assert_response 201
+    assert_equal num + 1, resource_count
+    assert_create_succeeded
+  end    
     
   # Test updating story attributes (based on role).
   def test_update_by_project_admin
@@ -162,6 +175,17 @@ class StoryAttributesControllerTest < ActionController::TestCase
     assert_response 401
     assert_change_failed
     assert_select "errors"
+  end
+  
+  # Update successfully without changing is_custom.
+  def test_update_no_custom
+    login_as(individuals(:admin2))
+    params = update_success_parameters
+    params[:record][:is_custom] = true
+    put :update, {:id => 1, :format => 'xml'}.merge(params)
+    assert_select 'is-custom', "true"
+    assert_response :success
+    assert_update_succeeded
   end
     
   # Test deleting story attributes (based on role).

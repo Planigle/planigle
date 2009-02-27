@@ -8,6 +8,7 @@
 		<![CDATA[
 		import flash.external.ExternalInterface;
 		import mx.rpc.events.ResultEvent;
+		import mx.core.Container;
 		import mx.collections.ArrayCollection;
 		import mx.controls.Alert;
 		import mx.events.ListEvent;
@@ -375,7 +376,7 @@
 		public function showHistory(event:Event) : void
 		{
 			new AuditChangedEvent(null, currentItem.isTeam() ? 'Team' : 'Project', null, null, String(currentItem.id)).dispatch();
-			viewModelLocator.selectedTab = viewModelLocator.changes;
+			viewModelLocator.selectedTab = Container(viewModelLocator.changes);
 		}
 		]]>
 	</mx:Script>

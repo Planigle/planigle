@@ -37,6 +37,7 @@ class Project < ActiveRecord::Base
   # Initialize the survey key to ensure we have a unique, non-guessable id for URLs.
   def initialize_defaults
     self.survey_key = Digest::SHA1.hexdigest( Time.now.to_s.split(//).sort_by {rand}.join )
+    add_default_attributes
   end
   
   # Answer whether I am enabled for premium services.
@@ -133,6 +134,23 @@ class Project < ActiveRecord::Base
       when Individual::ProjectAdmin then current_user.is_premium && current_user.company_id == company_id
       else false
     end
+  end
+  
+  # Add the default attributes for a story.
+  def add_default_attributes
+    story_attributes << StoryAttribute.new(:name => 'Name', :is_custom => false, :value_type => StoryAttribute::String, :width => 300, :ordering => 10, :show => true)
+    story_attributes << StoryAttribute.new(:name => 'Iteration', :is_custom => false, :value_type => StoryAttribute::List, :width => 135, :ordering => 20, :show => true)
+    story_attributes << StoryAttribute.new(:name => 'Team', :is_custom => false, :value_type => StoryAttribute::List, :width => 135, :ordering => 30, :show => true)
+    story_attributes << StoryAttribute.new(:name => 'Owner', :is_custom => false, :value_type => StoryAttribute::List, :width => 135, :ordering => 40, :show => true)
+    story_attributes << StoryAttribute.new(:name => 'Size', :is_custom => false, :value_type => StoryAttribute::Number, :width => 65, :ordering => 50, :show => true)
+    story_attributes << StoryAttribute.new(:name => 'Time', :is_custom => false, :value_type => StoryAttribute::Number, :width => 65, :ordering => 60, :show => true)
+    story_attributes << StoryAttribute.new(:name => 'Status', :is_custom => false, :value_type => StoryAttribute::List, :width => 100, :ordering => 70, :show => true)
+    story_attributes << StoryAttribute.new(:name => 'Public', :is_custom => false, :value_type => StoryAttribute::List, :width => 60, :ordering => 80, :show => true)
+    story_attributes << StoryAttribute.new(:name => 'Rank', :is_custom => false, :value_type => StoryAttribute::Number, :width => 65, :ordering => 90, :show => true)
+    story_attributes << StoryAttribute.new(:name => 'User Rank', :is_custom => false, :value_type => StoryAttribute::Number, :width => 90, :ordering => 100, :show => true)
+    story_attributes << StoryAttribute.new(:name => 'Description', :is_custom => false, :value_type => StoryAttribute::Text, :width => 300, :ordering => 110, :show => false)
+    story_attributes << StoryAttribute.new(:name => 'Acceptance Criteria', :is_custom => false, :value_type => StoryAttribute::Text, :width => 300, :ordering => 120, :show => false)
+    story_attributes << StoryAttribute.new(:name => 'Release', :is_custom => false, :value_type => StoryAttribute::List, :width => 135, :ordering => 130, :show => false)
   end
 
 protected

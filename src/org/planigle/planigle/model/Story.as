@@ -27,6 +27,7 @@ package org.planigle.planigle.model
 		public var priority:Number;
 		public var userPriority:String = "";
 		public var normalizedPriority:String = ""; // Calculated by StoryFactory
+		public var custom:String; // Used for sorting
 		private var myStoryValues:Array = new Array();
 		private var myTasks:Array = new Array();
 		public static const CREATED:int = 0;
@@ -82,6 +83,33 @@ package org.planigle.planigle.model
 					return val.value;
 			}
 			return null;
+		}
+		
+		// Answer the value for a custom value formatted to something the user can understand.
+		public function getCustomFormattedValue(id:int):String
+		{
+			var attrib:StoryAttribute;
+			for each (var attr:StoryAttribute in project.storyAttributes)
+			{
+				if (attr.id == id)
+					attrib = attr;
+			}
+			if (attrib == null)
+				return ""; // Couldn't find that attribute.
+			var value:String = getCustomValue(id);
+			switch (attrib.valueType)
+			{
+				case StoryAttribute.LIST:
+				case StoryAttribute.RELEASE_LIST:
+					for each (var attribValue:StoryAttributeValue in attrib.storyAttributeValues)
+					{
+						if (attribValue.id == int(value))
+							return attribValue.value;
+					}
+					return "None"; // Couldn't find a value;
+				default:
+					return value;
+			}
 		}
 		
 		// Answer my story values.
