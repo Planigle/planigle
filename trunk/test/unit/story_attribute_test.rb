@@ -12,6 +12,10 @@ class StoryAttributeTest < ActiveSupport::TestCase
     assert_difference 'StoryAttribute.count' do
       val = create_storyattribute
       assert !val.new_record?, "#{val.errors.full_messages.to_sentence}"
+      assert_equal 190, val.ordering
+      assert_equal false, val.show
+      assert_equal true, val.is_custom
+      assert_equal 65, val.width
     end
   end
 
@@ -27,6 +31,32 @@ class StoryAttributeTest < ActiveSupport::TestCase
     assert_success(:value_type, 0)
     assert_success(:value_type, 4)
     assert_failure(:value_type, 5)
+  end
+
+  # Test the validation of ordering.
+  def test_ordering
+    assert_failure(:ordering, -1)
+    assert_success(:ordering, 0)
+    assert_success(:ordering, 1.5)
+  end
+
+  # Test the validation of show.
+  def test_show
+    assert_success(:show, true)
+    assert_success(:show, false)
+  end
+
+  # Test the validation of width.
+  def test_width
+    assert_failure(:width, -1)
+    assert_success(:width, 0)
+    assert_success(:width, 1)
+  end
+
+  # Test the validation of is_custom.
+  def test_is_custom
+    assert_success(:is_custom, true)
+    assert_success(:is_custom, false)
   end
   
   def test_values

@@ -38,7 +38,7 @@ class Story < ActiveRecord::Base
     FasterCSV.generate(:row_sep => "\n") do |csv|
       attribs = ['PID', 'Name', 'Description', 'Acceptance Criteria', 'Size', 'Time', 'Status', 'Reason Blocked', 'Release', 'Iteration', 'Team', 'Owner', 'Public', 'User Rank']
       if (current_user.project)
-        current_user.project.story_attributes.find(:all, :order => :name).each {|attrib| attribs << attrib.name}
+        current_user.project.story_attributes.find(:all, :conditions => {:is_custom => true}, :order => :name).each {|attrib| attribs << attrib.name}
       end
       csv << attribs
       get_records(current_user).each {|story| story.export(csv)}
@@ -62,7 +62,7 @@ class Story < ActiveRecord::Base
       individual ? individual.name : '',
       is_public,
       user_priority]
-    project.story_attributes.find(:all, :order => :name).each do |attrib|
+    project.story_attributes.find(:all, :conditions => {:is_custom => true}, :order => :name).each do |attrib|
       value = story_values.find(:first, :conditions => {:story_attribute_id => attrib.id})
       if attrib.value_type == StoryAttribute::List && value
         value = attrib.story_attribute_values.find(:first, :conditions => {:id => value.value})

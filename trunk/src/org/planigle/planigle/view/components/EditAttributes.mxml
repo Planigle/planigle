@@ -24,7 +24,7 @@
 			{
 				this.updateCompleteFunction = updateCompleteFunction;
 				
-				for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
+				for each (var attrib:StoryAttribute in IndividualFactory.current().project.customStoryAttributes)
 					attributes.addItem(ObjectUtil.copy(attrib));
 					
 				if (attributes.length == 0)
@@ -112,7 +112,7 @@
 			{
 				PopUpManager.removePopUp(this);
 
-				var original:Array = IndividualFactory.current().project.storyAttributes;
+				var original:Array = IndividualFactory.current().project.customStoryAttributes;
 				for each (var oldAttrib:StoryAttribute in original)
 				{
 					var exists:Boolean = false;

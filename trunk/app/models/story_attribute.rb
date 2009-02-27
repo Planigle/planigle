@@ -2,12 +2,17 @@ class StoryAttribute < ActiveRecord::Base
   belongs_to :project
   has_many :story_attribute_values, :dependent => :destroy
   has_many :story_values, :dependent => :destroy
-  attr_accessible :project_id, :name, :value_type
+  attr_accessible :project_id, :name, :value_type, :ordering, :is_custom, :show, :width
   acts_as_audited :except => [:project_id]
 
   validates_presence_of     :name, :value_type
   validates_length_of       :name,                   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
   validates_numericality_of :value_type
+  validates_numericality_of :ordering, :allow_nil => true, :greater_than_or_equal_to => 0
+  validates_numericality_of :width, :allow_nil => true, :greater_than_or_equal_to => 0
+
+  # Assign an order on creation
+  before_create :initialize_defaults
 
   String = 0
   Text = 1
@@ -48,12 +53,23 @@ class StoryAttribute < ActiveRecord::Base
     end
   end
 
+  # Set the initial order to the number of story attributes (+1 for me).  Set public to false if not set.
+  def initialize_defaults
+    if !self.ordering
+      highest = StoryAttribute.find(:first, :conditions => {:project_id => project_id }, :order=>'ordering desc')
+      self.ordering = highest ? highest.ordering + 10 : 10
+    end
+    if self.width == nil
+      self.width = value_type == StoryAttribute::Number ? 65 : 135
+    end
+  end
+
   # Answer the records for a particular user.
   def self.get_records(current_user)
     if current_user.role >= Individual::ProjectAdmin or current_user.project_id
-      StoryAttribute.find(:all, :conditions => ["project_id = ?", current_user.project_id], :order => 'name')
+      StoryAttribute.find(:all, :include => :story_attribute_values, :conditions => ["project_id = ?", current_user.project_id], :order => 'ordering')
     else
-      StoryAttribute.find(:all, :order => 'name')
+      StoryAttribute.find(:all, :include => :story_attribute_values, :order => 'ordering')
     end
   end
 

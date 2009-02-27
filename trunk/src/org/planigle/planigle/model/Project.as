@@ -65,11 +65,24 @@ package org.planigle.planigle.model
 		{
 			return myStoryAttributes;
 		}
+		
+		public function get customStoryAttributes():Array
+		{
+			var collect:ArrayCollection = new ArrayCollection();
+			for each(var attrib:StoryAttribute in storyAttributes)
+			{
+				if (attrib.isCustom)
+					collect.addItem(attrib);
+			}
+			var array:Array = collect.toArray();
+			array.sortOn("name", Array.CASEINSENSITIVE);
+			return array;
+		}
 
 		// Set my story attributes.
 		public function set storyAttributes(storyAttributes:Array):void
 		{
-			storyAttributes.sortOn(["name"], [Array.CASEINSENSITIVE]);
+			storyAttributes.sortOn(["ordering"], [Array.NUMERIC]);
 			for each (var storyAttribute:StoryAttribute in storyAttributes)
 				storyAttribute.project = this;
 

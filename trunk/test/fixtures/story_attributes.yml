@@ -3,33 +3,317 @@ first:
   project_id: 1
   name: Test_String
   value_type: 0
+  is_custom: true
+  width: 60
+  ordering: 140
+  show: false
 
 second:
   id: 2
   project_id: 1
   name: Test_Text
   value_type: 1
+  is_custom: true
+  width: 60
+  ordering: 150
+  show: false
 
 third:
   id: 3
   project_id: 1
   name: Test_Number
   value_type: 2
+  is_custom: true
+  width: 60
+  ordering: 160
+  show: false
 
 fourth:
   id: 4
   project_id: 2
   name: Test_String2
   value_type: 0
+  is_custom: true
+  width: 60
+  ordering: 140
+  show: false
 
 fifth:
   id: 5
   project_id: 1
   name: Test_List
   value_type: 3
+  is_custom: true
+  width: 60
+  ordering: 170
+  show: true
   
 sixth:
   id: 6
   project_id: 1
   name: Test_Release
   value_type: 4
+  is_custom: true
+  width: 60
+  ordering: 180
+  show: false
+
+std_1_1:
+  id: 7
+  project_id: 1
+  name: Name
+  value_type: 0
+  is_custom: false
+  width: 300
+  ordering: 10
+  show: true
+
+std_1_2:
+  id: 8
+  project_id: 1
+  name: Iteration
+  value_type: 3
+  is_custom: false
+  width: 135
+  ordering: 20
+  show: true
+
+std_1_3:
+  id: 9
+  project_id: 1
+  name: Team
+  value_type: 3
+  is_custom: false
+  width: 135
+  ordering: 30
+  show: true
+
+std_1_4:
+  id: 10
+  project_id: 1
+  name: Owner
+  value_type: 3
+  is_custom: false
+  width: 135
+  ordering: 40
+  show: true
+
+std_1_5:
+  id: 11
+  project_id: 1
+  name: Size
+  value_type: 2
+  is_custom: false
+  width: 65
+  ordering: 50
+  show: true
+
+std_1_6:
+  id: 12
+  project_id: 1
+  name: Time
+  value_type: 2
+  is_custom: false
+  width: 65
+  ordering: 60
+  show: true
+
+std_1_7:
+  id: 13
+  project_id: 1
+  name: Status
+  value_type: 3
+  is_custom: false
+  width: 100
+  ordering: 70
+  show: true
+
+std_1_8:
+  id: 14
+  project_id: 1
+  name: Public
+  value_type: 3
+  is_custom: false
+  width: 60
+  ordering: 80
+  show: true
+
+std_1_9:
+  id: 15
+  project_id: 1
+  name: Rank
+  value_type: 2
+  is_custom: false
+  width: 65
+  ordering: 90
+  show: true
+
+std_1_10:
+  id: 16
+  project_id: 1
+  name: User Rank
+  value_type: 2
+  is_custom: false
+  width: 65
+  ordering: 100
+  show: true
+
+std_1_11:
+  id: 17
+  project_id: 1
+  name: Description
+  value_type: 1
+  is_custom: false
+  width: 300
+  ordering: 110
+  show: false
+
+std_1_12:
+  id: 18
+  project_id: 1
+  name: Acceptance Criteria
+  value_type: 1
+  is_custom: false
+  width: 300
+  ordering: 120
+  show: false
+
+std_1_13:
+  id: 19
+  project_id: 1
+  name: Release
+  value_type: 3
+  is_custom: false
+  width: 135
+  ordering: 130
+  show: false
+
+std_2_1:
+  id: 20
+  project_id: 2
+  name: Name
+  value_type: 0
+  is_custom: false
+  width: 300
+  ordering: 10
+  show: true
+
+std_2_2:
+  id: 21
+  project_id: 2
+  name: Iteration
+  value_type: 3
+  is_custom: false
+  width: 135
+  ordering: 20
+  show: true
+
+std_2_3:
+  id: 22
+  project_id: 2
+  name: Team
+  value_type: 3
+  is_custom: false
+  width: 135
+  ordering: 30
+  show: true
+
+std_2_4:
+  id: 23
+  project_id: 2
+  name: Owner
+  value_type: 3
+  is_custom: false
+  width: 135
+  ordering: 40
+  show: true
+
+std_2_5:
+  id: 24
+  project_id: 2
+  name: Size
+  value_type: 2
+  is_custom: false
+  width: 65
+  ordering: 50
+  show: true
+
+std_2_6:
+  id: 25
+  project_id: 2
+  name: Time
+  value_type: 2
+  is_custom: false
+  width: 65
+  ordering: 60
+  show: true
+
+std_2_7:
+  id: 26
+  project_id: 2
+  name: Status
+  value_type: 3
+  is_custom: false
+  width: 100
+  ordering: 70
+  show: true
+
+std_2_8:
+  id: 27
+  project_id: 2
+  name: Public
+  value_type: 3
+  is_custom: false
+  width: 60
+  ordering: 80
+  show: true
+
+std_2_9:
+  id: 28
+  project_id: 2
+  name: Rank
+  value_type: 2
+  is_custom: false
+  width: 65
+  ordering: 90
+  show: true
+
+std_2_10:
+  id: 29
+  project_id: 2
+  name: User Rank
+  value_type: 2
+  is_custom: false
+  width: 65
+  ordering: 100
+  show: true
+
+std_2_11:
+  id: 30
+  project_id: 2
+  name: Description
+  value_type: 1
+  is_custom: false
+  width: 300
+  ordering: 110
+  show: false
+
+std_2_12:
+  id: 31
+  project_id: 2
+  name: Acceptance Criteria
+  value_type: 1
+  is_custom: false
+  width: 300
+  ordering: 120
+  show: false
+
+std_2_13:
+  id: 32
+  project_id: 2
+  name: Release
+  value_type: 3
+  is_custom: false
+  width: 135
+  ordering: 130
+  show: false
