@@ -86,17 +86,9 @@ package org.planigle.planigle.model
 		}
 		
 		// Answer the value for a custom value formatted to something the user can understand.
-		public function getCustomFormattedValue(id:int):String
+		public function getCustomFormattedValue(attrib:StoryAttribute):String
 		{
-			var attrib:StoryAttribute;
-			for each (var attr:StoryAttribute in project.storyAttributes)
-			{
-				if (attr.id == id)
-					attrib = attr;
-			}
-			if (attrib == null)
-				return ""; // Couldn't find that attribute.
-			var value:String = getCustomValue(id);
+			var value:String = getCustomValue(attrib.id);
 			switch (attrib.valueType)
 			{
 				case StoryAttribute.LIST:

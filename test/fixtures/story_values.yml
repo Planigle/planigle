@@ -27,3 +27,9 @@ fifth:
   story_id: 1
   story_attribute_id: 5
   value: 1
+  
+sixth:
+  id: 6
+  story_id: 1
+  story_attribute_id: 6
+  value: 4

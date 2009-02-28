@@ -17,6 +17,7 @@
 		import mx.events.DragEvent;
 		import mx.events.CloseEvent;
 		import mx.events.ListEvent;
+		import mx.events.IndexChangedEvent;
 		import mx.binding.utils.ChangeWatcher;
 		import mx.containers.FormItem;
 		import mx.controls.TextInput;
@@ -71,6 +72,7 @@
 		private var baseChildren:int;
 		private var customChildren:Object = new Object();
 		private var originalColumns:Array;
+		private var currentColumns:Array;
 
 		// Set up event listeners.  Called when the canvas has been created.
 		private function created(event:Event):void
@@ -1223,16 +1225,19 @@
 				}
 			  	updateRelease();
 				setCustomAttributes();
+				setColumns();
 			}
 		}
 
-		private var columnMapping:Object = new Object();
+		private var attrMapping:Object = new Object(); // Maps attribute name to attribute.
+		private var columnMapping:Object = new Object(); // Maps column index to attribute.
 
 		// Set the columns for the table.
 		private function setColumns():void
 		{
 			var newColumns:ArrayCollection = new ArrayCollection();
 			newColumns.addItem(originalColumns[0]);
+			var i:int = 1;
 			for each(var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
 			{
 				if (!attrib.isCustom)
@@ -1247,7 +1252,7 @@
 						}
 					}
 				}
-				else if (attrib.show)
+				else
 				{
 					var newColumn:DataGridColumn = new DataGridColumn();
 					newColumn.headerText = attrib.name;
@@ -1255,30 +1260,66 @@
 					newColumn.wordWrap = true;
 					newColumn.itemRenderer = CustomAttributeRenderer;
 					newColumn.dataField = "custom";
-					columnMapping[newColumn.headerText] = attrib.id;
+					newColumn.visible = attrib.show;
+					attrMapping[newColumn.headerText] = attrib;
 					newColumns.addItem(newColumn);
 				}
+				columnMapping[i] = attrib;
+				i++;
 			}
 			newColumns.addItem(originalColumns[originalColumns.length - 1]);
 			storyResourceGrid.columns = newColumns.toArray();
+			currentColumns = storyResourceGrid.columns;
 		}
 		
 		// Handle an attempt to sort based on custom data.  Do so by setting the value to sort on.
 		private function sortCustomData(event:DataGridEvent):void
 		{
-			var id:Object = columnMapping[storyResourceGrid.columns[event.columnIndex].headerText];
-			if (id != null)
+			var attrib:StoryAttribute = attrMapping[storyResourceGrid.columns[event.columnIndex].headerText];
+			if (attrib != null)
 			{
 				for each (var item:Object in filteredStories)
-					item.custom = item.getCustomFormattedValue(id);
+					item.custom = item.getCustomFormattedValue(attrib);
 			}
 		}
 		
 		// Get the custom data for a particular field for a particular object.
 		public function getCustomData(columnIndex:int, item:Object):String
 		{
-			var id:Object = columnMapping[storyResourceGrid.columns[columnIndex].headerText];
-			return item.getCustomFormattedValue(id);
+			var attrib:StoryAttribute = attrMapping[storyResourceGrid.columns[columnIndex].headerText];
+			return item.getCustomFormattedValue(attrib);
+		}
+		
+		// The user has resized a column.  Save the new column width.
+		private function columnStretch(event:DataGridEvent):void
+		{
+			columnMapping[event.columnIndex].update({'record[width]': storyResourceGrid.columns[event.columnIndex].width}, handleUpdateSuccess, handleUpdateFailure);
+		}
+		
+		// The user has moved a column.  Save the new order.
+		private function headerShift(event:IndexChangedEvent):void
+		{
+			if (event.newIndex == 0 || event.oldIndex == 0 || event.newIndex == storyResourceGrid.columnCount - 1 || event.oldIndex == storyResourceGrid.columnCount - 1)
+				storyResourceGrid.columns = currentColumns;
+			else
+			{
+				if (event.newIndex < event.oldIndex)
+				{
+					var old1:Object = columnMapping[event.oldIndex];
+					for(var i:int = event.oldIndex; i > event.newIndex; i--)
+						columnMapping[i] = columnMapping[i-1];
+					columnMapping[event.newIndex] = old1;
+				}
+				else
+				{
+					var old2:Object = columnMapping[event.oldIndex];
+					for(var j:int = event.oldIndex; j < event.newIndex; j++)
+						columnMapping[j] = columnMapping[j+1];
+					columnMapping[event.newIndex] = old2;
+				}
+				columnMapping[event.newIndex].update({'record[ordering]': event.newIndex == 1 ? (columnMapping[2].ordering/2) : (event.newIndex == storyResourceGrid.columnCount - 2 ? (columnMapping[event.newIndex-1].ordering + 10) : ((columnMapping[event.newIndex-1].ordering + columnMapping[event.newIndex+1].ordering)/2))}, handleUpdateSuccess, handleUpdateFailure);
+				currentColumns = storyResourceGrid.columns;
+			}
 		}
 		]]>
 	</mx:Script>
@@ -1459,9 +1500,9 @@
 			</mx:VBox>
 			<mx:Text id="storyError" styleName="error" htmlText="{_error}" width="100%" height="0"/>
 		</mx:VBox>
-		<local:ColoredBackgroundDataGrid id="storyResourceGrid" variableRowHeight="true" dataProvider="{filteredStories}" rowCount="{filteredStories.length}" width="100%" height="100%" dragEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" dropEnabled="true" dragMoveEnabled="true" dragStart="handleDrag(event)" dragDrop="handleReorder(event)" rowColorFunction="rowColor" headerRelease="prepareSort(event)" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" doubleClick="showUpdate(event)" allowMultipleSelection="true">
+		<local:ColoredBackgroundDataGrid id="storyResourceGrid" variableRowHeight="true" dataProvider="{filteredStories}" rowCount="{filteredStories.length}" width="100%" height="100%" dragEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" dropEnabled="true" dragMoveEnabled="true" dragStart="handleDrag(event)" dragDrop="handleReorder(event)" rowColorFunction="rowColor" headerRelease="prepareSort(event)" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" doubleClick="showUpdate(event)" allowMultipleSelection="true" columnStretch="columnStretch(event)" headerShift="headerShift(event)" horizontalScrollPolicy="auto">
 			<local:columns>
-				<mx:DataGridColumn editable="false" minWidth="16" width="16" sortable="false" textAlign="center"> 
+				<mx:DataGridColumn resizable="false" editable="false" width="16" sortable="false" textAlign="center"> 
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
@@ -1502,7 +1543,7 @@
 				<mx:DataGridColumn headerText="Description" dataField="description"/>
 				<mx:DataGridColumn headerText="Acceptance Criteria" dataField="acceptanceCriteria"/>
 				<mx:DataGridColumn headerText="Release" labelFunction="ViewHelper.formatRelease" sortCompareFunction="ViewHelper.sortRelease"/>
-				<mx:DataGridColumn editable="false" width="175" minWidth="175" sortable="false">
+				<mx:DataGridColumn resizable="false" editable="false" width="175" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0" width="100%">

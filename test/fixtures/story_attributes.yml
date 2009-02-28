@@ -64,7 +64,7 @@ std_1_1:
   name: Name
   value_type: 0
   is_custom: false
-  width: 300
+  width: 115
   ordering: 10
   show: true
 
@@ -74,7 +74,7 @@ std_1_2:
   name: Iteration
   value_type: 3
   is_custom: false
-  width: 135
+  width: 75
   ordering: 20
   show: true
 
@@ -84,7 +84,7 @@ std_1_3:
   name: Team
   value_type: 3
   is_custom: false
-  width: 135
+  width: 80
   ordering: 30
   show: true
 
@@ -94,7 +94,7 @@ std_1_4:
   name: Owner
   value_type: 3
   is_custom: false
-  width: 135
+  width: 80
   ordering: 40
   show: true
 
@@ -104,7 +104,7 @@ std_1_5:
   name: Size
   value_type: 2
   is_custom: false
-  width: 65
+  width: 40
   ordering: 50
   show: true
 
@@ -114,7 +114,7 @@ std_1_6:
   name: Time
   value_type: 2
   is_custom: false
-  width: 65
+  width: 40
   ordering: 60
   show: true
 
@@ -194,7 +194,7 @@ std_2_1:
   name: Name
   value_type: 0
   is_custom: false
-  width: 300
+  width: 115
   ordering: 10
   show: true
 
@@ -204,7 +204,7 @@ std_2_2:
   name: Iteration
   value_type: 3
   is_custom: false
-  width: 135
+  width: 75
   ordering: 20
   show: true
 
@@ -214,7 +214,7 @@ std_2_3:
   name: Team
   value_type: 3
   is_custom: false
-  width: 135
+  width: 80
   ordering: 30
   show: true
 
@@ -224,7 +224,7 @@ std_2_4:
   name: Owner
   value_type: 3
   is_custom: false
-  width: 135
+  width: 80
   ordering: 40
   show: true
 
@@ -234,7 +234,7 @@ std_2_5:
   name: Size
   value_type: 2
   is_custom: false
-  width: 65
+  width: 40
   ordering: 50
   show: true
 
@@ -244,7 +244,7 @@ std_2_6:
   name: Time
   value_type: 2
   is_custom: false
-  width: 65
+  width: 40
   ordering: 60
   show: true
 
