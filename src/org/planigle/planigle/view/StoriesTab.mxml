@@ -36,6 +36,7 @@
 		import org.planigle.planigle.model.Task;
 		import org.planigle.planigle.events.AuditChangedEvent;
 		import org.planigle.planigle.events.StoryChangedEvent;
+		import org.planigle.planigle.view.components.SelectAttributes;
 		import org.planigle.planigle.view.components.EditAttributes;
 		import org.planigle.planigle.view.components.SelectItem;
 		import org.planigle.planigle.view.components.UpdateItems;
@@ -77,8 +78,8 @@
 		// Set up event listeners.  Called when the canvas has been created.
 		private function created(event:Event):void
 		{
+			expandAllIcon = parentApplication.imgCollapsed;
 			originalColumns = storyResourceGrid.columns;
-			setColumns();
 			baseChildren = changeForm.numChildren;
 			panelHeight = combinedPanel.height;
 			ChangeWatcher.watch( factory, "currentIndividual", updateIndividual );
@@ -111,6 +112,7 @@
 			updateTeamField(null);
 			updatePremium(null);
 			updateAttributes(null);
+			setColumns();
 		}
 
 		// Update premium attributes.
@@ -351,14 +353,20 @@
 			handleFilter(event);
 		}
 		
+		// Handle any special columns.
+		private function updateColumnVisibility():void
+		{
+			if (storyColumnIteration)
+				storyColumnIteration.visible = attrMapping['Iteration'] && attrMapping['Iteration'].show && (!iteration.selectedItem || iteration.selectedItem.id == "-1");
+			if (storyColumnTeam)
+				storyColumnTeam.visible = attrMapping['Team'] && attrMapping['Team'].show && (IndividualFactory.current().project && IndividualFactory.current().project.teams.length > 0 && (!team.selectedItem || team.selectedItem.id == "-1"));
+		}
+		
 		// The iteration filter has changed.
 		public function handleFilter(event:Event):void
 		{
 			var scroll:Number = storyResourceGrid.verticalScrollPosition;
-			if (storyColumnIteration)
-				storyColumnIteration.visible = !iteration.selectedItem || iteration.selectedItem.id == "-1";
-			if (storyColumnTeam)
-				storyColumnTeam.visible = IndividualFactory.current().project && IndividualFactory.current().project.teams.length > 0 && (!team.selectedItem || team.selectedItem.id == "-1");
+			updateColumnVisibility();
 			var justStories:ArrayCollection = getFilteredStories();
 			storiesCount.text = justStories.length.toString();
 			var storiesAndTasks:ArrayCollection = new ArrayCollection;
@@ -376,6 +384,7 @@
 			storyBtnAddExisting.visible = shouldShowExisting();
 			storyResourceGrid.verticalScrollPosition = scroll;
 			dispatchEvent(new Event("dataChanged"));
+			updateExpandAllToggle();
 		}
 		
 		// Expand / collapse a story.
@@ -701,7 +710,7 @@
 					else if (attrib.valueType >= StoryAttribute.LIST)
 					{
 						var selected:StoryAttributeValue = ComboBox(disp).dataProvider.getItemAt(ComboBox(disp).dataProvider.length - 1);
-						for each (var attribValue:StoryAttributeValue in attrib.storyAttributeValues)
+						for each (var attribValue:StoryAttributeValue in ComboBox(disp).dataProvider)
 						{
 							if (attribValue.id == int(value))
 								selected = attribValue;
@@ -797,7 +806,7 @@
 				{
 					var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
 					if (attrib.valueType < StoryAttribute.LIST || ComboBox(disp).selectedItem)
-						params['record[custom_' + attrib.id + ']'] = attrib.valueType == StoryAttribute.TEXT ? HTMLTextArea(disp).text : (attrib.valueType >= StoryAttribute.LIST ? ComboBox(disp).selectedItem.id : TextInput(disp).text);
+						params['record[custom_' + attrib.id + ']'] = attrib.valueType == StoryAttribute.TEXT ? HTMLTextArea(disp).text : (attrib.valueType >= StoryAttribute.LIST ? (ComboBox(disp).selectedItem.id > 0 ? ComboBox(disp).selectedItem.id : "") : TextInput(disp).text);
 				}
 			}
 			return params;
@@ -1004,9 +1013,53 @@
 			handleUpdateSuccess(); // Prime the processing.
 		}
 
+		// Answer whether the toggle should expand all.
+		private function isAllExpanded():Boolean
+		{
+			for each(var item:Object in filteredStories)
+			{
+				if(item.isStory() && !item.isExpanded() && item.tasks.length > 0)
+					return false;
+			}
+			return true;
+		}
+
+		// Expand all stories if any are not expanded.  Collapse all stories otherwise.
+		private function expandAll():void
+		{
+			var allExpanded:Boolean = isAllExpanded();
+			for each(var item2:Object in filteredStories)
+			{
+				if(item2.isStory())
+					allExpanded ? item2.collapse() : item2.expand();
+			}
+			handleFilter(null);
+		}
+		
+		[Bindable]
+		public var expandAllIcon:Class;
+
+		// Update the icon for the expand all toggle.
+		private function updateExpandAllToggle():void
+		{
+			expandAllIcon = isAllExpanded() ? parentApplication.imgExpanded : parentApplication.imgCollapsed;
+		}
+
 		// Prepare for sorting by collapsing all stories.
 		private function prepareSort(event:DataGridEvent):void
 		{
+			if (event.columnIndex == 0)
+			{
+				expandAll();
+				event.preventDefault();
+				return;
+			}
+			else if (event.columnIndex == storyResourceGrid.columnCount - 1)
+			{
+				selectAttributes();
+				event.preventDefault();
+				return;
+			}
 			shouldSort = storyResourceGrid.columns[event.columnIndex].headerText == "Rank";
 			var changes:Boolean = false;
 			for each (var object:Object in filteredStories)
@@ -1160,6 +1213,15 @@
 			utilization.adjustHeight();
 		}
 		
+		// Select the story attributes.
+		protected function selectAttributes():void
+		{
+			var selector:SelectAttributes = SelectAttributes(PopUpManager.createPopUp(this, SelectAttributes, true));
+			selector.title = "Select Attributes to Show in Table";
+			selector.init(setColumns);
+			PopUpManager.centerPopUp(selector);
+		}		
+		
 		// Edit the story attributes.
 		protected function editAttributes(event:Event):void
 		{
@@ -1261,22 +1323,23 @@
 					newColumn.itemRenderer = CustomAttributeRenderer;
 					newColumn.dataField = "custom";
 					newColumn.visible = attrib.show;
-					attrMapping[newColumn.headerText] = attrib;
 					newColumns.addItem(newColumn);
 				}
+				attrMapping[attrib.name] = attrib;
 				columnMapping[i] = attrib;
 				i++;
 			}
 			newColumns.addItem(originalColumns[originalColumns.length - 1]);
 			storyResourceGrid.columns = newColumns.toArray();
 			currentColumns = storyResourceGrid.columns;
+			updateColumnVisibility();
 		}
 		
 		// Handle an attempt to sort based on custom data.  Do so by setting the value to sort on.
 		private function sortCustomData(event:DataGridEvent):void
 		{
 			var attrib:StoryAttribute = attrMapping[storyResourceGrid.columns[event.columnIndex].headerText];
-			if (attrib != null)
+			if (attrib != null && attrib.isCustom)
 			{
 				for each (var item:Object in filteredStories)
 					item.custom = item.getCustomFormattedValue(attrib);
@@ -1502,7 +1565,14 @@
 		</mx:VBox>
 		<local:ColoredBackgroundDataGrid id="storyResourceGrid" variableRowHeight="true" dataProvider="{filteredStories}" rowCount="{filteredStories.length}" width="100%" height="100%" dragEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" dropEnabled="true" dragMoveEnabled="true" dragStart="handleDrag(event)" dragDrop="handleReorder(event)" rowColorFunction="rowColor" headerRelease="prepareSort(event)" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" doubleClick="showUpdate(event)" allowMultipleSelection="true" columnStretch="columnStretch(event)" headerShift="headerShift(event)" horizontalScrollPolicy="auto">
 			<local:columns>
-				<mx:DataGridColumn resizable="false" editable="false" width="16" sortable="false" textAlign="center"> 
+				<mx:DataGridColumn resizable="false" editable="false" width="16" textAlign="center"> 
+					<mx:headerRenderer>
+						<mx:Component>
+							<mx:Box direction="horizontal" horizontalGap="0">
+								<mx:LinkButton id="storyBtnExpandAll" width="16" icon="{outerDocument.expandAllIcon}"/>
+							</mx:Box>
+						</mx:Component>
+					</mx:headerRenderer>
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
@@ -1543,7 +1613,14 @@
 				<mx:DataGridColumn headerText="Description" dataField="description"/>
 				<mx:DataGridColumn headerText="Acceptance Criteria" dataField="acceptanceCriteria"/>
 				<mx:DataGridColumn headerText="Release" labelFunction="ViewHelper.formatRelease" sortCompareFunction="ViewHelper.sortRelease"/>
-				<mx:DataGridColumn resizable="false" editable="false" width="175" sortable="false">
+				<mx:DataGridColumn resizable="false" editable="false" width="175">
+					<mx:headerRenderer>
+						<mx:Component>
+							<mx:Box direction="horizontal" horizontalGap="0">
+								<mx:LinkButton id="storyBtnSelectAttributes" width="16" icon="{parentApplication.imgCheck}"/>
+							</mx:Box>
+						</mx:Component>
+					</mx:headerRenderer>
 					<mx:itemRenderer>
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0" width="100%">

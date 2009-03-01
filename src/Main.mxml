@@ -79,6 +79,10 @@
 			[Bindable]
 			public var imgMoveUp:Class;
 		
+			[Embed(source="../public/images/check.png")]
+			[Bindable]
+			public var imgCheck:Class;
+		
 			[Embed(source="../public/images/logo_big.gif")]
 			[Bindable]
 			public var imgLogoBig:Class;

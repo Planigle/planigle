@@ -32,10 +32,10 @@ package org.planigle.planigle.model
 			id = xml.id;
 			name = xml.name;
 			valueType = xml.child("value-type");
-			isCustom = xml.child("is-custom");
+			isCustom = xml.child("is-custom").toString() == "true";
 			width = xml.width;
 			ordering = xml.ordering;
-			show = xml.show;
+			show = xml.show.toString() == "true";
 
 			var newValues:ArrayCollection = new ArrayCollection();
 			for (var i:int = 0; i < xml.child("story-attribute-values").child("story-attribute-value").length(); i++)

@@ -225,6 +225,24 @@ class FlexStoriesTest < Test::Unit::TestCase
     assert_equal ",test,first,Test_team,aaron hank,1,5,In Progress,true,1,2,description,criteria,first,test,testy,5,Value 1,Theme 1,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
   end
 
+  # Test clicking on the expand all button.
+  def test_expand_all
+    init('admin2')
+    num_rows = @ie.data_grid("storyResourceGrid").num_rows
+    @ie.button("storyBtnExpandAll")[0].click
+    assert_equal num_rows + 1, @ie.data_grid("storyResourceGrid").num_rows
+    @ie.button("storyBtnExpandAll")[0].click
+    assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
+  end
+
+  # Test clicking on the select attributes button.
+  def test_select_attributes
+    init('admin2')
+    @ie.button("storyBtnSelectAttributes")[0].click
+    @ie.check_box("select_Description").click
+    @ie.button("btn_ok")
+  end
+
 private
 
   # Test whether error handling works for creating a story.
