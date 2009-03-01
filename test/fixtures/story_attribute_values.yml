@@ -24,3 +24,9 @@ fifth:
   story_attribute_id: 6
   value: Theme 2
   release_id: 1
+  
+sixth:
+  id: 6
+  story_attribute_id: 6
+  value: Theme 3
+  release_id: 2

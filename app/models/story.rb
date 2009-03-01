@@ -22,6 +22,9 @@ class Story < ActiveRecord::Base
   validates_numericality_of :priority, :user_priority, :allow_nil => true # Needed for priority since not set until after check
   validates_numericality_of :status_code
 
+  after_create :save_custom_attributes
+  after_save :save_custom_attributes
+
   StatusMapping = [ 'Not Started', 'In Progress', 'Blocked', 'Done' ]
   Created = 0
   InProgress = 1
@@ -64,7 +67,7 @@ class Story < ActiveRecord::Base
       user_priority]
     project.story_attributes.find(:all, :conditions => {:is_custom => true}, :order => :name).each do |attrib|
       value = story_values.find(:first, :conditions => {:story_attribute_id => attrib.id})
-      if attrib.value_type == StoryAttribute::List && value
+      if (attrib.value_type == StoryAttribute::List || attrib.value_type == StoryAttribute::ReleaseList) && value
         value = attrib.story_attribute_values.find(:first, :conditions => {:id => value.value})
       end
       values << (value ? value.value : '')
@@ -224,18 +227,10 @@ class Story < ActiveRecord::Base
     modified_attributes = {}
     new_attributes.each_pair do |key, value|
       if attrib_id = key.to_s.match(/custom_(.*)/)
-        attrib = StoryAttribute.find(:first, :conditions => {:id => attrib_id[1]})
-        if attrib.value_type != StoryAttribute::List || attrib.story_attribute_values.find(:first, :conditions => {:id => value}) # Ignore invalid values for lists
-          val = story_values.find(:first, :conditions => {:story_attribute_id => attrib_id[1]})
-          if val && value != nil and value != ""
-            val.value = value
-            val.save(false)
-          elsif val
-            val.destroy
-          elsif value != nil and value != ""
-            story_values << StoryValue.new({:story_attribute_id => attrib.id, :value => value})
-          end
+        if !@custom_attributes
+          @custom_attributes = {}
         end
+        @custom_attributes[attrib_id[1]] = value
       else
         modified_attributes[key] = value
       end
@@ -273,6 +268,42 @@ protected
       errors.add(:individual, 'is invalid')
     elsif individual && project_id != individual.project_id
       errors.add(:individual, 'is not from a valid project')
+    end
+    
+    validate_custom_attributes
+  end
+
+  # Validate any unsaved custom attributes.
+  def validate_custom_attributes
+    if @custom_attributes
+      @custom_attributes.each_pair do |key, value|
+        attrib = project ? project.story_attributes.find(:first, :conditions => {:id => key, :is_custom => true}) : nil
+        if attrib && (attrib.value_type != StoryAttribute::List || value == "" || value == nil || attrib.story_attribute_values.find(:first, :conditions => {:id => value})) && (attrib.value_type != StoryAttribute::ReleaseList || value == "" || value == nil || attrib.story_attribute_values.find(:first, :conditions => {:id => value, :release_id => release_id}))
+        elsif !attrib
+          errors.add_to_base("Invalid attribute")
+        else
+          errors.add(attrib.name.to_sym, "is invalid")
+        end
+      end
+    end
+  end
+  
+  # Save any custom attributes.
+  def save_custom_attributes
+    if @custom_attributes
+      @custom_attributes.each_pair do |key, value|
+        attrib = project.story_attributes.find(:first, :conditions => {:id => key, :is_custom => true})
+        val = story_values.find(:first, :conditions => {:story_attribute_id => key})
+        if val && value != nil and value != ""
+          val.value = value
+          val.save(false)
+        elsif val
+          val.destroy
+        elsif value != nil and value != ""
+          story_values << StoryValue.new({:story_attribute_id => attrib.id, :value => value})
+        end
+      end
+      @custom_attributes = nil
     end
   end
   
@@ -324,6 +355,18 @@ private
             when :iteration_id then value = find_object_id(value, Iteration, ['name = ? and project_id = ?', value, current_user.project_id])
             when :status_code then value = status_code_mapping.has_key?(value) ? status_code_mapping[value] : -1
             when :effort then value = value ? value.to_f : value
+            else
+              if attrib = header.to_s.match(/custom_(.*)/)
+                attribute = current_user.project.story_attributes.find(:first, :conditions => {:id => attrib[1]});
+                if attribute && (attribute.value_type == StoryAttribute::List || attribute.value_type == StoryAttribute::ReleaseList)
+                  if !value || value == ""
+                    value = nil
+                  else
+                    attrib_value = attribute.story_attribute_values.find(:first, :conditions => {:value => value})
+                    value = attrib_value ? attrib_value.id : -1
+                  end
+                end
+              end
           end
           values[header] = value
         end
