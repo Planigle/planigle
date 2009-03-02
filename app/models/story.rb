@@ -327,7 +327,7 @@ private
           header_mapping[i] = Headers[down]
         else # Check for custom attribute
           header_mapping[i] = :ignore
-          current_user.project.story_attributes.each do |attrib|
+          current_user.project.story_attributes.find(:all, :conditions => {:is_custom => true}).each do |attrib|
             if attrib.name.downcase == down
               header_mapping[i] = "custom_" + attrib.id.to_s
               break;
