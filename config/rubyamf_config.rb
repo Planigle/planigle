@@ -80,7 +80,7 @@ module RubyAMF
       :actionscript => 'Iteration',
       :ruby => 'Iteration',
       :type => 'active_record',
-      :attributes => ["id", "project_id", "name", "start", "length", "retrospective_results"])
+      :attributes => ["id", "project_id", "name", "start", "finish", "retrospective_results"])
 
     ClassMappings.register(
       :actionscript => 'Company',

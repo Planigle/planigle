@@ -18,7 +18,7 @@ package org.planigle.planigle.model
 		public var projectId: int;
 		public var name:String;
 		public var start:Date;
-		public var length:int;
+		public var finish:Date;
 		public var retrospectiveResults:String;
 	
 		// Populate myself from XML.
@@ -28,9 +28,8 @@ package org.planigle.planigle.model
 			projectId = xml.child("project-id").toString() == "" ? null : xml.child("project-id");
 			name = xml.name;
 			start = DateUtils.stringToDate(xml.start);			
-			length = xml.length;
+			finish = DateUtils.stringToDate(xml.finish);
 			retrospectiveResults = xml.child("retrospective-results");
-			finish = finish;
 		}
 		
 		// Update me.  Params should be of the format (record[param]).  Success function
@@ -67,22 +66,11 @@ package org.planigle.planigle.model
 			IterationFactory.getInstance().updateIterations(iterations);
 		}
 		
-		// Answer my end date
-		public function get finish():Date
-		{
-			return new Date(start.time + length * MILLIS_IN_WEEK);
-		}
-		
-		// Set my end date.  Used to send changed event.
-		public function set finish(date:Date):void
-		{
-		}
-		
 		// Answer true if my dates include today.
 		public function isCurrent():Boolean
 		{
 			var today:Date = DateUtils.today();
-			return today.time >= start.time && today.time < start.time + length * MILLIS_IN_WEEK;
+			return today.time >= start.time && today.time < finish.time;
 		}
 		
 		// Answer the next iteration after this one.  If I am the backlog, return myself.

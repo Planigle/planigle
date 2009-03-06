@@ -3,32 +3,32 @@ first:
   project_id: 1
   name: first
   start: 2008-03-26
-  length: 2
+  finish: 2008-04-09
 
 second:
   id: 2
   project_id: 1
   name: second
   start: 2008-04-09
-  length: 3
+  finish: 2008-04-30
   
 third:
   id: 3
   project_id: 2
   name: third
   start: 2008-04-09
-  length: 2
+  finish: 2008-04-23
 
 fourth:
   id: 4
   project_id: 1
   name: fourth
   start: 2008-06-27
-  length: 3
+  finish: 2008-07-18
   
 second2:
   id: 5
   project_id: 2
   name: second
   start: 2008-04-09
-  length: 3
+  finish: 2008-04-30

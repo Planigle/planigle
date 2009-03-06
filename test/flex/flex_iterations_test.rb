@@ -93,16 +93,16 @@ private
     # Values will be based off of last iteration (non-numeric name)
     assert_equal '', @ie.text_area("iterationFieldName").text
     assert_equal '07/18/2008', @ie.text_area("iterationFieldStart").text
-    assert_equal '3', @ie.text_area("iterationFieldLength").text
+    assert_equal '08/08/2008', @ie.text_area("iterationFieldFinish").text
 
-    create_iteration('', '05/28/2008', '2')
+    create_iteration('', '05/28/2008', '06/11/2008')
     @ie.button("iterationBtnChange").click
 
     # Values should not change
     assert_equal "Name can't be blank", @ie.text_area("iterationError").text
     assert_equal '', @ie.text_area("iterationFieldName").text
     assert_equal '05/28/2008', @ie.text_area("iterationFieldStart").text # Based on last iteration
-    assert_equal '2', @ie.text_area("iterationFieldLength").text         # Based on last iteration
+    assert_equal '06/11/2008', @ie.text_area("iterationFieldFinish").text         # Based on last iteration
     assert_not_nil @ie.button("iterationBtnCancel")
     assert_equal num_rows, @ie.data_grid("iterationResourceGrid").num_rows
     @ie.button("iterationBtnCancel").click
@@ -116,19 +116,19 @@ private
     # Values will be based off of last iteration (non-numeric name)
     assert_equal '', @ie.text_area("iterationFieldName").text
     assert_equal '07/18/2008', @ie.text_area("iterationFieldStart").text
-    assert_equal '3', @ie.text_area("iterationFieldLength").text
+    assert_equal '08/08/2008', @ie.text_area("iterationFieldFinish").text
     
-    create_iteration('foo 1', '05/28/2008', '2')
+    create_iteration('foo 1', '05/28/2008', '06/11/2008')
     @ie.button("iterationBtnChange").click
 
     # Since last iteration ends in a number, name will be incremented.
     assert_equal 'Iteration was successfully created.', @ie.text_area("iterationError").text
     assert_equal 'foo 2', @ie.text_area("iterationFieldName").text
     assert_equal '06/11/2008', @ie.text_area("iterationFieldStart").text
-    assert_equal '2', @ie.text_area("iterationFieldLength").text
+    assert_equal '06/25/2008', @ie.text_area("iterationFieldFinish").text
     assert_not_nil @ie.button("iterationBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("iterationResourceGrid").num_rows
-    assert_equal "foo 1,5/28/2008,2,Plan | Edit | Delete", @ie.data_grid("iterationResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
+    assert_equal "foo 1,5/28/2008,6/11/2008,Plan | Edit | Delete", @ie.data_grid("iterationResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
     @ie.button("iterationBtnCancel").click
   end
     
@@ -139,7 +139,7 @@ private
     
     num_rows = @ie.data_grid("iterationResourceGrid").num_rows
     @ie.button("iterationBtnCreate").click
-    create_iteration('foo', '05/28/2008', '2')
+    create_iteration('foo', '05/28/2008', '06/11/2008')
     @ie.button("iterationBtnCancel").click
     assert_equal '', @ie.text_area("iterationError").text
     assert_nil @ie.button("iterationBtnCancel")
@@ -147,21 +147,21 @@ private
   end
 
   # Create an iteration.
-  def create_iteration(name, start, length)
+  def create_iteration(name, start, finish)
     @ie.text_area("iterationFieldName").input(:text => name )
     @ie.text_area("iterationFieldStart").input(:text => start )
-    @ie.text_area("iterationFieldLength").input(:text => length )
+    @ie.text_area("iterationFieldFinish").input(:text => finish )
   end
     
   # Test whether error handling works for editing an iteration.
   def edit_iteration_failure
     num_rows = @ie.data_grid("iterationResourceGrid").num_rows
-    edit_iteration(' ', '05/28/2008', '2')
+    edit_iteration(' ', '05/28/2008', '06/11/2008')
     @ie.button("iterationBtnChange").click
     assert_equal "Name can't be blank", @ie.text_area("iterationError").text
     assert_equal ' ', @ie.text_area("iterationFieldName").text
     assert_equal '05/28/2008', @ie.text_area("iterationFieldStart").text
-    assert_equal '2', @ie.text_area("iterationFieldLength").text
+    assert_equal '06/11/2008', @ie.text_area("iterationFieldFinish").text
     assert_not_nil @ie.button("iterationBtnCancel")
     assert_equal num_rows, @ie.data_grid("iterationResourceGrid").num_rows
     @ie.button("iterationBtnCancel").click
@@ -170,18 +170,18 @@ private
   # Test whether you can successfully edit an iteration.
   def edit_iteration_success
     num_rows = @ie.data_grid("iterationResourceGrid").num_rows
-    edit_iteration('foo 1', '05/28/2008', '2')
+    edit_iteration('foo 1', '05/28/2008', '06/11/2008')
     @ie.button("iterationBtnChange").click
     assert_equal '', @ie.text_area("iterationError").text
     assert_nil @ie.button("iterationBtnCancel")
     assert_equal num_rows, @ie.data_grid("iterationResourceGrid").num_rows
-    assert_equal "foo 1,5/28/2008,2,Plan | Edit | Delete", @ie.data_grid("iterationResourceGrid").tabular_data
+    assert_equal "foo 1,5/28/2008,6/11/2008,Plan | Edit | Delete", @ie.data_grid("iterationResourceGrid").tabular_data
   end
     
   # Test whether you can successfully cancel editing an iteration.
   def edit_iteration_cancel
     num_rows = @ie.data_grid("iterationResourceGrid").num_rows
-    edit_iteration('foo', '05/28/2008', '2')
+    edit_iteration('foo', '05/28/2008', '06/11/2008')
     @ie.button("iterationBtnCancel").click
     assert_equal '', @ie.text_area("iterationError").text
     assert_nil @ie.button("iterationBtnCancel")
@@ -189,11 +189,11 @@ private
   end
 
   # Edit an iteration.
-  def edit_iteration(name, start, length)
+  def edit_iteration(name, start, finish)
     @ie.button("iterationBtnEdit")[1].click
     @ie.text_area("iterationFieldName").input(:text => name )
     @ie.text_area("iterationFieldStart").input(:text => start )
-    @ie.text_area("iterationFieldLength").input(:text => length )
+    @ie.text_area("iterationFieldFinish").input(:text => finish )
   end
     
   # Test deleting an iteration.
