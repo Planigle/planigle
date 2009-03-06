@@ -4,13 +4,12 @@ class Iteration < ActiveRecord::Base
   has_many :stories, :dependent => :nullify
   has_many :iteration_totals, :dependent => :destroy
   has_many :iteration_velocities, :dependent => :destroy
-  attr_accessible :name, :start, :length, :project_id, :retrospective_results
+  attr_accessible :name, :start, :finish, :project_id, :retrospective_results
   acts_as_audited
   
-  validates_presence_of     :project_id, :name, :start
+  validates_presence_of     :project_id, :name, :start, :finish
   validates_length_of       :name,   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
   validates_length_of       :retrospective_results, :maximum => 4096, :allow_nil => true
-  validates_numericality_of :length
 
   # If project is set, set the default values based on that project.
   def project=(project)
@@ -36,7 +35,7 @@ class Iteration < ActiveRecord::Base
 
   # Answer the current iteration for a particular user.
   def self.find_current(current_user)
-    current_user.project_id ? Iteration.find(:first, :conditions => ["project_id = ? and start <= CURDATE() and DATE_ADD(start,INTERVAL length WEEK) >= CURDATE()", current_user.project_id], :order => 'start DESC') : nil
+    current_user.project_id ? Iteration.find(:first, :conditions => ["project_id = ? and start <= CURDATE() and finish >= CURDATE()", current_user.project_id], :order => 'start DESC') : nil
   end
   
   # Summarize my current data.
@@ -82,8 +81,8 @@ class Iteration < ActiveRecord::Base
   
 protected
   
-  # Ensure length is a positive number.
+  # Ensure finish is greater than start.
   def validate
-    errors.add(:length, 'must be greater than 0') if length && length <= 0
+    errors.add(:finish, 'must be greater than start') if finish && start && finish <= start
   end
 end

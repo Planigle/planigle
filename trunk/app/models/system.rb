@@ -4,7 +4,7 @@ class System < ActiveRecord::Base
   # Summarize my recent data for reporting.
   def self.summarize
     Release.find(:all, :conditions => ['start < ? and finish > ?', Time.now, Time.now], :include => [:stories]).each { |release| release.summarize }
-    Iteration.find(:all, :conditions => ['start < ? and start + interval (length * 7) day > ?', Time.now, Time.now], :include => [:stories]).each { |iteration| iteration.summarize }
+    Iteration.find(:all, :conditions => ['start < ? and finish > ?', Time.now, Time.now], :include => [:stories]).each { |iteration| iteration.summarize }
   end
 
   # No one is authorized to create.  It is a singleton.

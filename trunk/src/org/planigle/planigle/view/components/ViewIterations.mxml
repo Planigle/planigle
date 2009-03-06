@@ -82,13 +82,17 @@
 				iterationFieldName.text = last.incrementName();
 				iterationFieldName.setSelection(0, iterationFieldName.text.length );
 				iterationFieldStart.selectedDate = release ? (release.start.getTime() > last.finish.getTime() ? release.start : last.finish) : last.finish;
-				iterationFieldLength.text = last.length.toString();
+				var finishFromLast:Date = new Date();
+				finishFromLast.setTime(iterationFieldStart.selectedDate.getTime() + last.finish.getTime() - last.start.getTime()); // 2 Weeks from start
+				iterationFieldFinish.selectedDate = finishFromLast;
 			}
 			else
 			{
 	 			iterationFieldName.text = 'Iteration 1';
 				iterationFieldStart.selectedDate = release ? release.start : new Date();
-				iterationFieldLength.text = '2';
+				var finish:Date = new Date();
+				finish.setTime(iterationFieldStart.selectedDate.getTime() + 2*7*24*60*60*1000); // 2 Weeks from start
+				iterationFieldFinish.selectedDate = finish;
 			}
 			iterationFieldRetrospectiveResults.text = '';
 			iterationBtnChange.label = 'Create';
@@ -109,7 +113,7 @@
 				iterationFieldName.setFocus();
 				iterationFieldName.setSelection(0, iterationFieldName.text.length );
 				iterationFieldStart.selectedDate = currentItem.start;
-				iterationFieldLength.text = currentItem.length;
+				iterationFieldFinish.selectedDate = currentItem.finish;
 				iterationFieldRetrospectiveResults.text = currentItem.retrospectiveResults;
 				iterationBtnChange.label = 'Update';
 				iterationBtnInfo.visible = true;
@@ -137,7 +141,7 @@
 			params['record[project_id]'] = factory.currentIndividual.projectId;
 			params['record[name]'] = iterationFieldName.text;
 			params['record[start]'] = iterationFieldStart.selectedDate;
-			params['record[length]'] = iterationFieldLength.text;
+			params['record[finish]'] = iterationFieldFinish.selectedDate;
 			params['record[retrospective_results]'] = iterationFieldRetrospectiveResults.text;
 			params['random'] = Math.random(); // Prevents caching
 			return params;
@@ -201,9 +205,15 @@
 		}
 		
 		// Format the start date into a more readable format.
-		private function formatDate(item:Object, column:DataGridColumn):String
+		private function formatStart(item:Object, column:DataGridColumn):String
 		{
 			return DateUtils.formatDate(item.start);
+		}
+		
+		// Format the finish date into a more readable format.
+		private function formatFinish(item:Object, column:DataGridColumn):String
+		{
+			return DateUtils.formatDate(item.finish);
 		}
 		
 		// Show the history for the current object.
@@ -227,8 +237,8 @@
 						<mx:FormItem label='Start' required="true">
 							<mx:DateField id='iterationFieldStart' editable="true" showToday="true" width="100"/>
 						</mx:FormItem>
-						<mx:FormItem label='Length (in weeks)' required="true">
-							<mx:TextInput id='iterationFieldLength' restrict="0-9" text='' width="100"/>
+						<mx:FormItem label='Finish' required="true">
+							<mx:DateField id='iterationFieldFinish' editable="true" showToday="true" width="100"/>
 						</mx:FormItem>
 						<mx:FormItem label='Retrospective Results'>
 							<component:HTMLTextArea id='iterationFieldRetrospectiveResults'/>
@@ -273,8 +283,8 @@
 		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="iterationResourceGrid" dataProvider="{iterations}" rowCount="{IterationFactory.getInstance().iterations.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)">
 			<mx:columns>
 				<mx:DataGridColumn headerText="Name" dataField="name"/>
-				<mx:DataGridColumn headerText="Start" width="120" dataField="start" labelFunction="formatDate" />
-				<mx:DataGridColumn headerText="Length (in weeks)" width="80" dataField="length"/>
+				<mx:DataGridColumn headerText="Start" width="120" dataField="start" labelFunction="formatStart" />
+				<mx:DataGridColumn headerText="Finish" width="120" dataField="finish" labelFunction="formatFinish" />
 				<mx:DataGridColumn editable="false" width="140" minWidth="140" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>

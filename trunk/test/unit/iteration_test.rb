@@ -30,13 +30,13 @@ class IterationTest < ActiveSupport::TestCase
     assert_failure(:start, '2')
   end
 
-  # Test the validation of length.
-  def test_length
-    assert_failure(:length, nil)
-    assert_failure(:length, -1)
-    assert_failure(:length, 0)
-    assert_success(:length, 2)
-    assert_failure(:length, 'foo')
+  # Test the validation of finish.
+  def test_finish
+    assert_success(:finish, Date.today + 1)
+    assert_failure(:finish, nil)
+    assert_failure(:finish, '2')
+    assert_failure(:finish, Date.today)
+    assert_failure(:finish, Date.today - 1)
   end
 
   # Test the validation of retrospective results.
@@ -75,7 +75,7 @@ class IterationTest < ActiveSupport::TestCase
   # Test finding the current iteration
   def test_find_current
     assert_nil Iteration.find_current(individuals(:admin2))
-    iteration = create_iteration(:start => Time.now)
+    iteration = create_iteration()
     assert_equal iteration, Iteration.find_current(individuals(:admin2))
   end
   
@@ -112,6 +112,6 @@ private
 
   # Create an iteration with valid values.  Options will override default values (should be :attribute => value).
   def create_iteration(options = {})
-    Iteration.create({ :name => 'foo', :start => Date.today, :length => 2, :project_id => 1 }.merge(options))
+    Iteration.create({ :name => 'foo', :start => Date.today, :finish => Date.today + 14, :project_id => 1 }.merge(options))
   end
 end
