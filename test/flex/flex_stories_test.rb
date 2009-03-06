@@ -148,13 +148,11 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
 
   # Test changing custom attributes.
-  def test_custom_attribute
+  def test_custom_attribute_add
     init('admin2')
     count = StoryAttribute.count
     @ie.button("storyBtnCreate").click
     @ie.button("storyBtnEditAttributes").click
-    @ie.list("editAttributeAttributes").select(:item_renderer => 'Test_Number')
-    @ie.button("editAttributeBtnDelete").click # Delete Test_Number Attribute
 
     @ie.button("editAttributeBtnAdd").click # Add a new number attribute: Beta
     @ie.text_area("editAttributeFieldName").input(:text => 'Beta' )
@@ -185,7 +183,6 @@ class FlexStoriesTest < Test::Unit::TestCase
     @ie.button("editAttributeBtnOk").click
     sleep 5
 
-    assert_nil @ie.text_area("storyField3")
     @ie.text_area("storyField" + (count+1).to_s).input(:text => 'custom text')
     @ie.combo_box("storyField" + (count+2).to_s).click
     @ie.combo_box("storyField" + (count+2).to_s).select(:item_renderer => 'Zeta')
@@ -207,6 +204,19 @@ class FlexStoriesTest < Test::Unit::TestCase
     @ie.combo_box("storyField" + (count+3).to_s).click
     @ie.combo_box("storyField" + (count+3).to_s).select(:item_renderer => 'Do it fast')
     @ie.button("storyBtnChange").click
+  end
+
+  # Test changing custom attributes.
+  def test_custom_attribute_delete
+    init('admin2')
+    @ie.button("storyBtnCreate").click
+    @ie.button("storyBtnEditAttributes").click
+    @ie.list("editAttributeAttributes").select(:item_renderer => 'Test_Number')
+    @ie.button("editAttributeBtnDelete").click # Delete Test_Number Attribute
+    @ie.button("editAttributeBtnOk").click
+    sleep 5
+
+    assert_nil @ie.text_area("storyField3")
   end
   
   # Test showing the history
