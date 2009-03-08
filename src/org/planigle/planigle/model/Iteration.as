@@ -156,5 +156,11 @@ package org.planigle.planigle.model
 			}
 			return stories;
 		}
+		
+		// Answer whether I am a release.
+		public function isRelease():Boolean
+		{
+			return false;
+		}
 	}
 }

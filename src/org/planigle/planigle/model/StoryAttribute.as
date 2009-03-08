@@ -84,11 +84,54 @@ package org.planigle.planigle.model
 		// Answer the values (including None).
 		public function get allValues():ArrayCollection
 		{
-			var values:ArrayCollection = new ArrayCollection();
-			for each(var value:StoryAttributeValue in storyAttributeValues)
-				values.addItem(value);
-			values.addItem(noneValue);
-			return values;
+			switch(name)
+			{
+			case 'Release':
+				return ReleaseFactory.getInstance().releaseSelector;
+			case 'Iteration':
+				return IterationFactory.getInstance().iterationSelector;
+			case 'Team':
+				return IndividualFactory.current().project.teamSelector;
+			case 'Owner':
+				return IndividualFactory.getInstance().individualSelector;
+			case 'Status':
+				var statusValues:ArrayCollection = new ArrayCollection();
+				var statusVal:StoryAttributeValue = new StoryAttributeValue();
+				statusVal.name = 'Created';
+				statusVal.id = Story.CREATED;
+				statusValues.addItem(statusVal);
+				statusVal = new StoryAttributeValue();
+				statusVal.name = 'In Progress';
+				statusVal.id = Story.IN_PROGRESS;
+				statusValues.addItem(statusVal);
+				statusVal = new StoryAttributeValue();
+				statusVal.name = 'Blocked';
+				statusVal.id = Story.BLOCKED;
+				statusValues.addItem(statusVal);
+				statusVal = new StoryAttributeValue();
+				statusVal.name = 'Done';
+				statusVal.id = Story.ACCEPTED;
+				statusValues.addItem(statusVal);
+				statusValues.addItem(new StoryAttributeValue());
+				return statusValues;
+			case 'Public':
+				var publicValues:ArrayCollection = new ArrayCollection();
+				var pubVal:StoryAttributeValue = new StoryAttributeValue();
+				pubVal.name = 'True';
+				pubVal.id = 1;
+				publicValues.addItem(pubVal);
+				pubVal = new StoryAttributeValue();
+				pubVal.name = 'False';
+				pubVal.id = 0;
+				publicValues.addItem(pubVal);
+				return publicValues;
+			default:
+				var values:ArrayCollection = new ArrayCollection();
+				for each(var value:StoryAttributeValue in storyAttributeValues)
+					values.addItem(value);
+				values.addItem(noneValue);
+				return values;
+			}
 		}
 		
 		// Answer a value for none.

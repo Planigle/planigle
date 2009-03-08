@@ -6,7 +6,7 @@ package org.planigle.planigle.model
 	[Bindable]
 	public class StoryAttributeValue
 	{
-		public var id:int;
+		public var id:Object;
 		public var storyAttributeId:int;
 		public var releaseId:String;
 		public var value:String;
@@ -18,6 +18,18 @@ package org.planigle.planigle.model
 			storyAttributeId = xml.child("story-attribute-id").toString() == "" ? null : xml.child("story-attribute-id");
 			releaseId = xml.child("release-id").toString() == "" ? null : xml.child("release-id");
 			value = xml.value;
+		}
+		
+		// Name is an alias for value.  It allows Story Attribute Values to be interchanged with other kinds of objects.
+		public function get name():String
+		{
+			return value;
+		}
+		
+		// Name is an alias for value.  It allows Story Attribute Values to be interchanged with other kinds of objects.
+		public function set name(name:String):void
+		{
+			value = name;
 		}
 	}
 }

@@ -75,7 +75,7 @@ package org.planigle.planigle.model
 		}
 		
 		// Answer the value for a custom value (or nil if it does not exist).
-		public function getCustomValue(id:int):String
+		public function getCustomValue(id:int):Object
 		{
 			for each (var val:StoryValue in storyValues)
 			{
@@ -85,10 +85,33 @@ package org.planigle.planigle.model
 			return null;
 		}
 		
+		// Answer the value for an attribute (currently only works for custom story attributes.
+		public function getAttributeValue(attrib:StoryAttribute):Object
+		{
+			switch(attrib.name)
+			{
+			case 'Release':
+				return releaseId;
+			case 'Iteration':
+				return iterationId;
+			case 'Team':
+				return teamId;
+			case 'Owner':
+				return individualId;
+			case 'Status':
+				return statusCode;
+			case 'Public':
+				return isPublic;
+			default:
+				return getCustomValue(attrib.id);
+			}
+		}
+		
 		// Answer the value for a custom value formatted to something the user can understand.
 		public function getCustomFormattedValue(attrib:StoryAttribute):String
 		{
-			var value:String = getCustomValue(attrib.id);
+			var val:Object = getCustomValue(attrib.id);
+			var value:String = String(val == null ? "" : val);
 			switch (attrib.valueType)
 			{
 				case StoryAttribute.LIST:

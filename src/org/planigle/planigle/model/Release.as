@@ -101,5 +101,11 @@ package org.planigle.planigle.model
 			var newName:String = splits.join(" ");
 			return name == newName ? "" : newName;
 		}
+		
+		// Answer whether I am a release.
+		public function isRelease():Boolean
+		{
+			return true;
+		}
 	}
 }
