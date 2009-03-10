@@ -127,7 +127,7 @@ private
     @ie.button("teamBtnAdd")[2].click
     
     assert_equal '', @ie.text_area("projectFieldName").text
-    assert_equal '', @ie.text_area("projectFieldDescription").text
+    assert_equal '', @ie.text_area("textArea").text
 
     create_project('', 'description')
     @ie.button("projectBtnChange").click
@@ -135,7 +135,7 @@ private
     # Values should not change
     assert_equal "Name can't be blank", @ie.text_area("projectError").text
     assert_equal '', @ie.text_area("projectFieldName").text
-    assert_equal 'description', @ie.text_area("projectFieldDescription").text
+    assert_equal 'description', @ie.text_area("textArea").text
     assert_not_nil @ie.button("projectBtnCancel")
     assert_equal num_rows, @ie.data_grid("projectResourceGrid").num_rows
     @ie.button("projectBtnCancel").click
@@ -147,7 +147,7 @@ private
     @ie.button("teamBtnAdd")[2].click
     
     assert_equal '', @ie.text_area("projectFieldName").text
-    assert_equal '', @ie.text_area("projectFieldDescription").text
+    assert_equal '', @ie.text_area("textArea").text
     
     create_project('zfoo 1', 'description')
 
@@ -162,7 +162,7 @@ private
     # Since last project ends in a number, name will be incremented.
     assert_equal 'Project was successfully created.', @ie.text_area("projectError").text
     assert_equal '', @ie.text_area("projectFieldName").text
-    assert_equal '', @ie.text_area("projectFieldDescription").text
+    assert_equal '', @ie.text_area("textArea").text
     assert_not_nil @ie.button("projectBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("projectResourceGrid").num_rows
     assert_equal ",zfoo 1,description,Private,Edit | Delete | Add Team", @ie.data_grid("projectResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
@@ -186,7 +186,7 @@ private
   # Create a project.
   def create_project(name, description)
     @ie.text_area("projectFieldName").input(:text => name )
-    @ie.text_area("projectFieldDescription").input(:text => description )
+    @ie.text_area("textArea").input(:text => description )
   end
     
   # Test whether error handling works for editing a project.
@@ -196,7 +196,7 @@ private
     @ie.button("projectBtnChange").click
     assert_equal "Name can't be blank", @ie.text_area("projectError").text
     assert_equal ' ', @ie.text_area("projectFieldName").text
-    assert_equal 'description', @ie.text_area("projectFieldDescription").text
+    assert_equal 'description', @ie.text_area("textArea").text
     assert_not_nil @ie.button("projectBtnCancel")
     assert_equal num_rows, @ie.data_grid("projectResourceGrid").num_rows
     @ie.button("projectBtnCancel").click
@@ -237,7 +237,7 @@ private
   def edit_project(name, description, premium_expiry, premium_limit)
     @ie.button("projectBtnEdit")[3].click
     @ie.text_area("projectFieldName").input(:text => name )
-    @ie.text_area("projectFieldDescription").input(:text => description )
+    @ie.text_area("textArea").input(:text => description )
     @ie.text_area("projectFieldPremiumExpiry").input(:text => premium_expiry )
     @ie.text_area("projectFieldPremiumLimit")[0].input(:text => premium_limit ) # Not sure why the array is necessary
   end

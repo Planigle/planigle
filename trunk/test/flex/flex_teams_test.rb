@@ -101,7 +101,7 @@ private
     @ie.button("teamBtnAdd")[3].click
     
     assert_equal '', @ie.text_area("projectFieldName").text
-    assert_equal '', @ie.text_area("projectFieldDescription").text
+    assert_equal '', @ie.text_area("textArea").text
     assert !@ie.combo_box("projectFormSurveyMode").visible
 
     create_team('', 'description')
@@ -110,7 +110,7 @@ private
     # Values should not change
     assert_equal "Name can't be blank", @ie.text_area("projectError").text
     assert_equal '', @ie.text_area("projectFieldName").text
-    assert_equal 'description', @ie.text_area("projectFieldDescription").text
+    assert_equal 'description', @ie.text_area("textArea").text
     assert_not_nil @ie.button("projectBtnCancel")
     assert_equal num_rows, @ie.data_grid("projectResourceGrid").num_rows
     @ie.button("projectBtnCancel").click
@@ -122,7 +122,7 @@ private
     @ie.button("teamBtnAdd")[3].click
     
     assert_equal '', @ie.text_area("projectFieldName").text
-    assert_equal '', @ie.text_area("projectFieldDescription").text
+    assert_equal '', @ie.text_area("textArea").text
     
     create_team('zfoo 1', 'description')
 
@@ -131,7 +131,7 @@ private
     # Since last team ends in a number, name will be incremented.
     assert_equal 'Team was successfully created.', @ie.text_area("projectError").text
     assert_equal '', @ie.text_area("projectFieldName").text
-    assert_equal '', @ie.text_area("projectFieldDescription").text
+    assert_equal '', @ie.text_area("textArea").text
     assert_not_nil @ie.button("projectBtnCancel")
     @ie.button("projectBtnCancel").click
     assert_equal num_rows + 1, @ie.data_grid("projectResourceGrid").num_rows
@@ -154,7 +154,7 @@ private
 
   # Create a team.
   def create_team(name, description)
-    @ie.text_area("projectFieldDescription").input(:text => description )
+    @ie.text_area("textArea").input(:text => description )
     @ie.text_area("projectFieldName").input(:text => name ) # Do name last due to timing issue
   end
     
@@ -165,7 +165,7 @@ private
     @ie.button("projectBtnChange").click
     assert_equal "Name can't be blank", @ie.text_area("projectError").text
     assert_equal ' ', @ie.text_area("projectFieldName").text
-    assert_equal 'description', @ie.text_area("projectFieldDescription").text
+    assert_equal 'description', @ie.text_area("textArea").text
     assert !@ie.combo_box("projectFormSurveyMode").visible
     assert_not_nil @ie.button("projectBtnCancel")
     assert_equal num_rows, @ie.data_grid("projectResourceGrid").num_rows
@@ -197,7 +197,7 @@ private
   # Edit a team.
   def edit_team(name, description)
     @ie.button("projectBtnEdit")[4].click
-    @ie.text_area("projectFieldDescription").input(:text => description )
+    @ie.text_area("textArea").input(:text => description )
     @ie.text_area("projectFieldName").input(:text => name ) # Do name last due to timing issue
   end
 

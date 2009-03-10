@@ -241,7 +241,7 @@
 							<mx:DateField id='iterationFieldFinish' editable="true" showToday="true" width="100"/>
 						</mx:FormItem>
 						<mx:FormItem label='Retrospective Results'>
-							<component:HTMLTextArea id='iterationFieldRetrospectiveResults'/>
+							<component:ExpandableHTMLTextArea id='iterationFieldRetrospectiveResults'/>
 						</mx:FormItem>
 						<mx:ControlBar width="100%">
 							<mx:Spacer width="50"/>

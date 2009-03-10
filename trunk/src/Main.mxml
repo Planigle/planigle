@@ -71,6 +71,10 @@
 			[Bindable]
 			public var imgCollapsed:Class;
 		
+			[Embed(source="../public/images/expandText.png")]
+			[Bindable]
+			public var imgExpandText:Class;
+		
 			[Embed(source="../public/images/info.png")]
 			[Bindable]
 			public var imgInfo:Class;

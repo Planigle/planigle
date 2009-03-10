@@ -151,7 +151,7 @@ private
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
     @ie.button("taskBtnAdd")[2].click
     assert_equal '', @ie.text_area("storyFieldName").text
-    assert_equal '', @ie.text_area("storyFieldDescription").text
+    assert_equal '', @ie.text_area("textArea")[0].text
     assert !@ie.text_area("storyFormAcceptanceCriteria").visible
     assert !@ie.combo_box("storyFormIteration").visible
     assert !@ie.combo_box("storyFormRelease").visible
@@ -168,7 +168,7 @@ private
     # Values should not change
     assert_equal "Name can't be blank", @ie.text_area("storyError").text
     assert_equal ' ', @ie.text_area("storyFieldName").text
-    assert_equal 'description', @ie.text_area("storyFieldDescription").text
+    assert_equal 'description', @ie.text_area("textArea")[0].text
     assert_equal 'ted williams', @ie.combo_box("storyFieldOwner").text
     assert_equal '1', @ie.text_area("storyFieldEffort").text
     assert_equal 'Not Started', @ie.combo_box("storyFieldStatus").text
@@ -183,7 +183,7 @@ private
     @ie.button("taskBtnAdd")[2].click
     
     assert_equal '', @ie.text_area("storyFieldName").text
-    assert_equal '', @ie.text_area("storyFieldDescription").text
+    assert_equal '', @ie.text_area("textArea")[0].text
     assert_equal 'aaron hank', @ie.combo_box("storyFieldOwner").text
     assert_equal '', @ie.text_area("storyFieldEffort").text
     assert_equal 'Not Started', @ie.combo_box("storyFieldStatus").text
@@ -193,7 +193,7 @@ private
 
     assert_equal 'Task was successfully created.', @ie.text_area("storyError").text
     assert_equal '', @ie.text_area("storyFieldName").text
-    assert_equal '', @ie.text_area("storyFieldDescription").text
+    assert_equal '', @ie.text_area("textArea")[0].text
     assert_equal 'aaron hank', @ie.combo_box("storyFieldOwner").text
     assert_equal '', @ie.text_area("storyFieldEffort").text
     assert_equal 'Not Started', @ie.combo_box("storyFieldStatus").text
@@ -221,14 +221,14 @@ private
   # Create a task.
   def create_task(name, description, owner, effort, status, reason_blocked="")
     @ie.text_area("storyFieldName").input(:text => name )
-    @ie.text_area("storyFieldDescription").input(:text => description )
+    @ie.text_area("textArea")[0].input(:text => description )
     @ie.combo_box("storyFieldOwner").open
     @ie.combo_box("storyFieldOwner").select(:item_renderer => owner )
     @ie.text_area("storyFieldEffort").input(:text => effort )
     @ie.combo_box("storyFieldStatus").open
     @ie.combo_box("storyFieldStatus").select(:item_renderer => status )
     if reason_blocked != ""
-      @ie.text_area("storyFieldReasonBlocked").input(:text => reason_blocked )
+      @ie.text_area("textArea")[2].input(:text => reason_blocked )
     end
   end
     
@@ -240,7 +240,7 @@ private
     @ie.button("storyBtnChange").click
     assert_equal "Name can't be blank", @ie.text_area("storyError").text
     assert_equal ' ', @ie.text_area("storyFieldName").text
-    assert_equal 'description', @ie.text_area("storyFieldDescription").text
+    assert_equal 'description', @ie.text_area("textArea")[0].text
     assert !@ie.text_area("storyFormAcceptanceCriteria").visible
     assert !@ie.combo_box("storyFormIteration").visible
     assert !@ie.combo_box("storyFormRelease").visible
@@ -280,14 +280,14 @@ private
   def edit_task(name, description, owner, effort, status, reason_blocked="")
     @ie.button("storyBtnEdit")[4].click
     @ie.text_area("storyFieldName").input(:text => name )
-    @ie.text_area("storyFieldDescription").input(:text => description )
+    @ie.text_area("textArea")[0].input(:text => description )
     @ie.combo_box("storyFieldOwner").open
     @ie.combo_box("storyFieldOwner").select(:item_renderer => owner )
     @ie.text_area("storyFieldEffort").input(:text => effort )
     @ie.combo_box("storyFieldStatus").open
     @ie.combo_box("storyFieldStatus").select(:item_renderer => status )
     if reason_blocked != ""
-      @ie.text_area("storyFieldReasonBlocked").input(:text => reason_blocked )
+      @ie.text_area("textArea")[2].input(:text => reason_blocked )
     end
   end
     
