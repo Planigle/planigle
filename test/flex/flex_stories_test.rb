@@ -150,7 +150,6 @@ class FlexStoriesTest < Test::Unit::TestCase
   # Test changing custom attributes.
   def test_custom_attribute_add
     init('admin2')
-    count = StoryAttribute.count
     @ie.button("storyBtnCreate").click
     @ie.button("storyBtnEditAttributes").click
 
@@ -180,29 +179,33 @@ class FlexStoriesTest < Test::Unit::TestCase
     @ie.combo_box("editAttributeRelease").select(:item_renderer => 'second' )
     @ie.button("editValueBtnAdd").click # Add a new value
     @ie.text_area("editValueFieldName").input(:text => 'Do it fast' )
-    @ie.button("editAttributeBtnOk").click
-    sleep 5
 
-    @ie.text_area("storyField" + (count+1).to_s).input(:text => 'custom text')
-    @ie.combo_box("storyField" + (count+2).to_s).click
-    @ie.combo_box("storyField" + (count+2).to_s).select(:item_renderer => 'Zeta')
+    @ie.button("editAttributeBtnOk").click
+    sleep 10
+
+    @ie.text_area("storyField33").input(:text => '5')
+
+    @ie.combo_box("storyField34").click
+    @ie.combo_box("storyField34").select(:item_renderer => 'Zeta')
+
     @ie.combo_box("storyFieldRelease").click
     @ie.combo_box("storyFieldRelease").select(:item_renderer => 'first')
-    @ie.combo_box("storyField" + (count+3).to_s).click
-    @ie.combo_box("storyField" + (count+3).to_s).select(:item_renderer => 'Do it right')
+    @ie.combo_box("storyField35").click
+    @ie.combo_box("storyField35").select(:item_renderer => 'Do it right')
     @ie.combo_box("storyFieldRelease").click
     @ie.combo_box("storyFieldRelease").select(:item_renderer => 'No Release')    
-    @ie.combo_box("storyField" + (count+3).to_s).click
+    @ie.combo_box("storyField35").click
     begin
-      @ie.combo_box("storyField" + (count+3).to_s).select(:item_renderer => 'Do it right')
+      @ie.combo_box("storyField35").select(:item_renderer => 'Do it right')
       assert false #shouldn't get to this point
     rescue Exception
     end
-    @ie.combo_box("storyField" + (count+3).to_s).click
-    @ie.combo_box("storyField" + (count+3).to_s).select(:item_renderer => 'None')
+    @ie.combo_box("storyField35").click
+    @ie.combo_box("storyField35").select(:item_renderer => 'None')
     @ie.combo_box("storyFieldRelease").select(:item_renderer => 'second')
-    @ie.combo_box("storyField" + (count+3).to_s).click
-    @ie.combo_box("storyField" + (count+3).to_s).select(:item_renderer => 'Do it fast')
+    @ie.combo_box("storyField35").click
+    @ie.combo_box("storyField35").select(:item_renderer => 'Do it fast')
+    
     @ie.button("storyBtnChange").click
   end
 
@@ -250,7 +253,7 @@ class FlexStoriesTest < Test::Unit::TestCase
     init('admin2')
     @ie.button("storyBtnSelectAttributes")[0].click
     @ie.check_box("select_Description").click
-    @ie.button("btn_ok")
+    @ie.button("btn_ok").click
   end
 
 private
@@ -261,8 +264,8 @@ private
     @ie.button("storyBtnCreate").click
     
     assert_equal '', @ie.text_area("storyFieldName").text
-    assert_equal '', @ie.text_area("storyFieldDescription").text
-    assert_equal '', @ie.text_area("storyFieldAcceptanceCriteria").text
+    assert_equal '', @ie.text_area("textArea")[0].text
+    assert_equal '', @ie.text_area("textArea")[1].text
     assert_equal 'Backlog', @ie.combo_box("storyFieldIteration").text
     assert_equal 'No Release', @ie.combo_box("storyFieldRelease").text
     assert_equal 'No Team', @ie.combo_box("storyFieldTeam").text
@@ -278,8 +281,8 @@ private
     # Values should not change
     assert_equal "Name can't be blank", @ie.text_area("storyError").text
     assert_equal ' ', @ie.text_area("storyFieldName").text
-    assert_equal 'description', @ie.text_area("storyFieldDescription").text
-    assert_equal 'acceptance_criteria', @ie.text_area("storyFieldAcceptanceCriteria").text
+    assert_equal 'description', @ie.text_area("textArea")[0].text
+    assert_equal 'acceptance_criteria', @ie.text_area("textArea")[1].text
     assert_equal 'fourth', @ie.combo_box("storyFieldIteration").text
     assert_equal 'second', @ie.combo_box("storyFieldRelease").text
     assert_equal 'Test_team', @ie.combo_box("storyFieldTeam").text
@@ -298,8 +301,8 @@ private
     @ie.button("storyBtnCreate").click
     
     assert_equal '', @ie.text_area("storyFieldName").text
-    assert_equal '', @ie.text_area("storyFieldDescription").text
-    assert_equal '', @ie.text_area("storyFieldAcceptanceCriteria").text
+    assert_equal '', @ie.text_area("textArea")[0].text
+    assert_equal '', @ie.text_area("textArea")[1].text
     assert_equal 'Backlog', @ie.combo_box("storyFieldIteration").text
     assert_equal 'No Release', @ie.combo_box("storyFieldRelease").text
     assert_equal 'No Team', @ie.combo_box("storyFieldTeam").text
@@ -313,8 +316,8 @@ private
 
     assert_equal 'Story was successfully created.', @ie.text_area("storyError").text
     assert_equal '', @ie.text_area("storyFieldName").text
-    assert_equal '', @ie.text_area("storyFieldDescription").text
-    assert_equal '', @ie.text_area("storyFieldAcceptanceCriteria").text
+    assert_equal '', @ie.text_area("textArea")[0].text
+    assert_equal '', @ie.text_area("textArea")[1].text
     assert_equal 'Backlog', @ie.combo_box("storyFieldIteration").text
     assert_equal 'No Release', @ie.combo_box("storyFieldRelease").text
     assert_equal 'No Team', @ie.combo_box("storyFieldTeam").text
@@ -343,8 +346,10 @@ private
   # Create a story.
   def create_story(name, description, acceptance_criteria, iteration, release, team, owner, effort, status, public, custom="", reason_blocked="")
     @ie.text_area("storyFieldName").input(:text => name )
-    @ie.text_area("storyFieldDescription").input(:text => description )
-    @ie.text_area("storyFieldAcceptanceCriteria").input(:text => acceptance_criteria )
+    @ie.text_area("textArea")[0].input(:text => description )
+    #@TODO: Would be good to test using the expanded text box here, but there is a bug where text fields
+    # aren't accepted unless you go to another field.
+    @ie.text_area("textArea")[1].input(:text => acceptance_criteria )
     @ie.combo_box("storyFieldIteration").open
     @ie.combo_box("storyFieldIteration").select(:item_renderer => iteration )
     @ie.combo_box("storyFieldRelease").open
@@ -359,7 +364,7 @@ private
     @ie.combo_box("storyFieldPublic").open
     @ie.combo_box("storyFieldPublic").select(:item_renderer => public )
     if reason_blocked != ""
-      @ie.text_area("storyFieldReasonBlocked").input(:text => reason_blocked )
+      @ie.text_area("textArea")[2].input(:text => reason_blocked )
     end
     @ie.text_area("storyField1").input(:text => custom )
   end
@@ -372,8 +377,8 @@ private
     @ie.button("storyBtnChange").click
     assert_equal "Name can't be blank", @ie.text_area("storyError").text
     assert_equal ' ', @ie.text_area("storyFieldName").text
-    assert_equal 'description', @ie.text_area("storyFieldDescription").text
-    assert_equal 'acceptance_criteria', @ie.text_area("storyFieldAcceptanceCriteria").text
+    assert_equal 'description', @ie.text_area("textArea")[0].text
+    assert_equal 'acceptance_criteria', @ie.text_area("textArea")[1].text
     assert_equal 'fourth', @ie.combo_box("storyFieldIteration").text
     assert_equal 'second', @ie.combo_box("storyFieldRelease").text
     assert_equal 'Test_team', @ie.combo_box("storyFieldTeam").text
@@ -439,7 +444,7 @@ private
     @ie.combo_box("updateFieldOwner").select(:item_renderer => 'aaron hank' )
     @ie.combo_box("updateFieldStatus").open
     @ie.combo_box("updateFieldStatus").select(:item_renderer => 'Blocked' )
-    @ie.text_area("updateFieldReasonBlocked").input(:text => 'President' )
+    @ie.text_area("textArea").input(:text => 'President' )
     @ie.combo_box("updateFieldPublic").open
     @ie.combo_box("updateFieldPublic").select(:item_renderer => 'true' )
     @ie.button("updateBtnOk").click
@@ -453,8 +458,8 @@ private
   def edit_story(name, description, acceptance_criteria, iteration, release, team, owner, effort, status, public, custom="", reason_blocked="")
     @ie.button("storyBtnEdit")[1].click
     @ie.text_area("storyFieldName").input(:text => name )
-    @ie.text_area("storyFieldDescription").input(:text => description )
-    @ie.text_area("storyFieldAcceptanceCriteria").input(:text => acceptance_criteria )
+    @ie.text_area("textArea")[0].input(:text => description )
+    @ie.text_area("textArea")[1].input(:text => acceptance_criteria )
     @ie.combo_box("storyFieldIteration").open
     @ie.combo_box("storyFieldIteration").select(:item_renderer => iteration )
     @ie.combo_box("storyFieldRelease").open
@@ -467,8 +472,9 @@ private
     @ie.combo_box("storyFieldStatus").open
     @ie.combo_box("storyFieldStatus").select(:item_renderer => status )
     if reason_blocked != ""
-      @ie.text_area("storyFieldReasonBlocked").input(:text => reason_blocked )
+      @ie.text_area("textArea")[2].input(:text => reason_blocked )
     end
+
     @ie.combo_box("storyFieldPublic").open
     @ie.combo_box("storyFieldPublic").select(:item_renderer => public )
     @ie.text_area("storyField1").input(:text => custom )
@@ -479,8 +485,8 @@ private
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
     @ie.button("storyBtnSplit")[2].click
     assert_equal 'test', @ie.text_area("storyFieldName").text
-    assert_equal 'description', @ie.text_area("storyFieldDescription").text
-    assert_equal 'criteria', @ie.text_area("storyFieldAcceptanceCriteria").text
+    assert_equal 'description', @ie.text_area("textArea")[0].text
+    assert_equal 'criteria', @ie.text_area("textArea")[1].text
     assert_equal 'second', @ie.combo_box("storyFieldIteration").text
     assert_equal 'first', @ie.combo_box("storyFieldRelease").text
     assert_equal 'Test_team', @ie.combo_box("storyFieldTeam").text
@@ -493,8 +499,8 @@ private
     @ie.alert("Abort").button("Yes").click
     assert_equal "Name can't be blank", @ie.text_area("storyError").text
     assert_equal ' ', @ie.text_area("storyFieldName").text
-    assert_equal 'description', @ie.text_area("storyFieldDescription").text
-    assert_equal 'acceptance_criteria', @ie.text_area("storyFieldAcceptanceCriteria").text
+    assert_equal 'description', @ie.text_area("textArea")[0].text
+    assert_equal 'acceptance_criteria', @ie.text_area("textArea")[1].text
     assert_equal 'fourth', @ie.combo_box("storyFieldIteration").text
     assert_equal 'second', @ie.combo_box("storyFieldRelease").text
     assert_equal 'Test_team', @ie.combo_box("storyFieldTeam").text
@@ -558,10 +564,10 @@ private
   def split_story(name, description, acceptance_criteria, iteration, release, team, owner, effort, status, public)
     @ie.text_area("storyFieldName").select_text(:beginIndex => "0", :endIndex => "4")
     @ie.text_area("storyFieldName").input(:text => name )
-    @ie.text_area("storyFieldDescription").select_text(:beginIndex => "0", :endIndex => "11")
-    @ie.text_area("storyFieldDescription").input(:text => description )
-    @ie.text_area("storyFieldAcceptanceCriteria").select_text(:beginIndex => "0", :endIndex => "8")
-    @ie.text_area("storyFieldAcceptanceCriteria").input(:text => acceptance_criteria )
+    @ie.text_area("textArea")[0].select_text(:beginIndex => "0", :endIndex => "11")
+    @ie.text_area("textArea")[0].input(:text => description )
+    @ie.text_area("textArea")[1].select_text(:beginIndex => "0", :endIndex => "8")
+    @ie.text_area("textArea")[1].input(:text => acceptance_criteria )
     @ie.combo_box("storyFieldIteration").open
     @ie.combo_box("storyFieldIteration").select(:item_renderer => iteration )
     @ie.combo_box("storyFieldRelease").open

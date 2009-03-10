@@ -394,7 +394,7 @@
 										<mx:TextInput id='projectFieldName' maxChars="40" text='' width="350"/>
 									</mx:FormItem>
 									<mx:FormItem id="projectFormDescription" label='Description'>
-										<component:HTMLTextArea id='projectFieldDescription'/>
+										<component:ExpandableHTMLTextArea id='projectFieldDescription'/>
 									</mx:FormItem>
 								</mx:Form>
 							</mx:VBox>

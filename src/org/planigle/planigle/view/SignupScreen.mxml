@@ -70,7 +70,7 @@
 				<mx:TextInput id='signupFieldName' maxChars="40" text='' width="350"/>
 			</mx:FormItem>
 			<mx:FormItem label='Project Description'>
-				<component:HTMLTextArea id='signupFieldDescription'/>
+				<component:ExpandableHTMLTextArea id='signupFieldDescription'/>
 			</mx:FormItem>
 			<mx:FormItem label='Login' required="true">
 				<mx:TextInput id='signupFieldLogin' maxChars="40" text='' width="350"/>

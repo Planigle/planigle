@@ -136,7 +136,7 @@
 				</mx:ComboBox>
 			</mx:FormItem>
 			<mx:FormItem id='updateFormReasonBlocked' label='Reason Blocked' height="0" visible="false">
-				<component:HTMLTextArea id='updateFieldReasonBlocked'/>
+				<component:ExpandableHTMLTextArea id='updateFieldReasonBlocked'/>
 			</mx:FormItem>
 			<mx:FormItem label='Public' id="form_public">
 				<mx:ComboBox id='updateFieldPublic' width="350" editable="false">

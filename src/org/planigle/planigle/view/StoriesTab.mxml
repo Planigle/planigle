@@ -41,7 +41,7 @@
 		import org.planigle.planigle.view.components.SelectItem;
 		import org.planigle.planigle.view.components.UpdateItems;
 		import org.planigle.planigle.view.components.EnterText;
-		import org.planigle.planigle.view.components.HTMLTextArea;
+		import org.planigle.planigle.view.components.ExpandableHTMLTextArea;
 		
 		[Bindable]
 		private var _error:String;
@@ -706,7 +706,7 @@
 					var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
 					var value:Object = currentItem.getCustomValue(attrib.id);
 					if (attrib.valueType == StoryAttribute.TEXT)
-						HTMLTextArea(disp).text = value ? String(value) : "";
+						ExpandableHTMLTextArea(disp).text = value ? String(value) : "";
 					else if (attrib.valueType >= StoryAttribute.LIST)
 					{
 						var selected:StoryAttributeValue = ComboBox(disp).dataProvider.getItemAt(ComboBox(disp).dataProvider.length - 1);
@@ -730,7 +730,7 @@
 			{
 				var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
 				if (attrib.valueType == StoryAttribute.TEXT)
-					HTMLTextArea(disp).text = "";
+					ExpandableHTMLTextArea(disp).text = "";
 				else if (attrib.valueType >= StoryAttribute.LIST)
 					ComboBox(disp).selectedIndex = ComboBox(disp).dataProvider.length - 1;
 				else
@@ -806,7 +806,7 @@
 				{
 					var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
 					if (attrib.valueType < StoryAttribute.LIST || ComboBox(disp).selectedItem)
-						params['record[custom_' + attrib.id + ']'] = attrib.valueType == StoryAttribute.TEXT ? HTMLTextArea(disp).text : (attrib.valueType >= StoryAttribute.LIST ? (ComboBox(disp).selectedItem.id > 0 ? ComboBox(disp).selectedItem.id : "") : TextInput(disp).text);
+						params['record[custom_' + attrib.id + ']'] = attrib.valueType == StoryAttribute.TEXT ? ExpandableHTMLTextArea(disp).text : (attrib.valueType >= StoryAttribute.LIST ? (ComboBox(disp).selectedItem.id > 0 ? ComboBox(disp).selectedItem.id : "") : TextInput(disp).text);
 				}
 			}
 			return params;
@@ -1256,7 +1256,7 @@
 					  	customChildren[id] = input;
 					    break;
 					  case StoryAttribute.TEXT:
-					    var text:HTMLTextArea = new HTMLTextArea();
+					    var text:ExpandableHTMLTextArea = new ExpandableHTMLTextArea();
 					    text.id = id;
 					  	formItem.addChild(text);
 					  	customChildren[id] = text;
@@ -1401,10 +1401,10 @@
 											<mx:TextInput id='storyFieldName' maxChars="250" text='' width="500"/>
 										</mx:FormItem>
 										<mx:FormItem label='Description'>
-											<component:HTMLTextArea id='storyFieldDescription'/>
+											<component:ExpandableHTMLTextArea id='storyFieldDescription'/>
 										</mx:FormItem>
 										<mx:FormItem label='Acceptance Criteria' id="storyFormAcceptanceCriteria">
-											<component:HTMLTextArea id='storyFieldAcceptanceCriteria'/>
+											<component:ExpandableHTMLTextArea id='storyFieldAcceptanceCriteria'/>
 										</mx:FormItem>
 										<mx:FormItem label='Status'>
 											<mx:ComboBox id='storyFieldStatus' width="120" editable="false" change="updateReasonBlocked(event)">
@@ -1415,7 +1415,7 @@
 											</mx:ComboBox>
 										</mx:FormItem>
 										<mx:FormItem id='storyFormReasonBlocked' label='Reason Blocked'>
-											<component:HTMLTextArea id='storyFieldReasonBlocked'/>
+											<component:ExpandableHTMLTextArea id='storyFieldReasonBlocked'/>
 										</mx:FormItem>
 									</mx:Form>	
 								</mx:VBox>
