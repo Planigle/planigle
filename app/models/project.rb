@@ -26,7 +26,7 @@ class Project < ActiveRecord::Base
       attributes[:survey_mode] = Private
     end
     if (self.class.column_names.include?('premium_expiry') && !attributes.include?(:premium_expiry))
-      attributes[:premium_expiry] = Date.yesterday
+      attributes[:premium_expiry] = Date.today + 30
     end
     if (self.class.column_names.include?('premium_limit') && !attributes.include?(:premium_limit))
       attributes[:premium_limit] = 1000

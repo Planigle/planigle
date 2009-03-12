@@ -35,6 +35,7 @@ module IndividualsTestHelper
   def assert_create_succeeded
     assert Individual.find_by_login('foo')
     assert_equal ActionMailer::Base.deliveries.length, 1
+    assert_no_match /.*enabled for the Premium Edition.*/, ActionMailer::Base.deliveries[0].body
   end
 
   # Verify that the object was updated.

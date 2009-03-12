@@ -18,7 +18,7 @@ class ProjectMailerTest < ActiveSupport::TestCase
     response = ProjectMailer.create_signup_notification(projects(:first))
     assert_equal PLANIGLE_ADMIN_EMAIL, response.from[0]
     assert_equal ProjectMailer.who_to_notify, response.to[0]
-    reg = /.*#{projects(:first).name}.*/
+    reg = /.*#{projects(:first).company.name}.*/
     assert_match reg, response.body
   end
 end

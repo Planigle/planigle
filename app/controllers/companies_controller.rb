@@ -60,6 +60,9 @@ protected
     if individual
       errors = errors.concat(individual.errors.full_messages)
     end
+    if errors.empty?
+      errors.push("There was an error processing your request.  Please contact support.")
+    end
     builder = Builder::XmlMarkup.new(:indent => 2)
     builder.instruct!
     builder.errors {|e| errors.each { |msg| e.error(msg)}}

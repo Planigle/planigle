@@ -45,6 +45,7 @@ class ProjectTest < ActiveSupport::TestCase
   # Test the validation of premium_expiry.
   def test_premium_expiry
     assert_success(:premium_expiry, Date.today)
+    assert_equal Date.today + 30, create_project().premium_expiry
   end
 
   # Test the validation of premium_limit.
