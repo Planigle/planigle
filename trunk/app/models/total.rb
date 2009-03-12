@@ -26,7 +26,7 @@ class Total < ActiveRecord::Base
   
   # Create or update summarized data.
   def self.capture(id, team_id, created, in_progress, done, blocked)
-    total = find(:first, :conditions => {id_field => id, :team_id => team_id, :date => Time.today})
+    total = find(:first, :conditions => {id_field => id, :team_id => team_id, :date => Date.today})
     if total
       total.created = created
       total.in_progress = in_progress
@@ -35,7 +35,7 @@ class Total < ActiveRecord::Base
       total.save(false)
       total
     else
-      create(id_field => id, :team_id => team_id, :date => Time.today, :created => created, :in_progress => in_progress, :done => done, :blocked => blocked) 
+      create(id_field => id, :team_id => team_id, :date => Date.today, :created => created, :in_progress => in_progress, :done => done, :blocked => blocked) 
     end
   end
   
