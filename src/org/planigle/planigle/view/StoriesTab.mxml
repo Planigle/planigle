@@ -927,7 +927,7 @@
 			}
 			if (areStories && !shouldSort)
 			{
-				Alert.show("You can only drag and drop to prioritize after sorting by priority.");
+				Alert.show("You can only drag and drop to prioritize after sorting by rank.");
 				event.preventDefault();
 			}
 		}
