@@ -24,7 +24,7 @@ class ProjectMailer < ActionMailer::Base
     @recipients  = "#{who_to_notify}"
     @from        = "#{PLANIGLE_ADMIN_EMAIL}"
     @sent_on     = Time.now
-    @body[:project] = project.name
+    @body[:company] = project.company.name
     @body[:email] = project.individuals.empty? ? "" : project.individuals.first.email
     @content_type = 'text/html'
   end
