@@ -87,6 +87,22 @@
 			[Bindable]
 			public var imgCheck:Class;
 		
+			[Embed(source="../public/images/previous.png")]
+			[Bindable]
+			public var imgPrevious:Class;
+		
+			[Embed(source="../public/images/previousDisabled.png")]
+			[Bindable]
+			public var imgPreviousDisabled:Class;
+		
+			[Embed(source="../public/images/next.png")]
+			[Bindable]
+			public var imgNext:Class;
+		
+			[Embed(source="../public/images/nextDisabled.png")]
+			[Bindable]
+			public var imgNextDisabled:Class;
+		
 			[Embed(source="../public/images/logo_big.gif")]
 			[Bindable]
 			public var imgLogoBig:Class;
