@@ -120,6 +120,12 @@ package org.planigle.planigle.model
 		public function updateCompleted(xml:XML):void
 		{
 			populate(xml);
+			
+			// Reset the companies.  This will force views to update which rely on this hierarchy.
+			var newCompanies:ArrayCollection = new ArrayCollection();
+			for each (var company:Company in CompanyFactory.getInstance().companies)
+				newCompanies.addItem(company);
+			CompanyFactory.getInstance().companies = newCompanies;
 		}
 		
 		// Delete me.  Success function if successfully deleted.  FailureFunction will be called if failed

@@ -16,7 +16,7 @@ class Team < ActiveRecord::Base
   def authorized_for_create?(current_user)
     case current_user.role
       when Individual::Admin then true
-      when Individual::ProjectAdmin then current_user.project_id == project_id
+      when Individual::ProjectAdmin then current_user.company_id == project.company_id
       else false
     end
   end
@@ -33,7 +33,7 @@ class Team < ActiveRecord::Base
   def authorized_for_update?(current_user)    
     case current_user.role
       when Individual::Admin then true
-      when Individual::ProjectAdmin then current_user.project_id == project_id
+      when Individual::ProjectAdmin then current_user.company_id == project.company_id
       else false
     end
   end
@@ -42,7 +42,7 @@ class Team < ActiveRecord::Base
   def authorized_for_destroy?(current_user)
     case current_user.role
       when Individual::Admin then true
-    when Individual::ProjectAdmin then current_user.project_id == project_id
+    when Individual::ProjectAdmin then current_user.company_id == project.company_id
       else false
     end
   end
