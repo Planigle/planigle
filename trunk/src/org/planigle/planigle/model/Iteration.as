@@ -56,6 +56,13 @@ package org.planigle.planigle.model
 		// I have been successfully deleted.  Remove myself to reflect the changes.
 		public function destroyCompleted():void
 		{
+			// Update stories.
+			for each (var story:Story in StoryFactory.getInstance().stories)
+			{
+				if (story.iterationId == id)
+					story.iterationId = null;
+			}
+
 			// Create copy to ensure any views get notified of changes.
 			var iterations:ArrayCollection = new ArrayCollection();
 			for each (var iteration:Iteration in IterationFactory.getInstance().iterations)
