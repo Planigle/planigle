@@ -4,6 +4,7 @@
 		<![CDATA[
 		import mx.collections.ArrayCollection;
 		import mx.binding.utils.ChangeWatcher;
+		import mx.events.ListEvent;
 		import org.planigle.planigle.model.IndividualFactory;
 		import org.planigle.planigle.model.Team;
 
@@ -61,6 +62,7 @@
 			visible = teamSelector.length > 2;
 			height = visible ? 22 : 0;
 			width = visible ? 130 : -8;
+			dispatchEvent(new ListEvent(ListEvent.CHANGE));
 		}
 		]]>
 	</mx:Script>
