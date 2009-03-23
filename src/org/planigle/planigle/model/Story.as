@@ -20,6 +20,7 @@ package org.planigle.planigle.model
 		public var acceptanceCriteria:String;
 		public var releaseId:String;
 		public var iterationId:String;
+		public var projectedIterationId:String;
 		public var individualId:String;
 		public var effort:String;
 		public var statusCode:int;
