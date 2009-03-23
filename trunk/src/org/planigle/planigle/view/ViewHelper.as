@@ -55,6 +55,27 @@ package org.planigle.planigle.view
 			return ObjectUtil.numericCompare( indexIteration(item1), indexIteration(item2) );
 		}
 
+		// Display the iteration's name in the table (rather than ID).
+		public static function formatProjectedIteration(item:Object, column:DataGridColumn):String
+		{
+			if (item.projectedIterationId != "-1")
+				return IterationFactory.getInstance().find(item.projectedIterationId).name;
+			else
+				return "";
+		}
+
+		// Answer the index of the iteration in the list of iterations (or -1 if backlog).
+		private static function indexProjectedIteration(item:Object):int
+		{
+			return IterationFactory.getInstance().iterationSelector.getItemIndex(IterationFactory.getInstance().find(item.projectedIterationId));
+		}
+		
+		// Answer the sort order for the specified items (based on where they are in the list of iterations).
+		public static function sortProjectedIteration(item1:Object, item2:Object):int
+		{
+			return ObjectUtil.numericCompare( indexProjectedIteration(item1), indexProjectedIteration(item2) );
+		}
+
 		// Display the owner's name in the table (rather than ID).
 		public static function formatIndividual(item:Object, column:DataGridColumn):String
 		{

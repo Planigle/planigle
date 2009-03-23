@@ -356,10 +356,9 @@
 		// Handle any special columns.
 		private function updateColumnVisibility():void
 		{
-			if (storyColumnIteration)
-				storyColumnIteration.visible = attrMapping['Iteration'] && attrMapping['Iteration'].show && (!iteration.selectedItem || iteration.selectedItem.id == "-1");
-			if (storyColumnTeam)
-				storyColumnTeam.visible = attrMapping['Team'] && attrMapping['Team'].show && (IndividualFactory.current().project && IndividualFactory.current().project.teams.length > 0 && (!team.selectedItem || team.selectedItem.id == "-1"));
+			storyColumnIteration.visible = attrMapping['Iteration'] && attrMapping['Iteration'].show && (!iteration.selectedItem || iteration.selectedItem.id == "-1");
+			storyColumnProjected.visible = IndividualFactory.current().isPremium() && attrMapping['Iteration'] && attrMapping['Iteration'].show && iteration.selectedItem && iteration.selectedItem.id == null;
+			storyColumnTeam.visible = attrMapping['Team'] && attrMapping['Team'].show && (IndividualFactory.current().project && IndividualFactory.current().project.teams.length > 0 && (!team.selectedItem || team.selectedItem.id == "-1"));
 		}
 		
 		// The iteration filter has changed.
@@ -1304,9 +1303,11 @@
 			{
 				if (!attrib.isCustom)
 				{
+					var name:String = attrib.name;
+					
 					for each(var column:DataGridColumn in originalColumns)
 					{
-						if (column.headerText == attrib.name)
+						if ((column.headerText == name) || (column.headerText == "Projected" && name == "Iteration"))
 						{
 							newColumns.addItem(column);
 							column.width = attrib.width;
@@ -1589,6 +1590,7 @@
 					</mx:itemRenderer>
 				</mx:DataGridColumn>
 				<mx:DataGridColumn id="storyColumnIteration" headerText="Iteration" labelFunction="ViewHelper.formatIteration" sortCompareFunction="ViewHelper.sortIteration"/>
+				<mx:DataGridColumn id="storyColumnProjected" headerText="Projected" labelFunction="ViewHelper.formatProjectedIteration" sortCompareFunction="ViewHelper.sortProjectedIteration"/>
 				<mx:DataGridColumn id="storyColumnTeam" headerText="Team" labelFunction="ViewHelper.formatTeam" sortCompareFunction="ViewHelper.sortTeam"/>
 				<mx:DataGridColumn id="storyColumnIndividual" headerText="Owner" labelFunction="ViewHelper.formatIndividual" sortCompareFunction="ViewHelper.sortIndividual"/>
 				<mx:DataGridColumn headerText="Size" dataField="size" sortCompareFunction="ViewHelper.sortSize"/>
