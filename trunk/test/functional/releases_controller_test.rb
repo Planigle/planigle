@@ -17,7 +17,7 @@ class ReleasesControllerTest < ActionController::TestCase
     
   # Test getting releases (based on role).
   def test_index_by_admin
-    index_by_role(individuals(:quentin), Release.count)
+    index_by_role(individuals(:quentin), 0)
   end
     
   # Test getting releases (based on role).
@@ -40,8 +40,12 @@ class ReleasesControllerTest < ActionController::TestCase
     login_as(user)
     get :index, :format => 'xml'
     assert_response :success
-    assert_select "releases" do
-      assert_select "release", count
+    if (count == 0)
+      assert_select "releases", false
+    else
+      assert_select "releases" do
+        assert_select "release", count
+      end
     end
   end
 

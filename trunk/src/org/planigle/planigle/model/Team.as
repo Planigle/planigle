@@ -156,7 +156,7 @@ package org.planigle.planigle.model
 		// Return my parent.
 		public function get parent():Object
 		{
-			return IndividualFactory.current().project;
+			return IndividualFactory.current().selectedProject;
 		}
 
 		// Answer my children.  Change none to have me as its team.

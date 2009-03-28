@@ -52,11 +52,11 @@
 					releases.addItem(release);
 
 				teams.addItem(noChange);
-				for each (var team:Team in IndividualFactory.current().project.teamSelector)
+				for each (var team:Team in IndividualFactory.current().selectedProject.teamSelector)
 					teams.addItem(team);
 
 				individuals.addItem(noChange);
-				for each (var individual:Individual in IndividualFactory.current().project.individuals())
+				for each (var individual:Individual in IndividualFactory.current().selectedProject.individuals())
 					individuals.addItem(individual);
 			}
 						

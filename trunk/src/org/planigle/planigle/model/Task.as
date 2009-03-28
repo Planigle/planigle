@@ -18,6 +18,7 @@ package org.planigle.planigle.model
 		public var individualId:String;
 		public var effort:String;
 		public var statusCode:int;
+		public var projectedIterationId:String; // Not used for tasks, but needed for the grid.
 
 		// Populate myself from XML.
 		public function populate(xml:XML):void

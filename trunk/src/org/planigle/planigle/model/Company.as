@@ -146,8 +146,9 @@ package org.planigle.planigle.model
 					else
 						individual.destroyCompleted();
 				}
-			if (IndividualFactory.getInstance().currentIndividual.companyId == id)
-				IndividualFactory.getInstance().currentIndividual.companyId = null;
+			var currentIndividual:Individual = IndividualFactory.getInstance().currentIndividual;
+			if (currentIndividual.companyId == id)
+				currentIndividual.companyId = null;
 
 			// Create copy to ensure any views get notified of changes.
 			var companies:ArrayCollection = new ArrayCollection();
@@ -157,6 +158,8 @@ package org.planigle.planigle.model
 					companies.addItem(company);
 			}
 			CompanyFactory.getInstance().updateCompanies(companies);
+
+			currentIndividual.allProjectsChanged();
 		}
 
 		// Create a new company.  Params should be of the format (record[param]).  Success function
@@ -185,6 +188,8 @@ package org.planigle.planigle.model
 			for each (var company:Company in CompanyFactory.getInstance().companies)
 				companies.addItem(company);
 			CompanyFactory.getInstance().companies = companies;
+
+			IndividualFactory.getInstance().currentIndividual.allProjectsChanged();
 
 			return newProject;
 		}

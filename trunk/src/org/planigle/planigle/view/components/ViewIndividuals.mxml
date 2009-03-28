@@ -5,9 +5,10 @@
 		import mx.rpc.events.ResultEvent;
 		import mx.collections.ArrayCollection;
 		import mx.controls.Alert;
+		import mx.core.Container;
 		import mx.events.CloseEvent;
 		import mx.binding.utils.ChangeWatcher;
-		import org.planigle.planigle.model.ViewModelLocator;
+		import org.planigle.planigle.model.TabModelLocator;
 		import org.planigle.planigle.model.CompanyFactory;
 		import org.planigle.planigle.model.Company;
 		import org.planigle.planigle.model.Project;
@@ -25,7 +26,7 @@
 		private var _error:String;
 
 		[Bindable]
-		private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
+		private var tabModelLocator:TabModelLocator = TabModelLocator.getInstance();
 
 		[Bindable]
 		public var individuals:ArrayCollection = new ArrayCollection();
@@ -117,8 +118,8 @@
 			updateProject(event);
 			if (group)
 				individualFieldProject.selectedItem = group.isProject() ? group : (group.isTeam() ? group.project : group.projectSelector[0]);
-			else if (factory.currentIndividual.projectId)
-				individualFieldProject.selectedItem = factory.currentIndividual.project;
+			else if (factory.currentIndividual.selectedProject)
+				individualFieldProject.selectedItem = factory.currentIndividual.selectedProject;
 			else
 				individualFieldProject.selectedIndex = individualFieldCompany.selectedItem.projectSelector.length - 1;
 
@@ -297,14 +298,14 @@
 		// Answer whether to show the edit button
 		public function showEdit( data:Object ):Boolean
 		{
-			return factory.currentIndividual.isAtLeastProjectAdmin() || (factory.currentIndividual.isAtLeastProjectUser() && data == factory.currentIndividual);
+			return factory.currentIndividual.isAtLeastProjectAdmin() || (!factory.currentIndividual.isReadOnly() && data == factory.currentIndividual);
 		}
 		
 		// Show the history for the current object.
 		public function showHistory(event:Event) : void
 		{
 			new AuditChangedEvent(null, 'Individual', null, null, String(currentItem.id)).dispatch();
-			viewModelLocator.selectedTab = viewModelLocator.changes;
+			tabModelLocator.selectedTab = Container(tabModelLocator.changes);
 		}
 		]]>
 	</mx:Script>
@@ -409,7 +410,7 @@
 			<mx:Text id="individualError" styleName="error" htmlText="{_error}" width="100%"/>
 			<mx:Button icon="{parentApplication.imgAdd}" toolTip="Create" id="individualBtnCreate" styleName="individualBtnCreate" click="showCreate(event);" visible="{factory.currentIndividual.isAtLeastProjectAdmin()}"/>
 		</mx:HBox>
-		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="individualResourceGrid" dataProvider="{individuals}" rowCount="{individuals.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" doubleClick="showUpdate(event)" horizontalScrollPolicy="auto">
+		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="individualResourceGrid" dataProvider="{individuals}" rowCount="{individuals.length}" width="100%" height="100%" doubleClickEnabled="{!factory.currentIndividual.isReadOnly()}" doubleClick="showUpdate(event)" horizontalScrollPolicy="auto">
 				<mx:columns>
 				<mx:DataGridColumn width="105" headerText="Company" labelFunction="ViewHelper.formatCompany" sortCompareFunction="ViewHelper.sortCompany" id="columnCompany"/>
 				<mx:DataGridColumn width="105" headerText="Project" labelFunction="ViewHelper.formatProject" sortCompareFunction="ViewHelper.sortProject" id="columnProject"/>

@@ -3,19 +3,18 @@
 	layout="absolute"
 	xmlns:view="org.planigle.planigle.view.*" initialize="onInitialize(event)">
 	
-	<!--The main style sheet for all the pages.-->
-	<mx:Style source="stylesheets/flex.css"/>
-	
 	<mx:Script>
 		<![CDATA[
 			import com.adobe.viewsource.ViewSource;
 			import flash.display.DisplayObject;
 			import mx.binding.utils.ChangeWatcher;
 			import mx.binding.utils.BindingUtils;
+			import mx.managers.CursorManager;
 			import mx.events.ModuleEvent;
         	import mx.modules.ModuleManager;
         	import mx.modules.IModuleInfo;
 			import org.planigle.planigle.model.IndividualFactory;
+			import org.planigle.planigle.model.TabModelLocator;
 			import org.planigle.planigle.model.ViewModelLocator;
 			import org.planigle.planigle.events.CompanyChangedEvent;
 			import org.planigle.planigle.events.IndividualChangedEvent;
@@ -42,13 +41,16 @@
 			// Add the base tabs.
 			private function onInitialize(event:Event):void
 			{
-				ViewModelLocator.getInstance().stories = stories;
-				ViewModelLocator.getInstance().changes = changes;
+				CursorManager.setBusyCursor();
+				TabModelLocator.getInstance().stories = stories;
+				TabModelLocator.getInstance().changes = changes;
 				mainViewStack.addChild(people);
 				ChangeWatcher.watch( factory, "currentIndividual", changeIndividual );
+				ChangeWatcher.watch( factory, "individuals", updateProjects );
 				changeIndividual(event); // This is to catch it the first time (The event has already been sent).
-				ViewModelLocator.getInstance().selectedTab = mainViewStack.getChildAt(0) == stories ? stories : people;
-				BindingUtils.bindProperty(mainViewStack, "selectedChild", ViewModelLocator.getInstance(), "selectedTab");
+				TabModelLocator.getInstance().selectedTab = mainViewStack.getChildAt(0) == stories ? stories : people;
+				BindingUtils.bindProperty(mainViewStack, "selectedChild", TabModelLocator.getInstance(), "selectedTab");
+				CursorManager.removeBusyCursor();
 			}
 
 			private var watcher:ChangeWatcher;
@@ -61,8 +63,15 @@
 					watcher.unwatch();
 
 				watcher = factory.currentIndividual ? ChangeWatcher.watch( factory.currentIndividual, "projectId", changeProject ) : null;
-				watcher2 = factory.currentIndividual && factory.currentIndividual.project ? ChangeWatcher.watch( factory.currentIndividual.project, "premiumExpiry", resetState ) : null;
+				watcher2 = factory.currentIndividual && factory.currentIndividual.selectedProject ? ChangeWatcher.watch( factory.currentIndividual.selectedProject, "premiumExpiry", resetState ) : null;
 				resetState(event);
+			}
+
+			// Update the selected projects pullsdon.
+			private function updateProjects(event:Event):void
+			{
+				IndividualFactory.current().allProjectsChanged();
+				selectedProject.selectedItem = IndividualFactory.current().selectedProject;
 			}
 
 			// The project has changed.
@@ -70,7 +79,7 @@
 			{
 				if (watcher2)
 					watcher2.unwatch();
-				watcher2 = factory.currentIndividual.project ? ChangeWatcher.watch( factory.currentIndividual.project, "premiumExpiry", resetState ) : null;
+				watcher2 = factory.currentIndividual.selectedProject ? ChangeWatcher.watch( factory.currentIndividual.selectedProject, "premiumExpiry", resetState ) : null;
 				resetState(event);
 				refresh();
 			}
@@ -181,7 +190,13 @@
 			// A different child has been selected.
 			private function updateChild(event:Event):void
 			{
-				ViewModelLocator.getInstance().selectedTab = mainViewStack.selectedChild;
+				TabModelLocator.getInstance().selectedTab = mainViewStack.selectedChild;
+			}
+			
+			// The user has changed the project that they are viewing.
+			private function selectProject():void
+			{
+				IndividualFactory.current().update({"record[selected_project_id]": (selectedProject.selectedItem.id ? selectedProject.selectedItem.id : "")}, refresh, null);
 			}
 		]]>
 	</mx:Script>
@@ -189,6 +204,7 @@
 		<mx:TabBar id="mainNavigation" dataProvider="{mainViewStack}" itemClick="resetTab(event)">
 		</mx:TabBar>
 		<mx:HBox horizontalAlign="right" width="100%">
+			<mx:ComboBox id="selectedProject" fillColors="[0xffffff, 0xffffff]" fillAlphas="[1,1]" dataProvider="{IndividualFactory.getInstance().currentIndividual.allProjects}" visible="{IndividualFactory.getInstance().currentIndividual.allProjects.length>1}" change="selectProject()" selectedItem="{IndividualFactory.current().selectedProject}" />
 			<mx:LinkButton label="Refresh" styleName="ToolbarLink" id="refreshButton" click="{refresh()}"/>
 			<mx:LinkButton label="Log out" styleName="ToolbarLink" id="logoutButton" click="{logout()}"/>
 			<mx:LinkButton id="planigleButton" icon="{parentApplication.imgLogoSmall}" toolTip="Planigle Project Page" click="new URLEvent('http://code.google.com/p/planigle/').dispatch()"/>

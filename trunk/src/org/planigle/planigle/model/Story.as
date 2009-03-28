@@ -146,7 +146,7 @@ package org.planigle.planigle.model
 		// Answer my project.
 		public function get project():Project
 		{
-			return IndividualFactory.current().project;
+			return IndividualFactory.current().selectedProject;
 		}
 
 		// Answer my team.

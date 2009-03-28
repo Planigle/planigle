@@ -20,9 +20,9 @@
 			
 			private function addCheckBoxes():void
 			{
-				var newHeight:int = IndividualFactory.current().project.storyAttributes.length * 27 + 120;
+				var newHeight:int = IndividualFactory.current().selectedProject.storyAttributes.length * 27 + 120;
 				height = newHeight > 600 ? 600 : newHeight;
-				for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
+				for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.storyAttributes)
 				{
 					var check:CheckBox = new CheckBox();
 					check.automationName = "select_" + attrib.name;
@@ -37,7 +37,7 @@
 			private function ok(event:Event):void
 			{
 				PopUpManager.removePopUp(this);
-				for each (var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
+				for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.storyAttributes)
 				{
 					for each (var check:CheckBox in children)
 					{

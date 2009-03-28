@@ -17,7 +17,7 @@ class IterationsControllerTest < ActionController::TestCase
     
   # Test getting iterations (based on role).
   def test_index_by_admin
-    index_by_role(individuals(:quentin), Iteration.count)
+    index_by_role(individuals(:quentin), 0)
   end
     
   # Test getting iterations (based on role).
@@ -40,8 +40,12 @@ class IterationsControllerTest < ActionController::TestCase
     login_as(user)
     get :index, :format => 'xml'
     assert_response :success
-    assert_select "iterations" do
-      assert_select "iteration", count
+    if (count == 0)
+      assert_select "iterations", false
+    else
+      assert_select "iterations" do
+        assert_select "iteration", count
+      end
     end
   end
 

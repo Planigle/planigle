@@ -9,10 +9,11 @@
 		import mx.collections.ArrayCollection;
 		import mx.controls.Alert;
 		import mx.controls.dataGridClasses.DataGridColumn;
+		import mx.core.Container;
 		import mx.events.ListEvent;
 		import mx.events.CloseEvent;
 		import mx.binding.utils.ChangeWatcher;
-		import org.planigle.planigle.model.ViewModelLocator;
+		import org.planigle.planigle.model.TabModelLocator;
 		import org.planigle.planigle.model.IndividualFactory;
 		import org.planigle.planigle.model.ReleaseFactory;
 		import org.planigle.planigle.model.Release;
@@ -26,7 +27,7 @@
 		private var _error:String;
 
 		[Bindable]
-		private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
+		private var tabModelLocator:TabModelLocator = TabModelLocator.getInstance();
 
 		[Bindable]
 		public var factory:IndividualFactory = IndividualFactory.getInstance();
@@ -128,7 +129,7 @@
 		private function getParams() : Object
 		{
 			var params:Object = new Object();
-			params['record[project_id]'] = factory.currentIndividual.projectId;
+			params['record[project_id]'] = factory.currentIndividual.selectedProjectId;
 			params['record[name]'] = releaseFieldName.text;
 			params['record[start]'] = releaseFieldStart.selectedDate == null ? "" : releaseFieldStart.selectedDate;
 			params['record[finish]'] = releaseFieldFinish.selectedDate == null ? "" : releaseFieldFinish.selectedDate;
@@ -208,7 +209,7 @@
 		public function showHistory(event:Event) : void
 		{
 			new AuditChangedEvent(null, 'Release', null, null, String(currentItem.id)).dispatch();
-			viewModelLocator.selectedTab = viewModelLocator.changes;
+			tabModelLocator.selectedTab = Container(tabModelLocator.changes);
 		}
 		]]>
 	</mx:Script>

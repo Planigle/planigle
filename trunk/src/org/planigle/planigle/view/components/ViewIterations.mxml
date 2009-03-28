@@ -8,7 +8,7 @@
 		import mx.controls.dataGridClasses.DataGridColumn;
 		import mx.events.CloseEvent;
 		import mx.binding.utils.ChangeWatcher;
-		import org.planigle.planigle.model.ViewModelLocator;
+		import org.planigle.planigle.model.TabModelLocator;
 		import org.planigle.planigle.model.IndividualFactory;
 		import org.planigle.planigle.model.ReleaseFactory;
 		import org.planigle.planigle.model.Release;
@@ -27,7 +27,7 @@
 		private var _error:String;
 
 		[Bindable]
-		private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
+		private var tabModelLocator:TabModelLocator = TabModelLocator.getInstance();
 
 		[Bindable]
 		public var factory:IndividualFactory = IndividualFactory.getInstance();
@@ -138,7 +138,7 @@
 		private function getParams() : Object
 		{
 			var params:Object = new Object();
-			params['record[project_id]'] = factory.currentIndividual.projectId;
+			params['record[project_id]'] = factory.currentIndividual.selectedProjectId;
 			params['record[name]'] = iterationFieldName.text;
 			params['record[start]'] = iterationFieldStart.selectedDate;
 			params['record[finish]'] = iterationFieldFinish.selectedDate;
@@ -196,12 +196,12 @@
 		// Go to iteration planning.
 		public function showPlan(event:Event):void
 		{
-			var stories:StoriesTab = viewModelLocator.stories;
+			var stories:StoriesTab = tabModelLocator.stories;
 			stories.release.selectedIndex = ReleaseFactory.getInstance().releases.length + 1;
 			stories.handleReleaseFilter(null); // ensure filter affect occurs.
 			stories.iteration.selectedItem = iterationResourceGrid.selectedItem;
 			stories.handleFilter(null); // ensure filter affect occurs.
-			viewModelLocator.selectedTab = stories;
+			tabModelLocator.selectedTab = stories;
 		}
 		
 		// Format the start date into a more readable format.
@@ -220,7 +220,7 @@
 		public function showHistory(event:Event) : void
 		{
 			new AuditChangedEvent(null, 'Iteration', null, null, String(currentItem.id)).dispatch();
-			viewModelLocator.selectedTab = viewModelLocator.changes;
+			tabModelLocator.selectedTab = tabModelLocator.changes;
 		}
 		]]>
 	</mx:Script>

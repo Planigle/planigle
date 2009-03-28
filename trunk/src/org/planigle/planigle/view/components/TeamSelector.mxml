@@ -15,7 +15,7 @@
 		private function created(event:Event):void
 		{
 			ChangeWatcher.watch( IndividualFactory.getInstance(), "currentIndividual", setTeamWatcher );
-			ChangeWatcher.watch( IndividualFactory.current(), "projectId", setTeamWatcher );
+			ChangeWatcher.watch( IndividualFactory.current(), "selectedProjectId", setTeamWatcher );
 			setTeamWatcher(null);
 		}
 
@@ -26,8 +26,8 @@
 		{
 			if (watcher)
 				watcher.unwatch();
-			if (IndividualFactory.current().project)
-				watcher = ChangeWatcher.watch( IndividualFactory.current().project, "teamSelector", setTeamSelector );
+			if (IndividualFactory.current().selectedProject)
+				watcher = ChangeWatcher.watch( IndividualFactory.current().selectedProject, "teamSelector", setTeamSelector );
 			else watcher = null;
 			setTeamSelector(null);
 		}
@@ -40,7 +40,7 @@
 			var selection:Team = null;
 
 			var newFilter:ArrayCollection = new ArrayCollection();
-			var teams:ArrayCollection = IndividualFactory.current().project ? IndividualFactory.current().project.teamSelector : new ArrayCollection();
+			var teams:ArrayCollection = IndividualFactory.current().selectedProject ? IndividualFactory.current().selectedProject.teamSelector : new ArrayCollection();
 			for each (var it:Team in teams)
 			{
 				newFilter.addItem(it);
@@ -55,7 +55,7 @@
 			teamSelector = newFilter;
 			if (selection)
 				selectedItem = selection;
-			else if (IndividualFactory.current().team.id)
+			else if (teamSelector.contains(IndividualFactory.current().team))
 				selectedItem = IndividualFactory.current().team
 			else
 				selectedIndex = teamSelector.length - 1;

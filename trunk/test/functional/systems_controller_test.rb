@@ -36,6 +36,23 @@ class SystemsControllerTest < ActionController::TestCase
       assert_select "iteration-velocity", 2
     end
   end
+
+  def test_report_admin
+    i = individuals(:quentin)
+    i.selected_project_id = 1
+    i.save(false)
+    login_as(individuals(:quentin))
+    get :report
+    assert_select "release-totals" do
+      assert_select "release-total", 2
+    end
+    assert_select "iteration-totals" do
+      assert_select "iteration-total", 2
+    end
+    assert_select "iteration-velocities" do
+      assert_select "iteration-velocity", 2
+    end
+  end
     
   # Test creating a new resource without credentials.
   def test_create_unauthorized

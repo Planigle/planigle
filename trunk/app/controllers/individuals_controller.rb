@@ -42,6 +42,7 @@ protected
     end
     if is_amf
       @record.project_id = params[0].project_id
+      @record.selected_project_id = params[0].selected_project_id
       @record.team_id = params[0].team_id
       @record.login = params[0].login
       @record.password = params[0].password
