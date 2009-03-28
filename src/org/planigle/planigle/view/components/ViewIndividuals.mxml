@@ -200,7 +200,7 @@
 		// Update the project.
 		private function updateProject(event:Event):void
 		{
-			var selector:ArrayCollection = individualFieldCompany.selectedItem.projectSelector;
+			var selector:ArrayCollection = IndividualFactory.current().isAdmin() ? individualFieldCompany.selectedItem.projectSelector : new ArrayCollection(individualFieldCompany.selectedItem.projects);
 			individualFieldProject.dataProvider = selector;
 			individualFieldProject.selectedIndex = 0;
 			updateTeam(event);

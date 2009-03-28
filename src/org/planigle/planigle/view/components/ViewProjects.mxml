@@ -482,7 +482,7 @@
 							<mx:Box direction="horizontal" horizontalGap="0">
 								<mx:LinkButton id="projectBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
 								<mx:LinkButton id="projectBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.shouldShowDelete(data)}"/>
-								<mx:LinkButton id="teamBtnAdd" icon="{parentApplication.imgAdd}" toolTip="Add Team" click="outerDocument.showCreateProjectOrTeam(event);" visible="{outerDocument.shouldShowAdd(data)}"/>
+								<mx:LinkButton id="teamBtnAdd" icon="{parentApplication.imgAdd}" toolTip="{data.isCompany()?'Add Project':'Add Team'}" click="outerDocument.showCreateProjectOrTeam(event);" visible="{outerDocument.shouldShowAdd(data)}"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>

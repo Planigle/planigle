@@ -36,6 +36,22 @@ package org.planigle.planigle.model
 			{
 				newCompanySelector.addItem(company);
 				companyMapping[company.id] = company;
+				
+				// Ensure id's are set consistently throughout the hierarchy.
+				for each (var project:Project in company.projectSelector)
+				{
+					project.companyId = company.id;
+					for each (var team:Team in project.teamSelector)
+					{
+						team.projectId = project.id;
+						for each (var individual:Individual in team.individuals)
+						{
+							individual.companyId = company.id;
+							individual.projectId = project.id;
+							individual.teamId = team.id;							
+						}
+					}
+				}
 			}
 			
 			var proj:Company = new Company();
