@@ -55,7 +55,7 @@
 			teamSelector = newFilter;
 			if (selection)
 				selectedItem = selection;
-			else if (teamSelector.contains(IndividualFactory.current().team))
+			else if (teamSelector.contains(IndividualFactory.current().team) && IndividualFactory.current().team.id != null)
 				selectedItem = IndividualFactory.current().team
 			else
 				selectedIndex = teamSelector.length - 1;

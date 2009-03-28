@@ -1299,44 +1299,47 @@
 		// Set the columns for the table.
 		private function setColumns():void
 		{
-			var newColumns:ArrayCollection = new ArrayCollection();
-			newColumns.addItem(originalColumns[0]);
-			var i:int = 1;
-			for each(var attrib:StoryAttribute in IndividualFactory.current().selectedProject.storyAttributes)
+			if (IndividualFactory.current().selectedProject.id != null)
 			{
-				if (!attrib.isCustom)
+				var newColumns:ArrayCollection = new ArrayCollection();
+				newColumns.addItem(originalColumns[0]);
+				var i:int = 1;
+				for each(var attrib:StoryAttribute in IndividualFactory.current().selectedProject.storyAttributes)
 				{
-					var name:String = attrib.name;
-					
-					for each(var column:DataGridColumn in originalColumns)
+					if (!attrib.isCustom)
 					{
-						if ((column.headerText == name) || (column.headerText == "Projected" && name == "Iteration"))
+						var name:String = attrib.name;
+						
+						for each(var column:DataGridColumn in originalColumns)
 						{
-							newColumns.addItem(column);
-							column.width = attrib.width;
-							column.visible = attrib.show;
+							if ((column.headerText == name) || (column.headerText == "Projected" && name == "Iteration"))
+							{
+								newColumns.addItem(column);
+								column.width = attrib.width;
+								column.visible = attrib.show;
+							}
 						}
 					}
+					else
+					{
+						var newColumn:DataGridColumn = new DataGridColumn();
+						newColumn.headerText = attrib.name;
+						newColumn.width = attrib.width;
+						newColumn.wordWrap = true;
+						newColumn.itemRenderer = CustomAttributeRenderer;
+						newColumn.dataField = "custom";
+						newColumn.visible = attrib.show;
+						newColumns.addItem(newColumn);
+					}
+					attrMapping[attrib.name] = attrib;
+					columnMapping[i] = attrib;
+					i++;
 				}
-				else
-				{
-					var newColumn:DataGridColumn = new DataGridColumn();
-					newColumn.headerText = attrib.name;
-					newColumn.width = attrib.width;
-					newColumn.wordWrap = true;
-					newColumn.itemRenderer = CustomAttributeRenderer;
-					newColumn.dataField = "custom";
-					newColumn.visible = attrib.show;
-					newColumns.addItem(newColumn);
-				}
-				attrMapping[attrib.name] = attrib;
-				columnMapping[i] = attrib;
-				i++;
+				newColumns.addItem(originalColumns[originalColumns.length - 1]);
+				storyResourceGrid.columns = newColumns.toArray();
+				currentColumns = storyResourceGrid.columns;
+				updateColumnVisibility();
 			}
-			newColumns.addItem(originalColumns[originalColumns.length - 1]);
-			storyResourceGrid.columns = newColumns.toArray();
-			currentColumns = storyResourceGrid.columns;
-			updateColumnVisibility();
 		}
 		
 		// Handle an attempt to sort based on custom data.  Do so by setting the value to sort on.
