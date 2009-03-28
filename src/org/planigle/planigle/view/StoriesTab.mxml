@@ -9,6 +9,7 @@
 		import mx.collections.ArrayCollection;
 		import mx.rpc.events.ResultEvent;
 		import mx.managers.PopUpManager;
+		import mx.managers.CursorManager;
 		import mx.core.Container;
 		import mx.controls.Alert;
 		import mx.controls.DataGrid;
@@ -22,7 +23,7 @@
 		import mx.containers.FormItem;
 		import mx.controls.TextInput;
 		import org.planigle.planigle.model.StoryAttributeValue;
-		import org.planigle.planigle.model.ViewModelLocator;
+		import org.planigle.planigle.model.TabModelLocator;
 		import org.planigle.planigle.model.IndividualFactory;
 		import org.planigle.planigle.model.Individual;
 		import org.planigle.planigle.model.Team;
@@ -47,7 +48,7 @@
 		private var _error:String;
 
 		[Bindable]
-		private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
+		private var tabModelLocator:TabModelLocator = TabModelLocator.getInstance();
 
 		[Bindable]
 		public var factory:IndividualFactory = IndividualFactory.getInstance();
@@ -78,13 +79,14 @@
 		// Set up event listeners.  Called when the canvas has been created.
 		private function created(event:Event):void
 		{
+			CursorManager.setBusyCursor();
 			expandAllIcon = parentApplication.imgCollapsed;
 			originalColumns = storyResourceGrid.columns;
 			baseChildren = changeForm.numChildren;
 			panelHeight = combinedPanel.height;
 			ChangeWatcher.watch( factory, "currentIndividual", updateIndividual );
 			ChangeWatcher.watch( IndividualFactory.current(), "projectId", updateIndividual );
-			ChangeWatcher.watch( IndividualFactory.current().project, "premiumExpiry", updatePremium );
+			ChangeWatcher.watch( IndividualFactory.current().selectedProject, "premiumExpiry", updatePremium );
 			ChangeWatcher.watch( factory, "currentIndividual", resetState ); // Reset if log out / logged back in
 			ChangeWatcher.watch( ReleaseFactory.getInstance(), "releaseSelector", updateReleaseFilterList );
 			ChangeWatcher.watch( IterationFactory.getInstance(), "iterationSelector", updateIterationFilterList );
@@ -97,6 +99,7 @@
 			setIndividualFilterList();
 			handleFilter(event);
 			storyBtnImport.onCompletion(setSuccessMessage, setErrorMessage);
+			CursorManager.removeBusyCursor();
 		}
 
 		private var watcher:ChangeWatcher;
@@ -106,8 +109,8 @@
 		{
 			if (watcher)
 				watcher.unwatch();
-			if (IndividualFactory.current().project)
-				watcher = ChangeWatcher.watch( IndividualFactory.current().project, "teams", updateTeamField );
+			if (IndividualFactory.current().selectedProject)
+				watcher = ChangeWatcher.watch( IndividualFactory.current().selectedProject, "teams", updateTeamField );
 			else watcher = null;
 			updateTeamField(null);
 			updatePremium(null);
@@ -125,8 +128,8 @@
 		// Update the teams in the form.
 		private function updateTeamField(event:Event):void
 		{
-			if (IndividualFactory.current().project)
-				storyFieldTeam.dataProvider = IndividualFactory.current().project.teamSelector;
+			if (IndividualFactory.current().selectedProject)
+				storyFieldTeam.dataProvider = IndividualFactory.current().selectedProject.teamSelector;
 		}
 		// Set the error message.
 		private function setMessage(message:String):void
@@ -249,8 +252,8 @@
 		private function updateIndividualFilterList(event:Event):void
 		{
 			setIndividualFilterList();
-			if (IndividualFactory.current().project)
-				storyFieldOwner.dataProvider = IndividualFactory.current().project.individuals();
+			if (IndividualFactory.current().selectedProject)
+				storyFieldOwner.dataProvider = IndividualFactory.current().selectedProject.individuals();
 			handleFilter(event);
 		}
 		
@@ -262,9 +265,9 @@
 			var selection:Individual = null;
 
 			var newFilter:ArrayCollection = new ArrayCollection();
-			if (IndividualFactory.current().project)
+			if (IndividualFactory.current().selectedProject)
 			{
-				for each (var it:Individual in IndividualFactory.current().project.individuals())
+				for each (var it:Individual in IndividualFactory.current().selectedProject.individuals())
 				{
 					newFilter.addItem(it);
 					if (it.id == id)
@@ -358,7 +361,7 @@
 		{
 			storyColumnIteration.visible = attrMapping['Iteration'] && attrMapping['Iteration'].show && (!iteration.selectedItem || iteration.selectedItem.id == "-1");
 			storyColumnProjected.visible = IndividualFactory.current().isPremium() && attrMapping['Iteration'] && attrMapping['Iteration'].show && iteration.selectedItem && iteration.selectedItem.id == null;
-			storyColumnTeam.visible = attrMapping['Team'] && attrMapping['Team'].show && (IndividualFactory.current().project && IndividualFactory.current().project.teams.length > 0 && (!team.selectedItem || team.selectedItem.id == "-1"));
+			storyColumnTeam.visible = attrMapping['Team'] && attrMapping['Team'].show && (IndividualFactory.current().selectedProject && IndividualFactory.current().selectedProject.teams.length > 0 && (!team.selectedItem || team.selectedItem.id == "-1"));
 		}
 		
 		// The iteration filter has changed.
@@ -514,7 +517,7 @@
 			storyFormPublic.height = 22;
 			storyFormPublic.visible = true;
 			storyBtnEditAttributes.visible = factory.currentIndividual.isAtLeastProjectAdmin();
-			for each (var attrib:StoryAttribute in IndividualFactory.current().project.customStoryAttributes)
+			for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
 			{
 				var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()].parent;
 				disp.visible = true;
@@ -538,7 +541,7 @@
 			storyFormPublic.height = 0;
 			storyFormPublic.visible = false;
 			storyBtnEditAttributes.visible = false;
-			for each (var attrib:StoryAttribute in IndividualFactory.current().project.customStoryAttributes)
+			for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
 			{
 				var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()].parent;
 				disp.visible = false;
@@ -570,7 +573,7 @@
 		{
 			var it:String = currentItem.individualId;
 			if (!it)
-				storyFieldOwner.selectedIndex = IndividualFactory.current().project.individuals().length - 1;
+				storyFieldOwner.selectedIndex = IndividualFactory.current().selectedProject.individuals().length - 1;
 			else
 				storyFieldOwner.selectedItem = IndividualFactory.getInstance().find(it);
 		}
@@ -609,9 +612,9 @@
 				if (team.selectedItem.id != "-1")
 					storyFieldTeam.selectedItem = team.selectedItem;
 				else
-					storyFieldTeam.selectedIndex = IndividualFactory.current().project.teamSelector.length - 1;
+					storyFieldTeam.selectedIndex = IndividualFactory.current().selectedProject.teamSelector.length - 1;
 
-				storyFieldPublic.selectedIndex = IndividualFactory.current().project.surveyMode  == 2 ? 0 : 1;
+				storyFieldPublic.selectedIndex = IndividualFactory.current().selectedProject.surveyMode  == 2 ? 0 : 1;
 
 				clearCustomAttributes()
 			}
@@ -619,7 +622,7 @@
 			if (individual.selectedItem.id != "-1")
 				storyFieldOwner.selectedItem = individual.selectedItem;
 			else
-				storyFieldOwner.selectedIndex = IndividualFactory.current().project.individuals().length - 1;
+				storyFieldOwner.selectedIndex = IndividualFactory.current().selectedProject.individuals().length - 1;
 
 			storyFieldEffort.text = '';
 			storyFieldStatus.selectedIndex = 0;
@@ -671,9 +674,9 @@
 
 						var it:String = currentItem.teamId;
 						if (!it)
-							storyFieldTeam.selectedIndex = IndividualFactory.current().project.teamSelector.length - 1;
+							storyFieldTeam.selectedIndex = IndividualFactory.current().selectedProject.teamSelector.length - 1;
 						else
-							storyFieldTeam.selectedItem = IndividualFactory.current().project.find(it);
+							storyFieldTeam.selectedItem = IndividualFactory.current().selectedProject.find(it);
 
 						storyFieldPublic.selectedIndex = currentItem.isPublic ? 0 : 1;
 						setCustomAttributes();
@@ -683,7 +686,7 @@
 	
 					var it2:String = currentItem.individualId;
 					if (!it2)
-						storyFieldOwner.selectedIndex = IndividualFactory.current().project.individuals().length - 1;
+						storyFieldOwner.selectedIndex = IndividualFactory.current().selectedProject.individuals().length - 1;
 					else
 						storyFieldOwner.selectedItem = IndividualFactory.getInstance().find(it2);
 	
@@ -700,7 +703,7 @@
 		{
 			if (currentItem && currentItem.isStory())
 			{
-				for each (var attrib:StoryAttribute in IndividualFactory.current().project.customStoryAttributes)
+				for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
 				{
 					var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
 					var value:Object = currentItem.getCustomValue(attrib.id);
@@ -725,7 +728,7 @@
 		// Clear the custom attribute fields.
 		public function clearCustomAttributes(): void
 		{
-			for each (var attrib:StoryAttribute in IndividualFactory.current().project.customStoryAttributes)
+			for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
 			{
 				var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
 				if (attrib.valueType == StoryAttribute.TEXT)
@@ -779,7 +782,7 @@
 		public function showHistory(event:Event) : void
 		{
 			new AuditChangedEvent(null, currentItem.isStory() ? 'Story' : 'Task', null, null, String(currentItem.id)).dispatch();
-			viewModelLocator.selectedTab = Container(viewModelLocator.changes);
+			tabModelLocator.selectedTab = Container(tabModelLocator.changes);
 		}
 		
 		// Create parameters for the user's request to the server.
@@ -794,14 +797,14 @@
 			params['record[status_code]'] = storyFieldStatus.selectedItem.value;
 			if (isStory)
 			{
-				params['record[project_id]'] = factory.currentIndividual.projectId;
+				params['record[project_id]'] = factory.currentIndividual.selectedProjectId;
 				params['record[release_id]'] = storyFieldRelease.selectedItem.id > 0 ? storyFieldRelease.selectedItem.id : "";
 				params['record[iteration_id]'] = storyFieldIteration.selectedItem.id > 0 ? storyFieldIteration.selectedItem.id : "";
 				params['record[acceptance_criteria]'] = storyFieldAcceptanceCriteria.text;
 				params['record[team_id]'] = storyFieldTeam.selectedItem.id > 0 ? storyFieldTeam.selectedItem.id : "";
 				params['record[is_public]'] = storyFieldPublic.selectedItem.value;
 
-				for each (var attrib:StoryAttribute in IndividualFactory.current().project.customStoryAttributes)
+				for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
 				{
 					var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
 					if (attrib.valueType < StoryAttribute.LIST || ComboBox(disp).selectedItem)
@@ -1125,13 +1128,13 @@
 		// Answer whether to show (based on whether the user has rights).
 		public function shouldShow(data:Object):Boolean
 		{
-			return factory.currentIndividual.isAtLeastProjectUser();
+			return factory.currentIndividual.isAtLeastProjectUser;
 		}
 
 		// Answer whether to show existing (based on current selection and whether the user has rights).
 		public function shouldShowExisting():Boolean
 		{
-			return iteration.selectedItem && iteration.selectedItem.id != "-1" && factory.currentIndividual.isAtLeastProjectUser();
+			return iteration.selectedItem && iteration.selectedItem.id != "-1" && factory.currentIndividual.isAtLeastProjectUser;
 		}
 
 		// Update the release based on the change to the iteration.
@@ -1145,7 +1148,7 @@
 		// The selected release has changed.
 		public function updateRelease():void
 		{
-			for each (var attrib:StoryAttribute in IndividualFactory.current().project.customStoryAttributes)
+			for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
 			{
 				if (attrib.valueType == StoryAttribute.RELEASE_LIST)
 				{
@@ -1237,9 +1240,9 @@
 			for (var i:int = changeForm.numChildren-1; i>=baseChildren; i--)
 				changeForm.removeChildAt(i);
 
-			if (IndividualFactory.current().project)
+			if (IndividualFactory.current().selectedProject)
 			{
-				for each (var attrib:StoryAttribute in IndividualFactory.current().project.customStoryAttributes)
+				for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
 				{
 					var formItem:FormItem = new FormItem();
 					formItem.label = attrib.name;
@@ -1299,7 +1302,7 @@
 			var newColumns:ArrayCollection = new ArrayCollection();
 			newColumns.addItem(originalColumns[0]);
 			var i:int = 1;
-			for each(var attrib:StoryAttribute in IndividualFactory.current().project.storyAttributes)
+			for each(var attrib:StoryAttribute in IndividualFactory.current().selectedProject.storyAttributes)
 			{
 				if (!attrib.isCustom)
 				{
@@ -1429,10 +1432,10 @@
 											<mx:ComboBox id='storyFieldRelease' width="200" editable="false" labelField="name" change="updateRelease()"></mx:ComboBox>
 										</mx:FormItem>
 										<mx:FormItem label='Team' id="storyFormTeam">
-											<mx:ComboBox id='storyFieldTeam' width="200" editable="false" dataProvider="{IndividualFactory.current().project.teamSelector}" labelField="name"></mx:ComboBox>
+											<mx:ComboBox id='storyFieldTeam' width="200" editable="false" dataProvider="{IndividualFactory.current().selectedProject.teamSelector}" labelField="name"></mx:ComboBox>
 										</mx:FormItem>
 										<mx:FormItem label='Owner'>
-											<mx:ComboBox id='storyFieldOwner' width="200" editable="false" dataProvider="{IndividualFactory.current().project.individuals()}" labelField="fullName"></mx:ComboBox>
+											<mx:ComboBox id='storyFieldOwner' width="200" editable="false" dataProvider="{IndividualFactory.current().selectedProject.individuals()}" labelField="fullName"></mx:ComboBox>
 										</mx:FormItem>
 										<mx:FormItem id="storyEffortForm" label='Size'>
 											<mx:TextInput id='storyFieldEffort' restrict="0-9." text='' width="100"/>
@@ -1544,10 +1547,10 @@
 						</mx:ComboBox>
 					</mx:HBox>
 					<mx:Button icon="{parentApplication.imgExisting}" toolTip="Move Existing" click="handleAdd(event);" id="storyBtnAddExisting" visible="{shouldShowExisting()}"/>
-					<mx:Button icon="{parentApplication.imgAdd}" toolTip="Create" click="showCreateStory(event);" id="storyBtnCreate" visible="{factory.currentIndividual.isAtLeastProjectUser()}"/>
-					<mx:Button icon="{parentApplication.imgEdit}" toolTip="Update" click="showUpdate(event);" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnUpdateMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser()}"/>
-					<mx:Button icon="{parentApplication.imgCross}" toolTip="Delete" click="showDelete(event);" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnDeleteMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser()}"/>
-					<component:ImportButton id="storyBtnImport" visible="{factory.currentIndividual.isAtLeastProjectUser()}"/>
+					<mx:Button icon="{parentApplication.imgAdd}" toolTip="Create" click="showCreateStory(event);" id="storyBtnCreate" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
+					<mx:Button icon="{parentApplication.imgEdit}" toolTip="Update" click="showUpdate(event);" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnUpdateMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
+					<mx:Button icon="{parentApplication.imgCross}" toolTip="Delete" click="showDelete(event);" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnDeleteMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
+					<component:ImportButton id="storyBtnImport" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
 					<component:ExportButton id="storyBtnExport"/>
 					<mx:Button icon="{parentApplication.imgSurveys}" toolTip="View Surveys" click="handleSurveys(event);" id="storyBtnViewSurveys"/>
 				</mx:HBox>
@@ -1564,7 +1567,7 @@
 			</mx:VBox>
 			<mx:Text id="storyError" styleName="error" htmlText="{_error}" width="100%" height="0"/>
 		</mx:VBox>
-		<local:ColoredBackgroundDataGrid id="storyResourceGrid" variableRowHeight="true" dataProvider="{filteredStories}" rowCount="{filteredStories.length}" width="100%" height="100%" dragEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" dropEnabled="true" dragMoveEnabled="true" dragStart="handleDrag(event)" dragDrop="handleReorder(event)" rowColorFunction="rowColor" headerRelease="prepareSort(event)" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectUser()}" doubleClick="showUpdate(event)" allowMultipleSelection="true" columnStretch="columnStretch(event)" headerShift="headerShift(event)" horizontalScrollPolicy="auto">
+		<local:ColoredBackgroundDataGrid id="storyResourceGrid" variableRowHeight="true" dataProvider="{filteredStories}" rowCount="{filteredStories.length}" width="100%" height="100%" dragEnabled="{factory.currentIndividual.isAtLeastProjectUser}" dropEnabled="true" dragMoveEnabled="true" dragStart="handleDrag(event)" dragDrop="handleReorder(event)" rowColorFunction="rowColor" headerRelease="prepareSort(event)" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectUser}" doubleClick="showUpdate(event)" allowMultipleSelection="true" columnStretch="columnStretch(event)" headerShift="headerShift(event)" horizontalScrollPolicy="auto">
 			<local:columns>
 				<mx:DataGridColumn resizable="false" editable="false" width="16" textAlign="center"> 
 					<mx:headerRenderer>
@@ -1599,7 +1602,7 @@
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
-							<mx:ComboBox maxHeight="18" width="100%" editable="false" selectedIndex="{data.statusCode}" change="outerDocument.updateStatus(data, event)" enabled="{outerDocument.factory.currentIndividual.isAtLeastProjectUser()}">
+							<mx:ComboBox maxHeight="18" width="100%" editable="false" selectedIndex="{data.statusCode}" change="outerDocument.updateStatus(data, event)" enabled="{outerDocument.factory.currentIndividual.isAtLeastProjectUser}">
 								<mx:Object label="Not Started" value="0" />
 								<mx:Object label="In Progress" value="1" />
 								<mx:Object label="Blocked" value="2" />

@@ -120,7 +120,7 @@ package org.planigle.planigle.model
 					object = IndividualFactory.current().company.find(String(value));
 					break;
 				case 'teamId':
-					object = IndividualFactory.current().project.find(String(value));
+					object = IndividualFactory.current().selectedProject.find(String(value));
 					break;
 				case 'individualId':
 					object = IndividualFactory.getInstance().find(String(value));

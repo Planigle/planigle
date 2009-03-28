@@ -91,7 +91,7 @@ package org.planigle.planigle.model
 			case 'Iteration':
 				return IterationFactory.getInstance().iterationSelector;
 			case 'Team':
-				return IndividualFactory.current().project.teamSelector;
+				return IndividualFactory.current().selectedProject.teamSelector;
 			case 'Owner':
 				return IndividualFactory.getInstance().individualSelector;
 			case 'Status':
@@ -169,12 +169,12 @@ package org.planigle.planigle.model
 		{
 			// Create copy to ensure any views get notified of changes.
 			var storyAttributes:ArrayCollection = new ArrayCollection();
-			for each (var storyAttribute:StoryAttribute in IndividualFactory.current().project.storyAttributes)
+			for each (var storyAttribute:StoryAttribute in IndividualFactory.current().selectedProject.storyAttributes)
 			{
 				if (storyAttribute != this)
 					storyAttributes.addItem(storyAttribute);
 			}
-			IndividualFactory.current().project.storyAttributes = storyAttributes.source;
+			IndividualFactory.current().selectedProject.storyAttributes = storyAttributes.source;
 		}
 	}
 }

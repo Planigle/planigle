@@ -8,6 +8,7 @@ class FlexSessionTest < Test::Unit::TestCase
   fixtures :companies
   fixtures :projects
   fixtures :stories
+  fixtures :releases
   fixtures :iterations
   fixtures :tasks
 
@@ -75,6 +76,61 @@ class FlexSessionTest < Test::Unit::TestCase
     @ie.button("signupButton").click
     @ie.button("cancelButton").click
     assert @ie.button("loginButton").visible
+  end
+  
+  # Test switching projects
+  def test_switch_project_admin
+    login("quentin", "testit")
+    sleep(5)
+    assert_equal 2, @ie.button_bar("mainNavigation").numChildren
+    @ie.combo_box("selectedProject").open
+    @ie.combo_box("selectedProject").select(:item_renderer => 'Test_company: Test' )
+    sleep(5)
+    assert_equal 6, @ie.button_bar("mainNavigation").numChildren
+    @ie.combo_box("selectedProject").open
+    @ie.combo_box("selectedProject").select(:item_renderer => 'Test2_company: Test2' )
+    sleep(5)
+    assert_equal 5, @ie.button_bar("mainNavigation").numChildren
+    @ie.button_bar("mainNavigation").change(:related_object => "Stories")
+    assert_equal 1, @ie.data_grid("storyResourceGrid").num_rows
+    assert @ie.button("storyBtnCreate").visible
+    @ie.button_bar("mainNavigation").change(:related_object => "Schedule")
+    assert_equal 2, @ie.data_grid("releaseResourceGrid").num_rows
+    assert @ie.button("releaseBtnCreate").visible
+    assert_equal 2, @ie.data_grid("iterationResourceGrid").num_rows
+    assert @ie.button("iterationBtnCreate").visible
+  end
+  
+  # Test switching projects
+  def test_switch_project_project_admin
+    login("aaron", "testit")
+    sleep(5)
+    @ie.combo_box("selectedProject").open
+    @ie.combo_box("selectedProject").select(:item_renderer => 'Test3' )
+    sleep(5)
+    assert_equal 0, @ie.data_grid("storyResourceGrid").num_rows
+    assert @ie.button("storyBtnCreate").visible
+    @ie.button_bar("mainNavigation").change(:related_object => "Schedule")
+    assert_equal 0, @ie.data_grid("releaseResourceGrid").num_rows
+    assert @ie.button("releaseBtnCreate").visible
+    assert_equal 0, @ie.data_grid("iterationResourceGrid").num_rows
+    assert @ie.button("iterationBtnCreate").visible
+  end
+  
+  # Test switching projects
+  def test_switch_project_project_user
+    login("user", "testit")
+    sleep(5)
+    @ie.combo_box("selectedProject").open
+    @ie.combo_box("selectedProject").select(:item_renderer => 'Test3' )
+    sleep(5)
+    assert_equal 0, @ie.data_grid("storyResourceGrid").num_rows
+    assert !@ie.button("storyBtnCreate").visible
+    @ie.button_bar("mainNavigation").change(:related_object => "Schedule")
+    assert_equal 0, @ie.data_grid("releaseResourceGrid").num_rows
+    assert !@ie.button("releaseBtnCreate").visible
+    assert_equal 0, @ie.data_grid("iterationResourceGrid").num_rows
+    assert !@ie.button("iterationBtnCreate").visible
   end
 
 private

@@ -155,19 +155,9 @@ class Story < ActiveRecord::Base
   # Answer the records for a particular user.
   def self.get_records(current_user, iteration_id=nil, conditions=nil)
     if iteration_id
-      if current_user.role >= Individual::ProjectAdmin or current_user.project_id
-        Story.find(:all, :include => [:story_values, :tasks], :conditions => merge_conditions(["iteration_id = ? and project_id = ?", iteration_id, current_user.project_id], conditions), :order => 'priority')
-      else
-        Story.find(:all, :include => [:story_values, :tasks], :conditions => merge_conditions(["iteration_id = ?", iteration_id], conditions), :order => 'priority')
-      end
+      Story.find(:all, :include => [:story_values, :tasks], :conditions => merge_conditions(["iteration_id = ? and project_id = ?", iteration_id, current_user.current_project_id], conditions), :order => 'priority')
     else
-      if current_user.role >= Individual::ProjectAdmin or current_user.project_id
-        Story.find(:all, :include => [:story_values, :tasks], :conditions => merge_conditions(["project_id = ?", current_user.project_id], conditions), :order => 'priority')
-      elsif conditions
-        Story.find(:all, :include => [:story_values, :tasks], :conditions => conditions, :order => 'priority')
-      else # Doesn't make sense to show all stories in system
-        []
-      end
+      Story.find(:all, :include => [:story_values, :tasks], :conditions => merge_conditions(["project_id = ?", current_user.current_project_id], conditions), :order => 'priority')
     end
   end
   

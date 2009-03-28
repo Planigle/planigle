@@ -163,6 +163,36 @@ class IndividualTest < ActiveSupport::TestCase
     assert_nil indiv.errors.on(:project)
   end
   
+  # Test setting selected_project_id
+  def test_selected_project_id
+    assert_success(:selected_project_id, nil)
+    assert_success(:selected_project_id, 1)
+    assert_success(:selected_project_id, 2) # Try for admin
+
+    assert_no_difference get_count do # Try for non-admin
+      obj = create_individual( :role => 1,:selected_project_id => 2)
+      assert obj.errors.on(:selected_project)
+    end
+    
+    assert_success(:selected_project_id, 3)
+  end
+  
+  # Test the method current_project_id
+  def test_current_project_id
+    i = individuals(:quentin)
+    assert_equal nil, i.current_project_id
+    i.selected_project_id = 1
+    assert_equal 1, i.current_project_id
+    i = individuals(:aaron)
+    assert_equal 1, i.current_project_id
+    i.selected_project_id = 3
+    assert_equal 3, i.current_project_id
+    i = individuals(:project_admin2)
+    assert_equal 2, i.current_project_id
+    i.selected_project_id = 4
+    assert_equal 2, i.current_project_id
+  end
+  
   # Test setting company_id
   def test_company_id
     indiv = create_individual( :role => 1, :company_id => nil )

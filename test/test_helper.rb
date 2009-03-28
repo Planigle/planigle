@@ -54,10 +54,10 @@ class Test::Unit::TestCase
   end
 
   # Assert that you can't set the field to the specified value.
-  def assert_failure(field, value)
+  def assert_failure(field, value, errorField = field)
     assert_no_difference get_count do
       obj = send( create_object, field => value)
-      assert obj.errors.on(field)
+      assert obj.errors.on(errorField)
     end
   end
 

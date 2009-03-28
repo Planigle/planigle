@@ -26,11 +26,7 @@ class Iteration < ActiveRecord::Base
 
   # Answer the records for a particular user.
   def self.get_records(current_user)
-    if current_user.role >= Individual::ProjectAdmin or current_user.project_id
-      Iteration.find(:all, :conditions => ["project_id = ?", current_user.project_id], :order => 'start')
-    else
-      Iteration.find(:all, :order => 'start')
-    end
+    Iteration.find(:all, :conditions => ["project_id = ?", current_user.current_project_id ], :order => 'start')
   end
 
   # Answer the current iteration for a particular user.

@@ -16,7 +16,7 @@ class SessionsControllerTest < ActionController::TestCase
   fixtures :iterations
 
   # Test successfully logging in.
-  def test_should_login
+  def test_should_login_admin
     post :create, :login => 'quentin', :password => 'testit', :format => 'xml'
     assert session[:individual_id]
     assert individuals(:quentin).last_login > (Time.now - 10)
@@ -28,7 +28,28 @@ class SessionsControllerTest < ActionController::TestCase
     assert_select 'company', Company.count
     assert_select 'project', Project.count
     assert_select 'individual', Individual.count
+  end
 
+  # Test successfully logging in.
+  def test_should_login_selected_project
+    i = individuals(:quentin)
+    i.selected_project_id = 1
+    i.save(false)
+    post :create, :login => 'quentin', :password => 'testit', :format => 'xml'
+    assert session[:individual_id]
+    assert individuals(:quentin).reload.last_login > (Time.now - 10)
+    assert_select 'current-individual', 1
+    assert_select 'system', 1
+    assert_select 'release', Release.find_all_by_project_id(1).length
+    assert_select 'iteration', Iteration.find_all_by_project_id(1).length
+    assert_select 'story', Story.find_all_by_project_id(1).length
+    assert_select 'company', Company.count
+    assert_select 'project', Project.count
+    assert_select 'individual', Individual.count
+  end
+
+  # Test successfully logging in.
+  def test_should_login_project_admin
     post :create, :login => 'aaron', :password => 'testit', :format => 'xml'
     assert session[:individual_id]
     assert individuals(:aaron).last_login > (Time.now - 10)

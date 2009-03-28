@@ -66,8 +66,8 @@ class StoryAttribute < ActiveRecord::Base
 
   # Answer the records for a particular user.
   def self.get_records(current_user)
-    if current_user.role >= Individual::ProjectAdmin or current_user.project_id
-      StoryAttribute.find(:all, :include => :story_attribute_values, :conditions => ["project_id = ?", current_user.project_id], :order => 'ordering')
+    if current_user.role >= Individual::ProjectAdmin or current_user.current_project_id
+      StoryAttribute.find(:all, :include => :story_attribute_values, :conditions => ["project_id = ?", current_user.current_project_id], :order => 'ordering')
     else
       StoryAttribute.find(:all, :include => :story_attribute_values, :order => 'ordering')
     end

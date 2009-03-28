@@ -11,6 +11,7 @@ package org.planigle.planigle.model
 	{
 		public var id:String;
 		public var companyId:String;
+		public var mySelectedProjectId:String
 		public var projectId:String
 		public var teamId:String;
 		public var login:String;
@@ -28,6 +29,7 @@ package org.planigle.planigle.model
 		private static const PROJECT_ADMIN:int = 1;
 		private static const PROJECT_USER:int = 2;
 		private static const READ_ONLY:int = 3;
+		private static var NO_PROJECT:Project = null;
 	
 		// Populate myself from XML.
 		public function populate(xml:XML):void
@@ -35,6 +37,7 @@ package org.planigle.planigle.model
 			id = xml.id.toString() == "" ? null: xml.id;
 			companyId = xml.child("company-id").toString() == "" ? null : xml.child("company-id");
 			projectId = xml.child("project-id").toString() == "" ? null : xml.child("project-id");
+			selectedProjectId = xml.child("selected-project-id").toString() == "" ? null : xml.child("selected-project-id");
 			teamId = xml.child("team-id").toString() == "" ? null : xml.child("team-id");
 			login = xml.login;
 			email = xml.email;
@@ -85,6 +88,46 @@ package org.planigle.planigle.model
 		{
 		}
 
+		public function get allProjects():ArrayCollection
+		{
+			var projects:ArrayCollection = new ArrayCollection();
+			if (isAdmin() || isPremium())
+			{
+				for each (var company:Company in CompanyFactory.getInstance().companies)
+				{
+					for each (var project:Project in company.projects)
+						projects.addItem(project);
+				}
+				if (isAdmin())
+					projects.addItem(noProject);
+			}
+			else
+				projects.addItem(project);
+			return projects;
+		}
+		
+		// Answer an object that represents no project.
+		private function get noProject():Project
+		{
+			if (NO_PROJECT == null)
+			{
+				NO_PROJECT = new Project();
+				NO_PROJECT.name = "None";
+			}
+			return NO_PROJECT;
+		}
+		
+		// All projects have changed.
+		public function set allProjects(allProjects:ArrayCollection):void
+		{
+		}
+		
+		// Call when all projects have changed.
+		public function allProjectsChanged():void
+		{
+			allProjects = new ArrayCollection();
+		}
+
 		// Answer my project.
 		public function get project():Project
 		{
@@ -93,6 +136,29 @@ package org.planigle.planigle.model
 
 		// Set my project.
 		private function set project(project:Project):void
+		{
+		}
+
+		// Answer my selected project.
+		public function get selectedProject():Project
+		{
+			if (selectedProjectId == null || selectedProjectId == "")
+				return isAdmin() ? noProject : project;
+			else
+			{
+				for each (var company:Company in CompanyFactory.getInstance().companies)
+				{
+					for each (var project:Project in company.projects)
+					{
+						if (project.id == selectedProjectId)
+							return project;
+					}
+				}
+				return null;
+			}
+		}
+		
+		public function set selectedProject( project:Project ):void
 		{
 		}
 
@@ -111,7 +177,7 @@ package org.planigle.planigle.model
 		// Answer whether this user is a premium user.
 		public function isPremium():Boolean
 		{
-			return project && project.isPremium();
+			return selectedProject && selectedProject.isPremium();
 		}
 
 		// Answer my team.
@@ -190,17 +256,40 @@ package org.planigle.planigle.model
 		{
 			return role <= PROJECT_ADMIN;
 		}
-		
-		// Answer whether I am an admin.
-		public function isAtLeastProjectUser():Boolean
+
+		// Answer whether I am read only.
+		public function isReadOnly():Boolean
 		{
-			return role <= PROJECT_USER;
+			return role >= READ_ONLY;
+		}
+		
+		// Answer whether I am a project user.
+		public function get isAtLeastProjectUser():Boolean
+		{
+			return isAtLeastProjectAdmin() || (role <= PROJECT_USER && (selectedProjectId == null || selectedProjectId == projectId));
+		}
+		
+		// Whether I am a project user has changed.
+		public function set isAtLeastProjectUser(isSo: Boolean):void
+		{
 		}
 		
 		// Answer whether I an admin only (no project).
 		public function isAdminOnly():Boolean
 		{
-			return !projectId;
+			return isAdmin() && (selectedProjectId == null || selectedProjectId == "");
+		}
+
+		// Answer my selected project id.
+		public function get selectedProjectId():String
+		{
+			return mySelectedProjectId;
+		}
+
+		// Set my selected project id.
+		public function set selectedProjectId(id:String):void
+		{
+			mySelectedProjectId = id;
 		}
 
 		// Answer my name.
@@ -212,7 +301,7 @@ package org.planigle.planigle.model
 		// Return my parent.
 		public function get parent():Object
 		{
-			return IndividualFactory.current().project.find(teamId);
+			return IndividualFactory.current().selectedProject.find(teamId);
 		}
 
 		// Answer my children.

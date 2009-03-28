@@ -14,7 +14,7 @@
 		import mx.events.ListEvent;
 		import mx.events.CloseEvent;
 		import mx.binding.utils.ChangeWatcher;
-		import org.planigle.planigle.model.ViewModelLocator;
+		import org.planigle.planigle.model.TabModelLocator;
 		import org.planigle.planigle.model.CompanyFactory;
 		import org.planigle.planigle.model.Company;
 		import org.planigle.planigle.model.Project;
@@ -32,7 +32,7 @@
 		private var _error:String;
 
 		[Bindable]
-		private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
+		private var tabModelLocator:TabModelLocator = TabModelLocator.getInstance();
 
 		[Bindable]
 		public var companies:ArrayCollection = new ArrayCollection();
@@ -376,7 +376,7 @@
 		public function showHistory(event:Event) : void
 		{
 			new AuditChangedEvent(null, currentItem.isTeam() ? 'Team' : 'Project', null, null, String(currentItem.id)).dispatch();
-			viewModelLocator.selectedTab = Container(viewModelLocator.changes);
+			tabModelLocator.selectedTab = Container(tabModelLocator.changes);
 		}
 		]]>
 	</mx:Script>

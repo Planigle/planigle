@@ -106,6 +106,12 @@ package org.planigle.planigle.model
 			return myTeams;
 		}
 
+		// Answer a label for me that can be used to compare me with projects from other companies.
+		public function get label():String
+		{
+			return (CompanyFactory.getInstance().companies.length > 1 && company ? (company.name + ": ") : "") + name;
+		}
+
 		// Set my teams.
 		public function set teams(teams:Array):void
 		{
@@ -147,7 +153,7 @@ package org.planigle.planigle.model
 			var individuals:ArrayCollection = new ArrayCollection();
 			for each (var individual:Individual in IndividualFactory.getInstance().individualSelector)
 			{
-				if (!individual.id || (!individual.isAdmin() && individual.projectId == id))
+				if (!individual.id || individual.projectId == id)
 					individuals.addItem(individual);
 			}
 			return individuals;
@@ -191,8 +197,12 @@ package org.planigle.planigle.model
 					else
 						individual.destroyCompleted();
 				}
-			if (IndividualFactory.getInstance().currentIndividual.projectId == id)
-				IndividualFactory.getInstance().currentIndividual.projectId = null;
+
+			var currentIndividual:Individual = IndividualFactory.getInstance().currentIndividual;
+			if (currentIndividual.projectId == id)
+				currentIndividual.projectId = null;
+			if (currentIndividual.selectedProjectId == id)
+				currentIndividual.selectedProjectId = null;
 
 			// Create copy to ensure any views get notified of changes.
 			var projects:ArrayCollection = new ArrayCollection();
@@ -208,6 +218,8 @@ package org.planigle.planigle.model
 			for each (var aCompany:Company in CompanyFactory.getInstance().companies)
 				companies.addItem(aCompany);
 			CompanyFactory.getInstance().updateCompanies(companies);
+
+			currentIndividual.allProjectsChanged();
 		}
 
 		// Create a new story attribute.  Params should be of the format (record[param]).  Success function

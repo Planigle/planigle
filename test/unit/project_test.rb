@@ -58,14 +58,18 @@ class ProjectTest < ActiveSupport::TestCase
 
   # Test deleting an project
   def test_delete_project
-    assert_equal teams(:first).project, projects(:first)
-    assert_equal individuals(:aaron).project, projects(:first)
-    assert_equal individuals(:admin2).project, projects(:first)
-    assert_equal releases(:first).project, projects(:first)
-    assert_equal iterations(:first).project, projects(:first)
-    assert_equal stories(:first).project, projects(:first)
-    assert_equal surveys(:first).project, projects(:first)
-    assert_equal story_attributes(:first).project, projects(:first)
+    assert_equal projects(:first), teams(:first).project
+    assert_equal projects(:first), individuals(:aaron).project
+    assert_equal projects(:first), individuals(:admin2).project
+    assert_equal projects(:first), releases(:first).project
+    assert_equal projects(:first), iterations(:first).project
+    assert_equal projects(:first), stories(:first).project
+    assert_equal projects(:first), surveys(:first).project
+    assert_equal projects(:first), story_attributes(:first).project
+    i = individuals(:quentin)
+    i.selected_project_id = 1
+    i.save(false)
+    assert_equal projects(:first), individuals(:quentin).selected_project
     projects(:first).destroy
     assert_nil Team.find_by_id(1)
     assert_nil Individual.find_by_id(6).project
@@ -75,6 +79,7 @@ class ProjectTest < ActiveSupport::TestCase
     assert_nil Survey.find_by_id(1)
     assert_nil StoryAttribute.find_by_id(1)
     assert_nil Individual.find_by_id(2).project
+    assert_nil Individual.find_by_id(1).selected_project
     assert Individual.find_by_id(6) # admin set to nil
   end
 

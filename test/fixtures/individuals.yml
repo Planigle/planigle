@@ -79,6 +79,7 @@ admin2:
   role: 0
   company_id: 1
   project_id: 1
+  selected_project_id: 1
   login: admin2
   first_name: admin2
   last_name: williams

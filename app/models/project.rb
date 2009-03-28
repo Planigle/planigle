@@ -3,6 +3,7 @@ class Project < ActiveRecord::Base
   belongs_to :company
   has_many :teams, :dependent => :destroy
   has_many :individuals, :dependent => :nullify
+  has_many :individuals_with_selection, :class_name => "Individual", :foreign_key => "selected_project_id", :dependent => :nullify
   has_many :releases, :dependent => :destroy
   has_many :iterations, :dependent => :destroy
   has_many :stories, :dependent => :destroy

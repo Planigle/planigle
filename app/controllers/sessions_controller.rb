@@ -74,7 +74,7 @@ protected
     result['current_individual'] = current_individual
     result['companies'] = Company.get_records(current_individual)
     result['individuals'] = Individual.get_records(current_individual)
-    if current_individual.project_id
+    if current_individual.current_project_id
       result['releases'] = Release.get_records(current_individual)
       result['iterations'] = Iteration.get_records(current_individual)
       result['stories'] = Story.get_records(current_individual)

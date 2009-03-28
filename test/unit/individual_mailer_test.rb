@@ -13,10 +13,13 @@ class IndividualMailerTest < ActiveSupport::TestCase
 
   # Test notification on signup.
   def test_signup_notification
-    response = IndividualMailer.create_signup_notification(individuals(:user3))
+    c = Company.create(:name => 'foo')
+    p = Project.create(:company_id => c.id, :name => 'foo')
+    i = Individual.create(:first_name => 'foo', :last_name => 'bar', :login => 'quire' << rand.to_s, :email => 'quire' << rand.to_s << '@example.com', :password => 'quired', :password_confirmation => 'quired', :role => 0, :company_id => c.id, :project_id => p.id, :phone_number => '5555555555')
+    response = IndividualMailer.create_signup_notification(i)
     assert_equal PLANIGLE_ADMIN_EMAIL, response.from[0]
-    assert_equal individuals(:user3).email, response.to[0]
-    url_reg = /.*http:\/\/#{IndividualMailer.site}\/activate\/#{individuals(:user3).activation_code}.*/
+    assert_equal i.email, response.to[0]
+    url_reg = /.*http:\/\/#{IndividualMailer.site}\/activate\/#{i.activation_code}.*/
     assert_match url_reg, response.body
     assert_match /.*enabled for the Premium Edition.*/, response.body
   end

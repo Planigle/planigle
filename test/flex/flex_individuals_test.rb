@@ -133,10 +133,7 @@ class FlexIndividualsTest < Test::Unit::TestCase
     @ie.button("individualBtnChange").click
     sleep 5 # Wait for data to load
 
-    assert_equal 6, @ie.button_bar("mainNavigation").numChildren
-    
-    @ie.button_bar("mainNavigation").change(:related_object => "Schedule")
-    assert_equal 2, @ie.data_grid("releaseResourceGrid").num_rows
+    assert_equal 2, @ie.button_bar("mainNavigation").numChildren
   end
   
   # Test showing the history

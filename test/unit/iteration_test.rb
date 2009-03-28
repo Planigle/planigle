@@ -66,7 +66,7 @@ class IterationTest < ActiveSupport::TestCase
 
   # Test finding iterations for a specific user.
   def test_find
-    assert_equal Iteration.count, Iteration.get_records(individuals(:quentin)).length
+    assert_equal 0, Iteration.get_records(individuals(:quentin)).length
     assert_equal Iteration.find_all_by_project_id(1).length, Iteration.get_records(individuals(:aaron)).length
     assert_equal Iteration.find_all_by_project_id(1).length, Iteration.get_records(individuals(:user)).length
     assert_equal Iteration.find_all_by_project_id(1).length, Iteration.get_records(individuals(:readonly)).length
