@@ -5,6 +5,7 @@
 	</mx:Metadata>
 	<mx:Script>
 		<![CDATA[
+			import mx.collections.Sort;
 		import flash.display.DisplayObject;
 		import mx.collections.ArrayCollection;
 		import mx.rpc.events.ResultEvent;
@@ -368,8 +369,11 @@
 		public function handleFilter(event:Event):void
 		{
 			var scroll:Number = storyResourceGrid.verticalScrollPosition;
+			var sort:Sort = filteredStories.sort;
 			updateColumnVisibility();
 			var justStories:ArrayCollection = getFilteredStories();
+			justStories.sort = sort;
+			justStories.refresh();
 			storiesCount.text = justStories.length.toString();
 			var storiesAndTasks:ArrayCollection = new ArrayCollection;
 			for each (var story:Story in justStories)
@@ -383,6 +387,7 @@
 					}
 			}
 			filteredStories = storiesAndTasks;
+			filteredStories.sort = sort;
 			storyBtnAddExisting.visible = shouldShowExisting();
 			storyResourceGrid.verticalScrollPosition = scroll;
 			dispatchEvent(new Event("dataChanged"));
@@ -1588,7 +1593,7 @@
 						</mx:Component>
 					</mx:itemRenderer>
 				</mx:DataGridColumn>
-				<mx:DataGridColumn headerText="Name" wordWrap="true">
+				<mx:DataGridColumn headerText="Name" wordWrap="true" dataField="name">
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Text paddingLeft="{data.indent}" text="{data.name}" selectable="false" toolTip="{data.description}"/>

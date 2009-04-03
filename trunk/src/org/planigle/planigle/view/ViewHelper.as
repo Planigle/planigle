@@ -136,16 +136,10 @@ package org.planigle.planigle.view
 			return item.hasOwnProperty("team") ? item.team.name : "";
 		}
 
-		// Answer the index of the team in the list of teams (or -1 if no team).
-		private static function indexTeam(item:Object):int
-		{
-			return indexCompany(item)*10000 + indexProject(item)*100 + item.project.teamSelector.getItemIndex(item.project.find(item.teamId));
-		}
-		
-		// Answer the sort order for the specified items (based on where they are in the list of projects).
+		// Answer the sort order for the specified items.
 		public static function sortTeam(item1:Object, item2:Object):int
 		{
-			return ObjectUtil.numericCompare( indexTeam(item1), indexTeam(item2) );
+			return ObjectUtil.stringCompare( item1.team ? item1.team.name : "", item2.team ? item2.team.name : "" );
 		}
 
 		// 	Display the user facing status in the table (rather than a code).	
