@@ -100,6 +100,7 @@
 			projectBtnInfo.visible = false;
 		}
 
+		[Bindable]
 		private var currentItem:Object; // Remember in case selection changes while form is open.
 
 		// Prepare the fields to create / edit a company.
@@ -362,14 +363,14 @@
 		public function shouldShowDelete(data:Object):Boolean
 		{
 			return (data.isCompany() && factory.currentIndividual.isAdmin()) ||
-				(data.isProject() && factory.currentIndividual.isAtLeastProjectAdmin() && factory.currentIndividual.isPremium()) ||
+				(data.isProject() && factory.currentIndividual.isAtLeastProjectAdmin() && factory.currentIndividual.isPremium) ||
 				(data.isTeam() && factory.currentIndividual.isAtLeastProjectAdmin());
 		}
 
 		// Answer whether to show (based on whether the item is a project and the user has rights).
 		public function shouldShowAdd(data:Object):Boolean
 		{
-			return !data.isTeam() && factory.currentIndividual.isAtLeastProjectAdmin() && (factory.currentIndividual.isPremium() || !data.isCompany());
+			return !data.isTeam() && factory.currentIndividual.isAtLeastProjectAdmin() && (factory.currentIndividual.isPremium || !data.isCompany());
 		}
 		
 		// Show the history for the current object.
@@ -400,7 +401,7 @@
 							</mx:VBox>
 							<mx:VBox>
 								<mx:Form id="projectChangeForm2" defaultButton="{projectBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
-									<mx:FormItem id="projectFormSurveyMode" label='Stories'>
+									<mx:FormItem id="projectFormSurveyMode" label='Stories' visible="{projectFieldPremiumExpiry.selectedDate > new Date()}" height="{projectFieldPremiumExpiry.selectedDate > new Date() ? 22 : 0}">
 										<mx:ComboBox id='projectFieldSurveyMode' width="150" editable="false">
 											<mx:Object label="Private" value="0" />
 											<mx:Object label="Private by Default" value="1" />
@@ -475,7 +476,7 @@
 					</mx:itemRenderer>
 				</mx:DataGridColumn>
 				<mx:DataGridColumn headerText="Description" dataField="description"/>
-				<mx:DataGridColumn headerText="Stories" width="120" labelFunction="ViewHelper.formatSurveyMode" sortCompareFunction="ViewHelper.sortSurveyMode"/>
+				<mx:DataGridColumn headerText="Stories" width="120" labelFunction="ViewHelper.formatSurveyMode" sortCompareFunction="ViewHelper.sortSurveyMode" visible="{factory.currentIndividual.isPremium}"/>
 				<mx:DataGridColumn editable="false" width="140" minWidth="140" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>

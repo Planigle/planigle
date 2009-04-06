@@ -122,8 +122,8 @@
 		// Update premium attributes.
 		private function updatePremium(event:Event):void		
 		{
-			storyUtilizationRow.visible = IndividualFactory.current().isPremium();
-			storyUtilizationRow.width = IndividualFactory.current().isPremium() ? NaN : 0;
+			storyUtilizationRow.visible = IndividualFactory.current().isPremium;
+			storyUtilizationRow.width = IndividualFactory.current().isPremium ? NaN : 0;
 		}
 
 		// Update the teams in the form.
@@ -361,7 +361,7 @@
 		private function updateColumnVisibility():void
 		{
 			storyColumnIteration.visible = attrMapping['Iteration'] && attrMapping['Iteration'].show && (!iteration.selectedItem || iteration.selectedItem.id == "-1");
-			storyColumnProjected.visible = IndividualFactory.current().isPremium() && attrMapping['Iteration'] && attrMapping['Iteration'].show && iteration.selectedItem && iteration.selectedItem.id == null;
+			storyColumnProjected.visible = IndividualFactory.current().isPremium && attrMapping['Iteration'] && attrMapping['Iteration'].show && iteration.selectedItem && iteration.selectedItem.id == null;
 			storyColumnTeam.visible = attrMapping['Team'] && attrMapping['Team'].show && (IndividualFactory.current().selectedProject && IndividualFactory.current().selectedProject.teams.length > 0 && (!team.selectedItem || team.selectedItem.id == "-1"));
 		}
 		
@@ -511,16 +511,16 @@
 		{
 			storyNameForm.label = "Story Name";
 			storyEffortForm.label = "Size";
-			storyFormRelease.height = ReleaseFactory.getInstance().releaseSelector.length > 1 ? 22 : 0;
+			storyFormRelease.height = ReleaseFactory.getInstance().releaseSelector.length > 1 ? 22 : -5;
 			storyFormRelease.visible = ReleaseFactory.getInstance().releaseSelector.length > 1;
 			storyFormIteration.height = 22;
 			storyFormIteration.visible = true;
-			storyFormTeam.height = 22;
-			storyFormTeam.visible = true;
+			storyFormTeam.height = factory.currentIndividual.selectedProject.teamSelector.length > 1 ? 22 : -5;
+			storyFormTeam.visible = factory.currentIndividual.selectedProject.teamSelector.length > 1;
 			storyFormAcceptanceCriteria.height = 65;
 			storyFormAcceptanceCriteria.visible = true;
-			storyFormPublic.height = 22;
-			storyFormPublic.visible = true;
+			storyFormPublic.height = factory.currentIndividual.isPremium ? 22 : -5;
+			storyFormPublic.visible = factory.currentIndividual.isPremium;
 			storyBtnEditAttributes.visible = factory.currentIndividual.isAtLeastProjectAdmin();
 			for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
 			{
@@ -535,22 +535,22 @@
 		{
 			storyNameForm.label = "Task Name";
 			storyEffortForm.label = "Time";
-			storyFormRelease.height = 0;
+			storyFormRelease.height = -5;
 			storyFormRelease.visible = false;
-			storyFormIteration.height = 0;
+			storyFormIteration.height = -5;
 			storyFormIteration.visible = false;
-			storyFormTeam.height = 0;
+			storyFormTeam.height = -5;
 			storyFormTeam.visible = false;
-			storyFormAcceptanceCriteria.height = 0;
+			storyFormAcceptanceCriteria.height = -5;
 			storyFormAcceptanceCriteria.visible = false;
-			storyFormPublic.height = 0;
+			storyFormPublic.height = -5;
 			storyFormPublic.visible = false;
 			storyBtnEditAttributes.visible = false;
 			for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
 			{
 				var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()].parent;
 				disp.visible = false;
-				disp.height = 0;
+				disp.height = -5;
 			}
 		}
 
@@ -1560,7 +1560,7 @@
 					<mx:Button icon="{parentApplication.imgCross}" toolTip="Delete" click="showDelete(event);" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnDeleteMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
 					<component:ImportButton id="storyBtnImport" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
 					<component:ExportButton id="storyBtnExport"/>
-					<mx:Button icon="{parentApplication.imgSurveys}" toolTip="View Surveys" click="handleSurveys(event);" id="storyBtnViewSurveys"/>
+					<mx:Button icon="{parentApplication.imgSurveys}" visible="{factory.currentIndividual.isPremium}" width="{factory.currentIndividual.isPremium ? NaN : 0}" toolTip="View Surveys" click="handleSurveys(event);" id="storyBtnViewSurveys"/>
 				</mx:HBox>
 				<mx:HBox id="storyStatusRow" width="100%" horizontalAlign="center" verticalAlign="middle">
 					<mx:Label text="Number of Stories:" fontWeight="bold"/>

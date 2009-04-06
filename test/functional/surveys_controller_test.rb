@@ -38,15 +38,28 @@ class SurveysControllerTest < ActionController::TestCase
     end
   end
 
+  # Test creating a survey w/ a community edition account.
+  def test_create_survey_community
+    get :new, :project_id => 1, :id => 0, :survey_key => projects(:second).survey_key
+    assert_response :success
+
+    assert_select 'errors' do
+      assert_select 'error'
+    end
+  end
+
   # Test submitting a survey.
   def test_submit_survey_success
-    post :create, :project_id => 1, :survey_key => projects(:first).survey_key, :name => 'hat', :email => 'hat@bat.com', :stories => [4, 1]
+    count = Story.count
+    post :create, :project_id => 1, :survey_key => projects(:first).survey_key, :name => 'hat', :email => 'hat@bat.com', :stories => [4, 1, "try,this"]
     assert_response :success
 
     assert_equal (BigDecimal("4")/3).round(3), stories(:first).reload.user_priority
     assert_equal BigDecimal("1"), stories(:second).reload.user_priority
     assert_equal BigDecimal("2"), stories(:third).reload.user_priority
     assert_equal BigDecimal("1"), stories(:fourth).reload.user_priority
+    assert_equal count+1, Story.count
+    assert_equal BigDecimal("3"), Story.find(:first, :conditions => {:name => 'User suggestion: try', :description => "Suggested by hat (hat@bat.com)\rthis"}).user_priority
   end
 
   # Test submitting a survey unsuccessfully.
@@ -63,6 +76,17 @@ class SurveysControllerTest < ActionController::TestCase
   # Test submitting a survey w/ an invalid survey number.
   def test_submit_survey_invalid
     post :create, :project_id => 1, :survey_key => 0, :email => 'hat@bat.com', :stories => [4, 1]
+    assert_response :success
+
+    assert_select 'errors' do
+      assert_select 'error'
+    end
+    assert_nil stories(:fourth).reload.user_priority
+  end
+
+  # Test submitting a survey w/ a community edition account.
+  def test_submit_survey_community
+    post :create, :project_id => 1, :survey_key => projects(:second).survey_key, :email => 'hat@bat.com', :stories => [4, 1]
     assert_response :success
 
     assert_select 'errors' do
