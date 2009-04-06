@@ -1,10 +1,12 @@
 class SurveysController < ApplicationController
   before_filter :login_required, :except => [:new, :create]
 
+  require 'cgi'
+
   # Create a survey template.
   def new
     project = Project.find(:first, :conditions => [ "survey_key = ? and survey_mode != 0", params[:survey_key]])
-    if !project
+    if !project || !project.is_premium
       render :xml => xml_error("Invalid survey key"), :status => :unprocessable_entity
     else
       render :xml => project.create_survey
@@ -14,7 +16,7 @@ class SurveysController < ApplicationController
   # Post a survey template.
   def create
     project = Project.find(:first, :conditions => [ "survey_key = ? and survey_mode != 0", params[:survey_key]])
-    if !project
+    if !project || !project.is_premium
       render :xml => xml_error("Invalid survey key"), :status => :unprocessable_entity
     else
       begin
@@ -32,6 +34,12 @@ class SurveysController < ApplicationController
           # Add new entries
           priority = 1
           params[:stories].each do |story|
+            if story.to_s.include? ','
+              match = story.match(/(.*),(.*)/)
+              name = "User suggestion: " + CGI::unescape(match[1])
+              description = "Suggested by " + params[:name] + " (" + params[:email] + ")" + (params[:company] ? " of " + params[:company] : "") + "\r" + CGI::unescape(match[2])
+              story = Story.create(:project_id=>project.id, :name=>name,:description=>description, :is_public=>false).id
+            end
             @record.survey_mappings << SurveyMapping.new(:story_id => story, :priority => priority)
             priority += 1
           end

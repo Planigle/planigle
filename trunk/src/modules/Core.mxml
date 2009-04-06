@@ -120,7 +120,7 @@
 						showTab(changes, 1);
 						showTab(schedule, 0);
 						showTab(stories, 0);
-						factory.currentIndividual.isPremium() ? showPremium() : hidePremium();
+						factory.currentIndividual.isPremium ? showPremium() : hidePremium();
 					}
 				}
 			}

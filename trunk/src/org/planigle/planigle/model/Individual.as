@@ -91,7 +91,7 @@ package org.planigle.planigle.model
 		public function get allProjects():ArrayCollection
 		{
 			var projects:ArrayCollection = new ArrayCollection();
-			if (isAdmin() || isPremium())
+			if (isAdmin() || isPremium)
 			{
 				for each (var company:Company in CompanyFactory.getInstance().companies)
 				{
@@ -175,9 +175,14 @@ package org.planigle.planigle.model
 		}
 
 		// Answer whether this user is a premium user.
-		public function isPremium():Boolean
+		public function get isPremium():Boolean
 		{
-			return selectedProject && selectedProject.isPremium();
+			return selectedProject && selectedProject.isPremium;
+		}
+
+		// Set whether this user is a premium user.
+		public function set isPremium(isPremium:Boolean):void
+		{
 		}
 
 		// Answer my team.

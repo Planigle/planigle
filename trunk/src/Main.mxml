@@ -6,9 +6,6 @@
 	xmlns:business="org.planigle.planigle.business.*"
 	applicationComplete="created(event)">
 
-	<!--TODO: DEBUG HTTP REQUESTS:  Should be commented out for Production.-->
-	<mx:TraceTarget/>
-
 	<!--The main style sheet for all the applications.-->
 	<mx:Style source="stylesheets/flex.css"/>
 	

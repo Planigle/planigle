@@ -160,9 +160,14 @@ package org.planigle.planigle.model
 		}
 
 		// Answer whether this project has premium features.
-		public function isPremium():Boolean
+		public function get isPremium():Boolean
 		{
 			return premiumExpiry > new Date();
+		}
+
+		// Answer whether this project has premium features.
+		public function set isPremium(isPremium:Boolean):void
+		{
 		}
 		
 		// Update me.  Params should be of the format (record[param]).  Success function

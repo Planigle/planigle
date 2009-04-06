@@ -71,7 +71,7 @@
 				if (company.hasTeams())
 					teamsExist = true;
 			}
-			columnProject.visible = (factory.currentIndividual.isAdmin() || factory.currentIndividual.isPremium()) && (!group || (group.isCompany() && group.hasProjects()));
+			columnProject.visible = (factory.currentIndividual.isAdmin() || factory.currentIndividual.isPremium) && (!group || (group.isCompany() && group.hasProjects()));
 			columnTeam.visible = teamsExist && (!group || (!group.isTeam() && group.hasTeams()));
 		}
 		
@@ -87,7 +87,7 @@
 				individualFormCompany.visible = show;
 				individualFormCompany.maxHeight = show ? 25 : 0;
 
-				show = factory.currentIndividual.isAdmin() || (factory.currentIndividual.isAtLeastProjectAdmin() && factory.currentIndividual.isPremium());
+				show = factory.currentIndividual.isAdmin() || (factory.currentIndividual.isAtLeastProjectAdmin() && factory.currentIndividual.isPremium);
 				individualFormProject.visible = show;
 				individualFormProject.maxHeight = show ? 25 : 0;
 
@@ -362,7 +362,7 @@
 									<mx:FormItem label='Phone Number' required="false">
 										<mx:TextInput id='individualFieldPhoneNumber' maxChars="20" text='' width="300"/>
 									</mx:FormItem>
-									<mx:FormItem id='individualFormNotificationType' label='Notify Via' visible="{factory.currentIndividual.isPremium()}" height="{factory.currentIndividual.isPremium() ? 25 : 0}">
+									<mx:FormItem id='individualFormNotificationType' label='Notify Via' visible="{factory.currentIndividual.isPremium}" height="{factory.currentIndividual.isPremium ? 25 : 0}">
 										<mx:ComboBox id='individualFieldNotificationType' width="200" editable="false">
 											<mx:Object label="Neither Email nor SMS" value="0" />
 											<mx:Object label="Email" value="1" />
