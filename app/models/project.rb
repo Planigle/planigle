@@ -48,7 +48,7 @@ class Project < ActiveRecord::Base
   
   # Answer whether I can add new users.
   def can_add_users
-    !is_premium || individuals.count < premium_limit
+    !is_premium || individuals.count(:conditions => ['enabled = true and role < 3']) < premium_limit
   end
   
   # Override to_xml to include teams.

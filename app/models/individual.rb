@@ -166,7 +166,7 @@ class Individual < ActiveRecord::Base
    
   # Too many users have been added.
   def count_exceeded
-    errors.add_to_base("Too many users exist to create another one.  To add a user, delete one or contact support to extend your limits.")
+    errors.add_to_base("Too many users exist to make this change.  To address the issue, delete or disable a user or contact support to extend your limits.")
   end
 
   # Answer whether I am enabled for premium services.
@@ -226,9 +226,25 @@ protected
 
   # Ensure that the premium limit is not exceeded.
   def validate_on_create
-    if project && !project.can_add_users
+    if will_impact_limits
       count_exceeded
     end
+  end
+  
+  # Ensure that the premium limit is not exceeded.
+  def validate_on_update
+    if will_impact_limits
+      if (changed_attributes['project_id']) ||
+        (changed_attributes['role'] && changed_attributes['role'][0] >= ReadOnlyUser && changed_attributes['role'][1] < ReadOnlyUser) ||
+        (changed_attributes['enabled'] && !changed_attributes['enabled'][0] && changed_attributes['enabled'][1])
+        count_exceeded
+      end
+    end
+  end
+
+  # Answer whether if saved, I will cause the premium limits to be exceeded.
+  def will_impact_limits
+    project && !project.can_add_users && role < ReadOnlyUser && enabled
   end
 
   # Add custom validation of the role field.

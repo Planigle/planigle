@@ -32,14 +32,6 @@ protected
   
   # Update the record given the params.
   def update_record
-    new_project_id = is_amf ? params[0].project_id : params[:record][:project_id]
-    if new_project_id && new_project_id != ""
-      project = Project.find(new_project_id)
-      if !project.can_add_users
-        @record.count_exceeded
-        return
-      end
-    end
     if is_amf
       @record.project_id = params[0].project_id
       @record.selected_project_id = params[0].selected_project_id
