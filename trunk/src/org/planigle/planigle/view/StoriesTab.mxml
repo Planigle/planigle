@@ -5,7 +5,7 @@
 	</mx:Metadata>
 	<mx:Script>
 		<![CDATA[
-			import mx.collections.Sort;
+		import mx.collections.Sort;
 		import flash.display.DisplayObject;
 		import mx.collections.ArrayCollection;
 		import mx.rpc.events.ResultEvent;
@@ -360,8 +360,7 @@
 		// Handle any special columns.
 		private function updateColumnVisibility():void
 		{
-			storyColumnIteration.visible = attrMapping['Iteration'] && attrMapping['Iteration'].show && (!iteration.selectedItem || iteration.selectedItem.id == "-1");
-			storyColumnProjected.visible = IndividualFactory.current().isPremium && attrMapping['Iteration'] && attrMapping['Iteration'].show && iteration.selectedItem && iteration.selectedItem.id == null;
+			storyColumnIteration.visible = attrMapping['Iteration'] && attrMapping['Iteration'].show && ((!iteration.selectedItem || iteration.selectedItem.id == "-1")||(IndividualFactory.current().isPremium && iteration.selectedItem && iteration.selectedItem.id == null));
 			storyColumnTeam.visible = attrMapping['Team'] && attrMapping['Team'].show && (IndividualFactory.current().selectedProject && IndividualFactory.current().selectedProject.teams.length > 0 && (!team.selectedItem || team.selectedItem.id == "-1"));
 		}
 		
@@ -392,6 +391,7 @@
 			storyResourceGrid.verticalScrollPosition = scroll;
 			dispatchEvent(new Event("dataChanged"));
 			updateExpandAllToggle();
+			updateProjectedColumn();
 		}
 		
 		// Expand / collapse a story.
@@ -1346,6 +1346,23 @@
 				updateColumnVisibility();
 			}
 		}
+
+		// Update the column between iteration and projected.
+		private function updateProjectedColumn():void
+		{
+			if (!iteration.selectedItem || iteration.selectedItem.id == "-1" || !IndividualFactory.current().isPremium)
+			{
+				storyColumnIteration.headerText = "Iteration";
+				storyColumnIteration.labelFunction = ViewHelper.formatIteration;
+				storyColumnIteration.sortCompareFunction = ViewHelper.sortIteration;
+			}
+			else
+			{
+				storyColumnIteration.headerText = "Projected";
+				storyColumnIteration.labelFunction = ViewHelper.formatProjectedIteration;
+				storyColumnIteration.sortCompareFunction = ViewHelper.sortProjectedIteration;
+			}
+		}
 		
 		// Handle an attempt to sort based on custom data.  Do so by setting the value to sort on.
 		private function sortCustomData(event:DataGridEvent):void
@@ -1601,7 +1618,6 @@
 					</mx:itemRenderer>
 				</mx:DataGridColumn>
 				<mx:DataGridColumn id="storyColumnIteration" headerText="Iteration" labelFunction="ViewHelper.formatIteration" sortCompareFunction="ViewHelper.sortIteration"/>
-				<mx:DataGridColumn id="storyColumnProjected" headerText="Projected" labelFunction="ViewHelper.formatProjectedIteration" sortCompareFunction="ViewHelper.sortProjectedIteration"/>
 				<mx:DataGridColumn id="storyColumnTeam" headerText="Team" labelFunction="ViewHelper.formatTeam" sortCompareFunction="ViewHelper.sortTeam"/>
 				<mx:DataGridColumn id="storyColumnIndividual" headerText="Owner" labelFunction="ViewHelper.formatIndividual" sortCompareFunction="ViewHelper.sortIndividual"/>
 				<mx:DataGridColumn headerText="Size" dataField="size" sortCompareFunction="ViewHelper.sortSize"/>
