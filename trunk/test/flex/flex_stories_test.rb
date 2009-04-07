@@ -458,11 +458,15 @@ private
     @ie.text_area("textArea").input(:text => 'President' )
     @ie.combo_box("updateFieldPublic").open
     @ie.combo_box("updateFieldPublic").select(:item_renderer => 'true' )
+    @ie.combo_box("customField5").open
+    @ie.combo_box("customField5").select(:item_renderer => 'Value 2' )
+    @ie.combo_box("customField6").open
+    @ie.combo_box("customField6").select(:item_renderer => 'Theme 2' )
     @ie.button("updateBtnOk").click
     assert_equal '', @ie.text_area("storyError").text
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",test,fourth,fourth,Test_team,aaron hank,1,5,Blocked,true,2,2,description,criteria,first,test,testy,5,Value 1,Theme 1,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 1, :end => 1)
-    assert_equal ",test3,fourth,fourth,Test_team,aaron hank,1,,Blocked,true,1,2,,,first,,,,None,None,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
+    assert_equal ",test,fourth,fourth,Test_team,aaron hank,1,5,Blocked,true,2,2,description,criteria,first,test,testy,5,Value 2,Theme 2,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 1, :end => 1)
+    assert_equal ",test3,fourth,fourth,Test_team,aaron hank,1,,Blocked,true,1,2,,,first,,,,Value 2,Theme 2,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
   end
 
   # Edit a story.
