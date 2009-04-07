@@ -13,6 +13,7 @@
 			import org.planigle.planigle.model.IndividualFactory;
 			import org.planigle.planigle.model.Individual;
 			import org.planigle.planigle.model.Story;
+			import org.planigle.planigle.model.StoryAttribute;
 			
 			private var release:Release;
 			private var items:ArrayCollection = new ArrayCollection();
@@ -58,33 +59,75 @@
 				individuals.addItem(noChange);
 				for each (var individual:Individual in IndividualFactory.current().selectedProject.individuals())
 					individuals.addItem(individual);
+					
+				addCustomAttributes();
 			}
+			
+			private var customAttributes:Object = new Object();
 						
+			// Add combo boxes for custom list attributes.
+			private function addCustomAttributes():void
+			{
+				for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
+				{
+					if (attrib.valueType == StoryAttribute.LIST || attrib.valueType == StoryAttribute.RELEASE_LIST)
+					{
+						var formItem:FormItem = new FormItem();
+						formItem.label = attrib.name;
+					  	var combo:ComboBox = new ComboBox();
+					  	combo.id = "customField" + attrib.id.toString();
+					  	combo.width = 350;
+					  	combo.editable = false;
+					  	combo.labelField = "value";
+					  	combo.dataProvider = getValuesFor(attrib,null);
+					  	customAttributes[attrib.id] = combo;
+					  	formItem.addChild(combo);
+						updateForm.addChild(formItem);
+						height += 22;
+					}
+				}
+			}
+
+			// Create the values for a story attribute given a particular release.
+			private function getValuesFor(attrib:StoryAttribute, release:Release):ArrayCollection
+			{
+				var noChange:Object = new Object();
+				noChange.value = "No Change";
+				noChange.id = "-1";
+			  	var values:ArrayCollection = new ArrayCollection();
+			  	values.addItem(noChange);
+			  	for each (var value:Object in (attrib.valueType == StoryAttribute.LIST ? attrib.allValues : attrib.allValuesFor(release)))
+			  		values.addItem(value);
+			  	return values;
+			}
+
 			// Update the specified items.
 			private function updateItems(event:Event):void
 			{
 				var storyParams:Object = new Object();
 				var taskParams:Object = new Object();
 				if (updateFieldIteration.selectedItem.id != "-1")
-					storyParams['record[iteration_id]'] = updateFieldIteration.selectedItem.id ? updateFieldIteration.selectedItem.id : ""
+					storyParams['record[iteration_id]'] = updateFieldIteration.selectedItem.id ? updateFieldIteration.selectedItem.id : "";
 				if (updateFieldRelease.selectedItem.id != "-1")
-					storyParams['record[release_id]'] = updateFieldRelease.selectedItem.id ? updateFieldRelease.selectedItem.id : ""
+					storyParams['record[release_id]'] = updateFieldRelease.selectedItem.id ? updateFieldRelease.selectedItem.id : "";
 				if (updateFieldTeam.selectedItem.id != "-1")
-					storyParams['record[team_id]'] = updateFieldTeam.selectedItem.id ? updateFieldTeam.selectedItem.id : ""
+					storyParams['record[team_id]'] = updateFieldTeam.selectedItem.id ? updateFieldTeam.selectedItem.id : "";
 				if (updateFieldOwner.selectedItem.id != "-1")
 				{
-					storyParams['record[individual_id]'] = updateFieldOwner.selectedItem.id ? updateFieldOwner.selectedItem.id : ""
-					taskParams['record[individual_id]'] = storyParams['record[individual_id]']
+					storyParams['record[individual_id]'] = updateFieldOwner.selectedItem.id ? updateFieldOwner.selectedItem.id : "";
+					taskParams['record[individual_id]'] = storyParams['record[individual_id]'];
 				}
 				if (updateFieldStatus.selectedItem.value != "-1")
 				{
-					storyParams['record[status_code]'] = updateFieldStatus.selectedItem.value
-					taskParams['record[status_code]'] = storyParams['record[status_code]']
-					storyParams['record[reason_blocked]'] = updateFieldReasonBlocked.text
-					taskParams['record[reason_blocked]'] = storyParams['record[reason_blocked]']
+					storyParams['record[status_code]'] = updateFieldStatus.selectedItem.value;
+					taskParams['record[status_code]'] = storyParams['record[status_code]'];
+					storyParams['record[reason_blocked]'] = updateFieldReasonBlocked.text;
+					taskParams['record[reason_blocked]'] = storyParams['record[reason_blocked]'];
 				}
 				if (updateFieldPublic.selectedItem.value != "-1")
-					storyParams['record[is_public]'] = updateFieldPublic.selectedItem.value
+					storyParams['record[is_public]'] = updateFieldPublic.selectedItem.value;
+
+				updateCustomAttributes(storyParams);
 
 				// Do tasks first since changing stories will cause tasks to reload.
 				for each (var item1:Object in items)
@@ -96,58 +139,89 @@
 				updateCompleteFunction();
 				PopUpManager.removePopUp(this);
 			}
+			
+			// Update any custom parameters.
+			private function updateCustomAttributes(storyParams:Object):void
+			{
+				for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
+				{
+					if (attrib.valueType == StoryAttribute.LIST || attrib.valueType == StoryAttribute.RELEASE_LIST)
+					{
+					  	var combo:ComboBox = ComboBox(customAttributes[attrib.id]);
+						if (combo.selectedItem.id != "-1")
+							storyParams['record[custom_'+attrib.id+']'] = combo.selectedItem.id;
+					}
+				}
+			}
 
 			// Update the release based on the change to the iteration.
-			public function updateRelease():void
+			public function updateIteration():void
 			{
 				updateFieldRelease.selectedItem = (release.id == "-1" || !release.id) ? updateFieldIteration.selectedItem.defaultRelease() : release;
+			}
+
+			// Update the custom values based on the change to the release.
+			public function updateRelease():void
+			{
+				updateCustomValues();
+			}
+			
+			// Update custom values based on the selected release.
+			private function updateCustomValues():void
+			{
+				var rel:Release = ReleaseFactory.getInstance().find(updateFieldRelease.selectedItem.id);
+				for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
+				{
+					if (attrib.valueType == StoryAttribute.RELEASE_LIST)
+						ComboBox(customAttributes[attrib.id]).dataProvider = getValuesFor(attrib, rel);
+				}
 			}
 
 			// Update fields based on new status.
 			private function updateReasonBlocked(event:Event):void
 			{
 				var blocked:Boolean = updateFieldStatus.selectedIndex == Story.BLOCKED + 1;
-				updateFormReasonBlocked.height = blocked ? 64 : 0;
+				updateFormReasonBlocked.height = blocked ? 64 : -5;
 				updateFormReasonBlocked.visible = blocked;
 				blocked ? null : updateFieldReasonBlocked.text = "";
 			}
 		]]>
 	</mx:Script>
-	<mx:Form defaultButton="{updateBtnOk}" height="100%" width="100%">
-			<mx:FormItem label="Iteration" id="form_iteration">
-				<mx:ComboBox id='updateFieldIteration' width="350" editable="false" dataProvider="{iterations}" labelField="name" change="updateRelease()"></mx:ComboBox>
-			</mx:FormItem>
-			<mx:FormItem label="Release" id="form_release">
-				<mx:ComboBox id='updateFieldRelease' width="350" editable="false" dataProvider="{releases}" labelField="name"></mx:ComboBox>
-			</mx:FormItem>
-			<mx:FormItem label='Team'>
-				<mx:ComboBox id='updateFieldTeam' width="350" editable="false" dataProvider="{teams}" labelField="name"></mx:ComboBox>
-			</mx:FormItem>
-			<mx:FormItem label='Owner'>
-				<mx:ComboBox id='updateFieldOwner' width="350" editable="false" dataProvider="{individuals}" labelField="fullName"></mx:ComboBox>
-			</mx:FormItem>
-			<mx:FormItem label='Status'>
-				<mx:ComboBox id='updateFieldStatus' width="350" editable="false" change="updateReasonBlocked(event)">
-					<mx:Object label="No Change" value="-1" />
-					<mx:Object label="Not Started" value="0" />
-					<mx:Object label="In Progress" value="1" />
-					<mx:Object label="Blocked" value="2" />
-					<mx:Object label="Done" value="3" />
-				</mx:ComboBox>
-			</mx:FormItem>
-			<mx:FormItem id='updateFormReasonBlocked' label='Reason Blocked' height="0" visible="false">
-				<component:ExpandableHTMLTextArea id='updateFieldReasonBlocked'/>
-			</mx:FormItem>
-			<mx:FormItem label='Public' id="form_public">
-				<mx:ComboBox id='updateFieldPublic' width="350" editable="false">
-					<mx:Object label="No Change" value="-1" />
-					<mx:Object label="true" value='true' />
-					<mx:Object label="false" value='false' />
-				</mx:ComboBox>
-			</mx:FormItem>
-		<mx:HBox y="270" width="100%" horizontalAlign="center">
-			<mx:Button id="updateBtnOk" label="OK" click="updateItems(event)"/>
-			<mx:Button id="updateBtnCancel" label="Cancel" click="PopUpManager.removePopUp(this)"/>
-		</mx:HBox>	
+	<mx:Form id="updateForm" defaultButton="{updateBtnOk}" height="100%" width="100%">
+		<mx:FormItem label="Iteration" id="form_iteration">
+			<mx:ComboBox id='updateFieldIteration' width="350" editable="false" dataProvider="{iterations}" labelField="name" change="updateIteration()"></mx:ComboBox>
+		</mx:FormItem>
+		<mx:FormItem label="Release" id="form_release">
+			<mx:ComboBox id='updateFieldRelease' width="350" editable="false" dataProvider="{releases}" labelField="name" change="updateRelease()"></mx:ComboBox>
+		</mx:FormItem>
+		<mx:FormItem label='Team'>
+			<mx:ComboBox id='updateFieldTeam' width="350" editable="false" dataProvider="{teams}" labelField="name"></mx:ComboBox>
+		</mx:FormItem>
+		<mx:FormItem label='Owner'>
+			<mx:ComboBox id='updateFieldOwner' width="350" editable="false" dataProvider="{individuals}" labelField="fullName"></mx:ComboBox>
+		</mx:FormItem>
+		<mx:FormItem label='Status'>
+			<mx:ComboBox id='updateFieldStatus' width="350" editable="false" change="updateReasonBlocked(event)">
+				<mx:Object label="No Change" value="-1" />
+				<mx:Object label="Not Started" value="0" />
+				<mx:Object label="In Progress" value="1" />
+				<mx:Object label="Blocked" value="2" />
+				<mx:Object label="Done" value="3" />
+			</mx:ComboBox>
+		</mx:FormItem>
+		<mx:FormItem id='updateFormReasonBlocked' label='Reason Blocked' height="-5" visible="false">
+			<component:ExpandableHTMLTextArea id='updateFieldReasonBlocked'/>
+		</mx:FormItem>
+		<mx:FormItem label='Public' id="form_public">
+			<mx:ComboBox id='updateFieldPublic' width="350" editable="false">
+				<mx:Object label="No Change" value="-1" />
+				<mx:Object label="true" value='true' />
+				<mx:Object label="false" value='false' />
+			</mx:ComboBox>
+		</mx:FormItem>
 	</mx:Form>
+	<mx:HBox y="270" width="100%" horizontalAlign="center">
+		<mx:Button id="updateBtnOk" label="OK" click="updateItems(event)"/>
+		<mx:Button id="updateBtnCancel" label="Cancel" click="PopUpManager.removePopUp(this)"/>
+	</mx:HBox>	
 </mx:TitleWindow>
