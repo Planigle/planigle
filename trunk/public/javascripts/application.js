@@ -1,4 +1,5 @@
-/* Work around a defect in ActiveScaffold that causes an infinite loop in IE when sorting.
- * See http://code.google.com/p/activescaffold/issues/detail?id=534 for more details.
- */
-dhtmlHistory = null;
+/* Change the status of a story or task.*/
+function changeStatus(url, newValue) {
+	var reason = newValue == 2 ? prompt("Reason for blockage") : "";
+	new Ajax.Request(url, {method:'post',parameters:{_method:'put','record[status_code]':newValue,'record[reason_blocked]':reason}})
+}
