@@ -106,7 +106,7 @@
 		{
 			clearErrorMessage();
 			currentState = 'Change';
-			factory.currentIndividual.isAdmin() ? individualFieldCompany.setFocus() : (individualFormProject.visible ? individualFormProject.setFocus() : (individualFormTeam.visible ? individualFieldTeam.setFocus() : individualFieldLogin.setFocus()));
+			factory.currentIndividual.isAdmin() ? individualFieldCompany.setFocus() : (individualFormProject.visible ? individualFieldProject.setFocus() : (individualFormTeam.visible ? individualFieldTeam.setFocus() : individualFieldLogin.setFocus()));
 
 			if (group)
 				individualFieldCompany.selectedItem = group.isCompany() ? group : group.company;

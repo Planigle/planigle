@@ -137,10 +137,7 @@
 			projectNameForm.label = "Project Name";
 			projectFormDescription.visible = true;
 			projectFormDescription.height = 64;
-			projectFormSurveyMode.visible = true;
-			projectFormSurveyMode.height = 22;
-			projectFormSurveyUrl.visible = true;
-			projectFormSurveyUrl.height = 22;
+			updateSurveyVisible();
 			if (IndividualFactory.current().isAdmin())
 			{
 				projectFormPremiumExpiry.visible = true;
@@ -156,6 +153,17 @@
 				projectFormPremiumLimit.height = 0;
 			}
 		}
+		
+		// Update whether survey mode is visible.
+		private function updateSurveyVisible():void
+		{
+			var isVisible:Boolean = projectNameForm.label == "Project Name" && projectFieldPremiumExpiry.selectedDate > new Date();
+			projectFormSurveyMode.visible = isVisible;
+			projectFormSurveyMode.height = isVisible ? 22 : 0;
+			isVisible = isVisible && projectFieldSurveyMode.selectedIndex > 0;
+			projectFormSurveyUrl.visible = isVisible;
+			projectFormSurveyUrl.height = isVisible ? 22 : 0;
+		}
 
 		// Show user a form to create a resource.
 		public function showCreateProjectOrTeam(event:Event):void
@@ -167,6 +175,7 @@
 				prepareForProject()
 				projectFieldSurveyMode.selectedIndex = 1;
 				projectLabelSurveyUrl.text = "Will be assigned on creation";
+				updateSurveyVisible();
 			}
 			else
 				prepareForTeam();
@@ -218,6 +227,7 @@
 					projectLabelSurveyUrl.text = base + "/survey.html?projectid=" + currentItem.id + "&surveykey=" + currentItem.surveyKey;
 					projectFieldPremiumExpiry.selectedDate = currentItem.premiumExpiry;
 					projectFieldPremiumLimit.text = currentItem.premiumLimit;
+					updateSurveyVisible();
 				}
 				projectBtnChange.label = 'Update';
 				projectBtnInfo.visible = !currentItem.isCompany();
@@ -401,15 +411,15 @@
 							</mx:VBox>
 							<mx:VBox>
 								<mx:Form id="projectChangeForm2" defaultButton="{projectBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
-									<mx:FormItem id="projectFormSurveyMode" label='Stories' visible="{projectFieldPremiumExpiry.selectedDate > new Date()}" height="{projectFieldPremiumExpiry.selectedDate > new Date() ? 22 : 0}">
-										<mx:ComboBox id='projectFieldSurveyMode' width="150" editable="false">
+									<mx:FormItem id="projectFormSurveyMode" label='Stories'>
+										<mx:ComboBox id='projectFieldSurveyMode' width="150" editable="false" change="updateSurveyVisible()">
 											<mx:Object label="Private" value="0" />
 											<mx:Object label="Private by Default" value="1" />
 											<mx:Object label="Public by Default" value="2" />
 										</mx:ComboBox>
 									</mx:FormItem>
 									<mx:FormItem id='projectFormPremiumExpiry' label='Premium Expiry' required="true">
-										<mx:DateField id='projectFieldPremiumExpiry' editable="true" showToday="true" width="100"/>
+										<mx:DateField id='projectFieldPremiumExpiry' editable="true" showToday="true" width="100" change="updateSurveyVisible()"/>
 									</mx:FormItem>
 									<mx:FormItem id='projectFormPremiumLimit' label='Premium Limit (# Users)' required="true">
 										<mx:TextInput id='projectFieldPremiumLimit' restrict="0-9" text='' width="100"/>
@@ -417,7 +427,7 @@
 								</mx:Form>
 							</mx:VBox>
 						</mx:HBox>
-						<mx:FormItem id="projectFormSurveyUrl" label='      Survey URL' visible="{projectFieldSurveyMode.selectedIndex > 0}" height="{projectFieldSurveyMode.selectedIndex > 0 ? 20 : 0}">
+						<mx:FormItem id="projectFormSurveyUrl" label='      Survey URL'>
 							<mx:Label id="projectLabelSurveyUrl" selectable="true"/>
 						</mx:FormItem>
 						<mx:ControlBar width="100%">
