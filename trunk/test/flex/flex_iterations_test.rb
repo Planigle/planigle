@@ -211,6 +211,7 @@ private
     @ie.button("iterationBtnDelete")[1].click
     @ie.alert("Delete")[0].button("Yes").click
     assert_equal '', @ie.text_area("iterationError").text
+    sleep 1
     assert_equal num_rows-1, @ie.data_grid("iterationResourceGrid").num_rows
   end
     

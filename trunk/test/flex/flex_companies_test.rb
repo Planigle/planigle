@@ -159,7 +159,7 @@ private
     assert_equal '', @ie.text_area("projectFieldName").text
     assert_not_nil @ie.button("projectBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("projectResourceGrid").num_rows
-    assert_equal ",company,,,Edit | Delete | Add Team", @ie.data_grid("projectResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
+    assert_equal ",company,,,Edit | Delete | Add Project", @ie.data_grid("projectResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
     @ie.button("projectBtnCancel").click
   end
     
@@ -201,7 +201,7 @@ sleep 5
     assert_equal '', @ie.text_area("projectError").text
     assert_nil @ie.button("projectBtnCancel")
     assert_equal num_rows, @ie.data_grid("projectResourceGrid").num_rows
-    assert_equal ",company,,,Edit | Delete | Add Team", @ie.data_grid("projectResourceGrid").tabular_data
+    assert_equal ",company,,,Edit | Delete | Add Project", @ie.data_grid("projectResourceGrid").tabular_data
   end
     
   # Test whether you can successfully cancel editing a company.
