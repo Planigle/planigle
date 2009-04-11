@@ -2,7 +2,7 @@
 <div><strong><%= @record.name %></strong></div>
 <br/>
 <div><strong>Status:</strong></div>
-<div><%= @record.status %></div>
+<div><%= selectStory(@record) %></div>
 <br/>
 <div><strong>Description:</strong></div>
 <div><%= @record.description ? @record.description.gsub(/\r/, '<br/>') : '' %></div>
@@ -16,7 +16,7 @@
 <% @record.tasks.each do |task| %>
 <tr><td><%= task.name %></td>
 <td><%= task.individual ? task.individual.name : 'Not Assigned' %></td>
-<td><%= task.status %></td></tr>
+<td><%= selectTask(task) %></td></tr>
 <% end %>
 </table>
 <% end %>

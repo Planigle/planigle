@@ -8,7 +8,7 @@ class StoriesController < ResourceController
     respond_to do |format|
       format.iphone do
         iteration = Iteration.find_current(current_individual)
-        @records = Story.get_records(current_individual, iteration ? iteration.id : nil, current_individual.team_id ? ["team_id = ?", current_individual.team_id] : nil)
+        @records = Story.get_records(current_individual, iteration ? iteration.id : nil, current_individual.team_id && current_individual.team.project.id == project_id ? ["team_id = ?", current_individual.team_id] : nil)
         render
       end
       format.xml { @records = get_records; render :xml => @records }

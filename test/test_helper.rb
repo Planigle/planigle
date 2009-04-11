@@ -115,6 +115,11 @@ private
     post '/session.xml', {:login => 'admin2', :password => 'testit'}, flex_header
   end
 
+  # Log in as an iPhone user would.
+  def iphone_login(user_id)
+    post '/session', {:login => user_id, :password => 'testit'}, iphone_user_agent
+  end
+
   # Answer the string to get the current count of this object.
   def get_count
     object_type << '.count'
@@ -146,5 +151,10 @@ private
   # Answer the authorization and accepts headers that xml clients should send.
   def authorization_header
     {'Authorization' => Base64.encode64('admin2' << ':' << 'testit'), 'Accept' => 'text/xml'}
+  end
+
+  # Answer the string representing the iPhone user agent.  
+  def iphone_user_agent
+    {:user_agent => 'Mozilla/5.0 (iPhone; U; CPU like Mac OS X; en) AppleWebKit/420+ (KHTML, like Gecko) Version/3.0 Mobile/1A543a Safari/419.3'}
   end
 end

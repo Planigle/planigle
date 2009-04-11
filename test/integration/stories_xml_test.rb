@@ -206,4 +206,29 @@ class StoriesXmlTest < ActionController::IntegrationTest
       end
     end
   end
+    
+  # Test getting the stories on an iPhone.
+  def test_get_stories_iphone
+    iphone_login('admin2')
+    get resource_url, {}, iphone_user_agent
+    assert_response :success
+  end
+    
+  # Test getting a story on an iPhone.
+  def test_get_story_iphone
+    iphone_login('admin2')
+    get resource_url << '/1', {}, iphone_user_agent
+    assert_response :success
+    assert_select 'select#story[onchange="changeStatus(\'/planigle/stories/1\',story.selectedIndex)"]'
+    assert_select 'select#task_1[onchange="changeStatus(\'/planigle/stories/1/tasks/1\',task_1.selectedIndex)"]'
+  end
+    
+  # Test getting a story on an iPhone.
+  def test_get_story_iphone_read_only
+    iphone_login('readonly')
+    get resource_url << '/1', iphone_user_agent
+    assert_response :success
+    assert_select 'select#story[onchange="changeStatus(\'/planigle/stories/1\',story.selectedIndex)"]', false
+    assert_select 'select#task_1[onchange="changeStatus(\'/planigle/stories/1/tasks/1\',task_1.selectedIndex)"]', false
+  end
 end
