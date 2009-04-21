@@ -919,7 +919,7 @@
 		
 		private var shouldSort:Boolean = true;
 
-		// The user is reordering the stories.  Don't allow them to move tasks.
+		// The user is reordering the stories / tasks.
 		private function handleDrag(event:DragEvent):void
 		{
 			var movedItems:Array = DataGrid(event.dragInitiator).selectedItems;
@@ -1003,9 +1003,26 @@
 		private function handleMoveTasks(movedItems:Array, newIndex:int):void
 		{
 			newIndex = newIndex == 0 ? 0 : newIndex - 1;
-			var story:Story = filteredStories.getItemAt(newIndex).isStory() ? Story(filteredStories.getItemAt(newIndex)) : filteredStories.getItemAt(newIndex).story;
+			var item:Object = filteredStories.getItemAt(newIndex);
+			var story:Story = item.isStory() ? Story(item) : item.story;
+			var min:Number = 0;
+			var max:Number = 0;
+			if (story.isExpanded())
+			{
+				min = item.isStory() ? 0 : item.priority;
+				max = item.isStory() ? (story.tasks.length == 0 ? movedItems.length + 1 : story.tasks[0].priority) : (story.tasks.length > story.tasks.indexOf(item) ? min + movedItems.length + 1 : story.tasks[story.tasks.indexOf(item)+1].priority);
+			}
+			else
+			{
+				min = story.tasks.length == 0 ? 0 : story.tasks[story.tasks.length - 1].priority;
+				max = min + movedItems.length + 1;
+			}
+			var increment:Number = (max - min) / 2.0;
 			for each (var task:Task in movedItems)
-				updateItem(task, {"record[story_id]": story.id});
+			{
+				min += increment;
+				updateItem(task, {"record[story_id]": story.id, "record[priority]": min});
+			}
 			handleUpdateSuccess(); // Prime the processing.
 		}
 

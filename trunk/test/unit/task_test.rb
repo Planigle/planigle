@@ -35,6 +35,14 @@ class TaskTest < ActiveSupport::TestCase
     validate_field(:reason_blocked, true, nil, 4096)
   end
 
+  # Test the validation of priority.
+  def test_priority
+    assert_failure(:priority, 'a')
+    assert_success(:priority, -1)
+    assert_success(:priority, 0)
+    assert_success(:priority, 1.345)
+  end
+
   # Test the validation of effort.
   def test_effort
     assert_failure(:effort, 'a')

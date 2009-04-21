@@ -119,7 +119,7 @@ module RubyAMF
       :actionscript => 'Task',
       :ruby => 'Task',
       :type => 'active_record',
-      :attributes => ["id", "story_id", "name", "description", "individual_id", "effort", "status_code", "reason_blocked"])
+      :attributes => ["id", "story_id", "name", "description", "individual_id", "effort", "status_code", "reason_blocked", "priority"])
 
     ClassMappings.register(
       :actionscript => 'IterationTotal',

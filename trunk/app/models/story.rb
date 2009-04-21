@@ -8,7 +8,7 @@ class Story < ActiveRecord::Base
   belongs_to :iteration
   belongs_to :individual
   has_many :story_values, :dependent => :destroy
-  has_many :tasks, :dependent => :destroy
+  has_many :tasks, :dependent => :destroy, :order => 'tasks.priority'
   has_many :survey_mappings, :dependent => :destroy
   attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :release_id, :iteration_id, :individual_id, :project_id, :is_public, :priority, :user_priority, :team_id, :reason_blocked
   acts_as_audited :except => [:user_priority]
@@ -155,9 +155,9 @@ class Story < ActiveRecord::Base
   # Answer the records for a particular user.
   def self.get_records(current_user, iteration_id=nil, conditions=nil)
     if iteration_id
-      Story.find(:all, :include => [:story_values, :tasks], :conditions => merge_conditions(["iteration_id = ? and project_id = ?", iteration_id, current_user.current_project_id], conditions), :order => 'priority')
+      Story.find(:all, :include => [:story_values, :tasks], :conditions => merge_conditions(["iteration_id = ? and project_id = ?", iteration_id, current_user.current_project_id], conditions), :order => 'stories.priority')
     else
-      Story.find(:all, :include => [:story_values, :tasks], :conditions => merge_conditions(["project_id = ?", current_user.current_project_id], conditions), :order => 'priority')
+      Story.find(:all, :include => [:story_values, :tasks], :conditions => merge_conditions(["project_id = ?", current_user.current_project_id], conditions), :order => 'stories.priority')
     end
   end
   

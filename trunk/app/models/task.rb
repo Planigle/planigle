@@ -1,7 +1,7 @@
 class Task < ActiveRecord::Base
   belongs_to :individual
   belongs_to :story
-  attr_accessible :name, :description, :effort, :status_code, :iteration_id, :individual_id, :story_id, :reason_blocked
+  attr_accessible :name, :description, :effort, :status_code, :iteration_id, :individual_id, :story_id, :reason_blocked, :priority
   acts_as_audited :except => [:story_id]
   
   validates_presence_of     :name, :story_id
@@ -10,6 +10,10 @@ class Task < ActiveRecord::Base
   validates_length_of       :reason_blocked,         :maximum => 4096, :allow_nil => true
   validates_numericality_of :effort, :allow_nil => true, :greater_than_or_equal_to => 0
   validates_numericality_of :status_code
+  validates_numericality_of :priority, :allow_nil => true # Needed for priority since not set until after check
+
+  # Assign a priority on creation
+  before_create :initialize_defaults
 
   # Answer the valid values for status.
   def self.valid_status_values()
@@ -79,6 +83,14 @@ class Task < ActiveRecord::Base
   # Answer a string which describes my blocked state.
   def blocked_message
     name + " is blocked" + (reason_blocked && reason_blocked != "" ? " because " + reason_blocked : "") + "."
+  end
+  
+  # Set the initial priority to the number of tasks (+1 for me).
+  def initialize_defaults
+    if !self.priority
+      highest = story.tasks.find(:first, :order=>'priority desc')
+      self.priority = highest ? highest.priority + 1 : 1
+    end
   end
 
 protected

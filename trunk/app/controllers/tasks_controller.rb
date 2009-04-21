@@ -30,6 +30,7 @@ protected
       @record.individual_id = params[0].individual_id
       @record.effort = params[0].effort
       @record.status_code = params[0].status_code
+      @record.priority = params[0].priority
     else
       @record.attributes = params[:record]
     end
