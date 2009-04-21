@@ -164,7 +164,7 @@ package org.planigle.planigle.model
 		// Set my tasks.
 		public function set tasks(tasks:Array):void
 		{
-			tasks.sortOn(["statusCode", "name"], [Array.NUMERIC | Array.DESCENDING, Array.CASEINSENSITIVE]);
+			tasks.sortOn(["priority"], [Array.NUMERIC]);
 			for each (var task:Task in tasks)
 				task.story = this;
 

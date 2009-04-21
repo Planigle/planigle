@@ -11,13 +11,14 @@ package org.planigle.planigle.model
 	{
 		public var story:Story;
 		public var id:int;
-		public var storyId: int;
+		public var storyId:int;
 		public var name:String;
 		public var description:String;
 		public var reasonBlocked:String;
 		public var individualId:String;
 		public var effort:String;
 		public var statusCode:int;
+		public var priority:Number;
 		public var projectedIterationId:String; // Not used for tasks, but needed for the grid.
 
 		// Populate myself from XML.
@@ -31,6 +32,7 @@ package org.planigle.planigle.model
 			effort = xml.effort;
 			statusCode = xml.child("status-code");
 			reasonBlocked = xml.child("reason-blocked");
+			priority = xml.child("priority");
 		}
 
 		// Answer how much to indent this kind of item.
