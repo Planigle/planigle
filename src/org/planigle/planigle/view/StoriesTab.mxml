@@ -26,6 +26,7 @@
 		import org.planigle.planigle.model.StoryAttributeValue;
 		import org.planigle.planigle.model.TabModelLocator;
 		import org.planigle.planigle.model.IndividualFactory;
+		import org.planigle.planigle.model.Project;
 		import org.planigle.planigle.model.Individual;
 		import org.planigle.planigle.model.Team;
 		import org.planigle.planigle.model.ReleaseFactory;
@@ -86,48 +87,65 @@
 			baseChildren = changeForm.numChildren;
 			panelHeight = combinedPanel.height;
 			ChangeWatcher.watch( factory, "currentIndividual", updateIndividual );
-			ChangeWatcher.watch( IndividualFactory.current(), "projectId", updateIndividual );
-			ChangeWatcher.watch( IndividualFactory.current().selectedProject, "premiumExpiry", updatePremium );
-			ChangeWatcher.watch( factory, "currentIndividual", resetState ); // Reset if log out / logged back in
 			ChangeWatcher.watch( ReleaseFactory.getInstance(), "releaseSelector", updateReleaseFilterList );
 			ChangeWatcher.watch( IterationFactory.getInstance(), "iterationSelector", updateIterationFilterList );
 			ChangeWatcher.watch( IndividualFactory.getInstance(), "individualSelector", updateIndividualFilterList );
 			ChangeWatcher.watch( StoryFactory.getInstance(), "stories", handleFilter );
-			ChangeWatcher.watch( IndividualFactory.current(), "projectId", updateAttributes );
+			updateIndividual();
 			setReleaseFilterList();
 			setIterationFilterList();
-			updateIndividual(event);
 			setIndividualFilterList();
-			handleFilter(event);
+			handleFilter();
 			storyBtnImport.onCompletion(setSuccessMessage, setErrorMessage);
 			CursorManager.removeBusyCursor();
 		}
 
-		private var watcher:ChangeWatcher;
+		private var projectWatcher:ChangeWatcher;
 
-		// Watch for changes to the teams.
-		private function updateIndividual(event:Event):void
+		private function updateIndividual(event:Event = null):void
 		{
-			if (watcher)
-				watcher.unwatch();
-			if (IndividualFactory.current().selectedProject)
-				watcher = ChangeWatcher.watch( IndividualFactory.current().selectedProject, "teams", updateTeamField );
-			else watcher = null;
-			updateTeamField(null);
-			updatePremium(null);
-			updateAttributes(null);
-			setColumns();
+			if (projectWatcher)
+				projectWatcher.unwatch();
+			projectWatcher = ChangeWatcher.watch( IndividualFactory.current(), "selectedProjectId", updateProject );
+			updateProject();
+		}
+
+		private var premiumWatcher:ChangeWatcher;
+		private var teamWatcher:ChangeWatcher;
+
+		private function updateProject(event:Event = null):void
+		{
+			if (premiumWatcher)
+				premiumWatcher.unwatch();
+			if (teamWatcher)
+				teamWatcher.unwatch();
+			var project:Project = IndividualFactory.current().selectedProject;
+			if (project)
+			{
+				premiumWatcher = ChangeWatcher.watch( project, "premiumExpiry", updatePremium );
+				teamWatcher = ChangeWatcher.watch( project, "teams", updateTeamField );
+				updatePremium();
+				updateTeamField();
+				updateAttributes();
+				setColumns();
+				resetState();
+			}
+			else
+			{
+				premiumWatcher = null;
+				teamWatcher = null;
+			}
 		}
 
 		// Update premium attributes.
-		private function updatePremium(event:Event):void		
+		private function updatePremium(event:Event = null):void		
 		{
 			storyUtilizationRow.visible = IndividualFactory.current().isPremium;
 			storyUtilizationRow.width = IndividualFactory.current().isPremium ? NaN : 0;
 		}
 
 		// Update the teams in the form.
-		private function updateTeamField(event:Event):void
+		private function updateTeamField(event:Event = null):void
 		{
 			if (IndividualFactory.current().selectedProject)
 				storyFieldTeam.dataProvider = IndividualFactory.current().selectedProject.teamSelector;
@@ -158,7 +176,7 @@
 		private function clearErrorMessage():void {setMessage("")}
 		
 		// Reset my state to how it was initially.
-		public function resetState(event:Event):void
+		public function resetState(event:Event = null):void
 		{
 			currentItem = null;
 			clearErrorMessage();
@@ -365,7 +383,7 @@
 		}
 		
 		// The iteration filter has changed.
-		public function handleFilter(event:Event):void
+		public function handleFilter(event:Event = null):void
 		{
 			var scroll:Number = storyResourceGrid.verticalScrollPosition;
 			var sort:Sort = filteredStories.sort;
@@ -1256,7 +1274,7 @@
 		}
 		
 		// Update the story attributes.
-		protected function updateAttributes(event:Event):void
+		protected function updateAttributes(event:Event = null):void
 		{
 			customChildren = new Object();
 			for (var i:int = changeForm.numChildren-1; i>=baseChildren; i--)
