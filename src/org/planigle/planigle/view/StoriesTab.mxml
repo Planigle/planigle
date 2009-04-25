@@ -1028,7 +1028,7 @@
 			if (story.isExpanded())
 			{
 				min = item.isStory() ? 0 : item.priority;
-				max = item.isStory() ? (story.tasks.length == 0 ? movedItems.length + 1 : story.tasks[0].priority) : (story.tasks.length > story.tasks.indexOf(item) ? min + movedItems.length + 1 : story.tasks[story.tasks.indexOf(item)+1].priority);
+				max = item.isStory() ? (story.tasks.length == 0 ? movedItems.length + 1 : story.tasks[0].priority) : (story.tasks.length == story.tasks.indexOf(item) + 1 ? min + movedItems.length + 1 : story.tasks[story.tasks.indexOf(item)+1].priority);
 			}
 			else
 			{
