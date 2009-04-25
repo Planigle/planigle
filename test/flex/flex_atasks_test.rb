@@ -199,7 +199,7 @@ private
     assert_equal 'Not Started', @ie.combo_box("storyFieldStatus").text
     assert_not_nil @ie.button("storyBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",foo,,,ted williams,,1,Blocked, , , ,description, ,, , , ,, ,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 2, :end => 2)
+    assert_equal ",foo,,,ted williams,,1,Blocked, , , ,description, ,, , , ,, ,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 3, :end => 3)
     @ie.button("storyBtnCancel").click
   end
     
