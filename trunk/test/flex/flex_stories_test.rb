@@ -11,6 +11,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   fixtures :releases
   fixtures :iterations
   fixtures :stories
+  fixtures :criteria
   fixtures :story_attributes
   fixtures :story_attribute_values
   fixtures :story_values

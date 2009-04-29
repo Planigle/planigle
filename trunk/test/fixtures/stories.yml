@@ -7,7 +7,6 @@ first:
   individual_id: 2
   name: 'test'
   description: 'description'
-  acceptance_criteria: 'criteria'
   effort: 1
   status_code: 1
   priority: 3
@@ -21,7 +20,6 @@ second:
   iteration_id: 1
   name: 'test2'
   description: ''
-  acceptance_criteria: ''
   effort: 1
   status_code: 3
   priority: 2
@@ -33,7 +31,6 @@ third:
   project_id: 1
   name: 'test3'
   description: ''
-  acceptance_criteria: ''
   effort: 1
   status_code: 1
   priority: 1
@@ -45,7 +42,6 @@ fourth:
   project_id: 1
   name: 'test4'
   description: ''
-  acceptance_criteria: ''
   effort: 1
   status_code: 1
   priority: 4
@@ -56,7 +52,6 @@ fifth:
   project_id: 2
   name: 'test5'
   description: ''
-  acceptance_criteria: ''
   effort: 2
   status_code: 2
   priority: 1

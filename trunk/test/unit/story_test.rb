@@ -8,6 +8,7 @@ class StoryTest < ActiveSupport::TestCase
   fixtures :stories
   fixtures :projects
   fixtures :tasks
+  fixtures :criteria
   fixtures :story_attributes
   fixtures :story_attribute_values
   fixtures :story_values
@@ -34,7 +35,21 @@ class StoryTest < ActiveSupport::TestCase
 
   # Test the validation of acceptance criteria.
   def test_acceptance_criteria
-    validate_field(:acceptance_criteria, true, nil, 4096)
+    assert_success(:acceptance_criteria, create_string(4096))
+    assert_failure(:acceptance_criteria, create_string(4097), :criteria)
+    story = create_story(:acceptance_criteria => "Criteria 1\rCriteria 2\rCriteria 3")
+    assert_equal 3, story.reload.criteria.count
+    assert_equal 'Criteria 1', story.criteria[0].description
+    assert_equal 'Criteria 2', story.criteria[1].description
+    assert_equal 'Criteria 3', story.criteria[2].description
+    assert_equal "-Criteria 1\r-Criteria 2\r-Criteria 3", story.acceptance_criteria
+
+    story.acceptance_criteria = "-Criteria 1\r-Criteria 2\r\r-Criteria 3"
+    assert_equal 3, story.reload.criteria.count
+    assert_equal 'Criteria 1', story.criteria[0].description
+    assert_equal 'Criteria 2', story.criteria[1].description
+    assert_equal 'Criteria 3', story.criteria[2].description
+    assert_equal "-Criteria 1\r-Criteria 2\r-Criteria 3", story.acceptance_criteria
   end
 
   # Test the validation of reason blocked.
@@ -210,10 +225,12 @@ class StoryTest < ActiveSupport::TestCase
   
   # Test deleting an story (should delete tasks).
   def test_delete_story
+    assert_equal criteria(:one).story, stories(:first)
     assert_equal tasks(:one).story, stories(:first)
     assert_equal survey_mappings(:first).story, stories(:first)
     assert_equal story_values(:first).story, stories(:first)
     stories(:first).destroy
+    assert_nil Criterium.find_by_description('test_ac')
     assert_nil Task.find_by_name('test')
     assert_nil SurveyMapping.find_by_id('1')
     assert_nil StoryValue.find_by_id('1')
