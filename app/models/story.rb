@@ -8,6 +8,7 @@ class Story < ActiveRecord::Base
   belongs_to :iteration
   belongs_to :individual
   has_many :story_values, :dependent => :destroy
+  has_many :criteria, :dependent => :destroy, :order => 'criteria.priority'
   has_many :tasks, :dependent => :destroy, :order => 'tasks.priority'
   has_many :survey_mappings, :dependent => :destroy
   attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :release_id, :iteration_id, :individual_id, :project_id, :is_public, :priority, :user_priority, :team_id, :reason_blocked
@@ -16,7 +17,6 @@ class Story < ActiveRecord::Base
   validates_presence_of     :project_id, :name
   validates_length_of       :name,                   :maximum => 250, :allow_nil => true # Allow nil to workaround bug
   validates_length_of       :description,            :maximum => 4096, :allow_nil => true
-  validates_length_of       :acceptance_criteria,    :maximum => 4096, :allow_nil => true
   validates_length_of       :reason_blocked,         :maximum => 4096, :allow_nil => true
   validates_numericality_of :effort, :allow_nil => true, :greater_than_or_equal_to => 0
   validates_numericality_of :priority, :user_priority, :allow_nil => true # Needed for priority since not set until after check
@@ -116,6 +116,35 @@ class Story < ActiveRecord::Base
     '/planigle/stories/' + id.to_s
   end
 
+  # Answer my acceptance criteria as a string (criteria separated by \r).
+  def acceptance_criteria
+    result = ''
+    criteria.each do |criterium|
+      if result != ''; result << "\r"; end
+      if criteria.count > 1; result << '-'; end
+      result << criterium.description
+    end
+    result
+  end
+
+  # Set my acceptance criteria based on a string (criteria separated by \r).
+  def acceptance_criteria=(new_criteria)
+    criteria.each do |criterium|
+      criterium.destroy
+    end
+    criteria.clear
+    i = 0
+    if new_criteria
+      new_criteria.split("\r").each do |criterium|
+        if criterium.strip != ""
+          criterium = criterium.match(/-.*/) ? criterium[1,criterium.length-1] : criterium
+          criteria << Criterium.new(:description => criterium, :priority => i, :status_code => status_code == Done ? Criterium::Done : Criterium::Created)
+          i += 1
+        end
+      end
+    end
+  end
+
   # Answer my status in a user friendly format.
   def status
     StatusMapping[status_code]
@@ -148,6 +177,9 @@ class Story < ActiveRecord::Base
   def to_xml(options = {})
     if !options[:include]
       options[:include] = [:story_values, :tasks]
+    end
+    if !options[:methods]
+      options[:methods] = [:acceptance_criteria]
     end
     super(options)
   end
