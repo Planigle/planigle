@@ -123,6 +123,9 @@ class Story < ActiveRecord::Base
       if result != ''; result << "\r"; end
       if criteria.count > 1; result << '-'; end
       result << criterium.description
+      if (criterium.status_code == Criterium::Done)
+        result << " (Done)"
+      end
     end
     result
   end
@@ -138,7 +141,12 @@ class Story < ActiveRecord::Base
       new_criteria.split("\r").each do |criterium|
         if criterium.strip != ""
           criterium = criterium.match(/-.*/) ? criterium[1,criterium.length-1] : criterium
-          criteria << Criterium.new(:description => criterium, :priority => i, :status_code => status_code == Done ? Criterium::Done : Criterium::Created)
+          code = status_code == Done ? Criterium::Done : Criterium::Created
+          if (match=criterium.match(/(.*) \(Done\)/))
+            criterium = match[1]
+            code = Criterium::Done
+          end
+          criteria << Criterium.new(:description => criterium, :priority => i, :status_code => code)
           i += 1
         end
       end
@@ -169,14 +177,13 @@ class Story < ActiveRecord::Base
       :iteration_id => next_iteration ? next_iteration.id : nil,
       :individual_id => self.individual_id,
       :description => self.description,
-      :acceptance_criteria => self.acceptance_criteria,
       :effort => self.effort )
   end
   
   # Override to_xml to include tasks.
   def to_xml(options = {})
     if !options[:include]
-      options[:include] = [:story_values, :tasks]
+      options[:include] = [:story_values, :tasks, :criteria]
     end
     if !options[:methods]
       options[:methods] = [:acceptance_criteria]

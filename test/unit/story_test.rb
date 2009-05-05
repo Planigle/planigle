@@ -176,7 +176,6 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal 2, story.individual_id
     assert_equal 2, story.iteration_id
     assert_equal 'description', story.description
-    assert_equal 'criteria', story.acceptance_criteria
     assert_equal 1, story.effort
     assert_equal 0, story.status_code
   end
@@ -189,7 +188,6 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal nil, story.individual_id
     assert_equal nil, story.iteration_id
     assert_equal 'bar', story.description
-    assert_equal 'must', story.acceptance_criteria
     assert_equal 5, story.effort
     assert_equal 0, story.status_code
   end
@@ -202,7 +200,6 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal nil, story.individual_id
     assert_equal nil, story.iteration_id
     assert_equal 'bar', story.description
-    assert_equal 'must', story.acceptance_criteria
     assert_equal 5, story.effort
     assert_equal 0, story.status_code
   end
@@ -225,7 +222,7 @@ class StoryTest < ActiveSupport::TestCase
   
   # Test deleting an story (should delete tasks).
   def test_delete_story
-    assert_equal criteria(:one).story, stories(:first)
+    assert_equal criteria(:first).story, stories(:first)
     assert_equal tasks(:one).story, stories(:first)
     assert_equal survey_mappings(:first).story, stories(:first)
     assert_equal story_values(:first).story, stories(:first)
@@ -263,7 +260,7 @@ class StoryTest < ActiveSupport::TestCase
   # Validate export.
   def test_export
     string = Story.export(individuals(:aaron))
-    assert_equal "PID,Name,Description,Acceptance Criteria,Size,Time,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Test_List,Test_Number,Test_Release,Test_String,Test_Text\n3,test3,\"\",\"\",1.0,,In Progress,,\"\",\"\",\"\",\"\",false,2.0,\"\",\"\",\"\",\"\"\,\"\"\n2,test2,\"\",\"\",1.0,,Done,,first,first,\"\",\"\",true,1.0,\"\",\"\",\"\",\"\",\"\"\n1,test,description,criteria,1.0,5.0,In Progress,,first,first,Test_team,aaron hank,true,2.0,Value 1,5,Theme 1,test,testy\n4,test4,\"\",\"\",1.0,,In Progress,,\"\",\"\",\"\",\"\",true,,\"\",\"\",\"\",\"\",\"\"\n", string
+    assert_equal "PID,Name,Description,Acceptance Criteria,Size,Time,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Test_List,Test_Number,Test_Release,Test_String,Test_Text\n3,test3,\"\",\"\",1.0,,In Progress,,\"\",\"\",\"\",\"\",false,2.0,\"\",\"\",\"\",\"\"\,\"\"\n2,test2,\"\",\"\",1.0,,Done,,first,first,\"\",\"\",true,1.0,\"\",\"\",\"\",\"\",\"\"\n1,test,description,\"-criteria\r-criteria2\",1.0,5.0,In Progress,,first,first,Test_team,aaron hank,true,2.0,Value 1,5,Theme 1,test,testy\n4,test4,\"\",\"\",1.0,,In Progress,,\"\",\"\",\"\",\"\",true,,\"\",\"\",\"\",\"\",\"\"\n", string
   end
 
   def test_import_invalid_id

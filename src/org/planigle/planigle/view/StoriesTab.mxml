@@ -535,7 +535,7 @@
 			storyFormIteration.visible = true;
 			storyFormTeam.height = factory.currentIndividual.selectedProject.teamSelector.length > 1 ? 22 : -5;
 			storyFormTeam.visible = factory.currentIndividual.selectedProject.teamSelector.length > 1;
-			storyFormAcceptanceCriteria.height = 65;
+			storyFormAcceptanceCriteria.height = 100;
 			storyFormAcceptanceCriteria.visible = true;
 			storyFormPublic.height = factory.currentIndividual.isPremium ? 22 : -5;
 			storyFormPublic.visible = factory.currentIndividual.isPremium;
@@ -615,7 +615,7 @@
 
 			if (isStory)
 			{
-				storyFieldAcceptanceCriteria.text = '';
+				storyFieldAcceptanceCriteria.clear();
 
 				storyFieldIteration.dataProvider = IterationFactory.getInstance().iterationsInRelease(Release(release.selectedItem));
 
@@ -693,7 +693,7 @@
 							storyFieldRelease.dataProvider = ReleaseFactory.getInstance().releaseSelector;
 						storyFieldRelease.selectedItem = ReleaseFactory.getInstance().find(currentItem.releaseId);
 						updateRelease();
-						storyFieldAcceptanceCriteria.text = currentItem.acceptanceCriteria;
+						storyFieldAcceptanceCriteria.story = Story(currentItem);
 
 						var it:String = currentItem.teamId;
 						if (!it)
@@ -781,6 +781,7 @@
 					storyFieldIteration.dataProvider = IterationFactory.getInstance().iterationSelector;
 				storyFieldIteration.selectedItem = nextIteration;
 				storyFieldStatus.selectedIndex = 0; // Set to created
+				storyFieldAcceptanceCriteria.filterDone();
 				storyBtnChange.label = 'Split';
 			}
 		}
@@ -823,7 +824,7 @@
 				params['record[project_id]'] = factory.currentIndividual.selectedProjectId;
 				params['record[release_id]'] = storyFieldRelease.selectedItem.id > 0 ? storyFieldRelease.selectedItem.id : "";
 				params['record[iteration_id]'] = storyFieldIteration.selectedItem.id > 0 ? storyFieldIteration.selectedItem.id : "";
-				params['record[acceptance_criteria]'] = storyFieldAcceptanceCriteria.text;
+				params['record[acceptance_criteria]'] = storyFieldAcceptanceCriteria.acceptanceCriteria;
 				params['record[team_id]'] = storyFieldTeam.selectedItem.id > 0 ? storyFieldTeam.selectedItem.id : "";
 				params['record[is_public]'] = storyFieldPublic.selectedItem.value;
 
@@ -1465,10 +1466,10 @@
 											<mx:TextInput id='storyFieldName' maxChars="250" text='' width="500"/>
 										</mx:FormItem>
 										<mx:FormItem label='Description'>
-											<component:ExpandableHTMLTextArea id='storyFieldDescription'/>
+											<component:ExpandableHTMLTextArea id='storyFieldDescription' height="80"/>
 										</mx:FormItem>
 										<mx:FormItem label='Acceptance Criteria' id="storyFormAcceptanceCriteria">
-											<component:ExpandableHTMLTextArea id='storyFieldAcceptanceCriteria'/>
+											<component:CriteriaGrid id='storyFieldAcceptanceCriteria' height="100%" width="500"/>
 										</mx:FormItem>
 										<mx:FormItem label='Status'>
 											<mx:ComboBox id='storyFieldStatus' width="120" editable="false" change="updateReasonBlocked(event)">

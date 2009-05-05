@@ -20,6 +20,7 @@ class StoriesControllerTest < ActionController::TestCase
   fixtures :stories
   fixtures :projects
   fixtures :tasks
+  fixtures :criteria
   fixtures :surveys
   fixtures :survey_mappings
 
@@ -54,8 +55,10 @@ class StoriesControllerTest < ActionController::TestCase
     assert_equal num + 1, resource_count
     assert_create_succeeded
     assert_equal 1, stories(:first).tasks.count
+    assert_equal 1, stories(:first).criteria.count
     split = Story.find_by_name('foo')
     assert_equal 1, split.tasks.count
+    assert_equal 1, split.criteria.count
   end
 
   # Test splitting a story unsuccessfully.
@@ -341,8 +344,10 @@ class StoriesControllerTest < ActionController::TestCase
     assert_equal num + 1, resource_count
     assert_create_succeeded
     assert_equal 1, stories(:first).tasks.count
+    assert_equal 1, stories(:first).criteria.count
     split = Story.find_by_name('foo')
     assert_equal 1, split.tasks.count
+    assert_equal 1, split.criteria.count
   end    
   
   # Split unsuccessfully based on role.

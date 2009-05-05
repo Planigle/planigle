@@ -31,6 +31,7 @@ package org.planigle.planigle.model
 		public var custom:String; // Used for sorting
 		private var myStoryValues:Array = new Array();
 		private var myTasks:Array = new Array();
+		private var myCriteria:Array = new Array();
 		public static const CREATED:int = 0;
 		public static const IN_PROGRESS:int = 1;
 		public static const BLOCKED:int = 2;
@@ -73,6 +74,15 @@ package org.planigle.planigle.model
 				newTasks.addItem(task);
 			}
 			tasks = newTasks.source;
+
+			var newCriteria:ArrayCollection = new ArrayCollection();
+			for (var k:int = 0; k < xml.criteria.criterium.length(); k++)
+			{
+				var criterium:Criterium = new Criterium();
+				criterium.populate(XML(xml.criteria.criterium[k]));
+				newCriteria.addItem(criterium);
+			}
+			criteria = newCriteria.source;
 		}
 		
 		// Answer the value for a custom value (or nil if it does not exist).
@@ -171,10 +181,27 @@ package org.planigle.planigle.model
 			myTasks = tasks;
 		}
 
-		// Resort my tasks.
+		// Answer my criteria.
+		public function get criteria():Array
+		{
+			return myCriteria;
+		}
+
+		// Set my criteria.
+		public function set criteria(criteria:Array):void
+		{
+			criteria.sortOn(["priority"], [Array.NUMERIC]);
+			for each (var criterium:Criterium in criteria)
+				criterium.story = this;
+
+			myCriteria = criteria;
+		}
+
+		// Resort my tasks and criteria.
 		public function resort():void
 		{
 			tasks=tasks.concat(); // set to a copy
+			criteria=criteria.concat(); // set to a copy
 		}
 
 		// Answer how much to indent this kind of item.
@@ -281,6 +308,20 @@ package org.planigle.planigle.model
 				}
 			}
 			tasks = taskCollect.source;
+
+			var criteriaCollect:ArrayCollection = new ArrayCollection(criteria);
+			for(var k:int = 0; k < xml.criteria.criteria.length(); k++)
+			{ // Remove any criteria that were moved to the new story.  Do it before creating the story to prevent multiple events.
+				var id2:int = int(xml.criteria.criterium[k].id);
+				for (var l:int = criteria.length - 1; l >= 0; l--) // Go backwards since deleting
+				{
+					var criterium:Criterium = Criterium(criteria[l]);
+					if (id2 == criterium.id)
+						criteriaCollect.removeItemAt(l);
+				}
+			}
+			criteria = criteriaCollect.source;
+
 			StoryFactory.getInstance().createCompleted(xml);
 		}
 		
