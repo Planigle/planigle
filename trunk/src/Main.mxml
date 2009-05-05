@@ -48,6 +48,14 @@
 			[Bindable]
 			public var imgSplit:Class;
 		
+			[Embed(source="../public/images/done.png")]
+			[Bindable]
+			public var imgDone:Class;
+		
+			[Embed(source="../public/images/not_done.png")]
+			[Bindable]
+			public var imgNotDone:Class;
+		
 			[Embed(source="../public/images/search.png")]
 			[Bindable]
 			public var imgPlan:Class;

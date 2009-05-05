@@ -114,13 +114,19 @@ module RubyAMF
       :type => 'active_record',
       :attributes => ["id", "project_id", "name", "description", "release_id", "iteration_id", "individual_id", "effort", "status_code", "priority", "user_priority", "is_public", "team_id", "reason_blocked"],
       :methods => ["acceptance_criteria"],
-      :associations => ["story_values", "tasks"])
+      :associations => ["story_values", "tasks", "criteria"])
 
     ClassMappings.register(
       :actionscript => 'Task',
       :ruby => 'Task',
       :type => 'active_record',
       :attributes => ["id", "story_id", "name", "description", "individual_id", "effort", "status_code", "reason_blocked", "priority"])
+
+    ClassMappings.register(
+      :actionscript => 'Criterium',
+      :ruby => 'Criterium',
+      :type => 'active_record',
+      :attributes => ["id", "story_id", "description", "status_code", "priority"])
 
     ClassMappings.register(
       :actionscript => 'IterationTotal',

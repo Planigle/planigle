@@ -16,6 +16,11 @@ class Criterium < ActiveRecord::Base
 
   StatusMapping = [ 'Not Started', 'Done' ]
 
+  # Answer true if I have been accepted.
+  def accepted?
+    self.status_code == Done
+  end
+
   # Answer a string which I can be referred to by.
   def name
     max_length=20

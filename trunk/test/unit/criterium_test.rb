@@ -49,6 +49,12 @@ class CriteriumTest < ActiveSupport::TestCase
     assert_failure( :status_code, 2 )
   end
 
+  # Test the accepted? method.
+  def test_accepted
+    assert !criteria(:first).accepted?
+    assert criteria(:second).accepted?
+  end
+
 private
 
   # Create a criteria with valid values.  Options will override default values (should be :attribute => value).

@@ -73,6 +73,7 @@ class StoriesController < ResourceController
     else
       Story.transaction do
         @tasks = @old.tasks.select{|task| !task.accepted?}
+        @criteria = @old.criteria.select{|criterium| !criterium.accepted?}
         create
       end
     end
@@ -131,6 +132,11 @@ protected
       @tasks.each do |task|
         story.tasks << task
         task.save
+      end
+    end
+    if @criteria
+      @criteria.each do |criterium|
+        criterium.destroy
       end
     end
     story
