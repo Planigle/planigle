@@ -1,7 +1,6 @@
 class Criterium < ActiveRecord::Base
   belongs_to :story
   attr_accessible :description, :status_code, :story_id, :priority
-  acts_as_audited :except => [:story_id]
   
   validates_presence_of     :description
   validates_length_of       :description,            :maximum => 4096, :allow_nil => true

@@ -1,6 +1,7 @@
 package org.planigle.planigle.model
 {
 	import mx.binding.utils.ChangeWatcher;
+	
 	import org.planigle.planigle.view.ViewHelper;
 	
 	[RemoteClass(alias='Audit')]
@@ -141,10 +142,23 @@ package org.planigle.planigle.model
 					return ViewHelper.formatNotificationTypeValue(int(value));
 				case 'valueType':
 					return ViewHelper.formatAttributeTypeValue(int(value));
+				case 'acceptanceCriteria':
+					return formatAcceptanceCriteria(String(value));
 				default:
 					return value is Date ? DateUtils.formatDate(value as Date) : ((value == null) ? '' : value.toString());
 			}
 			return object == null ? "Unknown" : object.name;
+		}
+		
+		protected function formatAcceptanceCriteria(value:String):String
+		{
+			var newString:String = '';
+			for each (var substring:String in value.split("\r"))
+			{
+				newString += newString == "" ? "" : ", ";
+				newString += substring.length > 0 && substring.charAt(0) == '-' ? substring.substring(1) : substring;
+			}
+			return newString;
 		}
 		
 		public function set changeDescription(name:String):void

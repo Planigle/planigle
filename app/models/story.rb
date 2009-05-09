@@ -132,6 +132,7 @@ class Story < ActiveRecord::Base
 
   # Set my acceptance criteria based on a string (criteria separated by \r).
   def acceptance_criteria=(new_criteria)
+    old_criteria = acceptance_criteria
     criteria.each do |criterium|
       criterium.destroy
     end
@@ -150,6 +151,9 @@ class Story < ActiveRecord::Base
           i += 1
         end
       end
+    end
+    if new_criteria != old_criteria
+      changed_attributes['acceptance_criteria'] = [old_criteria, new_criteria]
     end
   end
 
