@@ -275,7 +275,12 @@ class ProjectsControllerTest < Test::Unit::TestCase
 
   # Test deleting projects (based on role).
   def test_delete_by_project_admin_premium
-    delete_by_role_successful(individuals(:aaron))
+    delete_by_role_successful(individuals(:aaron), 3)
+  end
+
+  # Test deleting projects (based on role).
+  def test_delete_by_project_admin_premium_own
+    delete_by_role_unsuccessful(individuals(:aaron))
   end
     
   # Test deleting projects (based on role).
@@ -289,19 +294,21 @@ class ProjectsControllerTest < Test::Unit::TestCase
   end
       
   # Delete successfully based on role.
-  def delete_by_role_successful( user )
+  def delete_by_role_successful( user, id=1 )
+    name = Project.find(id).name
     login_as(user)
-    delete :destroy, :id => 1, :format => 'xml'
+    delete :destroy, :id => id, :format => 'xml'
     assert_response :success
-    assert_nil Project.find_by_name('Test')
+    assert_nil Project.find_by_name(name)
   end
 
   # Delete unsuccessfully based on role.
-  def delete_by_role_unsuccessful( user )
+  def delete_by_role_unsuccessful( user, id=1 )
+    name = Project.find(id).name
     login_as(user)
-    delete :destroy, :id => 1, :format => 'xml'
+    delete :destroy, :id => id, :format => 'xml'
     assert_response 401
-    assert Project.find_by_name('Test')
+    assert Project.find_by_name(name)
     assert_select "errors"
   end
       

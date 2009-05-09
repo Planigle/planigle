@@ -373,7 +373,7 @@
 		public function shouldShowDelete(data:Object):Boolean
 		{
 			return (data.isCompany() && factory.currentIndividual.isAdmin()) ||
-				(data.isProject() && factory.currentIndividual.isAtLeastProjectAdmin() && factory.currentIndividual.isPremium) ||
+				(data.isProject() && factory.currentIndividual.isAtLeastProjectAdmin() && factory.currentIndividual.isPremium && factory.currentIndividual.project != data) ||
 				(data.isTeam() && factory.currentIndividual.isAtLeastProjectAdmin());
 		}
 

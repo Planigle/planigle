@@ -132,7 +132,7 @@ class Project < ActiveRecord::Base
   def authorized_for_destroy?(current_user)
     case current_user.role
       when Individual::Admin then true
-      when Individual::ProjectAdmin then current_user.is_premium && current_user.company_id == company_id
+      when Individual::ProjectAdmin then current_user.is_premium && current_user.company_id == company_id && current_user.project_id != id
       else false
     end
   end
