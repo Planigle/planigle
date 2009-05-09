@@ -1469,7 +1469,7 @@
 											<component:ExpandableHTMLTextArea id='storyFieldDescription' height="80"/>
 										</mx:FormItem>
 										<mx:FormItem label='Acceptance Criteria' id="storyFormAcceptanceCriteria">
-											<component:CriteriaGrid id='storyFieldAcceptanceCriteria' height="100%" width="500"/>
+											<component:ExpandableCriteriaGrid id='storyFieldAcceptanceCriteria' height="100%"/>
 										</mx:FormItem>
 										<mx:FormItem label='Status'>
 											<mx:ComboBox id='storyFieldStatus' width="120" editable="false" change="updateReasonBlocked(event)">
