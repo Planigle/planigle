@@ -51,7 +51,9 @@ class StoriesControllerTest < ActionController::TestCase
   def test_split_put_success
     num = resource_count
     login_as(individuals(:quentin))
-    put :split, :id => 1, resource_symbol => (create_success_parameters[resource_symbol]) # hack to get around compiler issue
+    params = create_success_parameters
+    params[resource_symbol]['acceptance_criteria'] = 'criteria'
+    put :split, :id => 1, resource_symbol => (params[resource_symbol]) # hack to get around compiler issue
     assert_equal num + 1, resource_count
     assert_create_succeeded
     assert_equal 1, stories(:first).tasks.count
@@ -339,7 +341,9 @@ class StoriesControllerTest < ActionController::TestCase
   def split_by_role_successful( user )
     login_as(user)
     num = resource_count
-    put :split, create_success_parameters.merge( :id => 1, :format => 'xml' )
+    params = create_success_parameters
+    params[resource_symbol]['acceptance_criteria'] = 'criteria'
+    put :split, params.merge( :id => 1, :format => 'xml' )
     assert_response 201
     assert_equal num + 1, resource_count
     assert_create_succeeded

@@ -260,7 +260,7 @@ class StoryTest < ActiveSupport::TestCase
   # Validate export.
   def test_export
     string = Story.export(individuals(:aaron))
-    assert_equal "PID,Name,Description,Acceptance Criteria,Size,Time,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Test_List,Test_Number,Test_Release,Test_String,Test_Text\n3,test3,\"\",\"\",1.0,,In Progress,,\"\",\"\",\"\",\"\",false,2.0,\"\",\"\",\"\",\"\"\,\"\"\n2,test2,\"\",\"\",1.0,,Done,,first,first,\"\",\"\",true,1.0,\"\",\"\",\"\",\"\",\"\"\n1,test,description,\"-criteria\r-criteria2\",1.0,5.0,In Progress,,first,first,Test_team,aaron hank,true,2.0,Value 1,5,Theme 1,test,testy\n4,test4,\"\",\"\",1.0,,In Progress,,\"\",\"\",\"\",\"\",true,,\"\",\"\",\"\",\"\",\"\"\n", string
+    assert_equal "PID,Name,Description,Acceptance Criteria,Size,Time,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Test_List,Test_Number,Test_Release,Test_String,Test_Text\n3,test3,\"\",\"\",1.0,,In Progress,,\"\",\"\",\"\",\"\",false,2.0,\"\",\"\",\"\",\"\"\,\"\"\n2,test2,\"\",\"\",1.0,,Done,,first,first,\"\",\"\",true,1.0,\"\",\"\",\"\",\"\",\"\"\n1,test,description,\"-criteria\r-criteria2 (Done)\",1.0,5.0,In Progress,,first,first,Test_team,aaron hank,true,2.0,Value 1,5,Theme 1,test,testy\n4,test4,\"\",\"\",1.0,,In Progress,,\"\",\"\",\"\",\"\",true,,\"\",\"\",\"\",\"\",\"\"\n", string
   end
 
   def test_import_invalid_id
