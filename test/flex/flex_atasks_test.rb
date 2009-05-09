@@ -228,7 +228,7 @@ private
     @ie.combo_box("storyFieldStatus").open
     @ie.combo_box("storyFieldStatus").select(:item_renderer => status )
     if reason_blocked != ""
-      @ie.text_area("textArea")[2].input(:text => reason_blocked )
+      @ie.text_area("textArea")[1].input(:text => reason_blocked )
     end
   end
     
@@ -287,7 +287,7 @@ private
     @ie.combo_box("storyFieldStatus").open
     @ie.combo_box("storyFieldStatus").select(:item_renderer => status )
     if reason_blocked != ""
-      @ie.text_area("textArea")[2].input(:text => reason_blocked )
+      @ie.text_area("textArea")[1].input(:text => reason_blocked )
     end
   end
     
