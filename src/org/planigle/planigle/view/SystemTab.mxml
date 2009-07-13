@@ -43,6 +43,12 @@
 		{
 			setErrorMessage(error.join("\r"));
 		}
+
+		// Answer whether any changes need to be saved.
+		public function isDirty(): Boolean
+		{
+			return systemAgreement.text != PlanigleSystem.getInstance().licenseAgreement;
+		}
 		]]>
 	</mx:Script>
 	<mx:Text id="systemError" styleName="error" htmlText="{_error}" width="100%"/>

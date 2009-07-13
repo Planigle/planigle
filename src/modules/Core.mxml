@@ -11,6 +11,8 @@
 			import mx.binding.utils.BindingUtils;
 			import mx.managers.CursorManager;
 			import mx.events.ModuleEvent;
+			import mx.events.CloseEvent;
+			import mx.controls.Alert;
         	import mx.modules.ModuleManager;
         	import mx.modules.IModuleInfo;
 			import org.planigle.planigle.model.IndividualFactory;
@@ -124,12 +126,6 @@
 					}
 				}
 			}
-
-			// Reset the state of the selected tab.
-			private function resetTab(event:Event):void
-			{
-				Object(mainViewStack.selectedChild).resetState(event);
-			}	
 					
 			// Refresh any cached data.
 			private function refresh():void
@@ -178,6 +174,8 @@
 				premiumModule.addEventListener(ModuleEvent.READY, moduleEventHandler);
 	            premiumModule.load(); 
 			}
+
+			private var oldIndex:int = 0;
 			
 			// The module has finished loading.
 			private function moduleEventHandler(event:ModuleEvent):void
@@ -187,8 +185,39 @@
 				showTab(premium, 1);
 			}
 			
-			// A different child has been selected.
-			private function updateChild(event:Event):void
+			// Handle selection of a tab.
+			private function selectTab(event:Event):void
+			{
+				if (isTabDirty(oldIndex))
+				{
+					Alert.show("Are you sure you want to lose your changes?", "Changes", 3, this,
+						function(event:CloseEvent):void
+						{
+							if (event.detail==Alert.NO)
+								mainViewStack.selectedIndex = oldIndex;
+							else
+								resetTab();
+						});
+				}
+				else
+					resetTab();
+			}
+			
+			// Answer whether the specified child is dirty.
+			private function isTabDirty(index:int):Boolean
+			{
+				return Object(mainViewStack.getChildAt(index)).isDirty();
+			}
+			
+			// Reset the contents of a tab.
+			private function resetTab():void
+			{
+				Object(mainViewStack.selectedChild).resetState(null);
+				oldIndex = mainViewStack.selectedIndex;
+			}
+			
+			// Update the selected tab in the model.
+			private function updateSelectedTab():void
 			{
 				TabModelLocator.getInstance().selectedTab = mainViewStack.selectedChild;
 			}
@@ -201,7 +230,7 @@
 		]]>
 	</mx:Script>
 	<mx:HBox horizontalGap="5" width="100%">
-		<mx:TabBar id="mainNavigation" dataProvider="{mainViewStack}" itemClick="resetTab(event)">
+		<mx:TabBar id="mainNavigation" dataProvider="{mainViewStack}" itemClick="selectTab(event)">
 		</mx:TabBar>
 		<mx:HBox horizontalAlign="right" width="100%">
 			<mx:ComboBox id="selectedProject" fillColors="[0xffffff, 0xffffff]" fillAlphas="[1,1]" dataProvider="{IndividualFactory.getInstance().currentIndividual.allProjects}" visible="{IndividualFactory.getInstance().currentIndividual.allProjects.length>1}" change="selectProject()" selectedItem="{IndividualFactory.current().selectedProject}" />
@@ -210,6 +239,6 @@
 			<mx:LinkButton id="planigleButton" icon="{parentApplication.imgLogoSmall}" toolTip="Planigle Project Page" click="new URLEvent('http://code.google.com/p/planigle/').dispatch()"/>
 		</mx:HBox>
 	</mx:HBox>
-	<mx:ViewStack id="mainViewStack" y="25" width="100%" height="100%" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" change="updateChild(event)">
+	<mx:ViewStack id="mainViewStack" y="25" width="100%" height="100%" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" change="updateSelectedTab()">
 	</mx:ViewStack>
 </mx:Module>

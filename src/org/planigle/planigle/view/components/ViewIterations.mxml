@@ -222,6 +222,20 @@
 			new AuditChangedEvent(null, 'Iteration', null, null, String(currentItem.id)).dispatch();
 			tabModelLocator.selectedTab = tabModelLocator.changes;
 		}
+
+		// Answer whether any changes need to be saved.
+		public function isDirty(): Boolean
+		{
+			if (iterationBtnChange.label == 'Create')
+				return true;
+			else if (currentItem) {
+				if (iterationFieldName.text != currentItem.name) return true;
+				if (!DateUtils.equals(iterationFieldStart.selectedDate, currentItem.start)) return true;
+				if (!DateUtils.equals(iterationFieldFinish.selectedDate, currentItem.finish)) return true;
+				if (iterationFieldRetrospectiveResults.text != currentItem.retrospectiveResults) return true;
+			}
+			return false;
+		}
 		]]>
 	</mx:Script>
  	

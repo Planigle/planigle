@@ -40,6 +40,12 @@
 		{
 			new AuditChangedEvent(changesChanger.selectedItem.id, changesObjectType.selectedItem.value ? changesObjectType.selectedItem.value : null, changesStartDate.selectedDate, changesEndDate.selectedDate).dispatch();
 		}
+
+		// Answer whether any changes need to be saved.
+		public function isDirty(): Boolean
+		{
+			return false;
+		}
 		]]>
 	</mx:Script>
 	<mx:VBox height="100%" width="100%">

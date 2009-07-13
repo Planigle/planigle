@@ -211,6 +211,19 @@
 			new AuditChangedEvent(null, 'Release', null, null, String(currentItem.id)).dispatch();
 			tabModelLocator.selectedTab = Container(tabModelLocator.changes);
 		}
+
+		// Answer whether any changes need to be saved.
+		public function isDirty(): Boolean
+		{
+			if (releaseBtnChange.label == 'Create')
+				return true;
+			else if (currentItem) {
+				if (releaseFieldName.text != currentItem.name) return true;
+				if (!DateUtils.equals(releaseFieldStart.selectedDate, currentItem.start)) return true;
+				if (!DateUtils.equals(releaseFieldFinish.selectedDate, currentItem.finish)) return true;
+			}
+			return false;
+		}
 		]]>
 	</mx:Script>
  	
