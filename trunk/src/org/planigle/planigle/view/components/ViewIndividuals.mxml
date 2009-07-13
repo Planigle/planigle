@@ -307,6 +307,29 @@
 			new AuditChangedEvent(null, 'Individual', null, null, String(currentItem.id)).dispatch();
 			tabModelLocator.selectedTab = Container(tabModelLocator.changes);
 		}
+
+		// Answer whether any changes need to be saved.
+		public function isDirty(): Boolean
+		{
+			if (individualBtnChange.label == 'Create')
+				return true;
+			else if (currentItem) {
+				if (individualFieldCompany.selectedItem.id != currentItem.companyId) return true;
+				if (individualFieldProject.selectedItem.id != currentItem.projectId) return true;
+				if (individualFieldTeam.selectedItem.id != currentItem.teamId) return true;
+				if (individualFieldLogin.text != currentItem.login) return true;
+				if (individualFieldPassword.text != "") return true;
+				if (individualFieldPasswordConfirmation.text != "") return true;				
+				if (individualFieldRole.selectedItem.value != currentItem.role) return true;
+				if (individualFieldEnabled.selectedItem.value != currentItem.enabled) return true;
+				if (individualFieldFirstName.text != currentItem.firstName) return true;
+				if (individualFieldLastName.text != currentItem.lastName) return true;
+				if (individualFieldEmail.text != currentItem.email) return true;
+				if (individualFieldPhoneNumber.text != currentItem.phoneNumber) return true;
+				if (individualFieldNotificationType.selectedItem.value != currentItem.notificationType) return true;
+			}
+			return false;
+		}
 		]]>
 	</mx:Script>
  	

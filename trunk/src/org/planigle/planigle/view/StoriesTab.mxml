@@ -837,6 +837,40 @@
 			}
 			return params;
 		}
+		
+		// Answer whether any changes need to be saved.
+		public function isDirty(): Boolean
+		{
+			if (storyBtnChange.label == 'Create')
+				return true;
+			else if (currentItem) {
+				if (storyFieldName.text != currentItem.name) return true;
+				if (storyFieldDescription.text != currentItem.description) return true;
+				if (storyFieldReasonBlocked.text != currentItem.reasonBlocked) return true;
+				if (storyFieldOwner.selectedItem.id != currentItem.individualId) return true;
+				if (storyFieldStatus.selectedItem.value != currentItem.statusCode) return true;
+				if (storyFieldEffort.text != (currentItem.effort == null ? "" : currentItem.effort)) return true;
+				
+				if (currentItem.isStory()) {
+					if (storyFieldRelease.selectedItem.id != currentItem.releaseId) return true;
+					if (storyFieldIteration.selectedItem.id != currentItem.iterationId) return true;
+					if (storyFieldAcceptanceCriteria.acceptanceCriteria != currentItem.acceptanceCriteria) return true;
+					if (storyFieldTeam.selectedItem.id != currentItem.teamId) return true;
+					if (storyFieldPublic.selectedItem.value != currentItem.isPublic) return true;
+					for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
+					{
+						var disp:Object = customChildren["storyField" + attrib.id.toString()];
+						if (attrib.valueType < StoryAttribute.LIST || ComboBox(disp).selectedItem)
+						{
+							var fieldValue:Object = attrib.valueType >= StoryAttribute.LIST ? disp.selectedItem.id : disp.text;
+							var objectValue:Object = currentItem.getAttributeValue(attrib);
+							if (fieldValue != ((attrib.valueType < StoryAttribute.LIST && objectValue == null) ? "" : objectValue)) return true;
+						}
+					}
+				}
+			}
+			return false;
+		}
 
 		// Tell the server to change a resource.
 		private function changeResource(event:Event) : void

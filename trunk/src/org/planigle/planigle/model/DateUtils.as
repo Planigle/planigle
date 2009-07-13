@@ -44,5 +44,10 @@ package org.planigle.planigle.model
 			today.milliseconds = 0;
 			return today;
 		}
+		
+		// Answer whether the two dates are equal.
+		public static function equals(date1:Date, date2:Date):Boolean {
+			return (date1 == null || date2 == null) ? date1 == date2 : (date1.fullYear == date2.fullYear && date1.month == date2.month && date1.date == date2.date);
+		}
 	}
 }

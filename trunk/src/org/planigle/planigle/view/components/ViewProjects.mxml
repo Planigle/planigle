@@ -14,6 +14,7 @@
 		import mx.events.ListEvent;
 		import mx.events.CloseEvent;
 		import mx.binding.utils.ChangeWatcher;
+		import org.planigle.planigle.model.DateUtils;
 		import org.planigle.planigle.model.TabModelLocator;
 		import org.planigle.planigle.model.CompanyFactory;
 		import org.planigle.planigle.model.Company;
@@ -388,6 +389,24 @@
 		{
 			new AuditChangedEvent(null, currentItem.isTeam() ? 'Team' : 'Project', null, null, String(currentItem.id)).dispatch();
 			tabModelLocator.selectedTab = Container(tabModelLocator.changes);
+		}
+
+		// Answer whether any changes need to be saved.
+		public function isDirty(): Boolean
+		{
+			if (projectBtnChange.label == 'Create')
+				return true;
+			else if (currentItem) {
+				if (projectFieldName.text != currentItem.name) return true;
+				if (!currentItem.isCompany())
+					if (projectFieldDescription.text != currentItem.description) return true;
+				if (currentItem.isProject()) {
+					if (projectFieldSurveyMode.selectedIndex != currentItem.surveyMode) return true;
+					if (!DateUtils.equals(projectFieldPremiumExpiry.selectedDate, currentItem.premiumExpiry)) return true;
+					if (projectFieldPremiumLimit.text != currentItem.premiumLimit) return true;
+				}
+			}
+			return false;
 		}
 		]]>
 	</mx:Script>

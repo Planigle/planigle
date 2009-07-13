@@ -14,6 +14,12 @@
 		{
 			iterations.release = releases.release;
 		}
+
+		// Answer whether any changes need to be saved.
+		public function isDirty(): Boolean
+		{
+			return releases.isDirty() || iterations.isDirty();
+		}
 		]]>
 	</mx:Script>
 	<mx:VDividedBox height="100%" width="100%">
