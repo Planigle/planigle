@@ -20,7 +20,7 @@ class FlexStoriesTest < Test::Unit::TestCase
 
   def setup
     @ie = Funfx.instance 
-    @ie.start(true) 
+    @ie.start(false) 
     @ie.speed = 1
     @ie.goto("http://localhost:3000/index.html", "Main") 
     sleep 1 # Wait to ensure remember me check is made
