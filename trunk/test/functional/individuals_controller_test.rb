@@ -14,6 +14,7 @@ class IndividualsControllerTest < Test::Unit::TestCase
   fixtures :systems
   fixtures :individuals
   fixtures :projects
+  fixtures :individuals_projects
 
   def setup
     ActionMailer::Base.delivery_method = :test
@@ -56,7 +57,7 @@ class IndividualsControllerTest < Test::Unit::TestCase
     
   # Test getting individuals (based on role).
   def test_index_by_project_admin
-    index_by_role(individuals(:project_admin2), Individual.find_all_by_project_id(2, :conditions => "role != 0").length)
+    index_by_role(individuals(:project_admin2), Individual.find(:all, :joins => :projects, :conditions => "projects.id = 2 and role != 0").length)
   end
     
   # Test getting individuals (based on role).
@@ -66,7 +67,7 @@ class IndividualsControllerTest < Test::Unit::TestCase
     
   # Test getting individuals (based on role).
   def test_index_by_project_user
-    index_by_role(individuals(:user2), Individual.find_all_by_project_id(2, :conditions => "role != 0").length)
+    index_by_role(individuals(:user2), Individual.find(:all, :joins => :projects, :conditions => "projects.id = 2 and role != 0").length)
   end
     
   # Test getting individuals (based on role).
@@ -76,7 +77,7 @@ class IndividualsControllerTest < Test::Unit::TestCase
     
   # Test getting individuals (based on role).
   def test_index_by_read_only_user
-    index_by_role(individuals(:ro2), Individual.find_all_by_project_id(4, :conditions => "role != 0").length)
+    index_by_role(individuals(:ro2), Individual.find(:all, :joins => :projects, :conditions => "projects.id = 4 and role != 0").length)
   end
 
   # Test getting individuals (based on role).
@@ -163,7 +164,7 @@ class IndividualsControllerTest < Test::Unit::TestCase
   end
 
   # Test creating an individual for another project.
-  def test_create_wrong_project_premium
+  def test_create_other_project_in_company
     login_as(individuals(:aaron))
     num = resource_count
     params = create_success_parameters.merge( :format => 'xml' )
@@ -171,7 +172,8 @@ class IndividualsControllerTest < Test::Unit::TestCase
     post :create, params
     assert_response 201
     assert_equal num + 1, resource_count
-    assert_create_succeeded
+    assert Individual.find_by_login('foo')
+    assert_equal ActionMailer::Base.deliveries.length, 1
   end
 
   # Test creating an individual for another company.
@@ -229,14 +231,39 @@ class IndividualsControllerTest < Test::Unit::TestCase
     assert_equal 0, individuals(:quentin).reload.role
   end
     
-  # Test updating project by role.
-  def test_update_project_by_admin
-    update_project_by_role_successful( individuals(:quentin) )
+  # Test updating company by role.
+  def test_update_company_by_admin
+    update_company_by_role_successful( individuals(:quentin) )
+  end
+    
+  # Test updating company by role.
+  def test_update_company_by_project_admin
+    update_company_by_role_unsuccessful( individuals(:aaron) )
+  end
+    
+  # Test updating company by role.
+  def test_update_company_by_project_user
+    update_company_by_role_unsuccessful( individuals(:user) )
+  end
+    
+  # Test updating company by role.
+  def test_update_company_by_readonly_user
+    update_company_by_role_unsuccessful( individuals(:readonly) )
   end
     
   # Test updating project by role.
-  def test_update_project_by_project_admin
-    update_project_by_role_unsuccessful( individuals(:aaron) )
+  def test_update_project_by_admin
+    update_project_by_role_successful( individuals(:quentin), {:project_id => 4, :team_id => nil}, 7 )
+  end
+    
+  # Test updating project by role.
+  def test_update_project_by_project_admin_same_company
+    update_project_by_role_successful( individuals(:aaron) )
+  end
+    
+  # Test updating project by role.
+  def test_update_project_by_project_admin_different_company
+    update_project_by_role_unsuccessful( individuals(:aaron), {:project_id => 4, :team_id => nil}, 7 )
   end
     
   # Test updating project by role.
@@ -312,12 +339,20 @@ class IndividualsControllerTest < Test::Unit::TestCase
     assert_update_succeeded
   end
   
-  # Update project successfully based on role.
-  def update_project_by_role_successful( user, params = {:company_id => 2, :project_id => 2, :team_id => nil} )
+  # Update company successfully based on role.
+  def update_company_by_role_successful( user, params = {:company_id => 2, :project_id => 2, :team_id => nil} )
     login_as(user)
     put :update, :id => 3, resource_symbol => params, :format => 'xml'
     assert_response :success
     assert_equal 2, individuals(:ted).reload.project_id
+  end
+  
+  # Update project successfully based on role.
+  def update_project_by_role_successful( user, params = {:project_id => 3, :team_id => nil}, id=3 )
+    login_as(user)
+    put :update, :id => id, resource_symbol => params, :format => 'xml'
+    assert_response :success
+    assert_equal params[:project_id], Project.find(:first, :joins=>:individuals, :conditions=>['individuals.id=?',id]).id
   end
   
   # Update unsuccessfully based on role.
@@ -329,12 +364,22 @@ class IndividualsControllerTest < Test::Unit::TestCase
     assert_select "errors"
   end
   
-  # Update project unsuccessfully based on role.
-  def update_project_by_role_unsuccessful( user, params = {:company_id => 2, :project_id => 2, :team_id => nil} )
+  # Update company unsuccessfully based on role.
+  def update_company_by_role_unsuccessful( user, params = {:company_id => 2, :project_id => 2, :team_id => nil} )
     login_as(user)
     put :update, :id => 3, resource_symbol => params, :format => 'xml'
     assert_response 401
     assert_equal 1, individuals(:ted).reload.project_id
+    assert_select "errors"
+  end
+  
+  # Update project unsuccessfully based on role.
+  def update_project_by_role_unsuccessful( user, params = {:project_id => 3, :team_id => nil}, id=3 )
+    orig_id = Individual.find(id).project_id
+    login_as(user)
+    put :update, :id => id, resource_symbol => params, :format => 'xml'
+    assert_response 401
+    assert_equal orig_id, Project.find(:first, :joins=>:individuals, :conditions=>['individuals.id=?',id]).id
     assert_select "errors"
   end
     

@@ -33,7 +33,7 @@ protected
   # Update the record given the params.
   def update_record
     if is_amf
-      @record.project_id = params[0].project_id
+      # Note: this currently does not handle project ids
       @record.selected_project_id = params[0].selected_project_id
       @record.team_id = params[0].team_id
       @record.login = params[0].login
@@ -51,10 +51,16 @@ protected
 
   # Answer if this request is authorized for update.
   def authorized_for_update?(record)
+    new_company_id = is_amf ? params[0].company_id : params[:record][:company_id]
+    new_project_ids = is_amf ? params[0].project_ids : params[:record][:project_ids]
     new_project_id = is_amf ? params[0].project_id : params[:record][:project_id]
     new_role = is_amf ? params[0].role : params[:record][:role]
-    if (current_individual.role > Individual::Admin && new_project_id && record.project_id != new_project_id.to_i)
-      false # Must be admin to change project
+    if (new_company_id && record.company_id != new_company_id.to_i && current_individual.role > Individual::Admin)
+      false # Must be project admin to change company
+    elsif (new_project_ids && record.project_ids != new_project_ids.to_s && (current_individual.role > Individual::ProjectAdmin || (current_individual.role == Individual::ProjectAdmin && record.company_id != current_individual.company_id)))
+      false # Must be project admin to change project
+    elsif (new_project_id && record.project_id != new_project_id.to_i && (current_individual.role > Individual::ProjectAdmin || (current_individual.role == Individual::ProjectAdmin && record.company_id != current_individual.company_id)))
+      false # Must be project admin to change project
     elsif (current_individual.role == Individual::ProjectAdmin && new_role && new_role.to_i == Individual::Admin)
       false # Project admin can't change user to admin
     elsif (current_individual.role > Individual::ProjectAdmin && new_role && record.role != new_role.to_i)

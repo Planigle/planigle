@@ -14,6 +14,7 @@ class ProjectsControllerTest < Test::Unit::TestCase
   fixtures :systems
   fixtures :individuals
   fixtures :projects
+  fixtures :individuals_projects
   fixtures :teams
 
   def setup

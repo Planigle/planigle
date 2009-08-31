@@ -4,6 +4,7 @@ class ProjectTest < ActiveSupport::TestCase
   fixtures :projects
   fixtures :teams
   fixtures :individuals
+  fixtures :individuals_projects
   fixtures :releases
   fixtures :iterations
   fixtures :story_attributes
@@ -59,8 +60,8 @@ class ProjectTest < ActiveSupport::TestCase
   # Test deleting an project
   def test_delete_project
     assert_equal projects(:first), teams(:first).project
-    assert_equal projects(:first), individuals(:aaron).project
-    assert_equal projects(:first), individuals(:admin2).project
+    assert_equal projects(:first), individuals(:aaron).projects[0]
+    assert_equal projects(:first), individuals(:admin2).projects[0]
     assert_equal projects(:first), releases(:first).project
     assert_equal projects(:first), iterations(:first).project
     assert_equal projects(:first), stories(:first).project
@@ -72,15 +73,15 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal projects(:first), individuals(:quentin).selected_project
     projects(:first).destroy
     assert_nil Team.find_by_id(1)
-    assert_nil Individual.find_by_id(6).project
+    assert Individual.find_by_id(6).projects.empty?
     assert_nil Release.find_by_id(1)
     assert_nil Iteration.find_by_id(1)
     assert_nil Story.find_by_id(1)
     assert_nil Survey.find_by_id(1)
     assert_nil StoryAttribute.find_by_id(1)
-    assert_nil Individual.find_by_id(2).project
+    assert Individual.find_by_id(2).projects.empty?
     assert_nil Individual.find_by_id(1).selected_project
-    assert Individual.find_by_id(6) # admin set to nil
+    assert Individual.find_by_id(6).projects.empty?
   end
 
   # Test the xml created for surveys.

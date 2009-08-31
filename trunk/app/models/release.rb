@@ -12,7 +12,7 @@ class Release < ActiveRecord::Base
 
   # Answer the records for a particular user.
   def self.get_records(current_user)
-    Release.find(:all, :conditions => ["project_id = ?", current_user.current_project_id], :order => 'start')
+    Release.find(:all, :conditions => ["project_id = ?", current_user.project_id], :order => 'start')
   end
 
   # Summarize my current data.

@@ -12,7 +12,8 @@ package org.planigle.planigle.model
 		public var id:String;
 		public var companyId:String;
 		public var mySelectedProjectId:String
-		public var projectId:String
+		public var myProjectIds:String;
+		public var myProjects:Array;
 		public var teamId:String;
 		public var login:String;
 		public var email:String;
@@ -36,7 +37,7 @@ package org.planigle.planigle.model
 		{
 			id = xml.id.toString() == "" ? null: xml.id;
 			companyId = xml.child("company-id").toString() == "" ? null : xml.child("company-id");
-			projectId = xml.child("project-id").toString() == "" ? null : xml.child("project-id");
+			projectIds = xml.child("project-ids").toString() == "" ? null : xml.child("project-ids").toString();
 			selectedProjectId = xml.child("selected-project-id").toString() == "" ? null : xml.child("selected-project-id");
 			teamId = xml.child("team-id").toString() == "" ? null : xml.child("team-id");
 			login = xml.login;
@@ -53,6 +54,74 @@ package org.planigle.planigle.model
 			acceptedAgreement = acceptedDate == "" ? null : DateUtils.stringToDate(acceptedDate);
 			phoneNumber = xml.child("phone-number");
 			notificationType = int(xml.child("notification-type"));
+		}
+		
+		public function get projectIds():String
+		{
+			return myProjectIds;
+		}
+				
+		public function set projectIds(ids:String):void
+		{
+			myProjects = null;
+			allProjects = null;
+			myProjectIds = ids;
+		}
+		
+		public function get projects():Array
+		{
+			if (myProjects == null)
+			{
+				if (projectIds == null)
+					return new Array(0);
+				else
+				{
+					var projectIdArray:Array = projectIds.split(",");
+					var array:Array = new Array(projectIdArray.length);
+					var i:int = 0;
+					for each (var projectId:String in projectIdArray)
+					{
+						array[i] = CompanyFactory.getInstance().findProject(projectId);
+						i++;
+					}
+					array.sortOn("name");
+					myProjects = array;
+				}
+			}
+			return myProjects;
+		}
+
+		public function reloadProjects():void
+		{
+			projectIds = projectIds;
+		}
+
+		public function isInProject(project:Project):Boolean
+		{
+			for each (var myProject:Project in projects)
+			{
+				if (project.id == myProject.id)
+					return true;
+			}
+			return false;
+		}
+		
+		// Remove a project if it is in my list of projects.
+		public function removeProject(project:Project):void
+		{
+			if (isInProject(project))
+			{
+				var array:Array = new Array(projects.length - 1);
+				var i:int = 0;
+				for each (var myProject:Project in projects)
+				{
+					if (project.id != myProject.id)
+					{
+						array[i] = project;
+						i++;
+					} 
+				}
+			}
 		}
 
 		// Answer my full name.
@@ -90,20 +159,18 @@ package org.planigle.planigle.model
 
 		public function get allProjects():ArrayCollection
 		{
-			var projects:ArrayCollection = new ArrayCollection();
 			if (isAdmin() || isPremium)
 			{
+				var allProjects:ArrayCollection = new ArrayCollection();
 				for each (var company:Company in CompanyFactory.getInstance().companies)
 				{
 					for each (var project:Project in company.projects)
-						projects.addItem(project);
+						allProjects.addItem(project);
 				}
-				if (isAdmin())
-					projects.addItem(noProject);
+				return allProjects;
 			}
 			else
-				projects.addItem(project);
-			return projects;
+				return new ArrayCollection(projects);
 		}
 		
 		// Answer an object that represents no project.
@@ -120,30 +187,20 @@ package org.planigle.planigle.model
 		// All projects have changed.
 		public function set allProjects(allProjects:ArrayCollection):void
 		{
+			allProjects = null;
 		}
 		
 		// Call when all projects have changed.
 		public function allProjectsChanged():void
 		{
-			allProjects = new ArrayCollection();
-		}
-
-		// Answer my project.
-		public function get project():Project
-		{
-			return company.find(projectId);
-		}
-
-		// Set my project.
-		private function set project(project:Project):void
-		{
+			allProjects = null;
 		}
 
 		// Answer my selected project.
 		public function get selectedProject():Project
 		{
 			if (selectedProjectId == null || selectedProjectId == "")
-				return isAdmin() ? noProject : project;
+				return noProject;
 			else
 			{
 				for each (var company:Company in CompanyFactory.getInstance().companies)
@@ -154,7 +211,7 @@ package org.planigle.planigle.model
 							return project;
 					}
 				}
-				return null;
+				return noProject;
 			}
 		}
 		
@@ -188,7 +245,13 @@ package org.planigle.planigle.model
 		// Answer my team.
 		public function get team():Team
 		{
-			return project.find(teamId);
+			for each(var project:Project in projects)
+			{
+				var team:Team = project.find(teamId);
+				if (team.id != null)
+					return team;
+			}
+			return Project.noTeam;
 		}
 
 		// Set my team.
@@ -207,11 +270,22 @@ package org.planigle.planigle.model
 		// I have been successfully updated.  Change myself to reflect the changes.
 		public function updateCompleted(xml:XML):void
 		{
-			var oldProjectId:String = projectId;
+			var oldProjects:Array = projects;
 			var oldTeamId:String = teamId;
 			populate(xml);
-			if (oldProjectId != projectId || oldTeamId != teamId)
+			if (oldTeamId  != teamId)
 				StructuralChangeNotifier.getInstance().structureChanged();
+			else
+			{
+				for each (var project:Project in oldProjects)
+				{
+					if (!isInProject(project))
+					{
+						StructuralChangeNotifier.getInstance().structureChanged();
+						break;
+					}
+				}
+			}
 		}
 		
 		// Delete me.  Success function if successfully deleted.  FailureFunction will be called if failed
@@ -271,7 +345,7 @@ package org.planigle.planigle.model
 		// Answer whether I am a project user.
 		public function get isAtLeastProjectUser():Boolean
 		{
-			return isAtLeastProjectAdmin() || (role <= PROJECT_USER && (selectedProjectId == null || selectedProjectId == projectId));
+			return isAtLeastProjectAdmin() || (role <= PROJECT_USER && (selectedProjectId == null || isInProject(selectedProject)));
 		}
 		
 		// Whether I am a project user has changed.

@@ -9,6 +9,7 @@ class FlexAtasksTest < Test::Unit::TestCase
   fixtures :projects
   fixtures :teams
   fixtures :individuals
+  fixtures :individuals_projects
   fixtures :stories
   fixtures :releases
   fixtures :iterations

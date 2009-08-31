@@ -11,6 +11,7 @@ class IterationStoriesXmlTest < ActionController::IntegrationTest
   fixtures :releases
   fixtures :iterations
   fixtures :projects
+  fixtures :individuals_projects
   fixtures :teams
   fixtures :stories
 

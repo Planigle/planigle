@@ -13,6 +13,7 @@ class StoryAttributesControllerTest < ActionController::TestCase
   fixtures :systems
   fixtures :projects
   fixtures :individuals
+  fixtures :individuals_projects
   fixtures :story_attributes
   fixtures :story_attribute_values
   

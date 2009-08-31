@@ -1,12 +1,12 @@
 require 'digest/sha1'
 class Individual < ActiveRecord::Base
   belongs_to :company
-  belongs_to :project
+  has_and_belongs_to_many :projects
   belongs_to :selected_project, :class_name => "Project", :foreign_key => "selected_project_id"
   belongs_to :team
   has_many :stories, :dependent => :nullify
   has_many :tasks, :dependent => :nullify
-  attr_accessible :login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled, :project_id, :role, :last_login, :accepted_agreement, :team_id, :phone_number, :notification_type, :company_id, :selected_project_id
+  attr_accessible :login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled, :role, :last_login, :accepted_agreement, :team_id, :phone_number, :notification_type, :company_id, :selected_project_id
   acts_as_audited :except => [:selected_project_id, :crypted_password, :salt, :remember_token, :remember_token_expires_at, :activation_code, :activated_at, :last_login, :accepted_agreement]
 
   # Virtual attribute for the unencrypted password
@@ -90,6 +90,33 @@ class Individual < ActiveRecord::Base
     remember_token_expires_at && Time.now.utc < remember_token_expires_at 
   end
 
+  # Override attributes= to handle project_ids.
+  def attributes=(new_attributes, guard_protected_attributes = true)
+    keys_to_remove = []
+    new_attributes.each_pair do |key, value|
+      if key.to_sym == :project_id
+        keys_to_remove << key
+        changed_attributes['project_id'] = [project_ids, nil]
+        projects.clear
+        if (value)
+          projects << Project.find(value)
+        end
+        changed_attributes['project_id'][1] = project_ids
+      end
+      if key.to_sym == :project_ids
+        keys_to_remove << key
+        changed_attributes['project_id'] = [project_ids, nil]
+        projects.clear
+        if (value)
+          value.split(",").each {|project_id| projects << Project.find(project_id)}
+        end
+        changed_attributes['project_id'][1] = project_ids
+      end
+    end
+    keys_to_remove.each {|key| new_attributes.delete(key)} # Prevents warning
+    super(new_attributes, guard_protected_attributes)
+  end
+
   # Answer how I should be displayed to the user.
   def name
     "#{first_name} #{last_name}"
@@ -100,6 +127,9 @@ class Individual < ActiveRecord::Base
     if !options[:except]
       options[:except] = [:crypted_password, :salt, :remember_token, :remember_token_expires_at, :activation_code ]
     end
+    if !options[:methods]
+      options[:methods] = [:project_ids]
+    end
     super(options)
   end
 
@@ -108,21 +138,38 @@ class Individual < ActiveRecord::Base
     activated?
   end
   
-  # Answer the project to show.
-  def current_project_id
-    selected_project_id && (role == Admin || is_premium) ? selected_project_id : project_id
+  def project
+    selected_project
+  end  
+
+  def project_id
+    selected_project_id
+  end
+
+  def selected_project
+    selected_project_id ? Project.find(selected_project_id) : nil
+  end
+  
+  def selected_project_id
+    primitive = read_attribute(:selected_project_id)
+    primitive ? primitive : (projects.empty? ? nil : projects[0].id)
+  end
+  
+  def project_ids
+    projects.collect {|project|project.id}.join(',')
   end
 
   # Answer the records for a particular user.
   def self.get_records(current_user)
     if current_user.role >= Individual::ProjectAdmin
       if current_user.is_premium
-        find(:all, :conditions => ["company_id = ? and role in (1,2,3)", current_user.company_id], :order => 'first_name, last_name')
+        find(:all, :include => [:projects], :conditions => ["individuals.company_id = ? and role in (1,2,3)", current_user.company_id], :order => 'first_name, last_name')
       else
-        find(:all, :conditions => ["project_id = ? and role in (1,2,3)", current_user.project_id], :order => 'first_name, last_name')
+        find(:all, :include => [:projects],
+          :conditions => ["projects.id = ? and role in (1,2,3)", current_user.project_id], :order => 'first_name, last_name')
       end
     else
-      find(:all, :order => 'first_name, last_name')
+      find(:all, :include => [:projects], :order => 'first_name, last_name')
     end
   end
 
@@ -171,7 +218,7 @@ class Individual < ActiveRecord::Base
 
   # Answer whether I am enabled for premium services.
   def is_premium
-    return project && project.is_premium
+    projects.detect {|project| project.is_premium}
   end
 
   # Notify that something has occurred.
@@ -244,41 +291,45 @@ protected
 
   # Answer whether if saved, I will cause the premium limits to be exceeded.
   def will_impact_limits
-    project && !project.can_add_users && role < ReadOnlyUser && enabled
+    role < ReadOnlyUser && enabled && projects.detect {|project| !project.can_add_users}
   end
 
   # Add custom validation of the role field.
   def validate
     if role && (role < Admin || role > ReadOnlyUser)
-      errors.add(:role, ' is invalid')
+      errors.add(:role, 'is invalid')
     end
     
     if role && (role > Admin && !company_id )
-      errors.add(:company, ' must be set for users who are not admins')
+      errors.add(:company, 'must be set for users who are not admins')
     end
     
-    if role && (role > Admin && !project_id )
-      errors.add(:project, ' must be set for users who are not admins')
+    if role && (role > Admin && projects.empty? )
+      errors.add(:project, 'must be set for users who are not admins')
     end
 
     if notification_type && (notification_type < NoNotifications || notification_type > BothNotifications)
-      errors.add(:notification_type, ' is invalid')
+      errors.add(:notification_type, 'is invalid')
     end    
     
     if notification_type && (notification_type == SMSNotifications || notification_type == BothNotifications) && (!phone_number || phone_number == '')
-      errors.add(:phone_number, ' must be set in order to send SMS notifications')
+      errors.add(:phone_number, 'must be set in order to send SMS notifications')
     end    
     
-    if team && (!project || team.project != project )
-      errors.add(:team, ' must be associated with project')
+    projects.each do |project|
+      if company_id != project.company_id
+        errors.add(:project, 'must be associated with company')
+      end
     end
-    
-    if project && (!company || project.company != company )
-      errors.add(:project, ' must be associated with company')
+
+    if team && (!projects.detect{|project|team.project == project})
+      errors.add(:team, 'must be associated with project')
     end
     
     if selected_project && company && selected_project.company != company && role > Admin
-      errors.add(:selected_project, ' must be associated with company')
+      if errors.empty?
+        self.selected_project_id = nil
+      end
     end
   end
 end

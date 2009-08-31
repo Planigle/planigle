@@ -227,14 +227,14 @@
 						<mx:TextInput id='editAttributeFieldName' maxChars="40" text='' width="200" change="selectedAttribute.name = editAttributeFieldName.text"/>
 					</mx:FormItem>
 					<mx:FormItem label="Type">
-						<mx:ComboBox id='editAttributeFieldType' width="150" editable="false" change="updateType(event)">
+						<mx:ComboBox id='editAttributeFieldType' editable="false" change="updateType(event)">
 							<mx:Object label="String" value="0" />
 							<mx:Object label="Text" value="1" />
 							<mx:Object label="Number" value="2" />
 							<mx:Object label="List" value="3" />
 							<mx:Object label="List Per Release" value="4" />
 						</mx:ComboBox>
-						<mx:ComboBox id='editAttributeRelease' width="200" editable="false" dataProvider="{ReleaseFactory.getInstance().releaseSelector}" labelField="name" change="updateRelease(event)"/>
+						<mx:ComboBox id='editAttributeRelease' editable="false" dataProvider="{ReleaseFactory.getInstance().releaseSelector}" labelField="name" change="updateRelease(event)"/>
 					</mx:FormItem>
 					<mx:FormItem id="formValues" label="Values">
 						<mx:List id="editAttributeValues" labelField="value" width="200" height="80" itemClick="valueSelected(event)"/>

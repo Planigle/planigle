@@ -5,6 +5,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.collections.ArrayCollection;
 			import com.adobe.viewsource.ViewSource;
 			import flash.display.DisplayObject;
 			import mx.binding.utils.ChangeWatcher;
@@ -16,6 +17,7 @@
         	import mx.modules.ModuleManager;
         	import mx.modules.IModuleInfo;
 			import org.planigle.planigle.model.IndividualFactory;
+			import org.planigle.planigle.model.Individual;
 			import org.planigle.planigle.model.TabModelLocator;
 			import org.planigle.planigle.model.ViewModelLocator;
 			import org.planigle.planigle.events.CompanyChangedEvent;
@@ -48,7 +50,6 @@
 				TabModelLocator.getInstance().changes = changes;
 				mainViewStack.addChild(people);
 				ChangeWatcher.watch( factory, "currentIndividual", changeIndividual );
-				ChangeWatcher.watch( factory, "individuals", updateProjects );
 				changeIndividual(event); // This is to catch it the first time (The event has already been sent).
 				TabModelLocator.getInstance().selectedTab = mainViewStack.getChildAt(0) == stories ? stories : people;
 				BindingUtils.bindProperty(mainViewStack, "selectedChild", TabModelLocator.getInstance(), "selectedTab");
@@ -63,25 +64,22 @@
 			{
 				if (watcher)
 					watcher.unwatch();
+				if (watcher2)
+					watcher2.unwatch();
 
-				watcher = factory.currentIndividual ? ChangeWatcher.watch( factory.currentIndividual, "projectId", changeProject ) : null;
-				watcher2 = factory.currentIndividual && factory.currentIndividual.selectedProject ? ChangeWatcher.watch( factory.currentIndividual.selectedProject, "premiumExpiry", resetState ) : null;
+				watcher = factory.currentIndividual && factory.currentIndividual.selectedProject ? ChangeWatcher.watch( factory.currentIndividual.selectedProject, "premiumExpiry", resetState ) : null;
 				resetState(event);
-			}
 
-			// Update the selected projects pullsdon.
-			private function updateProjects(event:Event):void
-			{
-				IndividualFactory.current().allProjectsChanged();
-				selectedProject.selectedItem = IndividualFactory.current().selectedProject;
+				watcher2 = factory.currentIndividual ? ChangeWatcher.watch( factory.currentIndividual, "allProjects", updateProjects ) : null;
+				updateProjects(event);
 			}
 
 			// The project has changed.
-			private function changeProject(event:Event):void
+			private function changeProject(event:Event = null):void
 			{
-				if (watcher2)
-					watcher2.unwatch();
-				watcher2 = factory.currentIndividual.selectedProject ? ChangeWatcher.watch( factory.currentIndividual.selectedProject, "premiumExpiry", resetState ) : null;
+				if (watcher)
+					watcher.unwatch();
+				watcher = factory.currentIndividual.selectedProject ? ChangeWatcher.watch( factory.currentIndividual.selectedProject, "premiumExpiry", resetState ) : null;
 				resetState(event);
 				refresh();
 			}
@@ -225,7 +223,16 @@
 			// The user has changed the project that they are viewing.
 			private function selectProject():void
 			{
-				IndividualFactory.current().update({"record[selected_project_id]": (selectedProject.selectedItem.id ? selectedProject.selectedItem.id : "")}, refresh, null);
+				IndividualFactory.current().update({"record[selected_project_id]": (selectedProject.selectedItem.id ? selectedProject.selectedItem.id : "")}, changeProject, null);
+			}
+			
+			public function updateProjects(event:Event = null):void
+			{
+				var individual:Individual = IndividualFactory.getInstance().currentIndividual;
+				var allProjects:ArrayCollection = individual.allProjects;
+				selectedProject.dataProvider=allProjects;
+				selectedProject.visible=allProjects.length>1;
+				selectedProject.selectedItem=individual.selectedProject;
 			}
 		]]>
 	</mx:Script>
@@ -233,7 +240,7 @@
 		<mx:TabBar id="mainNavigation" dataProvider="{mainViewStack}" itemClick="selectTab(event)">
 		</mx:TabBar>
 		<mx:HBox horizontalAlign="right" width="100%">
-			<mx:ComboBox id="selectedProject" fillColors="[0xffffff, 0xffffff]" fillAlphas="[1,1]" dataProvider="{IndividualFactory.getInstance().currentIndividual.allProjects}" visible="{IndividualFactory.getInstance().currentIndividual.allProjects.length>1}" change="selectProject()" selectedItem="{IndividualFactory.current().selectedProject}" />
+			<mx:ComboBox id="selectedProject" fillColors="[0xffffff, 0xffffff]" fillAlphas="[1,1]" change="selectProject()" />
 			<mx:LinkButton label="Refresh" styleName="ToolbarLink" id="refreshButton" click="{refresh()}"/>
 			<mx:LinkButton label="Log out" styleName="ToolbarLink" id="logoutButton" click="{logout()}"/>
 			<mx:LinkButton id="planigleButton" icon="{parentApplication.imgLogoSmall}" toolTip="Planigle Project Page" click="new URLEvent('http://code.google.com/p/planigle/').dispatch()"/>

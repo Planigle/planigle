@@ -28,7 +28,15 @@ package org.planigle.planigle.model
 		public var teamSelector:ArrayCollection = new ArrayCollection();
 		private var teamMapping:Object = new Object();
 		private static var expanded:Object = new Object(); // Keep in static so that it persists after reloading
-	
+
+		public function Project()
+		{
+			var initialTeams:Array = new Array(1);
+			initialTeams[0] = noTeam;
+			noTeam.project = this;
+			teams = initialTeams;
+		}
+
 		// Populate myself from XML.
 		public function populate(xml:XML):void
 		{
@@ -126,12 +134,18 @@ package org.planigle.planigle.model
 			}
 				
 			myTeams = teams;
-			
-			var tm:Team = new Team();
-			tm.populate( <team><id nil="true" /><name>No Team</name></team> );
+			var tm:Team = noTeam;
+			tm.project = this;
 			tm.projectId = id;
 			newTeamSelector.addItem( tm );
 			teamSelector = newTeamSelector;
+		}
+		
+		public static function get noTeam():Team
+		{
+			var tm:Team = new Team();
+			tm.populate( <team><id nil="true" /><name>No Team</name></team> );
+			return tm;
 		}
 
 		// Resort my teams.
@@ -153,7 +167,7 @@ package org.planigle.planigle.model
 			var individuals:ArrayCollection = new ArrayCollection();
 			for each (var individual:Individual in IndividualFactory.getInstance().individualSelector)
 			{
-				if (!individual.id || individual.projectId == id)
+				if (!individual.id || individual.isInProject(this))
 					individuals.addItem(individual);
 			}
 			return individuals;
@@ -195,17 +209,9 @@ package org.planigle.planigle.model
 		public function destroyCompleted():void
 		{
 			for each (var individual:Individual in IndividualFactory.getInstance().individuals)
-				if (individual.projectId == id)
-				{
-					if (individual.role == 0)
-						individual.projectId = null;
-					else
-						individual.destroyCompleted();
-				}
+				individual.removeProject(this);
 
 			var currentIndividual:Individual = IndividualFactory.getInstance().currentIndividual;
-			if (currentIndividual.projectId == id)
-				currentIndividual.projectId = null;
 			if (currentIndividual.selectedProjectId == id)
 				currentIndividual.selectedProjectId = null;
 
@@ -365,7 +371,7 @@ package org.planigle.planigle.model
 		// Answer whether I contain the specified individual.
 		public function containsIndividual(individual:Individual):Boolean
 		{
-			return individual.projectId == id;
+			return individual.isInProject(this);
 		}
 
 		// Return my parent.

@@ -9,6 +9,7 @@ class CompaniesXmlTest < ActionController::IntegrationTest
   fixtures :systems
   fixtures :individuals
   fixtures :projects
+  fixtures :individuals_projects
   fixtures :companies
   fixtures :teams
 

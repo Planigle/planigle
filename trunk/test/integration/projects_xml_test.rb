@@ -9,6 +9,7 @@ class ProjectsXmlTest < ActionController::IntegrationTest
   fixtures :systems
   fixtures :individuals
   fixtures :projects
+  fixtures :individuals_projects
   fixtures :teams
   fixtures :story_attributes
 

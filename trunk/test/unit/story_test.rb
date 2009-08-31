@@ -3,6 +3,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 class StoryTest < ActiveSupport::TestCase
   fixtures :teams
   fixtures :individuals
+  fixtures :individuals_projects
   fixtures :releases
   fixtures :iterations
   fixtures :stories

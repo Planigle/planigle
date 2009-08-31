@@ -64,10 +64,10 @@ class ResourceController < ApplicationController
   def update
     @record = get_record
     if (authorized_for_update?(@record))
-      update_record
       respond_to do |format|
         begin
           @record.class.transaction do
+            update_record
             if save_record
               format.xml { render :xml => @record }
               format.amf { render :amf => @record }

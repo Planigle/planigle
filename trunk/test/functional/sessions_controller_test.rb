@@ -9,6 +9,7 @@ class SessionsControllerTest < ActionController::TestCase
   fixtures :systems
   fixtures :individuals
   fixtures :projects
+  fixtures :individuals_projects
   fixtures :companies
   fixtures :stories
   fixtures :tasks

@@ -15,6 +15,7 @@ class CompaniesControllerTest < Test::Unit::TestCase
   fixtures :individuals
   fixtures :companies
   fixtures :projects
+  fixtures :individuals_projects
   fixtures :teams
 
   def setup

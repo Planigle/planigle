@@ -186,7 +186,9 @@ module CollectiveIdea #:nodoc:
             else
               value = changed_attributes['value']
             end
-            story.audits.create :auditable_name => story.name, :changes => {story_attribute.name => value}, :action => 'update', :project_id => Thread.current[:user] ? Thread.current[:user].project_id : nil, :user => Thread.current[:user], :username => Thread.current[:user] ? Thread.current[:user].name : nil 
+            if story
+              story.audits.create :auditable_name => story.name, :changes => {story_attribute.name => value}, :action => 'update', :project_id => Thread.current[:user] ? Thread.current[:user].project_id : nil, :user => Thread.current[:user], :username => Thread.current[:user] ? Thread.current[:user].name : nil 
+            end
           else
             self.audits.create :auditable_name => name, :changes => changed_attributes, :action => action.to_s, :project_id => Thread.current[:user] ? Thread.current[:user].project_id : nil, :user => Thread.current[:user], :username => Thread.current[:user] ? Thread.current[:user].name : nil 
           end

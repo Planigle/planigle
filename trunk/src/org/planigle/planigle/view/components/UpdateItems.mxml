@@ -76,7 +76,7 @@
 						formItem.label = attrib.name;
 					  	var combo:ComboBox = new ComboBox();
 					  	combo.id = "customField" + attrib.id.toString();
-					  	combo.width = 350;
+					  	combo.width = NaN;
 					  	combo.editable = false;
 					  	combo.labelField = "value";
 					  	combo.dataProvider = getValuesFor(attrib,null);
@@ -189,19 +189,19 @@
 	</mx:Script>
 	<mx:Form id="updateForm" defaultButton="{updateBtnOk}" height="100%" width="100%">
 		<mx:FormItem label="Iteration" id="form_iteration">
-			<mx:ComboBox id='updateFieldIteration' width="350" editable="false" dataProvider="{iterations}" labelField="name" change="updateIteration()"></mx:ComboBox>
+			<mx:ComboBox id='updateFieldIteration' editable="false" dataProvider="{iterations}" labelField="name" change="updateIteration()"></mx:ComboBox>
 		</mx:FormItem>
 		<mx:FormItem label="Release" id="form_release">
-			<mx:ComboBox id='updateFieldRelease' width="350" editable="false" dataProvider="{releases}" labelField="name" change="updateRelease()"></mx:ComboBox>
+			<mx:ComboBox id='updateFieldRelease' editable="false" dataProvider="{releases}" labelField="name" change="updateRelease()"></mx:ComboBox>
 		</mx:FormItem>
 		<mx:FormItem label='Team'>
-			<mx:ComboBox id='updateFieldTeam' width="350" editable="false" dataProvider="{teams}" labelField="name"></mx:ComboBox>
+			<mx:ComboBox id='updateFieldTeam' editable="false" dataProvider="{teams}" labelField="name"></mx:ComboBox>
 		</mx:FormItem>
 		<mx:FormItem label='Owner'>
-			<mx:ComboBox id='updateFieldOwner' width="350" editable="false" dataProvider="{individuals}" labelField="fullName"></mx:ComboBox>
+			<mx:ComboBox id='updateFieldOwner' editable="false" dataProvider="{individuals}" labelField="fullName"></mx:ComboBox>
 		</mx:FormItem>
 		<mx:FormItem label='Status'>
-			<mx:ComboBox id='updateFieldStatus' width="350" editable="false" change="updateReasonBlocked(event)">
+			<mx:ComboBox id='updateFieldStatus' editable="false" change="updateReasonBlocked(event)">
 				<mx:Object label="No Change" value="-1" />
 				<mx:Object label="Not Started" value="0" />
 				<mx:Object label="In Progress" value="1" />
@@ -213,7 +213,7 @@
 			<component:ExpandableHTMLTextArea id='updateFieldReasonBlocked'/>
 		</mx:FormItem>
 		<mx:FormItem label='Public' id="form_public">
-			<mx:ComboBox id='updateFieldPublic' width="350" editable="false">
+			<mx:ComboBox id='updateFieldPublic' editable="false">
 				<mx:Object label="No Change" value="-1" />
 				<mx:Object label="true" value='true' />
 				<mx:Object label="false" value='false' />

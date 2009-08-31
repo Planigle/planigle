@@ -1,8 +1,10 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class IndividualTest < ActiveSupport::TestCase
+  fixtures :companies
   fixtures :individuals
   fixtures :projects
+  fixtures :individuals_projects
   fixtures :teams
   fixtures :stories
 
@@ -43,7 +45,7 @@ class IndividualTest < ActiveSupport::TestCase
 
     individual = individuals(:user2)
     individual.company_id = 1
-    individual.project_id = 1
+    individual.attributes = {:project_ids => [1]}
     assert_equal false, individual.valid?
   end
 
@@ -138,44 +140,70 @@ class IndividualTest < ActiveSupport::TestCase
 
   # Test setting team_id
   def test_team_id
-    indiv = create_individual( :project_id => nil, :team_id => 1 )
+    indiv = create_individual( :project_ids => [], :team_id => 1 )
     assert indiv.errors.on(:team)
 
-    indiv = create_individual( :project_id => 2, :team_id => 1 )
+    indiv = create_individual( :project_ids => [2], :team_id => 1 )
     assert indiv.errors.on(:team)
 
-    indiv = create_individual( :project_id => 1, :team_id => 1 )
+    indiv = create_individual( :project_ids => [1], :team_id => 1 )
     assert_nil indiv.errors.on(:team)
   end
   
   # Test setting project_id
   def test_project_id
-    indiv = create_individual( :role => 1, :project_id => nil )
+    indiv = create_individual( :role => 1, :project_ids => [] )
     assert indiv.errors.on(:project)
 
-    indiv = create_individual( :role => 2, :project_id => nil )
+    indiv = create_individual( :role => 2, :project_ids => "" )
     assert indiv.errors.on(:project)
 
-    indiv = create_individual( :role => 3, :project_id => nil )
+    indiv = create_individual( :role => 3, :project_ids => "" )
     assert indiv.errors.on(:project)
 
-    indiv = create_individual( :role => 1, :project_id => 1 )
+    indiv = create_individual( :role => 1, :project_ids => [1] )
     assert_nil indiv.errors.on(:project)
 
-    indiv = create_individual( :role => 2, :project_id => 1 )
+    indiv = create_individual( :role => 2, :project_ids => "1" )
     assert_nil indiv.errors.on(:project)
 
-    indiv = create_individual( :role => 3, :project_id => 1 )
+    indiv = create_individual( :role => 3, :project_ids => "1" )
     assert_nil indiv.errors.on(:project)
 
-    indiv = create_individual( :company_id => nil, :project_id => 1 )
+    indiv = create_individual( :company_id => nil, :project_ids => "1" )
     assert indiv.errors.on(:project)
 
-    indiv = create_individual( :company_id => 2, :project_id => 1 )
+    indiv = create_individual( :company_id => 2, :project_ids => "1" )
     assert indiv.errors.on(:project)
 
-    indiv = create_individual( :company_id => 1, :project_id => 1 )
+    indiv = create_individual( :company_id => 1, :project_ids => "1" )
     assert_nil indiv.errors.on(:project)
+    
+    indiv = create_individual( :company_id => 1, :project_ids => "1,3" )
+    assert_nil indiv.errors.on(:project)
+    assert_equal 2, indiv.projects.length
+    
+    indiv = create_individual( :company_id => 1, :project_ids => "1,2" )
+    assert indiv.errors.on(:project)
+
+    indiv = create_individual( :company_id => 1, :project_ids => "1" )
+    assert_nil indiv.errors.on(:project)
+    assert_equal 1, indiv.projects.length
+    indiv.attributes( :project_ids => "1,3" )
+    assert_nil indiv.errors.on(:project)
+    assert_equal 2, indiv.projects.length
+    assert_equal "1", indiv.changed_attributes["project_id"][0]
+    assert_equal "1,3", indiv.changed_attributes["project_id"][1]
+    indiv.attributes( :project_ids => "3" )
+    assert_nil indiv.errors.on(:project)
+    assert_equal 1, indiv.projects.length
+
+    indiv = create_individual( :company_id => 1, :project_ids => "1,3" )
+    assert_nil indiv.errors.on(:project)
+    assert_equal 2, indiv.projects.length
+    indiv.attributes( :project_id => 1 )
+    assert_nil indiv.errors.on(:project)
+    assert_equal 1, indiv.projects.length
   end
   
   # Test setting selected_project_id
@@ -184,28 +212,34 @@ class IndividualTest < ActiveSupport::TestCase
     assert_success(:selected_project_id, 1)
     assert_success(:selected_project_id, 2) # Try for admin
 
-    assert_no_difference get_count do # Try for non-admin
-      obj = create_individual( :role => 1,:selected_project_id => 2)
-      assert obj.errors.on(:selected_project)
-    end
+    obj = create_individual( :role => 1,:selected_project_id => 2)
+    assert_equal 1, obj.selected_project_id
+    assert obj.errors.empty?
     
-    assert_success(:selected_project_id, 3)
+    indiv = create_individual(:selected_project_id => nil)
+    assert_equal 1, indiv.selected_project_id # should default to first project
+    
+    indiv = create_individual(:selected_project_id => 1, :project_ids => [1, 3])
+    projects(:first).destroy
+    assert_equal 3, indiv.reload.selected_project_id
+    projects(:third).destroy
+    assert_nil indiv.reload.selected_project_id
   end
   
-  # Test the method current_project_id
-  def test_current_project_id
+  # Test the method project_id
+  def test_project_id
     i = individuals(:quentin)
-    assert_equal nil, i.current_project_id
+    assert_equal nil, i.project_id
     i.selected_project_id = 1
-    assert_equal 1, i.current_project_id
+    assert_equal 1, i.project_id
     i = individuals(:aaron)
-    assert_equal 1, i.current_project_id
+    assert_equal 1, i.project_id
     i.selected_project_id = 3
-    assert_equal 3, i.current_project_id
+    assert_equal 3, i.project_id
     i = individuals(:project_admin2)
-    assert_equal 2, i.current_project_id
+    assert_equal 2, i.project_id
     i.selected_project_id = 4
-    assert_equal 2, i.current_project_id
+    assert_equal 4, i.project_id
   end
   
   # Test setting company_id
@@ -382,21 +416,22 @@ class IndividualTest < ActiveSupport::TestCase
     assert_equal Individual.find_all_by_company_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:aaron)).length
     assert_equal Individual.find_all_by_company_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:user)).length
     assert_equal Individual.find_all_by_company_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:readonly)).length
-    assert_equal Individual.find_all_by_project_id(2, :conditions => "role != 0").length, Individual.get_records(individuals(:project_admin2)).length
-    assert_equal Individual.find_all_by_project_id(2, :conditions => "role != 0").length, Individual.get_records(individuals(:user2)).length
-    assert_equal Individual.find_all_by_project_id(4, :conditions => "role != 0").length, Individual.get_records(individuals(:ro2)).length
+    assert_equal Individual.find(:all, :joins => :projects, :conditions => "projects.id = 2 and role != 0").length, Individual.get_records(individuals(:project_admin2)).length
+    assert_equal Individual.find(:all, :joins => :projects, :conditions => "projects.id = 2 and role != 0").length, Individual.get_records(individuals(:user2)).length
+    assert_equal Individual.find(:all, :joins => :projects, :conditions => "projects.id = 4 and role != 0").length, Individual.get_records(individuals(:ro2)).length
   end
   
   # Validate is_premium.
   def test_is_premium
     assert individuals(:aaron).is_premium
     assert !individuals(:quentin).is_premium
+    assert individuals(:user).is_premium
   end
 
 private
 
   # Create an individual with valid values.  Options will override default values (should be :attribute => value).
   def create_individual(options = {})
-    Individual.create({ :first_name => 'foo', :last_name => 'bar', :login => 'quire' << rand.to_s, :email => 'quire' << rand.to_s << '@example.com', :password => 'quired', :password_confirmation => 'quired', :role => 0, :company_id => 1, :project_id => 1, :phone_number => '5555555555' }.merge(options))
+    Individual.create({ :first_name => 'foo', :last_name => 'bar', :login => 'quire' << rand.to_s, :email => 'quire' << rand.to_s << '@example.com', :password => 'quired', :password_confirmation => 'quired', :role => 0, :company_id => 1, :project_ids => "1", :phone_number => '5555555555' }.merge(options))
   end
 end

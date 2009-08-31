@@ -118,8 +118,16 @@ package org.planigle.planigle.model
 					object = CompanyFactory.getInstance().find(String(value));
 					break;
 				case 'projectId':
-					object = IndividualFactory.current().company.find(String(value));
-					break;
+					var projectIds:Array = String(value).split(",");
+					var projectNames:Array = new Array(projectIds.length);
+					var i:int = 0;
+					for each (var id:String in projectIds)
+					{
+						object = IndividualFactory.current().company.find(String(id));
+						projectNames[i] = object == null ? "Unknown" : object.name;
+						i++;
+					}
+					return projectNames.join("','");
 				case 'teamId':
 					object = IndividualFactory.current().selectedProject.find(String(value));
 					break;

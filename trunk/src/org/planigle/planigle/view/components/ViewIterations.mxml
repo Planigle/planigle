@@ -67,6 +67,7 @@
 			currentItem = null;
 			clearErrorMessage();
 			currentState = '';
+			iterationBtnChange.label = 'Update'
 		}
 
 		// Show user a form to create a resource.

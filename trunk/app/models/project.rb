@@ -2,7 +2,7 @@ require 'digest/sha1'
 class Project < ActiveRecord::Base
   belongs_to :company
   has_many :teams, :dependent => :destroy
-  has_many :individuals, :dependent => :nullify
+  has_and_belongs_to_many :individuals
   has_many :individuals_with_selection, :class_name => "Individual", :foreign_key => "selected_project_id", :dependent => :nullify
   has_many :releases, :dependent => :destroy
   has_many :iterations, :dependent => :destroy

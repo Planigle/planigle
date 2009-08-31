@@ -7,6 +7,7 @@ class FlexReleasesTest < Test::Unit::TestCase
   fixtures :individuals
   fixtures :companies
   fixtures :projects
+  fixtures :individuals_projects
   fixtures :releases
   fixtures :iterations
   fixtures :audits

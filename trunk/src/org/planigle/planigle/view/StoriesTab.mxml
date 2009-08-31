@@ -181,6 +181,7 @@
 			currentItem = null;
 			clearErrorMessage();
 			currentState = '';
+			storyBtnChange.label = 'Update'
 		}
 
 		// Update the releases in the filter list.
@@ -222,7 +223,7 @@
 					release.selectedIndex = releaseFilter.length - 1;
 			}
 			release.visible = releaseFilter.length > 2;
-			release.width = release.visible ? 130 : -8;
+			release.width = release.visible ? NaN : -8;
 		}
 				
 		// Update the iterations in the filter list.
@@ -1351,7 +1352,7 @@
 					  case StoryAttribute.RELEASE_LIST:
 					  	var combo:ComboBox = new ComboBox();
 					  	combo.id = id;
-					  	combo.width = 200;
+					  	combo.width = NaN;
 					  	combo.editable = false;
 					  	combo.labelField = "value";
 					  	combo.dataProvider = attrib.allValues;
@@ -1506,7 +1507,7 @@
 											<component:ExpandableCriteriaGrid id='storyFieldAcceptanceCriteria' height="100%"/>
 										</mx:FormItem>
 										<mx:FormItem label='Status'>
-											<mx:ComboBox id='storyFieldStatus' width="120" editable="false" change="updateReasonBlocked(event)">
+											<mx:ComboBox id='storyFieldStatus' editable="false" change="updateReasonBlocked(event)">
 												<mx:Object label="Not Started" value="0" />
 												<mx:Object label="In Progress" value="1" />
 												<mx:Object label="Blocked" value="2" />
@@ -1521,22 +1522,22 @@
 								<mx:VBox>
 									<mx:Form id="changeForm2" defaultButton="{storyBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
 										<mx:FormItem label="Iteration" id="storyFormIteration">
-											<mx:ComboBox id='storyFieldIteration' width="200" editable="false" labelField="name" change="updateIteration()"></mx:ComboBox>
+											<mx:ComboBox id='storyFieldIteration' editable="false" labelField="name" change="updateIteration()"></mx:ComboBox>
 										</mx:FormItem>
 										<mx:FormItem label="Release" id="storyFormRelease">
-											<mx:ComboBox id='storyFieldRelease' width="200" editable="false" labelField="name" change="updateRelease()"></mx:ComboBox>
+											<mx:ComboBox id='storyFieldRelease' editable="false" labelField="name" change="updateRelease()"></mx:ComboBox>
 										</mx:FormItem>
 										<mx:FormItem label='Team' id="storyFormTeam">
-											<mx:ComboBox id='storyFieldTeam' width="200" editable="false" dataProvider="{IndividualFactory.current().selectedProject.teamSelector}" labelField="name"></mx:ComboBox>
+											<mx:ComboBox id='storyFieldTeam' editable="false" dataProvider="{IndividualFactory.current().selectedProject.teamSelector}" labelField="name"></mx:ComboBox>
 										</mx:FormItem>
 										<mx:FormItem label='Owner'>
-											<mx:ComboBox id='storyFieldOwner' width="200" editable="false" dataProvider="{IndividualFactory.current().selectedProject.individuals()}" labelField="fullName"></mx:ComboBox>
+											<mx:ComboBox id='storyFieldOwner' editable="false" dataProvider="{IndividualFactory.current().selectedProject.individuals()}" labelField="fullName"></mx:ComboBox>
 										</mx:FormItem>
 										<mx:FormItem id="storyEffortForm" label='Size'>
 											<mx:TextInput id='storyFieldEffort' restrict="0-9." text='' width="100"/>
 										</mx:FormItem>
 										<mx:FormItem label='Public' id="storyFormPublic">
-											<mx:ComboBox id='storyFieldPublic' width="100" editable="false">
+											<mx:ComboBox id='storyFieldPublic' editable="false">
 												<mx:Object label="true" value='true' />
 												<mx:Object label="false" value='false' />
 											</mx:ComboBox>
@@ -1628,11 +1629,11 @@
 			<mx:VBox id="storyBtnBox" width="100%">
 				<mx:HBox width="100%" horizontalAlign="left">
 					<mx:HBox width="100%" id='topRow'>
-						<mx:ComboBox id='release' width="115" editable="false" dataProvider="{releaseFilter}" labelField="name" change="handleReleaseFilter(event)"></mx:ComboBox>
-						<mx:ComboBox id='iteration' width="115" editable="false" dataProvider="{iterationFilter}" labelField="name" change="handleFilter(event)"></mx:ComboBox>
+						<mx:ComboBox id='release' editable="false" dataProvider="{releaseFilter}" labelField="name" change="handleReleaseFilter(event)"></mx:ComboBox>
+						<mx:ComboBox id='iteration' editable="false" dataProvider="{iterationFilter}" labelField="name" change="handleFilter(event)"></mx:ComboBox>
 						<component:TeamSelector id='team' change="handleFilter(event)"></component:TeamSelector>
-						<mx:ComboBox id='individual' width="115" editable="false" dataProvider="{individualFilter}" labelField="fullName" change="handleFilter(event)"></mx:ComboBox>
-						<mx:ComboBox id='itemStatus' width="116" editable="false" change="handleFilter(event)" selectedIndex="3">
+						<mx:ComboBox id='individual' editable="false" dataProvider="{individualFilter}" labelField="fullName" change="handleFilter(event)"></mx:ComboBox>
+						<mx:ComboBox id='itemStatus' editable="false" change="handleFilter(event)" selectedIndex="3">
 							<mx:Object label="Not Started" value="0" />
 							<mx:Object label="In Progress" value="1" />
 							<mx:Object label="Blocked" value="2" />

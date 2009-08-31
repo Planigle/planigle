@@ -7,6 +7,7 @@ class FlexCompaniesTest < Test::Unit::TestCase
   fixtures :individuals
   fixtures :companies
   fixtures :projects
+  fixtures :individuals_projects
   fixtures :stories
   fixtures :iterations
   fixtures :tasks
@@ -223,7 +224,7 @@ sleep 5
   # Select a company to see what is displayed in individuals.
   def select_company
     @ie.data_grid("projectResourceGrid").select(:item_renderer => "Test_company")
-    assert_equal 6, @ie.data_grid("individualResourceGrid").num_rows
+    assert_equal Individual.count(:conditions => {:company_id => 1}), @ie.data_grid("individualResourceGrid").num_rows
   end
     
   # Test deleting a company.

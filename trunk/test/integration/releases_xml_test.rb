@@ -10,6 +10,7 @@ class ReleasesXmlTest < ActionController::IntegrationTest
   fixtures :individuals
   fixtures :releases
   fixtures :projects
+  fixtures :individuals_projects
   fixtures :stories
 
   # Re-raise errors caught by the controller.
