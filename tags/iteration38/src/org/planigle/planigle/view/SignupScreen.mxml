@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:component="org.planigle.planigle.view.components.*" horizontalAlign="center" creationComplete="created(event)">
+
+	<mx:Script>
+		<![CDATA[
+		import flash.external.ExternalInterface;
+		import org.planigle.planigle.model.ViewModelLocator;
+		import org.planigle.planigle.model.CompanyFactory;
+		import org.planigle.planigle.model.Company;
+		import org.planigle.planigle.events.URLEvent;
+
+		[Bindable]
+		private var _error:String = "";
+		
+		// Update the error message.
+		private function setErrorMessage(string:String):void {signupError.setStyle("color","Red"); _error = string}
+		private function setSuccessMessage(string:String):void {signupError.setStyle("color","Green"); _error = string}
+		private function clearErrorMessage():void {_error = ""}
+
+		// Initialize focus.
+		private function created(event:Event):void
+		{
+			signupFieldCompany.setFocus();
+		}
+
+		// Create parameters for the user's request to the server.
+		private function getParams() : Object
+		{
+			var params:Object = new Object();
+			params['record[name]'] = signupFieldCompany.text;
+			params['project[name]'] = signupFieldName.text;
+			params['project[description]'] = signupFieldDescription.text;
+			params['project[survey_mode]'] = 1;
+			params['individual[login]'] = signupFieldLogin.text;
+			params['individual[password]'] = signupFieldPassword.text;
+			params['individual[password_confirmation]'] = signupFieldPasswordConfirmation.text;
+			params['individual[email]'] = signupFieldEmail.text;
+			params['individual[phone_number]'] = signupFieldPhoneNumber.text;
+			params['individual[first_name]'] = signupFieldFirstName.text;
+			params['individual[last_name]'] = signupFieldLastName.text;
+			params['random'] = Math.random(); // Prevents caching
+			return params;
+		}
+
+		// Handle a successful signup.
+		private function handleSuccess(item:Object):void
+		{
+			signupBtnBox.visible = false;
+			if (ExternalInterface.available && ExternalInterface.call('function get_url(){return window.location;}')['hostname'] == 'www.planigle.com')
+				new URLEvent("https://www.planigle.com/products/signup_successful", false).dispatch();
+			else
+				setSuccessMessage("You have successfully signed up for Planigle.  Shortly, you will receive an email to complete the signup process.");
+		}
+
+		// Handle errors when signing up.
+		private function handleFailure(error:XMLList):void
+		{
+			setErrorMessage(error);
+		}
+		]]>
+	</mx:Script>
+	
+	<mx:Panel title="Sign up for a free Planigle account:" horizontalAlign="center" verticalAlign="middle" backgroundAlpha="1.0" borderStyle="outset" backgroundColor="#F2F3AF" borderThicknessLeft="2" borderThicknessRight="2" headerHeight="14">
+		<mx:Form borderStyle="outset" cornerRadius="10" themeColor="#009DFF" backgroundColor="#FFFFFF" defaultButton="{okButton}">
+			<mx:Text id="signupError" styleName="error" htmlText="{_error}" width="100%"/>
+			<mx:FormItem label='Company Name' required="true">
+				<mx:TextInput id='signupFieldCompany' maxChars="40" text='' width="350"/>
+			</mx:FormItem>
+			<mx:FormItem label='Project Name' required="true">
+				<mx:TextInput id='signupFieldName' maxChars="40" text='' width="350"/>
+			</mx:FormItem>
+			<mx:FormItem label='Project Description'>
+				<component:ExpandableHTMLTextArea id='signupFieldDescription'/>
+			</mx:FormItem>
+			<mx:FormItem label='Login' required="true">
+				<mx:TextInput id='signupFieldLogin' maxChars="40" text='' width="350"/>
+			</mx:FormItem>
+			<mx:FormItem label='Password' id="labelPassword" required="true">
+				<mx:TextInput id='signupFieldPassword' maxChars="40" text='' width="350" displayAsPassword="true"/>
+			</mx:FormItem>
+			<mx:FormItem label='Password Confirmation' id="labelPasswordConfirmation" required="true">
+				<mx:TextInput id='signupFieldPasswordConfirmation' maxChars="40" text='' width="350" displayAsPassword="true"/>
+			</mx:FormItem>
+			<mx:FormItem label='Email' required="true">
+				<mx:TextInput id='signupFieldEmail' maxChars="100" text='' width="350"/>
+			</mx:FormItem>
+			<mx:FormItem label='Phone Number' required="false">
+				<mx:TextInput id='signupFieldPhoneNumber' maxChars="20" text='' width="350"/>
+			</mx:FormItem>
+			<mx:FormItem label='First Name' required="true">
+				<mx:TextInput id='signupFieldFirstName' maxChars="40" text='' width="350"/>
+			</mx:FormItem>
+			<mx:FormItem label='Last Name' required="true">
+				<mx:TextInput id='signupFieldLastName' maxChars="40" text='' width="350"/>
+			</mx:FormItem>
+			<mx:HBox id="signupBtnBox" width="100%" horizontalAlign="center">
+				<mx:Button label="OK" id="okButton" click="CompanyFactory.getInstance().createCompany(getParams(), handleSuccess, handleFailure);"/>
+				<mx:Button label="Cancel" id="cancelButton" click="ViewModelLocator.getInstance().workflowState = ViewModelLocator.LOGIN_SCREEN"/>
+			</mx:HBox>
+		</mx:Form>
+	</mx:Panel>
+</mx:VBox>

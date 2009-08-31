@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" height="100%" y="0" width="100%" x="0" creationComplete="created(event)">
+	<mx:Metadata>
+		[Event(name="itemClick", type="flash.events.Event")]
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+		import mx.rpc.events.ResultEvent;
+		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
+		import mx.controls.dataGridClasses.DataGridColumn;
+		import mx.core.Container;
+		import mx.events.ListEvent;
+		import mx.events.CloseEvent;
+		import mx.binding.utils.ChangeWatcher;
+		import org.planigle.planigle.model.TabModelLocator;
+		import org.planigle.planigle.model.IndividualFactory;
+		import org.planigle.planigle.model.ReleaseFactory;
+		import org.planigle.planigle.model.Release;
+		import org.planigle.planigle.model.DateUtils;
+		import org.planigle.planigle.view.StoriesTab;
+		import org.planigle.planigle.view.ChangesTab;
+		import org.planigle.planigle.events.AuditChangedEvent;
+		import org.planigle.planigle.events.ReleaseChangedEvent;
+		
+		[Bindable]
+		private var _error:String;
+
+		[Bindable]
+		private var tabModelLocator:TabModelLocator = TabModelLocator.getInstance();
+
+		[Bindable]
+		public var factory:IndividualFactory = IndividualFactory.getInstance();
+
+		[Bindable]
+		public var releases:ArrayCollection = new ArrayCollection();
+
+		// Set up event listeners.  Called when the canvas has been created.
+		private function created(event:Event):void
+		{
+			ChangeWatcher.watch( factory, "currentIndividual", resetState );			
+			ChangeWatcher.watch( ReleaseFactory.getInstance(), "releases", setReleases );			
+			setReleases(event);
+		}
+				
+		// Update the error message.
+		private function setErrorMessage(string:String):void {releaseError.setStyle("color","Red"); _error = string}
+		private function setSuccessMessage(string:String):void {releaseError.setStyle("color","Green"); _error = string}
+		private function clearErrorMessage():void {_error = ""}
+
+		// Set the releases to a copy (so that changes here won't affect elsewhere).
+		private function setReleases(event:Event):void
+		{
+			var newReleases:ArrayCollection = new ArrayCollection();
+			for each (var release:Release in ReleaseFactory.getInstance().releases)
+				newReleases.addItem(release);
+			releases = newReleases;
+		}
+		
+		// Reset my state to how it was initially.
+		public function resetState(event:Event):void
+		{
+			currentItem = null;
+			clearErrorMessage();
+			currentState = '';
+			releaseBtnChange.label = 'Update'
+		}
+
+		// Show user a form to create a resource.
+		private function showCreate(event:Event):void
+		{
+			clearErrorMessage();
+			currentState = 'Change';
+			releaseFieldName.setFocus();
+			
+			if(ReleaseFactory.getInstance().releases.length > 0)
+			{
+				var releases:ArrayCollection = ReleaseFactory.getInstance().releases;
+				var last:Release = Release(releases.getItemAt(releases.length - 1));
+				releaseFieldName.text = last.incrementName();
+				releaseFieldName.setSelection(0, releaseFieldName.text.length );
+				releaseFieldStart.selectedDate = new Date(last.finish.valueOf() + DateUtils.MILLIS_IN_DAY);
+				releaseFieldFinish.selectedDate = new Date(last.finish.valueOf() + DateUtils.MILLIS_IN_DAY + last.finish.valueOf() - last.start.valueOf());
+			}
+			else
+			{
+	 			releaseFieldName.text = '1.0';
+				releaseFieldStart.selectedDate = new Date();
+				releaseFieldFinish.selectedDate = new Date( new Date().valueOf() + 91*24*60*60*1000 );
+			}
+			releaseBtnChange.label = 'Create';
+			releaseBtnInfo.visible = false;
+		}
+
+		private var currentItem:Object;
+
+		// Show user a form to update a resource.
+		public function showUpdate(event:Event) : void
+		{
+			currentItem = releaseResourceGrid.selectedItem;
+			if (currentItem)
+			{
+				clearErrorMessage();
+				currentState = 'Change';
+				releaseFieldName.text = currentItem.name;
+				releaseFieldName.setFocus();
+				releaseFieldName.setSelection(0, releaseFieldName.text.length );
+				releaseFieldStart.selectedDate = currentItem.start;
+				releaseFieldFinish.selectedDate = currentItem.finish;
+				releaseBtnChange.label = 'Update';
+				releaseBtnInfo.visible = true;
+			}
+		}
+
+		// Confirm that user wants to delete the resource.
+		public function showDelete(event:Event) : void
+		{
+			Alert.show("Are you sure you want to delete '" + releaseResourceGrid.selectedItem.name + "'?", "Delete", 3, this,
+			function(event:CloseEvent):void
+			{
+				if (event.detail==Alert.YES)
+				{
+					clearErrorMessage();
+					deleteResource(releaseResourceGrid.selectedItem);
+				}
+			});
+		}
+		
+		// Create parameters for the user's request to the server.
+		private function getParams() : Object
+		{
+			var params:Object = new Object();
+			params['record[project_id]'] = factory.currentIndividual.selectedProjectId;
+			params['record[name]'] = releaseFieldName.text;
+			params['record[start]'] = releaseFieldStart.selectedDate == null ? "" : releaseFieldStart.selectedDate;
+			params['record[finish]'] = releaseFieldFinish.selectedDate == null ? "" : releaseFieldFinish.selectedDate;
+			return params;
+		}
+
+		// Tell the server to change a resource.
+		private function changeResource(event:Event) : void
+		{
+			if ( releaseBtnChange.label == 'Create' )
+				createResource(event);
+			else
+				updateResource(event);
+		}
+		
+		// Tell the server to create a resource.
+		private function createResource(event:Event) : void 
+		{
+			ReleaseFactory.getInstance().createRelease(getParams(), handleCreateSuccess, handleFailure);
+		}
+		
+		// Tell the server to update a resource.
+		private function updateResource(event:Event) : void
+		{
+			currentItem.update(getParams(), handleSuccess, handleFailure);
+		}
+
+		// Tell the server to delete a resource.
+		private function deleteResource(resource:Object):void
+		{
+			resource.destroy(handleSuccess, handleFailure);
+			releaseResourceGrid.selectedItem = null;
+			releaseSelected(null); // Deletion can affect selection; ensure event is sent
+		}
+		
+		// Handle a successful create.
+		private function handleCreateSuccess(item:Object):void
+		{
+			showCreate(null);
+			setSuccessMessage("Release was successfully created.");
+		}
+
+		// Handle a successful change.
+		private function handleSuccess():void
+		{
+			resetState(null);
+		}
+
+		// Handle errors when making changes.
+		private function handleFailure(error:XMLList):void
+		{
+			setErrorMessage(error);
+		}
+		
+		// Format the start date into a more readable format.
+		private function formatStart(item:Object, column:DataGridColumn):String
+		{
+			return DateUtils.formatDate(item.start);
+		}
+		
+		// Format the finish date into a more readable format.
+		private function formatFinish(item:Object, column:DataGridColumn):String
+		{
+			return DateUtils.formatDate(item.finish);
+		}
+
+		public var release:Release;
+
+		// A release has been selected.  Pass it up the chain.
+		private function releaseSelected(event:ListEvent):void
+		{
+			release = Release(releaseResourceGrid.selectedItem);
+			dispatchEvent(new Event("itemClick"));
+		}
+		
+		// Show the history for the current object.
+		public function showHistory(event:Event) : void
+		{
+			new AuditChangedEvent(null, 'Release', null, null, String(currentItem.id)).dispatch();
+			tabModelLocator.selectedTab = Container(tabModelLocator.changes);
+		}
+
+		// Answer whether any changes need to be saved.
+		public function isDirty(): Boolean
+		{
+			if (releaseBtnChange.label == 'Create')
+				return true;
+			else if (currentItem) {
+				if (releaseFieldName.text != currentItem.name) return true;
+				if (!DateUtils.equals(releaseFieldStart.selectedDate, currentItem.start)) return true;
+				if (!DateUtils.equals(releaseFieldFinish.selectedDate, currentItem.finish)) return true;
+			}
+			return false;
+		}
+		]]>
+	</mx:Script>
+ 	
+	<mx:states>
+		<mx:State name="Change">
+			<mx:RemoveChild target="{releaseBtnCreate}"/>
+			<mx:AddChild relativeTo="{releaseResourceGrid}" position="before">
+				<mx:target>
+					<mx:Form id="releaseChangeForm" defaultButton="{releaseBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
+						<mx:FormItem label='Release Name' required="true">
+							<mx:TextInput id='releaseFieldName' maxChars="40" text='' width="350"/>
+						</mx:FormItem>
+						<mx:FormItem label='Start' required="true">
+							<mx:DateField id='releaseFieldStart' editable="true" showToday="true" width="100"/>
+						</mx:FormItem>
+						<mx:FormItem label='Finish' required="true">
+							<mx:DateField id='releaseFieldFinish' editable="true" showToday="true" width="100"/>
+						</mx:FormItem>
+						<mx:ControlBar width="100%">
+							<mx:Spacer width="50"/>
+							<mx:Button label="Change" id="releaseBtnChange" click="changeResource(event)"/>
+							<mx:LinkButton label="Cancel" id="releaseBtnCancel" click="resetState(event)"/>
+							<mx:LinkButton id="releaseBtnInfo" icon="{parentApplication.imgInfo}" toolTip="History" click="showHistory(event);"/>
+						</mx:ControlBar>
+					</mx:Form>	
+				</mx:target>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+	
+	<mx:transitions>
+		<mx:Transition id="releaseChangeItem" fromState="*" toState="Change">
+			<mx:Sequence targets="{[releaseCombinedPanel]}">
+				<mx:RemoveChildAction/>
+				<mx:Resize target="{releaseCombinedPanel}"/>
+				<mx:AddChildAction/>
+			</mx:Sequence>
+		</mx:Transition>
+
+		<mx:Transition id="releaseReturnList" fromState="Change" toState="*">
+			<mx:Sequence targets="{[releaseCombinedPanel]}">
+				<mx:RemoveChildAction/>
+				<mx:Resize target="{releaseCombinedPanel}"/>
+				<mx:AddChildAction/>
+			</mx:Sequence>
+		</mx:Transition>
+
+	</mx:transitions>
+
+	<mx:Panel id="releaseCombinedPanel" height="100%" width="100%" borderThicknessTop="0" borderThicknessLeft="0" borderThicknessRight="0" headerHeight="0">
+		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="8" verticalAlign="middle" id="releaseHbox" paddingTop="5" paddingLeft="5" paddingRight="5">
+			<mx:Label text="Releases" fontWeight="bold" textDecoration="underline"/>
+			<mx:Text id="releaseError" styleName="error" htmlText="{_error}" width="100%"/>
+			<mx:Button icon="{parentApplication.imgAdd}" toolTip="Create" id="releaseBtnCreate" click="showCreate(event);" visible="{factory.currentIndividual.isAtLeastProjectAdmin()}"/>
+		</mx:HBox>
+		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="releaseResourceGrid" dataProvider="{releases}" rowCount="{ReleaseFactory.getInstance().releases.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)" itemClick="releaseSelected(event)">
+			<mx:columns>
+				<mx:DataGridColumn headerText="Name" dataField="name"/>
+				<mx:DataGridColumn headerText="Start" width="120" dataField="start" labelFunction="formatStart" />
+				<mx:DataGridColumn headerText="Finish" width="120" dataField="finish" labelFunction="formatFinish" />
+				<mx:DataGridColumn editable="false" width="105" minWidth="105" sortable="false">
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:Box direction="horizontal" horizontalGap="0">
+								<mx:LinkButton id="releaseBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
+								<mx:LinkButton id="releaseBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
+							</mx:Box>
+						</mx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+			</mx:columns>
+		</mx:DataGrid>
+	</mx:Panel>
+</mx:Canvas>

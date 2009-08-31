@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TextArea xmlns:mx="http://www.adobe.com/2006/mxml" maxChars="4096" height="64" width="500" focusOut="changed(event)">
+	<mx:Script>
+		<![CDATA[
+		override public function set text(string:String):void
+		{
+			super.text = string;
+			convertToHTML();
+		}
+		
+		// Handle changed values.
+		protected function changed(event:Event):void
+		{
+			convertToHTML();
+		}
+
+		// Convert the text to limited html (escaping tags and adding links).
+		protected function convertToHTML():void
+		{
+			var textString:String = text.replace(/</g, "&lt;");
+			textString = textString.replace(/>/g, "&gt;");
+			textString = textString.replace(/(https?:\/\/\S*(?=[\.,;\)](\s|$)))/gi, "<a target='_blank' href='$1'><u>$1</u></a>");
+			textString = textString.replace(/(https?:\/\/\S*[^\.,;\)\s](?=(\s|$)))/gi, "<a target='_blank' href='$1'><u>$1</u></a>");
+			textString = textString.replace(/\r/g, "<br>");
+			htmlText = textString;
+		}
+		]]>
+	</mx:Script>
+</mx:TextArea>
