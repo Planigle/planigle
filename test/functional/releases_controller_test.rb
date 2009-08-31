@@ -14,6 +14,7 @@ class ReleasesControllerTest < ActionController::TestCase
   fixtures :individuals
   fixtures :releases
   fixtures :projects
+  fixtures :individuals_projects
     
   # Test getting releases (based on role).
   def test_index_by_admin

@@ -8,6 +8,7 @@ class FlexIndividualsTest < Test::Unit::TestCase
   fixtures :companies
   fixtures :individuals
   fixtures :projects
+  fixtures :individuals_projects
   fixtures :releases
   fixtures :audits
 
@@ -77,7 +78,7 @@ class FlexIndividualsTest < Test::Unit::TestCase
   # Test logging in as a project admin
   def test_project_admin
     init('pa2')
-    project_grid(Individual.find_all_by_project_id(2, :conditions => "role != 0").length)
+    project_grid(Individual.find(:all, :joins => :projects, :conditions => "projects.id = 2 and role != 0").length)
     assert @ie.button("individualBtnCreate").visible
     row = find_row('pa2') + 1
     assert @ie.button("individualBtnEdit")[row].visible
@@ -100,12 +101,12 @@ class FlexIndividualsTest < Test::Unit::TestCase
 
   # Test logging in as a project user
   def test_project_user
-    init('user')
-    project_grid(Individual.find_all_by_company_id(1, :conditions => "role != 0").length)
+    init('user2')
+    project_grid(Individual.find_all_by_company_id(2, :joins => :projects, :conditions => "projects.id=2 and role != 0").length)
     assert !@ie.button("individualBtnCreate").visible
-    assert !@ie.button("individualBtnDelete")[find_row('user')-1].visible
-    verify_edit(true, true)
-    row = find_row('readonly')-1
+    assert !@ie.button("individualBtnDelete")[find_row('user2')-1].visible
+    verify_edit(true, true, 'user2')
+    row = find_row('user2')-1
     assert !@ie.button("individualBtnEdit")[row].visible
   end
 
@@ -128,8 +129,7 @@ class FlexIndividualsTest < Test::Unit::TestCase
     assert !@ie.form_item("individualFormNotificationType").visible
     @ie.combo_box("individualFieldCompany").open
     @ie.combo_box("individualFieldCompany").select(:item_renderer => 'Test_company' )
-    @ie.combo_box("individualFieldProject").open
-    @ie.combo_box("individualFieldProject").select(:item_renderer => 'Test' )
+    @ie.list("individualFieldProject").select(:item_renderer => 'Test' )
     @ie.button("individualBtnChange").click
     sleep 5 # Wait for data to load
 
@@ -160,7 +160,8 @@ private
     # Values should not change
     assert_equal "Login can't be blank\rLogin is too short (minimum is 2 characters)", @ie.text_area("individualError").text
     assert_equal 'Test_company', @ie.combo_box("individualFieldCompany").text
-    assert_equal 'Test', @ie.combo_box("individualFieldProject").text
+    row = @ie.list("individualFieldProject").selected_index
+    assert_equal 'Test', @ie.list("individualFieldProject").tabular_data(:start => row, :end => row)
     assert_equal 'Test_team', @ie.combo_box("individualFieldTeam").text
     assert_equal ' ', @ie.text_area("individualFieldLogin").text
     assert_equal 'testit', @ie.text_area("individualFieldPassword").text
@@ -186,7 +187,8 @@ private
     sleep 5 # Wait for results
     assert_equal 'Individual was successfully created.', @ie.text_area("individualError").text
     assert_equal 'Test_company', @ie.combo_box("individualFieldCompany").text
-    assert_equal 'Test', @ie.combo_box("individualFieldProject").text
+    row = @ie.list("individualFieldProject").selected_index
+    assert_equal 'Test', @ie.list("individualFieldProject").tabular_data(:start => row, :end => row)
     assert_equal 'No Team', @ie.combo_box("individualFieldTeam").text
     assert_equal '', @ie.text_area("individualFieldLogin").text
     assert_equal '', @ie.text_area("individualFieldPassword").text
@@ -220,8 +222,7 @@ private
   def create_individual(company, project, team, login, password, password_confirmation, email, first_name, last_name, role, enabled, phone_number='5555555555', notification_type=nil)
     @ie.combo_box("individualFieldCompany").open
     @ie.combo_box("individualFieldCompany").select(:item_renderer => company )
-    @ie.combo_box("individualFieldProject").open
-    @ie.combo_box("individualFieldProject").select(:item_renderer => project )
+    @ie.list("individualFieldProject").select(:item_renderer => project )
     @ie.combo_box("individualFieldTeam").open
     @ie.combo_box("individualFieldTeam").select(:item_renderer => team )
     @ie.text_area("individualFieldLogin").input(:text => login )
@@ -249,7 +250,8 @@ private
 
     assert_equal "Login can't be blank\rLogin is too short (minimum is 2 characters)", @ie.text_area("individualError").text
     assert_equal 'Test_company', @ie.combo_box("individualFieldCompany").text
-    assert_equal 'Test', @ie.combo_box("individualFieldProject").text
+    row = @ie.list("individualFieldProject").selected_index
+    assert_equal 'Test', @ie.list("individualFieldProject").tabular_data(:start => row, :end => row)
     assert_equal 'Test_team', @ie.combo_box("individualFieldTeam").text
     assert_equal ' ', @ie.text_area("individualFieldLogin").text
     assert_equal 'testit', @ie.text_area("individualFieldPassword").text
@@ -299,8 +301,7 @@ private
     @ie.button("individualBtnEdit")[row].click
     @ie.combo_box("individualFieldCompany").open
     @ie.combo_box("individualFieldCompany").select(:item_renderer => company )
-    @ie.combo_box("individualFieldProject").open
-    @ie.combo_box("individualFieldProject").select(:item_renderer => project )
+    @ie.list("individualFieldProject").select(:item_renderer => project )
     @ie.combo_box("individualFieldTeam").open
     @ie.combo_box("individualFieldTeam").select(:item_renderer => team )
     @ie.text_area("individualFieldLogin").input(:text => login )
@@ -367,8 +368,8 @@ private
   end
 
   # Verify that the edit panel doesn't show project, nor allow creation of admins.
-  def verify_edit(hide_project, is_self)
-    @ie.button("individualBtnEdit")[find_row('user')].click
+  def verify_edit(hide_project, is_self, user_login='user')
+    @ie.button("individualBtnEdit")[find_row(user_login)].click
     assert !@ie.form_item("individualFormCompany").visible
     assert_equal hide_project, !@ie.form_item("individualFormProject").visible
     if is_self

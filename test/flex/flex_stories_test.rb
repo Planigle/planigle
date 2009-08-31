@@ -8,6 +8,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   fixtures :individuals
   fixtures :companies
   fixtures :projects
+  fixtures :individuals_projects
   fixtures :releases
   fixtures :iterations
   fixtures :stories
@@ -32,54 +33,54 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
 
   # Test create failure.
-  def btest_create_failure
+  def test_create_failure
     init('admin2')
     create_story_failure
   end 
 
-  # Test create failure.
-  def btest_create_success
+  # Test create success.
+  def test_create_success
     init('admin2')
     create_story_success
   end 
 
-  # Test create failure.
-  def atest_create_cancel
+  # Test create cancel.
+  def test_create_cancel
     init('admin2')
     create_story_cancel
   end 
 
   # Test edit failure.
-  def btest_an_edit_failure
+  def test_an_edit_failure
     init('admin2')
     edit_story_failure
   end 
 
-  # Test edit failure.
-  def atest_an_edit_success
+  # Test edit success.
+  def test_an_edit_success
     init('admin2')
     edit_story_success
   end 
 
-  # Test edit failure.
-  def atest_an_edit_cancel
+  # Test edit cancel.
+  def test_an_edit_cancel
     init('admin2')
     edit_story_cancel
   end 
 
   # Test editing multiple.
-  def atest_an_edit_multiple
+  def test_an_edit_multiple
     init('admin2')
     edit_single
     edit_multiple
   end 
 
-  def atest_a_split_failure
+  def test_a_split_failure
     init('admin2')
     split_story_failure
   end 
 
-  def atest_a_split_success_abort
+  def test_a_split_success_abort
     init('admin2')
     split_story_success_abort
   end 
@@ -89,13 +90,13 @@ class FlexStoriesTest < Test::Unit::TestCase
     split_story_success_no_abort
   end 
 
-  def atest_a_split_cancel
+  def test_a_split_cancel
     init('admin2')
     split_story_cancel
   end 
 
   # Test misc (in one stream for more efficiency).
-  def atest_misc
+  def test_misc
     init('admin2')
     delete_story_cancel
     delete_story
@@ -103,7 +104,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
 
   # Test deleting multiple.
-  def atest_z_misc_delete_multiple
+  def test_z_misc_delete_multiple
     init('admin2')
     delete_single
     delete_multiple
@@ -112,7 +113,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   end 
 
   # Test logging in as a project admin
-  def atest_project_admin
+  def test_project_admin
     init('aaron')
     assert @ie.button("storyBtnCreate").visible
     assert @ie.button("storyBtnEdit")[1].visible
@@ -125,7 +126,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
 
   # Test logging in as a project user
-  def atest_project_user
+  def test_project_user
     init('user')
     assert @ie.button("storyBtnCreate").visible
     assert @ie.button("storyBtnEdit")[1].visible
@@ -138,7 +139,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
 
   # Test logging in as a read only user
-  def atest_read_only
+  def test_read_only
     init('readonly')
     assert !@ie.button("storyBtnCreate").visible
     assert !@ie.button("storyBtnEdit")[1].visible
@@ -149,25 +150,30 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
 
   # Test changing custom attributes.
-  def atest_custom_attribute_add
+  def test_custom_attribute_add
     init('admin2')
     @ie.button("storyBtnCreate").click
-    @ie.button("storyBtnEditAttributes").click
 
+    @ie.button("storyBtnEditAttributes").click
     @ie.button("editAttributeBtnAdd").click # Add a new number attribute: Beta
     @ie.text_area("editAttributeFieldName").input(:text => 'Beta' )
     @ie.combo_box("editAttributeFieldType").open
     @ie.combo_box("editAttributeFieldType").select(:item_renderer => 'Number' )
+    @ie.button("editAttributeBtnOk").click
+    sleep 2
 
+    @ie.button("storyBtnEditAttributes").click
     @ie.button("editAttributeBtnAdd").click # Add a new listattribute: Gamma
     @ie.text_area("editAttributeFieldName").input(:text => 'Gamma' )
     @ie.combo_box("editAttributeFieldType").open
     @ie.combo_box("editAttributeFieldType").select(:item_renderer => 'List' )
-    @ie.button("editValueBtnAdd").click # Add a new value
     @ie.text_area("editValueFieldName").input(:text => 'Gamma' )
     @ie.button("editValueBtnAdd").click # Add a new value
     @ie.text_area("editValueFieldName").input(:text => 'Zeta' )
+    @ie.button("editAttributeBtnOk").click
+    sleep 2
 
+    @ie.button("storyBtnEditAttributes").click
     @ie.button("editAttributeBtnAdd").click # Add a new listattribute: Theme
     @ie.text_area("editAttributeFieldName").input(:text => 'Theme' )
     @ie.combo_box("editAttributeFieldType").open
@@ -180,9 +186,8 @@ class FlexStoriesTest < Test::Unit::TestCase
     @ie.combo_box("editAttributeRelease").select(:item_renderer => 'second' )
     @ie.button("editValueBtnAdd").click # Add a new value
     @ie.text_area("editValueFieldName").input(:text => 'Do it fast' )
-
     @ie.button("editAttributeBtnOk").click
-    sleep 10
+    sleep 2
 
     # Get first storyField number
     base = 0
@@ -197,37 +202,37 @@ class FlexStoriesTest < Test::Unit::TestCase
 
     @ie.text_area("storyField" + base.to_s).input(:text => '5')
 
+    @ie.combo_box("storyField" + (base + 1).to_s).click
+    @ie.combo_box("storyField" + (base + 1).to_s).select(:item_renderer => 'Zeta')
+
     @ie.combo_box("storyFieldRelease").click
     @ie.combo_box("storyFieldRelease").select(:item_renderer => 'first')
-    @ie.combo_box("storyField" + (base + 1).to_s).click
-    @ie.combo_box("storyField" + (base + 1).to_s).select(:item_renderer => 'Do it right')
+    @ie.combo_box("storyField" + (base + 2).to_s).click
+    @ie.combo_box("storyField" + (base + 2).to_s).select(:item_renderer => 'Do it right')
     @ie.combo_box("storyFieldRelease").click
     @ie.combo_box("storyFieldRelease").select(:item_renderer => 'No Release')    
-    @ie.combo_box("storyField" + (base + 1).to_s).click
+    @ie.combo_box("storyField" + (base + 2).to_s).click
     begin
-      @ie.combo_box("storyField" + (base + 1).to_s).select(:item_renderer => 'Do it right')
+      @ie.combo_box("storyField" + (base + 2).to_s).select(:item_renderer => 'Do it right')
       assert false #shouldn't get to this point
     rescue Exception
     end
-    @ie.combo_box("storyField" + (base + 1).to_s).click
-    @ie.combo_box("storyField" + (base + 1).to_s).select(:item_renderer => 'None')
-    @ie.combo_box("storyFieldRelease").select(:item_renderer => 'second')
-    @ie.combo_box("storyField" + (base + 1).to_s).click
-    @ie.combo_box("storyField" + (base + 1).to_s).select(:item_renderer => 'Do it fast')
-
     @ie.combo_box("storyField" + (base + 2).to_s).click
-    @ie.combo_box("storyField" + (base + 2).to_s).select(:item_renderer => 'Zeta')
+    @ie.combo_box("storyField" + (base + 2).to_s).select(:item_renderer => 'None')
+    @ie.combo_box("storyFieldRelease").select(:item_renderer => 'second')
+    @ie.combo_box("storyField" + (base + 2).to_s).click
+    @ie.combo_box("storyField" + (base + 2).to_s).select(:item_renderer => 'Do it fast')
     
     @ie.button("storyBtnChange").click
   end
 
   # Test changing custom attributes.
-  def atest_custom_attribute_delete
+  def test_custom_attribute_delete
     init('admin2')
     @ie.button("storyBtnCreate").click
     @ie.button("storyBtnEditAttributes").click
     @ie.list("editAttributeAttributes").select(:item_renderer => 'Test_Number')
-    @ie.button("editAttributeBtnDelete").click # Delete atest_Number Attribute
+    @ie.button("editAttributeBtnDelete").click # Delete test_Number Attribute
     @ie.button("editAttributeBtnOk").click
     sleep 5
 
@@ -235,7 +240,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
   
   # Test showing the history
-  def atest_history
+  def test_history
     init('admin2')
     @ie.button("storyBtnEdit")[2].click
     @ie.button("storyBtnInfo").click
@@ -244,14 +249,14 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
   
   # Test moving to the top
-  def atest_move_up
+  def test_move_up
     init('admin2')
     @ie.button("storyBtnMoveUp")[2].click
-    assert_equal ",test,first,Test_team,aaron hank,1,5,In Progress,true,1,2,description,-criteria\r-criteria2,first,test,testy,5,Value 1,Theme 1,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
+    assert_equal ",test,first,Test_team,aaron hank,1,5,In Progress,true,1,2,description,-criteria\r-criteria2 (Done),first,test,testy,5,Value 1,Theme 1,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
   end
 
   # Test clicking on the expand all button.
-  def atest_expand_all
+  def test_expand_all
     init('admin2')
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
     @ie.button("storyBtnExpandAll")[0].click
@@ -261,7 +266,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
 
   # Test clicking on the select attributes button.
-  def atest_select_attributes
+  def test_select_attributes
     init('admin2')
     @ie.button("storyBtnSelectAttributes")[0].click
     @ie.check_box("select_Description").click
@@ -294,7 +299,7 @@ private
     assert_equal "Name can't be blank", @ie.text_area("storyError").text
     assert_equal ' ', @ie.text_area("storyFieldName").text
     assert_equal 'description', @ie.text_area("textArea")[0].text
-    assert_equal 'Toggle Status,acceptance_criteria,Delete', @ie.data_grid("criteriaGrid").tabular_data(:start => 1, :end => 1)
+    assert_equal 'Toggle Status,acceptance_criteria,Delete', @ie.data_grid("criteriaGrid").tabular_data(:start => 0, :end => 0)
     assert_equal 'fourth', @ie.combo_box("storyFieldIteration").text
     assert_equal 'second', @ie.combo_box("storyFieldRelease").text
     assert_equal 'Test_team', @ie.combo_box("storyFieldTeam").text
@@ -397,7 +402,7 @@ private
     assert_equal "Name can't be blank", @ie.text_area("storyError").text
     assert_equal ' ', @ie.text_area("storyFieldName").text
     assert_equal 'description', @ie.text_area("textArea")[0].text
-    assert_equal 'Toggle Status,acceptance_criteria,Delete', @ie.data_grid("criteriaGrid").tabular_data(:start => 1, :end => 1)
+    assert_equal 'Toggle Status,acceptance_criteria,Delete', @ie.data_grid("criteriaGrid").tabular_data(:start => 0, :end => 0)
     assert_equal 'fourth', @ie.combo_box("storyFieldIteration").text
     assert_equal 'second', @ie.combo_box("storyFieldRelease").text
     assert_equal 'Test_team', @ie.combo_box("storyFieldTeam").text
@@ -473,7 +478,7 @@ private
     @ie.button("updateBtnOk").click
     assert_equal '', @ie.text_area("storyError").text
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",test,fourth,Test_team,aaron hank,1,5,Blocked,true,2,2,description,-criteria\r-criteria2,first,test,testy,5,Value 2,Theme 2,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 1, :end => 1)
+    assert_equal ",test,fourth,Test_team,aaron hank,1,5,Blocked,true,2,2,description,-criteria\r-criteria2 (Done),first,test,testy,5,Value 2,Theme 2,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 1, :end => 1)
     assert_equal ",test3,fourth,Test_team,aaron hank,1,,Blocked,true,1,2,,,first,,,,Value 2,Theme 2,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
   end
 

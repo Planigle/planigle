@@ -10,6 +10,7 @@ class IterationsXmlTest < ActionController::IntegrationTest
   fixtures :individuals
   fixtures :iterations
   fixtures :projects
+  fixtures :individuals_projects
   fixtures :stories
 
   # Re-raise errors caught by the controller.

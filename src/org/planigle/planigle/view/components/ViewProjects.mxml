@@ -86,6 +86,7 @@
 			currentItem = null;
 			clearErrorMessage();
 			currentState = '';
+			projectBtnChange.label = 'Update'
 		}
 
 		// Show user a form to create a resource.
@@ -374,7 +375,7 @@
 		public function shouldShowDelete(data:Object):Boolean
 		{
 			return (data.isCompany() && factory.currentIndividual.isAdmin()) ||
-				(data.isProject() && factory.currentIndividual.isAtLeastProjectAdmin() && factory.currentIndividual.isPremium && factory.currentIndividual.project != data) ||
+				(data.isProject() && factory.currentIndividual.isAtLeastProjectAdmin() && factory.currentIndividual.isPremium) ||
 				(data.isTeam() && factory.currentIndividual.isAtLeastProjectAdmin());
 		}
 
@@ -431,7 +432,7 @@
 							<mx:VBox>
 								<mx:Form id="projectChangeForm2" defaultButton="{projectBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
 									<mx:FormItem id="projectFormSurveyMode" label='Stories'>
-										<mx:ComboBox id='projectFieldSurveyMode' width="150" editable="false" change="updateSurveyVisible()">
+										<mx:ComboBox id='projectFieldSurveyMode' editable="false" change="updateSurveyVisible()">
 											<mx:Object label="Private" value="0" />
 											<mx:Object label="Private by Default" value="1" />
 											<mx:Object label="Public by Default" value="2" />
@@ -486,25 +487,25 @@
 			<mx:Text id="projectError" styleName="error" htmlText="{_error}" width="100%"/>
 			<mx:Button icon="{parentApplication.imgAdd}" toolTip="Create" id="projectBtnCreate" click="showCreateCompany(event);" visible="{factory.currentIndividual.isAdmin()}"/>
 		</mx:HBox>
-		<local:ColoredBackgroundDataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="projectResourceGrid" dataProvider="{companies}" rowCount="{companies.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)" itemClick="groupSelected(event)" rowColorFunction="rowColor" variableRowHeight="true" sortableColumns="false">
+		<local:ColoredBackgroundDataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="projectResourceGrid" dataProvider="{companies}" rowCount="{companies.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)" itemClick="groupSelected(event)" rowColorFunction="rowColor" variableRowHeight="true" sortableColumns="false" horizontalScrollPolicy="auto">
 			<local:columns>
-				<mx:DataGridColumn editable="false" minWidth="16" width="16" sortable="false" textAlign="center"> 
+				<mx:DataGridColumn editable="false" resizable="false" minWidth="45" width="45" sortable="false" textAlign="left"> 
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
-								<mx:LinkButton paddingLeft="{data.indent}" width="16" id="projectBtnExpand" icon="{outerDocument.expandIcon(data)}" click="outerDocument.expand(event);"/>		 	
+								<mx:LinkButton textAlign="left" paddingLeft="{data.indent > 25 ? 0 : data.indent - 5}" id="projectBtnExpand" icon="{outerDocument.expandIcon(data)}" click="outerDocument.expand(event);"/>		 	
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>
 				</mx:DataGridColumn>
-				<mx:DataGridColumn headerText="Name">
+				<mx:DataGridColumn headerText="Name" width="200">
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Text paddingLeft="{data.indent}" text="{data.name}" selectable="false"/>
 						</mx:Component>
 					</mx:itemRenderer>
 				</mx:DataGridColumn>
-				<mx:DataGridColumn headerText="Description" dataField="description"/>
+				<mx:DataGridColumn headerText="Description" width="400" dataField="description"/>
 				<mx:DataGridColumn headerText="Stories" width="120" labelFunction="ViewHelper.formatSurveyMode" sortCompareFunction="ViewHelper.sortSurveyMode" visible="{factory.currentIndividual.isPremium}"/>
 				<mx:DataGridColumn editable="false" width="140" minWidth="140" sortable="false">
 					<mx:itemRenderer>

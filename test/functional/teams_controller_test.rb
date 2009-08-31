@@ -13,6 +13,7 @@ class TeamsControllerTest < ActionController::TestCase
   fixtures :systems
   fixtures :projects
   fixtures :individuals
+  fixtures :individuals_projects
   fixtures :teams
     
   # Test getting teams (based on role).

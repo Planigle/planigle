@@ -16,9 +16,9 @@ class Company < ActiveRecord::Base
   # Answer the records for a particular user.
   def self.get_records(current_user)
     if current_user.role >= Individual::ProjectAdmin
-      Company.find(:all, :include => [:projects], :conditions => ["companies.id = ?", current_user.company_id])
+      Company.find(:all, :include => [{:projects => [:teams, {:story_attributes => :story_attribute_values}]}], :conditions => ["companies.id = ?", current_user.company_id])
     else
-      Company.find(:all, :include => [:projects], :order => 'companies.name')
+      Company.find(:all, :include => [{:projects => [:teams, {:story_attributes => :story_attribute_values}]}], :order => 'companies.name')
     end
   end
   

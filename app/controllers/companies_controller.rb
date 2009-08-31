@@ -14,9 +14,9 @@ class CompaniesController < ResourceController
             @project.company_id = @record.id ? @record.id : 0 # To prevent company must be set error
             @individual = is_amf ? params[2] : Individual.new(params[:individual])
             @individual.company_id = @record.id ? @record.id : 0 # To prevent company must be set error
-            @individual.project_id = @project.id ? @project.id : 0 # To prevent project must be set error
+            @individual.projects << @project # To prevent project must be set error
             @individual.role = Individual::ProjectAdmin
-            if @record.valid? and @project.valid? and @individual.valid? and @record.projects << @project and @record.individuals << @individual and @project.individuals << @individual and @record.save
+            if @record.valid? and @project.valid? and @individual.valid? and @record.projects << @project and @record.individuals << @individual and @record.save
               format.xml { render :xml => '<?xml version="1.0" encoding="UTF-8"?><records>' + @record.to_xml(:skip_instruct => true) + @individual.to_xml(:skip_instruct => true) + "</records>", :status => :created }
               format.amf { render :amf => [@record, @individual] }
             else

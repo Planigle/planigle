@@ -10,6 +10,7 @@ class StoriesXmlTest < ActionController::IntegrationTest
   fixtures :individuals
   fixtures :stories
   fixtures :projects
+  fixtures :individuals_projects
   fixtures :tasks
   fixtures :story_attributes
   fixtures :story_values

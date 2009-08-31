@@ -6,6 +6,7 @@ class SurveysXmlTest < ActionController::IntegrationTest
   fixtures :individuals
   fixtures :stories
   fixtures :projects
+  fixtures :individuals_projects
   fixtures :surveys
   fixtures :survey_mappings
 

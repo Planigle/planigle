@@ -121,7 +121,7 @@ class Story < ActiveRecord::Base
     result = ''
     criteria.each do |criterium|
       if result != ''; result << "\r"; end
-      if criteria.count > 1; result << '-'; end
+      if criteria.length > 1; result << '-'; end
       result << criterium.description
       if (criterium.status_code == Criterium::Done)
         result << " (Done)"
@@ -198,9 +198,9 @@ class Story < ActiveRecord::Base
   # Answer the records for a particular user.
   def self.get_records(current_user, iteration_id=nil, conditions=nil)
     if iteration_id
-      Story.find(:all, :include => [:story_values, :tasks], :conditions => merge_conditions(["iteration_id = ? and project_id = ?", iteration_id, current_user.current_project_id], conditions), :order => 'stories.priority')
+      Story.find(:all, :include => [:criteria, :story_values, :tasks], :conditions => merge_conditions(["iteration_id = ? and project_id = ?", iteration_id, current_user.project_id], conditions), :order => 'stories.priority')
     else
-      Story.find(:all, :include => [:story_values, :tasks], :conditions => merge_conditions(["project_id = ?", current_user.current_project_id], conditions), :order => 'stories.priority')
+      Story.find(:all, :include => [:criteria, :story_values, :tasks], :conditions => merge_conditions(["project_id = ?", current_user.project_id], conditions), :order => 'stories.priority')
     end
   end
   
@@ -299,7 +299,7 @@ protected
     
     if individual_id && !Individual.find_by_id(individual_id)
       errors.add(:individual, 'is invalid')
-    elsif individual && project_id != individual.project_id
+    elsif individual && !individual.projects.detect {|project| project.id == project_id}
       errors.add(:individual, 'is not from a valid project')
     end
     
@@ -360,7 +360,7 @@ private
           header_mapping[i] = Headers[down]
         else # Check for custom attribute
           header_mapping[i] = :ignore
-          current_user.project.story_attributes.find(:all, :conditions => {:is_custom => true}).each do |attrib|
+          current_user.selected_project.story_attributes.find(:all, :conditions => {:is_custom => true}).each do |attrib|
             if attrib.name.downcase == down
               header_mapping[i] = "custom_" + attrib.id.to_s
               break;
@@ -383,14 +383,14 @@ private
         if (header && header != :ignore)
           case header
             when :team_id then value = find_object_id(value, Team, ['name = ? and project_id = ?', value, current_user.project_id])
-            when :individual_id then value = find_object_id(value, Individual, ["concat(first_name, ' ', last_name) = ? and project_id = ?", value, current_user.project_id])
+            when :individual_id then value = find_object_id(value, Individual, ["concat(first_name, ' ', last_name) = ? and projects.id = ?", value, current_user.project_id], :projects)
             when :release_id then temp = find_object_id(value, Release, ['name = ? and project_id = ?', value, current_user.project_id]); value = temp == -1 ? value = find_object_id(value, Release, ['name like ? and project_id = ?', value.to_s+'%', current_user.project_id]) : temp
             when :iteration_id then value = find_object_id(value, Iteration, ['name = ? and project_id = ?', value, current_user.project_id])
             when :status_code then value = status_code_mapping.has_key?(value) ? status_code_mapping[value] : -1
             when :effort then value = value ? value.to_f : value
             else
               if attrib = header.to_s.match(/custom_(.*)/)
-                attribute = current_user.project.story_attributes.find(:first, :conditions => {:id => attrib[1]});
+                attribute = current_user.selected_project.story_attributes.find(:first, :conditions => {:id => attrib[1]});
                 if attribute && (attribute.value_type == StoryAttribute::List || attribute.value_type == StoryAttribute::ReleaseList)
                   if !value || value == ""
                     value = nil
@@ -432,9 +432,13 @@ private
   end
 
   # Find the object id given a value, a class and conditions.
-  def self.find_object_id(value, klass, conditions)
+  def self.find_object_id(value, klass, conditions, joins=nil)
     if !value || value == ""; return nil; end
-    object = klass.find(:first, :conditions => conditions)
+    if joins
+      object = klass.find(:first, :conditions => conditions, :joins => joins)
+    else
+      object = klass.find(:first, :conditions => conditions)
+    end
     object ? object.id : -1
   end
 

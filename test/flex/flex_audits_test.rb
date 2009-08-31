@@ -7,6 +7,7 @@ class FlexAuditsTest < Test::Unit::TestCase
   fixtures :individuals
   fixtures :companies
   fixtures :projects
+  fixtures :individuals_projects
   fixtures :stories
   fixtures :iterations
   fixtures :tasks

@@ -9,6 +9,7 @@ class SurveysControllerTest < ActionController::TestCase
   fixtures :systems
   fixtures :individuals
   fixtures :projects
+  fixtures :individuals_projects
   fixtures :stories
   fixtures :surveys
   fixtures :survey_mappings

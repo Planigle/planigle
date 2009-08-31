@@ -17,7 +17,7 @@ protected
 
   # Answer the current project id (or nil if there is not one).
   def project_id
-    current_individual ? current_individual.current_project_id : nil
+    current_individual ? current_individual.project_id : nil
   end
 
   # Flex wants all responses to be 200

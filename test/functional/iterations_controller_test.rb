@@ -14,6 +14,7 @@ class IterationsControllerTest < ActionController::TestCase
   fixtures :individuals
   fixtures :iterations
   fixtures :projects
+  fixtures :individuals_projects
     
   # Test getting iterations (based on role).
   def test_index_by_admin

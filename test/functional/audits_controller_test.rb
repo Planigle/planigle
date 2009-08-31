@@ -9,6 +9,7 @@ class AuditsControllerTest < ActionController::TestCase
   fixtures :individuals
   fixtures :audits
   fixtures :projects
+  fixtures :individuals_projects
   fixtures :audits
 
   def test_index_unauthorized

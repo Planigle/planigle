@@ -47,7 +47,6 @@ package org.planigle.planigle.model
 						for each (var individual:Individual in team.individuals)
 						{
 							individual.companyId = company.id;
-							individual.projectId = project.id;
 							individual.teamId = team.id;							
 						}
 					}
@@ -89,11 +88,24 @@ package org.planigle.planigle.model
 			return newCompany;
 		}
 
-		// Find an company given its ID.  If no company, return an Company representing the backlog.
+		// Find a company given its ID.  If no company, return No Company.
 		public function find(id:String):Company
 		{
 			var company:Company = companyMapping[id];
 			return company ? company : Company(companySelector.getItemAt(companySelector.length-1));	
+		}
+		
+		// Find a project given its ID.  If no project, return No Project.
+		public function findProject(id:String):Project
+		{
+			var project:Project = null;
+			for each (var company:Company in companies)
+			{
+				project = company.find(id);
+				if (project.id != null)
+					break;
+			}
+			return project;
 		}
 	}
 }

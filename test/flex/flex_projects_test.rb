@@ -7,6 +7,7 @@ class FlexProjectsTest < Test::Unit::TestCase
   fixtures :individuals
   fixtures :companies
   fixtures :projects
+  fixtures :individuals_projects
   fixtures :stories
   fixtures :iterations
   fixtures :tasks
@@ -245,7 +246,7 @@ private
   # Select a project to see what is displayed in individuals.
   def select_project
     @ie.data_grid("projectResourceGrid").select(:item_renderer => "Test")
-    assert_equal 5, @ie.data_grid("individualResourceGrid").num_rows
+    assert_equal Individual.count(:joins=>:projects, :conditions => 'projects.id=1'), @ie.data_grid("individualResourceGrid").num_rows
   end
     
   # Test deleting a project.

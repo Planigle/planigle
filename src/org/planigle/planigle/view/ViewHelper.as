@@ -115,13 +115,22 @@ package org.planigle.planigle.view
 		// Display the project's name in the table (rather than ID).
 		public static function formatProject(item:Object, column:DataGridColumn):String
 		{
-			return item.company.find(item.projectId).name;
+			var string:String = "";
+			for each(var project:Project in item.projects)
+			{
+				if (string != "")
+					string += ", ";
+				string += project.name;
+			}
+			if (string == "")
+				string = "No Project";
+			return string;
 		}
 
 		// Answer the index of the project in the list of projects (or -1 if no projects).
 		private static function indexProject(item:Object):int
 		{
-			return indexCompany(item)*100 + item.company.projectSelector.getItemIndex(item.company.find(item.projectId));
+			return indexCompany(item)*100 + (item.projects.length > 0 ? item.company.projectSelector.getItemIndex(item.projects[0]) : 0);
 		}
 		
 		// Answer the sort order for the specified items (based on where they are in the list of companies).

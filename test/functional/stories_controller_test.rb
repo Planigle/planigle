@@ -19,6 +19,7 @@ class StoriesControllerTest < ActionController::TestCase
   fixtures :iterations
   fixtures :stories
   fixtures :projects
+  fixtures :individuals_projects
   fixtures :tasks
   fixtures :criteria
   fixtures :surveys
@@ -135,8 +136,8 @@ class StoriesControllerTest < ActionController::TestCase
     sms_count = PLANIGLE_SMS_NOTIFIER.number_of_notifications
     login_as(individuals(:aaron))
     put :update, :id => 1, :record => {:status_code => 2}
-    assert_equal email_count+2, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
-    assert_equal sms_count+2, PLANIGLE_SMS_NOTIFIER.number_of_notifications
+    assert_equal email_count+3, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
+    assert_equal sms_count+3, PLANIGLE_SMS_NOTIFIER.number_of_notifications
   end
 
   # Test changing the status to blocked.
@@ -145,8 +146,8 @@ class StoriesControllerTest < ActionController::TestCase
     sms_count = PLANIGLE_SMS_NOTIFIER.number_of_notifications
     login_as(individuals(:aaron))
     put :update, :id => 2, :record => {:status_code => 2}
-    assert_equal email_count+1, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
-    assert_equal sms_count+1, PLANIGLE_SMS_NOTIFIER.number_of_notifications
+    assert_equal email_count+2, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
+    assert_equal sms_count+2, PLANIGLE_SMS_NOTIFIER.number_of_notifications
   end
 
   # Test exporting stories (based on role).
