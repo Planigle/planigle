@@ -12,9 +12,9 @@ class AddMoreIndices < ActiveRecord::Migration
   end
 
   def self.down
-#    remove_index :projects, [:company_id]
-#    remove_index :teams, [:project_id]
-#    remove_index :individuals, [:company_id]
+    remove_index :projects, [:company_id]
+    remove_index :teams, [:project_id]
+    remove_index :individuals, [:company_id]
     remove_index :story_attributes, [:project_id]
     remove_index :story_attribute_values, [:story_attribute_id]
     remove_index :criteria, [:story_id]

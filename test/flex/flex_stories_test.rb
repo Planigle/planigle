@@ -252,7 +252,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   def test_move_up
     init('admin2')
     @ie.button("storyBtnMoveUp")[2].click
-    assert_equal ",test,first,Test_team,aaron hank,1,5,In Progress,true,1,2,description,-criteria\r-criteria2 (Done),first,test,testy,5,Value 1,Theme 1,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
+    assert_equal ",test,first,Test_team,aaron hank,1,0,5,0,In Progress,true,1,2,description,-criteria\r-criteria2 (Done),first,test,testy,5,Value 1,Theme 1,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
   end
 
   # Test clicking on the expand all button.
@@ -345,7 +345,7 @@ private
     assert_equal '', @ie.text_area("storyField1").text
     assert_not_nil @ie.button("storyBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",foo,fourth,Test_team,ted williams,1,,Blocked,true,4,,description,acceptance_criteria,second,custom,,,None,None,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
+    assert_equal ",foo,fourth,Test_team,ted williams,1,,,,Blocked,true,4,,description,acceptance_criteria,second,custom,,,None,None,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
     @ie.button("storyBtnCancel").click
   end
     
@@ -424,7 +424,7 @@ private
     assert_equal '', @ie.text_area("storyError").text
     assert_nil @ie.button("storyBtnCancel")
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",foo 1,fourth,Test_team,ted williams,1,,Blocked,true,1,2,description,acceptance_criteria,second,custom,,,None,None,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
+    assert_equal ",foo 1,fourth,Test_team,ted williams,1,,,,Blocked,true,1,2,description,acceptance_criteria,second,custom,,,None,None,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
   end
     
   # Test whether you can successfully cancel editing a story.
@@ -478,8 +478,8 @@ private
     @ie.button("updateBtnOk").click
     assert_equal '', @ie.text_area("storyError").text
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",test,fourth,Test_team,aaron hank,1,5,Blocked,true,2,2,description,-criteria\r-criteria2 (Done),first,test,testy,5,Value 2,Theme 2,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 1, :end => 1)
-    assert_equal ",test3,fourth,Test_team,aaron hank,1,,Blocked,true,1,2,,,first,,,,Value 2,Theme 2,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
+    assert_equal ",test,fourth,Test_team,aaron hank,1,0,5,0,Blocked,true,2,2,description,-criteria\r-criteria2 (Done),first,test,testy,5,Value 2,Theme 2,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 1, :end => 1)
+    assert_equal ",test3,fourth,Test_team,aaron hank,1,,,,Blocked,true,1,2,,,first,,,,Value 2,Theme 2,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
   end
 
   # Edit a story.
@@ -555,8 +555,8 @@ private
     assert_nil @ie.button("storyBtnCancel")
     rows = @ie.data_grid("storyResourceGrid").num_rows
     assert_equal num_rows + 1, rows
-    assert_equal ",test,first,Test_team,aaron hank,0,2,Done,true,,,description,criteria2 (Done),first,test,testy,5,Value 1,Theme 1,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-3, :end => rows-3)
-    assert_equal ",foo 1,fourth,Test_team,ted williams,1,3,In Progress,true,2,,description,acceptance_criteria,second,test,testy,5,Value 1,None,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-2, :end => rows-2)
+    assert_equal ",test,first,Test_team,aaron hank,0,0,2,0,Done,true,,,description,criteria2 (Done),first,test,testy,5,Value 1,Theme 1,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-3, :end => rows-3)
+    assert_equal ",foo 1,fourth,Test_team,ted williams,1,0,3,0,In Progress,true,2,,description,acceptance_criteria,second,test,testy,5,Value 1,None,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-2, :end => rows-2)
   end
     
   # Test whether you can successfully split a story (without aborting).
@@ -573,8 +573,8 @@ private
     assert_nil @ie.button("storyBtnCancel")
     rows = @ie.data_grid("storyResourceGrid").num_rows
     assert_equal num_rows + 1, rows
-    assert_equal ",test,first,Test_team,aaron hank,1,2,In Progress,true,2,2,description,-criteria\r-criteria2 (Done),first,test,testy,5,Value 1,Theme 1,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-3, :end => rows-3)
-    assert_equal ",foo 1,fourth,Test_team,ted williams,1,3,Not Started,true,3,,description,acceptance_criteria,second,test,testy,5,Value 1,None,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-1, :end => rows-1)
+    assert_equal ",test,first,Test_team,aaron hank,1,0,2,0,In Progress,true,2,2,description,-criteria\r-criteria2 (Done),first,test,testy,5,Value 1,Theme 1,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-3, :end => rows-3)
+    assert_equal ",foo 1,fourth,Test_team,ted williams,1,0,3,0,Not Started,true,3,,description,acceptance_criteria,second,test,testy,5,Value 1,None,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-1, :end => rows-1)
   end
     
   # Test whether you can successfully cancel splitting a story.

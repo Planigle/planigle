@@ -50,6 +50,20 @@ class TaskTest < ActiveSupport::TestCase
     assert_success(:effort, 0)
   end
 
+  # Test the validation of estimate.
+  def test_estimate
+    assert_failure(:estimate, 'a')
+    assert_failure(:estimate, -1)
+    assert_success(:estimate, 0)
+  end
+
+  # Test the validation of actual.
+  def test_actual
+    assert_failure(:actual, 'a')
+    assert_failure(:actual, -1)
+    assert_success(:actual, 0)
+  end
+
   # Test the validation of status code.
   def test_status_code
     assert_success( :status_code, 0)

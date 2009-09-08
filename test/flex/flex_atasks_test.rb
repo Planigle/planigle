@@ -82,8 +82,8 @@ class FlexAtasksTest < Test::Unit::TestCase
     @ie.button("updateBtnOk").click
     assert_equal '', @ie.text_area("storyError").text
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",test2_task,,,aaron hank,,2,Not Started, , , ,, ,, , , ,, ,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 3, :end => 3)
-    assert_equal ",test_task,,,aaron hank,,3,Not Started, , , ,, ,, , , ,, ,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 4, :end => 4)
+    assert_equal ",test2_task,,,aaron hank,,,2,,Not Started, , , ,, ,, , , ,, ,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 3, :end => 3)
+    assert_equal ",test_task,,,aaron hank,,,3,,Not Started, , , ,, ,, , , ,, ,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 4, :end => 4)
   end
 
   # Test edit (in one stream for more efficiency).
@@ -164,6 +164,7 @@ private
 
     create_task(' ', 'description', 'ted williams', '1', 'Not Started')
     assert !@ie.form_item("storyFormReasonBlocked").visible
+    assert_equal '1', @ie.text_area("storyFieldEffort").text
     @ie.button("storyBtnChange").click
 
     # Values should not change
@@ -190,6 +191,7 @@ private
     assert_equal 'Not Started', @ie.combo_box("storyFieldStatus").text
     
     create_task('foo', 'description', 'ted williams', '1', 'Blocked', "House")
+    assert_equal '1', @ie.text_area("storyFieldEffort").text
     @ie.button("storyBtnChange").click
 
     assert_equal 'Task was successfully created.', @ie.text_area("storyError").text
@@ -200,7 +202,7 @@ private
     assert_equal 'Not Started', @ie.combo_box("storyFieldStatus").text
     assert_not_nil @ie.button("storyBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",foo,,,ted williams,,1,Blocked, , , ,description, ,, , , ,, ,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 3, :end => 3)
+    assert_equal ",foo,,,ted williams,,1,1,,Blocked, , , ,description, ,, , , ,, ,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 3, :end => 3)
     @ie.button("storyBtnCancel").click
   end
     
@@ -213,6 +215,7 @@ private
     @ie.button("taskBtnAdd")[2].click
 
     create_task('foo', 'description', 'ted williams', '1', 'Not Started')
+    assert_equal '1', @ie.text_area("storyFieldEffort").text
     @ie.button("storyBtnCancel").click
     assert_equal '', @ie.text_area("storyError").text
     assert_nil @ie.button("storyBtnCancel")
@@ -220,12 +223,12 @@ private
   end
 
   # Create a task.
-  def create_task(name, description, owner, effort, status, reason_blocked="")
+  def create_task(name, description, owner, estimate, status, reason_blocked="")
     @ie.text_area("storyFieldName").input(:text => name )
     @ie.text_area("textArea")[0].input(:text => description )
     @ie.combo_box("storyFieldOwner").open
     @ie.combo_box("storyFieldOwner").select(:item_renderer => owner )
-    @ie.text_area("storyFieldEffort").input(:text => effort )
+    @ie.text_area("storyFieldEstimate").input(:text => estimate )
     @ie.combo_box("storyFieldStatus").open
     @ie.combo_box("storyFieldStatus").select(:item_renderer => status )
     if reason_blocked != ""
@@ -236,8 +239,9 @@ private
   # Test whether error handling works for editing a task.
   def edit_task_failure
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
-    edit_task(' ', 'description', 'ted williams', '1', 'Not Started')
+    edit_task(' ', 'description', 'ted williams', '1', nil, nil, 'Not Started')
     assert !@ie.form_item("storyFormReasonBlocked").visible
+    assert_equal '1', @ie.text_area("storyFieldEffort").text
     @ie.button("storyBtnChange").click
     assert_equal "Name can't be blank", @ie.text_area("storyError").text
     assert_equal ' ', @ie.text_area("storyFieldName").text
@@ -258,19 +262,22 @@ private
   # Test whether you can successfully edit a task.
   def edit_task_success
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
-    edit_task('foo 1', 'description', 'ted williams', '1', 'Blocked', "House")
+    edit_task('foo 1', 'description', 'ted williams', nil, '1', nil, 'Blocked', "House")
+    assert_equal false, @ie.text_area("storyFieldEstimate").enabled
     @ie.button("storyBtnChange").click
     sleep 3 # Wait for results
     assert_equal '', @ie.text_area("storyError").text
     assert_nil @ie.button("storyBtnCancel")
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",foo 1,,,ted williams,,1,Blocked, , , ,description, ,, , , ,, ,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 2, :end => 2)
+    assert_equal ",foo 1,,,ted williams,,,1,,Blocked, , , ,description, ,, , , ,, ,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 2, :end => 2)
   end
     
   # Test whether you can successfully cancel editing a task.
   def edit_task_cancel
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
-    edit_task('foo 1', 'description', 'ted williams', '1', 'Not Started')
+    edit_task('foo 1', 'description', 'ted williams', nil, nil, '1', 'Done')
+    assert_equal false, @ie.text_area("storyFieldEstimate").enabled
+    assert_equal false, @ie.text_area("storyFieldEffort").enabled
     @ie.button("storyBtnCancel").click
     assert_equal '', @ie.text_area("storyError").text
     assert_nil @ie.button("storyBtnCancel")
@@ -278,15 +285,23 @@ private
   end
 
   # Edit a task.
-  def edit_task(name, description, owner, effort, status, reason_blocked="")
+  def edit_task(name, description, owner, estimate, effort, actual, status, reason_blocked="")
     @ie.button("storyBtnEdit")[4].click
     @ie.text_area("storyFieldName").input(:text => name )
     @ie.text_area("textArea")[0].input(:text => description )
     @ie.combo_box("storyFieldOwner").open
     @ie.combo_box("storyFieldOwner").select(:item_renderer => owner )
-    @ie.text_area("storyFieldEffort").input(:text => effort )
     @ie.combo_box("storyFieldStatus").open
     @ie.combo_box("storyFieldStatus").select(:item_renderer => status )
+    if estimate != nil
+      @ie.text_area("storyFieldEstimate").input(:text => estimate )
+    end
+    if effort != nil
+      @ie.text_area("storyFieldEffort").input(:text => effort )
+    end
+    if actual != nil
+      @ie.text_area("storyFieldActual").input(:text => actual )
+    end
     if reason_blocked != ""
       @ie.text_area("textArea")[1].input(:text => reason_blocked )
     end

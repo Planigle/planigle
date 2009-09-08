@@ -11,6 +11,8 @@
 		import mx.core.Container;
 		import mx.collections.ArrayCollection;
 		import mx.controls.Alert;
+		import mx.controls.ComboBox;
+		import Object;
 		import mx.events.ListEvent;
 		import mx.events.CloseEvent;
 		import mx.binding.utils.ChangeWatcher;
@@ -98,6 +100,7 @@
 			projectFieldDescription.text = '';
 			projectFieldPremiumExpiry.selectedDate = new Date(new Date().time + 30*24*60*60*1000);
 			projectFieldPremiumLimit.text = '1000';
+			projectFieldTrackActuals.selectedIndex = 0;
 			projectBtnChange.label = 'Create';
 			projectBtnInfo.visible = false;
 		}
@@ -121,6 +124,8 @@
 			projectFormPremiumExpiry.height = 0;
 			projectFormPremiumLimit.visible = false;
 			projectFormPremiumLimit.height = 0;
+			projectFormTrackActuals.visible = false;
+			projectFormTrackActuals.height = 0;
 		}
 
 		// Show user a form to create a resource.
@@ -139,6 +144,8 @@
 			projectNameForm.label = "Project Name";
 			projectFormDescription.visible = true;
 			projectFormDescription.height = 64;
+			projectFormTrackActuals.visible = true;
+			projectFormTrackActuals.height = 25;
 			updateSurveyVisible();
 			if (IndividualFactory.current().isAdmin())
 			{
@@ -199,6 +206,8 @@
 			projectFormPremiumExpiry.height = 0;
 			projectFormPremiumLimit.visible = false;
 			projectFormPremiumLimit.height = 0;
+			projectFormTrackActuals.visible = false;
+			projectFormTrackActuals.height = 0;
 		}
 
 		// Show user a form to update a resource.
@@ -230,6 +239,7 @@
 					projectFieldPremiumExpiry.selectedDate = currentItem.premiumExpiry;
 					projectFieldPremiumLimit.text = currentItem.premiumLimit;
 					updateSurveyVisible();
+					projectFieldTrackActuals.selectedIndex = currentItem.trackActuals ? 0 : 1;
 				}
 				projectBtnChange.label = 'Update';
 				projectBtnInfo.visible = !currentItem.isCompany();
@@ -263,6 +273,7 @@
 				params['record[survey_mode]'] = projectFieldSurveyMode.selectedItem.value;
 				params['record[premium_expiry]'] = projectFieldPremiumExpiry.selectedDate;
 				params['record[premium_limit]'] = projectFieldPremiumLimit.text;
+				params['record[track_actuals]'] = projectFieldTrackActuals.selectedItem.value;
 			}
 			params['random'] = Math.random(); // Prevents caching
 			return params;
@@ -405,6 +416,7 @@
 					if (projectFieldSurveyMode.selectedIndex != currentItem.surveyMode) return true;
 					if (!DateUtils.equals(projectFieldPremiumExpiry.selectedDate, currentItem.premiumExpiry)) return true;
 					if (projectFieldPremiumLimit.text != currentItem.premiumLimit) return true;
+					if (projectFieldTrackActuals.selectedItem.value != currentItem.trackActuals) return true;
 				}
 			}
 			return false;
@@ -426,6 +438,12 @@
 									</mx:FormItem>
 									<mx:FormItem id="projectFormDescription" label='Description'>
 										<component:ExpandableHTMLTextArea id='projectFieldDescription'/>
+									</mx:FormItem>
+									<mx:FormItem id="projectFormTrackActuals" label="Track Actuals">
+										<mx:ComboBox id="projectFieldTrackActuals" editable="false">
+											<mx:Object label="true" value="true" />
+											<mx:Object label="false" value="false" />
+										</mx:ComboBox>
 									</mx:FormItem>
 								</mx:Form>
 							</mx:VBox>

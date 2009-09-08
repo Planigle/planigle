@@ -20,6 +20,7 @@ package org.planigle.planigle.model
 		public var surveyMode:int;
 		public var premiumExpiry:Date;
 		public var premiumLimit:int;
+		public var trackActuals:Boolean;
 		private static const PRIVATE:int = 0;
 		private static const PRIVATE_BY_DEFAULT:int = 1;
 		private static const PUBLIC_BY_DEFAULT:int = 2;
@@ -48,6 +49,7 @@ package org.planigle.planigle.model
 			surveyMode = int(xml.child("survey-mode"));
 			premiumExpiry = DateUtils.stringToDate(xml.child("premium-expiry"));			
 			premiumLimit = xml.child("premium-limit");			
+			trackActuals = xml.child("track-actuals") == "true";
 
 			var newStoryAttributes:ArrayCollection = new ArrayCollection();
 			for (var i:int = 0; i < xml.child("story-attributes").child("story-attribute").length(); i++)

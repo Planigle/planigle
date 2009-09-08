@@ -130,7 +130,7 @@ private
     assert_equal '', @ie.text_area("projectFieldName").text
     assert_equal '', @ie.text_area("textArea").text
 
-    create_project('', 'description')
+    create_project('', 'description', 'false')
     @ie.button("projectBtnChange").click
 
     # Values should not change
@@ -150,7 +150,7 @@ private
     assert_equal '', @ie.text_area("projectFieldName").text
     assert_equal '', @ie.text_area("textArea").text
     
-    create_project('zfoo 1', 'description')
+    create_project('zfoo 1', 'description', 'false')
 
     assert @ie.form_item("projectFormSurveyUrl").visible
     assert_equal "Will be assigned on creation", @ie.label("projectLabelSurveyUrl").text
@@ -177,7 +177,7 @@ private
     
     num_rows = @ie.data_grid("projectResourceGrid").num_rows
     @ie.button("teamBtnAdd")[2].click
-    create_project('foo', 'description')
+    create_project('foo', 'description', 'false')
     @ie.button("projectBtnCancel").click
     assert_equal '', @ie.text_area("projectError").text
     assert_nil @ie.button("projectBtnCancel")
@@ -185,15 +185,17 @@ private
   end
 
   # Create a project.
-  def create_project(name, description)
+  def create_project(name, description, track_actuals)
     @ie.text_area("projectFieldName").input(:text => name )
     @ie.text_area("textArea").input(:text => description )
+    @ie.combo_box("projectFieldTrackActuals").open
+#    @ie.combo_box("projectFieldTrackActuals").select(:item_renderer => track_actuals)
   end
     
   # Test whether error handling works for editing a project.
   def edit_project_failure
     num_rows = @ie.data_grid("projectResourceGrid").num_rows
-    edit_project(' ', 'description', '10/10/2020', '10')
+    edit_project(' ', 'description', '10/10/2020', '10', 'false')
     @ie.button("projectBtnChange").click
     assert_equal "Name can't be blank", @ie.text_area("projectError").text
     assert_equal ' ', @ie.text_area("projectFieldName").text
@@ -206,7 +208,7 @@ private
   # Test whether you can successfully edit a project.
   def edit_project_success
     num_rows = @ie.data_grid("projectResourceGrid").num_rows
-    edit_project('foo 1', 'description', '10/10/2020', '10')
+    edit_project('foo 1', 'description', '10/10/2020', '10', 'false')
 
     @ie.combo_box("projectFieldSurveyMode").open
     @ie.combo_box("projectFieldSurveyMode").select(:item_renderer => "Private")
@@ -227,7 +229,7 @@ private
   # Test whether you can successfully cancel editing a project.
   def edit_project_cancel
     num_rows = @ie.data_grid("projectResourceGrid").num_rows
-    edit_project('foo', 'description', '10/10/2020', '10')
+    edit_project('foo', 'description', '10/10/2020', '10', 'false')
     @ie.button("projectBtnCancel").click
     assert_equal '', @ie.text_area("projectError").text
     assert_nil @ie.button("projectBtnCancel")
@@ -235,12 +237,14 @@ private
   end
 
   # Edit a project.
-  def edit_project(name, description, premium_expiry, premium_limit)
+  def edit_project(name, description, premium_expiry, premium_limit, track_actuals)
     @ie.button("projectBtnEdit")[3].click
     @ie.text_area("projectFieldName").input(:text => name )
     @ie.text_area("textArea").input(:text => description )
     @ie.text_area("projectFieldPremiumExpiry").input(:text => premium_expiry )
     @ie.text_area("projectFieldPremiumLimit")[0].input(:text => premium_limit ) # Not sure why the array is necessary
+    @ie.combo_box("projectFieldTrackActuals").open
+#    @ie.combo_box("projectFieldTrackActuals").select(:item_renderer => track_actuals)
   end
 
   # Select a project to see what is displayed in individuals.

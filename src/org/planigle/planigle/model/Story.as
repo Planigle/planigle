@@ -230,7 +230,31 @@ package org.planigle.planigle.model
 				if (task.effort != null && task.effort != "")
 					sum += Number(task.effort);
 			}
-			return ((sum == 0) ? "" : sum.toString());
+			return tasks.length == 0 ? "" : sum.toString();
+		}
+
+		// For stories, the calculated estimate is the sum of the estimate of its tasks.
+		public function get estimate():String
+		{
+			var sum:Number = 0;
+			for each (var task:Task in tasks)
+			{
+				if (task.estimate != null && task.estimate != "")
+					sum += Number(task.estimate);
+			}
+			return tasks.length == 0 ? "" : sum.toString();
+		}
+
+		// For stories, the actual is the sum of the actual of its tasks.
+		public function get actual():String
+		{
+			var sum:Number = 0;
+			for each (var task:Task in tasks)
+			{
+				if (task.actual != null && task.actual != "")
+					sum += Number(task.actual);
+			}
+			return tasks.length == 0 ? "" : sum.toString();
 		}
 
 		// Only show user priority if not accepted.
@@ -280,7 +304,7 @@ package org.planigle.planigle.model
 				for each (var task:Task in tasks)
 				{
 					if (task.statusCode != ACCEPTED)
-						task.update({'record[status_code]': ACCEPTED}, null, null);
+						task.update({'record[status_code]': ACCEPTED, 'record[effort]': 0}, null, null);
 				}
 			}
 		}

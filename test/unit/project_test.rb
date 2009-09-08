@@ -16,7 +16,7 @@ class ProjectTest < ActiveSupport::TestCase
     assert_difference 'Project.count' do
       project = create_project
       assert !project.new_record?, "#{project.errors.full_messages.to_sentence}"
-      assert_equal 13, project.story_attributes.length
+      assert_equal 15, project.story_attributes.length
     end
   end
 
@@ -32,6 +32,12 @@ class ProjectTest < ActiveSupport::TestCase
   # Test the validation of description.
   def test_description
     validate_field(:description, true, nil, 4096)
+  end
+
+  # Test the validation of track actuals.
+  def test_track_actuals
+    assert_success(:track_actuals, true)
+    assert_success(:track_actuals, false)
   end
 
   # Test the validation of survey_mode.
