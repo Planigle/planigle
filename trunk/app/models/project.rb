@@ -9,7 +9,7 @@ class Project < ActiveRecord::Base
   has_many :stories, :dependent => :destroy
   has_many :story_attributes, :dependent => :destroy
   has_many :surveys, :dependent => :destroy
-  attr_accessible :company_id, :name, :description, :survey_mode, :premium_limit, :premium_expiry
+  attr_accessible :company_id, :name, :description, :survey_mode, :premium_limit, :premium_expiry, :track_actuals
   acts_as_audited :except => [:survey_key]
 
   validates_presence_of     :name, :company_id
@@ -31,6 +31,9 @@ class Project < ActiveRecord::Base
     end
     if (self.class.column_names.include?('premium_limit') && !attributes.include?(:premium_limit))
       attributes[:premium_limit] = 1000
+    end
+    if (self.class.column_names.include?('track_actuals') && !attributes.include?(:track_actuals))
+      attributes[:track_actuals] = false
     end
     super
   end
@@ -147,11 +150,13 @@ class Project < ActiveRecord::Base
     story_attributes << StoryAttribute.new(:name => 'Team', :is_custom => false, :value_type => StoryAttribute::List, :width => 75, :ordering => 60, :show => true)
     story_attributes << StoryAttribute.new(:name => 'Owner', :is_custom => false, :value_type => StoryAttribute::List, :width => 110, :ordering => 70, :show => true)
     story_attributes << StoryAttribute.new(:name => 'Size', :is_custom => false, :value_type => StoryAttribute::Number, :width => 50, :ordering => 80, :show => true)
-    story_attributes << StoryAttribute.new(:name => 'Time', :is_custom => false, :value_type => StoryAttribute::Number, :width => 50, :ordering => 90, :show => true)
-    story_attributes << StoryAttribute.new(:name => 'Status', :is_custom => false, :value_type => StoryAttribute::List, :width => 100, :ordering => 100, :show => true)
-    story_attributes << StoryAttribute.new(:name => 'Public', :is_custom => false, :value_type => StoryAttribute::List, :width => 60, :ordering => 110, :show => false)
-    story_attributes << StoryAttribute.new(:name => 'Rank', :is_custom => false, :value_type => StoryAttribute::Number, :width => 40, :ordering => 120, :show => true)
-    story_attributes << StoryAttribute.new(:name => 'User Rank', :is_custom => false, :value_type => StoryAttribute::Number, :width => 90, :ordering => 130, :show => false)
+    story_attributes << StoryAttribute.new(:name => 'Estimate', :is_custom => false, :value_type => StoryAttribute::Number, :width => 60, :ordering => 90, :show => false)
+    story_attributes << StoryAttribute.new(:name => 'Actual', :is_custom => false, :value_type => StoryAttribute::Number, :width => 50, :ordering => 100, :show => false)
+    story_attributes << StoryAttribute.new(:name => 'To Do', :is_custom => false, :value_type => StoryAttribute::Number, :width => 50, :ordering => 110, :show => true)
+    story_attributes << StoryAttribute.new(:name => 'Status', :is_custom => false, :value_type => StoryAttribute::List, :width => 100, :ordering => 120, :show => true)
+    story_attributes << StoryAttribute.new(:name => 'Public', :is_custom => false, :value_type => StoryAttribute::List, :width => 60, :ordering => 130, :show => false)
+    story_attributes << StoryAttribute.new(:name => 'Rank', :is_custom => false, :value_type => StoryAttribute::Number, :width => 40, :ordering => 140, :show => true)
+    story_attributes << StoryAttribute.new(:name => 'User Rank', :is_custom => false, :value_type => StoryAttribute::Number, :width => 90, :ordering => 150, :show => false)
   end
 
 protected

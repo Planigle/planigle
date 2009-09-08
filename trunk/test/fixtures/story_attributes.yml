@@ -5,7 +5,7 @@ first:
   value_type: 0
   is_custom: true
   width: 60
-  ordering: 140
+  ordering: 160
   show: false
 
 second:
@@ -15,7 +15,7 @@ second:
   value_type: 1
   is_custom: true
   width: 60
-  ordering: 150
+  ordering: 170
   show: false
 
 third:
@@ -25,7 +25,7 @@ third:
   value_type: 2
   is_custom: true
   width: 60
-  ordering: 160
+  ordering: 180
   show: false
 
 fourth:
@@ -35,7 +35,7 @@ fourth:
   value_type: 0
   is_custom: true
   width: 60
-  ordering: 140
+  ordering: 160
   show: false
 
 fifth:
@@ -45,7 +45,7 @@ fifth:
   value_type: 3
   is_custom: true
   width: 60
-  ordering: 170
+  ordering: 190
   show: true
   
 sixth:
@@ -55,7 +55,7 @@ sixth:
   value_type: 4
   is_custom: true
   width: 60
-  ordering: 180
+  ordering: 200
   show: false
 
 std_1_1:
@@ -111,11 +111,11 @@ std_1_5:
 std_1_6:
   id: 12
   project_id: 1
-  name: Time
+  name: To Do
   value_type: 2
   is_custom: false
   width: 40
-  ordering: 60
+  ordering: 70
   show: true
 
 std_1_7:
@@ -125,7 +125,7 @@ std_1_7:
   value_type: 3
   is_custom: false
   width: 100
-  ordering: 70
+  ordering: 90
   show: true
 
 std_1_8:
@@ -135,7 +135,7 @@ std_1_8:
   value_type: 3
   is_custom: false
   width: 60
-  ordering: 80
+  ordering: 100
   show: true
 
 std_1_9:
@@ -145,7 +145,7 @@ std_1_9:
   value_type: 2
   is_custom: false
   width: 65
-  ordering: 90
+  ordering: 110
   show: true
 
 std_1_10:
@@ -155,7 +155,7 @@ std_1_10:
   value_type: 2
   is_custom: false
   width: 65
-  ordering: 100
+  ordering: 120
   show: true
 
 std_1_11:
@@ -165,7 +165,7 @@ std_1_11:
   value_type: 1
   is_custom: false
   width: 300
-  ordering: 110
+  ordering: 130
   show: false
 
 std_1_12:
@@ -175,7 +175,7 @@ std_1_12:
   value_type: 1
   is_custom: false
   width: 300
-  ordering: 120
+  ordering: 140
   show: false
 
 std_1_13:
@@ -185,7 +185,27 @@ std_1_13:
   value_type: 3
   is_custom: false
   width: 135
-  ordering: 130
+  ordering: 150
+  show: false
+
+std_1_14:
+  id: 33
+  project_id: 1
+  name: Estimate
+  value_type: 2
+  is_custom: false
+  width: 50
+  ordering: 60
+  show: false
+
+std_1_15:
+  id: 34
+  project_id: 1
+  name: Actual
+  value_type: 2
+  is_custom: false
+  width: 40
+  ordering: 80
   show: false
 
 std_2_1:
@@ -241,11 +261,11 @@ std_2_5:
 std_2_6:
   id: 25
   project_id: 2
-  name: Time
+  name: To Do
   value_type: 2
   is_custom: false
   width: 40
-  ordering: 60
+  ordering: 70
   show: true
 
 std_2_7:
@@ -255,7 +275,7 @@ std_2_7:
   value_type: 3
   is_custom: false
   width: 100
-  ordering: 70
+  ordering: 90
   show: true
 
 std_2_8:
@@ -265,7 +285,7 @@ std_2_8:
   value_type: 3
   is_custom: false
   width: 60
-  ordering: 80
+  ordering: 100
   show: true
 
 std_2_9:
@@ -275,7 +295,7 @@ std_2_9:
   value_type: 2
   is_custom: false
   width: 65
-  ordering: 90
+  ordering: 110
   show: true
 
 std_2_10:
@@ -285,7 +305,7 @@ std_2_10:
   value_type: 2
   is_custom: false
   width: 65
-  ordering: 100
+  ordering: 120
   show: true
 
 std_2_11:
@@ -295,7 +315,7 @@ std_2_11:
   value_type: 1
   is_custom: false
   width: 300
-  ordering: 110
+  ordering: 130
   show: false
 
 std_2_12:
@@ -305,7 +325,7 @@ std_2_12:
   value_type: 1
   is_custom: false
   width: 300
-  ordering: 120
+  ordering: 140
   show: false
 
 std_2_13:
@@ -315,5 +335,25 @@ std_2_13:
   value_type: 3
   is_custom: false
   width: 135
-  ordering: 130
+  ordering: 150
+  show: false
+
+std_2_14:
+  id: 35
+  project_id: 2
+  name: Estimate
+  value_type: 2
+  is_custom: false
+  width: 50
+  ordering: 60
+  show: false
+
+std_2_15:
+  id: 36
+  project_id: 2
+  name: Actual
+  value_type: 2
+  is_custom: false
+  width: 40
+  ordering: 80
   show: false

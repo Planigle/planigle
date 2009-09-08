@@ -29,6 +29,8 @@ protected
       @record.description = params[0].description
       @record.individual_id = params[0].individual_id
       @record.effort = params[0].effort
+      @record.estimate = params[0].estimate
+      @record.actual = params[0].actual
       @record.status_code = params[0].status_code
       @record.priority = params[0].priority
     else

@@ -205,9 +205,21 @@ package org.planigle.planigle.view
 		}
 
 		// Sort effort numerically.
+		public static function sortEstimate(item1:Object, item2:Object):int
+		{
+			return ObjectUtil.numericCompare(Number(item1.estimate),Number(item2.estimate));
+		}
+
+		// Sort effort numerically.
 		public static function sortCalculatedEffort(item1:Object, item2:Object):int
 		{
 			return ObjectUtil.numericCompare(Number(item1.calculatedEffort),Number(item2.calculatedEffort));
+		}
+
+		// Sort effort numerically.
+		public static function sortActual(item1:Object, item2:Object):int
+		{
+			return ObjectUtil.numericCompare(Number(item1.actual),Number(item2.actual));
 		}
 
 		// Sort priority numerically.

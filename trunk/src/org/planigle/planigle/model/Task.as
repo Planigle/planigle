@@ -17,6 +17,8 @@ package org.planigle.planigle.model
 		public var reasonBlocked:String;
 		public var individualId:String;
 		public var effort:String;
+		public var estimate:String;
+		public var actual:String;
 		public var statusCode:int;
 		public var priority:Number;
 		public var projectedIterationId:String; // Not used for tasks, but needed for the grid.
@@ -30,6 +32,8 @@ package org.planigle.planigle.model
 			description = xml.description;
 			individualId = xml.child("individual-id").toString() == "" ? null : xml.child("individual-id");
 			effort = xml.effort;
+			estimate = xml.estimate;
+			actual = xml.actual;
 			statusCode = xml.child("status-code");
 			reasonBlocked = xml.child("reason-blocked");
 			priority = xml.child("priority");

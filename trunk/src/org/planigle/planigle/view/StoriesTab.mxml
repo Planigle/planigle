@@ -540,6 +540,10 @@
 			storyFormAcceptanceCriteria.visible = true;
 			storyFormPublic.height = factory.currentIndividual.isPremium ? 22 : -5;
 			storyFormPublic.visible = factory.currentIndividual.isPremium;
+			storyFormEstimate.height = 0;
+			storyFormEstimate.visible = false;
+			storyFormActual.height = 0;
+			storyFormActual.visible = false;
 			storyBtnEditAttributes.visible = factory.currentIndividual.isAtLeastProjectAdmin();
 			for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
 			{
@@ -553,7 +557,7 @@
 		private function prepareForTask():void
 		{
 			storyNameForm.label = "Task Name";
-			storyEffortForm.label = "Time";
+			storyEffortForm.label = "To Do";
 			storyFormRelease.height = -5;
 			storyFormRelease.visible = false;
 			storyFormIteration.height = -5;
@@ -564,6 +568,18 @@
 			storyFormAcceptanceCriteria.visible = false;
 			storyFormPublic.height = -5;
 			storyFormPublic.visible = false;
+			storyFormEstimate.height = 22;
+			storyFormEstimate.visible = true;
+			if (IndividualFactory.current().selectedProject.trackActuals)
+			{
+				storyFormActual.height = 22;
+				storyFormActual.visible = true;
+			}
+			else
+			{
+				storyFormActual.height = 0;
+				storyFormActual.visible = false;
+			}
 			storyBtnEditAttributes.visible = false;
 			for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
 			{
@@ -573,6 +589,7 @@
 			}
 		}
 
+		[Bindable]
 		private var currentItem:Object; // Remember in case selection changes while form is open.
 
 		// Show user a form to create a story.
@@ -648,7 +665,9 @@
 			else
 				storyFieldOwner.selectedIndex = IndividualFactory.current().selectedProject.individuals().length - 1;
 
+			storyFieldEstimate.text = '';
 			storyFieldEffort.text = '';
+			storyFieldActual.text = '';
 			storyFieldStatus.selectedIndex = 0;
 			storyBtnChange.label = 'Create';
 			storyBtnInfo.visible = false;
@@ -706,7 +725,11 @@
 						setCustomAttributes();
 					}
 					else
+					{
+						storyFieldEstimate.text = currentItem.estimate;
+						storyFieldActual.text = currentItem.actual;
 						prepareForTask();
+					}
 	
 					var it2:String = currentItem.individualId;
 					if (!it2)
@@ -836,6 +859,11 @@
 						params['record[custom_' + attrib.id + ']'] = attrib.valueType == StoryAttribute.TEXT ? ExpandableHTMLTextArea(disp).text : (attrib.valueType >= StoryAttribute.LIST ? (ComboBox(disp).selectedItem.id > 0 ? ComboBox(disp).selectedItem.id : "") : TextInput(disp).text);
 				}
 			}
+			else
+			{
+				params['record[estimate]'] = storyFieldEstimate.text;
+				params['record[actual]'] = storyFieldActual.text;
+			}
 			return params;
 		}
 		
@@ -868,6 +896,10 @@
 							if (fieldValue != ((attrib.valueType < StoryAttribute.LIST && objectValue == null) ? "" : objectValue)) return true;
 						}
 					}
+				}
+				else {
+					if (storyFieldEstimate.text != (currentItem.estimate == null ? "" : currentItem.estimate)) return true;
+					if (storyFieldActual.text != (currentItem.actual == null ? "" : currentItem.actual)) return true;
 				}
 			}
 			return false;
@@ -1236,8 +1268,22 @@
 			}
 		}
 		
+		// Answer whether I'm working with a story.
+		private function get isStory():Boolean
+		{
+			return (currentState != 'Change' && !currentItem) || (currentState == 'Change' && currentItem && currentItem.isStory());
+		}
+		
 		// Update fields based on new status.
-		private function updateReasonBlocked(event:Event):void
+		private function updateStatusCode():void
+		{
+			if (isStory && storyFieldStatus.selectedIndex == Story.ACCEPTED)
+				storyFieldEffort.text = "0";
+			updateReasonBlocked();
+		}
+		
+		// Update fields based on new status.
+		private function updateReasonBlocked():void
 		{
 			var blocked:Boolean = storyFieldStatus.selectedIndex == Story.BLOCKED;
 			storyFormReasonBlocked.height = blocked ? 64 : 0;
@@ -1507,7 +1553,7 @@
 											<component:ExpandableCriteriaGrid id='storyFieldAcceptanceCriteria' height="100%"/>
 										</mx:FormItem>
 										<mx:FormItem label='Status'>
-											<mx:ComboBox id='storyFieldStatus' editable="false" change="updateReasonBlocked(event)">
+											<mx:ComboBox id='storyFieldStatus' editable="false" change="updateStatusCode()">
 												<mx:Object label="Not Started" value="0" />
 												<mx:Object label="In Progress" value="1" />
 												<mx:Object label="Blocked" value="2" />
@@ -1533,8 +1579,14 @@
 										<mx:FormItem label='Owner'>
 											<mx:ComboBox id='storyFieldOwner' editable="false" dataProvider="{IndividualFactory.current().selectedProject.individuals()}" labelField="fullName"></mx:ComboBox>
 										</mx:FormItem>
-										<mx:FormItem id="storyEffortForm" label='Size'>
-											<mx:TextInput id='storyFieldEffort' restrict="0-9." text='' width="100"/>
+										<mx:FormItem id="storyFormEstimate" label='Estimate'>
+											<mx:TextInput id='storyFieldEstimate' restrict="0-9." text='' width="100" enabled="{storyFieldStatus.selectedIndex==Story.CREATED}" change="storyFieldEffort.text = storyFieldEstimate.text"/>
+										</mx:FormItem>
+										<mx:FormItem id="storyEffortForm" label='To Do'>
+											<mx:TextInput id='storyFieldEffort' restrict="0-9." text='' width="100" enabled="{!currentItem || currentItem.isStory() || storyFieldStatus.selectedIndex!=Story.ACCEPTED}"/>
+										</mx:FormItem>
+										<mx:FormItem id="storyFormActual" label='Actual'>
+											<mx:TextInput id='storyFieldActual' restrict="0-9." text='' width="100"/>
 										</mx:FormItem>
 										<mx:FormItem label='Public' id="storyFormPublic">
 											<mx:ComboBox id='storyFieldPublic' editable="false">
@@ -1692,7 +1744,9 @@
 				<mx:DataGridColumn id="storyColumnTeam" headerText="Team" labelFunction="ViewHelper.formatTeam" sortCompareFunction="ViewHelper.sortTeam"/>
 				<mx:DataGridColumn id="storyColumnIndividual" headerText="Owner" labelFunction="ViewHelper.formatIndividual" sortCompareFunction="ViewHelper.sortIndividual"/>
 				<mx:DataGridColumn headerText="Size" dataField="size" sortCompareFunction="ViewHelper.sortSize"/>
-				<mx:DataGridColumn headerText="Time" dataField="calculatedEffort" sortCompareFunction="ViewHelper.sortCalculatedEffort"/>
+				<mx:DataGridColumn headerText="Estimate" dataField="estimate" sortCompareFunction="ViewHelper.sortEstimate"/>
+				<mx:DataGridColumn headerText="To Do" dataField="calculatedEffort" sortCompareFunction="ViewHelper.sortCalculatedEffort"/>
+				<mx:DataGridColumn headerText="Actual" dataField="actual" sortCompareFunction="ViewHelper.sortActual"/>
 				<mx:DataGridColumn editable="false" minWidth="115" headerText="Status" sortCompareFunction="ViewHelper.sortStatus">
 					<mx:itemRenderer> 
 						<mx:Component>

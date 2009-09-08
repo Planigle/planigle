@@ -93,7 +93,7 @@ module RubyAMF
       :actionscript => 'Project',
       :ruby => 'Project',
       :type => 'active_record',
-      :attributes => ["id", "company_id", "name", "description", "survey_key", "survey_mode", "premium_expiry", "premium_limit"],
+      :attributes => ["id", "company_id", "name", "description", "survey_key", "survey_mode", "premium_expiry", "premium_limit", "track_actuals"],
       :associations => ["teams", "story_attributes"])
 
     ClassMappings.register(
@@ -121,7 +121,7 @@ module RubyAMF
       :actionscript => 'Task',
       :ruby => 'Task',
       :type => 'active_record',
-      :attributes => ["id", "story_id", "name", "description", "individual_id", "effort", "status_code", "reason_blocked", "priority"])
+      :attributes => ["id", "story_id", "name", "description", "individual_id", "effort", "status_code", "reason_blocked", "priority", "estimate", "actual"])
 
     ClassMappings.register(
       :actionscript => 'Criterium',

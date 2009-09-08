@@ -12,7 +12,7 @@ class StoryAttributeTest < ActiveSupport::TestCase
     assert_difference 'StoryAttribute.count' do
       val = create_storyattribute
       assert !val.new_record?, "#{val.errors.full_messages.to_sentence}"
-      assert_equal 190, val.ordering
+      assert_equal 210, val.ordering
       assert_equal false, val.show
       assert_equal true, val.is_custom
       assert_equal 65, val.width

@@ -24,6 +24,7 @@ protected
       @record.name = params[0].name
       @record.description = params[0].description
       @record.survey_mode = params[0].survey_mode
+      @record.track_actuals = params[0].track_actuals
     else
       @record.attributes = params[:record]
     end
