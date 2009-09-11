@@ -272,9 +272,26 @@
 		private function updateIndividualFilterList(event:Event):void
 		{
 			setIndividualFilterList();
-			if (IndividualFactory.current().selectedProject)
-				storyFieldOwner.dataProvider = IndividualFactory.current().selectedProject.individuals();
+			setOwners();
 			handleFilter(event);
+		}
+		
+		private function setOwners():void
+		{
+			if (IndividualFactory.current().selectedProject)
+			{
+				var collect:ArrayCollection = new ArrayCollection()
+				for each (var individual:Individual in IndividualFactory.current().selectedProject.enabledIndividuals())
+					collect.addItem(individual);
+				if (currentItem)
+				{
+					var id:String = currentItem.individualId;
+					var owner:Individual = id ? IndividualFactory.getInstance().find(id) : null;
+					if (owner && owner.id && !collect.contains(owner))
+						collect.addItemAt(owner, collect.length-1);
+				}
+				storyFieldOwner.dataProvider = collect;
+			}
 		}
 		
 		// Set the individuals in the filter list.
@@ -287,21 +304,31 @@
 			var newFilter:ArrayCollection = new ArrayCollection();
 			if (IndividualFactory.current().selectedProject)
 			{
-				for each (var it:Individual in IndividualFactory.current().selectedProject.individuals())
+				for each (var it:Individual in IndividualFactory.current().selectedProject.enabledIndividuals())
 				{
 					newFilter.addItem(it);
 					if (it.id == id)
 						selection = it;
 				}
 			}
-			var all:Individual = new Individual();
+ 			var all:Individual = new Individual();
 			all.populate( <individual><id>-1</id><first-name>All Owners</first-name></individual> );
 			newFilter.addItem(all);
+			var defaultSelection:int = newFilter.length - 1;
+			if (IndividualFactory.current().isInProject(IndividualFactory.current().selectedProject))
+			{ // Add me as an easy to find entry above All Owners.
+				var me:Individual = new Individual();
+				me.populate( <individual><id>0</id><first-name>Me</first-name></individual> );
+				me.id = IndividualFactory.current().id;
+				if (it.id == me.id)
+					selection = me;
+				newFilter.addItem(me);
+			}
 			individualFilter = newFilter;
 			if (selection)
 				individual.selectedItem = selection;
 			else
-				individual.selectedIndex = individualFilter.length - 1;
+				individual.selectedIndex = defaultSelection;
 		}
 
 		// Answer the stories for the selected iteration.
@@ -614,7 +641,7 @@
 		{
 			var it:String = currentItem.individualId;
 			if (!it)
-				storyFieldOwner.selectedIndex = IndividualFactory.current().selectedProject.individuals().length - 1;
+				storyFieldOwner.selectedIndex = storyFieldOwner.dataProvider.length - 1;
 			else
 				storyFieldOwner.selectedItem = IndividualFactory.getInstance().find(it);
 		}
@@ -660,10 +687,11 @@
 				clearCustomAttributes()
 			}
 
+			setOwners();
 			if (individual.selectedItem.id != "-1")
 				storyFieldOwner.selectedItem = individual.selectedItem;
 			else
-				storyFieldOwner.selectedIndex = IndividualFactory.current().selectedProject.individuals().length - 1;
+				storyFieldOwner.selectedIndex = storyFieldOwner.dataProvider.length - 1;
 
 			storyFieldEstimate.text = '';
 			storyFieldEffort.text = '';
@@ -731,9 +759,10 @@
 						prepareForTask();
 					}
 	
+					setOwners();
 					var it2:String = currentItem.individualId;
 					if (!it2)
-						storyFieldOwner.selectedIndex = IndividualFactory.current().selectedProject.individuals().length - 1;
+						storyFieldOwner.selectedIndex = storyFieldOwner.dataProvider.length - 1;
 					else
 						storyFieldOwner.selectedItem = IndividualFactory.getInstance().find(it2);
 	
@@ -1577,7 +1606,7 @@
 											<mx:ComboBox id='storyFieldTeam' editable="false" dataProvider="{IndividualFactory.current().selectedProject.teamSelector}" labelField="name"></mx:ComboBox>
 										</mx:FormItem>
 										<mx:FormItem label='Owner'>
-											<mx:ComboBox id='storyFieldOwner' editable="false" dataProvider="{IndividualFactory.current().selectedProject.individuals()}" labelField="fullName"></mx:ComboBox>
+											<mx:ComboBox id='storyFieldOwner' editable="false" labelField="fullName"></mx:ComboBox>
 										</mx:FormItem>
 										<mx:FormItem id="storyFormEstimate" label='Estimate'>
 											<mx:TextInput id='storyFieldEstimate' restrict="0-9." text='' width="100" enabled="{storyFieldStatus.selectedIndex==Story.CREATED}" change="storyFieldEffort.text = storyFieldEstimate.text"/>
