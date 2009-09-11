@@ -175,6 +175,18 @@ package org.planigle.planigle.model
 			return individuals;
 		}
 
+		// Answer my enabled individuals.
+		public function enabledIndividuals():ArrayCollection
+		{
+			var individuals:ArrayCollection = new ArrayCollection();
+			for each (var individual:Individual in IndividualFactory.getInstance().individualSelector)
+			{
+				if (!individual.id || (individual.isInProject(this) && individual.enabled))
+					individuals.addItem(individual);
+			}
+			return individuals;
+		}
+
 		// Answer whether this project has premium features.
 		public function get isPremium():Boolean
 		{
