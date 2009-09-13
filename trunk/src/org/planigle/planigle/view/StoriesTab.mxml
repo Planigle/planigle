@@ -1306,7 +1306,7 @@
 		// Update fields based on new status.
 		private function updateStatusCode():void
 		{
-			if (isStory && storyFieldStatus.selectedIndex == Story.ACCEPTED)
+			if (!isStory && storyFieldStatus.selectedIndex == Story.ACCEPTED)
 				storyFieldEffort.text = "0";
 			updateReasonBlocked();
 		}
