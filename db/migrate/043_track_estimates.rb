@@ -1,8 +1,8 @@
 class TrackEstimates < ActiveRecord::Migration
   def self.up
     add_column :projects, :track_actuals, :boolean, :null => false, :default => false
-    add_column :tasks, :estimate, :integer, :precision => 7, :scale => 2
-    add_column :tasks, :actual, :integer, :precision => 7, :scale => 2
+    add_column :tasks, :estimate, :decimal, :precision => 7, :scale => 2
+    add_column :tasks, :actual, :decimal, :precision => 7, :scale => 2
     Task.reset_column_information # Work around an issue where the new columns are not in the cache.
     Task.find(:all).each do |task|
       task.estimate = task.effort
