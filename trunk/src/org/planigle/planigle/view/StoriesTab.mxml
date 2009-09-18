@@ -1236,7 +1236,10 @@
 			}
 			else
 			{
-				updateItem(currentItem, {"record[status_code]": statusEvent.target.selectedIndex, 'record[reason_blocked]': ''});
+				var map:Object = {"record[status_code]": statusEvent.target.selectedIndex, 'record[reason_blocked]': ''};
+				if (!currentItem.isStory() && statusEvent.target.selectedIndex == Story.ACCEPTED)
+					map["record[effort]"] = 0;
+				updateItem(currentItem, map);
 				handleUpdateSuccess(); // Prime processing.
 			}
 		}
