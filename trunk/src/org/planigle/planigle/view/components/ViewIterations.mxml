@@ -70,32 +70,42 @@
 			iterationBtnChange.label = 'Update'
 		}
 
+		private function getInitialValues():Object
+		{
+			var values:Object = new Object();
+			if(IterationFactory.getInstance().iterations.length > 0)
+			{
+				var last:Iteration = Iteration(IterationFactory.getInstance().iterations.getItemAt(IterationFactory.getInstance().iterations.length - 1));
+				values["name"] = last.incrementName();
+				values["start"] = release ? (release.start.getTime() > last.finish.getTime() ? release.start : last.finish) : last.finish;
+				var finishFromLast:Date = new Date();
+				finishFromLast.setTime(values["start"].getTime() + last.finish.getTime() - last.start.getTime()); // 2 Weeks from start
+				values["finish"] = finishFromLast;
+			}
+			else
+			{
+				values["name"] = 'Iteration 1';
+				values["start"] = release ? release.start : new Date();
+				var finish:Date = new Date();
+				finish.setTime(values["start"].getTime() + 2*7*24*60*60*1000); // 2 Weeks from start
+				values["finish"] = finish;
+			}
+			values["retrospectiveResults"] = '';
+			return values;
+		}
+
 		// Show user a form to create a resource.
 		private function showCreate(event:Event):void
 		{
 			clearErrorMessage();
 			currentState = 'Change';
 			iterationFieldName.setFocus();
-			
-			if(IterationFactory.getInstance().iterations.length > 0)
-			{
-				var last:Iteration = Iteration(IterationFactory.getInstance().iterations.getItemAt(IterationFactory.getInstance().iterations.length - 1));
-				iterationFieldName.text = last.incrementName();
-				iterationFieldName.setSelection(0, iterationFieldName.text.length );
-				iterationFieldStart.selectedDate = release ? (release.start.getTime() > last.finish.getTime() ? release.start : last.finish) : last.finish;
-				var finishFromLast:Date = new Date();
-				finishFromLast.setTime(iterationFieldStart.selectedDate.getTime() + last.finish.getTime() - last.start.getTime()); // 2 Weeks from start
-				iterationFieldFinish.selectedDate = finishFromLast;
-			}
-			else
-			{
-	 			iterationFieldName.text = 'Iteration 1';
-				iterationFieldStart.selectedDate = release ? release.start : new Date();
-				var finish:Date = new Date();
-				finish.setTime(iterationFieldStart.selectedDate.getTime() + 2*7*24*60*60*1000); // 2 Weeks from start
-				iterationFieldFinish.selectedDate = finish;
-			}
-			iterationFieldRetrospectiveResults.text = '';
+			var values:Object = getInitialValues();
+			iterationFieldName.text = values["name"];
+			iterationFieldName.setSelection(0, iterationFieldName.text.length );
+			iterationFieldStart.selectedDate = values["start"];
+			iterationFieldFinish.selectedDate = values["finish"];
+			iterationFieldRetrospectiveResults.text = values["retrospectiveResults"];
 			iterationBtnChange.label = 'Create';
 			iterationBtnInfo.visible = false;
 		}
@@ -227,8 +237,13 @@
 		// Answer whether any changes need to be saved.
 		public function isDirty(): Boolean
 		{
-			if (iterationBtnChange.label == 'Create')
-				return true;
+			if (iterationBtnChange.label == 'Create') {
+				var values:Object = getInitialValues();
+				if (iterationFieldName.text != values["name"]) return true;
+				if (!DateUtils.equals(iterationFieldStart.selectedDate, values["start"])) return true;
+				if (!DateUtils.equals(iterationFieldFinish.selectedDate, values["finish"])) return true;
+				if (iterationFieldRetrospectiveResults.text != values["retrospectiveResults"]) return true;
+			}
 			else if (currentItem) {
 				if (iterationFieldName.text != currentItem.name) return true;
 				if (!DateUtils.equals(iterationFieldStart.selectedDate, currentItem.start)) return true;

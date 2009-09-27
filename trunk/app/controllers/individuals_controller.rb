@@ -24,6 +24,9 @@ protected
   
   # Create a new record given the params.
   def create_record
+    if (!params[:record].has_key?(:company_id))
+      params[:record][:company_id] = current_individual.company_id
+    end
     if (!params[:record].has_key?(:project_id))
       params[:record][:project_id] = current_individual.project_id
     end

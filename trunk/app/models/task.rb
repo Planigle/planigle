@@ -1,7 +1,7 @@
 class Task < ActiveRecord::Base
   belongs_to :individual
   belongs_to :story
-  attr_accessible :name, :description, :effort, :status_code, :iteration_id, :individual_id, :story_id, :reason_blocked, :priority, :actual, :estimate
+  attr_accessible :name, :description, :effort, :status_code, :individual_id, :story_id, :reason_blocked, :priority, :actual, :estimate
   acts_as_audited :except => [:story_id]
   
   validates_presence_of     :name, :story_id
