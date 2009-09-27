@@ -91,16 +91,28 @@
 			projectBtnChange.label = 'Update'
 		}
 
+		private function getInitialValues():Object
+		{
+			var values:Object = new Object();
+			values["name"] = '';
+			values["description"] = '';
+			values["premiumExpiry"] = new Date(new Date().time + 30*24*60*60*1000);
+			values["premiumLimit"] = '1000';
+			values["trackActuals"] = 0;
+			return values;
+		}
+
 		// Show user a form to create a resource.
 		private function showCreate(event:Event):void
 		{
 			clearErrorMessage();
 			currentState = 'Change';
-			projectFieldName.text = '';
-			projectFieldDescription.text = '';
-			projectFieldPremiumExpiry.selectedDate = new Date(new Date().time + 30*24*60*60*1000);
-			projectFieldPremiumLimit.text = '1000';
-			projectFieldTrackActuals.selectedIndex = 0;
+			var values:Object = getInitialValues();
+			projectFieldName.text = values["name"];
+			projectFieldDescription.text = values["description"];
+			projectFieldPremiumExpiry.selectedDate = values["premiumExpiry"];
+			projectFieldPremiumLimit.text = values["premiumLimit"];
+			projectFieldTrackActuals.selectedIndex = values["trackActuals"];
 			projectBtnChange.label = 'Create';
 			projectBtnInfo.visible = false;
 		}
@@ -131,7 +143,7 @@
 		// Show user a form to create a resource.
 		public function showCreateCompany(event:Event):void
 		{
-			currentItem = projectResourceGrid.selectedItem;
+			currentItem = null;
 			showCreate(event);
 			prepareForCompany();
 		}
@@ -406,8 +418,19 @@
 		// Answer whether any changes need to be saved.
 		public function isDirty(): Boolean
 		{
-			if (projectBtnChange.label == 'Create')
-				return true;
+			if (projectBtnChange.label == 'Create') {
+				var values:Object = getInitialValues();
+				if (projectFieldName.text != values["name"]) return true;
+				if (currentItem) {
+					if (projectFieldDescription.text != values["description"]) return true;
+					if (currentItem.isCompany()) {
+						if (projectFieldSurveyMode.selectedIndex != 1) return true;
+						if (!DateUtils.equals(projectFieldPremiumExpiry.selectedDate, values["premiumExpiry"])) return true;
+						if (projectFieldPremiumLimit.text != values["premiumLimit"]) return true;
+						if (projectFieldTrackActuals.selectedIndex != values["trackActuals"]) return true;
+					}
+				}
+			}
 			else if (currentItem) {
 				if (projectFieldName.text != currentItem.name) return true;
 				if (!currentItem.isCompany())

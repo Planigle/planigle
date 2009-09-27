@@ -646,58 +646,84 @@
 				storyFieldOwner.selectedItem = IndividualFactory.getInstance().find(it);
 		}
 
+		private function getInitialValues(shouldSet:Boolean = false):Object
+		{
+			var values:Object = new Object();
+			values["name"] = '';
+			values["description"] = '';
+			values["reasonBlocked"] = '';
+
+			if (isStory)
+			{
+				if (shouldSet)
+					storyFieldIteration.dataProvider = IterationFactory.getInstance().iterationsInRelease(Release(release.selectedItem));
+
+				if (iteration.selectedItem.id != "-1")
+					values["iteration"] = iteration.selectedItem;
+				else
+					values["iteration"] = storyFieldIteration.dataProvider.getItemAt(storyFieldIteration.dataProvider.length - 1);
+
+				if (shouldSet)
+					storyFieldRelease.dataProvider = values["iteration"].releases();
+
+				if (release.selectedItem.id != "-1")
+					values["release"] = release.selectedItem;
+				else
+					values["release"] = values["iteration"].defaultRelease();
+
+				if (team.selectedItem.id != "-1")
+					values["team"] = team.selectedItem;
+				else
+					values["team"] = storyFieldTeam.dataProvider.getItemAt(storyFieldTeam.dataProvider.length - 1);
+
+				values["public"] = IndividualFactory.current().selectedProject.surveyMode == 2 ? 0 : 1;
+			}
+
+			if (shouldSet)
+				setOwners();
+			if (individual.selectedItem.id != "-1")
+				values["owner"] = individual.selectedItem;
+			else
+				values["owner"] = storyFieldOwner.dataProvider.getItemAt(storyFieldOwner.dataProvider.length - 1);
+
+			values["estimate"] = '';
+			values["effort"] = '';
+			values["actual"] = '';
+			values["status"] = 0;
+			return values;
+		}
+
 		// Show user a form to create a resource.
 		private function showCreate(isStory:Boolean):void
 		{
 			clearErrorMessage();
 			currentState = 'Change';
+			storyBtnChange.label = 'Create';
 			storyFieldName.setFocus();
-			storyFieldName.text = '';
-			storyFieldDescription.text = '';
-			storyFieldReasonBlocked.text = '';
+			var values:Object = getInitialValues(true);
+			
+			storyFieldName.text = values["name"];
+			storyFieldDescription.text = values["description"];
+			storyFieldReasonBlocked.text = values["reasonBlocked"];
 			storyFormReasonBlocked.height = 0;
 			storyFormReasonBlocked.visible = false;
 
 			if (isStory)
 			{
 				storyFieldAcceptanceCriteria.clear();
-
-				storyFieldIteration.dataProvider = IterationFactory.getInstance().iterationsInRelease(Release(release.selectedItem));
-
-				if (iteration.selectedItem.id != "-1")
-					storyFieldIteration.selectedItem = iteration.selectedItem;
-				else
-					storyFieldIteration.selectedIndex = IterationFactory.getInstance().iterationSelector.length - 1;
-
-				storyFieldRelease.dataProvider = storyFieldIteration.selectedItem.releases();
-
-				if (release.selectedItem.id != "-1")
-					storyFieldRelease.selectedItem = release.selectedItem;
-				else
-					storyFieldRelease.selectedItem = storyFieldIteration.selectedItem.defaultRelease();
-				updateRelease();
-
-				if (team.selectedItem.id != "-1")
-					storyFieldTeam.selectedItem = team.selectedItem;
-				else
-					storyFieldTeam.selectedIndex = IndividualFactory.current().selectedProject.teamSelector.length - 1;
-
-				storyFieldPublic.selectedIndex = IndividualFactory.current().selectedProject.surveyMode  == 2 ? 0 : 1;
-
-				clearCustomAttributes()
+				storyFieldIteration.selectedItem = values["iteration"];
+				storyFieldRelease.selectedItem = values["release"];
+				storyFieldTeam.selectedItem = values["team"];
+				storyFieldPublic.selectedIndex = values["public"];
 			}
 
-			setOwners();
-			if (individual.selectedItem.id != "-1")
-				storyFieldOwner.selectedItem = individual.selectedItem;
-			else
-				storyFieldOwner.selectedIndex = storyFieldOwner.dataProvider.length - 1;
-
-			storyFieldEstimate.text = '';
-			storyFieldEffort.text = '';
-			storyFieldActual.text = '';
-			storyFieldStatus.selectedIndex = 0;
-			storyBtnChange.label = 'Create';
+			storyFieldOwner.selectedItem = values["owner"];
+			storyFieldEstimate.text = values["estimate"];
+			storyFieldEffort.text = values["effort"];
+			storyFieldActual.text = values["actual"];
+			storyFieldStatus.selectedIndex = values["status"];
+			updateRelease(); // Update release attribute values
+			clearCustomAttributes()
 			storyBtnInfo.visible = false;
 		}
 
@@ -899,8 +925,33 @@
 		// Answer whether any changes need to be saved.
 		public function isDirty(): Boolean
 		{
-			if (storyBtnChange.label == 'Create')
-				return true;
+			if (storyBtnChange.label == 'Create') {
+				var values:Object = getInitialValues();
+				if (storyFieldName.text != values["name"]) return true;
+				if (storyFieldDescription.text != values["description"]) return true;
+				if (storyFieldReasonBlocked.text != values["reasonBlocked"]) return true;
+				if (storyFieldOwner.selectedItem != values["owner"]) return true;
+				if (storyFieldStatus.selectedIndex != values["status"]) return true;
+				if (storyFieldEffort.text != values["effort"]) return true;
+				
+				if (!currentItem) {
+					if (storyFieldRelease.selectedItem != values["release"]) return true;
+					if (storyFieldIteration.selectedItem != values["iteration"]) return true;
+					if (storyFieldAcceptanceCriteria.acceptanceCriteria != "") return true;
+					if (storyFieldTeam.selectedItem != values["team"]) return true;
+					if (storyFieldPublic.selectedIndex != values["public"]) return true;
+					for each (var attrib1:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
+					{
+						var disp1:Object = customChildren["storyField" + attrib1.id.toString()];
+						if (attrib1.valueType >= StoryAttribute.LIST && ComboBox(disp1).selectedIndex != ComboBox(disp1).dataProvider.length - 1) return true;
+						if (attrib1.valueType < StoryAttribute.LIST && disp1.text != "") return true;
+					}
+				}
+				else {
+					if (storyFieldEstimate.text != values["estimate"]) return true;
+					if (storyFieldActual.text != values["actual"]) return true;
+				}
+			}
 			else if (currentItem) {
 				if (storyFieldName.text != currentItem.name) return true;
 				if (storyFieldDescription.text != currentItem.description) return true;
@@ -915,14 +966,14 @@
 					if (storyFieldAcceptanceCriteria.acceptanceCriteria != currentItem.acceptanceCriteria) return true;
 					if (storyFieldTeam.selectedItem.id != currentItem.teamId) return true;
 					if (storyFieldPublic.selectedItem.value != currentItem.isPublic) return true;
-					for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
+					for each (var attrib2:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
 					{
-						var disp:Object = customChildren["storyField" + attrib.id.toString()];
-						if (attrib.valueType < StoryAttribute.LIST || ComboBox(disp).selectedItem)
+						var disp2:Object = customChildren["storyField" + attrib2.id.toString()];
+						if (attrib2.valueType < StoryAttribute.LIST || ComboBox(disp2).selectedItem)
 						{
-							var fieldValue:Object = attrib.valueType >= StoryAttribute.LIST ? disp.selectedItem.id : disp.text;
-							var objectValue:Object = currentItem.getAttributeValue(attrib);
-							if (fieldValue != ((attrib.valueType < StoryAttribute.LIST && objectValue == null) ? "" : objectValue)) return true;
+							var fieldValue:Object = attrib2.valueType >= StoryAttribute.LIST ? disp2.selectedItem.id : disp2.text;
+							var objectValue:Object = currentItem.getAttributeValue(attrib2);
+							if (fieldValue != ((attrib2.valueType < StoryAttribute.LIST && objectValue == null) ? "" : objectValue)) return true;
 						}
 					}
 				}
@@ -1303,7 +1354,7 @@
 		// Answer whether I'm working with a story.
 		private function get isStory():Boolean
 		{
-			return (currentState != 'Change' && !currentItem) || (currentState == 'Change' && currentItem && currentItem.isStory());
+			return (storyBtnChange.label == 'Create' && !currentItem) || (storyBtnChange.label != 'Create' && currentItem && currentItem.isStory());
 		}
 		
 		// Update fields based on new status.

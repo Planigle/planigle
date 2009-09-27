@@ -66,28 +66,37 @@
 			releaseBtnChange.label = 'Update'
 		}
 
+		private function getInitialValues():Object
+		{
+			var values:Object = new Object();
+			if(ReleaseFactory.getInstance().releases.length > 0)
+			{
+				var releases:ArrayCollection = ReleaseFactory.getInstance().releases;
+				var last:Release = Release(releases.getItemAt(releases.length - 1));
+				values["name"] = last.incrementName();
+				values["start"] = new Date(last.finish.valueOf() + DateUtils.MILLIS_IN_DAY);
+				values["finish"] = new Date(last.finish.valueOf() + DateUtils.MILLIS_IN_DAY + last.finish.valueOf() - last.start.valueOf());
+			}
+			else
+			{
+	 			values["name"] = '1.0';
+				values["start"] = new Date();
+				values["finish"] = new Date( new Date().valueOf() + 91*24*60*60*1000 );
+			}
+			return values;
+		}
+
 		// Show user a form to create a resource.
 		private function showCreate(event:Event):void
 		{
 			clearErrorMessage();
 			currentState = 'Change';
 			releaseFieldName.setFocus();
-			
-			if(ReleaseFactory.getInstance().releases.length > 0)
-			{
-				var releases:ArrayCollection = ReleaseFactory.getInstance().releases;
-				var last:Release = Release(releases.getItemAt(releases.length - 1));
-				releaseFieldName.text = last.incrementName();
-				releaseFieldName.setSelection(0, releaseFieldName.text.length );
-				releaseFieldStart.selectedDate = new Date(last.finish.valueOf() + DateUtils.MILLIS_IN_DAY);
-				releaseFieldFinish.selectedDate = new Date(last.finish.valueOf() + DateUtils.MILLIS_IN_DAY + last.finish.valueOf() - last.start.valueOf());
-			}
-			else
-			{
-	 			releaseFieldName.text = '1.0';
-				releaseFieldStart.selectedDate = new Date();
-				releaseFieldFinish.selectedDate = new Date( new Date().valueOf() + 91*24*60*60*1000 );
-			}
+			var values:Object = getInitialValues();			
+			releaseFieldName.text = values["name"];
+			releaseFieldName.setSelection(0, releaseFieldName.text.length );
+			releaseFieldStart.selectedDate = values["start"];
+			releaseFieldFinish.selectedDate = values["finish"];
 			releaseBtnChange.label = 'Create';
 			releaseBtnInfo.visible = false;
 		}
@@ -216,8 +225,12 @@
 		// Answer whether any changes need to be saved.
 		public function isDirty(): Boolean
 		{
-			if (releaseBtnChange.label == 'Create')
-				return true;
+			if (releaseBtnChange.label == 'Create') {
+				var values:Object = getInitialValues();			
+				if (releaseFieldName.text != values["name"]) return true;
+				if (!DateUtils.equals(releaseFieldStart.selectedDate, values["start"])) return true;
+				if (!DateUtils.equals(releaseFieldFinish.selectedDate, values["finish"])) return true;
+			}
 			else if (currentItem) {
 				if (releaseFieldName.text != currentItem.name) return true;
 				if (!DateUtils.equals(releaseFieldStart.selectedDate, currentItem.start)) return true;
