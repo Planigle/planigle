@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:component="org.planigle.planigle.view.components.*" width="600" height="440">
+	<mx:Script>
+		<![CDATA[
+			// Enter text.  When done, call the function specified by
+			// the doneFunction variable and pass the result.
+			import mx.managers.PopUpManager;
+			import mx.controls.TextArea;
+			
+			private var oldHeight:int;
+			private var oldWidth:int;
+			private var oldParent:DisplayObjectContainer;
+			private var oldIndex:int=0;
+
+			// Initialize the dialog.
+			public function init(display:DisplayObject): void
+			{
+				oldHeight = display.height;
+				oldWidth = display.width;
+				oldParent = display.parent;
+				oldIndex = oldParent.getChildIndex(display);
+
+				display.height=height-80;
+				display.width=width-30;
+				addChildAt(display, 0);
+				
+				if (display is TextArea)
+					TextArea(display).setFocus();
+			}
+						
+			// Select the specified items.
+			private function enterResult(event:Event):void
+			{
+				var child:DisplayObject = getChildAt(0);
+				child.height = oldHeight;
+				child.width = oldWidth;
+				oldParent.addChildAt(child, oldIndex);				
+				PopUpManager.removePopUp(this);
+			}
+		]]>
+	</mx:Script>
+	<mx:Form width="100%" height="100%" paddingTop="0" paddingLeft="0" paddingRight="0" paddingBottom="0">
+		<mx:HBox y="270" width="100%" horizontalAlign="center">
+			<mx:Button id="acceptText" label="OK" click="enterResult(event)"/>
+		</mx:HBox>	
+	</mx:Form>
+</mx:TitleWindow>

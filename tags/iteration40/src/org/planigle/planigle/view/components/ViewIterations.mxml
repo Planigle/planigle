@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:component="org.planigle.planigle.view.components.*" height="100%" y="0" width="100%" x="0" creationComplete="created(event)">
+	<mx:Script>
+		<![CDATA[
+		import mx.rpc.events.ResultEvent;
+		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
+		import mx.controls.dataGridClasses.DataGridColumn;
+		import mx.events.CloseEvent;
+		import mx.binding.utils.ChangeWatcher;
+		import org.planigle.planigle.model.TabModelLocator;
+		import org.planigle.planigle.model.IndividualFactory;
+		import org.planigle.planigle.model.ReleaseFactory;
+		import org.planigle.planigle.model.Release;
+		import org.planigle.planigle.model.IterationFactory;
+		import org.planigle.planigle.model.Iteration;
+		import org.planigle.planigle.model.DateUtils;
+		import org.planigle.planigle.view.StoriesTab;
+		import org.planigle.planigle.view.ChangesTab;
+		import org.planigle.planigle.events.AuditChangedEvent;
+		import org.planigle.planigle.events.IterationChangedEvent;
+
+		[Bindable]
+		public var release:Release;
+		
+		[Bindable]
+		private var _error:String;
+
+		[Bindable]
+		private var tabModelLocator:TabModelLocator = TabModelLocator.getInstance();
+
+		[Bindable]
+		public var factory:IndividualFactory = IndividualFactory.getInstance();
+
+		[Bindable]
+		public var iterations:ArrayCollection = new ArrayCollection();
+
+		// Set up event listeners.  Called when the canvas has been created.
+		private function created(event:Event):void
+		{
+			ChangeWatcher.watch( factory, "currentIndividual", resetState );			
+			ChangeWatcher.watch( IterationFactory.getInstance(), "iterations", setIterations );			
+			ChangeWatcher.watch( this, "release", setIterations );			
+			setIterations(event);
+		}
+				
+		// Update the error message.
+		private function setErrorMessage(string:String):void {iterationError.setStyle("color","Red"); _error = string}
+		private function setSuccessMessage(string:String):void {iterationError.setStyle("color","Green"); _error = string}
+		private function clearErrorMessage():void {_error = ""}
+
+		// Set the iterations to a copy (so that changes here won't affect elsewhere).
+		private function setIterations(event:Event):void
+		{
+			var newIterations:ArrayCollection = new ArrayCollection();
+			for each (var iteration:Iteration in IterationFactory.getInstance().iterations)
+			{
+				if (!release || iteration.isIn(release))
+					newIterations.addItem(iteration);
+			}
+			iterations = newIterations;
+		}
+		
+		// Reset my state to how it was initially.
+		public function resetState(event:Event):void
+		{
+			currentItem = null;
+			clearErrorMessage();
+			currentState = '';
+			iterationBtnChange.label = 'Update'
+		}
+
+		private function getInitialValues():Object
+		{
+			var values:Object = new Object();
+			if(IterationFactory.getInstance().iterations.length > 0)
+			{
+				var last:Iteration = Iteration(IterationFactory.getInstance().iterations.getItemAt(IterationFactory.getInstance().iterations.length - 1));
+				values["name"] = last.incrementName();
+				values["start"] = release ? (release.start.getTime() > last.finish.getTime() ? release.start : last.finish) : last.finish;
+				var finishFromLast:Date = new Date();
+				finishFromLast.setTime(values["start"].getTime() + last.finish.getTime() - last.start.getTime()); // 2 Weeks from start
+				values["finish"] = finishFromLast;
+			}
+			else
+			{
+				values["name"] = 'Iteration 1';
+				values["start"] = release ? release.start : new Date();
+				var finish:Date = new Date();
+				finish.setTime(values["start"].getTime() + 2*7*24*60*60*1000); // 2 Weeks from start
+				values["finish"] = finish;
+			}
+			values["retrospectiveResults"] = '';
+			return values;
+		}
+
+		// Show user a form to create a resource.
+		private function showCreate(event:Event):void
+		{
+			clearErrorMessage();
+			currentState = 'Change';
+			iterationFieldName.setFocus();
+			var values:Object = getInitialValues();
+			iterationFieldName.text = values["name"];
+			iterationFieldName.setSelection(0, iterationFieldName.text.length );
+			iterationFieldStart.selectedDate = values["start"];
+			iterationFieldFinish.selectedDate = values["finish"];
+			iterationFieldRetrospectiveResults.text = values["retrospectiveResults"];
+			iterationBtnChange.label = 'Create';
+			iterationBtnInfo.visible = false;
+		}
+
+		private var currentItem:Object;
+
+		// Show user a form to update a resource.
+		public function showUpdate(event:Event) : void
+		{
+			currentItem = iterationResourceGrid.selectedItem;
+			if (currentItem)
+			{
+				clearErrorMessage();
+				currentState = 'Change';
+				iterationFieldName.text = currentItem.name;
+				iterationFieldName.setFocus();
+				iterationFieldName.setSelection(0, iterationFieldName.text.length );
+				iterationFieldStart.selectedDate = currentItem.start;
+				iterationFieldFinish.selectedDate = currentItem.finish;
+				iterationFieldRetrospectiveResults.text = currentItem.retrospectiveResults;
+				iterationBtnChange.label = 'Update';
+				iterationBtnInfo.visible = true;
+			}
+		}
+
+		// Confirm that user wants to delete the resource.
+		public function showDelete(event:Event) : void
+		{
+			Alert.show("Are you sure you want to delete '" + iterationResourceGrid.selectedItem.name + "'?", "Delete", 3, this,
+			function(event:CloseEvent):void
+			{
+				if (event.detail==Alert.YES)
+				{
+					clearErrorMessage();
+					deleteResource(iterationResourceGrid.selectedItem);
+				}
+			});
+		}
+		
+		// Create parameters for the user's request to the server.
+		private function getParams() : Object
+		{
+			var params:Object = new Object();
+			params['record[project_id]'] = factory.currentIndividual.selectedProjectId;
+			params['record[name]'] = iterationFieldName.text;
+			params['record[start]'] = iterationFieldStart.selectedDate;
+			params['record[finish]'] = iterationFieldFinish.selectedDate;
+			params['record[retrospective_results]'] = iterationFieldRetrospectiveResults.text;
+			params['random'] = Math.random(); // Prevents caching
+			return params;
+		}
+
+		// Tell the server to change a resource.
+		private function changeResource(event:Event) : void
+		{
+			if ( iterationBtnChange.label == 'Create' )
+				createResource(event);
+			else
+				updateResource(event);
+		}
+		
+		// Tell the server to create a resource.
+		private function createResource(event:Event) : void 
+		{
+			IterationFactory.getInstance().createIteration(getParams(), handleCreateSuccess, handleFailure);
+		}
+		
+		// Tell the server to update a resource.
+		private function updateResource(event:Event) : void
+		{
+			currentItem.update(getParams(), handleSuccess, handleFailure);
+		}
+
+		// Tell the server to delete a resource.
+		private function deleteResource(resource:Object):void
+		{
+			resource.destroy(handleSuccess, handleFailure);
+		}
+		
+		// Handle a successful create.
+		private function handleCreateSuccess(item:Object):void
+		{
+			showCreate(null);
+			setSuccessMessage("Iteration was successfully created." + ((release == null || item.isIn(release)) ? "" : "  Iteration does not show in the list since it is not in the currently selected release."));
+		}
+
+		// Handle a successful change.
+		private function handleSuccess():void
+		{
+			resetState(null);
+		}
+
+		// Handle errors when making changes.
+		private function handleFailure(error:XMLList):void
+		{
+			setErrorMessage(error);
+		}
+		
+		// Go to iteration planning.
+		public function showPlan(event:Event):void
+		{
+			var stories:StoriesTab = tabModelLocator.stories;
+			stories.release.selectedIndex = ReleaseFactory.getInstance().releases.length + 1;
+			stories.handleReleaseFilter(null); // ensure filter affect occurs.
+			stories.iteration.selectedItem = iterationResourceGrid.selectedItem;
+			stories.handleFilter(null); // ensure filter affect occurs.
+			tabModelLocator.selectedTab = stories;
+		}
+		
+		// Format the start date into a more readable format.
+		private function formatStart(item:Object, column:DataGridColumn):String
+		{
+			return DateUtils.formatDate(item.start);
+		}
+		
+		// Format the finish date into a more readable format.
+		private function formatFinish(item:Object, column:DataGridColumn):String
+		{
+			return DateUtils.formatDate(item.finish);
+		}
+		
+		// Show the history for the current object.
+		public function showHistory(event:Event) : void
+		{
+			new AuditChangedEvent(null, 'Iteration', null, null, String(currentItem.id)).dispatch();
+			tabModelLocator.selectedTab = tabModelLocator.changes;
+		}
+
+		// Answer whether any changes need to be saved.
+		public function isDirty(): Boolean
+		{
+			if (iterationBtnChange.label == 'Create') {
+				var values:Object = getInitialValues();
+				if (iterationFieldName.text != values["name"]) return true;
+				if (!DateUtils.equals(iterationFieldStart.selectedDate, values["start"])) return true;
+				if (!DateUtils.equals(iterationFieldFinish.selectedDate, values["finish"])) return true;
+				if (iterationFieldRetrospectiveResults.text != values["retrospectiveResults"]) return true;
+			}
+			else if (currentItem) {
+				if (iterationFieldName.text != currentItem.name) return true;
+				if (!DateUtils.equals(iterationFieldStart.selectedDate, currentItem.start)) return true;
+				if (!DateUtils.equals(iterationFieldFinish.selectedDate, currentItem.finish)) return true;
+				if (iterationFieldRetrospectiveResults.text != currentItem.retrospectiveResults) return true;
+			}
+			return false;
+		}
+		]]>
+	</mx:Script>
+ 	
+	<mx:states>
+		<mx:State name="Change">
+			<mx:RemoveChild target="{iterationBtnCreate}"/>
+			<mx:AddChild relativeTo="{iterationResourceGrid}" position="before">
+				<mx:target>
+					<mx:Form id="iterationChangeForm" defaultButton="{iterationBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
+						<mx:FormItem label='Iteration Name' required="true">
+							<mx:TextInput id='iterationFieldName' maxChars="40" text='' width="350"/>
+						</mx:FormItem>
+						<mx:FormItem label='Start' required="true">
+							<mx:DateField id='iterationFieldStart' editable="true" showToday="true" width="100"/>
+						</mx:FormItem>
+						<mx:FormItem label='Finish' required="true">
+							<mx:DateField id='iterationFieldFinish' editable="true" showToday="true" width="100"/>
+						</mx:FormItem>
+						<mx:FormItem label='Retrospective Results'>
+							<component:ExpandableHTMLTextArea id='iterationFieldRetrospectiveResults'/>
+						</mx:FormItem>
+						<mx:ControlBar width="100%">
+							<mx:Spacer width="50"/>
+							<mx:Button label="Change" id="iterationBtnChange" click="changeResource(event)"/>
+							<mx:LinkButton label="Cancel" id="iterationBtnCancel" click="resetState(event)"/>
+							<mx:LinkButton id="iterationBtnInfo" icon="{parentApplication.imgInfo}" toolTip="History" click="showHistory(event);"/>
+						</mx:ControlBar>
+					</mx:Form>	
+				</mx:target>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+	
+	<mx:transitions>
+		<mx:Transition id="iterationChangeItem" fromState="*" toState="Change">
+			<mx:Sequence targets="{[iterationCombinedPanel]}">
+				<mx:RemoveChildAction/>
+				<mx:Resize target="{iterationCombinedPanel}"/>
+				<mx:AddChildAction/>
+			</mx:Sequence>
+		</mx:Transition>
+
+		<mx:Transition id="iterationReturnList" fromState="Change" toState="*">
+			<mx:Sequence targets="{[iterationCombinedPanel]}">
+				<mx:RemoveChildAction/>
+				<mx:Resize target="{iterationCombinedPanel}"/>
+				<mx:AddChildAction/>
+			</mx:Sequence>
+		</mx:Transition>
+
+	</mx:transitions>
+
+	<mx:Panel id="iterationCombinedPanel" height="100%" width="100%" borderThicknessTop="0" borderThicknessLeft="0" borderThicknessRight="0" headerHeight="0">
+		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="8" verticalAlign="middle" id="iterationHbox" paddingTop="5" paddingLeft="5" paddingRight="5">
+			<mx:Label text="Iterations" fontWeight="bold" textDecoration="underline"/>
+			<mx:Text id="iterationError" styleName="error" htmlText="{_error}" width="100%"/>
+			<mx:Button icon="{parentApplication.imgAdd}" toolTip="Create" id="iterationBtnCreate" click="showCreate(event);" visible="{factory.currentIndividual.isAtLeastProjectAdmin()}"/>
+		</mx:HBox>
+		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="iterationResourceGrid" dataProvider="{iterations}" rowCount="{IterationFactory.getInstance().iterations.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)">
+			<mx:columns>
+				<mx:DataGridColumn headerText="Name" dataField="name"/>
+				<mx:DataGridColumn headerText="Start" width="120" dataField="start" labelFunction="formatStart" />
+				<mx:DataGridColumn headerText="Finish" width="120" dataField="finish" labelFunction="formatFinish" />
+				<mx:DataGridColumn editable="false" width="140" minWidth="140" sortable="false">
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:Box direction="horizontal" horizontalGap="0">
+								<mx:LinkButton id="iterationBtnPlan" icon="{parentApplication.imgPlan}" toolTip="Plan" click="outerDocument.showPlan(event);"/>
+								<mx:LinkButton id="iterationBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
+								<mx:LinkButton id="iterationBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
+							</mx:Box>
+						</mx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+			</mx:columns>
+		</mx:DataGrid>
+	</mx:Panel>
+</mx:Canvas>
