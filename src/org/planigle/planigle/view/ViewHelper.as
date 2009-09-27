@@ -13,6 +13,12 @@ package org.planigle.planigle.view
 	// Provide static helper methods for formatting and sorting common fields.
 	public class ViewHelper
 	{
+		// Answer the sort order for the specified items (based on their id).
+		public static function sortId(item1:Object, item2:Object):int
+		{
+			return ObjectUtil.numericCompare( item1.id, item2.id );
+		}
+
 		// Display the release's name in the table (rather than ID).
 		public static function formatRelease(item:Object, column:DataGridColumn):String
 		{
