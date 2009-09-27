@@ -62,6 +62,12 @@ package org.planigle.planigle.model
 			return effort != null && effort != "" ? Number(effort).toString() : effort;
 		}
 
+		// Answer my user facing id.
+		public function get fullId():String
+		{	
+			return "T" + id;
+		}
+
 		// Tasks aren't assigned directly to iterations.
 		public function get iterationId():int
 		{

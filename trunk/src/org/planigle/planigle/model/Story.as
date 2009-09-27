@@ -153,6 +153,12 @@ package org.planigle.planigle.model
 			myStoryValues = storyValues;
 		}
 
+		// Answer my user facing id.
+		public function get fullId():String
+		{	
+			return "S" + id;
+		}
+
 		// Answer my project.
 		public function get project():Project
 		{
