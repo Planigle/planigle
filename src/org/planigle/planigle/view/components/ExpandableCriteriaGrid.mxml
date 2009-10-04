@@ -37,6 +37,7 @@
 			var dialog:ExpandedItem = ExpandedItem(PopUpManager.createPopUp(DisplayObject(parentApplication), ExpandedItem, true));
 			dialog.init(grid);
 			PopUpManager.centerPopUp(dialog);
+			grid.selectFirstItem();
 		}
 		]]>
 	</mx:Script>

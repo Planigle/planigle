@@ -1360,7 +1360,7 @@
 		}
 		
 		// Update fields based on new status.
-		private function updateStatusCode():void
+		private function updateStatusCode(event:Event = null):void
 		{
 			if (!isStory && storyFieldStatus.selectedIndex == Story.ACCEPTED)
 				storyFieldEffort.text = "0";
@@ -1638,7 +1638,7 @@
 											<component:ExpandableCriteriaGrid id='storyFieldAcceptanceCriteria' height="100%"/>
 										</mx:FormItem>
 										<mx:FormItem label='Status'>
-											<mx:ComboBox id='storyFieldStatus' editable="false" change="updateStatusCode()">
+											<mx:ComboBox id='storyFieldStatus' editable="false" change="updateStatusCode(event)">
 												<mx:Object label="Not Started" value="0" />
 												<mx:Object label="In Progress" value="1" />
 												<mx:Object label="Blocked" value="2" />

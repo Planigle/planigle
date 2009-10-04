@@ -102,6 +102,12 @@
         	if (criteria.length == 0)
         		addNewCriterium(INITIAL_CRITERIA);
         }
+        
+        public function selectFirstItem():void
+        {
+        	criteriaGrid.selectedIndex = criteria.length - 1;
+			criteriaGrid.editedItemPosition = {'columnIndex': 1, 'rowIndex': criteriaGrid.selectedIndex};
+        }
 		]]>
 	</mx:Script>
 	<mx:TextArea height="0" id="criteriaDescription" text="{criteriaGrid.selectedItem == null ? '' : criteriaGrid.selectedItem.description}" change="criteriaGrid.selectedItem.description = criteriaDescription.text"/>
