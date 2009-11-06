@@ -147,5 +147,21 @@ package org.planigle.planigle.model
 		{
 			return 0xDDDDDD;
 		}
+		
+		public function copy(story:Story, priority:Number, notifySuccess: Function, notifyFailure: Function):void
+		{
+			var params:Object = new Object();
+			params["record[story_id]"] = story.id;
+			params["record[name]"] = name;
+			params["record[description]"] = description;
+			params["record[reason_blocked]"] = reasonBlocked;
+			params["record[individual_id]"] = individualId;
+			params["record[effort]"] = effort;
+			params["record[estimate]"] = estimate;
+			params["record[actual]"] = actual;
+			params["record[status_code]"] = statusCode;
+			params["record[priority]"] = priority;
+			story.createTask(params, notifySuccess, notifyFailure);
+		}
 	}
 }
