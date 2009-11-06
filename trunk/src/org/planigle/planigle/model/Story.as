@@ -446,5 +446,23 @@ package org.planigle.planigle.model
 		{
 			return -1;
 		}
+		
+		public function copy(priority:Number, notifySuccess: Function, notifyFailure: Function):void
+		{
+			var params:Object = new Object();
+			params["record[team_id]"] = teamId;
+			params["record[name]"] = name;
+			params["record[description]"] = description;
+			params["record[reason_blocked]"] = reasonBlocked;
+			params["record[acceptance_criteria]"] = acceptanceCriteria;
+			params["record[release_id]"] = releaseId;
+			params["record[iteration_id]"] = iterationId;
+			params["record[individual_id]"] = individualId;
+			params["record[effort]"] = effort;
+			params["record[status_code]"] = statusCode;
+			params["record[public]"] = isPublic;
+			params["record[priority]"] = priority;
+			StoryFactory.getInstance().createStory(params, notifySuccess, notifyFailure);
+		}
 	}
 }

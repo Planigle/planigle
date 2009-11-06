@@ -45,6 +45,9 @@
 		import org.planigle.planigle.view.components.UpdateItems;
 		import org.planigle.planigle.view.components.EnterText;
 		import org.planigle.planigle.view.components.ExpandableHTMLTextArea;
+		import org.planigle.planigle.view.requests.ChangeRequest;
+		import org.planigle.planigle.view.requests.CopyStoryRequest;
+		import org.planigle.planigle.view.requests.CopyTaskRequest;
 		
 		[Bindable]
 		private var _error:String;
@@ -497,8 +500,12 @@
 		}
 		
 		// An item was successfully updated.
-		private function handleUpdateSuccess():void
+		private function handleUpdateSuccess(createdObject:Object = null):void
 		{
+			if (createdObject != null && !createdObject.isStory())
+			{
+				createdObject.story.expand();
+			}
 			if (updateQueue.length > 0)
 				processQueue();
 			else
@@ -523,8 +530,7 @@
 		// Process the next item in the queue.
 		private function processQueue():void
 		{
-			var params:Object = updateQueue.removeItemAt(0);
-			params["item"].update(params["params"], handleUpdateSuccess, handleUpdateFailure);
+			updateQueue.removeItemAt(0).perform();
 		}
 
 		// If task changes have resulted in any changes to the stories, update them.
@@ -1032,7 +1038,19 @@
 		private function updateItem(item:Object, params:Object): void
 		{
 			recalc = recalc || (item.isStory() && item.statusCode == Story.ACCEPTED && params['record[status_code]'] != null && params['record[status_code]'] < Story.ACCEPTED);
-			updateQueue.addItem({"item": item, "params": params});
+			updateQueue.addItem(new ChangeRequest(item, params, handleUpdateSuccess, handleUpdateFailure));
+		}
+
+		// Copy a story.
+		private function copyStory(story:Story, priority:Number): void
+		{
+			updateQueue.addItem(new CopyStoryRequest(story, priority, handleUpdateSuccess, handleUpdateFailure));
+		}
+
+		// Copy a task.
+		private function copyTask(task:Task, story:Story, priority:Number): void
+		{
+			updateQueue.addItem(new CopyTaskRequest(task, story, priority, handleUpdateSuccess, handleUpdateFailure));
 		}
 		
 		// Tell the server to delete a resource.
@@ -1110,14 +1128,15 @@
 		{
 			var movedItems:Array = event.dragSource.dataForFormat("items") as Array;
 			var newIndex:int = storyResourceGrid.calculateDropIndex(event);
+			var shouldCopy:Boolean = event.ctrlKey;
 			if (movedItems.length > 0 && movedItems[0].isStory())
-				handleReorderStories(movedItems, newIndex);
+				handleReorderStories(movedItems, newIndex, shouldCopy);
 			else
-				handleMoveTasks(movedItems, newIndex);
+				handleMoveTasks(movedItems, newIndex, shouldCopy);
 		}
 		
 		// The user has reordered the stories.
-		private function handleReorderStories(movedItems:Array, newIndex:int):void
+		private function handleReorderStories(movedItems:Array, newIndex:int, shouldCopy:Boolean):void
 		{
 			// Eliminate the tasks from the list
 			var stories:ArrayCollection = new ArrayCollection();
@@ -1160,13 +1179,16 @@
 					after = itemAtIndex.priority;
 				}
 				before = (before+after)/2;
-				updateItem(story, {"record[priority]": before });
+				if (shouldCopy)
+					copyStory(story, before);
+				else
+					updateItem(story, {"record[priority]": before });
 			}
 			handleUpdateSuccess(); // Prime the processing.
 		}
 		
 		// The user has moved the tasks.
-		private function handleMoveTasks(movedItems:Array, newIndex:int):void
+		private function handleMoveTasks(movedItems:Array, newIndex:int, shouldCopy:Boolean):void
 		{
 			newIndex = newIndex == 0 ? 0 : newIndex - 1;
 			var item:Object = filteredStories.getItemAt(newIndex);
@@ -1187,7 +1209,10 @@
 			for each (var task:Task in movedItems)
 			{
 				min += increment;
-				updateItem(task, {"record[story_id]": story.id, "record[priority]": min});
+				if (shouldCopy)
+					copyTask(task, story, min);
+				else
+					updateItem(task, {"record[story_id]": story.id, "record[priority]": min});
 			}
 			handleUpdateSuccess(); // Prime the processing.
 		}
