@@ -101,7 +101,7 @@ class StoriesController < ResourceController
       if !blocked_before && @record.is_blocked
         @record.project.individuals.each do |individual|
           if !individual.team_id || individual.team_id == @record.team_id
-            individual.send_notification(@record.blocked_message)
+            individual.send_notification(@record.project, @record.blocked_message)
           end
         end
       end
