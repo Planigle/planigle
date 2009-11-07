@@ -222,14 +222,14 @@ class Individual < ActiveRecord::Base
   end
 
   # Notify that something has occurred.
-  def send_notification(message)
+  def send_notification(project, message)
     if is_premium
       if notification_type == EmailNotifications || notification_type == BothNotifications
-        PLANIGLE_EMAIL_NOTIFIER.send_notification(email, message)
+        PLANIGLE_EMAIL_NOTIFIER.send_notification(project, email, message)
       end
   
       if (notification_type == SMSNotifications || notification_type == BothNotifications) && phone_number && phone_number != ''
-        PLANIGLE_SMS_NOTIFIER.send_notification(phone_number, message)
+        PLANIGLE_SMS_NOTIFIER.send_notification(project, phone_number, message)
       end
     end
   end

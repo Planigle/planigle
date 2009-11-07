@@ -2,6 +2,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 require 'notification_mailer'
 
 class NotificationMailerTest < ActiveSupport::TestCase
+  fixtures :projects
 
   def setup
     ActionMailer::Base.delivery_method = :test
@@ -11,7 +12,7 @@ class NotificationMailerTest < ActiveSupport::TestCase
 
   # Test notification.
   def test_notification
-    response = NotificationMailer.create_notification('test@test.com', 'test')
+    response = NotificationMailer.create_notification(projects(:first), 'test@test.com', 'test')
     assert_equal PLANIGLE_ADMIN_EMAIL, response.from[0]
     assert_equal 'test@test.com', response.to[0]
     assert_equal 'test', response.body
