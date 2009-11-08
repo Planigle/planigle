@@ -220,8 +220,8 @@ class StoriesXmlTest < ActionController::IntegrationTest
     iphone_login('admin2')
     get resource_url << '/1', {}, iphone_user_agent
     assert_response :success
-    assert_select 'select#story[onchange="changeStatus(\'/planigle/stories/1\',story.selectedIndex)"]'
-    assert_select 'select#task_1[onchange="changeStatus(\'/planigle/stories/1/tasks/1\',task_1.selectedIndex)"]'
+    assert_select 'select#story[onchange="changeStatus(\'/stories/1\',story.selectedIndex)"]'
+    assert_select 'select#task_1[onchange="changeStatus(\'/stories/1/tasks/1\',task_1.selectedIndex)"]'
   end
     
   # Test getting a story on an iPhone.
@@ -229,7 +229,7 @@ class StoriesXmlTest < ActionController::IntegrationTest
     iphone_login('readonly')
     get resource_url << '/1', iphone_user_agent
     assert_response :success
-    assert_select 'select#story[onchange="changeStatus(\'/planigle/stories/1\',story.selectedIndex)"]', false
-    assert_select 'select#task_1[onchange="changeStatus(\'/planigle/stories/1/tasks/1\',task_1.selectedIndex)"]', false
+    assert_select 'select#story[onchange="changeStatus(\'/stories/1\',story.selectedIndex)"]', false
+    assert_select 'select#task_1[onchange="changeStatus(\'/stories/1/tasks/1\',task_1.selectedIndex)"]', false
   end
 end
