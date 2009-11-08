@@ -6,7 +6,7 @@ package org.planigle.planigle.model
 	[Bindable]
 	public class StoryAttributeValue
 	{
-		public var id:Object;
+		public var id:int;
 		public var storyAttributeId:int;
 		public var releaseId:String;
 		public var value:String;

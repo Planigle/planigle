@@ -51,6 +51,9 @@ class StoryAttribute < ActiveRecord::Base
         end
       end
     end
+    if !new_record?
+      story_attribute_values(true) # Force reload so that updated values will be used
+    end
   end
 
   # Set the initial order to the number of story attributes (+1 for me).  Set public to false if not set.
