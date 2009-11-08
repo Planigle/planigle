@@ -41,7 +41,12 @@ package org.planigle.planigle.model
 			for (var i:int = 0; i < xml.child("story-attribute-values").child("story-attribute-value").length(); i++)
 			{
 				var value:StoryAttributeValue = new StoryAttributeValue();
-				value.populate(XML(xml.child("story-attribute-values").child("story-attribute-value")[i]));
+				var valXml:XML = XML(xml.child("story-attribute-values").child("story-attribute-value")[i]);
+				for each (var curValue:StoryAttributeValue in storyAttributeValues) {
+					if (curValue.id == valXml.id)
+						value = curValue; // reuse existing value if one exists with that id
+				}
+				value.populate(valXml);
 				newValues.addItem(value);
 			}
 			storyAttributeValues = newValues.toArray();
