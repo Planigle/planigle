@@ -17,8 +17,8 @@ package org.planigle.planigle.model
 		public var reasonBlocked:String;
 		public var individualId:String;
 		public var effort:String;
-		public var estimate:String;
-		public var actual:String;
+		protected var myEstimate:String;
+		protected var myActual:String;
 		public var statusCode:int;
 		public var priority:Number;
 		public var projectedIterationId:String; // Not used for tasks, but needed for the grid.
@@ -56,10 +56,35 @@ package org.planigle.planigle.model
 			return "";
 		}
 
+		public function get estimate():String
+		{
+			return convertString(myEstimate);			
+		}
+		
+		public function set estimate(estimate:String):void
+		{
+			myEstimate = estimate;
+		}
+
 		// For tasks, the calculated effort is the same as the effort.
 		public function get calculatedEffort():String
+		{
+			return convertString(effort);
+		}
+
+		public function get actual():String
+		{
+			return convertString(myActual);			
+		}
+		
+		public function set actual(actual:String):void
+		{
+			myActual = actual;
+		}
+
+		protected function convertString(string:String):String
 		{ // Convert to Number to ensure consistent formatting.
-			return effort != null && effort != "" ? Number(effort).toString() : effort;
+			return string != null && string != "" ? Number(string).toString() : string;
 		}
 
 		// Answer my user facing id.

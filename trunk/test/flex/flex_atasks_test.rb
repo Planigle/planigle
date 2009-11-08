@@ -82,7 +82,7 @@ class FlexAtasksTest < Test::Unit::TestCase
     @ie.button("updateBtnOk").click
     assert_equal '', @ie.text_area("storyError").text
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",test2_task,,,aaron hank,,,2,,Not Started, , , ,, ,, , , ,, ,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 3, :end => 3)
+    assert_equal ",test2_task,,,aaron hank,,3,2,1,Not Started, , , ,, ,, , , ,, ,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 3, :end => 3)
     assert_equal ",test_task,,,aaron hank,,,3,,Not Started, , , ,, ,, , , ,, ,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 4, :end => 4)
   end
 
