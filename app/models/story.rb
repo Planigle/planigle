@@ -39,8 +39,11 @@ class Story < ActiveRecord::Base
   # Answer a CSV string representing the stories.
   def self.export(current_user)
     FasterCSV.generate(:row_sep => "\n") do |csv|
-      attribs = ['PID', 'Name', 'Description', 'Acceptance Criteria', 'Size', 'Time', 'Status', 'Reason Blocked', 'Release', 'Iteration', 'Team', 'Owner', 'Public', 'User Rank']
+      attribs = ['PID', 'Name', 'Description', 'Acceptance Criteria', 'Size', 'Estimate', 'To Do', 'Actual', 'Status', 'Reason Blocked', 'Release', 'Iteration', 'Team', 'Owner', 'Public', 'User Rank']
       if (current_user.project)
+        if (!current_user.project.track_actuals)
+          attribs.delete('Actual')
+        end
         current_user.project.story_attributes.find(:all, :conditions => {:is_custom => true}, :order => :name).each {|attrib| attribs << attrib.name}
       end
       csv << attribs
@@ -56,7 +59,12 @@ class Story < ActiveRecord::Base
       description,
       acceptance_criteria,
       effort,
-      time,
+      estimate,
+      time]
+    if (project.track_actuals)
+      values.push actual
+    end
+    values = values.concat [
       status,
       reason_blocked,
       release ? release.name : '',
@@ -167,9 +175,19 @@ class Story < ActiveRecord::Base
     self.status_code == Done
   end
   
+  # My estimate is the sum of my tasks.
+  def estimate
+    tasks.inject(nil) {|sum, task| task.estimate ? (sum ? sum + task.estimate : task.estimate) : sum}
+  end
+  
   # My time is the sum of my tasks.
   def time
     tasks.inject(nil) {|sum, task| task.effort ? (sum ? sum + task.effort : task.effort) : sum}
+  end
+  
+  # My actual is the sum of my tasks.
+  def actual
+    tasks.inject(nil) {|sum, task| task.actual ? (sum ? sum + task.actual : task.actual) : sum}
   end
   
   # Create a new story based on this one.

@@ -80,9 +80,19 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal 5, story.time
   end
   
+  # Test calculating the estimate from tasks.
+  def test_estimate
+    assert_equal 3, stories(:first).estimate
+  end
+  
   # Test calculating the effort from tasks.
   def test_calculated_effort
     assert_equal 5, stories(:first).time
+  end
+  
+  # Test calculating the actual from tasks.
+  def test_actual
+    assert_equal 1, stories(:first).actual
   end
 
   # Test the validation of status.
@@ -261,7 +271,10 @@ class StoryTest < ActiveSupport::TestCase
   # Validate export.
   def test_export
     string = Story.export(individuals(:aaron))
-    assert_equal "PID,Name,Description,Acceptance Criteria,Size,Time,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Test_List,Test_Number,Test_Release,Test_String,Test_Text\n3,test3,\"\",\"\",1.0,,In Progress,,\"\",\"\",\"\",\"\",false,2.0,\"\",\"\",\"\",\"\"\,\"\"\n2,test2,\"\",\"\",1.0,,Done,,first,first,\"\",\"\",true,1.0,\"\",\"\",\"\",\"\",\"\"\n1,test,description,\"-criteria\r-criteria2 (Done)\",1.0,5.0,In Progress,,first,first,Test_team,aaron hank,true,2.0,Value 1,5,Theme 1,test,testy\n4,test4,\"\",\"\",1.0,,In Progress,,\"\",\"\",\"\",\"\",true,,\"\",\"\",\"\",\"\",\"\"\n", string
+    assert_equal "PID,Name,Description,Acceptance Criteria,Size,Estimate,To Do,Actual,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Test_List,Test_Number,Test_Release,Test_String,Test_Text\n3,test3,\"\",\"\",1.0,,,,In Progress,,\"\",\"\",\"\",\"\",false,2.0,\"\",\"\",\"\",\"\"\,\"\"\n2,test2,\"\",\"\",1.0,,,,Done,,first,first,\"\",\"\",true,1.0,\"\",\"\",\"\",\"\",\"\"\n1,test,description,\"-criteria\r-criteria2 (Done)\",1.0,3.0,5.0,1.0,In Progress,,first,first,Test_team,aaron hank,true,2.0,Value 1,5,Theme 1,test,testy\n4,test4,\"\",\"\",1.0,,,,In Progress,,\"\",\"\",\"\",\"\",true,,\"\",\"\",\"\",\"\",\"\"\n", string
+
+    string = Story.export(individuals(:project_admin2))
+    assert_equal "PID,Name,Description,Acceptance Criteria,Size,Estimate,To Do,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Test_String2\n5,test5,\"\",\"\",2.0,2.0,3.0,Blocked,,\"\",\"\",\"\",\"\",true,,testit\n", string
   end
 
   def test_import_invalid_id
