@@ -159,18 +159,16 @@ package org.planigle.planigle.model
 
 		public function get allProjects():ArrayCollection
 		{
+			var allProjects:ArrayCollection = new ArrayCollection();
 			if (isAdmin() || isPremium)
 			{
-				var allProjects:ArrayCollection = new ArrayCollection();
 				for each (var company:Company in CompanyFactory.getInstance().companies)
 				{
 					for each (var project:Project in company.projects)
 						allProjects.addItem(project);
 				}
-				return allProjects;
 			}
-			else
-				return new ArrayCollection(projects);
+			return allProjects;
 		}
 		
 		// Answer an object that represents no project.
