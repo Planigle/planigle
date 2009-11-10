@@ -397,7 +397,7 @@ package org.planigle.planigle.model
 		// Answer my children.
 		public function get children():ArrayCollection
 		{
-			return (teamSelector.length > 1) ? teamSelector : individuals();
+			return (teamSelector.length > 1) ? teamSelector : enabledIndividuals();
 		}
 	}
 }
