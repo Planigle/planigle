@@ -166,6 +166,11 @@ package org.planigle.planigle.model
 			var none:Individual = Individual(children.removeItemAt(children.length - 1));
 			none = Individual(ObjectUtil.copy(none));
 			none.teamId = id;
+			for (var i:int = children.length - 1; i >= 0; i--)
+			{
+				if (!children.getItemAt(i).enabled)
+					children.removeItemAt(i);
+			}
 			children.addItem(none);
 			return children;
 		}

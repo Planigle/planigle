@@ -1831,7 +1831,7 @@
 					<mx:headerRenderer>
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
-								<mx:LinkButton id="storyBtnExpandAll" width="16" icon="{outerDocument.expandAllIcon}"/>
+								<mx:LinkButton id="storyBtnExpandAll" toolTip="Expand/Contract All" width="16" icon="{outerDocument.expandAllIcon}"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:headerRenderer>
@@ -1882,7 +1882,7 @@
 					<mx:headerRenderer>
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
-								<mx:LinkButton id="storyBtnSelectAttributes" width="16" icon="{parentApplication.imgCheck}"/>
+								<mx:LinkButton id="storyBtnSelectAttributes" width="16" icon="{parentApplication.imgCheck}" toolTip="Select Columns"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:headerRenderer>
