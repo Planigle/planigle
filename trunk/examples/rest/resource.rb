@@ -3,7 +3,7 @@
 #
 # Be sure to change username and password below to match your credentials.
 
-require 'rubygems'
+gem 'activeresource', '= 2.0.2'
 require 'activesupport'
 require 'activeresource'
 

@@ -316,9 +316,9 @@ protected
     end
     
     if individual_id && !Individual.find_by_id(individual_id)
-      errors.add(:individual, 'is invalid')
+      errors.add(:owner, 'is invalid')
     elsif individual && !individual.projects.detect {|project| project.id == project_id}
-      errors.add(:individual, 'is not from a valid project')
+      errors.add(:owner, 'is not from a valid project')
     end
     
     validate_custom_attributes

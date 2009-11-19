@@ -291,19 +291,19 @@
 		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="8" verticalAlign="middle" id="releaseHbox" paddingTop="5" paddingLeft="5" paddingRight="5">
 			<mx:Label text="Releases" fontWeight="bold" textDecoration="underline"/>
 			<mx:Text id="releaseError" styleName="error" htmlText="{_error}" width="100%"/>
-			<mx:Button icon="{parentApplication.imgAdd}" toolTip="Create" id="releaseBtnCreate" click="showCreate(event);" visible="{factory.currentIndividual.isAtLeastProjectAdmin()}"/>
+			<mx:Button width="25" icon="{parentApplication.imgAdd}" toolTip="Create" id="releaseBtnCreate" click="showCreate(event);" visible="{factory.currentIndividual.isAtLeastProjectAdmin()}"/>
 		</mx:HBox>
-		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="releaseResourceGrid" dataProvider="{releases}" rowCount="{ReleaseFactory.getInstance().releases.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)" itemClick="releaseSelected(event)">
+		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="releaseResourceGrid" dataProvider="{releases}" rowCount="{ReleaseFactory.getInstance().releases.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)" itemClick="releaseSelected(event)" verticalScrollPolicy="auto">
 			<mx:columns>
 				<mx:DataGridColumn headerText="Name" dataField="name"/>
 				<mx:DataGridColumn headerText="Start" width="120" dataField="start" labelFunction="formatStart" />
 				<mx:DataGridColumn headerText="Finish" width="120" dataField="finish" labelFunction="formatFinish" />
-				<mx:DataGridColumn editable="false" width="105" minWidth="105" sortable="false">
+				<mx:DataGridColumn editable="false" width="35" minWidth="35" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>
-							<mx:Box direction="horizontal" horizontalGap="0">
-								<mx:LinkButton id="releaseBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
-								<mx:LinkButton id="releaseBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
+							<mx:Box direction="horizontal" horizontalGap="5">
+								<mx:LinkButton width="15" id="releaseBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
+								<mx:LinkButton width="15" id="releaseBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>
