@@ -526,9 +526,9 @@
 		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="8" verticalAlign="middle" id="projectHbox1" paddingTop="5" paddingLeft="5" paddingRight="5">
 			<mx:Label text="Projects" fontWeight="bold" textDecoration="underline"/>
 			<mx:Text id="projectError" styleName="error" htmlText="{_error}" width="100%"/>
-			<mx:Button icon="{parentApplication.imgAdd}" toolTip="Create" id="projectBtnCreate" click="showCreateCompany(event);" visible="{factory.currentIndividual.isAdmin()}"/>
+			<mx:Button width="25" icon="{parentApplication.imgAdd}" toolTip="Create" id="projectBtnCreate" click="showCreateCompany(event);" visible="{factory.currentIndividual.isAdmin()}"/>
 		</mx:HBox>
-		<local:ColoredBackgroundDataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="projectResourceGrid" dataProvider="{companies}" rowCount="{companies.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)" itemClick="groupSelected(event)" rowColorFunction="rowColor" variableRowHeight="true" sortableColumns="false" horizontalScrollPolicy="auto">
+		<local:ColoredBackgroundDataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="projectResourceGrid" dataProvider="{companies}" rowCount="{companies.length}" height="100%" width="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)" itemClick="groupSelected(event)" rowColorFunction="rowColor" variableRowHeight="true" sortableColumns="false" horizontalScrollPolicy="auto" verticalScrollPolicy="auto">
 			<local:columns>
 				<mx:DataGridColumn editable="false" resizable="false" minWidth="45" width="45" sortable="false" textAlign="left"> 
 					<mx:itemRenderer> 
@@ -548,13 +548,13 @@
 				</mx:DataGridColumn>
 				<mx:DataGridColumn headerText="Description" width="400" dataField="description"/>
 				<mx:DataGridColumn headerText="Stories" width="120" labelFunction="ViewHelper.formatSurveyMode" sortCompareFunction="ViewHelper.sortSurveyMode" visible="{factory.currentIndividual.isPremium}"/>
-				<mx:DataGridColumn editable="false" width="140" minWidth="140" sortable="false">
+				<mx:DataGridColumn editable="false" width="55" minWidth="55" sortable="false">
 					<mx:itemRenderer>
 						<mx:Component>
-							<mx:Box direction="horizontal" horizontalGap="0">
-								<mx:LinkButton id="projectBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
-								<mx:LinkButton id="projectBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.shouldShowDelete(data)}"/>
-								<mx:LinkButton id="teamBtnAdd" icon="{parentApplication.imgAdd}" toolTip="{data.isCompany()?'Add Project':'Add Team'}" click="outerDocument.showCreateProjectOrTeam(event);" visible="{outerDocument.shouldShowAdd(data)}"/>
+							<mx:Box direction="horizontal" horizontalGap="5">
+								<mx:LinkButton width="15" id="projectBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
+								<mx:LinkButton width="15" id="projectBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.shouldShowDelete(data)}"/>
+								<mx:LinkButton width="15" id="teamBtnAdd" icon="{parentApplication.imgAdd}" toolTip="{data.isCompany()?'Add Project':'Add Team'}" click="outerDocument.showCreateProjectOrTeam(event);" visible="{outerDocument.shouldShowAdd(data)}"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>

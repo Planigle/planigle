@@ -19,6 +19,7 @@
 		import mx.events.DragEvent;
 		import mx.events.CloseEvent;
 		import mx.events.ListEvent;
+		import mx.events.ResizeEvent;
 		import mx.events.IndexChangedEvent;
 		import mx.binding.utils.ChangeWatcher;
 		import mx.containers.FormItem;
@@ -1786,33 +1787,33 @@
 		</mx:Text>
 	</mx:Component>
 
-	<mx:Panel id="combinedPanel" height="100%" y="0" width="100%" x="0" borderThicknessTop="0" borderThicknessLeft="0" borderThicknessRight="0" headerHeight="0">
+	<mx:Panel id="combinedPanel" height="100%" width="100%" y="0" x="0" borderThicknessTop="0" borderThicknessLeft="0" borderThicknessRight="0" headerHeight="0">
 		<mx:VBox id="vbox" width="100%" paddingTop="5" paddingLeft="5" paddingRight="5">
 			<mx:VBox id="storyBtnBox" width="100%">
-				<mx:HBox width="100%" horizontalAlign="left">
-					<mx:HBox width="100%" id='topRow'>
-						<mx:ComboBox id='release' editable="false" dataProvider="{releaseFilter}" labelField="name" change="handleReleaseFilter(event)"></mx:ComboBox>
-						<mx:ComboBox id='iteration' editable="false" dataProvider="{iterationFilter}" labelField="name" change="handleFilter(event)"></mx:ComboBox>
-						<component:TeamSelector id='team' change="handleFilter(event)"></component:TeamSelector>
-						<mx:ComboBox id='individual' editable="false" dataProvider="{individualFilter}" labelField="fullName" change="handleFilter(event)"></mx:ComboBox>
-						<mx:ComboBox id='itemStatus' editable="false" change="handleFilter(event)" selectedIndex="3">
-							<mx:Object label="Not Started" value="0" />
-							<mx:Object label="In Progress" value="1" />
-							<mx:Object label="Blocked" value="2" />
-							<mx:Object label="Not Done" value="-2" />
-							<mx:Object label="Done" value="3" />
-							<mx:Object label="All Statuses" value="-1" />
-						</mx:ComboBox>
+				<mx:HBox width="100%" horizontalGap="5" minWidth="0" horizontalScrollPolicy="off">
+					<mx:ComboBox id='release' editable="false" dataProvider="{releaseFilter}" labelField="name" change="handleReleaseFilter(event)"></mx:ComboBox>
+					<mx:ComboBox id='iteration' editable="false" dataProvider="{iterationFilter}" labelField="name" change="handleFilter(event)"></mx:ComboBox>
+					<component:TeamSelector id='team' change="handleFilter(event)"></component:TeamSelector>
+					<mx:ComboBox id='individual' editable="false" dataProvider="{individualFilter}" labelField="fullName" change="handleFilter(event)"></mx:ComboBox>
+					<mx:ComboBox id='itemStatus' editable="false" change="handleFilter(event)" selectedIndex="3">
+						<mx:Object label="Not Started" value="0" />
+						<mx:Object label="In Progress" value="1" />
+						<mx:Object label="Blocked" value="2" />
+						<mx:Object label="Not Done" value="-2" />
+						<mx:Object label="Done" value="3" />
+						<mx:Object label="All Statuses" value="-1" />
+					</mx:ComboBox>
+					<mx:HBox id="buttonBox" width="100%" horizontalGap="5" horizontalAlign="right" horizontalScrollPolicy="off">
+						<mx:Button width="25" icon="{parentApplication.imgExisting}" toolTip="Move Existing" click="handleAdd(event);" id="storyBtnAddExisting" visible="{shouldShowExisting()}"/>
+						<mx:Button width="25" icon="{parentApplication.imgAdd}" toolTip="Create" click="showCreateStory(event);" id="storyBtnCreate" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
+						<mx:Button width="25" icon="{parentApplication.imgEdit}" toolTip="Update" click="showUpdate(event);" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnUpdateMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
+						<mx:Button width="25" icon="{parentApplication.imgCross}" toolTip="Delete" click="showDelete(event);" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnDeleteMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
+						<component:ImportButton width="25" id="storyBtnImport" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
+						<component:ExportButton width="25" id="storyBtnExport"/>
+						<mx:Button icon="{parentApplication.imgSurveys}" visible="{factory.currentIndividual.isPremium}" width="{factory.currentIndividual.isPremium ? 25 : 0}" toolTip="View Surveys" click="handleSurveys(event);" id="storyBtnViewSurveys"/>
 					</mx:HBox>
-					<mx:Button icon="{parentApplication.imgExisting}" toolTip="Move Existing" click="handleAdd(event);" id="storyBtnAddExisting" visible="{shouldShowExisting()}"/>
-					<mx:Button icon="{parentApplication.imgAdd}" toolTip="Create" click="showCreateStory(event);" id="storyBtnCreate" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
-					<mx:Button icon="{parentApplication.imgEdit}" toolTip="Update" click="showUpdate(event);" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnUpdateMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
-					<mx:Button icon="{parentApplication.imgCross}" toolTip="Delete" click="showDelete(event);" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnDeleteMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
-					<component:ImportButton id="storyBtnImport" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
-					<component:ExportButton id="storyBtnExport"/>
-					<mx:Button icon="{parentApplication.imgSurveys}" visible="{factory.currentIndividual.isPremium}" width="{factory.currentIndividual.isPremium ? NaN : 0}" toolTip="View Surveys" click="handleSurveys(event);" id="storyBtnViewSurveys"/>
 				</mx:HBox>
-				<mx:HBox id="storyStatusRow" width="100%" horizontalAlign="center" verticalAlign="middle">
+				<mx:HBox id="storyStatusRow" width="100%" minWidth="0" horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
 					<mx:Label text="Number of Stories:" fontWeight="bold"/>
 					<mx:Label id="storiesCount" text=""/>
 					<mx:HBox id="storyUtilizationRow" verticalAlign="middle">
@@ -1825,7 +1826,7 @@
 			</mx:VBox>
 			<mx:Text id="storyError" styleName="error" htmlText="{_error}" width="100%" height="0"/>
 		</mx:VBox>
-		<local:ColoredBackgroundDataGrid id="storyResourceGrid" variableRowHeight="true" dataProvider="{filteredStories}" rowCount="{filteredStories.length}" width="100%" height="100%" dragEnabled="{factory.currentIndividual.isAtLeastProjectUser}" dropEnabled="true" dragMoveEnabled="true" dragStart="handleDrag(event)" dragDrop="handleReorder(event)" rowColorFunction="rowColor" headerRelease="prepareSort(event)" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectUser}" doubleClick="showUpdate(event)" allowMultipleSelection="true" columnStretch="columnStretch(event)" headerShift="headerShift(event)" horizontalScrollPolicy="auto">
+		<local:ColoredBackgroundDataGrid id="storyResourceGrid" minWidth="0" variableRowHeight="true" dataProvider="{filteredStories}" rowCount="{filteredStories.length}" height="100%" width="100%" dragEnabled="{factory.currentIndividual.isAtLeastProjectUser}" dropEnabled="true" dragMoveEnabled="true" dragStart="handleDrag(event)" dragDrop="handleReorder(event)" rowColorFunction="rowColor" headerRelease="prepareSort(event)" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectUser}" doubleClick="showUpdate(event)" allowMultipleSelection="true" columnStretch="columnStretch(event)" headerShift="headerShift(event)" horizontalScrollPolicy="auto" verticalScrollPolicy="auto">
 			<local:columns>
 				<mx:DataGridColumn resizable="false" editable="false" width="16" textAlign="center"> 
 					<mx:headerRenderer>
@@ -1878,7 +1879,7 @@
 				<mx:DataGridColumn headerText="Description" dataField="description"/>
 				<mx:DataGridColumn headerText="Acceptance Criteria" dataField="acceptanceCriteria"/>
 				<mx:DataGridColumn headerText="Release" labelFunction="ViewHelper.formatRelease" sortCompareFunction="ViewHelper.sortRelease"/>
-				<mx:DataGridColumn resizable="false" editable="false" width="175">
+				<mx:DataGridColumn resizable="false" editable="false" width="95">
 					<mx:headerRenderer>
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0">
@@ -1888,12 +1889,12 @@
 					</mx:headerRenderer>
 					<mx:itemRenderer>
 						<mx:Component>
-							<mx:Box direction="horizontal" horizontalGap="0" width="100%">
-								<mx:LinkButton id="storyBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);" visible="{outerDocument.shouldShow(data)}"/>
-								<mx:LinkButton id="storyBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.shouldShow(data)}"/>
-								<mx:LinkButton id="storyBtnMoveUp" icon="{parentApplication.imgMoveUp}" toolTip="Move To Top" click="outerDocument.moveToTop(event);" visible="{outerDocument.shouldShowStory(data)}"/>
-								<mx:LinkButton id="taskBtnAdd" icon="{parentApplication.imgAdd}" toolTip="Add Task" click="outerDocument.showCreateTask(event);" visible="{outerDocument.shouldShowStory(data)}"/>
-								<mx:LinkButton id="storyBtnSplit" icon="{parentApplication.imgSplit}" toolTip="Split" click="outerDocument.showSplit(event);" visible="{outerDocument.shouldShowStory(data)}"/>
+							<mx:Box direction="horizontal" horizontalGap="5" width="100%">
+								<mx:LinkButton width="15" id="storyBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);" visible="{outerDocument.shouldShow(data)}"/>
+								<mx:LinkButton width="15" id="storyBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.shouldShow(data)}"/>
+								<mx:LinkButton width="15" id="storyBtnMoveUp" icon="{parentApplication.imgMoveUp}" toolTip="Move To Top" click="outerDocument.moveToTop(event);" visible="{outerDocument.shouldShowStory(data)}"/>
+								<mx:LinkButton width="15" id="taskBtnAdd" icon="{parentApplication.imgAdd}" toolTip="Add Task" click="outerDocument.showCreateTask(event);" visible="{outerDocument.shouldShowStory(data)}"/>
+								<mx:LinkButton width="15" id="storyBtnSplit" icon="{parentApplication.imgSplit}" toolTip="Split" click="outerDocument.showSplit(event);" visible="{outerDocument.shouldShowStory(data)}"/>
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>
