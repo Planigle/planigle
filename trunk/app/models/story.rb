@@ -149,9 +149,9 @@ class Story < ActiveRecord::Base
     if new_criteria
       new_criteria.split("\r").each do |criterium|
         if criterium.strip != ""
-          criterium = criterium.match(/-.*/) ? criterium[1,criterium.length-1] : criterium
+          criterium = criterium.match(/^\-.*$/) ? criterium[1,criterium.length-1] : criterium
           code = status_code == Done ? Criterium::Done : Criterium::Created
-          if (match=criterium.match(/(.*) \(Done\)/))
+          if (match=criterium.match(/^(.*) \(Done\)$/))
             criterium = match[1]
             code = Criterium::Done
           end
