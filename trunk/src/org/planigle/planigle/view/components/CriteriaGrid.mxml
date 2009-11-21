@@ -15,7 +15,7 @@
 		private const DOWN:int=40;
 		private const BACKSPACE:int=8;
 		private const DELETE:int=127;
-		private const INITIAL_CRITERIA:String = "<Enter Criteria Here>";
+		private const INITIAL_CRITERIA:String = "<Enter criteria here; Press Enter or down arrow to add additional>";
 
 		[Bindable]
 		private var criteria:ArrayCollection = new ArrayCollection();

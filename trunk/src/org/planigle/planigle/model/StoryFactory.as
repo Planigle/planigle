@@ -1,6 +1,8 @@
 package org.planigle.planigle.model
 {
 	import mx.collections.ArrayCollection;
+	import mx.collections.Sort;
+	import mx.collections.SortField;
 	
 	import org.planigle.planigle.commands.CreateStoryCommand;
 
@@ -54,8 +56,20 @@ package org.planigle.planigle.model
 			for each (var story:Story in stories)
 				newStories.addItem(story);
 			newStories.addItem(newStory);
+			sortStories(newStories);
 			populate(newStories.toArray());
 			return newStory;
+		}
+		
+		protected function sortStories(stories:ArrayCollection):void
+		{
+			var sortField:SortField = new SortField();
+			sortField.name = "priority";
+			sortField.numeric = true;
+			var sort:Sort = new Sort();
+			sort.fields = [sortField];
+			stories.sort = sort;
+			stories.refresh();
 		}
 
 		// Find a story given its ID.  If no story, return null.
