@@ -998,9 +998,35 @@
 			if (storyBtnChange.label == 'Create')
 			{
 				if (currentItem)
-					currentItem.createTask(getParams(false), handleCreateSuccess, handleFailure);
+				{
+					var taskParams:Object = getParams(false);
+					if (storyResourceGrid.selectedItem != null && !storyResourceGrid.selectedItem.isStory() && storyResourceGrid.selectedItem.story == currentItem)
+					{
+						var selectedTask:Task = Task(storyResourceGrid.selectedItem);
+						var nextTaskIndex:int = currentItem.tasks.indexOf(selectedTask) + 1;
+						if (currentItem.tasks.length > nextTaskIndex)
+						{
+							var nextTask:Task = Task(currentItem.tasks[nextTaskIndex]);
+							taskParams['record[priority]'] = (selectedTask.priority + nextTask.priority) / 2.0;
+						}
+					}
+					currentItem.createTask(taskParams, handleCreateSuccess, handleFailure);
+				}
 				else
-					StoryFactory.getInstance().createStory(getParams(true), handleCreateSuccess, handleFailure);
+				{
+					var storyParams:Object = getParams(true);
+					if (storyResourceGrid.selectedItem != null)
+					{
+						var selectedStory:Story = storyResourceGrid.selectedItem.isStory() ? Story(storyResourceGrid.selectedItem) : Story(storyResourceGrid.selectedItem.story);
+						var nextStoryIndex:int = StoryFactory.getInstance().stories.getItemIndex(selectedStory) + 1;
+						if (StoryFactory.getInstance().stories.length > nextStoryIndex)
+						{
+							var nextStory:Story = Story(StoryFactory.getInstance().stories.getItemAt(nextStoryIndex));
+							storyParams['record[priority]'] = (selectedStory.priority + nextStory.priority) / 2.0;
+						}
+					}
+					StoryFactory.getInstance().createStory(storyParams, handleCreateSuccess, handleFailure);
+				}
 			}
 			else if (storyBtnChange.label == 'Update')
 			{
@@ -1082,6 +1108,7 @@
 				if (newStatus != -1)
 					currentItem.update({'record[status_code]': newStatus}, null, handleFailure);
 			}
+			storyResourceGrid.selectedItem = newItem; // Enables subsequent stories to be put after this one
 			showCreate(currentItem == null);
 			if (currentItem != null) defaultTaskOwner();
 			setSuccessMessage( currentItem == null ?
