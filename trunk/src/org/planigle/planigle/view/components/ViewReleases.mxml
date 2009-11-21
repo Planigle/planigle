@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" height="100%" y="0" width="100%" x="0" creationComplete="created(event)">
+<local:ViewCanvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:local="org.planigle.planigle.view.controls.*" height="100%" y="0" width="100%" x="0" creationComplete="created(event)">
 	<mx:Metadata>
 		[Event(name="itemClick", type="flash.events.Event")]
 	</mx:Metadata>
@@ -104,7 +104,7 @@
 		private var currentItem:Object;
 
 		// Show user a form to update a resource.
-		public function showUpdate(event:Event) : void
+		public function showUpdate() : void
 		{
 			currentItem = releaseResourceGrid.selectedItem;
 			if (currentItem)
@@ -223,7 +223,7 @@
 		}
 
 		// Answer whether any changes need to be saved.
-		public function isDirty(): Boolean
+		override public function isDirty(): Boolean
 		{
 			if (releaseBtnChange.label == 'Create') {
 				var values:Object = getInitialValues();			
@@ -241,7 +241,7 @@
 		]]>
 	</mx:Script>
  	
-	<mx:states>
+	<local:states>
 		<mx:State name="Change">
 			<mx:RemoveChild target="{releaseBtnCreate}"/>
 			<mx:AddChild relativeTo="{releaseResourceGrid}" position="before">
@@ -266,9 +266,9 @@
 				</mx:target>
 			</mx:AddChild>
 		</mx:State>
-	</mx:states>
+	</local:states>
 	
-	<mx:transitions>
+	<local:transitions>
 		<mx:Transition id="releaseChangeItem" fromState="*" toState="Change">
 			<mx:Sequence targets="{[releaseCombinedPanel]}">
 				<mx:RemoveChildAction/>
@@ -285,7 +285,7 @@
 			</mx:Sequence>
 		</mx:Transition>
 
-	</mx:transitions>
+	</local:transitions>
 
 	<mx:Panel id="releaseCombinedPanel" height="100%" width="100%" borderThicknessTop="0" borderThicknessLeft="0" borderThicknessRight="0" headerHeight="0">
 		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="8" verticalAlign="middle" id="releaseHbox" paddingTop="5" paddingLeft="5" paddingRight="5">
@@ -293,7 +293,7 @@
 			<mx:Text id="releaseError" styleName="error" htmlText="{_error}" width="100%"/>
 			<mx:Button width="25" icon="{parentApplication.imgAdd}" toolTip="Create" id="releaseBtnCreate" click="showCreate(event);" visible="{factory.currentIndividual.isAtLeastProjectAdmin()}"/>
 		</mx:HBox>
-		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="releaseResourceGrid" dataProvider="{releases}" rowCount="{ReleaseFactory.getInstance().releases.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="showUpdate(event)" itemClick="releaseSelected(event)" verticalScrollPolicy="auto">
+		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="releaseResourceGrid" dataProvider="{releases}" rowCount="{ReleaseFactory.getInstance().releases.length}" width="100%" height="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="checkDirty(showUpdate)" itemClick="releaseSelected(event)" verticalScrollPolicy="auto">
 			<mx:columns>
 				<mx:DataGridColumn headerText="Name" dataField="name"/>
 				<mx:DataGridColumn headerText="Start" width="120" dataField="start" labelFunction="formatStart" />
@@ -302,7 +302,7 @@
 					<mx:itemRenderer>
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="5">
-								<mx:LinkButton width="15" id="releaseBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.showUpdate(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
+								<mx:LinkButton width="15" id="releaseBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.checkDirty(outerDocument.showUpdate);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
 								<mx:LinkButton width="15" id="releaseBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
 							</mx:Box>
 						</mx:Component>
@@ -311,4 +311,4 @@
 			</mx:columns>
 		</mx:DataGrid>
 	</mx:Panel>
-</mx:Canvas>
+</local:ViewCanvas>
