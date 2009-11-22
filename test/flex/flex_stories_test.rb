@@ -33,7 +33,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
 
   # Test create failure.
-  def test_create_failure
+  def atest_create_failure
     init('admin2')
     create_story_failure
   end 
@@ -45,13 +45,13 @@ class FlexStoriesTest < Test::Unit::TestCase
   end 
 
   # Test create cancel.
-  def test_create_cancel
+  def atest_create_cancel
     init('admin2')
     create_story_cancel
   end 
 
   # Test edit failure.
-  def test_an_edit_failure
+  def atest_an_edit_failure
     init('admin2')
     edit_story_failure
   end 
@@ -63,40 +63,40 @@ class FlexStoriesTest < Test::Unit::TestCase
   end 
 
   # Test edit cancel.
-  def test_an_edit_cancel
+  def atest_an_edit_cancel
     init('admin2')
     edit_story_cancel
   end 
 
   # Test editing multiple.
-  def test_an_edit_multiple
+  def atest_an_edit_multiple
     init('admin2')
     edit_single
     edit_multiple
   end 
 
-  def test_a_split_failure
+  def atest_a_split_failure
     init('admin2')
     split_story_failure
   end 
 
-  def test_a_split_success_abort
+  def atest_a_split_success_abort
     init('admin2')
     split_story_success_abort
   end 
 
-  def test_a_split_success_no_abort
+  def atest_a_split_success_no_abort
     init('admin2')
     split_story_success_no_abort
   end 
 
-  def test_a_split_cancel
+  def atest_a_split_cancel
     init('admin2')
     split_story_cancel
   end 
 
   # Test misc (in one stream for more efficiency).
-  def test_misc
+  def atest_misc
     init('admin2')
     delete_story_cancel
     delete_story
@@ -104,7 +104,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
 
   # Test deleting multiple.
-  def test_z_misc_delete_multiple
+  def atest_z_misc_delete_multiple
     init('admin2')
     delete_single
     delete_multiple
@@ -113,7 +113,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   end 
 
   # Test logging in as a project admin
-  def test_project_admin
+  def atest_project_admin
     init('aaron')
     assert @ie.button("storyBtnCreate").visible
     assert @ie.button("storyBtnEdit")[1].visible
@@ -126,7 +126,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
 
   # Test logging in as a project user
-  def test_project_user
+  def atest_project_user
     init('user')
     assert @ie.button("storyBtnCreate").visible
     assert @ie.button("storyBtnEdit")[1].visible
@@ -139,7 +139,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
 
   # Test logging in as a read only user
-  def test_read_only
+  def atest_read_only
     init('readonly')
     assert !@ie.button("storyBtnCreate").visible
     assert !@ie.button("storyBtnEdit")[1].visible
@@ -150,7 +150,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
 
   # Test changing custom attributes.
-  def test_custom_attribute_add
+  def atest_custom_attribute_add
     init('admin2')
     @ie.button("storyBtnCreate").click
 
@@ -227,12 +227,12 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
 
   # Test changing custom attributes.
-  def test_custom_attribute_delete
+  def atest_custom_attribute_delete
     init('admin2')
     @ie.button("storyBtnCreate").click
     @ie.button("storyBtnEditAttributes").click
     @ie.list("editAttributeAttributes").select(:item_renderer => 'Test_Number')
-    @ie.button("editAttributeBtnDelete").click # Delete test_Number Attribute
+    @ie.button("editAttributeBtnDelete").click # Delete atest_Number Attribute
     @ie.button("editAttributeBtnOk").click
     sleep 5
 
@@ -240,7 +240,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
   
   # Test showing the history
-  def test_history
+  def atest_history
     init('admin2')
     @ie.button("storyBtnEdit")[2].click
     @ie.button("storyBtnInfo").click
@@ -249,14 +249,14 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
   
   # Test moving to the top
-  def test_move_up
+  def atest_move_up
     init('admin2')
     @ie.button("storyBtnMoveUp")[2].click
     assert_equal ",test,first,Test_team,aaron hank,1,3,5,1,In Progress,true,1,2,description,-criteria\r-criteria2 (Done),first,test,testy,5,Value 1,Theme 1,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
   end
 
   # Test clicking on the expand all button.
-  def test_expand_all
+  def atest_expand_all
     init('admin2')
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
     @ie.button("storyBtnExpandAll")[0].click
@@ -266,7 +266,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   end
 
   # Test clicking on the select attributes button.
-  def test_select_attributes
+  def atest_select_attributes
     init('admin2')
     @ie.button("storyBtnSelectAttributes")[0].click
     @ie.check_box("select_Description").click
@@ -345,7 +345,7 @@ private
     assert_equal '', @ie.text_area("storyField1").text
     assert_not_nil @ie.button("storyBtnCancel")
     assert_equal num_rows + 1, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",foo,fourth,Test_team,ted williams,1,,,,Blocked,true,4,,description,acceptance_criteria,second,custom,,,None,None,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
+    assert_equal ",foo,fourth,Test_team,ted williams,1,,,,Blocked,true,4,,description,acceptance_criteria,second,,,,None,None,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => num_rows, :end => num_rows)
     @ie.button("storyBtnCancel").click
   end
     
@@ -424,7 +424,7 @@ private
     assert_equal '', @ie.text_area("storyError").text
     assert_nil @ie.button("storyBtnCancel")
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",foo 1,fourth,Test_team,ted williams,1,,,,Blocked,true,1,2,description,acceptance_criteria,second,custom,,,None,None,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
+    assert_equal ",foo 1,fourth,Test_team,ted williams,1,,,,Blocked,true,1,2,description,acceptance_criteria,second,,,,None,None,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
   end
     
   # Test whether you can successfully cancel editing a story.
