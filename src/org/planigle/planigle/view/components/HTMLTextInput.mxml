@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TextArea xmlns:mx="http://www.adobe.com/2006/mxml" maxChars="4096" height="64" width="500" focusOut="changed(event)">
+<mx:TextInput xmlns:mx="http://www.adobe.com/2006/mxml" focusOut="changed(event)">
 	<mx:Script>
 		<![CDATA[
 		override public function set text(string:String):void
@@ -21,4 +21,4 @@
 		}
 		]]>
 	</mx:Script>
-</mx:TextArea>
+</mx:TextInput>

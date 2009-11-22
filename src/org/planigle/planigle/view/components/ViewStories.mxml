@@ -700,6 +700,8 @@
 		{
 			clearErrorMessage();
 			currentState = 'Change';
+			storyBtnCreateClose.visible = true;
+			storyBtnCreateClose.width = NaN;
 			storyBtnChange.label = 'Create';
 			storyFieldName.setFocus();
 			var values:Object = getInitialValues(true);
@@ -796,6 +798,8 @@
 	
 					storyFieldEffort.text = currentItem.effort;
 					storyFieldStatus.selectedIndex = currentItem.statusCode;
+					storyBtnCreateClose.visible = false;
+					storyBtnCreateClose.width=-5;
 					storyBtnChange.label = 'Update';
 					storyBtnInfo.visible = true;
 				}
@@ -988,7 +992,7 @@
 		}
 
 		// Tell the server to change a resource.
-		private function changeResource(event:Event) : void
+		private function changeResource(shouldClose:Boolean) : void
 		{
 			if (storyBtnChange.label == 'Create')
 			{
@@ -1005,7 +1009,7 @@
 							taskParams['record[priority]'] = (selectedTask.priority + nextTask.priority) / 2.0;
 						}
 					}
-					currentItem.createTask(taskParams, handleCreateSuccess, handleFailure);
+					currentItem.createTask(taskParams, shouldClose ? handleCreateCloseSuccess : handleCreateSuccess, handleFailure);
 				}
 				else
 				{
@@ -1020,7 +1024,7 @@
 							storyParams['record[priority]'] = (selectedStory.priority + nextStory.priority) / 2.0;
 						}
 					}
-					StoryFactory.getInstance().createStory(storyParams, handleCreateSuccess, handleFailure);
+					StoryFactory.getInstance().createStory(storyParams, shouldClose ? handleCreateCloseSuccess : handleCreateSuccess, handleFailure);
 				}
 			}
 			else if (storyBtnChange.label == 'Update')
@@ -1090,6 +1094,14 @@
 				if (newStatus != -1)
 					story.update({'record[status_code]': newStatus}, null, handleFailure);
 			}
+		}
+
+		// Handle a successful create.
+		private function handleCreateCloseSuccess(newItem:Object):void
+		{
+			handleCreateSuccess(newItem);
+			currentItem = null;
+			currentState = '';
 		}
 
 		// Handle a successful create.
@@ -1505,7 +1517,7 @@
 					switch (attrib.valueType)
 					{
 					  case StoryAttribute.STRING:
-					  	var input:TextInput = new TextInput();
+					  	var input:TextInput = new HTMLTextInput();
 					  	input.id = id;
 					  	input.maxChars = 4096;
 					  	input.width = 500;
@@ -1733,7 +1745,8 @@
 							</mx:HBox>
 							<mx:ControlBar width="100%">
 								<mx:Spacer width="50"/>
-								<mx:Button label="Change" id="storyBtnChange" click="changeResource(event)"/>
+								<mx:Button label="Change" id="storyBtnChange" click="changeResource(false)"/>
+								<mx:Button label="Create &amp; Close" id="storyBtnCreateClose" click="changeResource(true)"/>
 								<mx:LinkButton label="Cancel" id="storyBtnCancel" click="resetState(event)"/>
 								<mx:LinkButton id="storyBtnInfo" icon="{parentApplication.imgInfo}" toolTip="History" click="showHistory(event);"/>
 							</mx:ControlBar>
