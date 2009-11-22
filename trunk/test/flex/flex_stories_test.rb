@@ -574,7 +574,7 @@ private
     rows = @ie.data_grid("storyResourceGrid").num_rows
     assert_equal num_rows + 1, rows
     assert_equal ",test,first,Test_team,aaron hank,1,3,2,1,In Progress,true,2,2,description,-criteria\r-criteria2 (Done),first,test,testy,5,Value 1,Theme 1,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-3, :end => rows-3)
-    assert_equal ",foo 1,fourth,Test_team,ted williams,1,0,3,0,Not Started,true,3,,description,acceptance_criteria,second,test,testy,5,Value 1,None,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-1, :end => rows-1)
+    assert_equal ",foo 1,fourth,Test_team,ted williams,1,0,3,0,Not Started,true,3,,description,acceptance_criteria,second,test,testy,5,Value 1,None,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => rows-2, :end => rows-2)
   end
     
   # Test whether you can successfully cancel splitting a story.
