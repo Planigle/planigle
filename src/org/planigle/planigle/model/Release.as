@@ -107,5 +107,17 @@ package org.planigle.planigle.model
 		{
 			return true;
 		}
+
+		// Answer the stories in me.
+		public function stories():ArrayCollection
+		{
+			var stories:ArrayCollection = new ArrayCollection();
+			for each(var story:Story in StoryFactory.getInstance().stories)
+			{
+				if (story.releaseId == id)
+					stories.addItem(story);
+			}
+			return stories;
+		}
 	}
 }
