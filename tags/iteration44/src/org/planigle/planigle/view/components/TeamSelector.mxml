@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" editable="false" dataProvider="{teamSelector}" labelField="name" creationComplete="created(event)">
+	<mx:Script>
+		<![CDATA[
+		import mx.collections.ArrayCollection;
+		import mx.binding.utils.ChangeWatcher;
+		import mx.events.ListEvent;
+		import org.planigle.planigle.model.IndividualFactory;
+		import org.planigle.planigle.model.Team;
+
+		[Bindable]
+		private var teamSelector:ArrayCollection = new ArrayCollection();
+
+		// Initialize the view
+		private function created(event:Event):void
+		{
+			ChangeWatcher.watch( IndividualFactory.getInstance(), "currentIndividual", setTeamWatcher );
+			ChangeWatcher.watch( IndividualFactory.current(), "selectedProjectId", setTeamWatcher );
+			setTeamWatcher(null);
+		}
+
+		private var watcher:ChangeWatcher;
+
+		// Watch for changes to the teams.
+		private function setTeamWatcher(event:Event):void
+		{
+			if (watcher)
+				watcher.unwatch();
+			if (IndividualFactory.current().selectedProject)
+				watcher = ChangeWatcher.watch( IndividualFactory.current().selectedProject, "teamSelector", setTeamSelector );
+			else watcher = null;
+			setTeamSelector(null);
+		}
+
+		// Set the teams in the selection list.
+		private function setTeamSelector(event:Event):void
+		{
+			// Remember selection so that updating teams doesn't revert it.
+			var id:String = selectedItem ? selectedItem.id : "-2";
+			var selection:Team = null;
+
+			var newFilter:ArrayCollection = new ArrayCollection();
+			var teams:ArrayCollection = IndividualFactory.current().selectedProject ? IndividualFactory.current().selectedProject.teamSelector : new ArrayCollection();
+			for each (var it:Team in teams)
+			{
+				newFilter.addItem(it);
+				if (it.id == id)
+					selection = it;
+			}
+			var all:Team = new Team();
+			all.populate( <team><id>-1</id><name>All Teams</name></team> );
+			newFilter.addItem(all);
+			if (id == "-1")
+				selection = all;
+			teamSelector = newFilter;
+			if (selection)
+				selectedItem = selection;
+			else if (teamSelector.contains(IndividualFactory.current().team) && IndividualFactory.current().team.id != null)
+				selectedItem = IndividualFactory.current().team
+			else
+				selectedIndex = teamSelector.length - 1;
+			visible = teamSelector.length > 2;
+			height = visible ? 22 : 0;
+			width = visible ? NaN : -8;
+			dispatchEvent(new ListEvent(ListEvent.CHANGE));
+		}
+		]]>
+	</mx:Script>
+</mx:ComboBox>
