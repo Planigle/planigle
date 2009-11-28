@@ -7,6 +7,8 @@ class SystemTest < ActiveSupport::TestCase
   fixtures :iterations
   fixtures :iteration_totals
   fixtures :stories
+  fixtures :projects
+  fixtures :teams
 
   # Test the license agreement.
   def test_license_agreement

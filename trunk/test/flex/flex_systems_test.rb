@@ -5,7 +5,9 @@ require 'funfx'
 class FlexSystemsTest < Test::Unit::TestCase
   fixtures :systems
   fixtures :companies
+  fixtures :projects
   fixtures :individuals
+  fixtures :individuals_projects
 
   def setup
     @ie = Funfx.instance 
