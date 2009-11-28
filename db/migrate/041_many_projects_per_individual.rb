@@ -24,5 +24,6 @@ class ManyProjectsPerIndividual < ActiveRecord::Migration
       end
     end
     drop_table :individuals_projects
+    add_index :individuals, [:project_id], :unique => false
   end
 end
