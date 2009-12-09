@@ -931,6 +931,8 @@
 		// Answer whether any changes need to be saved.
 		override public function isDirty(): Boolean
 		{
+			if (currentState != 'Change')
+				return false;
 			if (storyBtnChange.label == 'Create') {
 				var values:Object = getInitialValues();
 				if (storyFieldName.text != values["name"]) return true;
