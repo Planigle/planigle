@@ -7,6 +7,8 @@
 			import mx.controls.Alert;
 			import org.planigle.planigle.model.FileUtils;
 
+			public var queryStringObject:Object = this;
+			public var queryStringFunction:Function = defaultQueryString;
 			private var fileRef:FileReference;
 
 			// Initialize my file reference.
@@ -15,13 +17,18 @@
 				fileRef = new FileReference();
 				fileRef.addEventListener(IOErrorEvent.IO_ERROR, exportUnsuccessful);
             }
+            
+            private function defaultQueryString():String 
+            {
+            	return "";
+            }
 
 			// Show the browse window.
 			private function exportFile(event:Event):void
 			{
 				try
 				{
-					fileRef.download(new URLRequest("stories/export?_planigle_session_id=" + FileUtils.getSession()), "stories.csv");
+					fileRef.download(new URLRequest("stories/export?_planigle_session_id=" + FileUtils.getSession() + queryStringFunction.call(queryStringObject)), "stories.csv");
 				}
 				catch (error:Error)
 				{
