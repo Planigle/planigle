@@ -1677,6 +1677,23 @@
 				currentColumns = storyResourceGrid.columns;
 			}
 		}
+		
+		// Create the query string for exporting.  Should either by the empty string or start with &.
+		public function getExportQueryString():String
+		{
+			var queryString:String = "";
+			if (release.selectedItem.id != "-1")
+				queryString += "&release_id=" + (release.selectedItem.id ? release.selectedItem.id : "");
+			if (iteration.selectedItem.id != "-1")
+				queryString += "&iteration_id=" + (iteration.selectedItem.id ? iteration.selectedItem.id : "");
+			if (team.selectedItem.id != "-1")
+				queryString += "&team_id=" + (team.selectedItem.id ? team.selectedItem.id : "");
+			if (individual.selectedItem.id != "-1")
+				queryString += "&individual_id=" + (individual.selectedItem.id ? individual.selectedItem.id : "");
+			if (itemStatus.selectedItem.value != -1)
+				queryString += "&status_code=" + (itemStatus.selectedItem.value == -2 ? "NotDone" : itemStatus.selectedItem.value);
+			return queryString;
+		}
 		]]>
 	</mx:Script>
  	
@@ -1846,7 +1863,7 @@
 						<mx:Button width="25" icon="{parentApplication.imgEdit}" toolTip="Update" click="showUpdate();" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnUpdateMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
 						<mx:Button width="25" icon="{parentApplication.imgCross}" toolTip="Delete" click="showDelete(event);" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnDeleteMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
 						<component:ImportButton width="25" id="storyBtnImport" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
-						<component:ExportButton width="25" id="storyBtnExport"/>
+						<component:ExportButton width="25" id="storyBtnExport" queryStringFunction="{getExportQueryString}" queryStringObject="{this}"/>
 						<mx:Button icon="{parentApplication.imgSurveys}" visible="{factory.currentIndividual.isPremium}" width="{factory.currentIndividual.isPremium ? 25 : 0}" toolTip="View Surveys" click="handleSurveys(event);" id="storyBtnViewSurveys"/>
 					</mx:HBox>
 				</mx:HBox>
