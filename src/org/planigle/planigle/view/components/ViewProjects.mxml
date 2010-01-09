@@ -129,17 +129,17 @@
 			projectFieldName.setSelection(0, projectFieldName.text.length );
 			projectNameForm.label = "Company Name";
 			projectFormDescription.visible = false;
-			projectFormDescription.height = 0;
+			projectFormDescription.height = -5;
 			projectFormSurveyMode.visible = false;
-			projectFormSurveyMode.height = 0;
+			projectFormSurveyMode.height = -5;
 			projectFormSurveyUrl.visible = false;
-			projectFormSurveyUrl.height = 0;
+			projectFormSurveyUrl.height = -5;
 			projectFormPremiumExpiry.visible = false;
-			projectFormPremiumExpiry.height = 0;
+			projectFormPremiumExpiry.height = -5;
 			projectFormPremiumLimit.visible = false;
-			projectFormPremiumLimit.height = 0;
+			projectFormPremiumLimit.height = -5;
 			projectFormTrackActuals.visible = false;
-			projectFormTrackActuals.height = 0;
+			projectFormTrackActuals.height = -5;
 		}
 
 		// Show user a form to create a resource.
@@ -159,21 +159,21 @@
 			projectFormDescription.visible = true;
 			projectFormDescription.height = 64;
 			projectFormTrackActuals.visible = true;
-			projectFormTrackActuals.height = 25;
+			projectFormTrackActuals.height = NaN;
 			updateSurveyVisible();
 			if (IndividualFactory.current().isAdmin())
 			{
 				projectFormPremiumExpiry.visible = true;
-				projectFormPremiumExpiry.height = 22;
+				projectFormPremiumExpiry.height = NaN;
 				projectFormPremiumLimit.visible = true;
-				projectFormPremiumLimit.height = 22;
+				projectFormPremiumLimit.height = NaN;
 			}
 			else
 			{
 				projectFormPremiumExpiry.visible = false;
-				projectFormPremiumExpiry.height = 0;
+				projectFormPremiumExpiry.height = -5;
 				projectFormPremiumLimit.visible = false;
-				projectFormPremiumLimit.height = 0;
+				projectFormPremiumLimit.height = -5;
 			}
 		}
 		
@@ -182,10 +182,10 @@
 		{
 			var isVisible:Boolean = projectNameForm.label == "Project Name" && projectFieldPremiumExpiry.selectedDate > new Date();
 			projectFormSurveyMode.visible = isVisible;
-			projectFormSurveyMode.height = isVisible ? 22 : 0;
+			projectFormSurveyMode.height = isVisible ? NaN : -5;
 			isVisible = isVisible && projectFieldSurveyMode.selectedIndex > 0;
 			projectFormSurveyUrl.visible = isVisible;
-			projectFormSurveyUrl.height = isVisible ? 22 : 0;
+			projectFormSurveyUrl.height = isVisible ? NaN : -5;
 		}
 
 		// Show user a form to create a resource.
@@ -213,15 +213,15 @@
 			projectFormDescription.height = 64;
 			projectNameForm.label = "Team Name";
 			projectFormSurveyMode.visible = false;
-			projectFormSurveyMode.height = 0;
+			projectFormSurveyMode.height = -5;
 			projectFormSurveyUrl.visible = false;
-			projectFormSurveyUrl.height = 0;
+			projectFormSurveyUrl.height = -5;
 			projectFormPremiumExpiry.visible = false;
-			projectFormPremiumExpiry.height = 0;
+			projectFormPremiumExpiry.height = -5;
 			projectFormPremiumLimit.visible = false;
-			projectFormPremiumLimit.height = 0;
+			projectFormPremiumLimit.height = -5;
 			projectFormTrackActuals.visible = false;
-			projectFormTrackActuals.height = 0;
+			projectFormTrackActuals.height = -5;
 		}
 
 		// Show user a form to update a resource.

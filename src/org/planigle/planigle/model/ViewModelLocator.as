@@ -2,8 +2,6 @@ package org.planigle.planigle.model
 {
 	import com.adobe.cairngorm.model.IModelLocator;
 	
-	import mx.core.Container;
-	
 	[Bindable]
 	public class ViewModelLocator implements IModelLocator
 	{
@@ -23,9 +21,20 @@ package org.planigle.planigle.model
 				instance = new ViewModelLocator(new SingletonEnforcer);
 			return instance;
 		}
+			
+		public function increaseFont():void
+		{
+			fontSize += 1;
+		}
+		
+		public function decreaseFont():void
+		{
+			fontSize -= 1;
+		}
 		
 		// Variables
 		public var workflowState:uint = 0;
+		public var fontSize:int = 10;
 	
 		// Constants
 		public static const SIGNUP:uint = 1;

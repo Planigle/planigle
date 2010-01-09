@@ -24,6 +24,7 @@
 		import mx.binding.utils.ChangeWatcher;
 		import mx.containers.FormItem;
 		import mx.controls.TextInput;
+		import org.planigle.planigle.model.ViewModelLocator;
 		import org.planigle.planigle.model.StoryAttributeValue;
 		import org.planigle.planigle.model.TabModelLocator;
 		import org.planigle.planigle.model.IndividualFactory;
@@ -559,26 +560,26 @@
 		{
 			storyNameForm.label = "Story Name";
 			storyEffortForm.label = "Size";
-			storyFormRelease.height = ReleaseFactory.getInstance().releaseSelector.length > 1 ? 22 : -5;
+			storyFormRelease.height = ReleaseFactory.getInstance().releaseSelector.length > 1 ? NaN : -5;
 			storyFormRelease.visible = ReleaseFactory.getInstance().releaseSelector.length > 1;
-			storyFormIteration.height = 22;
+			storyFormIteration.height = NaN;
 			storyFormIteration.visible = true;
-			storyFormTeam.height = factory.currentIndividual.selectedProject.teamSelector.length > 1 ? 22 : -5;
+			storyFormTeam.height = factory.currentIndividual.selectedProject.teamSelector.length > 1 ? NaN : -5;
 			storyFormTeam.visible = factory.currentIndividual.selectedProject.teamSelector.length > 1;
 			storyFormAcceptanceCriteria.height = 100;
 			storyFormAcceptanceCriteria.visible = true;
-			storyFormPublic.height = factory.currentIndividual.isPremium ? 22 : -5;
+			storyFormPublic.height = factory.currentIndividual.isPremium ? NaN : -5;
 			storyFormPublic.visible = factory.currentIndividual.isPremium;
-			storyFormEstimate.height = 0;
+			storyFormEstimate.height = -5;
 			storyFormEstimate.visible = false;
-			storyFormActual.height = 0;
+			storyFormActual.height = -5;
 			storyFormActual.visible = false;
 			storyBtnEditAttributes.visible = factory.currentIndividual.isAtLeastProjectAdmin();
 			for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
 			{
 				var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()].parent;
 				disp.visible = true;
-				disp.height = (attrib.valueType == StoryAttribute.TEXT) ? 65 : 22;
+				disp.height = (attrib.valueType == StoryAttribute.TEXT) ? 65 : NaN;
 			}
 		}
 		
@@ -597,16 +598,16 @@
 			storyFormAcceptanceCriteria.visible = false;
 			storyFormPublic.height = -5;
 			storyFormPublic.visible = false;
-			storyFormEstimate.height = 22;
+			storyFormEstimate.height = NaN;
 			storyFormEstimate.visible = true;
 			if (IndividualFactory.current().selectedProject.trackActuals)
 			{
-				storyFormActual.height = 22;
+				storyFormActual.height = NaN;
 				storyFormActual.visible = true;
 			}
 			else
 			{
-				storyFormActual.height = 0;
+				storyFormActual.height = -5;
 				storyFormActual.visible = false;
 			}
 			storyBtnEditAttributes.visible = false;
@@ -709,7 +710,7 @@
 			storyFieldName.text = values["name"];
 			storyFieldDescription.text = values["description"];
 			storyFieldReasonBlocked.text = values["reasonBlocked"];
-			storyFormReasonBlocked.height = 0;
+			storyFormReasonBlocked.height = -5;
 			storyFormReasonBlocked.visible = false;
 
 			if (isStory)
@@ -737,7 +738,7 @@
 			if (storyResourceGrid.selectedItems.length > 1)
 			{
 				var updater:UpdateItems = UpdateItems(PopUpManager.createPopUp(this, UpdateItems, true));
-				updater.title = "Select updates to apply to selected items";
+				updater.title = "Select updates to apply";
 				updater.init(Release(release.selectedItem), new ArrayCollection(storyResourceGrid.selectedItems), updateItem, handleUpdateSuccess);
 				PopUpManager.centerPopUp(updater);
 			}
@@ -753,7 +754,7 @@
 					storyFieldName.setSelection(0, storyFieldName.text.length );
 					storyFieldDescription.text = currentItem.description;
 					var blocked:Boolean = currentItem.statusCode == Story.BLOCKED;
-					storyFormReasonBlocked.height = blocked ? 64 : 0;
+					storyFormReasonBlocked.height = blocked ? 64 : -5;
 					storyFormReasonBlocked.visible = blocked;
 					storyFieldReasonBlocked.text = currentItem.reasonBlocked;
 					if (currentItem.isStory())
@@ -1433,7 +1434,7 @@
 		private function updateReasonBlocked():void
 		{
 			var blocked:Boolean = storyFieldStatus.selectedIndex == Story.BLOCKED;
-			storyFormReasonBlocked.height = blocked ? 64 : 0;
+			storyFormReasonBlocked.height = blocked ? 64 : -5;
 			storyFormReasonBlocked.visible = blocked;
 			blocked ? null : storyFieldReasonBlocked.text = "";
 		}
@@ -1831,6 +1832,7 @@
 			<mx:Script>
 				<![CDATA[
 					// This class is used for the cells on a custom attribute column.
+					import org.planigle.planigle.model.ViewModelLocator;
 					import mx.controls.dataGridClasses.DataGridListData;
 					private function getColumnIndex():int
 					{
@@ -1916,8 +1918,13 @@
 				<mx:DataGridColumn editable="false" minWidth="115" headerText="Status" sortCompareFunction="ViewHelper.sortStatus">
 					<mx:itemRenderer> 
 						<mx:Component>
-							<mx:Box direction="horizontal" horizontalGap="0">
-							<mx:ComboBox maxHeight="18" width="100%" editable="false" selectedIndex="{data.statusCode}" change="outerDocument.updateStatus(data, event)" enabled="{outerDocument.factory.currentIndividual.isAtLeastProjectUser}">
+							<mx:Box direction="horizontal" horizontalGap="0" horizontalScrollPolicy="off">
+							<mx:ComboBox maxHeight="{ViewModelLocator.getInstance().fontSize + 8}" width="100%" editable="false" selectedIndex="{data.statusCode}" change="outerDocument.updateStatus(data, event)" enabled="{outerDocument.factory.currentIndividual.isAtLeastProjectUser}">
+								<mx:Script>
+									<![CDATA[
+										import org.planigle.planigle.model.ViewModelLocator;
+									]]>
+								</mx:Script>
 								<mx:Object label="Not Started" value="0" />
 								<mx:Object label="In Progress" value="1" />
 								<mx:Object label="Blocked" value="2" />
