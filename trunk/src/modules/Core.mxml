@@ -237,15 +237,21 @@
 		]]>
 	</mx:Script>
 	<mx:HBox horizontalGap="5" width="100%">
-		<mx:TabBar id="mainNavigation" dataProvider="{mainViewStack}" itemClick="selectTab(event)">
+		<mx:TabBar id="mainNavigation" dataProvider="{mainViewStack}" itemClick="selectTab(event)" fontSize="{ViewModelLocator.getInstance().fontSize+3}" height="{ViewModelLocator.getInstance().fontSize+20}">
 		</mx:TabBar>
 		<mx:HBox horizontalAlign="right" width="100%">
 			<mx:ComboBox id="selectedProject" fillColors="[0xffffff, 0xffffff]" fillAlphas="[1,1]" change="selectProject()" />
-			<mx:LinkButton label="Refresh" styleName="ToolbarLink" id="refreshButton" click="{refresh()}"/>
-			<mx:LinkButton label="Log out" styleName="ToolbarLink" id="logoutButton" click="{logout()}"/>
-			<mx:LinkButton id="planigleButton" icon="{parentApplication.imgLogoSmall}" toolTip="Planigle Project Page" click="new URLEvent('http://code.google.com/p/planigle/').dispatch()"/>
+			<mx:LinkButton label="Refresh" styleName="ToolbarLink" id="refreshButton" click="{refresh()}" fontSize="{ViewModelLocator.getInstance().fontSize+3}"/>
+			<mx:LinkButton label="Log out" styleName="ToolbarLink" id="logoutButton" click="{logout()}" fontSize="{ViewModelLocator.getInstance().fontSize+3}"/>
+			<mx:HBox horizontalGap="1">
+				<mx:VBox verticalGap="0">
+					<mx:LinkButton icon="{parentApplication.imgIncrease}" toolTip="Increase Font Size" id="increaseFontButton" click="{ViewModelLocator.getInstance().increaseFont()}" width="9"/>
+					<mx:LinkButton icon="{parentApplication.imgDecrease}" toolTip="Decrease Font Size" id="decreaseFontButton" click="{ViewModelLocator.getInstance().decreaseFont()}" width="9"/>
+				</mx:VBox>
+				<mx:LinkButton id="planigleButton" icon="{parentApplication.imgLogoSmall}" toolTip="Planigle Project Page" click="new URLEvent('http://code.google.com/p/planigle/').dispatch()"/>
+			</mx:HBox>
 		</mx:HBox>
 	</mx:HBox>
-	<mx:ViewStack id="mainViewStack" y="25" width="100%" height="100%" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" change="updateSelectedTab()">
+	<mx:ViewStack id="mainViewStack" y="{15+ViewModelLocator.getInstance().fontSize}" width="100%" height="100%" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0" change="updateSelectedTab()" fontSize="{ViewModelLocator.getInstance().fontSize}">
 	</mx:ViewStack>
 </mx:Module>

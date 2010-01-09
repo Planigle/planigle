@@ -88,11 +88,11 @@
 			{
 				var show:Boolean = factory.currentIndividual.isAdmin();
 				individualFormCompany.visible = show;
-				individualFormCompany.maxHeight = show ? 25 : 0;
+				individualFormCompany.maxHeight = show ? NaN : -5;
 
 				show = factory.currentIndividual.isAdmin() || (factory.currentIndividual.isAtLeastProjectAdmin() && factory.currentIndividual.isPremium);
 				individualFormProject.visible = show;
-				individualFormProject.maxHeight = show ? 69 : 0;
+				individualFormProject.maxHeight = show ? 69 : -5;
 
 				var collect:ArrayCollection = new ArrayCollection();
 				if (factory.currentIndividual.isAdmin())
@@ -451,7 +451,7 @@
 									<mx:FormItem id='individualFormProject' label='Projects'>
 										<mx:List id='individualFieldProject' height="68" labelField="name" change="updateTeam()" allowMultipleSelection="true"/>
 									</mx:FormItem>
-									<mx:FormItem id='individualFormTeam' label='Team' visible="{availableTeams.length > 1}" height="{availableTeams.length > 1 ? 22 : 0}">
+									<mx:FormItem id='individualFormTeam' label='Team' visible="{availableTeams.length > 1}" height="{availableTeams.length > 1 ? NaN : -5}">
 										<mx:ComboBox id='individualFieldTeam' dataProvider="{availableTeams}" editable="false" labelField="name"></mx:ComboBox>
 									</mx:FormItem>
 									<mx:FormItem label='Login' required="true">
@@ -463,10 +463,10 @@
 									<mx:FormItem label='Password Confirmation' id="labelPasswordConfirmation">
 										<mx:TextInput id='individualFieldPasswordConfirmation' maxChars="40" text='' width="300" displayAsPassword="true"/>
 									</mx:FormItem>
-									<mx:FormItem id='individualFormRole' label='Role' visible="{currentItem != factory.currentIndividual}" height="{currentItem != factory.currentIndividual ? 25 : 0}">
+									<mx:FormItem id='individualFormRole' label='Role' visible="{currentItem != factory.currentIndividual}" height="{currentItem != factory.currentIndividual ? NaN : -5}">
 										<mx:ComboBox id='individualFieldRole' editable="false"/>
 									</mx:FormItem>
-									<mx:FormItem id='individualFormEnabled' label='Enabled' visible="{currentItem != factory.currentIndividual}" height="{currentItem != factory.currentIndividual ? 25 : 0}">
+									<mx:FormItem id='individualFormEnabled' label='Enabled' visible="{currentItem != factory.currentIndividual}" height="{currentItem != factory.currentIndividual ? NaN : -5}">
 										<mx:ComboBox id='individualFieldEnabled' editable="false">
 											<mx:Object label="true" value='true' />
 											<mx:Object label="false" value='false' />
@@ -488,7 +488,7 @@
 									<mx:FormItem label='Phone Number' required="false">
 										<mx:TextInput id='individualFieldPhoneNumber' maxChars="20" text='' width="300"/>
 									</mx:FormItem>
-									<mx:FormItem id='individualFormNotificationType' label='Notify Via' visible="{factory.currentIndividual.isPremium}" height="{factory.currentIndividual.isPremium ? 25 : 0}">
+									<mx:FormItem id='individualFormNotificationType' label='Notify Via' visible="{factory.currentIndividual.isPremium}" height="{factory.currentIndividual.isPremium ? NaN : -5}">
 										<mx:ComboBox id='individualFieldNotificationType' editable="false">
 											<mx:Object label="Neither Email nor SMS" value="0" />
 											<mx:Object label="Email" value="1" />

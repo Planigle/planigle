@@ -23,7 +23,6 @@ Tab {
 	backgroundColor: #054b81;
 	borderColor: #156aa3;
 	fontFamily: "Lucida Grande";
-	fontSize: 13;
 	fontWeight: "normal";
 	paddingTop: 2;
 	paddingBottom: 5;
@@ -33,7 +32,6 @@ Tab {
 
 .ToolbarLink {
 	 color: #ffffff;
-	 fontSize: 13;
 	 fontWeight: "normal";
 	 fontFamily: "Lucida Grande";
 }

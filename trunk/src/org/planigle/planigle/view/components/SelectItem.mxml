@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" width="400" height="400">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" fontSize="{ViewModelLocator.getInstance().fontSize}">
 	<mx:Script>
 		<![CDATA[
 			// Select items provided via items variable.  When selected, call the function specified by
@@ -7,6 +7,7 @@
 			// Current assumption: each item will respond to request for name.
 			import mx.managers.PopUpManager;
 			import mx.collections.ArrayCollection;
+			import org.planigle.planigle.model.ViewModelLocator;
 			
 			[Bindable]
 			public var items:ArrayCollection = new ArrayCollection();

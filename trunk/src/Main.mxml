@@ -115,6 +115,14 @@
 			[Embed(source="../public/images/logo_small.gif")]
 			[Bindable]
 			public var imgLogoSmall:Class;
+		
+			[Embed(source="../public/images/increase.png")]
+			[Bindable]
+			public var imgIncrease:Class;
+		
+			[Embed(source="../public/images/decrease.png")]
+			[Bindable]
+			public var imgDecrease:Class;
 			
 			// See if a cookie is present which skips login.
 			private function created(event:Event):void

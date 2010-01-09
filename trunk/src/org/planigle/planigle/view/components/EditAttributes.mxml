@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:component="org.planigle.planigle.view.components.*" width="560" height="330">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:component="org.planigle.planigle.view.components.*" fontSize="{ViewModelLocator.getInstance().fontSize}">
 	<mx:Script>
 		<![CDATA[
 			import mx.collections.ArrayCollection;
 			import mx.managers.PopUpManager;
 			import mx.utils.ObjectUtil;
+			import org.planigle.planigle.model.ViewModelLocator;
 			import org.planigle.planigle.model.IndividualFactory;
 			import org.planigle.planigle.model.ReleaseFactory;
 			import org.planigle.planigle.model.Release;

@@ -275,10 +275,10 @@
 							<mx:TextInput id='iterationFieldName' maxChars="40" text='' width="350"/>
 						</mx:FormItem>
 						<mx:FormItem label='Start' required="true">
-							<mx:DateField id='iterationFieldStart' editable="true" showToday="true" width="100"/>
+							<mx:DateField id='iterationFieldStart' editable="true" showToday="true"/>
 						</mx:FormItem>
 						<mx:FormItem label='Finish' required="true">
-							<mx:DateField id='iterationFieldFinish' editable="true" showToday="true" width="100"/>
+							<mx:DateField id='iterationFieldFinish' editable="true" showToday="true"/>
 						</mx:FormItem>
 						<mx:FormItem label='Retrospective Results'>
 							<component:ExpandableHTMLTextArea id='iterationFieldRetrospectiveResults'/>
