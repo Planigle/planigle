@@ -289,12 +289,25 @@ protected
   # Ensure that the premium limit is not exceeded.
   def validate_on_update
     if will_impact_limits
-      if (changed?('project_id')) ||
+      if (changed?('project_id') && new_project_limits_exceded) ||
         (changed?('role') && changed_attributes['role'][0] >= ReadOnlyUser && changed_attributes['role'][1] < ReadOnlyUser) ||
         (changed?('enabled') && !changed_attributes['enabled'][0] && changed_attributes['enabled'][1])
         count_exceeded
       end
     end
+  end
+  
+  # Test whether the new project settings will cause limits to be exceeded
+  def new_project_limits_exceded
+    if (changed_attributes['project_id'])
+      old_projects = changed_attributes['project_id'][0].split(',')
+      changed_attributes['project_id'][1].split(',').each do |proj_id|
+        if (!old_projects.include?(proj_id) && !Project.find(proj_id).can_add_users)
+          return true
+        end
+      end
+    end
+    false
   end
 
   # Answer whether if saved, I will cause the premium limits to be exceeded.
