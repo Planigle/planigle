@@ -70,14 +70,13 @@ package org.planigle.planigle.model
 		// Answer true if my dates include today.
 		public function isCurrent():Boolean
 		{
-			var today:Date = DateUtils.today();
-			return today.time >= start.time && today.time < finish.time;
+			return isActiveOn(DateUtils.today());
 		}
 
 		// Answer true if I am active on a given date (true if any part of me overlaps).
 		public function isActiveOn(date:Date):Boolean
 		{
-			return start <= date && finish > date;
+			return DateUtils.lessThanOrEquals(start, date) && DateUtils.greaterThanOrEquals(finish, date);
 		}
 		
 		// Increment my name (or return an empty string if I cannot do so).

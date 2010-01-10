@@ -33,6 +33,20 @@ package org.planigle.planigle.model
 		{
 			return (date.month + 1) + "/" + date.date + "/" + date.fullYear;
 		}
+		
+		// Strip off the time from a date.
+		public static function toDate(date:Date):Date
+		{
+			var newDate:Date = new Date();
+			newDate.fullYear = date.fullYear;
+			newDate.month = date.month;
+			newDate.date = date.date;
+			newDate.hours = 0;
+			newDate.minutes = 0;
+			newDate.seconds = 0;
+			newDate.milliseconds = 0;
+			return newDate;
+		}
 
 		// Answer a date that represents today.
 		public static function today():Date
@@ -48,6 +62,26 @@ package org.planigle.planigle.model
 		// Answer whether the two dates are equal.
 		public static function equals(date1:Date, date2:Date):Boolean {
 			return (date1 == null || date2 == null) ? date1 == date2 : (date1.fullYear == date2.fullYear && date1.month == date2.month && date1.date == date2.date);
+		}
+		
+		// Answer whether the first date is less than the second one.
+		public static function lessThan(date1:Date, date2:Date):Boolean {
+			return date1 < date2;
+		}
+		
+		// Answer whether the first date is less or equals to the second one.
+		public static function lessThanOrEquals(date1:Date, date2:Date):Boolean {
+			return date1 < date2 || equals(date1, date2);
+		}
+		
+		// Answer whether the first date is greater than the second one.
+		public static function greaterThan(date1:Date, date2:Date):Boolean {
+			return date1 > date2;
+		}
+		
+		// Answer whether the first date is greater than or equal to the second one.
+		public static function greaterThanOrEquals(date1:Date, date2:Date):Boolean {
+			return date1 > date2 || equals(date1, date2);
 		}
 	}
 }
