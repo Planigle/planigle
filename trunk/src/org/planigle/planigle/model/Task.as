@@ -16,7 +16,7 @@ package org.planigle.planigle.model
 		public var description:String;
 		public var reasonBlocked:String;
 		public var individualId:String;
-		public var effort:String;
+		protected var myEffort:String;
 		protected var myEstimate:String;
 		protected var myActual:String;
 		public var statusCode:int;
@@ -64,6 +64,16 @@ package org.planigle.planigle.model
 		public function set estimate(estimate:String):void
 		{
 			myEstimate = estimate;
+		}
+
+		public function get effort():String
+		{
+			return convertString(myEffort);			
+		}
+		
+		public function set effort(effort:String):void
+		{
+			myEffort = effort;
 		}
 
 		// For tasks, the calculated effort is the same as the effort.
