@@ -101,7 +101,11 @@ class Individual < ActiveRecord::Base
         if (value)
           projects << Project.find(value)
         end
-        changed_attributes['project_id'][1] = project_ids
+        if (changed_attributes['project_id'][0] == project_ids)
+          changed_attributes.delete('project_id')
+        else
+          changed_attributes['project_id'][1] = project_ids
+        end
       end
       if key.to_sym == :project_ids
         keys_to_remove << key
@@ -110,7 +114,11 @@ class Individual < ActiveRecord::Base
         if (value)
           value.split(",").each {|project_id| projects << Project.find(project_id)}
         end
-        changed_attributes['project_id'][1] = project_ids
+        if (changed_attributes['project_id'][0] == project_ids)
+          changed_attributes.delete('project_id')
+        else
+          changed_attributes['project_id'][1] = project_ids
+        end
       end
     end
     keys_to_remove.each {|key| new_attributes.delete(key)} # Prevents warning
@@ -281,9 +289,9 @@ protected
   # Ensure that the premium limit is not exceeded.
   def validate_on_update
     if will_impact_limits
-      if (changed_attributes['project_id']) ||
-        (changed_attributes['role'] && changed_attributes['role'][0] >= ReadOnlyUser && changed_attributes['role'][1] < ReadOnlyUser) ||
-        (changed_attributes['enabled'] && !changed_attributes['enabled'][0] && changed_attributes['enabled'][1])
+      if (changed?('project_id')) ||
+        (changed?('role') && changed_attributes['role'][0] >= ReadOnlyUser && changed_attributes['role'][1] < ReadOnlyUser) ||
+        (changed?('enabled') && !changed_attributes['enabled'][0] && changed_attributes['enabled'][1])
         count_exceeded
       end
     end
