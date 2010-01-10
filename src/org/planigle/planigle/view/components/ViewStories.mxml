@@ -1350,10 +1350,7 @@
 			}
 			else
 			{
-				var map:Object = {"record[status_code]": statusEvent.target.selectedIndex, 'record[reason_blocked]': ''};
-				if (!currentItem.isStory() && statusEvent.target.selectedIndex == Story.ACCEPTED)
-					map["record[effort]"] = 0;
-				updateItem(currentItem, map);
+				updateItem(currentItem, {"record[status_code]": statusEvent.target.selectedIndex, 'record[reason_blocked]': ''});
 				handleUpdateSuccess(); // Prime processing.
 			}
 		}
@@ -1427,6 +1424,8 @@
 		{
 			if (!isStory && storyFieldStatus.selectedIndex == Story.ACCEPTED)
 				storyFieldEffort.text = "0";
+			if (!isStory && storyFieldStatus.selectedIndex != Story.CREATED && !storyFieldOwner.selectedItem.id)
+				storyFieldOwner.selectedItem = factory.currentIndividual;
 			updateReasonBlocked();
 		}
 		

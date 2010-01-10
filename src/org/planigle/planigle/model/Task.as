@@ -110,6 +110,10 @@ package org.planigle.planigle.model
 		// be passed an XMLList with errors).
 		public function update(params:Object, successFunction:Function, failureFunction:Function):void
 		{
+			if (params["record[status_code]"] == Story.ACCEPTED && !params.hasOwnProperty("record[effort]"))
+				params["record[effort]"] = 0;
+			if (statusCode == Story.CREATED && params["record[status_code]"] != Story.CREATED && !individualId && !params.hasOwnProperty("record[individual_id]"))
+				params["record[individual_id]"] = IndividualFactory.current().id;
 			new UpdateTaskCommand(this, params, successFunction, failureFunction).execute(null);
 		}
 		
