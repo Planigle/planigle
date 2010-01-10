@@ -76,8 +76,7 @@ package org.planigle.planigle.model
 		// Answer true if my dates include today.
 		public function isCurrent():Boolean
 		{
-			var today:Date = DateUtils.today();
-			return today.time >= start.time && today.time < finish.time;
+			return isActiveOn(DateUtils.today());
 		}
 		
 		// Answer the next iteration after this one.  If I am the backlog, return myself.
@@ -107,13 +106,13 @@ package org.planigle.planigle.model
 		// Answer true if I am in a release (true if any part of me overlaps).
 		public function isIn(release:Release):Boolean
 		{
-			return start <= release.finish && finish >= release.start;
+			return DateUtils.lessThanOrEquals(start, release.finish) && DateUtils.greaterThanOrEquals(finish, release.start);
 		}
 
 		// Answer true if I am active on a given date (true if any part of me overlaps).
 		public function isActiveOn(date:Date):Boolean
 		{
-			return start <= date && finish >= date;
+			return DateUtils.lessThanOrEquals(start, date) && DateUtils.greaterThanOrEquals(finish, date);
 		}
 
 		// Answer the releases that could be worked on during me.
