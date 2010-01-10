@@ -242,6 +242,26 @@ class IndividualTest < ActiveSupport::TestCase
     assert_equal 4, i.project_id
   end
   
+  # Test new project limit tests
+  def test_new_project_limits_exceded
+    individual = create_individual
+    individual.save(false)
+    full_project = projects(:first)
+    full_project.premium_limit = full_project.individuals.count(:conditions => ["enabled = true and role < 3"])
+    full_project.save(false)
+    
+    individual.attributes= {:project_ids => "1,3"}
+    assert individual.valid?
+
+    individual = create_individual
+    full_project = projects(:third)
+    full_project.premium_limit = full_project.individuals.count
+    full_project.save(false)
+    
+    individual.attributes= {:project_ids => "1,3"}
+    assert !individual.valid?
+  end
+  
   # Test setting company_id
   def test_company_id
     indiv = create_individual( :role => 1, :company_id => nil )
