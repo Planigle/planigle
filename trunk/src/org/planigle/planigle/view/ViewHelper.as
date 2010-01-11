@@ -109,7 +109,7 @@ package org.planigle.planigle.view
 		// Answer the index of the company in the list of companies (or -1 if no companies).
 		private static function indexCompany(item:Object):int
 		{
-			return CompanyFactory.getInstance().companySelector.getItemIndex(item.project.company);
+			return CompanyFactory.getInstance().companySelector.getItemIndex(item.company);
 		}
 		
 		// Answer the sort order for the specified items (based on where they are in the list of companies).
