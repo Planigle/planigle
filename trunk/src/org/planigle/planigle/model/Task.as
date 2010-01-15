@@ -122,7 +122,7 @@ package org.planigle.planigle.model
 		{
 			if (params["record[status_code]"] == Story.ACCEPTED && !params.hasOwnProperty("record[effort]"))
 				params["record[effort]"] = 0;
-			if (statusCode == Story.CREATED && params["record[status_code]"] != Story.CREATED && !individualId && !params.hasOwnProperty("record[individual_id]"))
+			if (statusCode == Story.CREATED && params.hasOwnProperty("record[status_code]") && params["record[status_code]"] != Story.CREATED && !individualId && !params.hasOwnProperty("record[individual_id]"))
 				params["record[individual_id]"] = IndividualFactory.current().id;
 			new UpdateTaskCommand(this, params, successFunction, failureFunction).execute(null);
 		}
