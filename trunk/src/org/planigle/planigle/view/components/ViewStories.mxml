@@ -1683,15 +1683,15 @@
 		{
 			var queryString:String = "";
 			if (release.selectedItem.id != "-1")
-				queryString += "&release_id=" + (release.selectedItem.id ? release.selectedItem.id : "");
+				queryString += "&record[release_id]=" + (release.selectedItem.id ? release.selectedItem.id : "");
 			if (iteration.selectedItem.id != "-1")
-				queryString += "&iteration_id=" + (iteration.selectedItem.id ? iteration.selectedItem.id : "");
+				queryString += "&record[iteration_id]=" + (iteration.selectedItem.id ? iteration.selectedItem.id : "");
 			if (team.selectedItem.id != "-1")
-				queryString += "&team_id=" + (team.selectedItem.id ? team.selectedItem.id : "");
+				queryString += "&record[team_id]=" + (team.selectedItem.id ? team.selectedItem.id : "");
 			if (individual.selectedItem.id != "-1")
-				queryString += "&individual_id=" + (individual.selectedItem.id ? individual.selectedItem.id : "");
+				queryString += "&record[individual_id]=" + (individual.selectedItem.id ? individual.selectedItem.id : "");
 			if (itemStatus.selectedItem.value != -1)
-				queryString += "&status_code=" + (itemStatus.selectedItem.value == -2 ? "NotDone" : itemStatus.selectedItem.value);
+				queryString += "&record[status_code]=" + (itemStatus.selectedItem.value == -2 ? "NotDone" : itemStatus.selectedItem.value);
 			return queryString;
 		}
 		]]>

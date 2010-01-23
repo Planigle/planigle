@@ -37,7 +37,7 @@ class Story < ActiveRecord::Base
   before_create :initialize_defaults
 
   # Answer a CSV string representing the stories.
-  def self.export(current_user)
+  def self.export(current_user, conditions = {})
     FasterCSV.generate(:row_sep => "\n") do |csv|
       attribs = ['PID', 'Name', 'Description', 'Acceptance Criteria', 'Size', 'Estimate', 'To Do', 'Actual', 'Status', 'Reason Blocked', 'Release', 'Iteration', 'Team', 'Owner', 'Public', 'User Rank']
       if (current_user.project)
@@ -47,7 +47,7 @@ class Story < ActiveRecord::Base
         current_user.project.story_attributes.find(:all, :conditions => {:is_custom => true}, :order => :name).each {|attrib| attribs << attrib.name}
       end
       csv << attribs
-      get_records(current_user).each {|story| story.export(csv)}
+      get_records(current_user, conditions).each {|story| story.export(csv)}
     end
   end
   
@@ -214,12 +214,10 @@ class Story < ActiveRecord::Base
   end
 
   # Answer the records for a particular user.
-  def self.get_records(current_user, iteration_id=nil, conditions=nil)
-    if iteration_id
-      Story.find(:all, :include => [:criteria, :story_values, :tasks], :conditions => merge_conditions(["iteration_id = ? and project_id = ?", iteration_id, current_user.project_id], conditions), :order => 'stories.priority')
-    else
-      Story.find(:all, :include => [:criteria, :story_values, :tasks], :conditions => merge_conditions(["project_id = ?", current_user.project_id], conditions), :order => 'stories.priority')
-    end
+  def self.get_records(current_user, conditions={})
+    conditions[:project_id] = current_user.project_id
+    if conditions[:status_code] && conditions[:status_code] == "NotDone"; conditions[:status_code] = [0,1,2]; end
+    Story.find(:all, :include => [:criteria, :story_values, :tasks], :conditions => conditions, :order => 'stories.priority')
   end
   
   # Only project users or higher can create stories.
@@ -458,18 +456,5 @@ private
       object = klass.find(:first, :conditions => conditions)
     end
     object ? object.id : -1
-  end
-
-  # Merge the conditions clauses.
-  def self.merge_conditions(conditions, additional)
-    if conditions
-      if additional
-        [conditions[0] + " and " + additional[0]] + conditions[1, conditions.length - 1] + additional[1, additional.length - 1]
-      else
-        conditions
-      end
-    else
-      additional
-    end
   end
 end
