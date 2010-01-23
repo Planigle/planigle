@@ -8,7 +8,10 @@ class StoriesController < ResourceController
     respond_to do |format|
       format.iphone do
         iteration = Iteration.find_current(current_individual)
-        @records = Story.get_records(current_individual, iteration ? iteration.id : nil, current_individual.team_id && current_individual.team.project.id == project_id ? ["team_id = ?", current_individual.team_id] : nil)
+        conditions = {}
+        if iteration; conditions[:iteration_id] = iteration.id; end
+        if current_individual.team_id && current_individual.team.project.id == project_id; conditions[:team_id] = current_individual.team_id; end
+        @records = Story.get_records(current_individual, conditions)
         render
       end
       format.xml { @records = get_records; render :xml => @records }
@@ -49,7 +52,8 @@ class StoriesController < ResourceController
   # POST /stories/export               Exports stories.
   # POST /stories/export.xml
   def export
-    render :text => Story.export(current_individual)
+    conditions = params[:record] ? params[:record] : {}
+    render :text => Story.export(current_individual, conditions)
   end
   
   # Split the story (tasks which have not been accepted will automatically be put in the new story).
@@ -114,7 +118,9 @@ protected
 
   # Get the records based on the current individual.
   def get_records
-    Story.get_records(current_individual, params[:iteration_id])
+    conditions = params[:record] ? params[:record] : {}
+    if params[:iteration_id]; conditions[:iteration_id] = params[:iteration_id]; end
+    Story.get_records(current_individual, conditions)
   end
 
   # Answer the current record based on the current individual.

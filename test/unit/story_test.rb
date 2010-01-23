@@ -256,9 +256,8 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal Story.find_all_by_project_id(1).length, Story.get_records(individuals(:aaron)).length
     assert_equal Story.find_all_by_project_id(1).length, Story.get_records(individuals(:user)).length
     assert_equal Story.find_all_by_project_id(1).length, Story.get_records(individuals(:readonly)).length
-    assert_equal Story.find(:all, :conditions => {:project_id => 1, :iteration_id => 1}).length, Story.get_records(individuals(:readonly), iterations(:first).id).length
-    assert_equal Story.find(:all, :conditions => {:project_id => 1, :iteration_id => 1, :status_code => 1}).length, Story.get_records(individuals(:readonly), iterations(:first).id, ['stories.status_code = ?', 1]).length
-    assert_equal Story.find(:all, :conditions => {:project_id => 1, :status_code => 1}).length, Story.get_records(individuals(:readonly), nil, ['stories.status_code = ?', 1]).length
+    assert_equal Story.find(:all, :conditions => {:project_id => 1, :iteration_id => 1}).length, Story.get_records(individuals(:readonly), {:iteration_id => iterations(:first).id}).length
+    assert_equal Story.find(:all, :conditions => {:project_id => 1, :status_code => [0,1,2]}).length, Story.get_records(individuals(:readonly), {:status_code => 'NotDone'}).length
   end
   
   # Validate is_blocked.
