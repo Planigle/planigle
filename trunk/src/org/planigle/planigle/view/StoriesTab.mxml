@@ -24,7 +24,7 @@
 			stories.release.selectedIndex = ReleaseFactory.getInstance().releases.length + 1;
 			stories.handleReleaseFilter(null); // ensure filter affect occurs.
 			stories.iteration.selectedItem = iteration;
-			stories.handleFilter(null); // ensure filter affect occurs.
+			stories.handleFilter(); // ensure filter affect occurs.
 		}
 		]]>
 	</mx:Script>

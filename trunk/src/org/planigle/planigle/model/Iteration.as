@@ -4,10 +4,6 @@ package org.planigle.planigle.model
 	
 	import org.planigle.planigle.commands.DeleteIterationCommand;
 	import org.planigle.planigle.commands.UpdateIterationCommand;
-	import org.planigle.planigle.model.ReleaseFactory;
-	import org.planigle.planigle.model.Release;
-	import org.planigle.planigle.model.StoryFactory;
-	import org.planigle.planigle.model.Story;
 
 	[RemoteClass(alias='Iteration')]
 	[Bindable]
@@ -167,6 +163,13 @@ package org.planigle.planigle.model
 		public function isRelease():Boolean
 		{
 			return false;
+		}
+		
+		// Answer whether my stories are currently loaded in the UI.
+		public function isInScope():Boolean
+		{
+			var iteration:Object = Story.conditions["iteration_id"];
+			return !iteration || iteration == id;
 		}
 	}
 }

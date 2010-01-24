@@ -111,13 +111,6 @@
 		{
 			var result:XML = XML(event.result);
 			details = result.descendants("survey-mapping");
-			for each (var detail:XML in details)
-			{
-				var story:Story = StoryFactory.getInstance().find( int(detail.child("story-id")) );
-				detail.name = story.name;
-				detail.description = story.description ? story.description : "";
-				detail.normalizedPriority = story.normalizedPriority;
-			}
 			clearErrorMessage();
 		}
 
@@ -165,7 +158,7 @@
 						<mx:columns>
 							<mx:DataGridColumn headerText="Name" width="350" dataField="name"/>
 							<mx:DataGridColumn headerText="Description" labelFunction="limitDescription" dataField="description" showDataTips="true" dataTipField="description"/>
-							<mx:DataGridColumn headerText="Rank" width="80" dataField="normalizedPriority"/>
+							<mx:DataGridColumn headerText="Rank" width="80" dataField="normalized-priority"/>
 							<mx:DataGridColumn headerText="User Rank" width="80" dataField="priority"/>
 						</mx:columns>
 					</mx:DataGrid>

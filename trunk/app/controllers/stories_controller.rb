@@ -118,7 +118,8 @@ protected
 
   # Get the records based on the current individual.
   def get_records
-    conditions = params[:record] ? params[:record] : {}
+    parms = is_amf ? params[0] : params[:record]
+    conditions = parms ? parms : {}
     if params[:iteration_id]; conditions[:iteration_id] = params[:iteration_id]; end
     Story.get_records(current_individual, conditions)
   end

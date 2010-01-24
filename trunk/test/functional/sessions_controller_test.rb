@@ -43,7 +43,7 @@ class SessionsControllerTest < ActionController::TestCase
     assert_select 'system', 1
     assert_select 'release', Release.find_all_by_project_id(1).length
     assert_select 'iteration', Iteration.find_all_by_project_id(1).length
-    assert_select 'story', Story.find_all_by_project_id(1).length
+    assert_select 'story', 3
     assert_select 'company', Company.count
     assert_select 'project', Project.count
     assert_select 'individual', Individual.count
@@ -58,7 +58,7 @@ class SessionsControllerTest < ActionController::TestCase
     assert_select 'system', 1
     assert_select 'release', Release.find_all_by_project_id(1).length
     assert_select 'iteration', Iteration.find_all_by_project_id(1).length
-    assert_select 'story', Story.find_all_by_project_id(1).length
+    assert_select 'story', 1
     assert_select 'company', 1
     assert_select 'project', 2
     assert_select 'individual', Individual.find_all_by_company_id(1, :conditions => "role != 0").length

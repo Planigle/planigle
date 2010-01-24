@@ -64,10 +64,6 @@
 			[Bindable]
 			public var imgSurveys:Class;
 		
-			[Embed(source="../public/images/existing.png")]
-			[Bindable]
-			public var imgExisting:Class;
-		
 			[Embed(source="../public/images/expanded.png")]
 			[Bindable]
 			public var imgExpanded:Class;

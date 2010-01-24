@@ -58,6 +58,13 @@ class ReleaseTest < ActiveSupport::TestCase
     assert_equal Release.find_all_by_project_id(1).length, Release.get_records(individuals(:readonly)).length
   end
   
+  # Test finding the current release
+  def test_find_current
+    assert_nil Release.find_current(individuals(:admin2))
+    release = create_release()
+    assert_equal release, Release.find_current(individuals(:admin2))
+  end
+  
   # Test summarization.
   def test_summarize
     totals = releases(:first).summarize

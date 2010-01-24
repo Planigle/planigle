@@ -216,8 +216,42 @@ class Story < ActiveRecord::Base
   # Answer the records for a particular user.
   def self.get_records(current_user, conditions={})
     conditions[:project_id] = current_user.project_id
-    if conditions[:status_code] && conditions[:status_code] == "NotDone"; conditions[:status_code] = [0,1,2]; end
-    Story.find(:all, :include => [:criteria, :story_values, :tasks], :conditions => conditions, :order => 'stories.priority')
+    release = nil
+    if conditions[:release_id] == "Current"
+      release = Release.find_current(current_user)
+      if release
+        conditions[:release_id] = release.id
+      else
+        conditions.delete(:release_id)
+      end
+    end
+    if conditions[:iteration_id] == "Current"
+      iteration = Iteration.find_current(current_user, release)
+      if iteration
+        conditions[:iteration_id] = iteration.id
+      else
+        conditions.delete(:iteration_id)
+      end
+    end
+    if conditions[:team_id] == "MyTeam"
+      team_id = current_user.team_id
+      if team_id
+        conditions[:team_id] = team_id
+      else
+        conditions.delete(:team_id)
+      end
+    end
+    if conditions[:status_code] == "NotDone"
+      conditions[:status_code] = [0,1,2]
+    end
+    individual_id = conditions.delete(:individual_id)
+    result = Story.find(:all, :include => [:criteria, :story_values, :tasks], :conditions => conditions, :order => 'stories.priority')
+    if (individual_id)
+      individual_id = individual_id.to_i
+      result.select {|story| story.individual_id==individual_id || story.tasks.detect {|task| task.individual_id==individual_id}}
+    else
+      result
+    end
   end
   
   # Only project users or higher can create stories.

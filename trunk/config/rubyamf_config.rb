@@ -107,7 +107,7 @@ module RubyAMF
       :ruby => 'Individual',
       :type => 'active_record',
       :attributes => ["id", "company_id", "login", "email", "first_name", "last_name", "activated_at", "enabled", "accepted_agreement", "last_login", "role", "team_id", "phone_number", "notification_type"],
-      :methods => ["project_ids", "selected_project_id"])
+      :methods => ["project_ids", "selected_project_id", "capacity"])
 
     ClassMappings.register(
       :actionscript => 'Story',

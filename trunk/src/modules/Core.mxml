@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <mx:Module horizontalScrollPolicy="off" verticalScrollPolicy="off" width="100%" height="100%" xmlns:mx="http://www.adobe.com/2006/mxml" paddingBottom="0" paddingTop="0" paddingLeft="0" paddingRight="0"
 	layout="absolute"
-	xmlns:view="org.planigle.planigle.view.*" initialize="onInitialize(event)">
+	xmlns:view="org.planigle.planigle.view.*" initialize="onInitialize(event)" creationComplete="onCreate(event)">
 	
 	<mx:Script>
 		<![CDATA[
@@ -50,28 +50,39 @@
 				TabModelLocator.getInstance().changes = changes;
 				mainViewStack.addChild(people);
 				ChangeWatcher.watch( factory, "currentIndividual", changeIndividual );
-				changeIndividual(event); // This is to catch it the first time (The event has already been sent).
+				watchIndividual(); // This is to catch it the first time (The event has already been sent).
 				TabModelLocator.getInstance().selectedTab = mainViewStack.getChildAt(0) == stories ? stories : people;
 				BindingUtils.bindProperty(mainViewStack, "selectedChild", TabModelLocator.getInstance(), "selectedTab");
+				resetState(event);
+				updateProjects(event);
 				CursorManager.removeBusyCursor();
+			}
+
+			private function onCreate(event:Event):void
+			{
+				updatePremium();
 			}
 
 			private var watcher:ChangeWatcher;
 			private var watcher2:ChangeWatcher;
-
-			// The user has changed.
-			private function changeIndividual(event:Event):void
+			
+			private function watchIndividual():void
 			{
 				if (watcher)
 					watcher.unwatch();
 				if (watcher2)
 					watcher2.unwatch();
-
 				watcher = factory.currentIndividual && factory.currentIndividual.selectedProject ? ChangeWatcher.watch( factory.currentIndividual.selectedProject, "premiumExpiry", resetState ) : null;
-				resetState(event);
-
 				watcher2 = factory.currentIndividual ? ChangeWatcher.watch( factory.currentIndividual, "allProjects", updateProjects ) : null;
+			}
+
+			// The user has changed.
+			private function changeIndividual(event:Event):void
+			{
+				watchIndividual();
+				resetState(event);
 				updateProjects(event);
+				updatePremium();
 			}
 
 			// The project has changed.
@@ -120,9 +131,14 @@
 						showTab(changes, 1);
 						showTab(schedule, 0);
 						showTab(stories, 0);
-						factory.currentIndividual.isPremium ? showPremium() : hidePremium();
 					}
 				}
+			}
+			
+			private function updatePremium():void
+			{
+				if (!factory.currentIndividual.isAdminOnly())
+					factory.currentIndividual.isPremium ? showPremium() : hidePremium();
 			}
 					
 			// Refresh any cached data.

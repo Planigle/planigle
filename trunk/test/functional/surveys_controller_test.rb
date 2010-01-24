@@ -141,6 +141,9 @@ class SurveysControllerTest < ActionController::TestCase
         assert_select 'survey-mapping' do
           assert_select 'story-id'
           assert_select 'priority'
+          assert_select 'name'
+          assert_select 'description'
+          assert_select 'normalized-priority'
         end
       end
     end
