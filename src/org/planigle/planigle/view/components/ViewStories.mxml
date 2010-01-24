@@ -90,12 +90,13 @@
 			ChangeWatcher.watch( ReleaseFactory.getInstance(), "releaseSelector", updateReleaseFilterList );
 			ChangeWatcher.watch( IterationFactory.getInstance(), "iterationSelector", updateIterationFilterList );
 			ChangeWatcher.watch( IndividualFactory.getInstance(), "individualSelector", updateIndividualFilterList );
-			ChangeWatcher.watch( StoryFactory.getInstance(), "stories", handleFilter );
+			ChangeWatcher.watch( StoryFactory.getInstance(), "stories", handleFilterResult );
 			updateIndividual();
 			setReleaseFilterList();
 			setIterationFilterList();
 			setIndividualFilterList();
-			handleFilter();
+			handleFilterResult();
+			updateStoryConditions();
 			storyBtnImport.onCompletion(setSuccessMessage, setErrorMessage);
 			CursorManager.removeBusyCursor();
 		}
@@ -188,7 +189,7 @@
 		private function updateReleaseFilterList(event:Event):void
 		{
 			setReleaseFilterList();
-			handleFilter(event);
+			handleFilter();
 		}
 		
 		// Set the releases in the filter list.
@@ -230,7 +231,7 @@
 		private function updateIterationFilterList(event:Event):void
 		{
 			setIterationFilterList();
-			handleFilter(event);
+			handleFilter();
 		}
 		
 		// Set the iterations in the filter list.
@@ -273,7 +274,7 @@
 		{
 			setIndividualFilterList();
 			setOwners();
-			handleFilter(event);
+			handleFilter();
 		}
 		
 		private function setOwners():void
@@ -400,7 +401,7 @@
 		public function handleReleaseFilter(event:Event):void
 		{
 			setIterationFilterList(); // Since release affects iterations shown.
-			handleFilter(event);
+			handleFilter();
 		}
 		
 		// Handle any special columns.
@@ -409,9 +410,29 @@
 			storyColumnIteration.visible = attrMapping['Iteration'] && attrMapping['Iteration'].show && ((!iteration.selectedItem || iteration.selectedItem.id == "-1")||(IndividualFactory.current().isPremium && iteration.selectedItem && iteration.selectedItem.id == null));
 			storyColumnTeam.visible = attrMapping['Team'] && attrMapping['Team'].show && (IndividualFactory.current().selectedProject && IndividualFactory.current().selectedProject.teams.length > 0 && (!team.selectedItem || team.selectedItem.id == "-1"));
 		}
+
+		// The filters has changed.
+		public function handleFilter():void
+		{
+			if (release.selectedItem) { // Make sure everything initialized
+				updateStoryConditions();
+				new StoryChangedEvent().dispatch();
+			}
+		}
 		
-		// The iteration filter has changed.
-		public function handleFilter(event:Event = null):void
+		protected function updateStoryConditions():void
+		{
+			var conditions:Object = new Object();
+			if (release.selectedItem.id != -1) conditions["release_id"]= release.selectedItem.id ? release.selectedItem.id : "";
+			if (iteration.selectedItem.id != -1) conditions["iteration_id"]= iteration.selectedItem.id ? iteration.selectedItem.id : "";
+			if (team.selectedItem.id != -1) conditions["team_id"]= team.selectedItem.id ? team.selectedItem.id : "";
+			if (individual.selectedItem.id != -1) conditions["individual_id"]= individual.selectedItem.id ? individual.selectedItem.id : "";
+			if (itemStatus.selectedItem.value != -1) conditions["status_code"]= itemStatus.selectedItem.value != -2 ? itemStatus.selectedItem.value : "NotDone";
+			Story.conditions = conditions;
+		}	
+		
+		// The filters has changed.
+		public function handleFilterResult(event:Event = null):void
 		{
 			var scroll:Number = storyResourceGrid.verticalScrollPosition;
 			var sort:Sort = filteredStories.sort;
@@ -433,7 +454,6 @@
 			}
 			filteredStories = storiesAndTasks;
 			filteredStories.sort = sort;
-			storyBtnAddExisting.visible = shouldShowExisting();
 			storyResourceGrid.verticalScrollPosition = scroll;
 			dispatchEvent(new Event("dataChanged"));
 			updateExpandAllToggle();
@@ -446,7 +466,7 @@
 			if (storyResourceGrid.selectedItem.isStory())
 				{
 				storyResourceGrid.selectedItem.toggleExpanded();
-				handleFilter(event);
+				handleFilterResult();
 				}
 		}
 
@@ -454,22 +474,6 @@
 		private function handleSurveys(event:Event):void
 		{
 			currentState = "Survey";
-		}
-		
-		// Add an existing story to this iteration.
-		private function handleAdd(event:Event):void
-		{
-			var stories:ArrayCollection = new ArrayCollection();
-			for each (var story:Story in StoryFactory.getInstance().stories)
-			{
-				if (story.statusCode != Story.ACCEPTED && story.iterationId != iteration.selectedItem.id)
-					stories.addItem(story);
-			}
-			var selector:SelectItem = SelectItem(PopUpManager.createPopUp(this, SelectItem, true));
-			selector.title = "Select story(s) to add to this iteration";
-			selector.items = stories;
-			selector.selectFunction = addStory;
-			PopUpManager.centerPopUp(selector);
 		}
 		
 		private var updateQueue:ArrayCollection = new ArrayCollection();
@@ -515,11 +519,11 @@
 					handleSuccess();
 					if (recalc)
 					{
-						new StoryChangedEvent().dispatch();
+						handleFilter();
 						recalc = false;
 					}
 					else
-						handleFilter(null); // Update list of stories when done.
+						handleFilterResult(); // Update list of stories when done.
 				}
 			}
 		}
@@ -548,11 +552,11 @@
 			handleFailure(xml);
 			if (recalc)
 			{
-				new StoryChangedEvent().dispatch();
+				handleFilter();
 				recalc = false;
 			}
 			else
-				handleFilter(null); // Update list of stories when done.
+				handleFilterResult(); // Update list of stories when done.
 		}
 		
 		// Prepare the form for a story.
@@ -1113,7 +1117,7 @@
 			if (currentItem)
 			{
 				currentItem.expand();
-				handleFilter(null);
+				handleFilterResult();
 				var newStatus:int = currentItem.newStatus();
 				if (newStatus != -1)
 					currentItem.update({'record[status_code]': newStatus}, null, handleFailure);
@@ -1286,7 +1290,7 @@
 				if(item2.isStory())
 					allExpanded ? item2.collapse() : item2.expand();
 			}
-			handleFilter(null);
+			handleFilterResult();
 		}
 		
 		[Bindable]
@@ -1324,7 +1328,7 @@
 				}
 			}
 			if (changes)
-				handleFilter(event);
+				handleFilterResult();
 			sortCustomData(event);
 		}
 		
@@ -1380,12 +1384,6 @@
 		public function shouldShow(data:Object):Boolean
 		{
 			return factory.currentIndividual.isAtLeastProjectUser;
-		}
-
-		// Answer whether to show existing (based on current selection and whether the user has rights).
-		public function shouldShowExisting():Boolean
-		{
-			return iteration.selectedItem && iteration.selectedItem.id != "-1" && factory.currentIndividual.isAtLeastProjectUser;
 		}
 
 		// Update the release based on the change to the iteration.
@@ -1847,10 +1845,10 @@
 			<mx:VBox id="storyBtnBox" width="100%">
 				<mx:HBox width="100%" horizontalGap="5" minWidth="0" horizontalScrollPolicy="off">
 					<mx:ComboBox id='release' editable="false" dataProvider="{releaseFilter}" labelField="name" change="handleReleaseFilter(event)"></mx:ComboBox>
-					<mx:ComboBox id='iteration' editable="false" dataProvider="{iterationFilter}" labelField="name" change="handleFilter(event)"></mx:ComboBox>
-					<component:TeamSelector id='team' change="handleFilter(event)"></component:TeamSelector>
-					<mx:ComboBox id='individual' editable="false" dataProvider="{individualFilter}" labelField="fullName" change="handleFilter(event)"></mx:ComboBox>
-					<mx:ComboBox id='itemStatus' editable="false" change="handleFilter(event)" selectedIndex="3">
+					<mx:ComboBox id='iteration' editable="false" dataProvider="{iterationFilter}" labelField="name" change="handleFilter()"></mx:ComboBox>
+					<component:TeamSelector id='team' change="handleFilter()"></component:TeamSelector>
+					<mx:ComboBox id='individual' editable="false" dataProvider="{individualFilter}" labelField="fullName" change="handleFilter()"></mx:ComboBox>
+					<mx:ComboBox id='itemStatus' editable="false" change="handleFilter()" selectedIndex="3">
 						<mx:Object label="Not Started" value="0" />
 						<mx:Object label="In Progress" value="1" />
 						<mx:Object label="Blocked" value="2" />
@@ -1859,7 +1857,6 @@
 						<mx:Object label="All Statuses" value="-1" />
 					</mx:ComboBox>
 					<mx:HBox id="buttonBox" width="100%" horizontalGap="5" horizontalAlign="right" horizontalScrollPolicy="off">
-						<mx:Button width="25" icon="{parentApplication.imgExisting}" toolTip="Move Existing" click="handleAdd(event);" id="storyBtnAddExisting" visible="{shouldShowExisting()}"/>
 						<mx:Button width="25" icon="{parentApplication.imgAdd}" toolTip="Create" click="showCreateStory();" id="storyBtnCreate" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
 						<mx:Button width="25" icon="{parentApplication.imgEdit}" toolTip="Update" click="showUpdate();" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnUpdateMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
 						<mx:Button width="25" icon="{parentApplication.imgCross}" toolTip="Delete" click="showDelete(event);" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnDeleteMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>

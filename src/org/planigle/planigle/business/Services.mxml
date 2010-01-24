@@ -87,8 +87,7 @@
 
 	<mx:RemoteObject id="reportRO"
 		source="SystemsController"
-		destination="rubyamf"
-		showBusyCursor="true">
+		destination="rubyamf">
 		<mx:method name="report"/>
 	</mx:RemoteObject>
 </cairngorm:ServiceLocator>

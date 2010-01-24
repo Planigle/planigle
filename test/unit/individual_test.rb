@@ -3,10 +3,12 @@ require File.dirname(__FILE__) + '/../test_helper'
 class IndividualTest < ActiveSupport::TestCase
   fixtures :companies
   fixtures :individuals
+  fixtures :iterations
   fixtures :projects
   fixtures :individuals_projects
   fixtures :teams
   fixtures :stories
+  fixtures :tasks
 
   def setup
     ActionMailer::Base.delivery_method = :test
@@ -446,6 +448,22 @@ class IndividualTest < ActiveSupport::TestCase
     assert individuals(:aaron).is_premium
     assert !individuals(:quentin).is_premium
     assert individuals(:user).is_premium
+  end
+  
+  def test_capacity
+    assert_nil individuals(:quentin).capacity
+    assert_in_delta 0.33, individuals(:aaron).capacity, 0.01
+    Task.create({:story_id => 1, :name => 'test', :individual_id => 2, :status_code => 2, :estimate => 2})
+    Task.create({:story_id => 1, :name => 'test', :individual_id => 2, :status_code => 3, :estimate => 2})
+    Task.create({:story_id => 1, :name => 'test', :individual_id => 2, :status_code => 3, :estimate => 6, :actual => 9})
+    assert_equal 4, individuals(:aaron).capacity
+  end
+
+  def test_utilization_in
+    Task.create({:story_id => 1, :name => 'test', :individual_id => 2, :status_code => 3, :estimate => 2})
+    assert_equal 3, individuals(:aaron).utilization_in(iterations(:first))
+    Task.create({:story_id => 1, :name => 'test', :individual_id => 2, :status_code => 3, :estimate => 6, :actual => 9})
+    assert_equal 12, individuals(:aaron).utilization_in(iterations(:first))
   end
 
 private

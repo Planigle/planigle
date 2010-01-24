@@ -19,6 +19,21 @@ class Survey_MappingTest < ActiveSupport::TestCase
     assert_success(:priority, 0)
     assert_failure(:priority, 'a')
   end
+  
+  def test_name
+    assert_equal "test", survey_mappings(:first).name
+    assert_equal "test2", survey_mappings(:second).name
+  end
+  
+  def test_description
+    assert_equal "description", survey_mappings(:first).description
+    assert_equal "", survey_mappings(:second).description
+  end
+  
+  def test_normalized_priority
+    assert_equal 1, survey_mappings(:first).normalized_priority
+    assert_nil survey_mappings(:second).normalized_priority
+  end
 
   # Test the xml created for survey mappings.
   def test_xml

@@ -15,6 +15,11 @@ class Release < ActiveRecord::Base
     Release.find(:all, :conditions => ["project_id = ?", current_user.project_id], :order => 'start')
   end
 
+  # Answer the current release for a particular user.
+  def self.find_current(current_user)
+    current_user.project_id ? Release.find(:first, :conditions => ["project_id = ? and start <= CURDATE() and finish >= CURDATE()", current_user.project_id], :order => 'start DESC') : nil
+  end
+
   # Summarize my current data.
   def summarize
     ReleaseTotal.summarize_for(self)

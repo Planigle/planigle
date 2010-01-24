@@ -26,6 +26,7 @@ package org.planigle.planigle.model
 		public var acceptedAgreement:Date;
 		public var phoneNumber:String;
 		public var notificationType:int;
+		public var capacity:Number;
 		private static const ADMIN:int = 0;
 		private static const PROJECT_ADMIN:int = 1;
 		private static const PROJECT_USER:int = 2;

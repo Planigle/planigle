@@ -4,6 +4,8 @@ package org.planigle.planigle.business
 	
 	import mx.rpc.IResponder;
 	import mx.rpc.http.HTTPService;
+	
+	import org.planigle.planigle.model.Story;
 
 	public class StoriesDelegate extends Delegate
 	{
@@ -18,10 +20,15 @@ package org.planigle.planigle.business
 			return "storyRO";
 		}
 
+		override protected function params():Object
+		{
+			return Story.conditions;
+		}
+
 		// Answer the name of the factory URL.
 		override protected function getFactoryUrl(factory:Object):String
 		{
-			return "stories.xml"
+			return "stories.xml";
 		}
 
 		// Answer the name of the object URL (should be overridden).

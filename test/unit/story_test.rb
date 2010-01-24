@@ -257,7 +257,38 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal Story.find_all_by_project_id(1).length, Story.get_records(individuals(:user)).length
     assert_equal Story.find_all_by_project_id(1).length, Story.get_records(individuals(:readonly)).length
     assert_equal Story.find(:all, :conditions => {:project_id => 1, :iteration_id => 1}).length, Story.get_records(individuals(:readonly), {:iteration_id => iterations(:first).id}).length
+  end
+  
+  # Test finding individuals for a specific user.
+  def test_find_not_done
     assert_equal Story.find(:all, :conditions => {:project_id => 1, :status_code => [0,1,2]}).length, Story.get_records(individuals(:readonly), {:status_code => 'NotDone'}).length
+  end
+  
+  # Test finding individuals for a specific user.
+  def test_find_current_release
+    assert_equal Story.find(:all, :conditions => {:project_id => 1}).length, Story.get_records(individuals(:readonly), {:release_id => 'Current'}).length
+    release = Release.create(:project_id => 1, :name => 'Test', :start => Date.today, :finish =>  Date.today + 14)
+    assert_equal Story.find(:all, :conditions => {:project_id => 1, :release_id => release.id}).length, Story.get_records(individuals(:readonly), {:release_id => 'Current'}).length
+  end
+
+  # Test finding individuals for a specific user.
+  def test_find_current_iteration
+    assert_equal Story.find(:all, :conditions => {:project_id => 1}).length, Story.get_records(individuals(:readonly), {:iteration_id => 'Current'}).length
+    iteration = Iteration.create(:project_id => 1, :name => 'Test', :start => Date.today, :finish =>  Date.today + 14)
+    assert_equal Story.find(:all, :conditions => {:project_id => 1, :iteration_id => iteration.id}).length, Story.get_records(individuals(:readonly), {:iteration_id => 'Current'}).length
+  end
+
+  # Test finding individuals for a specific user.
+  def test_find_my_team
+    assert_equal Story.find(:all, :conditions => {:project_id => 1, :team_id => individuals(:aaron).team_id}).length, Story.get_records(individuals(:aaron), {:team_id => 'MyTeam'}).length
+    assert_equal Story.find(:all, :conditions => {:project_id => 1}).length, Story.get_records(individuals(:readonly), {:team_id => 'MyTeam'}).length
+  end
+
+  # Test finding individuals for a specific user.
+  def test_find_individual
+    assert_equal 1, Story.get_records(individuals(:aaron), {:individual_id => individuals(:aaron).id}).length
+    Task.create(:story_id => 3, :name => 'assigned', :individual_id => individuals(:aaron).id)
+    assert_equal 2, Story.get_records(individuals(:aaron), {:individual_id => individuals(:aaron).id}).length
   end
   
   # Validate is_blocked.
@@ -274,6 +305,9 @@ class StoryTest < ActiveSupport::TestCase
 
     string = Story.export(individuals(:project_admin2))
     assert_equal "PID,Name,Description,Acceptance Criteria,Size,Estimate,To Do,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Test_String2\n5,test5,\"\",\"\",2.0,2.0,3.0,Blocked,,\"\",\"\",\"\",\"\",true,,testit\n", string
+
+    string = Story.export(individuals(:aaron), {:name => 'test3'})
+    assert_equal "PID,Name,Description,Acceptance Criteria,Size,Estimate,To Do,Actual,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Test_List,Test_Number,Test_Release,Test_String,Test_Text\n3,test3,\"\",\"\",1.0,,,,In Progress,,\"\",\"\",\"\",\"\",false,2.0,\"\",\"\",\"\",\"\"\,\"\"\n", string
   end
 
   def test_import_invalid_id

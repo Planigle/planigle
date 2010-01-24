@@ -77,7 +77,7 @@ protected
     if current_individual.project_id
       result['releases'] = Release.get_records(current_individual)
       result['iterations'] = Iteration.get_records(current_individual)
-      result['stories'] = Story.get_records(current_individual)
+      result['stories'] = Story.get_records(current_individual, {:status_code => 'NotDone', :team_id => 'MyTeam', :release_id => 'Current', :iteration_id => 'Current'})
     end
     result
   end

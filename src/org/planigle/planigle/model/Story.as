@@ -11,6 +11,7 @@ package org.planigle.planigle.model
 	[Bindable]
 	public class Story
 	{
+		public static var conditions:Object = new Object();
 		public var id:int;
 		public var projectId:int;
 		public var teamId:String;

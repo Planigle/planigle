@@ -118,5 +118,12 @@ package org.planigle.planigle.model
 			}
 			return stories;
 		}
+		
+		// Answer whether my stories are currently loaded in the UI.
+		public function isInScope():Boolean
+		{
+			var release:Object = Story.conditions["release_id"];
+			return !release || release == id;
+		}
 	}
 }

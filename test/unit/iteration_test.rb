@@ -77,6 +77,12 @@ class IterationTest < ActiveSupport::TestCase
     assert_nil Iteration.find_current(individuals(:admin2))
     iteration = create_iteration()
     assert_equal iteration, Iteration.find_current(individuals(:admin2))
+    release = Release.create(:name => 'foo', :start => Date.today, :finish => Date.today + 14)
+    assert_equal iteration, Iteration.find_current(individuals(:admin2), release)
+    release.start = Date.today + 15
+    release.finish = Date.today + 29
+    release.save(false)
+    assert_nil Iteration.find_current(individuals(:admin2), release)
   end
   
   # Test summarization.
