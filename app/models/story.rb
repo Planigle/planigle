@@ -320,7 +320,32 @@ class Story < ActiveRecord::Base
     end
     super(modified_attributes, guard_protected_attributes)
   end
-
+  
+  # Answer the value for an attribute.
+  def value_for(attrib)
+    if attrib.is_custom
+      value = story_values.find(:first, :conditions => {:story_attribute_id => attrib.id})
+      value ? value.value : 0
+    else
+      case attrib.name
+      when 'Release'
+        release_id
+      when 'Iteration'
+        iteration_id
+      when 'Team'
+        team_id
+      when 'Owner'
+        individual_id
+      when 'Status'
+        status_code
+      when 'Public'
+        is_public ? 1 : 0
+      else
+        nil
+      end
+    end
+  end
+    
 protected
 
   # Add custom validation of the status field and relationships to give a more specific message.
