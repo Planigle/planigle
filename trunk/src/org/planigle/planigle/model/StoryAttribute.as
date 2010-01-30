@@ -117,7 +117,6 @@ package org.planigle.planigle.model
 				statusVal.name = 'Done';
 				statusVal.id = Story.ACCEPTED;
 				statusValues.addItem(statusVal);
-				statusValues.addItem(new StoryAttributeValue());
 				return statusValues;
 			case 'Public':
 				var publicValues:ArrayCollection = new ArrayCollection();

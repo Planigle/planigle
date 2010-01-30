@@ -16,6 +16,8 @@ class SystemsControllerTest < ActionController::TestCase
   fixtures :releases
   fixtures :iterations
   fixtures :stories
+  fixtures :story_attributes
+  fixtures :story_values
 
   # Test summarizing data.
   def test_summarize
@@ -29,8 +31,14 @@ class SystemsControllerTest < ActionController::TestCase
     assert_select "release-totals" do
       assert_select "release-total", 2
     end
+    assert_select "release-breakdowns" do
+      assert_select "category-total", 16
+    end
     assert_select "iteration-totals" do
       assert_select "iteration-total", 2
+    end
+    assert_select "iteration-breakdowns" do
+      assert_select "category-total", 16
     end
     assert_select "iteration-velocities" do
       assert_select "iteration-velocity", 2

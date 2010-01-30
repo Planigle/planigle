@@ -474,6 +474,26 @@ class StoryTest < ActiveSupport::TestCase
     verify_no_errors(Story.import(individuals(:admin2), "pid,Test_String\n1,"))
     assert_nil StoryValue.find(:first, :conditions => {:story_id => 1, :story_attribute_id => 1})  
   end
+  
+  def test_value_for
+    story = create_story(:name => 'test', :status_code => 1, :release_id => 1, :iteration_id => 1, :team_id => 1, :individual_id => 2, :is_public => true, :custom_1 => 'test1')
+    assert_equal 'test1', story.value_for(story_attributes(:first)) # custom_1
+    assert_equal 1, story.value_for(story_attributes(:std_1_13)) # Release
+    assert_equal 1, story.value_for(story_attributes(:std_1_2)) # Iteration
+    assert_equal 1, story.value_for(story_attributes(:std_1_3)) # Team
+    assert_equal 2, story.value_for(story_attributes(:std_1_4)) # Owner
+    assert_equal 1, story.value_for(story_attributes(:std_1_7)) # Status
+    assert_equal 1, story.value_for(story_attributes(:std_1_8)) # Public
+
+    story = create_story(:name => 'test2', :status_code => 0, :release_id => nil, :iteration_id => nil, :team_id => nil, :individual_id => nil, :is_public => false, :custom_1 => nil)
+    assert_equal 0, story.value_for(story_attributes(:first)) # custom_1
+    assert_nil story.value_for(story_attributes(:std_1_13)) # Release
+    assert_nil story.value_for(story_attributes(:std_1_2)) # Iteration
+    assert_nil story.value_for(story_attributes(:std_1_3)) # Team
+    assert_nil story.value_for(story_attributes(:std_1_4)) # Owner
+    assert_equal 0, story.value_for(story_attributes(:std_1_7)) # Status
+    assert_equal 0, story.value_for(story_attributes(:std_1_8)) # Public
+  end
 
 private
 

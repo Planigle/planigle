@@ -1870,9 +1870,9 @@
 					<mx:Label id="storiesCount" text=""/>
 					<mx:HBox id="storyUtilizationRow" verticalAlign="middle">
 						<mx:Label text="Velocity Allocation:" fontWeight="bold"/>
-						<local:ColoredTree id="velocity" rowColorFunction="color" labelField="utilization" iconFunction="iconString" borderStyle="none" rowCount="1" itemOpen="adjustVelocitySize(event)" itemClose="adjustVelocitySize(event)" selectable="false"/>
+						<local:ColoredTree id="velocity" rowColorFunction="color" labelField="utilization" iconFunction="iconString" borderStyle="none" rowCount="1" itemOpen="adjustVelocitySize(event)" itemClose="adjustVelocitySize(event)" selectable="false" dataProvider="Loading..."/>
 						<mx:Label text="Utilization:" fontWeight="bold"/>
-						<local:ColoredTree id="utilization" rowColorFunction="color" labelField="utilization" iconFunction="iconString" borderStyle="none" rowCount="1" itemOpen="adjustUtilizationSize(event)" itemClose="adjustUtilizationSize(event)" selectable="false"/>
+						<local:ColoredTree id="utilization" rowColorFunction="color" labelField="utilization" iconFunction="iconString" borderStyle="none" rowCount="1" itemOpen="adjustUtilizationSize(event)" itemClose="adjustUtilizationSize(event)" selectable="false" dataProvider="Loading..."/>
 					</mx:HBox>
 				</mx:HBox>
 			</mx:VBox>
