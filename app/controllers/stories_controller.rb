@@ -52,7 +52,6 @@ class StoriesController < ResourceController
   # POST /stories/export               Exports stories.
   # POST /stories/export.xml
   def export
-    conditions = params[:record] ? params[:record] : {}
     render :text => Story.export(current_individual, conditions)
   end
   
@@ -118,10 +117,20 @@ protected
 
   # Get the records based on the current individual.
   def get_records
-    parms = is_amf ? params[0] : params[:record]
-    conditions = parms ? parms : {}
-    if params[:iteration_id]; conditions[:iteration_id] = params[:iteration_id]; end
-    Story.get_records(current_individual, conditions)
+    cond = conditions
+    if params[:iteration_id]; cond[:iteration_id] = params[:iteration_id]; end
+    Story.get_records(current_individual, cond)
+  end
+  
+  # Filter the results
+  def conditions
+    cond = is_amf ? params[0] : params[:record]
+    cond = cond ? cond : {}
+    if cond[:release_id] == ""; cond[:release_id] = nil; end
+    if cond[:iteration_id] == ""; cond[:iteration_id] = nil; end
+    if cond[:team_id] == ""; cond[:team_id] = nil; end
+    if cond[:individual_id] == ""; cond[:individual_id] = nil; end
+    cond
   end
 
   # Answer the current record based on the current individual.
