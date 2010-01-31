@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cairngorm:ServiceLocator 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	xmlns:cairngorm="com.adobe.cairngorm.business.*">
+
+	<mx:RemoteObject id="sessionRO"
+		source="SessionsController"
+		destination="rubyamf"
+		showBusyCursor="true">
+		<mx:method name="create"/>
+		<mx:method name="destroy"/>
+	</mx:RemoteObject>
+
+	<mx:RemoteObject id="releaseRO"
+		source="ReleasesController"
+		destination="rubyamf"
+		showBusyCursor="true">
+		<mx:method name="index"/>
+		<mx:method name="create"/>
+		<mx:method name="update"/>
+		<mx:method name="destroy"/>
+	</mx:RemoteObject>
+
+	<mx:RemoteObject id="iterationRO"
+		source="IterationsController"
+		destination="rubyamf"
+		showBusyCursor="true">
+		<mx:method name="index"/>
+		<mx:method name="create"/>
+		<mx:method name="update"/>
+		<mx:method name="destroy"/>
+	</mx:RemoteObject>
+
+	<mx:RemoteObject id="companyRO"
+		source="CompaniesController"
+		destination="rubyamf"
+		showBusyCursor="true">
+		<mx:method name="index"/>
+		<mx:method name="create"/>
+		<mx:method name="update"/>
+		<mx:method name="destroy"/>
+	</mx:RemoteObject>
+
+	<mx:RemoteObject id="projectRO"
+		source="ProjectsController"
+		destination="rubyamf"
+		showBusyCursor="true">
+		<mx:method name="index"/>
+		<mx:method name="create"/>
+		<mx:method name="update"/>
+		<mx:method name="destroy"/>
+	</mx:RemoteObject>
+
+	<mx:RemoteObject id="individualRO"
+		source="IndividualsController"
+		destination="rubyamf"
+		showBusyCursor="true">
+		<mx:method name="index"/>
+		<mx:method name="create"/>
+		<mx:method name="update"/>
+		<mx:method name="destroy"/>
+	</mx:RemoteObject>
+
+	<mx:RemoteObject id="storyRO"
+		source="StoriesController"
+		destination="rubyamf"
+		showBusyCursor="true">
+		<mx:method name="index"/>
+		<mx:method name="create"/>
+		<mx:method name="update"/>
+		<mx:method name="destroy"/>
+	</mx:RemoteObject>
+
+	<mx:RemoteObject id="auditRO"
+		source="AuditsController"
+		destination="rubyamf"
+		showBusyCursor="true">
+		<mx:method name="index"/>
+	</mx:RemoteObject>
+
+	<mx:HTTPService id="xmlService"
+		resultFormat = "e4x"
+		headers = "Accept: text/xml"
+		method = "POST"
+		useProxy="false"
+		showBusyCursor="true"/>
+
+	<mx:RemoteObject id="reportRO"
+		source="SystemsController"
+		destination="rubyamf">
+		<mx:method name="report"/>
+	</mx:RemoteObject>
+</cairngorm:ServiceLocator>
