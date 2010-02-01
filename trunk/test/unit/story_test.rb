@@ -289,6 +289,7 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal 1, Story.get_records(individuals(:aaron), {:individual_id => individuals(:aaron).id}).length
     Task.create(:story_id => 3, :name => 'assigned', :individual_id => individuals(:aaron).id)
     assert_equal 2, Story.get_records(individuals(:aaron), {:individual_id => individuals(:aaron).id}).length
+    assert_equal 3, Story.get_records(individuals(:aaron), {:individual_id => nil}).length
   end
   
   # Validate is_blocked.
