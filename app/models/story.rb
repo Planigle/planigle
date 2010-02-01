@@ -244,10 +244,11 @@ class Story < ActiveRecord::Base
     if conditions[:status_code] == "NotDone"
       conditions[:status_code] = [0,1,2]
     end
+    filter_on_individual = conditions.has_key?(:individual_id)
     individual_id = conditions.delete(:individual_id)
     result = Story.find(:all, :include => [:criteria, :story_values, :tasks], :conditions => conditions, :order => 'stories.priority')
-    if (individual_id)
-      individual_id = individual_id.to_i
+    if (filter_on_individual)
+      individual_id = individual_id ? individual_id.to_i : individual_id
       result.select {|story| story.individual_id==individual_id || story.tasks.detect {|task| task.individual_id==individual_id}}
     else
       result
