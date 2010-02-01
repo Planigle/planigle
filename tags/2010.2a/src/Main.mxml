@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" paddingBottom="5" paddingTop="5" paddingLeft="5" paddingRight="5"
+	width="100%" height="100%" 
+	xmlns:view="org.planigle.planigle.view.*"
+	xmlns:control="org.planigle.planigle.control.*"
+	xmlns:business="org.planigle.planigle.business.*"
+	applicationComplete="created(event)">
+
+	<!--The main style sheet for all the applications.-->
+	<mx:Style source="stylesheets/flex.css"/>
+	
+	<mx:Script>
+		<![CDATA[
+			import flash.external.ExternalInterface;
+			import org.planigle.planigle.vo.LoginVO;
+			import org.planigle.planigle.events.LoginEvent;
+			import org.planigle.planigle.model.ViewModelLocator;
+
+			// Hack to work around an issue with charts.  See http://gregjessup.com/flex-3-advanceddatagrid-cannot-convert-mxmanagersdragmanagerimpl-to-mxmanagersidragmanager/.
+			import mx.managers.IDragManager; 
+			private var iDragManager:IDragManager;  
+
+			[Bindable]
+			private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();			
+
+			// Images to be leveraged by pages.
+			[Embed(source="../public/images/modify.png")]
+			[Bindable]
+			public var imgEdit:Class;
+			
+			[Embed(source="../public/images/delete.png")]
+			[Bindable]
+			public var imgCross:Class;
+		
+			[Embed(source="../public/images/add.png")]
+			[Bindable]
+			public var imgAdd:Class;
+
+			[Embed(source="../public/images/load.png")]
+			[Bindable]
+			public var imgImport:Class;		
+		
+			[Embed(source="../public/images/save.png")]
+			[Bindable]
+			public var imgExport:Class;
+		
+			[Embed(source="../public/images/pie chart.png")]
+			[Bindable]
+			public var imgSplit:Class;
+		
+			[Embed(source="../public/images/done.png")]
+			[Bindable]
+			public var imgDone:Class;
+		
+			[Embed(source="../public/images/not_done.png")]
+			[Bindable]
+			public var imgNotDone:Class;
+		
+			[Embed(source="../public/images/search.png")]
+			[Bindable]
+			public var imgPlan:Class;
+		
+			[Embed(source="../public/images/comment.png")]
+			[Bindable]
+			public var imgSurveys:Class;
+		
+			[Embed(source="../public/images/expanded.png")]
+			[Bindable]
+			public var imgExpanded:Class;
+		
+			[Embed(source="../public/images/collapsed.png")]
+			[Bindable]
+			public var imgCollapsed:Class;
+		
+			[Embed(source="../public/images/expandText.png")]
+			[Bindable]
+			public var imgExpandText:Class;
+		
+			[Embed(source="../public/images/info.png")]
+			[Bindable]
+			public var imgInfo:Class;
+		
+			[Embed(source="../public/images/move_up.png")]
+			[Bindable]
+			public var imgMoveUp:Class;
+		
+			[Embed(source="../public/images/check.png")]
+			[Bindable]
+			public var imgCheck:Class;
+		
+			[Embed(source="../public/images/previous.png")]
+			[Bindable]
+			public var imgPrevious:Class;
+		
+			[Embed(source="../public/images/previousDisabled.png")]
+			[Bindable]
+			public var imgPreviousDisabled:Class;
+		
+			[Embed(source="../public/images/next.png")]
+			[Bindable]
+			public var imgNext:Class;
+		
+			[Embed(source="../public/images/nextDisabled.png")]
+			[Bindable]
+			public var imgNextDisabled:Class;
+		
+			[Embed(source="../public/images/logo_big.gif")]
+			[Bindable]
+			public var imgLogoBig:Class;
+		
+			[Embed(source="../public/images/logo_small.gif")]
+			[Bindable]
+			public var imgLogoSmall:Class;
+		
+			[Embed(source="../public/images/increase.png")]
+			[Bindable]
+			public var imgIncrease:Class;
+		
+			[Embed(source="../public/images/decrease.png")]
+			[Bindable]
+			public var imgDecrease:Class;
+			
+			// See if a cookie is present which skips login.
+			private function created(event:Event):void
+			{
+				if (ExternalInterface.available && containsCookie("auth_token"))
+					new LoginEvent( new LoginVO('', '', true, false, true) ).dispatch();
+				else if (ExternalInterface.available && containsRequestParameter("signup"))
+					viewModelLocator.workflowState = ViewModelLocator.SIGNUP;
+				else
+					viewModelLocator.workflowState = ViewModelLocator.LOGIN_SCREEN;
+			}
+
+			// Answer true if a cookie exists with the given name.
+			private function containsCookie(cookie:String):Boolean
+			{
+				var js:String = "function get_cookie(){return document.cookie;}"
+				return ExternalInterface.call(js).toString().indexOf(cookie + "=") != -1;
+			}
+
+			// Answer true if a request parameter exists with the given name.
+			private function containsRequestParameter(parameter:String):Boolean
+			{
+				var js:String = "function get_request_parameter(){return window.location.href;}"
+				var url:String = ExternalInterface.call(js).toString();
+				var queryString:String = url.substring(url.indexOf("?")+1);
+				return queryString.indexOf(parameter) != -1;
+			}
+		]]>
+	</mx:Script>
+	
+	<!--Cairngorm FrontController and ServiceLocator inclusions.-->
+	<control:SessionController id ="sessionController"/>
+	<control:ReleasesController id ="releasesController"/>
+	<control:IterationsController id ="iterationsController"/>
+	<control:StoriesController id ="storiesController"/>
+	<control:CompaniesController id ="companiesController"/>
+	<control:IndividualsController id ="individualsController"/>
+	<control:AuditsController id ="auditsController"/>
+	<business:Services id="services"/>
+	
+	<mx:ViewStack id="mainViewStack" selectedIndex="{viewModelLocator.workflowState}" width="100%" height="100%">		
+		<mx:Canvas/>				<!-- Show a blank screen by default -->
+		<view:SignupScreen/>
+		<view:LicenseAgreementScreen/>
+		<view:LoginScreen/>		
+		<view:CoreApplicationScreen name="core"/>
+	</mx:ViewStack>
+</mx:Application>
