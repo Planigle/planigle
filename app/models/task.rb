@@ -101,17 +101,17 @@ protected
   # Add custom validation of the status field and relationships to give a more specific message.
   def validate()
     if status_code < 0 || status_code >= Story::StatusMapping.length
-      errors.add(:status_code, ' is invalid')
+      errors.add(:status_code, 'is invalid')
     end
     
     if individual_id && !Individual.find_by_id(individual_id)
-      errors.add(:individual_id, ' is invalid')
-    elsif individual && story.project_id != individual.project_id
-      errors.add(:individual_id, ' is not from a valid project')
+      errors.add(:owner, 'is invalid')
+    elsif individual && !individual.projects.detect {|project| project.id == story.project_id}
+      errors.add(:owner, 'is not from a valid project')
     end
     
     if story_id && !Story.find_by_id(story_id)
-      errors.add(:story_id, ' is invalid')
+      errors.add(:story_id, 'is invalid')
     end
   end
 end
