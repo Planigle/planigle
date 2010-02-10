@@ -13,8 +13,8 @@
 		</service>
 	</services>
 	<channels>
-		<channel-definition id="rubyamf" class="mx.messaging.channels.AMFChannel">
-			<endpoint uri="rubyamf_gateway" class="flex.messaging.endpoints.AMFEndpoint"/>
+		<channel-definition id="rubyamf" class="mx.messaging.channels.SecureAMFChannel">
+			<endpoint uri="rubyamf_gateway" class="flex.messaging.endpoints.SecureAMFEndpoint"/>
 		</channel-definition>
 	</channels>
 </services-config>
