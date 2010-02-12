@@ -14,7 +14,7 @@ class IndividualMailer < ActionMailer::Base
   def signup_notification(individual)
     setup_email(individual)
     @subject     = 'Please activate your new account'
-    @body[:url]  = "http://#{site}/activate/#{individual.activation_code}"
+    @body[:url]  = "#{site}/activate/#{individual.activation_code}"
     @body[:logo] = logo
     @body[:support] = support
     @body[:backlog] = backlog

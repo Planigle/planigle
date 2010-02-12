@@ -8,7 +8,7 @@ ActionMailer::Base.smtp_settings = {
 PLANIGLE_ADMIN_EMAIL = 'noreply@test.com' # <Replace with Admin Email Address> The email address to send from
 
 require 'individual_mailer'
-IndividualMailer.site = '<Replace with web site host[:port]>'         # The host[:port] of the server (for URLs)
+IndividualMailer.site = '<Replace with web site protocol://host[:port]>' # The protocol://host[:port] of the server (for URLs). Ex. http://www.planigle.com
 IndividualMailer.logo = nil                                           # The image tag for your logo '<img height="nnn" width="nnn" src="url"/>'
 IndividualMailer.support = nil                                        # Support's email address
 IndividualMailer.backlog = nil                                        # The URL for your backlog
