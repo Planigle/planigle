@@ -2,9 +2,11 @@ require File.dirname(__FILE__) + '/../test_helper'
 
 class StoryAttributeTest < ActiveSupport::TestCase
   fixtures :projects
+  fixtures :individuals
   fixtures :stories
   fixtures :story_attributes
   fixtures :story_attribute_values
+  fixtures :individual_story_attributes
   fixtures :story_values
 
   # Test that a story attribute can be created.
@@ -113,6 +115,42 @@ class StoryAttributeTest < ActiveSupport::TestCase
     assert_equal story_attribute_values(:first).story_attribute, story_attributes(:fifth)
     story_attributes(:fifth).destroy
     assert_nil StoryAttributeValue.find_by_id(1)
+    assert_nil IndividualStoryAttribute.find_by_id(5)
+  end
+  
+  def test_get_records_by_user
+    attribs = StoryAttribute.get_records(individuals(:aaron))
+    attrib = attribs.detect {|attrib| attrib.id == 34}
+    assert_equal 40, attrib.width
+    assert_equal 80, attrib.ordering
+    assert_equal false, attrib.show
+
+    attribs = StoryAttribute.get_records(individuals(:admin2))
+    attrib = attribs.detect {|attrib| attrib.id == 34}
+    assert_equal 45, attrib.width
+    assert_equal 85, attrib.ordering
+    assert_equal true, attrib.show
+  end
+  
+  def test_get_records_new_user
+    attribs = StoryAttribute.get_records(individuals(:quentin))
+    attrib = attribs.detect {|attrib| attrib.id == 34}
+    assert_equal 40, attrib.width
+    assert_equal 80, attrib.ordering
+    assert_equal false, attrib.show
+  end
+  
+  def test_update_for
+    attrib = story_attributes(:std_1_15)
+    assert_equal 40, attrib.width
+    assert_equal 80, attrib.ordering
+    assert_equal false, attrib.show
+    
+    attrib.update_for(individuals(:aaron), {:width => 45, :ordering => 85, :show => true})
+    attrib.show_for(individuals(:aaron))
+    assert_equal 45, attrib.width
+    assert_equal 85, attrib.ordering
+    assert_equal true, attrib.show
   end
 
 private

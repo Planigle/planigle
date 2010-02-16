@@ -16,10 +16,15 @@ class Company < ActiveRecord::Base
   # Answer the records for a particular user.
   def self.get_records(current_user)
     if current_user.role >= Individual::ProjectAdmin
-      Company.find(:all, :include => [{:projects => [:teams, {:story_attributes => :story_attribute_values}]}], :conditions => ["companies.id = ?", current_user.company_id])
+      all = Company.find(:all, :include => [{:projects => [:teams, {:story_attributes => :story_attribute_values}]}], :conditions => ["companies.id = ?", current_user.company_id])
     else
-      Company.find(:all, :include => [{:projects => [:teams, {:story_attributes => :story_attribute_values}]}], :order => 'companies.name')
+      all = Company.find(:all, :include => [{:projects => [:teams, {:story_attributes => :story_attribute_values}]}], :order => 'companies.name')
     end
+    
+    # Ensure we load the settings for the current user
+    all.each {|company| company.projects.each {|project| project.story_attributes.each{|story_attribute| story_attribute.show_for(current_user)}}}
+    
+    all
   end
   
   # Override to_xml to include projects.

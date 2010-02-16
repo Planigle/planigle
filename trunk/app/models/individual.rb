@@ -5,6 +5,7 @@ class Individual < ActiveRecord::Base
   belongs_to :selected_project, :class_name => "Project", :foreign_key => "selected_project_id"
   belongs_to :team
   has_many :stories, :dependent => :nullify
+  has_many :individual_story_attributes, :dependent => :destroy
   has_many :tasks, :dependent => :nullify
   attr_accessible :login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled, :role, :last_login, :accepted_agreement, :team_id, :phone_number, :notification_type, :company_id, :selected_project_id
   acts_as_audited :except => [:selected_project_id, :crypted_password, :salt, :remember_token, :remember_token_expires_at, :activation_code, :activated_at, :last_login, :accepted_agreement]

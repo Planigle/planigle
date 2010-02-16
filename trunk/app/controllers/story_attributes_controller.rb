@@ -10,6 +10,13 @@ protected
 
   # Answer the current record based on the current individual.
   def get_record
+    record = get_record_for_change
+    record.show_for(current_individual)
+    record
+  end
+  
+  # Some records make read only changes so need to be able to differentiate based on intention.
+  def get_record_for_change
     StoryAttribute.find(is_amf ? params[0] : params[:id], :include => :story_attribute_values)
   end
   
@@ -26,12 +33,16 @@ protected
   def update_record
     if is_amf
       params[0].delete(:is_custom) # Can't edit is custom
-      @record.name = params[0].name
-      @record.value_type = params[0].value_type
-      @record.values = params[0].values
+      attributes = {:name => params[0].name, :value_type => params[0].value_type, :values => params[0].values, :ordering => params[0].ordering, :width => params[0].width, :show => params[0].show}
     else
       params[:record].delete(:is_custom)
-      @record.attributes = params[:record]
+      attributes = params[:record]
     end
+    @record.update_for(current_individual, attributes)
+  end
+  
+  # Some records make read only changes so need to be able to differentiate based on intention.
+  def post_update
+    @record.show_for(current_individual)
   end
 end
