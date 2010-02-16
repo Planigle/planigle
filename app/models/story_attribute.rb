@@ -1,5 +1,6 @@
 class StoryAttribute < ActiveRecord::Base
   belongs_to :project
+  has_many :individual_story_attributes, :dependent => :destroy
   has_many :story_attribute_values, :dependent => :destroy
   has_many :story_values, :dependent => :destroy
   attr_accessible :project_id, :name, :value_type, :ordering, :is_custom, :show, :width
@@ -70,10 +71,16 @@ class StoryAttribute < ActiveRecord::Base
   # Answer the records for a particular user.
   def self.get_records(current_user)
     if current_user.role >= Individual::ProjectAdmin or current_user.project_id
-      StoryAttribute.find(:all, :include => :story_attribute_values, :conditions => ["project_id = ?", current_user.project_id], :order => 'ordering')
+      values = StoryAttribute.find(:all, :include => [:story_attribute_values, :individual_story_attributes], :conditions => ["project_id = ?", current_user.project_id], :order => 'story_attributes.ordering')
     else
-      StoryAttribute.find(:all, :include => :story_attribute_values, :order => 'ordering')
+      values = StoryAttribute.find(:all, :include => [:story_attribute_values, :individual_story_attributes], :order => 'story_attributes.ordering')
     end
+    
+    # Replace my values with those of the individual.
+    values.each do |value|
+      value.show_for(current_user)
+    end
+    values
   end
 
   # Only project_admins can create story attributes.
@@ -124,5 +131,39 @@ class StoryAttribute < ActiveRecord::Base
       options[:include] = [:story_attribute_values]
     end
     super(options)
+  end
+
+  # Update me to reflect the values for the current user.
+  def show_for(current_user)
+    individual_values = individual_values_for(current_user)
+    self.attributes = {:width => individual_values.width, :ordering => individual_values.ordering, :show => individual_values.show}
+    readonly! # Make sure no one changes this
+  end
+
+  # Update user specific values instead of me.
+  def update_for(current_user, values)
+    individual_values = individual_values_for(current_user)
+    if values.has_key? :width
+      individual_values.width = values[:width]
+      values.delete(:width)
+    end
+    if values.has_key? :ordering
+      individual_values.ordering = values[:ordering]
+      values.delete(:ordering)
+    end
+    if values.has_key? :show
+      individual_values.show = values[:show]
+      values.delete(:show)
+    end
+    individual_values.save
+    self.attributes = values
+  end
+  
+  def individual_values_for(current_user)
+    individual_values = individual_story_attributes.find(:first, :conditions => {:individual_id => current_user.id})
+    if !individual_values
+      individual_values = IndividualStoryAttribute.create(:story_attribute_id => id, :individual_id => current_user.id, :width => width, :ordering => ordering, :show => show)
+    end
+    individual_values
   end
 end

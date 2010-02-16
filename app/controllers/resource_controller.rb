@@ -62,13 +62,14 @@ class ResourceController < ApplicationController
   # PUT /records/1
   # PUT /records/1.xml
   def update
-    @record = get_record
+    @record = get_record_for_change
     if (authorized_for_update?(@record))
       respond_to do |format|
         begin
           @record.class.transaction do
             update_record
             if save_record
+              post_update
               format.xml { render :xml => @record }
               format.amf { render :amf => @record }
             else
@@ -97,7 +98,7 @@ class ResourceController < ApplicationController
   # DELETE /records/1
   # DELETE /records/1.xml
   def destroy
-    @record = get_record
+    @record = get_record_for_change
     if (authorized_for_destroy?(@record))
       @record.destroy
       respond_to do |format|
@@ -136,5 +137,14 @@ protected
   # Answer if this request is authorized for delete.
   def authorized_for_destroy?(record)
     record.authorized_for_destroy?(current_individual)
+  end
+  
+  # Some records make read only changes so need to be able to differentiate based on intention.
+  def get_record_for_change
+    get_record
+  end
+  
+  # Some records make read only changes so need to be able to differentiate based on intention.
+  def post_update
   end
 end

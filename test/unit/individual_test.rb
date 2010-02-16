@@ -430,6 +430,7 @@ class IndividualTest < ActiveSupport::TestCase
     individuals(:aaron).destroy
     stories(:first).reload
     assert_nil stories(:first).individual
+    assert_nil IndividualStoryAttribute.find_by_id(1)
   end
 
   # Test finding individuals for a specific user.
