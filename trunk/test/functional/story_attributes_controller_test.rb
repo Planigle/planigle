@@ -142,12 +142,12 @@ class StoryAttributesControllerTest < ActionController::TestCase
     
   # Test updating story attributes (based on role).
   def test_update_by_project_user
-    update_by_role_unsuccessful(individuals(:user))
+    update_by_role_successful(individuals(:user))
   end
     
   # Test updating story attributes (based on role).
   def test_update_by_read_only_user
-    update_by_role_unsuccessful(individuals(:readonly))
+    update_by_role_successful(individuals(:readonly))
   end
     
   # Test updating a team for another project.
