@@ -104,8 +104,7 @@ class StoryAttribute < ActiveRecord::Base
   def authorized_for_update?(current_user)    
     case current_user.role
       when Individual::Admin then true
-      when Individual::ProjectAdmin then current_user.project_id == project_id
-      else false
+      else current_user.project_id == project_id
     end
   end
 
