@@ -17,7 +17,7 @@ class FlexProjectsTest < Test::Unit::TestCase
     @ie = Funfx.instance 
     @ie.start(false)
     @ie.speed = 1
-    @ie.goto("http://localhost:3000/index.html", "Main") 
+    @ie.goto(ENV['test_host']+"/index.html", "Main") 
     sleep 1 # Wait to ensure remember me check is made
   end 
   
@@ -216,7 +216,7 @@ private
     @ie.combo_box("projectFieldSurveyMode").open
     @ie.combo_box("projectFieldSurveyMode").select(:item_renderer => "Public by Default")
     assert @ie.form_item("projectFormSurveyUrl").visible
-    assert_equal "http://localhost:3000/survey.html?projectid=1&surveykey=" + projects(:first).survey_key, @ie.label("projectLabelSurveyUrl").text
+    assert_equal ENV['test_host']+"/survey.html?projectid=1&surveykey=" + projects(:first).survey_key, @ie.label("projectLabelSurveyUrl").text
 
     @ie.button("projectBtnChange").click
     assert_equal '', @ie.text_area("projectError").text

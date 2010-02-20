@@ -1,6 +1,6 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
 require 'test/unit'
-require 'funfx' 
+require 'funfx'
 
 class FlexStoriesTest < Test::Unit::TestCase
   fixtures :systems
@@ -23,7 +23,7 @@ class FlexStoriesTest < Test::Unit::TestCase
     @ie = Funfx.instance 
     @ie.start(false) 
     @ie.speed = 1
-    @ie.goto("http://localhost:3000/index.html", "Main") 
+    @ie.goto(ENV['test_host']+"/index.html", "Main") 
     sleep 1 # Wait to ensure remember me check is made
   end 
   
@@ -191,7 +191,7 @@ class FlexStoriesTest < Test::Unit::TestCase
 
     # Get first storyField number
     base = 0
-    (10..100).each do |i|
+    (10..1000).each do |i|
       begin
         @ie.text_area("storyField" + i.to_s).input(:text => '5')
         base = i
@@ -268,7 +268,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   # Test clicking on the select attributes button.
   def test_select_attributes
     init('admin2')
-    @ie.button("storyBtnSelectAttributes")[0].click
+    @ie.button("storyBtnSelectAttributes").click
     @ie.check_box("select_Description").click
     @ie.button("btn_ok").click
   end
