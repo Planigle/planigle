@@ -166,10 +166,15 @@ package org.planigle.planigle.model
 		}
 		
 		// Answer whether my stories are currently loaded in the UI.
-		public function isInScope():Boolean
+		public function isInScope(teamId:Object, statusCode:Object):Boolean
 		{
 			var iteration:Object = Story.conditions["iteration_id"];
-			return !iteration || iteration == id;
+			var status:Object = Story.conditions["status_code"];
+			var team:Object = Story.conditions["team_id"];
+			return (iteration == null || iteration == id) &&
+				Story.conditions["individual_id"] == null &&
+				(status == null || status == statusCode) &&
+				(team == null || team == teamId);
 		}
 	}
 }
