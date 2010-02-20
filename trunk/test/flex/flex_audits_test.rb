@@ -17,7 +17,7 @@ class FlexAuditsTest < Test::Unit::TestCase
     @ie = Funfx.instance 
     @ie.start(false) 
     @ie.speed = 1
-    @ie.goto("http://localhost:3000/index.html", "Main") 
+    @ie.goto(ENV['test_host']+"/index.html", "Main") 
     sleep 1 # Wait to ensure remember me check is made
   end 
   
