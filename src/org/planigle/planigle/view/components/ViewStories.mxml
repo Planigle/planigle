@@ -1860,6 +1860,7 @@
 						<mx:Button width="25" icon="{parentApplication.imgAdd}" toolTip="Create" click="showCreateStory();" id="storyBtnCreate" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
 						<mx:Button width="25" icon="{parentApplication.imgEdit}" toolTip="Update" click="showUpdate();" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnUpdateMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
 						<mx:Button width="25" icon="{parentApplication.imgCross}" toolTip="Delete" click="showDelete(event);" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnDeleteMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
+						<mx:Button width="25" icon="{parentApplication.imgCheck}" toolTip="Select Columns" click="selectAttributes()" id="storyBtnSelectAttributes"/>
 						<component:ImportButton width="25" id="storyBtnImport" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
 						<component:ExportButton width="25" id="storyBtnExport" queryStringFunction="{getExportQueryString}" queryStringObject="{this}"/>
 						<mx:Button icon="{parentApplication.imgSurveys}" visible="{factory.currentIndividual.isPremium}" width="{factory.currentIndividual.isPremium ? 25 : 0}" toolTip="View Surveys" click="handleSurveys(event);" id="storyBtnViewSurveys"/>
@@ -1937,13 +1938,6 @@
 				<mx:DataGridColumn headerText="Acceptance Criteria" dataField="acceptanceCriteria"/>
 				<mx:DataGridColumn headerText="Release" labelFunction="ViewHelper.formatRelease" sortCompareFunction="ViewHelper.sortRelease"/>
 				<mx:DataGridColumn resizable="false" editable="false" width="95">
-					<mx:headerRenderer>
-						<mx:Component>
-							<mx:Box direction="horizontal" horizontalGap="0">
-								<mx:LinkButton id="storyBtnSelectAttributes" width="16" icon="{parentApplication.imgCheck}" toolTip="Select Columns"/>
-							</mx:Box>
-						</mx:Component>
-					</mx:headerRenderer>
 					<mx:itemRenderer>
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="5" width="100%">
