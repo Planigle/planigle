@@ -1,7 +1,6 @@
 package org.planigle.planigle.model
 {
 	import mx.collections.ArrayCollection;
-	import mx.utils.ObjectUtil;
 	
 	import org.planigle.planigle.commands.DeleteReleaseCommand;
 	import org.planigle.planigle.commands.UpdateReleaseCommand;
@@ -120,10 +119,17 @@ package org.planigle.planigle.model
 		}
 		
 		// Answer whether my stories are currently loaded in the UI.
-		public function isInScope():Boolean
+		public function isInScope(teamId:Object, statusCode:Object):Boolean
 		{
 			var release:Object = Story.conditions["release_id"];
-			return !release || release == id;
+			var iteration:Object = Story.conditions["iteration_id"];
+			var status:Object = Story.conditions["status_code"];
+			var team:Object = Story.conditions["team_id"];
+			return (release == null || release == id) &&
+				iteration == null &&
+				Story.conditions["individual_id"] == null &&
+				status == null &&
+				(team == null || team == teamId);
 		}
 	}
 }
