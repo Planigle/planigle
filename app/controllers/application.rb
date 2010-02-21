@@ -5,7 +5,10 @@ class ApplicationController < ActionController::Base
   include AuthenticatedSystem # Enables the Restful Authentication plug-in
 
   acts_as_iphone_controller
-  
+
+  # Don't display password in log
+  filter_parameter_logging :password
+
   # before_filter :debug # Uncomment to enable output of debug logging.
   after_filter :change_response
 
