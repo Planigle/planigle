@@ -426,7 +426,7 @@ package org.planigle.planigle.model
 			return -1;
 		}
 		
-		public function copy(priority:Number, notifySuccess: Function, notifyFailure: Function):void
+		public function copy(relativePriority:String, notifySuccess: Function, notifyFailure: Function):void
 		{
 			var params:Object = new Object();
 			params["record[team_id]"] = teamId;
@@ -440,7 +440,7 @@ package org.planigle.planigle.model
 			params["record[effort]"] = effort;
 			params["record[status_code]"] = statusCode;
 			params["record[public]"] = isPublic;
-			params["record[priority]"] = priority;
+			params["record[relative_priority]"] = relativePriority;
 			StoryFactory.getInstance().createStory(params, notifySuccess, notifyFailure);
 		}
 	}

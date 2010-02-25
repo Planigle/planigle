@@ -1028,7 +1028,7 @@
 						if (StoryFactory.getInstance().stories.length > nextStoryIndex)
 						{
 							var nextStory:Story = Story(StoryFactory.getInstance().stories.getItemAt(nextStoryIndex));
-							storyParams['record[priority]'] = (selectedStory.priority + nextStory.priority) / 2.0;
+							storyParams['record[relative_priority]'] = selectedStory.id + "," + nextStory.id;
 						}
 					}
 					StoryFactory.getInstance().createStory(storyParams, shouldClose ? handleCreateCloseSuccess : handleCreateSuccess, handleFailure);
@@ -1050,8 +1050,8 @@
 						var params3:Object = getParams(true);
 						var allStories:ArrayCollection = StoryFactory.getInstance().stories;
 						var index:int = allStories.getItemIndex(currentItem);
-						var nextPriority:Number = index + 1 == allStories.length ? currentItem.priority + 1 : allStories.getItemAt( index + 1 ).priority;
-						params3['record[priority]'] = (currentItem.priority + nextPriority) / 2;
+						var nextObject:Object = index + 1 == allStories.length ? null : allStories.getItemAt( index + 1 );
+						params3['record[relative_priority]'] = currentItem.id + (nextObject ? ("," + nextObject.id) : "");
 						currentItem.split(params3, event.detail==Alert.YES ? handleSplitSuccess : handleSuccess, handleFailure);
 					}
 				}, null, Alert.YES);
@@ -1075,7 +1075,7 @@
 		}
 
 		// Copy a story.
-		private function copyStory(story:Story, priority:Number): void
+		private function copyStory(story:Story, priority:String): void
 		{
 			updateQueue.addItem(new CopyStoryRequest(story, priority, handleUpdateSuccess, handleUpdateFailure));
 		}
@@ -1193,38 +1193,38 @@
 			else
 				newIndex = stories.getItemIndex(filteredStories.getItemAt(newIndex).story) + 1;
 
-			var before:Number = -1;
-			var after:Number = -1;
+			var before:Object = null;
+			var after:Object = null;
 			for (var i:int = movedItems.length - 1; i >= 0; i--)
 			{ // Go backwards since these are in reverse order
 				var story:Story = movedItems[i]
 				if (newIndex == stories.length) // Move to end
 				{
-					if (before == -1) // If first story to move
+					if (before == null) // If first story to move
 					{
 						var lastStory:Story = Story(stories.getItemAt(newIndex - 1));
 						if (movedItems.length == 1 && lastStory == story)
 							return; // Not moved
-						before = lastStory.priority;
+						before = lastStory;
 					}
-					after = before + 1;
 				}
 				else
 				{
-					if (before == -1) // If first story to move
+					if (before == null) // If first story to move
 					{
 						var itemAtIndex:Story = Story(stories.getItemAt(newIndex));
 						if (movedItems.length == 1 && itemAtIndex == story)
 							return; // Not moved
-						before = newIndex == 0 ? itemAtIndex.priority - 1 : (stories.getItemAt(newIndex-1).priority);
+						before = newIndex == 0 ? null : stories.getItemAt(newIndex-1);
 					}
-					after = itemAtIndex.priority;
+					after = itemAtIndex;
 				}
-				before = (before+after)/2;
+				var priority:String = (before ? before.id : "") + "," + (after ? after.id : "");
+				before = story;
 				if (shouldCopy)
-					copyStory(story, before);
+					copyStory(story, priority);
 				else
-					updateItem(story, {"record[priority]": before });
+					updateItem(story, {"record[relative_priority]": priority});
 			}
 			handleUpdateSuccess(); // Prime the processing.
 		}
@@ -1266,7 +1266,7 @@
 			var itemAtIndex:Story = Story(filteredStories.getItemAt(0));
 			if (itemAtIndex == story)
 				return; // Not moved
-			updateItem(story, {"record[priority]": itemAtIndex.priority - 0.5 });
+			updateItem(story, {"record[relative_priority]": "," + itemAtIndex.id });
 			handleUpdateSuccess(); // Prime the processing.
 		}
 

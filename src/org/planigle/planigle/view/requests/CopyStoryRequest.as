@@ -4,9 +4,9 @@ package org.planigle.planigle.view.requests
 
 	public class CopyStoryRequest extends Request
 	{
-		protected var priority:Number;
+		protected var priority:String;
 		
-		public function CopyStoryRequest(item:Story, priority:Number, notifySuccess:Function, notifyFailure: Function)
+		public function CopyStoryRequest(item:Story, priority:String, notifySuccess:Function, notifyFailure: Function)
 		{
 			super(item, notifySuccess, notifyFailure);
 			this.priority = priority;
