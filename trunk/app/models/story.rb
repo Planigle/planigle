@@ -51,6 +51,23 @@ class Story < ActiveRecord::Base
     end
   end
   
+  # Space the priorities out to prevent bunching.
+  def self.update_priorities
+    Project.find(:all).each do |project|
+      project.connection.update <<-SQL, "Initializing variable"
+        select @count:=min(priority) from stories where project_id=#{project.id} and status_code<#{Done}
+      SQL
+      project.connection.update <<-SQL, "Setting priorities"
+        update stories,
+          (select id, (@count:=@count+10) as rank
+          from stories
+          where project_id=#{project.id} and status_code<#{Done}
+          order by priority) sorted
+        set stories.priority=sorted.rank where stories.id=sorted.id
+      SQL
+    end
+  end
+  
   # Export given an instance of FasterCSV.
   def export(csv)
     values = [
@@ -315,11 +332,31 @@ class Story < ActiveRecord::Base
           @custom_attributes = {}
         end
         @custom_attributes[attrib_id[1]] = value
+      elsif key.to_s == 'relative_priority'
+        match = value.match(/(.*),(.*)/)
+        modified_attributes[:priority] = determine_priority(match[1],match[2])
       else
         modified_attributes[key] = value
       end
     end
     super(modified_attributes, guard_protected_attributes)
+  end
+  
+  # Determine the priority by looking at the story before and after
+  def determine_priority(before, after)
+    if before == ''
+      after = Story.find(after).priority
+      before = Story.find(:first, :conditions => ['project_id = ? and priority < ?', project.id, after], :order => 'priority desc')
+      before = before == nil ? after - 2 : before.priority
+    elsif after == ''
+      before = Story.find(before).priority
+      after = Story.find(:first, :conditions => ['project_id = ? and priority > ?', project.id, before], :order => 'priority')
+      after = after == nil ? before + 2 : after.priority
+    else
+      before = Story.find(before).priority
+      after = Story.find(after).priority
+    end
+    (before + after) / 2
   end
   
   # Answer the value for an attribute.

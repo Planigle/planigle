@@ -5,6 +5,7 @@ class System < ActiveRecord::Base
   def self.summarize
     Release.find(:all, :conditions => ['start < ? and finish + interval 1 day > ?', Time.now, Time.now], :include => [:stories]).each { |release| release.summarize }
     Iteration.find(:all, :conditions => ['start < ? and finish + interval 1 day > ?', Time.now, Time.now], :include => [:stories]).each { |iteration| iteration.summarize }
+    Story.update_priorities
   end
 
   # No one is authorized to create.  It is a singleton.

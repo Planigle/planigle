@@ -496,6 +496,21 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal 0, story.value_for(story_attributes(:std_1_8)) # Public
   end
 
+  def test_relative_priority
+    story = create_story
+    story.attributes={:relative_priority => "3,2"}
+    assert_equal 1.5, story.priority
+  end
+  
+  def test_determine_priority
+    story = create_story
+    assert_equal 0, story.determine_priority ("","3")
+    assert_equal 1.5, story.determine_priority ("","2")
+    assert_equal 1.5, story.determine_priority ("3","2")
+    assert_equal 2.5, story.determine_priority ("2","")
+    assert_equal story.priority + 1, story.determine_priority (story.id.to_s,"")
+  end
+
 private
 
   # Create a story with valid values.  Options will override default values (should be :attribute => value).
