@@ -369,10 +369,20 @@ class StoriesControllerTest < ActionController::TestCase
   def test_update_by_project_admin
     update_by_role_successful(individuals(:aaron))
   end
+  
+  # Test changing project.
+  def test_update_project_by_project_admin
+    update_by_role_successful(individuals(:aaron), update_success_parameters[resource_symbol].merge({:project_id => 3, :release_id => nil, :iteration_id => nil, :team_id => nil, :individual_id => nil}))
+  end
     
   # Test updating stories (based on role).
   def test_update_by_project_user
     update_by_role_successful(individuals(:user))
+  end
+  
+  # Test changing project.
+  def test_update_project_by_project_user
+    update_by_role_unsuccessful(individuals(:user), update_success_parameters[resource_symbol].merge({:project_id => 3, :release_id => nil, :iteration_id => nil, :team_id => nil, :individual_id => nil}))
   end
     
   # Test updating stories (based on role).

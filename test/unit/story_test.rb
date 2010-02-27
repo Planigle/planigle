@@ -109,6 +109,18 @@ class StoryTest < ActiveSupport::TestCase
     assert_success( :is_public, false)
   end
   
+  # Test changing my project.
+  def test_project_id
+    single_individ = Individual.create(:first_name => 'foo', :last_name => 'bar', :login => 'single' << rand.to_s, :email => 'single' << rand.to_s << '@example.com', :password => 'quired', :password_confirmation => 'quired', :role => 0, :company_id => 1, :project_ids => "1", :phone_number => '5555555555')
+    multi_individ = Individual.create(:first_name => 'foo', :last_name => 'bar', :login => 'multiple' << rand.to_s, :email => 'multiple' << rand.to_s << '@example.com', :password => 'quired', :password_confirmation => 'quired', :role => 0, :company_id => 1, :project_ids => "1,3", :phone_number => '5555555555')
+    story = create_story
+    single_task = Task.create(:story_id => story.id, :name => 'test', :individual_id => single_individ.id)
+    multi_task = Task.create(:story_id => story.id, :name => 'test', :individual_id => multi_individ.id)
+    story.reload.attributes={:project_id => 3}
+    assert_nil single_task.reload.individual_id
+    assert_equal multi_individ.id, multi_task.reload.individual_id
+  end
+  
   # Test a custom attribute.
   def test_custom
     story = create_story(:custom_1 => 'test1')
@@ -504,11 +516,11 @@ class StoryTest < ActiveSupport::TestCase
   
   def test_determine_priority
     story = create_story
-    assert_equal 0, story.determine_priority ("","3")
-    assert_equal 1.5, story.determine_priority ("","2")
-    assert_equal 1.5, story.determine_priority ("3","2")
-    assert_equal 2.5, story.determine_priority ("2","")
-    assert_equal story.priority + 1, story.determine_priority (story.id.to_s,"")
+    assert_equal 0, story.determine_priority("","3")
+    assert_equal 1.5, story.determine_priority("","2")
+    assert_equal 1.5, story.determine_priority("3","2")
+    assert_equal 2.5, story.determine_priority("2","")
+    assert_equal story.priority + 1, story.determine_priority(story.id.to_s,"")
   end
 
 private
