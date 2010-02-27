@@ -139,6 +139,11 @@ class StoryAttributesControllerTest < ActionController::TestCase
   def test_update_by_project_admin
     update_by_role_successful(individuals(:aaron))
   end
+  
+  # Test changing project.
+  def test_update_project
+    update_by_role_unsuccessful(individuals(:aaron), update_success_parameters.merge({:record => {:project_id => 3}}))
+  end
     
   # Test updating story attributes (based on role).
   def test_update_by_project_user
@@ -162,17 +167,17 @@ class StoryAttributesControllerTest < ActionController::TestCase
   end
   
   # Update successfully based on role.
-  def update_by_role_successful( user )
+  def update_by_role_successful( user, params = update_success_parameters )
     login_as(user)
-    put :update, {:id => 1, :format => 'xml'}.merge(update_success_parameters)
+    put :update, {:id => 1, :format => 'xml'}.merge(params)
     assert_response :success
     assert_update_succeeded
   end
     
   # Update unsuccessfully based on role.
-  def update_by_role_unsuccessful( user )
+  def update_by_role_unsuccessful( user, params = update_success_parameters )
     login_as(user)
-    put :update, {:id => 1, :format => 'xml'}.merge(update_success_parameters)
+    put :update, {:id => 1, :format => 'xml'}.merge(params)
     assert_response 401
     assert_change_failed
     assert_select "errors"

@@ -157,6 +157,16 @@ protected
     end
     story
   end
+
+  # Answer if this request is authorized for update.
+  def authorized_for_update?(record)
+    new_project_id = is_amf ? params[0].project_id : params[:record][:project_id]
+    if (new_project_id && record.project_id != new_project_id.to_i && (current_individual.role > Individual::ProjectAdmin || (current_individual.role == Individual::ProjectAdmin && record.project.company_id != current_individual.company_id)))
+      false # Must be project admin to change project
+    else
+      super
+    end
+  end
   
   # Update the record given the params.
   def update_record
@@ -166,6 +176,7 @@ protected
       @record.description = params[0].description
       @record.reason_blocked = params[0].reason_blocked
       @record.acceptance_criteria = params[0].acceptance_criteria
+      @record.project_id = params[0].project_id
       @record.release_id = params[0].release_id
       @record.iteration_id = params[0].iteration_id
       @record.individual_id = params[0].individual_id

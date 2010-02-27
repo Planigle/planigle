@@ -108,6 +108,11 @@ class IterationsControllerTest < ActionController::TestCase
   def test_update_by_project_admin
     update_by_role_successful(individuals(:aaron))
   end
+  
+  # Test changing project.
+  def test_update_project
+    update_by_role_unsuccessful(individuals(:aaron), update_success_parameters[resource_symbol].merge({:project_id => 3}))
+  end
     
   # Test updating iterations (based on role).
   def test_update_by_project_user

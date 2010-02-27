@@ -21,6 +21,16 @@ protected
     team.project_id = params[:project_id]
     team
   end
+
+  # Answer if this request is authorized for update.
+  def authorized_for_update?(record)
+    new_project_id = is_amf ? params[0].project_id : params[:record][:project_id]
+    if (new_project_id && record.project_id != new_project_id.to_i)
+      false # Can't change project
+    else
+      super
+    end
+  end
   
   # Update the record given the params.
   def update_record

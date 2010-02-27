@@ -341,6 +341,20 @@ class Story < ActiveRecord::Base
     end
     super(modified_attributes, guard_protected_attributes)
   end
+
+  # When changing projects, blank out my tasks.
+  def project_id=(new_project_id)
+    old = project_id
+    super(new_project_id)
+    if (old != new_project_id)
+      tasks.each do |task|
+        if (task.individual && !task.individual.projects.include?(project))
+          task.individual_id = nil
+          task.save(false)
+        end
+      end
+    end
+  end
   
   # Determine the priority by looking at the story before and after
   def determine_priority(before, after)
