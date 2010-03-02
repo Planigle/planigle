@@ -116,9 +116,15 @@ class StoryTest < ActiveSupport::TestCase
     story = create_story
     single_task = Task.create(:story_id => story.id, :name => 'test', :individual_id => single_individ.id)
     multi_task = Task.create(:story_id => story.id, :name => 'test', :individual_id => multi_individ.id)
-    story.reload.attributes={:project_id => 3}
+    story.attributes={:custom_1 => 'foo', :custom_2 => 'bar', :custom_3 => 5, :custom_5 => 1}
+    story.save(false)
+    story.reload
+    assert_equal 4, story.story_values.size
+
+    story.attributes={:project_id => 3}
     assert_nil single_task.reload.individual_id
     assert_equal multi_individ.id, multi_task.reload.individual_id
+    assert_equal 0, story.reload.story_values.size
   end
   
   # Test a custom attribute.

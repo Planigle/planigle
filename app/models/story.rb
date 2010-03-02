@@ -353,6 +353,7 @@ class Story < ActiveRecord::Base
           task.save(false)
         end
       end
+      story_values.each {|val| val.destroy}
     end
   end
   
