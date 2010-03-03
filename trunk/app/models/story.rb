@@ -348,7 +348,7 @@ class Story < ActiveRecord::Base
     super(new_project_id)
     if (old != new_project_id)
       tasks.each do |task|
-        if (task.individual && !task.individual.projects.include?(project))
+        if (task.individual && !task.individual.projects.include?(Project.find(new_project_id)))
           task.individual_id = nil
           task.save(false)
         end
