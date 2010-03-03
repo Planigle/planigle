@@ -356,7 +356,8 @@
 					break;
 				}
 			}
-			return matchesReleaseFilter(story) && matchesIterationFilter(story) && matchesTeamFilter(story) && (tasksMatchIndividual || matchesIndividualFilter(story)) && matchesStatusFilter(story);
+			return matchesReleaseFilter(story) && matchesIterationFilter(story) && matchesTeamFilter(story) && (tasksMatchIndividual || matchesIndividualFilter(story))
+				&& matchesStatusFilter(story) && String(story.projectId) == IndividualFactory.current().selectedProjectId;
 		}
 
 		// Answer whether a task matches the filters.
@@ -564,6 +565,8 @@
 		{
 			storyNameForm.label = "Story Name";
 			storyEffortForm.label = "Size";
+			storyFormProject.visible = IndividualFactory.current().isAtLeastProjectAdmin() && IndividualFactory.current().selectedProject.company.projects.length > 1;
+			storyFormProject.height = storyFormProject.visible ? NaN : -5;
 			storyFormRelease.height = ReleaseFactory.getInstance().releaseSelector.length > 1 ? NaN : -5;
 			storyFormRelease.visible = ReleaseFactory.getInstance().releaseSelector.length > 1;
 			storyFormIteration.height = NaN;
@@ -592,6 +595,8 @@
 		{
 			storyNameForm.label = "Task Name";
 			storyEffortForm.label = "To Do";
+			storyFormProject.visible = false;
+			storyFormProject.height = -5;
 			storyFormRelease.height = -5;
 			storyFormRelease.visible = false;
 			storyFormIteration.height = -5;
@@ -663,6 +668,10 @@
 			if (isStory)
 			{
 				if (shouldSet)
+					storyFieldProject.dataProvider = IndividualFactory.current().selectedProject.company.projects;
+				values["project"] = IndividualFactory.current().selectedProject;
+				
+				if (shouldSet)
 					storyFieldIteration.dataProvider = IterationFactory.getInstance().iterationsInRelease(Release(release.selectedItem));
 
 				if (iteration.selectedItem.id != "-1")
@@ -719,7 +728,10 @@
 
 			if (isStory)
 			{
+				storyFieldProject.visible = false;
+				storyFieldProject.height = -5;
 				storyFieldAcceptanceCriteria.clear();
+				storyFieldProject.selectedItem = values["project"];
 				storyFieldIteration.selectedItem = values["iteration"];
 				storyFieldRelease.selectedItem = values["release"];
 				storyFieldTeam.selectedItem = values["team"];
@@ -763,6 +775,8 @@
 					storyFieldReasonBlocked.text = currentItem.reasonBlocked;
 					if (currentItem.isStory())
 					{
+						storyFieldProject.dataProvider = IndividualFactory.current().selectedProject.company.projects;
+						storyFieldProject.selectedItem = IndividualFactory.current().selectedProject;
 						var iteration:Iteration = IterationFactory.getInstance().find(currentItem.iterationId);
 						prepareForStory();
 						if (IterationFactory.getInstance().iterationsInRelease(Release(release.selectedItem)).contains(iteration))
@@ -911,7 +925,7 @@
 			params['record[status_code]'] = storyFieldStatus.selectedItem.value;
 			if (isStory)
 			{
-				params['record[project_id]'] = factory.currentIndividual.selectedProjectId;
+				params['record[project_id]'] = storyFieldProject.selectedItem.id;
 				params['record[release_id]'] = storyFieldRelease.selectedItem.id > 0 ? storyFieldRelease.selectedItem.id : "";
 				params['record[iteration_id]'] = storyFieldIteration.selectedItem.id > 0 ? storyFieldIteration.selectedItem.id : "";
 				params['record[acceptance_criteria]'] = storyFieldAcceptanceCriteria.acceptanceCriteria;
@@ -948,6 +962,7 @@
 				if (storyFieldEffort.text != values["effort"]) return true;
 				
 				if (!currentItem) {
+					if (storyFieldProject.selectedItem != values["project"]) return true;
 					if (storyFieldRelease.selectedItem != values["release"]) return true;
 					if (storyFieldIteration.selectedItem != values["iteration"]) return true;
 					if (storyFieldAcceptanceCriteria.acceptanceCriteria != "") return true;
@@ -974,6 +989,7 @@
 				if (storyFieldEffort.text != (currentItem.effort == null ? "" : currentItem.effort)) return true;
 				
 				if (currentItem.isStory()) {
+					if (storyFieldProject.selectedItem.id != currentItem.projectId) return true;
 					if (storyFieldRelease.selectedItem.id != currentItem.releaseId) return true;
 					if (storyFieldIteration.selectedItem.id != currentItem.iterationId) return true;
 					if (storyFieldAcceptanceCriteria.acceptanceCriteria != currentItem.acceptanceCriteria) return true;
@@ -1385,6 +1401,17 @@
 		{
 			return factory.currentIndividual.isAtLeastProjectUser;
 		}
+		
+		// Update the project related fields.
+		public function updateProjectField():void
+		{
+			storyFieldIteration.selectedIndex = storyFieldIteration.dataProvider.length - 1;
+			storyFieldRelease.selectedIndex = storyFieldRelease.dataProvider.length - 1;
+			updateRelease();
+			storyFieldTeam.selectedIndex = storyFieldTeam.dataProvider.length - 1;
+			if (storyFieldOwner.selectedItem.projects.indexOf(storyFieldProject.selectedItem) == -1)
+				storyFieldOwner.selectedIndex = storyFieldOwner.dataProvider.length - 1;
+		}
 
 		// Update the release based on the change to the iteration.
 		public function updateIteration():void
@@ -1729,6 +1756,9 @@
 								</mx:VBox>
 								<mx:VBox>
 									<mx:Form id="changeForm2" defaultButton="{storyBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
+										<mx:FormItem label="Project" id="storyFormProject">
+											<mx:ComboBox id='storyFieldProject' editable="false" labelField="name" change="updateProjectField()"></mx:ComboBox>
+										</mx:FormItem>
 										<mx:FormItem label="Iteration" id="storyFormIteration">
 											<mx:ComboBox id='storyFieldIteration' editable="false" labelField="name" change="updateIteration()"></mx:ComboBox>
 										</mx:FormItem>
