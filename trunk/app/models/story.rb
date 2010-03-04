@@ -353,7 +353,7 @@ class Story < ActiveRecord::Base
           task.save(false)
         end
       end
-      story_values.each {|val| val.destroy}
+      @delete_custom_attribute_values = true
     end
   end
   
@@ -436,7 +436,7 @@ protected
 
   # Validate any unsaved custom attributes.
   def validate_custom_attributes
-    if @custom_attributes
+    if @custom_attributes && !@delete_custom_attribute_values
       @custom_attributes.each_pair do |key, value|
         attrib = project ? project.story_attributes.find(:first, :conditions => {:id => key, :is_custom => true}) : nil
         if attrib && (attrib.value_type != StoryAttribute::List || value == "" || value == nil || attrib.story_attribute_values.find(:first, :conditions => {:id => value})) && (attrib.value_type != StoryAttribute::ReleaseList || value == "" || value == nil || attrib.story_attribute_values.find(:first, :conditions => {:id => value, :release_id => release_id}))
@@ -451,7 +451,9 @@ protected
   
   # Save any custom attributes.
   def save_custom_attributes
-    if @custom_attributes
+    if @delete_custom_attribute_values
+      story_values.each {|val| val.destroy}      
+    elsif @custom_attributes
       @custom_attributes.each_pair do |key, value|
         attrib = project.story_attributes.find(:first, :conditions => {:id => key, :is_custom => true})
         val = story_values.find(:first, :conditions => {:story_attribute_id => key})
@@ -464,8 +466,9 @@ protected
           story_values << StoryValue.new({:story_attribute_id => attrib.id, :value => value})
         end
       end
-      @custom_attributes = nil
     end
+    @delete_custom_attribute_values = nil
+    @custom_attributes = nil
   end
   
   # Set the initial priority to the number of stories (+1 for me).  Set public to false if not set.
