@@ -95,6 +95,12 @@ class FlexStoriesTest < Test::Unit::TestCase
     split_story_cancel
   end 
 
+  # Test move project.
+  def test_move_project
+    init('admin2')
+    move_project
+  end 
+
   # Test misc (in one stream for more efficiency).
   def test_misc
     init('admin2')
@@ -362,6 +368,7 @@ private
 
   # Create a story.
   def create_story(name, description, acceptance_criteria, iteration, release, team, owner, effort, status, public, custom="", reason_blocked="")
+    assert_equal false, @ie.combo_box("storyFieldProject").visible
     @ie.text_area("storyFieldName").input(:text => name )
     @ie.text_area("textArea")[0].input(:text => description )
     #@TODO: Would be good to test using the expanded text box here, but there is a bug where text fields
@@ -484,6 +491,7 @@ private
 
   # Edit a story.
   def edit_story(name, description, acceptance_criteria, iteration, release, team, owner, effort, status, public, custom="", reason_blocked="")
+    assert_equal true, @ie.combo_box("storyFieldProject").visible
     @ie.button("storyBtnEdit")[1].click
     @ie.text_area("storyFieldName").input(:text => name )
     @ie.text_area("textArea")[0].input(:text => description )
@@ -608,6 +616,17 @@ private
     @ie.combo_box("storyFieldStatus").select(:item_renderer => status )
     @ie.combo_box("storyFieldPublic").open
     @ie.combo_box("storyFieldPublic").select(:item_renderer => public )
+  end
+    
+  # Test moving a story to a different project.
+  def move_project
+    num_rows = @ie.data_grid("storyResourceGrid").num_rows
+    @ie.button("storyBtnEdit")[1].click
+    @ie.combo_box("storyFieldProject").open
+    @ie.combo_box("storyFieldProject").select(:item_renderer => "Test3" )
+    @ie.button("storyBtnChange").click
+    sleep 3 # Wait for results
+    assert_equal num_rows-1, @ie.data_grid("storyResourceGrid").num_rows
   end
     
   # Test deleting a story.
