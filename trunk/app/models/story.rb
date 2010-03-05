@@ -263,10 +263,22 @@ class Story < ActiveRecord::Base
     end
     filter_on_individual = conditions.has_key?(:individual_id)
     individual_id = conditions.delete(:individual_id)
+    text_filter = conditions.delete(:text)
     result = Story.find(:all, :include => [:criteria, :story_values, :tasks], :conditions => conditions, :order => 'stories.priority')
-    if (filter_on_individual)
+    if filter_on_individual
       individual_id = individual_id ? individual_id.to_i : individual_id
-      result.select {|story| story.individual_id==individual_id || story.tasks.detect {|task| task.individual_id==individual_id}}
+      result = result.select {|story| story.individual_id==individual_id || story.tasks.detect {|task| task.individual_id==individual_id}}
+    end
+    if text_filter
+      result = result.select do |story|
+        text_filter = text_filter.downcase
+        story.name.downcase.index(text_filter) ||
+        (story.description && story.description.downcase.index(text_filter)) ||
+        (story.reason_blocked && story.reason_blocked.downcase.index(text_filter)) ||
+        story.tasks.detect {|task| task.name.downcase.index(text_filter) || (task.description && task.description.downcase.index(text_filter)) || (task.reason_blocked && task.reason_blocked.downcase.index(text_filter))} ||
+        story.criteria.detect {|ac| ac.description.downcase.index(text_filter)} ||
+        story.story_values.detect {|sv| sv.story_attribute.value_type<=StoryAttribute::Text && sv.value.downcase.index(text_filter)}
+      end
     else
       result
     end
@@ -346,7 +358,7 @@ class Story < ActiveRecord::Base
   def project_id=(new_project_id)
     old = project_id
     super(new_project_id)
-    if (old != new_project_id)
+    if (old && old != new_project_id)
       tasks.each do |task|
         if (task.individual && !task.individual.projects.include?(Project.find(new_project_id)))
           task.individual_id = nil
