@@ -9,6 +9,7 @@
 			import org.planigle.planigle.model.Release;
 			import org.planigle.planigle.model.IterationFactory;
 			import org.planigle.planigle.model.Iteration;
+			import org.planigle.planigle.model.Project;
 			import org.planigle.planigle.model.Team;
 			import org.planigle.planigle.model.IndividualFactory;
 			import org.planigle.planigle.model.Individual;
@@ -20,6 +21,9 @@
 			private var items:ArrayCollection = new ArrayCollection();
 			private var updateFunction:Function;
 			private var updateCompleteFunction:Function;
+
+			[Bindable]
+			private var projects:ArrayCollection = new ArrayCollection();
 
 			[Bindable]
 			private var iterations:ArrayCollection = new ArrayCollection();
@@ -48,25 +52,34 @@
 				noChange.fullName = "No Change";
 				noChange.id = "-1";
 
+				projects.addItem(noChange);
+				for each (var project:Project in IndividualFactory.current().company.projects)
+				{
+					if (IndividualFactory.current().selectedProject != project)
+						projects.addItem(project);
+				}
+				if (projects.length <= 1 || !IndividualFactory.current().isAtLeastProjectAdmin())
+				{
+					formProject.visible = false;
+					formProject.height = -5;
+					height -= 20;
+				}
+
 				iterations.addItem(noChange);
 				for each (var iteration:Iteration in IterationFactory.getInstance().iterationsInRelease(release))
 					iterations.addItem(iteration);
-				updateFieldIteration.width = NaN;
 
 				releases.addItem(noChange);
 				for each (var release:Release in ReleaseFactory.getInstance().releaseSelector)
 					releases.addItem(release);
-				updateFieldRelease.width = NaN;
 
 				teams.addItem(noChange);
 				for each (var team:Team in IndividualFactory.current().selectedProject.teamSelector)
 					teams.addItem(team);
-				updateFieldTeam.width = NaN;
 
 				individuals.addItem(noChange);
 				for each (var individual:Individual in IndividualFactory.current().selectedProject.individuals())
 					individuals.addItem(individual);
-				updateFieldOwner.width = NaN;
 					
 				addCustomAttributes();
 				width += 50; // A little extra room for wide labels
@@ -120,6 +133,8 @@
 			{
 				var storyParams:Object = new Object();
 				var taskParams:Object = new Object();
+				if (updateFieldProject.selectedItem.id != "-1")
+					storyParams['record[project_id]'] = updateFieldProject.selectedItem.id;
 				if (updateFieldIteration.selectedItem.id != "-1")
 					storyParams['record[iteration_id]'] = updateFieldIteration.selectedItem.id ? updateFieldIteration.selectedItem.id : "";
 				if (updateFieldRelease.selectedItem.id != "-1")
@@ -168,6 +183,15 @@
 				}
 			}
 
+			// Update the project-dependent fields.
+			public function updateProject():void
+			{
+				updateFieldRelease.selectedIndex = updateFieldRelease.dataProvider.length - 1;
+				updateFieldIteration.selectedIndex = updateFieldIteration.dataProvider.length - 1;
+				updateFieldTeam.selectedIndex = updateFieldTeam.dataProvider.length - 1;
+				updateFieldOwner.selectedIndex = updateFieldOwner.dataProvider.length - 1;
+			}
+
 			// Update the release based on the change to the iteration.
 			public function updateIteration():void
 			{
@@ -205,6 +229,9 @@
 		]]>
 	</mx:Script>
 	<mx:Form id="updateForm" defaultButton="{updateBtnOk}" height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalGap="5">
+		<mx:FormItem label="Project" id="formProject">
+			<mx:ComboBox id='updateFieldProject' editable="false" dataProvider="{projects}" labelField="name" change="updateProject()"></mx:ComboBox>
+		</mx:FormItem>
 		<mx:FormItem label="Iteration" id="formIteration">
 			<mx:ComboBox id='updateFieldIteration' editable="false" dataProvider="{iterations}" labelField="name" change="updateIteration()"></mx:ComboBox>
 		</mx:FormItem>
