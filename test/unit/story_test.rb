@@ -122,6 +122,7 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal 4, story.story_values.size
 
     story.attributes={:project_id => 3}
+    story.save(false)
     assert_nil single_task.reload.individual_id
     assert_equal multi_individ.id, multi_task.reload.individual_id
     assert_equal 0, story.reload.story_values.size
@@ -308,6 +309,33 @@ class StoryTest < ActiveSupport::TestCase
     Task.create(:story_id => 3, :name => 'assigned', :individual_id => individuals(:aaron).id)
     assert_equal 2, Story.get_records(individuals(:aaron), {:individual_id => individuals(:aaron).id}).length
     assert_equal 3, Story.get_records(individuals(:aaron), {:individual_id => nil}).length
+  end
+
+  # Test finding stories matching text.
+  def test_find_text
+    assert_equal 0, Story.get_records(individuals(:aaron), :text => 'teststring').length
+    create_story(:name => 'TestString')
+    assert_equal 1, Story.get_records(individuals(:aaron), :text => 'teststring').length
+    create_story(:description => 'TestString')
+    assert_equal 2, Story.get_records(individuals(:aaron), :text => 'teststring').length
+    create_story(:reason_blocked => 'TestString')
+    assert_equal 3, Story.get_records(individuals(:aaron), :text => 'teststring').length
+    create_story(:acceptance_criteria => 'TestString')
+    assert_equal 4, Story.get_records(individuals(:aaron), :text => 'teststring').length
+    story = create_story(:custom_1 => 'TestString')
+    assert_equal 5, Story.get_records(individuals(:aaron), :text => 'teststring').length
+    create_story(:custom_2 => 'TestString')
+    assert_equal 6, Story.get_records(individuals(:aaron), :text => 'teststring').length
+    story = create_story
+    story.tasks << Task.create(:name => 'TestString')
+    assert_equal 7, Story.get_records(individuals(:aaron), :text => 'teststring').length
+    story = create_story
+    story.tasks << Task.create(:name => 'foo', :description => 'TestString')
+    assert_equal 8, Story.get_records(individuals(:aaron), :text => 'teststring').length
+    story = create_story
+    story.tasks << Task.create(:name => 'foo', :reason_blocked => 'TestString')
+    assert_equal 9, Story.get_records(individuals(:aaron), :text => 'teststring').length
+    assert_equal 0, Story.get_records(individuals(:aaron), :text => 'otherstring').length
   end
   
   # Validate is_blocked.
