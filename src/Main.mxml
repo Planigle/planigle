@@ -120,6 +120,14 @@
 			[Bindable]
 			public var imgDecrease:Class;
 			
+			[Embed(source="../public/images/expand.png")]
+			[Bindable]
+			public var imgExpand:Class;
+		
+			[Embed(source="../public/images/contract.png")]
+			[Bindable]
+			public var imgContract:Class;
+		
 			// See if a cookie is present which skips login.
 			private function created(event:Event):void
 			{

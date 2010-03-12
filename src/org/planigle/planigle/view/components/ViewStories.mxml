@@ -429,6 +429,7 @@
 			if (team.selectedItem.id != -1) conditions["team_id"]= team.selectedItem.id ? team.selectedItem.id : "";
 			if (individual.selectedItem.id != -1) conditions["individual_id"]= individual.selectedItem.id ? individual.selectedItem.id : "";
 			if (itemStatus.selectedItem.value != -1) conditions["status_code"]= itemStatus.selectedItem.value != -2 ? itemStatus.selectedItem.value : "NotDone";
+			if (storySearchText.text != "") conditions["text"]=storySearchText.text;
 			Story.conditions = conditions;
 		}	
 		
@@ -1719,6 +1720,22 @@
 				queryString += "&record[status_code]=" + (itemStatus.selectedItem.value == -2 ? "NotDone" : itemStatus.selectedItem.value);
 			return queryString;
 		}
+		
+		public function showMoreFilters():void
+		{
+			if (storyBtnMoreFilters.toolTip == "More Filters") {
+				storyBtnMoreFilters.setStyle("icon", parentApplication.imgContract);
+				storyBtnMoreFilters.toolTip = "Less Filters";
+				storyMoreFilters.visible = true;
+				storyMoreFilters.height = NaN;
+			}
+			else {
+				storyBtnMoreFilters.setStyle("icon", parentApplication.imgExpand);
+				storyBtnMoreFilters.toolTip = "More Filters";
+				storyMoreFilters.visible = false;
+				storyMoreFilters.height = -5;
+			}
+		}
 		]]>
 	</mx:Script>
  	
@@ -1874,6 +1891,7 @@
 		<mx:VBox id="vbox" width="100%" paddingTop="5" paddingLeft="5" paddingRight="5">
 			<mx:VBox id="storyBtnBox" width="100%">
 				<mx:HBox width="100%" horizontalGap="5" minWidth="0" horizontalScrollPolicy="off">
+					<mx:LinkButton width="16" icon="{parentApplication.imgExpand}" toolTip="More Filters" click="showMoreFilters();" id="storyBtnMoreFilters"/>
 					<mx:ComboBox id='release' editable="false" dataProvider="{releaseFilter}" labelField="name" change="handleReleaseFilter(event)"></mx:ComboBox>
 					<mx:ComboBox id='iteration' editable="false" dataProvider="{iterationFilter}" labelField="name" change="handleFilter()"></mx:ComboBox>
 					<component:TeamSelector id='team' change="handleFilter()"></component:TeamSelector>
@@ -1895,6 +1913,11 @@
 						<component:ExportButton width="25" id="storyBtnExport" queryStringFunction="{getExportQueryString}" queryStringObject="{this}"/>
 						<mx:Button icon="{parentApplication.imgSurveys}" visible="{factory.currentIndividual.isPremium}" width="{factory.currentIndividual.isPremium ? 25 : 0}" toolTip="View Surveys" click="handleSurveys(event);" id="storyBtnViewSurveys"/>
 					</mx:HBox>
+				</mx:HBox>
+				<mx:HBox id="storyMoreFilters" visible="false" height="-5" width="100%">
+					<mx:FormItem label="Search Text">
+						<mx:TextInput id='storySearchText' text='' width="200" enter="handleFilter()" valueCommit="handleFilter()"/>
+					</mx:FormItem>
 				</mx:HBox>
 				<mx:HBox id="storyStatusRow" width="100%" minWidth="0" horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
 					<mx:Label text="Number of Stories:" fontWeight="bold"/>

@@ -61,7 +61,7 @@
 				selectedIndex = teamSelector.length - 1;
 			visible = teamSelector.length > 2;
 			height = visible ? NaN : 0;
-			width = visible ? NaN : -8;
+			width = visible ? NaN : -5;
 			dispatchEvent(new ListEvent(ListEvent.CHANGE));
 		}
 		]]>
