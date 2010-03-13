@@ -129,7 +129,8 @@ package org.planigle.planigle.model
 				iteration == null &&
 				Story.conditions["individual_id"] == null &&
 				status == null &&
-				(team == null || team == teamId);
+				(team == null || team == teamId) &&
+				Story.conditions["text"] == null;
 		}
 	}
 }
