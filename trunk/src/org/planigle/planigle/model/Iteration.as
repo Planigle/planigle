@@ -174,7 +174,8 @@ package org.planigle.planigle.model
 			return (iteration == null || iteration == id) &&
 				Story.conditions["individual_id"] == null &&
 				(status == null || status == statusCode) &&
-				(team == null || team == teamId);
+				(team == null || team == teamId) &&
+				Story.conditions["text"] == null;
 		}
 	}
 }

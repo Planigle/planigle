@@ -108,6 +108,12 @@ class FlexStoriesTest < Test::Unit::TestCase
     delete_story
     sort_columns
   end
+  
+  # Test searching
+  def test_search
+    init('admin2')
+    search_stories
+  end
 
   # Test deleting multiple.
   def test_z_misc_delete_multiple
@@ -278,8 +284,16 @@ class FlexStoriesTest < Test::Unit::TestCase
     @ie.check_box("select_Description").click
     @ie.button("btn_ok").click
   end
-
+  
 private
+
+  # Test searching for a story.
+  def search_stories
+    @ie.button("storyBtnMoreFilters").click
+    @ie.text_area("storySearchText").input(:text => 'description' )
+    @ie.button("storyBtnMoreFilters").click
+    assert_equal 1, @ie.data_grid("storyResourceGrid").num_rows
+  end
 
   # Test whether error handling works for creating a story.
   def create_story_failure
