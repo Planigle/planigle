@@ -38,7 +38,7 @@ class FlexAuditsTest < Test::Unit::TestCase
     @ie.text_area("changesStartDate").input(:text => '11/01/08' )
     @ie.text_area("changesEndDate").input(:text => '11/02/08' )
     @ie.button("searchBtn").click
-    assert_equal 2, @ie.data_grid("changeGrid").num_rows
+    assert_equal 1, @ie.data_grid("changeGrid").num_rows
   end
 
   # Test sorting.

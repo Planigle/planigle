@@ -505,8 +505,8 @@ private
 
   # Edit a story.
   def edit_story(name, description, acceptance_criteria, iteration, release, team, owner, effort, status, public, custom="", reason_blocked="")
-    assert_equal true, @ie.combo_box("storyFieldProject").visible
     @ie.button("storyBtnEdit")[1].click
+    assert_equal true, @ie.combo_box("storyFieldProject").visible
     @ie.text_area("storyFieldName").input(:text => name )
     @ie.text_area("textArea")[0].input(:text => description )
     enter_criteria(acceptance_criteria)
