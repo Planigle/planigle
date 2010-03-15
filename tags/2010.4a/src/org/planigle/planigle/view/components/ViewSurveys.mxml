@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" height="100%" y="0" width="100%" x="0" creationComplete="created(event)" borderThicknessLeft="0" borderThicknessRight="0" headerHeight="0">
+	<mx:Metadata>
+		[Event(name="done", type="flash.events.Event")]
+	</mx:Metadata>
+	<mx:HTTPService id="resourceGet" useProxy="false" method="GET" result="handleGet(event)" resultFormat="e4x" showBusyCursor="true"/>
+	<mx:HTTPService id="resourceUpdate" useProxy="false" method="POST" result="handleUpdate(event)" resultFormat="e4x" showBusyCursor="true"/>
+	<mx:HTTPService id="detailsGet" useProxy="false" method="GET" result="handleDetails(event)" resultFormat="e4x" showBusyCursor="true"/>
+	<mx:Script>
+		<![CDATA[
+		import mx.rpc.events.ResultEvent;
+		import mx.binding.utils.ChangeWatcher;
+		import mx.events.ListEvent;
+		import org.planigle.planigle.model.ViewModelLocator;
+		import org.planigle.planigle.model.IndividualFactory;
+		import org.planigle.planigle.model.StoryFactory;
+		import org.planigle.planigle.model.Story;
+		import org.planigle.planigle.model.DateUtils;
+		import org.planigle.planigle.events.StoryChangedEvent;
+
+		[Bindable]
+		private var _error:String;
+
+		[Bindable]
+		private var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
+
+		[Bindable]
+		public var factory:IndividualFactory = IndividualFactory.getInstance();
+
+		[Bindable]
+		private var surveys:XMLList = new XMLList();
+
+		[Bindable]
+		private var details:XMLList = new XMLList();
+
+		[Bindable]
+		private var gridHeight:int;
+
+		// Set up event listeners.  Called when the canvas has been created.
+		private function created(event:Event):void
+		{
+			ChangeWatcher.watch( viewModelLocator, "workflowState", resetState ); // Reset if log out / logged back in
+			ChangeWatcher.watch( StoryFactory.getInstance(), "stories", updateSurveys );
+			updateSurveys(event);
+			gridHeight = surveysResourceGrid.height;
+		}
+				
+		// Update the error message.
+		private function setErrorMessage(string:String):void {surveysError.setStyle("color","Red"); _error = string}
+		private function setSuccessMessage(string:String):void {surveysError.setStyle("color","Green"); _error = string}
+		private function clearErrorMessage():void {_error = ""}
+		
+		// Reset my state to how it was initially.
+		public function resetState(event:Event):void
+		{
+			clearErrorMessage();
+			currentState = '';
+		}
+		
+		// Update the surveys.
+		private function updateSurveys(event:Event):void
+		{
+			resourceGet.url = "surveys.xml";
+			var params:Object = new Object();
+			params["random"] = Math.random();
+			resourceGet.send(params);
+		}
+
+		// The surveys have been updated.
+		private function handleGet(event:ResultEvent):void
+		{
+			var result:XML = XML(event.result);
+			surveys = result.children();
+			resetState(event);
+		}
+
+		// The surveys have been updated.
+		private function handleUpdate(event:ResultEvent):void
+		{
+			var result:XML = XML(event.result);
+			if (result.error.length() > 0)
+			{
+				updateSurveys(event);
+				setErrorMessage(result.error);
+			}
+			else
+				new StoryChangedEvent().dispatch();
+		}
+
+		// Return to stories screen.
+		private function showStories(event:Event):void
+		{
+			dispatchEvent(new Event("done"));
+		}
+
+		// Show the details for the selected survey.
+		public function showDetails(event:Event):void
+		{
+			if (surveysResourceGrid.selectedItem)
+			{
+				currentState = "Details";
+				detailsGet.url = "surveys/" + surveysResourceGrid.selectedItem.id + ".xml";
+				var params:Object = new Object();
+				params["random"] = Math.random();
+				detailsGet.send(params);
+			}
+		}
+
+		// The details have been updated.
+		private function handleDetails(event:ResultEvent):void
+		{
+			var result:XML = XML(event.result);
+			details = result.descendants("survey-mapping");
+			clearErrorMessage();
+		}
+
+		// Hide details.
+		private function hideDetails(event:Event):void
+		{
+			currentState = "";
+			details = new XMLList();
+			clearErrorMessage();
+		}
+
+		// Show the details for the selected survey.
+		public function updateExcluded(item:Object, event:ListEvent):void
+		{
+			resourceUpdate.url = "surveys/" + item.id + ".xml";
+			var params:Object = new Object();
+			params["_method"] = "put";
+			params["random"] = Math.random();
+			params["record[excluded]"] = event.target.text;
+			resourceUpdate.send(params);			
+		}
+		
+		// Format the start date into a more readable format.
+		private function formatDate(item:Object, column:DataGridColumn):String
+		{
+			return DateUtils.formatTime(DateUtils.stringToDate(String(item.child("updated-at"))));
+		}
+
+		// Keep the description short.
+		public function limitDescription(item:Object, column:DataGridColumn):String
+		{
+			if (String(item.description).length > 200)
+				return item.description.substring(0, 200) + "...";
+			else
+				return item.description;
+		}
+		]]>
+	</mx:Script>
+ 	
+	<mx:states>
+		<mx:State name="Details">
+			<mx:AddChild relativeTo="{combinedPanel}" position="after">
+				<mx:target>
+					<mx:DataGrid id="surveyDetailsGrid" dataProvider="{details}" width="100%" height="100%">
+						<mx:columns>
+							<mx:DataGridColumn headerText="Name" width="350" dataField="name"/>
+							<mx:DataGridColumn headerText="Description" labelFunction="limitDescription" dataField="description" showDataTips="true" dataTipField="description"/>
+							<mx:DataGridColumn headerText="Rank" width="80" dataField="normalized-priority"/>
+							<mx:DataGridColumn headerText="User Rank" width="80" dataField="priority"/>
+						</mx:columns>
+					</mx:DataGrid>
+				</mx:target>
+			</mx:AddChild>
+			<mx:AddChild relativeTo="{combinedPanel}" position="after">
+				<mx:target>
+					<mx:HBox id="btnBox2" width="100%" horizontalAlign="right" verticalAlign="middle" paddingTop="5" paddingLeft="5" paddingRight="5">
+						<mx:Button label="Hide Details" click="hideDetails(event);" id="btnHideDetails"/>
+					</mx:HBox>
+				</mx:target>
+			</mx:AddChild>
+		</mx:State>
+	</mx:states>
+	
+	<mx:transitions>
+		<mx:Transition id="viewDetails" fromState="*" toState="Details">
+			<mx:Sequence targets="{[combinedPanel]}">
+				<mx:RemoveChildAction/>
+				<mx:SetPropertyAction target="{combinedPanel}" name="height" value="150"/>
+				<mx:Resize target="{combinedPanel}"/>
+				<mx:AddChildAction/>
+			</mx:Sequence>
+		</mx:Transition>
+
+		<mx:Transition id="returnList" fromState="Details" toState="*">
+			<mx:Sequence targets="{[combinedPanel]}">
+				<mx:RemoveChildAction/>
+				<mx:SetPropertyAction target="{combinedPanel}" name="height" value="{gridHeight}"/>
+				<mx:Resize target="{combinedPanel}"/>
+				<mx:AddChildAction/>
+			</mx:Sequence>
+		</mx:Transition>
+	</mx:transitions>
+	
+	<mx:Canvas id="combinedPanel" height="100%" y="0" width="100%" x="0">
+		<mx:HBox id="btnBox" width="100%" horizontalAlign="left" verticalAlign="middle" paddingTop="5" paddingLeft="5" paddingRight="5">
+			<mx:Text id="surveysError" styleName="error" htmlText="{_error}" width="100%"/>
+			<mx:Button label="Return to Stories" click="showStories(event);" id="btnShowStories"/>
+		</mx:HBox>
+		<mx:DataGrid id="surveysResourceGrid" dataProvider="{surveys}" y="32" width="100%" height="100%" doubleClickEnabled="true" doubleClick="showDetails(event)">
+			<mx:columns>
+				<mx:DataGridColumn headerText="Name" width="150" dataField="name"/>
+				<mx:DataGridColumn headerText="Company" width="200" dataField="company"/>
+				<mx:DataGridColumn headerText="Email" width="250" dataField="email"/>
+				<mx:DataGridColumn headerText="Excluded" editable="false" width="105" minWidth="105" dataField="excluded">
+					<mx:itemRenderer> 
+						<mx:Component>
+							<mx:Box direction="horizontal" horizontalGap="0">
+							<mx:ComboBox width="100%" editable="false" selectedIndex="{data.excluded == 'true' ? 0 : 1}" change="outerDocument.updateExcluded(data, event)" enabled="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}">
+								<mx:Object label="true" value="true" />
+								<mx:Object label="false" value="false" />
+							</mx:ComboBox>
+							</mx:Box>
+						</mx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="Last Updated" width="150" dataField="updated-at" labelFunction="formatDate"/>
+				<mx:DataGridColumn editable="false" width="35" minWidth="35" sortable="false">
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:Box direction="horizontal" horizontalGap="0" width="100%">
+								<mx:LinkButton id="surveyDetails" icon="{parentApplication.imgExisting}" toolTip="Show Details" click="outerDocument.showDetails(event);"/>
+							</mx:Box>
+						</mx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+			</mx:columns>
+		</mx:DataGrid>
+	</mx:Canvas>
+</mx:Panel>

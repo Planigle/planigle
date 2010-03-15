@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:component="org.planigle.planigle.view.components.*" label="People" borderThicknessLeft="2" borderThicknessRight="2" headerHeight="0">
+	<mx:Script>
+		<![CDATA[
+		// Reset my state to how it was initially.
+		public function resetState(event:Event):void
+		{
+			projects.resetState(event);
+			individuals.resetState(event);
+		}
+
+		// The user has selected a project.
+		public function selectProject(event:Event):void
+		{
+			individuals.group = projects.group;
+		}
+
+		// Answer whether any changes need to be saved.
+		public function isDirty(): Boolean
+		{
+			return projects.isDirty() || individuals.isDirty();
+		}
+		]]>
+	</mx:Script>
+	<mx:VDividedBox height="100%" width="100%">
+		<component:ViewProjects id="projects" height="40%" itemClick="selectProject(event)"/>
+		<component:ViewIndividuals id="individuals" height="60%"/>
+	</mx:VDividedBox>
+</mx:Panel>
