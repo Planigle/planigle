@@ -545,6 +545,7 @@ class StoryTest < ActiveSupport::TestCase
   def test_relative_priority
     story = create_story
     story.attributes={:relative_priority => "3,2"}
+    story.save(false)
     assert_equal 1.5, story.priority
   end
   
