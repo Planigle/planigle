@@ -1068,7 +1068,7 @@
 						var allStories:ArrayCollection = StoryFactory.getInstance().stories;
 						var index:int = allStories.getItemIndex(currentItem);
 						var nextObject:Object = index + 1 == allStories.length ? null : allStories.getItemAt( index + 1 );
-						params3['record[relative_priority]'] = currentItem.id + (nextObject ? ("," + nextObject.id) : "");
+						params3['record[relative_priority]'] = currentItem.id + "," + (nextObject ? nextObject.id : "");
 						currentItem.split(params3, event.detail==Alert.YES ? handleSplitSuccess : handleSuccess, handleFailure);
 					}
 				}, null, Alert.YES);

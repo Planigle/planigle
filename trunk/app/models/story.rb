@@ -22,7 +22,9 @@ class Story < ActiveRecord::Base
   validates_numericality_of :priority, :user_priority, :allow_nil => true # Needed for priority since not set until after check
   validates_numericality_of :status_code
 
+  before_create :save_relative_priority
   after_create :save_custom_attributes
+  before_save :save_relative_priority
   after_save :save_custom_attributes
 
   StatusMapping = [ 'Not Started', 'In Progress', 'Blocked', 'Done' ]
@@ -345,8 +347,7 @@ class Story < ActiveRecord::Base
         end
         @custom_attributes[attrib_id[1]] = value
       elsif key.to_s == 'relative_priority'
-        match = value.match(/(.*),(.*)/)
-        modified_attributes[:priority] = determine_priority(match[1],match[2])
+        @relative_priority = value
       else
         modified_attributes[key] = value
       end
@@ -358,7 +359,7 @@ class Story < ActiveRecord::Base
   def project_id=(new_project_id)
     old = project_id
     super(new_project_id)
-    if (old && old != new_project_id)
+    if (old && old.to_s != new_project_id.to_s)
       tasks.each do |task|
         if (task.individual && !task.individual.projects.include?(Project.find(new_project_id)))
           task.individual_id = nil
@@ -459,6 +460,15 @@ protected
         end
       end
     end
+  end
+
+  # Save relative priority.
+  def save_relative_priority
+    if @relative_priority
+      match = @relative_priority.match(/(.*),(.*)/)
+      self.priority = determine_priority(match[1],match[2])
+      @relative_priority = nil
+    end    
   end
   
   # Save any custom attributes.
