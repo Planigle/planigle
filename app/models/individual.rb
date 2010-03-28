@@ -169,9 +169,9 @@ class Individual < ActiveRecord::Base
   end
 
   # Answer the records for a particular user.
-  def self.get_records(current_user)
+  def self.get_records(current_user, selected_project_only = false)
     if current_user.role >= Individual::ProjectAdmin
-      if current_user.is_premium
+      if current_user.is_premium && !selected_project_only
         find(:all, :include => [:projects], :conditions => ["individuals.company_id = ? and role in (1,2,3)", current_user.company_id], :order => 'first_name, last_name')
       else
         find(:all, :include => [:projects],

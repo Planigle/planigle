@@ -437,6 +437,7 @@ class IndividualTest < ActiveSupport::TestCase
   def test_find
     assert_equal Individual.count, Individual.get_records(individuals(:quentin)).length
     assert_equal Individual.find_all_by_company_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:aaron)).length
+    assert_equal Individual.find_all_by_company_id(1, :joins => :projects, :conditions => "role != 0 && projects.id=1").length, Individual.get_records(individuals(:aaron), true).length
     assert_equal Individual.find_all_by_company_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:user)).length
     assert_equal Individual.find_all_by_company_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:readonly)).length
     assert_equal Individual.find(:all, :joins => :projects, :conditions => "projects.id = 2 and role != 0").length, Individual.get_records(individuals(:project_admin2)).length

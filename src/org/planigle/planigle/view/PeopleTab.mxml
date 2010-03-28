@@ -2,11 +2,18 @@
 <mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:component="org.planigle.planigle.view.components.*" label="People" borderThicknessLeft="2" borderThicknessRight="2" headerHeight="0">
 	<mx:Script>
 		<![CDATA[
+		import org.planigle.planigle.model.IndividualFactory;
+		import org.planigle.planigle.events.IndividualChangedEvent;
+		
 		// Reset my state to how it was initially.
 		public function resetState(event:Event):void
 		{
 			projects.resetState(event);
 			individuals.resetState(event);
+			if (!IndividualFactory.getInstance().allLoaded()) {
+				// Load the people from other projects.
+				new IndividualChangedEvent().dispatch();
+			}
 		}
 
 		// The user has selected a project.

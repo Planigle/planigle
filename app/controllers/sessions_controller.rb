@@ -73,7 +73,7 @@ protected
     result['system'] = System.find(:first)
     result['current_individual'] = current_individual
     result['companies'] = Company.get_records(current_individual)
-    result['individuals'] = Individual.get_records(current_individual)
+    result['individuals'] = Individual.get_records(current_individual, true)
     if current_individual.project_id
       result['releases'] = Release.get_records(current_individual)
       result['iterations'] = Iteration.get_records(current_individual)

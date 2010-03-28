@@ -10,6 +10,7 @@ package org.planigle.planigle.model
 		public var individuals:ArrayCollection = new ArrayCollection();
 		public var individualSelector:ArrayCollection = new ArrayCollection();
 		public var currentIndividual:Individual;
+		private var allIndividualsLoaded:Boolean = false;
 		private var currentLogin:String;
 		private var individualMapping:Object = new Object();
 		private static var instance:IndividualFactory;
@@ -34,6 +35,11 @@ package org.planigle.planigle.model
 			return instance.currentIndividual;
 		}
 		
+		public function allLoaded():Boolean
+		{
+			return allIndividualsLoaded || currentIndividual.allProjects.length <= 1;
+		}
+
 		// Update my individuals to be the specified individuals.
 		public function updateIndividuals( newIndivids:ArrayCollection ):void
 		{
@@ -55,6 +61,13 @@ package org.planigle.planigle.model
 			newIndividualSelector.addItem( individ );
 			individuals = newIndividuals;
 			individualSelector = newIndividualSelector;
+		}
+
+		// Populate all individuals (including those from other projects.
+		public function populateAll(newIndividuals:Array):void
+		{
+			populate(newIndividuals);
+			allIndividualsLoaded = true;
 		}
 
 		// Populate the individuals.
@@ -99,6 +112,7 @@ package org.planigle.planigle.model
 		public function setCurrent(login:String):void
 		{
 			currentLogin = login;
+			allIndividualsLoaded = false;
 		}
 	}
 }

@@ -25,7 +25,7 @@ package org.planigle.planigle.commands
 		// Handle successful server request.
 		public function result( event:Object ):void
 		{
-			IndividualFactory.getInstance().populate(event.result as Array);
+			IndividualFactory.getInstance().populateAll(event.result as Array);
 		}
 		
 		// Handle case where error occurs.
