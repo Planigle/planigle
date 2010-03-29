@@ -175,10 +175,14 @@ class Individual < ActiveRecord::Base
         find(:all, :include => [:projects], :conditions => ["individuals.company_id = ? and role in (1,2,3)", current_user.company_id], :order => 'first_name, last_name')
       else
         find(:all, :include => [:projects],
-          :conditions => ["projects.id = ? and role in (1,2,3)", current_user.project_id], :order => 'first_name, last_name')
+          :conditions => ["(projects.id = ? and role in (1,2,3)) or individuals.id=?", current_user.project_id, current_user.id], :order => 'first_name, last_name')
       end
     else
-      find(:all, :include => [:projects], :order => 'first_name, last_name')
+      if !selected_project_only
+        find(:all, :include => [:projects], :order => 'first_name, last_name')
+      else
+        find(:all, :include => [:projects], :conditions => ["projects.id = ? or individuals.id=?", current_user.project_id, current_user.id], :order => 'first_name, last_name')
+      end
     end
   end
 
