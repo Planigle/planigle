@@ -443,6 +443,18 @@ class IndividualTest < ActiveSupport::TestCase
     assert_equal Individual.find(:all, :joins => :projects, :conditions => "projects.id = 2 and role != 0").length, Individual.get_records(individuals(:project_admin2)).length
     assert_equal Individual.find(:all, :joins => :projects, :conditions => "projects.id = 2 and role != 0").length, Individual.get_records(individuals(:user2)).length
     assert_equal Individual.find(:all, :joins => :projects, :conditions => "projects.id = 4 and role != 0").length, Individual.get_records(individuals(:ro2)).length
+    
+    # Try project only if individual has different project selected
+    admin2 = individuals(:admin2)
+    admin2.selected_project_id = 3
+    admin2.save(false)
+    assert_equal Individual.find_all_by_company_id(1, :joins => :projects, :conditions => "role != 0 && projects.id=3").length + 1, Individual.get_records(admin2, true).length
+    
+    # Try project only if individual has no project selected
+    quentin = individuals(:quentin)
+    quentin.selected_project_id = nil
+    quentin.save(false)
+    assert_equal 1, Individual.get_records(quentin, true).length
   end
   
   # Validate is_premium.
