@@ -99,6 +99,17 @@
 			updateStoryConditions();
 			storyBtnImport.onCompletion(setSuccessMessage, setErrorMessage);
 			CursorManager.removeBusyCursor();
+			addEventListener(KeyboardEvent.KEY_UP, handleKeyUp);
+		}
+
+		private function handleKeyUp(event:KeyboardEvent):void {
+			// Ctrl f
+			if (event.charCode == 102 && event.ctrlKey) {
+				if (storyBtnMoreFilters.toolTip == "More Filters")
+					showMoreFilters();
+				storySearchText.setFocus();
+				storySearchText.setSelection(0, storySearchText.text.length );
+			}
 		}
 
 		private var projectWatcher:ChangeWatcher;
