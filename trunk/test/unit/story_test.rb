@@ -336,6 +336,10 @@ class StoryTest < ActiveSupport::TestCase
     story.tasks << Task.create(:name => 'foo', :reason_blocked => 'TestString')
     assert_equal 9, Story.get_records(individuals(:aaron), :text => 'teststring').length
     assert_equal 0, Story.get_records(individuals(:aaron), :text => 'otherstring').length
+    
+    assert_equal 1, Story.get_records(individuals(:aaron), :text => 's1')[0].id
+    assert_equal 0, Story.get_records(individuals(:aaron), :text => 's300').length
+    assert_equal 5, Story.get_records(individuals(:user2), :text => 't3')[0].id
   end
   
   # Validate is_blocked.

@@ -95,6 +95,16 @@ class Task < ActiveRecord::Base
       self.priority = highest ? highest.priority + 1 : 1
     end
   end
+  
+  # Answer whether I match the specified text.
+  def matches_text(text)
+      text = text.downcase
+      id_text = text.length > 1 && text[0].chr == 't' && text[1, text.length-1].to_i > 0 ? text[1, text.length-1].to_i : nil
+      name.downcase.index(text) ||
+      (description && description.downcase.index(text)) ||
+      (reason_blocked && reason_blocked.downcase.index(text)) ||
+      (id_text && id==id_text)
+  end
 
 protected
   

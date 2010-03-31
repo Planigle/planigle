@@ -271,19 +271,20 @@ class Story < ActiveRecord::Base
       individual_id = individual_id ? individual_id.to_i : individual_id
       result = result.select {|story| story.individual_id==individual_id || story.tasks.detect {|task| task.individual_id==individual_id}}
     end
-    if text_filter
-      result = result.select do |story|
-        text_filter = text_filter.downcase
-        story.name.downcase.index(text_filter) ||
-        (story.description && story.description.downcase.index(text_filter)) ||
-        (story.reason_blocked && story.reason_blocked.downcase.index(text_filter)) ||
-        story.tasks.detect {|task| task.name.downcase.index(text_filter) || (task.description && task.description.downcase.index(text_filter)) || (task.reason_blocked && task.reason_blocked.downcase.index(text_filter))} ||
-        story.criteria.detect {|ac| ac.description.downcase.index(text_filter)} ||
-        story.story_values.detect {|sv| sv.story_attribute.value_type<=StoryAttribute::Text && sv.value.downcase.index(text_filter)}
-      end
-    else
-      result
-    end
+    text_filter ? result.select {|story| story.matches_text(text_filter)} : result
+  end
+  
+  # Answer whether I match the specified text.
+  def matches_text(text)
+      text = text.downcase
+      id_text = text.length > 1 && text[0].chr == 's' && text[1, text.length-1].to_i > 0 ? text[1, text.length-1].to_i : nil
+      name.downcase.index(text) ||
+      (description && description.downcase.index(text)) ||
+      (reason_blocked && reason_blocked.downcase.index(text)) ||
+      tasks.detect {|task| task.matches_text(text)} ||
+      criteria.detect {|ac| ac.description.downcase.index(text)} ||
+      story_values.detect {|sv| sv.story_attribute.value_type<=StoryAttribute::Text && sv.value.downcase.index(text)} ||
+      (id_text && id==id_text)
   end
   
   # Only project users or higher can create stories.
