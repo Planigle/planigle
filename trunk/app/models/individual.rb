@@ -1,4 +1,5 @@
 require 'digest/sha1'
+
 class Individual < ActiveRecord::Base
   belongs_to :company
   has_and_belongs_to_many :projects
@@ -52,7 +53,11 @@ class Individual < ActiveRecord::Base
 
   # Answer if a password is valid for this individual.
   def authenticated?(password)
-    crypted_password == encrypt(password)
+   if(config_option(:use_ldap))
+     Authenticate.ldap(self.login, password)
+   else
+     crypted_password == encrypt(password)
+   end
   end
 
   # Find the individual for a particular activation code and activate it.  Answer
