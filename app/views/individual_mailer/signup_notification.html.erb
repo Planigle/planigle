@@ -3,7 +3,12 @@
 <% end %>
 <p>Welcome to Planigle!  An account has been created for you:</p>
   <p><b>Username:</b> <%= @individual.login %><br />
-  <b>Password:</b> <%= @individual.password %></p>
+  <% if config_option(:use_ldap) %>
+    <b>Password:</b> Please use your LDAP password for domain <%= config_option(:domain_suffix) %></p>
+  <% else %>
+    <b>Password:</b> <%= @individual.password %></p>
+  <% end %>
+
 <p>Please visit this url to activate your account:</p>
   <p><a href="<%= @url %>"><%= @url %></a></p>
 

@@ -1,5 +1,5 @@
 Planigle is a Ruby on Rails based agile planning application. It was developed by and is copyrighted by
-Walter Bodwell (2008-2009).  It is licensed under GPLv2 (included in this distribution).  All rights to the
+Walter Bodwell (2008-2010).  It is licensed under GPLv2 (included in this distribution).  All rights to the
 Planigle logo are reserved.  It is not permitted to use the Planigle logo outside the scope of this
 application.
 
@@ -14,6 +14,7 @@ Embedded Components - License:
 Ruby AMF (Rails Plugin) - MIT
 Restful Authentication (Rails Plugin) - MIT
 acts_as_audited (Rails Plugin) - MIT
+site_config (Rails Plugin) - MIT
 iui (CSS and Images for iPhone) - Free (minimal restrictions; see license file)
 rails-iui (Rails Plugin) - MIT
 Cairngorm (Flex library) - BSD
@@ -28,6 +29,7 @@ win32-sound - (from http://win32utils.rubyforge.org/) - This provides feedback w
 
 Suggested Gems:
 mysql (Ruby)
+ruby-net-ldap (for LDAP authentication)
 
 Suggested Eclipse plug-ins:
 Aptana (http://update.aptana.com/update/3.2/)
