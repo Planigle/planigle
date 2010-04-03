@@ -241,7 +241,7 @@ sleep 5
     num_rows = @ie.data_grid("projectResourceGrid").num_rows
     @ie.button("projectBtnDelete")[2].click
     @ie.alert("Delete")[0].button("Yes").click
-    sleep 1 # Wait for it to take effect.
+    sleep 2 # Wait for it to take effect.
     assert_equal '', @ie.text_area("projectError").text
     assert_equal num_rows-1, @ie.data_grid("projectResourceGrid").num_rows
   end

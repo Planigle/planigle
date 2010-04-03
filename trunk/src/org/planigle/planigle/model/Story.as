@@ -96,7 +96,29 @@ package org.planigle.planigle.model
 			}
 			return null;
 		}
-		
+
+		// Answer the value for an attribute (currently only works for custom story attributes.
+		public function getAttributeValue(attrib:StoryAttribute):Object
+		{
+			switch(attrib.name)
+			{
+			case 'Release':
+				return releaseId;
+			case 'Iteration':
+				return iterationId;
+			case 'Team':
+				return teamId;
+			case 'Owner':
+				return individualId;
+			case 'Status':
+				return statusCode;
+			case 'Public':
+				return isPublic;
+			default:
+				return getCustomValue(attrib.id);
+			}
+		}
+				
 		// Answer the value for a custom value formatted to something the user can understand.
 		public function getCustomFormattedValue(attrib:StoryAttribute):String
 		{

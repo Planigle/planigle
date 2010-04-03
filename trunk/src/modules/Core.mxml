@@ -92,7 +92,9 @@
 					watcher.unwatch();
 				watcher = factory.currentIndividual.selectedProject ? ChangeWatcher.watch( factory.currentIndividual.selectedProject, "premiumExpiry", resetState ) : null;
 				resetState(event);
-				refresh();
+				if (!IndividiualFactory.allLoaded())
+					new IndividualChangedEvent().dispatch();
+				refreshProjectData();
 			}
 
 			// Hide the specified tab.
@@ -133,6 +135,7 @@
 						showTab(stories, 0);
 					}
 				}
+				resetTab(); // This is always called when a tab is selected
 			}
 			
 			private function updatePremium():void
@@ -147,11 +150,15 @@
 				new CompanyChangedEvent().dispatch();
 				new IndividualChangedEvent().dispatch();
 				if (!factory.currentIndividual.isAdminOnly())
-				{
-					new ReleaseChangedEvent().dispatch();
-					new IterationChangedEvent().dispatch();
-					new StoryChangedEvent().dispatch();
-				}
+					refreshProjectData();
+			}
+
+			// Refresh any data specific to the selected project.
+			private function refreshProjectData():void
+			{
+				new ReleaseChangedEvent().dispatch();
+				new IterationChangedEvent().dispatch();
+				new StoryChangedEvent().dispatch();
 			}
 			
 			// Log out.

@@ -1,5 +1,5 @@
 development:
-  use_ldap: true
+  use_ldap: false
   ldap_host: "<FQDN of LDAP Server>"
   ldap_port: 389
   domain_suffix: "@<company name>.com"  
