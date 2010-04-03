@@ -28,6 +28,10 @@ package org.planigle.planigle.model
 			{
 				var project:Project = new Project();
 				project.populate(XML(xml.projects.project[j]));
+				if (project.id == IndividualFactory.current().selectedProjectId) {
+					project = IndividualFactory.current().selectedProject;
+					project.populate(XML(xml.projects.project[j]));
+				}
 				newProjects.addItem(project);
 			}
 			projects = newProjects.source;

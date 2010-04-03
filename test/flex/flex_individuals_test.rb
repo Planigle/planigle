@@ -269,18 +269,18 @@ private
   # Test whether you can successfully edit an individual.
   def edit_individual_success
     num_rows = @ie.data_grid("individualResourceGrid").num_rows
-    row = find_row('ted')
+    row = find_row('ted') - 1 # Not sure why this is necessary
     edit_individual(row, 'Test_company', 'Test', 'Test_team', 'testy3', 'testit', 'testit', 'testy3@testit.com', 'testy', 'test', 'Project Admin', 'true')
     @ie.button("individualBtnChange").click
     assert_equal '', @ie.text_area("individualError").text
     assert_nil @ie.button("individualBtnCancel")
     assert_equal num_rows, @ie.data_grid("individualResourceGrid").num_rows
-    assert_equal "Test_company,Test,Test_team,testy3,testy,test,Project Admin,false,true,,Edit | Delete", @ie.data_grid("individualResourceGrid").tabular_data(:start => row-1, :end => row-1)
+    assert_equal "Test_company,Test,Test_team,testy3,testy,test,Project Admin,false,true,,Edit | Delete", @ie.data_grid("individualResourceGrid").tabular_data(:start => row, :end => row)
   end
     
   # Test that you can't change your own role / enabledness.
   def edit_individual_self
-    @ie.button("individualBtnEdit")[find_row('admin2')].click
+    @ie.button("individualBtnEdit")[find_row('admin2') - 1].click # Not sure why -1
     assert !@ie.form_item("individualFormRole").visible
     assert !@ie.form_item("individualFormEnabled").visible
     @ie.button("individualBtnCancel").click
@@ -398,6 +398,7 @@ private
     login(logon, 'testit')
     sleep 6 # Wait to ensure data loaded
     @ie.button_bar("mainNavigation").change(:related_object => "People")
+    sleep 3 # Wait for individuals to be loaded
   end
   
   # Return the number of the row that contains the specified login.
