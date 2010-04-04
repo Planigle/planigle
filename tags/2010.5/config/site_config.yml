@@ -1,0 +1,16 @@
+development:
+  use_ldap: false
+  ldap_host: "<FQDN of LDAP Server>"
+  ldap_port: 389
+  domain_suffix: "@<company name>.com"  
+  ldap_search_base: "ou=people,dc=<company name>,dc=com"
+
+test:
+  use_ldap: false
+    
+production:
+  use_ldap: false
+  ldap_host: "<FQDN of LDAP Server>"
+  ldap_port: 389
+  domain_suffix: "@<company name>.com"
+  ldap_search_base: "ou=people,dc=<company name>,dc=com"

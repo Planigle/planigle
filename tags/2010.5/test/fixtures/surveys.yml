@@ -1,0 +1,27 @@
+first:
+  id: 1
+  project_id: 1
+  name: Walter
+  email: test@foo.com
+  excluded: false
+
+second:
+  id: 2
+  project_id: 1
+  name: Lunt
+  email: test@bar.com
+  excluded: false
+
+third:
+  id: 3
+  project_id: 1
+  name: Scott
+  email: test@fubar.com
+  excluded: true
+
+fourth:
+  id: 4
+  project_id: 2
+  name: Scot
+  email: testt@fubar.com
+  excluded: false
