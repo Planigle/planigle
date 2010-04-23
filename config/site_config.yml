@@ -1,16 +1,44 @@
 development:
-  use_ldap: false
-  ldap_host: "<FQDN of LDAP Server>"
-  ldap_port: 389
-  domain_suffix: "@<company name>.com"  
-  ldap_search_base: "ou=people,dc=<company name>,dc=com"
 
 test:
-  use_ldap: false
-    
+
 production:
+  # Whether LDAP should be used for authentication; if true you must set the next few values
   use_ldap: false
+
+  # Host name of the LDAP server (ignored if LDAP not in use)
   ldap_host: "<FQDN of LDAP Server>"
+  
+  # Port of the LDAP server (ignored if LDAP not in use)
   ldap_port: 389
+  
+  # Domain suffic to look up on the LDAP server (ignored if LDAP not in use)
   domain_suffix: "@<company name>.com"
+  
+  # Criteria for searching the LDAP server (ignored if LDAP not in use)
   ldap_search_base: "ou=people,dc=<company name>,dc=com"
+
+
+  # The number of days without logging in to be considered inactive and notified (nil=no notification)
+  notify_of_inactivity_after: 
+
+  # The maximum number of days to be notified of inactivity (nil=no maximum; useful when first enabling notification)
+  notify_of_inactivity_before: 
+
+  # The number of days before expiration to notify (nil=no notification)
+  notify_when_expiring_in: 
+
+  # The protocol://host[:port] of the server (for URLs). Ex. http://www.planigle.com
+  site_url: '<Replace with web site protocol://host[:port]>'
+  
+  # The image tag for your logo '<img height="nnn" width="nnn" src="url"/>'
+  site_logo: 
+
+  # Support's email address
+  support_email: 
+
+  # The URL for your backlog
+  backlog_url: 
+
+  # The email address to notify of things going on with projects (creation, expiration, inactivity; nil=no one)
+  who_to_notify: 

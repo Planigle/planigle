@@ -9,7 +9,7 @@ class Project < ActiveRecord::Base
   has_many :stories, :dependent => :destroy
   has_many :story_attributes, :dependent => :destroy
   has_many :surveys, :dependent => :destroy
-  attr_accessible :company_id, :name, :description, :survey_mode, :premium_limit, :premium_expiry, :track_actuals
+  attr_accessible :company_id, :name, :description, :survey_mode, :premium_limit, :premium_expiry, :track_actuals, :last_notified_of_inactivity, :last_notified_of_expiration
   acts_as_audited :except => [:survey_key]
 
   validates_presence_of     :name, :company_id
@@ -20,6 +20,77 @@ class Project < ActiveRecord::Base
   validates_numericality_of :premium_limit, :only_integer => true, :allow_nil => false, :greater_than => 0
 
   before_create :initialize_defaults
+  before_save :update_notifications
+
+  # Notify of any interesting activity.
+  def self.send_notifications
+    find(:all).each do |project|
+      project.notify_of_inactivity
+      project.notify_of_expiration
+    end
+  end
+  
+  # Update my notification fields based on changes.
+  def update_notifications
+    if changed_attributes['premium_expiry']
+      self.last_notified_of_expiration = nil
+    end
+  end
+  
+  # Notify if none of my users have logged in for a while.
+  def notify_of_inactivity
+    if is_inactive
+      InactivityMailer.deliver_notification(self, last_login)
+      self.last_notified_of_inactivity = DateTime.now
+      save(false)
+    end
+  end
+  
+  # Answer whether I am inactive.
+  def is_inactive
+    last_project_login = last_login
+    if config_option(:notify_of_inactivity_after) && last_project_login
+      if !self.last_notified_of_inactivity || last_project_login > self.last_notified_of_inactivity
+        time_since_active = Time.now - last_project_login
+        if time_since_active >= config_option(:notify_of_inactivity_after)*24*60*60 && (!config_option(:notify_of_inactivity_before) || time_since_active <= config_option(:notify_of_inactivity_before)*24*60*60)
+          return true
+        end
+      end
+    end
+    false
+  end
+  
+  # Answer the last time that anyone in the project logged in.
+  def last_login
+    last_project_login = nil
+    individuals.each do |individual|
+      last_login = individual.last_login
+      if last_login
+        last_project_login = last_project_login && last_project_login > last_login ? last_project_login : last_login
+      end
+    end
+    last_project_login
+  end
+  
+  # Answer the email addresses for my admins
+  def admin_email_addresses
+    individuals.select{|individ| individ.role == Individual::ProjectAdmin}.collect{|individ|individ.email}
+  end
+  
+  # Notify if my premium status is about to expire
+  def notify_of_expiration
+    if is_about_to_expire
+      ExpirationMailer.deliver_notification(self)
+      self.last_notified_of_expiration = DateTime.now
+      save(false)
+    end
+  end
+  
+  # Answer whether my premium subscription is about to expire.
+  def is_about_to_expire
+    time_until_expiration = self.premium_expiry - Date.today
+    config_option(:notify_when_expiring_in) && !self.last_notified_of_expiration && time_until_expiration >= 0 && time_until_expiration <= config_option(:notify_when_expiring_in)
+  end
 
   # Ensure that survey mode, premium expiry and premium limit are initialized.
   def initialize(attributes={})

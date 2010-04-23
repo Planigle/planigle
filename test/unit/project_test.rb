@@ -11,6 +11,13 @@ class ProjectTest < ActiveSupport::TestCase
   fixtures :stories
   fixtures :surveys
 
+  def setup
+    ActionMailer::Base.delivery_method = :test
+    ActionMailer::Base.perform_deliveries = true
+    ActionMailer::Base.deliveries = []
+    config_option_set(:who_to_notify, 'ksksk@ksdkdaiu.com')
+  end
+
   # Test that an project can be created.
   def test_create_project
     assert_difference 'Project.count' do
@@ -117,11 +124,198 @@ class ProjectTest < ActiveSupport::TestCase
     assert projects(:first).is_premium
     assert !projects(:second).is_premium
   end
+  
+  # Validate that notifications get sent
+  def test_send_notifications
+    config_option_set(:notify_of_inactivity_after, 3)
+    config_option_set(:notify_when_expiring_in, 3)
+    today = Date.today
+    project = create_project(:premium_expiry => today - 2)
+    project.individuals << create_individual(:last_login => today - 4)
+    notifications = ActionMailer::Base.deliveries.length
+    Project.send_notifications
+    assert_equal notifications+2, ActionMailer::Base.deliveries.length
+  end
+  
+  # Validate update_notifications
+  def test_update_notifications_no_change
+    project = create_project
+    now = Time.now
+    project.last_notified_of_expiration = now
+    project.save(false)
+    assert_equal now, project.last_notified_of_expiration
+  end
+  
+  # Validate update_notifications
+  def test_update_notifications_change
+    project = create_project
+    today = Date.today
+    project.last_notified_of_expiration = today
+    project.save(false)
+    assert_equal today, project.last_notified_of_expiration
+    project.premium_expiry = today
+    project.save(false)
+    assert_equal nil, project.last_notified_of_expiration
+  end
+  
+  # Validate test_notify_of_inactivity
+  def test_notify_of_inactivity_active
+    config_option_set(:notify_of_inactivity_after, 3)
+    project = create_project
+    notifications = ActionMailer::Base.deliveries.length
+    project.notify_of_inactivity
+    assert_equal notifications, ActionMailer::Base.deliveries.length
+  end
+  
+  # Validate test_notify_of_inactivity
+  def test_notify_of_inactivity_inactive
+    config_option_set(:notify_of_inactivity_after, 3)
+    project = create_project
+    now = Time.now
+    project.individuals << create_individual(:last_login => now - 3*24*60*60 - 60)
+    notifications = ActionMailer::Base.deliveries.length
+    project.notify_of_inactivity
+    assert_equal notifications + 1, ActionMailer::Base.deliveries.length
+  end
 
+  # Validate last login
+  def test_last_login
+    project = create_project
+    now = Time.now
+    project.individuals << create_individual(:last_login => now - 3)
+    project.individuals << create_individual(:last_login => now - 5)
+    project.individuals << create_individual
+    assert_equal now - 3, project.last_login
+  end
+
+  # Validate admin_email_addresses
+  def test_admin_email_addresses
+    project = create_project
+    project.individuals << create_individual(:email => 'foo@example.com', :role => Individual::Admin)
+    project.individuals << create_individual(:email => 'bar@example.com', :role => Individual::ProjectAdmin)
+    project.individuals << create_individual(:email => 'fred@example.com', :role => Individual::ProjectUser)
+    project.individuals << create_individual(:email => 'sam@example.com', :role => Individual::ReadOnlyUser)
+    emails = project.admin_email_addresses
+    assert_equal 1, emails.length
+    assert_equal 'bar@example.com', emails[0]
+  end
+  
+  # Validate is_inactive
+  def test_is_inactive_no_setting
+    config_option_set(:notify_of_inactivity, nil)
+    project = Project.new
+    assert !project.is_inactive
+  end
+  
+  # Validate is_inactive
+  def test_is_inactive_recent_users
+    config_option_set(:notify_of_inactivity_after, 3)
+    now = Time.now
+    project = Project.new
+    project.individuals << create_individual(:last_login => now - 3*60*60*24 + 60)
+    assert !project.is_inactive
+  end
+  
+  # Validate is_inactive
+  def test_is_inactive_no_recent_users
+    config_option_set(:notify_of_inactivity_after, 3)
+    now = Time.now
+    project = Project.new
+    project.individuals << create_individual(:last_login => now - 3*60*60*24 - 60)
+    assert project.is_inactive
+  end
+  
+  # Validate is_inactive
+  def test_is_inactive_no_recent_users_notified
+    config_option_set(:notify_of_inactivity_after, 3)
+    now = Time.now
+    project = Project.new(:last_notified_of_inactivity => now)
+    project.individuals << create_individual(:last_login => now - 3*60*60*24 - 60)
+    assert !project.is_inactive
+  end
+  
+  # Validate is_inactive
+  def test_is_inactive_no_users_in_range
+    config_option_set(:notify_of_inactivity_after, 3)
+    config_option_set(:notify_of_inactivity_before, 5)
+    now = Time.now
+    project = Project.new
+    project.individuals << create_individual(:last_login => now - 5*60*60*24 - 60)
+    assert !project.is_inactive
+  end
+  
+  # Validate is_inactive
+  def test_is_inactive_users_in_range
+    config_option_set(:notify_of_inactivity_after, 3)
+    config_option_set(:notify_of_inactivity_before, 5)
+    now = Time.now
+    project = Project.new
+    project.individuals << create_individual(:last_login => now - 5*60*60*24 + 60)
+    assert project.is_inactive
+  end
+  
+  # Validate test_notify_of_expiration
+  def test_notify_of_expiration_not_expiring
+    config_option_set(:notify_when_expiring_in, 3)
+    today = Date.today
+    project = create_project(:premium_expiry => today + 4)
+    notifications = ActionMailer::Base.deliveries.length
+    project.notify_of_expiration
+    assert_equal notifications, ActionMailer::Base.deliveries.length
+  end
+  
+  # Validate test_notify_of_expiration
+  def test_notify_of_expiration_expiring
+    config_option_set(:notify_when_expiring_in, 3)
+    today = Date.today
+    project = create_project(:premium_expiry => today + 3)
+    notifications = ActionMailer::Base.deliveries.length
+    project.notify_of_expiration
+    assert_equal notifications+1, ActionMailer::Base.deliveries.length
+  end
+  
+  # Validate is_about_to_expire
+  def test_is_about_to_expire_not_expiring
+    config_option_set(:notify_when_expiring_in, 3)
+    today = Date.today
+    project = create_project(:premium_expiry => today + 4)
+    assert !project.is_about_to_expire
+  end
+  
+  # Validate is_about_to_expire
+  def test_is_about_to_expire_expiring
+    config_option_set(:notify_when_expiring_in, 3)
+    today = Date.today
+    project = create_project(:premium_expiry => today + 3)
+    assert project.is_about_to_expire
+  end
+  
+  # Validate is_about_to_expire
+  def test_is_about_to_expire_expiring_notified
+    config_option_set(:notify_when_expiring_in, 3)
+    today = Date.today
+    project = create_project(:premium_expiry => today + 3)
+    project.last_notified_of_expiration = today
+    assert !project.is_about_to_expire
+  end
+  
+  # Validate is_about_to_expire
+  def test_is_about_to_expire_expired
+    config_option_set(:notify_when_expiring_in, 3)
+    today = Date.today
+    project = create_project(:premium_expiry => today - 1)
+    assert !project.is_about_to_expire
+  end
+  
 private
 
   # Create an project with valid values.  Options will override default values (should be :attribute => value).
   def create_project(options = {})
     Project.create({ :company_id => 1, :name => 'foo' }.merge(options))
+  end
+
+  # Create an individual with valid values.  Options will override default values (should be :attribute => value).
+  def create_individual(options = {})
+    Individual.create({ :first_name => 'foo', :last_name => 'bar', :login => 'quire' << rand.to_s, :email => 'quire' << rand.to_s << '@example.com', :password => 'quired', :password_confirmation => 'quired', :role => 0, :company_id => 1, :project_ids => "1", :phone_number => '5555555555' }.merge(options))
   end
 end
