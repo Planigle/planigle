@@ -81,7 +81,7 @@
 			<mx:FormItem label='Password Confirmation' id="labelPasswordConfirmation" required="true">
 				<mx:TextInput id='signupFieldPasswordConfirmation' maxChars="40" text='' width="350" displayAsPassword="true"/>
 			</mx:FormItem>
-			<mx:FormItem label='Email' required="true">
+			<mx:FormItem label='Email (Must be valid)' required="true">
 				<mx:TextInput id='signupFieldEmail' maxChars="100" text='' width="350"/>
 			</mx:FormItem>
 			<mx:FormItem label='Phone Number' required="false">
