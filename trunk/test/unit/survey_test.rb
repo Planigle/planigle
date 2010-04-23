@@ -6,11 +6,19 @@ class SurveyTest < ActiveSupport::TestCase
   fixtures :surveys
   fixtures :survey_mappings
 
+  def setup
+    ActionMailer::Base.delivery_method = :test
+    ActionMailer::Base.perform_deliveries = true
+    ActionMailer::Base.deliveries = []
+  end
+
   # Test that a survey can be created.
   def test_create_survey
+    notifications = ActionMailer::Base.deliveries.length
     assert_difference 'Survey.count' do
       survey = create_survey
       assert !survey.new_record?, "#{survey.errors.full_messages.to_sentence}"
+      assert_equal notifications+1, ActionMailer::Base.deliveries.length
     end
   end
 

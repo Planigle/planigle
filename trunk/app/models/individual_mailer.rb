@@ -1,6 +1,7 @@
 class IndividualMailer < ActionMailer::Base
 
-  # Users can override the site URL.
+  # Users can override the site URL.  Note: This is obsolete and remains for backwards compatibility.
+  # Instead set the values in config/site_config.yml
   @@site = ''
   cattr_accessor :site
   @@logo = ''
@@ -14,10 +15,10 @@ class IndividualMailer < ActionMailer::Base
   def signup_notification(individual)
     setup_email(individual)
     @subject     = 'Please activate your new account'
-    @body[:url]  = "#{site}/activate/#{individual.activation_code}"
-    @body[:logo] = logo
-    @body[:support] = support
-    @body[:backlog] = backlog
+    @body[:url]  = "#{config_option(:site_url) ? config_option(:site_url) : site}/activate/#{individual.activation_code}"
+    @body[:logo] = config_option(:site_logo) ? config_option(:site_logo) : logo
+    @body[:support] = config_option(:support_email) ? config_option(:support_email) : support
+    @body[:backlog] = config_option(:backlog_url) ? config_option(:backlog_url) : backlog
   end
   
   protected

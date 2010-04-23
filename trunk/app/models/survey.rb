@@ -11,6 +11,12 @@ class Survey < ActiveRecord::Base
   validates_format_of       :email, :with => /(^([^@\s]+)@((?:[-_a-z0-9]+\.)+[a-z]{2,})$)|(^$)/i
 
   attr_accessible :project_id, :name, :company, :email, :excluded
+  after_update :notify_users
+  
+  # Notify admins that a new survey has been created
+  def notify_users
+    SurveyNotificationMailer.deliver_notification(self)
+  end
   
   # Override to_xml to include survey mappings.
   def to_xml(options = {})

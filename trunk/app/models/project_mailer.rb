@@ -1,6 +1,6 @@
 class ProjectMailer < ActionMailer::Base
-
-  # Users can override who to notify.
+  # Users can override who to notify.  Note: This is obsolete and remains for backwards compatibility.
+  # Instead set the values in config/site_config.yml
   @@who_to_notify = ''
   cattr_accessor :who_to_notify
 
@@ -12,7 +12,7 @@ class ProjectMailer < ActionMailer::Base
   
   # Override deliver to only attempt if who_to_notify has been set.
   def deliver!(mail = @mail)
-    if who_to_notify != ""
+    if config_option(:who_to_notify) || who_to_notify != ""
       super
     end
   end
@@ -21,7 +21,7 @@ class ProjectMailer < ActionMailer::Base
 
   # Set up common email properties.
   def setup_email(project)
-    @recipients  = "#{who_to_notify}"
+    @recipients  = "#{config_option(:who_to_notify) ? config_option(:who_to_notify) : who_to_notify}"
     @from        = "#{PLANIGLE_ADMIN_EMAIL}"
     @sent_on     = Time.now
     @body[:company] = project.company.name
