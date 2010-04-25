@@ -15,7 +15,9 @@ class Survey < ActiveRecord::Base
   
   # Notify admins that a new survey has been created
   def notify_users
-    SurveyNotificationMailer.deliver_notification(self)
+    if project.is_premium
+      SurveyNotificationMailer.deliver_notification(self)
+    end
   end
   
   # Override to_xml to include survey mappings.
