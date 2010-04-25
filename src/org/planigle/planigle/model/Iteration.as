@@ -102,7 +102,7 @@ package org.planigle.planigle.model
 		// Answer true if I am in a release (true if any part of me overlaps).
 		public function isIn(release:Release):Boolean
 		{
-			return DateUtils.lessThanOrEquals(start, release.finish) && DateUtils.greaterThanOrEquals(finish, release.start);
+			return release.start != null && DateUtils.lessThanOrEquals(start, release.finish) && DateUtils.greaterThanOrEquals(finish, release.start);
 		}
 
 		// Answer true if I am active on a given date (true if any part of me overlaps).
