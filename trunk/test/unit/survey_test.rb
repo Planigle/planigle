@@ -18,6 +18,7 @@ class SurveyTest < ActiveSupport::TestCase
     assert_difference 'Survey.count' do
       survey = create_survey
       assert !survey.new_record?, "#{survey.errors.full_messages.to_sentence}"
+      survey.save(false) # Saving generates the notification; this is when the mappings are added
       assert_equal notifications+1, ActionMailer::Base.deliveries.length
     end
   end
