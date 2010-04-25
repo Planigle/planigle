@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:ComboBox xmlns:mx="http://www.adobe.com/2006/mxml" editable="false" dataProvider="{teamSelector}" labelField="name" creationComplete="created(event)">
+<local:FixedComboBox xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:local="org.planigle.planigle.view.controls.*" editable="false" dataProvider="{teamSelector}" labelField="name" creationComplete="created(event)">
 	<mx:Script>
 		<![CDATA[
 		import mx.collections.ArrayCollection;
@@ -66,4 +66,4 @@
 		}
 		]]>
 	</mx:Script>
-</mx:ComboBox>
+</local:FixedComboBox>

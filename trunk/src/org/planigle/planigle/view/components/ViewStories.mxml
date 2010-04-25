@@ -15,6 +15,7 @@
 		import mx.controls.Alert;
 		import mx.controls.DataGrid;
 		import mx.controls.dataGridClasses.DataGridColumn;
+		import mx.controls.ComboBox;
 		import mx.events.DataGridEvent;
 		import mx.events.DragEvent;
 		import mx.events.CloseEvent;
@@ -1580,7 +1581,7 @@
 					    break;
 					  case StoryAttribute.LIST:
 					  case StoryAttribute.RELEASE_LIST:
-					  	var combo:ComboBox = new ComboBox();
+					  	var combo:ComboBox = new FixedComboBox();
 					  	combo.id = id;
 					  	combo.width = NaN;
 					  	combo.editable = false;
@@ -1770,12 +1771,12 @@
 											<component:ExpandableCriteriaGrid id='storyFieldAcceptanceCriteria' height="100%"/>
 										</mx:FormItem>
 										<mx:FormItem label='Status'>
-											<mx:ComboBox id='storyFieldStatus' editable="false" change="updateStatusCode(event)">
+											<local:FixedComboBox id='storyFieldStatus' editable="false" change="updateStatusCode(event)">
 												<mx:Object label="Not Started" value="0" />
 												<mx:Object label="In Progress" value="1" />
 												<mx:Object label="Blocked" value="2" />
 												<mx:Object label="Done" value="3" />
-											</mx:ComboBox>
+											</local:FixedComboBox>
 										</mx:FormItem>
 										<mx:FormItem id='storyFormReasonBlocked' label='Reason Blocked'>
 											<component:ExpandableHTMLTextArea id='storyFieldReasonBlocked'/>
@@ -1785,19 +1786,19 @@
 								<mx:VBox>
 									<mx:Form id="changeForm2" defaultButton="{storyBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
 										<mx:FormItem label="Project" id="storyFormProject">
-											<mx:ComboBox id='storyFieldProject' editable="false" labelField="name" change="updateProjectField()"></mx:ComboBox>
+											<local:FixedComboBox id='storyFieldProject' editable="false" labelField="name" change="updateProjectField()"></local:FixedComboBox>
 										</mx:FormItem>
 										<mx:FormItem label="Iteration" id="storyFormIteration">
-											<mx:ComboBox id='storyFieldIteration' editable="false" labelField="name" change="updateIteration()"></mx:ComboBox>
+											<local:FixedComboBox id='storyFieldIteration' editable="false" labelField="name" change="updateIteration()"></local:FixedComboBox>
 										</mx:FormItem>
 										<mx:FormItem label="Release" id="storyFormRelease">
-											<mx:ComboBox id='storyFieldRelease' editable="false" labelField="name" change="updateRelease()"></mx:ComboBox>
+											<local:FixedComboBox id='storyFieldRelease' editable="false" labelField="name" change="updateRelease()"></local:FixedComboBox>
 										</mx:FormItem>
 										<mx:FormItem label='Team' id="storyFormTeam">
-											<mx:ComboBox id='storyFieldTeam' editable="false" dataProvider="{IndividualFactory.current().selectedProject.teamSelector}" labelField="name"></mx:ComboBox>
+											<local:FixedComboBox id='storyFieldTeam' editable="false" dataProvider="{IndividualFactory.current().selectedProject.teamSelector}" labelField="name"></local:FixedComboBox>
 										</mx:FormItem>
 										<mx:FormItem label='Owner'>
-											<mx:ComboBox id='storyFieldOwner' editable="false" labelField="fullName"></mx:ComboBox>
+											<local:FixedComboBox id='storyFieldOwner' editable="false" labelField="fullName"></local:FixedComboBox>
 										</mx:FormItem>
 										<mx:FormItem id="storyFormEstimate" label='Estimate'>
 											<mx:TextInput id='storyFieldEstimate' restrict="0-9." text='' width="100" enabled="{storyFieldStatus.selectedIndex==Story.CREATED}" change="storyFieldEffort.text = storyFieldEstimate.text"/>
@@ -1809,10 +1810,10 @@
 											<mx:TextInput id='storyFieldActual' restrict="0-9." text='' width="100"/>
 										</mx:FormItem>
 										<mx:FormItem label='Public' id="storyFormPublic">
-											<mx:ComboBox id='storyFieldPublic' editable="false">
+											<local:FixedComboBox id='storyFieldPublic' editable="false">
 												<mx:Object label="true" value='true' />
 												<mx:Object label="false" value='false' />
-											</mx:ComboBox>
+											</local:FixedComboBox>
 										</mx:FormItem>
 										<mx:Button label="Edit Attributes" id="storyBtnEditAttributes" click="editAttributes(event)" visible="{factory.currentIndividual.isAtLeastProjectAdmin()}"/>
 									</mx:Form>	
@@ -1903,18 +1904,18 @@
 			<mx:VBox id="storyBtnBox" width="100%">
 				<mx:HBox width="100%" horizontalGap="5" minWidth="0" horizontalScrollPolicy="off">
 					<mx:LinkButton width="16" icon="{parentApplication.imgExpand}" toolTip="More Filters" click="showMoreFilters();" id="storyBtnMoreFilters"/>
-					<mx:ComboBox id='release' editable="false" dataProvider="{releaseFilter}" labelField="name" change="handleReleaseFilter(event)"></mx:ComboBox>
-					<mx:ComboBox id='iteration' editable="false" dataProvider="{iterationFilter}" labelField="name" change="handleFilter()"></mx:ComboBox>
+					<local:FixedComboBox id='release' editable="false" dataProvider="{releaseFilter}" labelField="name" change="handleReleaseFilter(event)"></local:FixedComboBox>
+					<local:FixedComboBox id='iteration' editable="false" dataProvider="{iterationFilter}" labelField="name" change="handleFilter()"></local:FixedComboBox>
 					<component:TeamSelector id='team' change="handleFilter()"></component:TeamSelector>
-					<mx:ComboBox id='individual' editable="false" dataProvider="{individualFilter}" labelField="fullName" change="handleFilter()"></mx:ComboBox>
-					<mx:ComboBox id='itemStatus' editable="false" change="handleFilter()" selectedIndex="3">
+					<local:FixedComboBox id='individual' editable="false" dataProvider="{individualFilter}" labelField="fullName" change="handleFilter()"></local:FixedComboBox>
+					<local:FixedComboBox id='itemStatus' editable="false" change="handleFilter()" selectedIndex="3">
 						<mx:Object label="Not Started" value="0" />
 						<mx:Object label="In Progress" value="1" />
 						<mx:Object label="Blocked" value="2" />
 						<mx:Object label="Not Done" value="-2" />
 						<mx:Object label="Done" value="3" />
 						<mx:Object label="All Statuses" value="-1" />
-					</mx:ComboBox>
+					</local:FixedComboBox>
 					<mx:HBox id="buttonBox" width="100%" horizontalGap="5" horizontalAlign="right" horizontalScrollPolicy="off">
 						<mx:Button width="25" icon="{parentApplication.imgAdd}" toolTip="Create" click="showCreateStory();" id="storyBtnCreate" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
 						<mx:Button width="25" icon="{parentApplication.imgEdit}" toolTip="Update" click="showUpdate();" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnUpdateMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
@@ -1980,7 +1981,7 @@
 					<mx:itemRenderer> 
 						<mx:Component>
 							<mx:Box direction="horizontal" horizontalGap="0" horizontalScrollPolicy="off">
-							<mx:ComboBox maxHeight="{ViewModelLocator.getInstance().fontSize + 8}" width="100%" editable="false" selectedIndex="{data.statusCode}" change="outerDocument.updateStatus(data, event)" enabled="{outerDocument.factory.currentIndividual.isAtLeastProjectUser}">
+							<local:FixedComboBox maxHeight="{ViewModelLocator.getInstance().fontSize + 8}" width="100%" editable="false" selectedIndex="{data.statusCode}" change="outerDocument.updateStatus(data, event)" enabled="{outerDocument.factory.currentIndividual.isAtLeastProjectUser}">
 								<mx:Script>
 									<![CDATA[
 										import org.planigle.planigle.model.ViewModelLocator;
@@ -1990,7 +1991,7 @@
 								<mx:Object label="In Progress" value="1" />
 								<mx:Object label="Blocked" value="2" />
 								<mx:Object label="Done" value="3" />
-							</mx:ComboBox>
+							</local:FixedComboBox>
 							</mx:Box>
 						</mx:Component>
 					</mx:itemRenderer>

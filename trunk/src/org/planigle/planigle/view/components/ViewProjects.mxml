@@ -477,21 +477,21 @@
 										<component:ExpandableHTMLTextArea id='projectFieldDescription'/>
 									</mx:FormItem>
 									<mx:FormItem id="projectFormTrackActuals" label="Track Actuals">
-										<mx:ComboBox id="projectFieldTrackActuals" editable="false">
+										<local:FixedComboBox id="projectFieldTrackActuals" editable="false">
 											<mx:Object label="true" value="true" />
 											<mx:Object label="false" value="false" />
-										</mx:ComboBox>
+										</local:FixedComboBox>
 									</mx:FormItem>
 								</mx:Form>
 							</mx:VBox>
 							<mx:VBox>
 								<mx:Form id="projectChangeForm2" defaultButton="{projectBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
 									<mx:FormItem id="projectFormSurveyMode" label='Stories'>
-										<mx:ComboBox id='projectFieldSurveyMode' editable="false" change="updateSurveyVisible()">
+										<local:FixedComboBox id='projectFieldSurveyMode' editable="false" change="updateSurveyVisible()">
 											<mx:Object label="Private" value="0" />
 											<mx:Object label="Private by Default" value="1" />
 											<mx:Object label="Public by Default" value="2" />
-										</mx:ComboBox>
+										</local:FixedComboBox>
 									</mx:FormItem>
 									<mx:FormItem id='projectFormPremiumExpiry' label='Premium Expiry' required="true">
 										<mx:DateField id='projectFieldPremiumExpiry' editable="true" showToday="true" width="100" change="updateSurveyVisible()"/>
