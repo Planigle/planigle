@@ -271,9 +271,9 @@ class FlexStoriesTest < Test::Unit::TestCase
   def test_expand_all
     init('admin2')
     num_rows = @ie.data_grid("storyResourceGrid").num_rows
-    @ie.button("storyBtnExpandAll")[0].click
+    @ie.button("storyBtnExpandAll").click
     assert_equal num_rows + 1, @ie.data_grid("storyResourceGrid").num_rows
-    @ie.button("storyBtnExpandAll")[0].click
+    @ie.button("storyBtnExpandAll").click
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
   end
 

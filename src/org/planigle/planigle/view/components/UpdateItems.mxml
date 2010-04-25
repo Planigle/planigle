@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:component="org.planigle.planigle.view.components.*" fontSize="{ViewModelLocator.getInstance().fontSize}">
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:component="org.planigle.planigle.view.components.*" xmlns:local="org.planigle.planigle.view.controls.*" fontSize="{ViewModelLocator.getInstance().fontSize}">
 	<mx:Script>
 		<![CDATA[
 			// Update items provided via items variable..
@@ -101,7 +101,7 @@
 					{
 						var formItem:FormItem = new FormItem();
 						formItem.label = attrib.name;
-					  	var combo:ComboBox = new ComboBox();
+					  	var combo:FixedComboBox = new FixedComboBox();
 					  	combo.id = "customField" + attrib.id.toString();
 					  	combo.width = NaN;
 					  	combo.editable = false;
@@ -176,7 +176,7 @@
 				{
 					if (attrib.valueType == StoryAttribute.LIST || attrib.valueType == StoryAttribute.RELEASE_LIST)
 					{
-					  	var combo:ComboBox = ComboBox(customAttributes[attrib.id]);
+					  	var combo:FixedComboBox = FixedComboBox(customAttributes[attrib.id]);
 						if (combo.selectedItem.id != "-1")
 							storyParams['record[custom_'+attrib.id+']'] = combo.selectedItem.id;
 					}
@@ -211,7 +211,7 @@
 				for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
 				{
 					if (attrib.valueType == StoryAttribute.RELEASE_LIST)
-						ComboBox(customAttributes[attrib.id]).dataProvider = getValuesFor(attrib, rel);
+						FixedComboBox(customAttributes[attrib.id]).dataProvider = getValuesFor(attrib, rel);
 				}
 			}
 
@@ -230,38 +230,38 @@
 	</mx:Script>
 	<mx:Form id="updateForm" defaultButton="{updateBtnOk}" height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalGap="5">
 		<mx:FormItem label="Project" id="formProject">
-			<mx:ComboBox id='updateFieldProject' editable="false" dataProvider="{projects}" labelField="name" change="updateProject()"></mx:ComboBox>
+			<local:FixedComboBox id='updateFieldProject' editable="false" dataProvider="{projects}" labelField="name" change="updateProject()"></local:FixedComboBox>
 		</mx:FormItem>
 		<mx:FormItem label="Iteration" id="formIteration">
-			<mx:ComboBox id='updateFieldIteration' editable="false" dataProvider="{iterations}" labelField="name" change="updateIteration()"></mx:ComboBox>
+			<local:FixedComboBox id='updateFieldIteration' editable="false" dataProvider="{iterations}" labelField="name" change="updateIteration()"></local:FixedComboBox>
 		</mx:FormItem>
 		<mx:FormItem label="Release" id="formRelease">
-			<mx:ComboBox id='updateFieldRelease' editable="false" dataProvider="{releases}" labelField="name" change="updateRelease()"></mx:ComboBox>
+			<local:FixedComboBox id='updateFieldRelease' editable="false" dataProvider="{releases}" labelField="name" change="updateRelease()"></local:FixedComboBox>
 		</mx:FormItem>
 		<mx:FormItem label='Team'>
-			<mx:ComboBox id='updateFieldTeam' editable="false" dataProvider="{teams}" labelField="name"></mx:ComboBox>
+			<local:FixedComboBox id='updateFieldTeam' editable="false" dataProvider="{teams}" labelField="name"></local:FixedComboBox>
 		</mx:FormItem>
 		<mx:FormItem label='Owner'>
-			<mx:ComboBox id='updateFieldOwner' editable="false" dataProvider="{individuals}" labelField="fullName"></mx:ComboBox>
+			<local:FixedComboBox id='updateFieldOwner' editable="false" dataProvider="{individuals}" labelField="fullName"></local:FixedComboBox>
 		</mx:FormItem>
 		<mx:FormItem label='Status'>
-			<mx:ComboBox id='updateFieldStatus' editable="false" change="updateReasonBlocked(event)">
+			<local:FixedComboBox id='updateFieldStatus' editable="false" change="updateReasonBlocked(event)">
 				<mx:Object label="No Change" value="-1" />
 				<mx:Object label="Not Started" value="0" />
 				<mx:Object label="In Progress" value="1" />
 				<mx:Object label="Blocked" value="2" />
 				<mx:Object label="Done" value="3" />
-			</mx:ComboBox>
+			</local:FixedComboBox>
 		</mx:FormItem>
 		<mx:FormItem id='updateFormReasonBlocked' label='Reason Blocked' height="-5" width="0" visible="false">
 			<component:ExpandableHTMLTextArea id='updateFieldReasonBlocked'/>
 		</mx:FormItem>
 		<mx:FormItem label='Public' id="form_public">
-			<mx:ComboBox id='updateFieldPublic' editable="false">
+			<local:FixedComboBox id='updateFieldPublic' editable="false">
 				<mx:Object label="No Change" value="-1" />
 				<mx:Object label="true" value='true' />
 				<mx:Object label="false" value='false' />
-			</mx:ComboBox>
+			</local:FixedComboBox>
 		</mx:FormItem>
 	</mx:Form>
 	<mx:HBox width="100%" horizontalAlign="center">

@@ -446,13 +446,13 @@
 							<mx:VBox>
 								<mx:Form id="changeForm" defaultButton="{individualBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
 									<mx:FormItem id='individualFormCompany' label='Company'>
-										<mx:ComboBox id='individualFieldCompany' editable="false" dataProvider="{CompanyFactory.getInstance().companySelector}" labelField="name" change="updateProject()"></mx:ComboBox>
+										<local:FixedComboBox id='individualFieldCompany' editable="false" dataProvider="{CompanyFactory.getInstance().companySelector}" labelField="name" change="updateProject()"></local:FixedComboBox>
 									</mx:FormItem>
 									<mx:FormItem id='individualFormProject' label='Projects'>
 										<mx:List id='individualFieldProject' height="68" labelField="name" change="updateTeam()" allowMultipleSelection="true"/>
 									</mx:FormItem>
 									<mx:FormItem id='individualFormTeam' label='Team' visible="{availableTeams.length > 1}" height="{availableTeams.length > 1 ? NaN : -5}">
-										<mx:ComboBox id='individualFieldTeam' dataProvider="{availableTeams}" editable="false" labelField="name"></mx:ComboBox>
+										<local:FixedComboBox id='individualFieldTeam' dataProvider="{availableTeams}" editable="false" labelField="name"></local:FixedComboBox>
 									</mx:FormItem>
 									<mx:FormItem label='Login' required="true">
 										<mx:TextInput id='individualFieldLogin' maxChars="40" text='' width="300"/>
@@ -464,13 +464,13 @@
 										<mx:TextInput id='individualFieldPasswordConfirmation' maxChars="40" text='' width="300" displayAsPassword="true"/>
 									</mx:FormItem>
 									<mx:FormItem id='individualFormRole' label='Role' visible="{currentItem != factory.currentIndividual}" height="{currentItem != factory.currentIndividual ? NaN : -5}">
-										<mx:ComboBox id='individualFieldRole' editable="false"/>
+										<local:FixedComboBox id='individualFieldRole' editable="false"/>
 									</mx:FormItem>
 									<mx:FormItem id='individualFormEnabled' label='Enabled' visible="{currentItem != factory.currentIndividual}" height="{currentItem != factory.currentIndividual ? NaN : -5}">
-										<mx:ComboBox id='individualFieldEnabled' editable="false">
+										<local:FixedComboBox id='individualFieldEnabled' editable="false">
 											<mx:Object label="true" value='true' />
 											<mx:Object label="false" value='false' />
-										</mx:ComboBox>
+										</local:FixedComboBox>
 									</mx:FormItem>
 								</mx:Form>
 							</mx:VBox>
@@ -489,12 +489,12 @@
 										<mx:TextInput id='individualFieldPhoneNumber' maxChars="20" text='' width="300"/>
 									</mx:FormItem>
 									<mx:FormItem id='individualFormNotificationType' label='Notify Via' visible="{factory.currentIndividual.isPremium}" height="{factory.currentIndividual.isPremium ? NaN : -5}">
-										<mx:ComboBox id='individualFieldNotificationType' editable="false">
+										<local:FixedComboBox id='individualFieldNotificationType' editable="false">
 											<mx:Object label="Neither Email nor SMS" value="0" />
 											<mx:Object label="Email" value="1" />
 											<mx:Object label="SMS" value="2" />
 											<mx:Object label="Email and SMS" value="3" />
-										</mx:ComboBox>
+										</local:FixedComboBox>
 									</mx:FormItem>
 								</mx:Form>
 							</mx:VBox>
