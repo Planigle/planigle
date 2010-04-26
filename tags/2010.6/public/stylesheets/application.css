@@ -1,0 +1,34 @@
+#banner {
+	background: #9c9;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	font: small-caps 40px/40px "Times New Roman", serif;
+	color: #282;
+	text-align: center;
+}
+
+#banner img {
+	float: left;
+}
+
+#toolbar {
+	background: #141;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	font: 10px "Arial", serif;
+	color: #282;
+	text-align: center;
+}
+
+#toolbar a {
+	color: #bfb;
+	text-decoration: none;
+}
+
+#notice {
+	border: 2px solid red;
+	padding: 1em;
+	margin-bottom: 2em;
+	background-color: #f0f0f0;
+	font: bold smaller sans-serif;
+}
