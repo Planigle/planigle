@@ -171,7 +171,7 @@
 			individualFieldPasswordConfirmation.text = values["passwordConfirmation"];
 			individualFieldEmail.text = values["email"];
 			individualFieldPhoneNumber.text = values["phoneNumber"];
-			individualFieldNotificationType.selectedIndex = values["notificationType"];
+			individualFieldNotificationType.selectedIndex = convertNotification(values["notificationType"]);
 			individualFieldFirstName.text = values["firstName"];
 			individualFieldLastName.text = values["lastName"];
 			individualFieldRole.selectedIndex = values["role"];
@@ -180,6 +180,12 @@
 			labelPasswordConfirmation.required = true;
 			individualBtnChange.label = 'Create';
 			individualBtnInfo.visible = false;
+		}
+		
+		// Convert SMS notification to either NONE (0) or EMAIL (1).
+		protected function convertNotification(notificationType:int):int
+		{
+			return notificationType > 1 ? notificationType - 2 : notificationType;
 		}
 		
 		[Bindable]
@@ -222,7 +228,7 @@
 				individualFieldPasswordConfirmation.text = '';
 				individualFieldEmail.text = currentItem.email;
 				individualFieldPhoneNumber.text = currentItem.phoneNumber;
-				individualFieldNotificationType.selectedIndex = currentItem.notificationType;
+				individualFieldNotificationType.selectedIndex = convertNotification(currentItem.notificationType);
 				individualFieldFirstName.text = currentItem.firstName;
 				individualFieldLastName.text = currentItem.lastName;
 				individualFieldRole.selectedIndex = factory.currentIndividual.isAdmin() ? currentItem.role : currentItem.role - 1;
@@ -389,7 +395,7 @@
 				if (individualFieldLastName.text != values["lastName"]) return true;
 				if (individualFieldEmail.text != values["email"]) return true;
 				if (individualFieldPhoneNumber.text != values["phoneNumber"]) return true;
-				if (individualFieldNotificationType.selectedIndex != values["notificationType"]) return true;
+				if (individualFieldNotificationType.selectedIndex != convertNotification(values["notificationType"])) return true;
 			}
 			else if (currentItem) {
 				if (individualFieldCompany.selectedItem.id != currentItem.companyId) return true;
@@ -404,7 +410,7 @@
 				if (individualFieldLastName.text != currentItem.lastName) return true;
 				if (individualFieldEmail.text != currentItem.email) return true;
 				if (individualFieldPhoneNumber.text != currentItem.phoneNumber) return true;
-				if (individualFieldNotificationType.selectedItem.value != currentItem.notificationType) return true;
+				if (individualFieldNotificationType.selectedItem.value != convertNotification(currentItem.notificationType)) return true;
 			}
 			return false;
 		}
@@ -490,10 +496,8 @@
 									</mx:FormItem>
 									<mx:FormItem id='individualFormNotificationType' label='Notify Via' visible="{factory.currentIndividual.isPremium}" height="{factory.currentIndividual.isPremium ? NaN : -5}">
 										<local:FixedComboBox id='individualFieldNotificationType' editable="false">
-											<mx:Object label="Neither Email nor SMS" value="0" />
+											<mx:Object label="None" value="0" />
 											<mx:Object label="Email" value="1" />
-											<mx:Object label="SMS" value="2" />
-											<mx:Object label="Email and SMS" value="3" />
 										</local:FixedComboBox>
 									</mx:FormItem>
 								</mx:Form>
