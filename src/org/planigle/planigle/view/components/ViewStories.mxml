@@ -1748,6 +1748,12 @@
 				storyMoreFilters.height = -5;
 			}
 		}
+		
+		// Blank out the search field and show all stories meeting selected filters.
+		public function cancelSearch():void
+		{
+			storySearchText.text = "";
+		}
 		]]>
 	</mx:Script>
  	
@@ -1930,6 +1936,7 @@
 					<mx:FormItem label="Search Text">
 						<mx:TextInput id='storySearchText' text='' width="200" enter="handleFilter()" valueCommit="handleFilter()"/>
 					</mx:FormItem>
+					<mx:LinkButton width="16" icon="{parentApplication.imgCross}" toolTip="Cancel Search" click="cancelSearch();" id="storyBtnCancelSearch"/>
 				</mx:HBox>
 				<mx:HBox id="storyStatusRow" width="100%" minWidth="0" horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
 					<mx:Label text="Number of Stories:" fontWeight="bold"/>
