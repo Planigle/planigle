@@ -1791,6 +1791,9 @@
 								</mx:VBox>
 								<mx:VBox>
 									<mx:Form id="changeForm2" defaultButton="{storyBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
+										<mx:FormItem label="ID" id="storyFormID">
+											<mx:Label text="{currentItem.fullId}"/>
+										</mx:FormItem>
 										<mx:FormItem label="Project" id="storyFormProject">
 											<local:FixedComboBox id='storyFieldProject' editable="false" labelField="name" change="updateProjectField()"></local:FixedComboBox>
 										</mx:FormItem>
