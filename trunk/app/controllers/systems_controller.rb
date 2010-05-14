@@ -71,6 +71,7 @@ protected
     report_data['release_totals'] = ReleaseTotal.find(:all, :conditions => ['releases.project_id = ?', project_id], :joins => :release)
     report_data['release_breakdowns'] = Release.find(:all, :conditions => {:project_id => project_id}).inject([]) {|collect, release| collect.concat(CategoryTotal.summarize_for(release))}
     report_data['iteration_totals'] = IterationTotal.find(:all, :conditions => ['iterations.project_id = ?', project_id], :joins => :iteration)
+    report_data['iteration_story_totals'] = IterationStoryTotal.find(:all, :conditions => ['iterations.project_id = ?', project_id], :joins => :iteration)
     report_data['iteration_velocities'] = IterationVelocity.find(:all, :conditions => ['iterations.project_id = ?', project_id], :joins => :iteration)
     report_data['iteration_breakdowns'] = Iteration.find(:all, :conditions => {:project_id => project_id}).inject([]) {|collect, iteration| collect.concat(CategoryTotal.summarize_for(iteration))}
     report_data
