@@ -3,6 +3,7 @@ class Iteration < ActiveRecord::Base
   belongs_to :project
   has_many :stories, :dependent => :nullify
   has_many :iteration_totals, :dependent => :destroy
+  has_many :iteration_story_totals, :dependent => :destroy
   has_many :iteration_velocities, :dependent => :destroy
   attr_accessible :name, :start, :finish, :project_id, :retrospective_results
   acts_as_audited
@@ -41,6 +42,7 @@ class Iteration < ActiveRecord::Base
   # Summarize my current data.
   def summarize
     IterationTotal.summarize_for(self)
+    IterationStoryTotal.summarize_for(self)
     IterationVelocity.summarize_for(self)
   end
 

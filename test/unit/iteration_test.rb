@@ -99,6 +99,18 @@ class IterationTest < ActiveSupport::TestCase
       end
     end
 
+    totals = IterationStoryTotal.summarize_for(iterations(:first))
+    totals.each do |total|
+      if total.team == nil
+        assert_equal 0, total.in_progress
+        assert_equal 1, total.done
+      end
+      if total.team == teams(:first)
+        assert_equal 1, total.in_progress
+        assert_equal 0, total.done
+      end
+    end
+
     totals = IterationVelocity.summarize_for(iterations(:first))
     totals.each do |total|
       if total.team == nil

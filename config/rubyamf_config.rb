@@ -136,6 +136,12 @@ module RubyAMF
       :attributes => ["id", "iteration_id", "team_id", "date", "created", "in_progress", "done", "blocked"])
 
     ClassMappings.register(
+      :actionscript => 'IterationStoryTotal',
+      :ruby => 'IterationStoryTotal',
+      :type => 'active_record',
+      :attributes => ["id", "iteration_id", "team_id", "date", "created", "in_progress", "done", "blocked"])
+
+    ClassMappings.register(
       :actionscript => 'CategoryTotal',
       :ruby => 'CategoryTotal',
       :type => 'custom',
