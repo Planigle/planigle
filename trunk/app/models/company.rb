@@ -1,8 +1,9 @@
 class Company < ActiveRecord::Base
-  has_many :projects, :dependent => :destroy
-  has_many :individuals, :dependent => :nullify # Delete non-admins
+  has_many :projects, :dependent => :destroy, :conditions => "projects.deleted_at IS NULL"
+  has_many :individuals, :dependent => :nullify, :conditions => "individuals.deleted_at IS NULL" # Delete non-admins
   attr_accessible :name
   acts_as_audited
+  acts_as_paranoid
 
   validates_presence_of     :name
   validates_length_of       :name,                   :maximum => 40, :allow_nil => true # Allow nil to workaround bug

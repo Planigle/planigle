@@ -14,6 +14,7 @@ Embedded Components - License:
 Ruby AMF (Rails Plugin) - MIT
 Restful Authentication (Rails Plugin) - MIT
 acts_as_audited (Rails Plugin) - MIT
+acts_as_paranoid (Rails Plugin) - MIT
 site_config (Rails Plugin) - MIT
 iui (CSS and Images for iPhone) - Free (minimal restrictions; see license file)
 rails-iui (Rails Plugin) - MIT
