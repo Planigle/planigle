@@ -1,16 +1,17 @@
 require 'digest/sha1'
 class Project < ActiveRecord::Base
   belongs_to :company
-  has_many :teams, :dependent => :destroy
-  has_and_belongs_to_many :individuals
-  has_many :individuals_with_selection, :class_name => "Individual", :foreign_key => "selected_project_id", :dependent => :nullify
-  has_many :releases, :dependent => :destroy
-  has_many :iterations, :dependent => :destroy
-  has_many :stories, :dependent => :destroy
+  has_many :teams, :dependent => :destroy, :conditions => "teams.deleted_at IS NULL"
+  has_and_belongs_to_many :individuals, :conditions => "individuals.deleted_at IS NULL"
+  has_many :individuals_with_selection, :class_name => "Individual", :foreign_key => "selected_project_id", :dependent => :nullify, :conditions => "individuals.deleted_at IS NULL"
+  has_many :releases, :dependent => :destroy, :conditions => "releases.deleted_at IS NULL"
+  has_many :iterations, :dependent => :destroy, :conditions => "iterations.deleted_at IS NULL"
+  has_many :stories, :dependent => :destroy, :conditions => "stories.deleted_at IS NULL"
   has_many :story_attributes, :dependent => :destroy
   has_many :surveys, :dependent => :destroy
   attr_accessible :company_id, :name, :description, :survey_mode, :premium_limit, :premium_expiry, :track_actuals, :last_notified_of_inactivity, :last_notified_of_expiration
   acts_as_audited :except => [:survey_key]
+  acts_as_paranoid
 
   validates_presence_of     :name, :company_id
   validates_length_of       :name,                   :maximum => 40, :allow_nil => true # Allow nil to workaround bug

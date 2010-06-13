@@ -9,10 +9,11 @@ class Story < ActiveRecord::Base
   belongs_to :individual
   has_many :story_values, :dependent => :destroy
   has_many :criteria, :dependent => :destroy, :order => 'criteria.priority'
-  has_many :tasks, :dependent => :destroy, :order => 'tasks.priority'
+  has_many :tasks, :dependent => :destroy, :order => 'tasks.priority', :conditions => "tasks.deleted_at IS NULL"
   has_many :survey_mappings, :dependent => :destroy
   attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :release_id, :iteration_id, :individual_id, :project_id, :is_public, :priority, :user_priority, :team_id, :reason_blocked
   acts_as_audited :except => [:user_priority]
+  acts_as_paranoid
   
   validates_presence_of     :project_id, :name
   validates_length_of       :name,                   :maximum => 250, :allow_nil => true # Allow nil to workaround bug

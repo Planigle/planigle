@@ -1,12 +1,13 @@
 class Iteration < ActiveRecord::Base
   include Utilities::Text
   belongs_to :project
-  has_many :stories, :dependent => :nullify
+  has_many :stories, :dependent => :nullify, :conditions => "stories.deleted_at IS NULL"
   has_many :iteration_totals, :dependent => :destroy
   has_many :iteration_story_totals, :dependent => :destroy
   has_many :iteration_velocities, :dependent => :destroy
   attr_accessible :name, :start, :finish, :project_id, :retrospective_results
   acts_as_audited
+  acts_as_paranoid
   
   validates_presence_of     :project_id, :name, :start, :finish
   validates_length_of       :name,   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
