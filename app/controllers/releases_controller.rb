@@ -3,6 +3,11 @@ class ReleasesController < ResourceController
 
 protected
 
+  # Answer whether records have changed.
+  def have_records_changed(time)
+    Release.have_records_changed(current_individual, time)
+  end
+
   # Get the records based on the current individual.
   def get_records
     Release.get_records(current_individual)

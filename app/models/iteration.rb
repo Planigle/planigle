@@ -1,5 +1,6 @@
 class Iteration < ActiveRecord::Base
   include Utilities::Text
+  acts_as_paranoid
   belongs_to :project
   has_many :stories, :dependent => :nullify, :conditions => "stories.deleted_at IS NULL"
   has_many :iteration_totals, :dependent => :destroy
@@ -7,7 +8,6 @@ class Iteration < ActiveRecord::Base
   has_many :iteration_velocities, :dependent => :destroy
   attr_accessible :name, :start, :finish, :project_id, :retrospective_results
   acts_as_audited
-  acts_as_paranoid
   
   validates_presence_of     :project_id, :name, :start, :finish
   validates_length_of       :name,   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
@@ -24,6 +24,11 @@ class Iteration < ActiveRecord::Base
       stories.each {|story| story.project_id = project_id; story.save(false)}
     end
     write_attribute(:project_id, project_id)
+  end
+
+  # Answer whether records have changed.
+  def self.have_records_changed(current_user, time)
+    Iteration.count_with_deleted(:conditions => ["project_id = ? and (updated_at >= ? or deleted_at >= ?)", current_user.project_id, time, time]) > 0
   end
 
   # Answer the records for a particular user.

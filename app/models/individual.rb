@@ -1,8 +1,10 @@
 require 'digest/sha1'
 
 class Individual < ActiveRecord::Base
+  acts_as_paranoid
   belongs_to :company
   has_and_belongs_to_many :projects, :conditions => "projects.deleted_at IS NULL"
+  has_and_belongs_to_many :all_projects, :class_name => "Project"
   belongs_to :selected_project, :class_name => "Project", :foreign_key => "selected_project_id"
   belongs_to :team
   has_many :stories, :dependent => :nullify, :conditions => "stories.deleted_at IS NULL"
@@ -10,7 +12,6 @@ class Individual < ActiveRecord::Base
   has_many :tasks, :dependent => :nullify, :conditions => "tasks.deleted_at IS NULL"
   attr_accessible :login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled, :role, :last_login, :accepted_agreement, :team_id, :phone_number, :notification_type, :company_id, :selected_project_id
   acts_as_audited :except => [:selected_project_id, :crypted_password, :salt, :remember_token, :remember_token_expires_at, :activation_code, :activated_at, :last_login, :accepted_agreement]
-  acts_as_paranoid
 
   # Virtual attribute for the unencrypted password
   attr_accessor :password
@@ -172,6 +173,15 @@ class Individual < ActiveRecord::Base
   
   def project_ids
     projects.collect {|project|project.id}.join(',')
+  end
+
+  # Answer whether records have changed.
+  def self.have_records_changed(current_user, time)
+    if current_user.role >= Individual::ProjectAdmin
+      Individual.count_with_deleted(:conditions => ["company_id = ? and role in (1,2,3) and (updated_at >= ? or deleted_at >= ?)", current_user.company_id, time, time]) > 0
+    else
+      Individual.count_with_deleted(:conditions => ["updated_at >= ? or deleted_at >= ?", time, time]) > 0
+    end
   end
 
   # Answer the records for a particular user.

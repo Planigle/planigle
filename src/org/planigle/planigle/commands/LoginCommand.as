@@ -61,11 +61,11 @@ package org.planigle.planigle.commands
 			{
 				PlanigleSystem.getInstance().populateFromObject( result.system );
 				IndividualFactory.getInstance().setCurrent( result.currentIndividual.login );
-				CompanyFactory.getInstance().populate( result.companies as Array );
-				IndividualFactory.getInstance().populate( result.individuals as Array );
-				ReleaseFactory.getInstance().populate( result.releases ? result.releases as Array : new Array() );
-				IterationFactory.getInstance().populate( result.iterations ? result.iterations as Array : new Array() );
-				StoryFactory.getInstance().populate( result.stories ? result.stories as Array : new Array() );
+				CompanyFactory.getInstance().populate( result.time, result.companies as Array );
+				IndividualFactory.getInstance().populate( result.time, result.individuals as Array );
+				ReleaseFactory.getInstance().populate( result.time, result.releases ? result.releases as Array : new Array() );
+				IterationFactory.getInstance().populate( result.time, result.iterations ? result.iterations as Array : new Array() );
+				StoryFactory.getInstance().populate( result.time, result.stories ? result.stories as Array : new Array() );
 				viewModelLocator.workflowState = ViewModelLocator.CORE_APPLICATION_SCREEN;
 			}
 		}

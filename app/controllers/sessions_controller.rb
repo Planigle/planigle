@@ -70,6 +70,7 @@ protected
   # Answer the data for the current user.
   def data
     result = {}
+    result['time'] = Time.now.to_s
     result['system'] = System.find(:first)
     result['current_individual'] = current_individual
     result['companies'] = Company.get_records(current_individual)

@@ -35,11 +35,21 @@ class ReleasesControllerTest < ActionController::TestCase
   def test_index_by_read_only_user
     index_by_role(individuals(:readonly), Release.find_all_by_project_id(1).length)
   end
+    
+  # Test getting companies (based on role).
+  def test_index_no_changes
+    index_by_role(individuals(:aaron), nil, {:date => (Time.now + 5).to_s})
+  end
+    
+  # Test getting companies (based on role).
+  def test_index_changes
+    index_by_role(individuals(:aaron), Release.find_all_by_project_id(1).length, {:date => (Time.now - 5).to_s})
+  end
 
   # Test getting releases (based on role).
-  def index_by_role(user, count)
+  def index_by_role(user, count, params={})
     login_as(user)
-    get :index, :format => 'xml'
+    get :index, {:format => 'xml'}.merge(params)
     assert_response :success
     if (count == 0)
       assert_select "releases", false

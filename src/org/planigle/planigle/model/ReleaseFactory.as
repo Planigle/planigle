@@ -7,6 +7,7 @@ package org.planigle.planigle.model
 	[Bindable]
 	public class ReleaseFactory
 	{
+		public var timeUpdated:String;
 		public var releases:ArrayCollection = new ArrayCollection();
 		public var releaseSelector:ArrayCollection = new ArrayCollection();
 		private var releaseMapping:Object = new Object();
@@ -46,8 +47,9 @@ package org.planigle.planigle.model
 		}
 
 		// Populate the releases based on an Array of Releases.
-		public function populate(releases:Array):void
+		public function populate(timeUpdated:String, releases:Array):void
 		{
+			this.timeUpdated = timeUpdated;
 			updateReleases(new ArrayCollection(releases));
 		}
 		

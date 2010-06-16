@@ -1,4 +1,5 @@
 class Team < ActiveRecord::Base
+  acts_as_paranoid
   belongs_to :project
   has_many :individuals, :dependent => :nullify, :conditions => "individuals.deleted_at IS NULL"
   has_many :stories, :dependent => :nullify, :conditions => "stories.deleted_at IS NULL"
@@ -7,7 +8,6 @@ class Team < ActiveRecord::Base
   has_many :iteration_velocities, :dependent => :destroy
   attr_accessible :name, :description
   acts_as_audited :except => [:project_id]
-  acts_as_paranoid
 
   validates_presence_of     :name
   validates_length_of       :name,                   :maximum => 40, :allow_nil => true # Allow nil to workaround bug

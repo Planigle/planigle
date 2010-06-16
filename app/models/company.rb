@@ -1,9 +1,10 @@
 class Company < ActiveRecord::Base
+  acts_as_paranoid
   has_many :projects, :dependent => :destroy, :conditions => "projects.deleted_at IS NULL"
+  has_many :all_projects, :class_name => "Project"
   has_many :individuals, :dependent => :nullify, :conditions => "individuals.deleted_at IS NULL" # Delete non-admins
   attr_accessible :name
   acts_as_audited
-  acts_as_paranoid
 
   validates_presence_of     :name
   validates_length_of       :name,                   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
@@ -12,6 +13,15 @@ class Company < ActiveRecord::Base
   def destroy
     Individual.delete_all(["company_id = ? and role != 0", id])
     super
+  end
+
+  # Answer whether records have changed.
+  def self.have_records_changed(current_user, time)
+    if current_user.role >= Individual::ProjectAdmin
+      Company.count_with_deleted(:include => [{:all_projects => :all_teams}], :conditions => ["companies.id = ? and (companies.updated_at >= ? or companies.deleted_at >= ? or projects.updated_at >= ? or projects.deleted_at >= ? or teams.updated_at >= ? or teams.deleted_at >= ?)", current_user.company_id, time, time, time, time, time, time]) > 0
+    else
+      Company.count_with_deleted(:include => [{:all_projects => :all_teams}], :conditions => ["companies.updated_at >= ? or companies.deleted_at >= ? or projects.updated_at >= ? or projects.deleted_at >= ? or teams.updated_at >= ? or teams.deleted_at >= ?", time, time, time, time, time, time]) > 0
+    end
   end
 
   # Answer the records for a particular user.

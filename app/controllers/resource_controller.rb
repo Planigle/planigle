@@ -3,10 +3,13 @@ class ResourceController < ApplicationController
   # GET /records
   # GET /records.xml
   def index
-    @records = get_records
+    time = get_params[:time]
+    if (!time || have_records_changed(Time.parse(time)))
+      @records = get_records
+    end
     respond_to do |format|
       format.xml { render :xml => @records }
-      format.amf { render :amf => @records }
+      format.amf { render :amf => {:time => Time.now.to_s, :records => @records} }
     end
   end
   
@@ -146,5 +149,16 @@ protected
   
   # Some records make read only changes so need to be able to differentiate based on intention.
   def post_update
+  end
+
+  # Answer whether records have changed.
+  def have_records_changed(time)
+    true
+  end
+  
+  # Answer parameters regardless of format
+  def get_params
+    parms = is_amf ? params[0] : params[:record]
+    parms == nil ? {} : parms
   end
 end

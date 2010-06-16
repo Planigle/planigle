@@ -4,9 +4,21 @@ package org.planigle.planigle.business
 
 	public class IndividualsDelegate extends Delegate
 	{
-		public function IndividualsDelegate( responder:IResponder )
+		protected var time:String;
+		
+		public function IndividualsDelegate( responder:IResponder, time:String = null )
 		{
 			super(responder);
+			this.time = time;
+		}
+		
+		// Answer the parameters to send.
+		protected override function params():Object
+		{
+			var params:Object = new Object();
+			if (time != null)
+				params['time'] = time;
+			return params;
 		}
 
 		// Answer the name of the remote object (should be overridden).

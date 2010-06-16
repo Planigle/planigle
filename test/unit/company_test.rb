@@ -55,8 +55,62 @@ class CompanyTest < ActiveSupport::TestCase
     assert_equal 1, Company.get_records(individuals(:user)).length
     assert_equal 1, Company.get_records(individuals(:readonly)).length
   end
+  
+  def test_have_records_changed_no_changes
+    sleep 1 # Distance from set up
+    start = Time.now
+    assert_no_changes(start)
+  end
+  
+  def test_have_records_changed_company_changed
+    assert_have_records_changed(companies(:second), companies(:first))
+  end
+  
+  def test_have_records_changed_project_changed
+    assert_have_records_changed(projects(:second), projects(:third))
+  end
+  
+  def test_have_records_changed_team_changed
+    assert_have_records_changed(teams(:third), teams(:first))
+  end
 
 private
+  
+  def assert_no_changes(start)
+    assert !Company.have_records_changed(individuals(:quentin), start)
+    assert !Company.have_records_changed(individuals(:aaron), start)
+    assert !Company.have_records_changed(individuals(:user), start)
+    assert !Company.have_records_changed(individuals(:readonly), start)
+  end
+  
+  def assert_have_records_changed(other_project_object, project_object)
+    sleep 1 # Distance from set up
+    start = Time.now
+    other_project_object.name = "changed"
+    other_project_object.save(false)
+    assert_admin_changes(start)
+
+    project_object.name = "changed"
+    project_object.save(false)
+    assert_all_changes(start)
+
+    project_object.destroy
+    assert_all_changes(start)
+  end
+
+  def assert_admin_changes(start)
+    assert Company.have_records_changed(individuals(:quentin), start)
+    assert !Company.have_records_changed(individuals(:aaron), start)
+    assert !Company.have_records_changed(individuals(:user), start)
+    assert !Company.have_records_changed(individuals(:readonly), start)
+  end
+
+  def assert_all_changes(start)
+    assert Company.have_records_changed(individuals(:quentin), start)
+    assert Company.have_records_changed(individuals(:aaron), start)
+    assert Company.have_records_changed(individuals(:user), start)
+    assert Company.have_records_changed(individuals(:readonly), start)
+  end
 
   # Create a company with valid values.  Options will override default values (should be :attribute => value).
   def create_company(options = {})

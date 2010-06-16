@@ -2,6 +2,7 @@ require 'faster_csv'
 
 class Story < ActiveRecord::Base
   include Utilities::Text
+  acts_as_paranoid
   belongs_to :project
   belongs_to :team
   belongs_to :release
@@ -10,10 +11,10 @@ class Story < ActiveRecord::Base
   has_many :story_values, :dependent => :destroy
   has_many :criteria, :dependent => :destroy, :order => 'criteria.priority'
   has_many :tasks, :dependent => :destroy, :order => 'tasks.priority', :conditions => "tasks.deleted_at IS NULL"
+  has_many :all_tasks, :class_name => "Task"
   has_many :survey_mappings, :dependent => :destroy
   attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :release_id, :iteration_id, :individual_id, :project_id, :is_public, :priority, :user_priority, :team_id, :reason_blocked
   acts_as_audited :except => [:user_priority]
-  acts_as_paranoid
   
   validates_presence_of     :project_id, :name
   validates_length_of       :name,                   :maximum => 250, :allow_nil => true # Allow nil to workaround bug
@@ -233,8 +234,28 @@ class Story < ActiveRecord::Base
     super(options)
   end
 
+  # Answer whether records have changed.
+  def self.have_records_changed(current_user, time)
+    Story.count_with_deleted(:include => [:all_tasks], :conditions => ["(stories.updated_at >= ? or stories.deleted_at >= ? or tasks.updated_at >= ? or tasks.deleted_at >= ?) and stories.project_id = ?", time, time, time, time, current_user.project_id]) > 0
+  end
+
   # Answer the records for a particular user.
   def self.get_records(current_user, conditions={})
+    conditions = substitute_conditions(current_user, conditions)
+    filter_on_individual = conditions.has_key?(:individual_id)
+    individual_id = conditions.delete(:individual_id)
+    text_filter = conditions.delete(:text)
+    result = Story.find(:all, :include => [:criteria, :story_values, :tasks], :conditions => conditions, :order => 'stories.priority')
+    if filter_on_individual
+      individual_id = individual_id ? individual_id.to_i : individual_id
+      result = result.select {|story| story.individual_id==individual_id || story.tasks.detect {|task| task.individual_id==individual_id}}
+    end
+    text_filter ? result.select {|story| story.matches_text(text_filter)} : result
+  end
+  
+  # Update conditions replacing logical values with actual values
+  def self.substitute_conditions(current_user, conditions)
+    conditions = conditions.clone
     conditions[:project_id] = current_user.project_id
     release = nil
     if conditions[:release_id] == "Current"
@@ -264,15 +285,7 @@ class Story < ActiveRecord::Base
     if conditions[:status_code] == "NotDone"
       conditions[:status_code] = [0,1,2]
     end
-    filter_on_individual = conditions.has_key?(:individual_id)
-    individual_id = conditions.delete(:individual_id)
-    text_filter = conditions.delete(:text)
-    result = Story.find(:all, :include => [:criteria, :story_values, :tasks], :conditions => conditions, :order => 'stories.priority')
-    if filter_on_individual
-      individual_id = individual_id ? individual_id.to_i : individual_id
-      result = result.select {|story| story.individual_id==individual_id || story.tasks.detect {|task| task.individual_id==individual_id}}
-    end
-    text_filter ? result.select {|story| story.matches_text(text_filter)} : result
+    conditions
   end
   
   # Answer whether I match the specified text.

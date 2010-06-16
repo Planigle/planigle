@@ -7,6 +7,7 @@ package org.planigle.planigle.model
 	[Bindable]
 	public class IndividualFactory
 	{
+		public var timeUpdated:String
 		public var individuals:ArrayCollection = new ArrayCollection();
 		public var individualSelector:ArrayCollection = new ArrayCollection();
 		public var currentIndividual:Individual;
@@ -64,14 +65,15 @@ package org.planigle.planigle.model
 		}
 
 		// Populate all individuals (including those from other projects.
-		public function populateAll(newIndividuals:Array):void
+		public function populateAll(timeUpdated:String, newIndividuals:Array):void
 		{
-			populate(newIndividuals);
+			this.timeUpdated = timeUpdated;
+			populate(timeUpdated, newIndividuals);
 			allIndividualsLoaded = true;
 		}
 
 		// Populate the individuals.
-		public function populate(newIndividuals:Array):void
+		public function populate(timeUpdated:String, newIndividuals:Array):void
 		{
 			updateIndividuals(new ArrayCollection(newIndividuals));
 		}

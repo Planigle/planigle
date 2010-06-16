@@ -7,6 +7,7 @@ package org.planigle.planigle.model
 	[Bindable]
 	public class CompanyFactory
 	{
+		public var timeUpdated:String;
 		public var companies:ArrayCollection = new ArrayCollection();
 		public var companySelector:ArrayCollection = new ArrayCollection();
 		private var companyMapping:Object = new Object();
@@ -61,8 +62,9 @@ package org.planigle.planigle.model
 		}
 
 		// Populate the companies.
-		public function populate(newCompanies:Array):void
+		public function populate(timeUpdated:String, newCompanies:Array):void
 		{
+			this.timeUpdated = timeUpdated;
 			updateCompanies(new ArrayCollection(newCompanies));
 		}
 		

@@ -561,8 +561,45 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal 2.5, story.determine_priority("2","")
     assert_equal story.priority + 1, story.determine_priority(story.id.to_s,"")
   end
+  
+  def test_have_records_changed_no_changes
+    sleep 1 # Distance from set up
+    start = Time.now
+    assert_no_changes(start)
+  end
+  
+  def test_have_records_changed_story_changed
+    assert_have_records_changed(stories(:fifth), stories(:first))
+  end
+  
+  def test_have_records_changed_task_changed
+    assert_have_records_changed(tasks(:three), tasks(:one))
+  end
 
 private
+
+  def assert_changes(start)
+    assert Story.have_records_changed(individuals(:aaron), start)
+  end
+
+  def assert_no_changes(start)
+    assert !Story.have_records_changed(individuals(:aaron), start)
+  end
+  
+  def assert_have_records_changed(other_project_object, project_object)
+    sleep 1 # Distance from set up
+    start = Time.now
+    other_project_object.name = "changed"
+    other_project_object.save(false)
+    assert_no_changes(start)
+
+    project_object.name = "changed"
+    project_object.save(false)
+    assert_changes(start)
+
+    project_object.destroy
+    assert_changes(start)
+  end
 
   # Create a story with valid values.  Options will override default values (should be :attribute => value).
   def create_story(options = {})
