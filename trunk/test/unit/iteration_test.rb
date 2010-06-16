@@ -125,8 +125,32 @@ class IterationTest < ActiveSupport::TestCase
     
     iterations(:first).summarize
   end
+  
+  def test_have_records_changed_no_changes
+    sleep 1 # Distance from set up
+    assert !Iteration.have_records_changed(individuals(:aaron), Time.now)
+  end
+  
+  def test_have_records_changed_iteration_changed
+    assert_have_records_changed(iterations(:third), iterations(:first))
+  end
 
 private
+  
+  def assert_have_records_changed(other_project_object, project_object)
+    sleep 1 # Distance from set up
+    start = Time.now
+    other_project_object.name = "changed"
+    other_project_object.save(false)
+    assert !Iteration.have_records_changed(individuals(:aaron), start)
+
+    project_object.name = "changed"
+    project_object.save(false)
+    assert Iteration.have_records_changed(individuals(:aaron), start)
+
+    project_object.destroy
+    assert Iteration.have_records_changed(individuals(:aaron), start)
+  end
 
   # Create an iteration with valid values.  Options will override default values (should be :attribute => value).
   def create_iteration(options = {})

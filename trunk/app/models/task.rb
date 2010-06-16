@@ -1,9 +1,9 @@
 class Task < ActiveRecord::Base
+  acts_as_paranoid
   belongs_to :individual
   belongs_to :story
   attr_accessible :name, :description, :effort, :status_code, :individual_id, :story_id, :reason_blocked, :priority, :actual, :estimate
   acts_as_audited :except => [:story_id]
-  acts_as_paranoid
   
   validates_presence_of     :name, :story_id
   validates_length_of       :name,                   :maximum => 250, :allow_nil => true # Allow nil to workaround bug

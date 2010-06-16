@@ -9,20 +9,27 @@ package org.planigle.planigle.business
 
 	public class StoriesDelegate extends Delegate
 	{
-		public function StoriesDelegate( responder:IResponder )
+		protected var time:String;
+		
+		public function StoriesDelegate( responder:IResponder, time:String = null  )
 		{
 			super(responder);
+			this.time = time;
+		}
+		
+		// Answer the parameters to send.
+		protected override function params():Object
+		{
+			var params:Object = Story.conditions;
+			if (time != null)
+				params['time'] = time;
+			return params;
 		}
 
 		// Answer the name of the remote object (should be overridden).
 		override protected function getRemoteObjectName():String
 		{
 			return "storyRO";
-		}
-
-		override protected function params():Object
-		{
-			return Story.conditions;
 		}
 
 		// Answer the name of the factory URL.

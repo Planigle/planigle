@@ -15,7 +15,7 @@ class StoriesController < ResourceController
         render
       end
       format.xml { @records = get_records; render :xml => @records }
-      format.amf { @records = get_records; render :amf => @records }
+      format.amf { @records = get_records; render :amf => {:time => Time.now.to_s, :records => @records} }
     end
   end
   
@@ -117,15 +117,20 @@ protected
 
   # Get the records based on the current individual.
   def get_records
+    time = get_params[:time]
     cond = conditions
     if params[:iteration_id]; cond[:iteration_id] = params[:iteration_id]; end
-    Story.get_records(current_individual, cond)
+    if (!time || Story.have_records_changed(current_individual, Time.parse(time)))
+      Story.get_records(current_individual, cond)
+    else
+      nil
+    end
   end
   
   # Filter the results
   def conditions
-    cond = is_amf ? params[0] : params[:record]
-    cond = cond ? cond : {}
+    cond = get_params
+    cond.delete("time")
     if cond[:release_id] == ""; cond[:release_id] = nil; end
     if cond[:iteration_id] == ""; cond[:iteration_id] = nil; end
     if cond[:team_id] == ""; cond[:team_id] = nil; end

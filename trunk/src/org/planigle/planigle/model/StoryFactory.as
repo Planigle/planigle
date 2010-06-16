@@ -9,6 +9,7 @@ package org.planigle.planigle.model
 	[Bindable]
 	public class StoryFactory
 	{
+		public var timeUpdated:String;
 		public var stories:ArrayCollection = new ArrayCollection();
 		private static var instance:StoryFactory;
 		private var storyMapping:Object = new Object();
@@ -28,8 +29,9 @@ package org.planigle.planigle.model
 		}
 
 		// Populate the stories.
-		public function populate(someStories:Array):void
+		public function populate(timeUpdated:String, someStories:Array):void
 		{
+			this.timeUpdated = timeUpdated;
 			var newStories:ArrayCollection = new ArrayCollection(someStories);
 			storyMapping = new Object();
 			for each (var story:Story in newStories)
@@ -57,7 +59,7 @@ package org.planigle.planigle.model
 				newStories.addItem(story);
 			newStories.addItem(newStory);
 			sortStories(newStories);
-			populate(newStories.toArray());
+			populate(timeUpdated, newStories.toArray());
 			return newStory;
 		}
 		

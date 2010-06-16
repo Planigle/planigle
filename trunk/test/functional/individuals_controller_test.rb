@@ -84,11 +84,21 @@ class IndividualsControllerTest < Test::Unit::TestCase
   def test_index_by_read_only_user_premium
     index_by_role(individuals(:readonly), Individual.find_all_by_company_id(1, :conditions => "role != 0").length)
   end
+    
+  # Test getting companies (based on role).
+  def test_index_no_changes
+    index_by_role(individuals(:aaron), nil, {:date => (Time.now + 5).to_s})
+  end
+    
+  # Test getting companies (based on role).
+  def test_index_changes
+    index_by_role(individuals(:aaron), Individual.find_all_by_company_id(1, :conditions => "role != 0").length, {:date => (Time.now - 5).to_s})
+  end
 
   # Test getting individuals (based on role).
-  def index_by_role(user, count)
+  def index_by_role(user, count, params={})
     login_as(user)
-    get :index, :format => 'xml'
+    get :index, {:format => 'xml'}.merge(params)
     assert_response :success
     assert_select "individuals" do
       assert_select "individual", count

@@ -7,6 +7,7 @@ package org.planigle.planigle.model
 	[Bindable]
 	public class IterationFactory
 	{
+		public var timeUpdated:String;
 		public var iterations:ArrayCollection = new ArrayCollection();
 		public var iterationSelector:ArrayCollection = new ArrayCollection();
 		private var iterationMapping:Object = new Object();
@@ -46,8 +47,9 @@ package org.planigle.planigle.model
 		}
 
 		// Populate the iterations.
-		public function populate(newIterations:Array):void
+		public function populate(timeUpdated:String, newIterations:Array):void
 		{
+			this.timeUpdated = timeUpdated;
 			updateIterations(new ArrayCollection(newIterations));
 		}
 		

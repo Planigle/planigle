@@ -17,7 +17,7 @@ package org.planigle.planigle.commands
 		public function execute(event:CairngormEvent):void
 		{
 			//  Delegate acts as both delegate and responder.
-			var delegate:IndividualsDelegate = new IndividualsDelegate( this );
+			var delegate:IndividualsDelegate = new IndividualsDelegate( this, IndividualFactory.getInstance().timeUpdated );
 			
 			delegate.get();
 		}
@@ -25,7 +25,9 @@ package org.planigle.planigle.commands
 		// Handle successful server request.
 		public function result( event:Object ):void
 		{
-			IndividualFactory.getInstance().populateAll(event.result as Array);
+			var result:Object = event.result;
+			if (result.records != null)
+				IndividualFactory.getInstance().populateAll(result.time, result.records as Array);
 		}
 		
 		// Handle case where error occurs.

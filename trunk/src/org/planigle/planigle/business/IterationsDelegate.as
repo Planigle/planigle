@@ -4,9 +4,21 @@ package org.planigle.planigle.business
 
 	public class IterationsDelegate extends Delegate
 	{
-		public function IterationsDelegate( responder:IResponder )
+		protected var time:String;
+		
+		public function IterationsDelegate( responder:IResponder, time:String = null )
 		{
 			super(responder);
+			this.time = time;
+		}
+		
+		// Answer the parameters to send.
+		protected override function params():Object
+		{
+			var params:Object = new Object();
+			if (time != null)
+				params['time'] = time;
+			return params;
 		}
 
 		// Answer the name of the remote object (should be overridden).
