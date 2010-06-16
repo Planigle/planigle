@@ -442,6 +442,7 @@
 			if (individual.selectedItem.id != -1) conditions["individual_id"]= individual.selectedItem.id ? individual.selectedItem.id : "";
 			if (itemStatus.selectedItem.value != -1) conditions["status_code"]= itemStatus.selectedItem.value != -2 ? itemStatus.selectedItem.value : "NotDone";
 			if (storySearchText.text != "") conditions["text"]=storySearchText.text;
+			StoryFactory.getInstance().clearTimeUpdated();
 			Story.conditions = conditions;
 		}	
 		
