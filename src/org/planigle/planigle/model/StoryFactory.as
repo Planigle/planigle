@@ -27,6 +27,10 @@ package org.planigle.planigle.model
 				instance = new StoryFactory(new SingletonEnforcer);
 			return instance;
 		}
+		
+		public function clearTimeUpdated():void {
+			timeUpdated = null;
+		}
 
 		// Populate the stories.
 		public function populate(timeUpdated:String, someStories:Array):void
