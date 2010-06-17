@@ -67,29 +67,33 @@ class ResourceController < ApplicationController
   def update
     @record = get_record_for_change
     if (authorized_for_update?(@record))
-      respond_to do |format|
-        begin
-          @record.class.transaction do
-            update_record
-            if save_record
-              post_update
-              format.xml { render :xml => @record }
-              format.amf { render :amf => @record }
+      if (up_to_date(@record))
+        respond_to do |format|
+          begin
+            @record.class.transaction do
+              update_record
+              if save_record
+                post_update
+                format.xml { render :xml => @record }
+                format.amf { render :amf => @record }
+              else
+                raise "Errors updating"
+              end
+            end
+          rescue Exception => e
+            if @record.valid?
+              logger.error(e)
+              logger.error(e.backtrace.join("\n"))
+              format.xml { render :xml => xml_error('Error updating'), :status => 500 }
+              format.amf { render :amf => 'Error updating' }
             else
-              raise "Errors updating"
+              format.xml { render :xml => @record.errors, :status => :unprocessable_entity }
+              format.amf { render :amf => @record.errors.full_messages }
             end
           end
-        rescue Exception => e
-          if @record.valid?
-            logger.error(e)
-            logger.error(e.backtrace.join("\n"))
-            format.xml { render :xml => xml_error('Error updating'), :status => 500 }
-            format.amf { render :amf => 'Error updating' }
-          else
-            format.xml { render :xml => @record.errors, :status => :unprocessable_entity }
-            format.amf { render :amf => @record.errors.full_messages }
-          end
         end
+      else
+        out_of_date
       end
     else
       unauthorized
@@ -160,5 +164,20 @@ protected
   def get_params
     parms = is_amf ? params[0] : params[:record]
     parms == nil ? {} : parms
+  end
+  
+  # Answer whether the record being changed is up to date.
+  def up_to_date(record)
+    timestamp = params[:updated_at]
+    !timestamp || Time.parse(timestamp) == record.updated_at
+  end
+  
+  # Send error that the record being changed is out of date.
+  def out_of_date
+    status = 200
+    respond_to do |format|
+      format.xml { render :xml => xml_error("Someone else has made changes since you last refreshed.  Please refresh and retry."), :status => status }
+      format.amf { render :amf => ["Someone else has made changes since you last refreshed.  Please refresh and retry."] }
+    end
   end
 end
