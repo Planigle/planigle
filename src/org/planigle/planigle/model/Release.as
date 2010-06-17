@@ -14,6 +14,7 @@ package org.planigle.planigle.model
 		public var name:String;
 		public var start:Date;
 		public var finish:Date;
+		public var updatedAt:Date;
 	
 		// Populate myself from XML.
 		public function populate(xml:XML):void
@@ -23,6 +24,7 @@ package org.planigle.planigle.model
 			name = xml.name;
 			start = DateUtils.stringToDate(xml.start);		
 			finish = DateUtils.stringToDate(xml.finish);
+			updatedAt = DateUtils.stringToDate(xml.child("updated-at"));
 		}
 	
 		// Update me.  Params should be of the format (record[param]).  Success function
@@ -30,6 +32,7 @@ package org.planigle.planigle.model
 		// be passed an XMLList with errors).
 		public function update(params:Object, successFunction:Function, failureFunction:Function):void
 		{
+			params["updated_at"] = updatedAt;
 			new UpdateReleaseCommand(this, params, successFunction, failureFunction).execute(null);
 		}
 		
