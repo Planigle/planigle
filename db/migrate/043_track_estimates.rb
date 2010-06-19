@@ -4,7 +4,7 @@ class TrackEstimates < ActiveRecord::Migration
     add_column :tasks, :estimate, :decimal, :precision => 7, :scale => 2
     add_column :tasks, :actual, :decimal, :precision => 7, :scale => 2
     Task.reset_column_information # Work around an issue where the new columns are not in the cache.
-    Task.find(:all).each do |task|
+    Task.find_with_deleted(:all).each do |task|
       task.estimate = task.effort
       if task.status_code == Story::Done
         task.effort = 0
@@ -17,7 +17,7 @@ class TrackEstimates < ActiveRecord::Migration
         story_attribute.save(false)
       end
     end
-    Project.find(:all).each do |project|
+    Project.find_with_deleted(:all).each do |project|
       max = 0
       project.story_attributes.each {|story_attribute| max = story_attribute.ordering > max ? story_attribute.ordering : max}
       StoryAttribute.create(:project_id => project.id, :name => "Estimate", :value_type => StoryAttribute::Number, :is_custom => false, :show => false, :width => 60, :ordering => max+10)
@@ -26,7 +26,7 @@ class TrackEstimates < ActiveRecord::Migration
   end
 
   def self.down
-    Task.find(:all).each do |task|
+    Task.find_with_deleted(:all).each do |task|
       task.effort = task.estimate
       task.save(false)
     end
