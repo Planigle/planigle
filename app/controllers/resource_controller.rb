@@ -176,8 +176,20 @@ protected
   def out_of_date
     status = 200
     respond_to do |format|
-      format.xml { render :xml => xml_error("Someone else has made changes since you last refreshed.  Please refresh and retry."), :status => status }
-      format.amf { render :amf => ["Someone else has made changes since you last refreshed.  Please refresh and retry."] }
+      format.xml { render :xml => xml_out_of_date, :status => status }
+      format.amf { render :amf => {:error => "Someone else has made changes since you last refreshed.", :record => @record} }
+    end
+  end
+  
+  # Create xml for an out of date object
+  def xml_out_of_date
+    builder = Builder::XmlMarkup.new
+    builder.instruct!
+    builder.errors do
+      builder.error "Someone else has made changes since you last refreshed."
+      builder.records do
+        builder << @record.to_xml(:skip_instruct => true)
+      end
     end
   end
 end
