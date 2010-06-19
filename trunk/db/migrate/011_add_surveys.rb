@@ -13,14 +13,14 @@ class AddSurveys < ActiveRecord::Migration
     end
     add_column :projects, :survey_key, :string, :limit => 40, :null => false
     add_column :projects, :survey_mode, :integer, :null => false
-    Project.find(:all).each do |project|
+    Project.find_with_deleted(:all).each do |project|
       project.initialize_defaults
       project.survey_mode = 0
       project.save(false)
     end
     add_column :stories, :public, :boolean, :default => false
     add_column :stories, :user_priority, :decimal, :precision => 7, :scale => 3
-    Story.find(:all).each do |story|
+    Story.find_with_deleted(:all).each do |story|
       story.public = false
       story.save(false)
     end

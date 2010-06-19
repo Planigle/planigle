@@ -4,7 +4,7 @@ class ManyProjectsPerIndividual < ActiveRecord::Migration
       t.integer :project_id
       t.integer :individual_id
     end
-    Individual.find(:all).each do |individual|
+    Individual.find_with_deleted(:all).each do |individual|
       project_id = individual.read_attribute(:project_id)
       if project_id
         individual.projects << Project.find(project_id)
@@ -17,7 +17,7 @@ class ManyProjectsPerIndividual < ActiveRecord::Migration
   def self.down
     add_column :individuals, :project_id, :integer
     Individual.reset_column_information # Work around an issue where the new columns are not in the cache.
-    Individual.find(:all).each do |individual|
+    Individual.find_with_deleted(:all).each do |individual|
       if (!individual.projects.empty?)
         individual.write_attribute(:project_id, individual.projects[0].id)
         individual.save(false)

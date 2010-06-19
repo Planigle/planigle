@@ -5,7 +5,7 @@ class CreateAttributePreferences < ActiveRecord::Migration
     add_column :story_attributes, :ordering, :decimal, :precision => 9, :scale => 5
     add_column :story_attributes, :show, :boolean, :null => false, :default => false
     StoryAttribute.reset_column_information # Work around an issue where the new columns are not in the cache.
-    Project.find(:all).each do |project|
+    Project.find_with_deleted(:all).each do |project|
       i = 140
       project.story_attributes.each do |attrib|
         attrib.attributes = {:is_custom => true, :width => (attrib.value_type == StoryAttribute::Number ? 65 : 135), :ordering => i, :show => false}
