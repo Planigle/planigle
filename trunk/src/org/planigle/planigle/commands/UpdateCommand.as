@@ -4,6 +4,7 @@ package org.planigle.planigle.commands
 	import com.adobe.cairngorm.control.CairngormEvent;
 	
 	import mx.controls.Alert;
+	import mx.events.CloseEvent;
 	import mx.rpc.IResponder;
 	
 	import org.planigle.planigle.business.Delegate;
@@ -35,7 +36,20 @@ package org.planigle.planigle.commands
 			var result:XML = XML(event.result);
 			if (result.error.length() > 0)
 			{
-				if (notifyFailure != null)
+				if (result.error == "Someone else has made changes since you last refreshed.")
+				{
+					Alert.show(result.error + "  Save anyway?", "Conflict", 3, null,
+						function(event:CloseEvent):void
+						{
+							if (event.detail==Alert.YES)
+							{
+								params["updated_at"] = null;
+								execute(null);
+							}
+							else
+								object.updateCompleted(result.records.children()[0]);
+						});
+				} else if (notifyFailure != null)
 					notifyFailure(result.error);
 			}
 			else
