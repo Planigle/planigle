@@ -16,6 +16,9 @@
 			import mx.controls.Alert;
         	import mx.modules.ModuleManager;
         	import mx.modules.IModuleInfo;
+			import org.planigle.planigle.model.ReleaseFactory;
+			import org.planigle.planigle.model.IterationFactory;
+			import org.planigle.planigle.model.StoryFactory;
 			import org.planigle.planigle.model.IndividualFactory;
 			import org.planigle.planigle.model.Individual;
 			import org.planigle.planigle.model.TabModelLocator;
@@ -92,7 +95,7 @@
 					watcher.unwatch();
 				watcher = factory.currentIndividual.selectedProject ? ChangeWatcher.watch( factory.currentIndividual.selectedProject, "premiumExpiry", resetState ) : null;
 				resetState(event);
-				refresh();
+				refresh(true);
 			}
 
 			// Hide the specified tab.
@@ -142,8 +145,14 @@
 			}
 					
 			// Refresh any cached data.
-			private function refresh():void
+			private function refresh(force:Boolean = false):void
 			{
+				if (force)
+				{	
+					ReleaseFactory.getInstance().timeUpdated = null;
+					IterationFactory.getInstance().timeUpdated = null;
+					StoryFactory.getInstance().timeUpdated = null;
+				}
 				new CompanyChangedEvent().dispatch();
 				new IndividualChangedEvent().dispatch();
 				if (!factory.currentIndividual.isAdminOnly())
