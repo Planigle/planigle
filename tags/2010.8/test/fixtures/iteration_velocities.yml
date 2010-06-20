@@ -1,0 +1,18 @@
+first:
+  id: 1
+  iteration_id: 1
+  attempted: 0
+  completed: 2
+
+second:
+  id: 2
+  iteration_id: 2
+  team_id: 1
+  attempted: 3
+  completed: 4
+
+third:
+  id: 3
+  iteration_id: 3
+  attempted: 5
+  completed: 6

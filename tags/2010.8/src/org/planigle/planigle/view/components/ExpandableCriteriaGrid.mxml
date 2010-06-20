@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" horizontalGap="0" height="64" width="514" xmlns:components="org.planigle.planigle.view.components.*" creationComplete="created()">
+	<mx:Script>
+		<![CDATA[
+		import mx.containers.Grid;
+		import mx.controls.TextArea;
+		import mx.managers.PopUpManager;
+		import org.planigle.planigle.model.Story;
+
+		public function created():void
+		{
+			expandText.setStyle("icon", parentApplication.imgExpandText);
+		}		
+
+        public function clear():void
+        {
+        	grid.clear();
+        }
+	
+        public function set story(story:Story):void
+        {
+        	grid.story = story;
+        }
+        
+        public function filterDone():void
+        {
+        	grid.filterDone();
+        }
+        
+        public function get acceptanceCriteria():String
+        {
+        	return grid.acceptanceCriteria;
+        }
+
+		private function expand():void
+		{
+			var dialog:ExpandedItem = ExpandedItem(PopUpManager.createPopUp(DisplayObject(parentApplication), ExpandedItem, true));
+			dialog.init(grid);
+			PopUpManager.centerPopUp(dialog);
+			grid.selectFirstItem();
+		}
+		]]>
+	</mx:Script>
+	<components:CriteriaGrid id="grid" height="100%" width="100%"/>
+	<mx:LinkButton id="expandText" cornerRadius="0" focusThickness="0" paddingLeft="2" paddingRight="0" paddingTop="0" paddingBottom="0" toolTip="Edit in expanded view" click="expand()"/>
+</mx:HBox>

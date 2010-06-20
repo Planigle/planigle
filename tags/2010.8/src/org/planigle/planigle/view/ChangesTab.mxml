@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:local="org.planigle.planigle.view.controls.*" label="Changes" name="Changes" borderThicknessLeft="2" borderThicknessRight="2" headerHeight="0" creationComplete="created(event)">
+	<mx:Script>
+		<![CDATA[
+		import mx.collections.ArrayCollection;
+		import mx.binding.utils.ChangeWatcher;
+		import org.planigle.planigle.events.AuditChangedEvent;
+		import org.planigle.planigle.model.Audit;
+		import org.planigle.planigle.model.Individual;
+		import org.planigle.planigle.model.IndividualFactory;
+		
+		[Bindable]
+		private var users:ArrayCollection = new ArrayCollection;
+
+		// Reset my state to how it was initially.
+		public function resetState(event:Event):void
+		{
+		}
+		
+		// Initialize me.
+		public function created(event:Event):void
+		{
+			ChangeWatcher.watch( IndividualFactory.getInstance(), "individuals", updateIndividuals );
+			updateIndividuals(null);
+		}
+		
+		private function updateIndividuals(event:Event):void
+		{
+			var newUsers:ArrayCollection = new ArrayCollection();
+			for each (var individ:Individual in IndividualFactory.getInstance().individuals)
+				newUsers.addItem(individ);
+			var all:Individual = new Individual();
+			all.populate( <individual><first-name>All Users</first-name></individual> );
+			newUsers.addItem(all);
+			users = newUsers;
+			changesChanger.selectedItem = all;
+		}
+
+		private function search(event:Event):void
+		{
+			new AuditChangedEvent(changesChanger.selectedItem.id, changesObjectType.selectedItem.value ? changesObjectType.selectedItem.value : null, changesStartDate.selectedDate, changesEndDate.selectedDate).dispatch();
+		}
+
+		// Answer whether any changes need to be saved.
+		public function isDirty(): Boolean
+		{
+			return false;
+		}
+		]]>
+	</mx:Script>
+	<mx:VBox height="100%" width="100%">
+		<mx:HBox>
+			<mx:VBox>
+				<mx:Form id="changeSearchForm" defaultButton="{searchBtn}" paddingTop="5" paddingBottom="0" verticalGap="5">
+					<mx:FormItem label='User'>
+						<local:FixedComboBox id='changesChanger' width="200" dataProvider="{users}" labelField="name"/>
+					</mx:FormItem>
+					<mx:FormItem label='Object Type'>
+						<local:FixedComboBox id='changesObjectType' width="200" selectedIndex="10">
+							<mx:Object label="Company" value="Company" />
+							<mx:Object label="Individual" value="Individual" />
+							<mx:Object label="Iteration" value="Iteration" />
+							<mx:Object label="Project" value="Project" />
+							<mx:Object label="Release" value="Release" />
+							<mx:Object label="Story" value="Story" />
+							<mx:Object label="Story Attribute" value="StoryAttribute" />
+							<mx:Object label="Story Attribute Value" value="StoryAttributeValue" />
+							<mx:Object label="Task" value="Task" />
+							<mx:Object label="Team" value="Team" />
+							<mx:Object label="All Types" value='' />
+						</local:FixedComboBox>
+					</mx:FormItem>
+				</mx:Form>
+			</mx:VBox>			
+			<mx:VBox>
+				<mx:Form id="changeSearchForm2" defaultButton="{searchBtn}" paddingTop="5" paddingBottom="0" verticalGap="5">
+					<mx:FormItem label='Starting'>
+						<mx:DateField id='changesStartDate' editable="true" showToday="true" width="100"/>
+					</mx:FormItem>
+					<mx:FormItem label='Ending'>
+						<mx:DateField id='changesEndDate' editable="true" showToday="true" width="100"/>
+					</mx:FormItem>
+				</mx:Form>
+			</mx:VBox>			
+		</mx:HBox>
+		<mx:ControlBar width="100%">
+			<mx:Button label="Search" id="searchBtn" click="search(event)"/>
+		</mx:ControlBar>
+		<mx:DataGrid id="changeGrid" height="100%" width="100%"  variableRowHeight="true" dataProvider="{Audit.audits}" rowCount="{Audit.audits.length}">
+			<mx:columns>
+				<mx:DataGridColumn headerText='Date' dataField="date" editable="false" width="100"/> 
+				<mx:DataGridColumn headerText='User' dataField="userName" editable="false" width="100"/> 
+				<mx:DataGridColumn headerText='Object Type' dataField="objectType" editable="false" width="60"/> 
+				<mx:DataGridColumn headerText='Object Name' dataField="name" editable="false" wordWrap="true" width="120"/> 
+				<mx:DataGridColumn headerText='Change Type' dataField="action" editable="false" width="55"/> 
+				<mx:DataGridColumn headerText='Change Details' editable="false" width="325">
+					<mx:itemRenderer> 
+						<mx:Component>
+							<mx:Text paddingLeft="5" htmlText="{data.changeDescription}" selectable="false"/>
+						</mx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+			</mx:columns>
+		</mx:DataGrid>
+	</mx:VBox>
+</mx:Panel>
