@@ -106,6 +106,10 @@ class Task < ActiveRecord::Base
       (reason_blocked && reason_blocked.downcase.index(text)) ||
       (id_text && id==id_text)
   end
+  
+  def updated_at_string
+    updated_at ? updated_at.to_s : updated_at
+  end
 
 protected
   

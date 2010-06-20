@@ -74,54 +74,59 @@ module RubyAMF
       :actionscript => 'Release',
       :ruby => 'Release',
       :type => 'active_record',
-      :attributes => ["id", "project_id", "name", "start", "finish", "updated_at"])
+      :attributes => ["id", "project_id", "name", "start", "finish"],
+      :methods => ['updated_at_string'])
 
     ClassMappings.register(
       :actionscript => 'Iteration',
       :ruby => 'Iteration',
       :type => 'active_record',
-      :attributes => ["id", "project_id", "name", "start", "finish", "retrospective_results", "updated_at"])
+      :attributes => ["id", "project_id", "name", "start", "finish", "retrospective_results"],
+      :methods => ['updated_at_string'])
 
     ClassMappings.register(
       :actionscript => 'Company',
       :ruby => 'Company',
       :type => 'active_record',
       :attributes => ["id", "name"],
-      :methods => ["filtered_projects", "updated_at"])
+      :methods => ["filtered_projects", "updated_at_string"])
 
     ClassMappings.register(
       :actionscript => 'Project',
       :ruby => 'Project',
       :type => 'active_record',
-      :attributes => ["id", "company_id", "name", "description", "survey_key", "survey_mode", "premium_expiry", "premium_limit", "track_actuals", "updated_at"],
+      :attributes => ["id", "company_id", "name", "description", "survey_key", "survey_mode", "premium_expiry", "premium_limit", "track_actuals"],
+      :methods => ['updated_at_string'],
       :associations => ["teams", "story_attributes"])
 
     ClassMappings.register(
       :actionscript => 'Team',
       :ruby => 'Team',
       :type => 'active_record',
-      :attributes => ["id", "project_id", "name", "description", "updated_at"])
+      :attributes => ["id", "project_id", "name", "description"],
+      :methods => ['updated_at_string'])
 
     ClassMappings.register(
       :actionscript => 'Individual',
       :ruby => 'Individual',
       :type => 'active_record',
-      :attributes => ["id", "company_id", "login", "email", "first_name", "last_name", "activated_at", "enabled", "accepted_agreement", "last_login", "role", "team_id", "phone_number", "notification_type", "updated_at"],
-      :methods => ["project_ids", "selected_project_id", "capacity"])
+      :attributes => ["id", "company_id", "login", "email", "first_name", "last_name", "activated_at", "enabled", "accepted_agreement", "last_login", "role", "team_id", "phone_number", "notification_type"],
+      :methods => ["project_ids", "selected_project_id", "capacity", "updated_at_string"])
 
     ClassMappings.register(
       :actionscript => 'Story',
       :ruby => 'Story',
       :type => 'active_record',
-      :attributes => ["id", "project_id", "name", "description", "release_id", "iteration_id", "individual_id", "effort", "status_code", "priority", "user_priority", "is_public", "team_id", "reason_blocked", "updated_at"],
-      :methods => ["acceptance_criteria"],
+      :attributes => ["id", "project_id", "name", "description", "release_id", "iteration_id", "individual_id", "effort", "status_code", "priority", "user_priority", "is_public", "team_id", "reason_blocked"],
+      :methods => ["acceptance_criteria", "updated_at_string"],
       :associations => ["story_values", "tasks", "criteria"])
 
     ClassMappings.register(
       :actionscript => 'Task',
       :ruby => 'Task',
       :type => 'active_record',
-      :attributes => ["id", "story_id", "name", "description", "individual_id", "effort", "status_code", "reason_blocked", "priority", "estimate", "actual", "updated_at"])
+      :attributes => ["id", "story_id", "name", "description", "individual_id", "effort", "status_code", "reason_blocked", "priority", "estimate", "actual"],
+      :methods => ['updated_at_string'])
 
     ClassMappings.register(
       :actionscript => 'Criterium',

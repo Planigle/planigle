@@ -87,4 +87,8 @@ class Company < ActiveRecord::Base
   def authorized_for_destroy?(current_user)
     current_user.role <= Individual::Admin
   end
+  
+  def updated_at_string
+    updated_at ? updated_at.to_s : updated_at
+  end
 end

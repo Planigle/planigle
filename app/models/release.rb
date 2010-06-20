@@ -66,6 +66,10 @@ class Release < ActiveRecord::Base
     end
   end
   
+  def updated_at_string
+    updated_at ? updated_at.to_s : updated_at
+  end
+  
 protected
   
   # Ensure finish is after start.

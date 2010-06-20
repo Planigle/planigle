@@ -47,4 +47,8 @@ class Team < ActiveRecord::Base
       else false
     end
   end
+  
+  def updated_at_string
+    updated_at ? updated_at.to_s : updated_at
+  end
 end
