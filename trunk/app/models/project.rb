@@ -232,6 +232,10 @@ class Project < ActiveRecord::Base
     story_attributes << StoryAttribute.new(:name => 'Rank', :is_custom => false, :value_type => StoryAttribute::Number, :width => 40, :ordering => 150, :show => true)
     story_attributes << StoryAttribute.new(:name => 'User Rank', :is_custom => false, :value_type => StoryAttribute::Number, :width => 90, :ordering => 160, :show => false)
   end
+  
+  def updated_at_string
+    updated_at ? updated_at.to_s : updated_at
+  end
 
 protected
   

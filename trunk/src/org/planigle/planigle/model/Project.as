@@ -21,7 +21,7 @@ package org.planigle.planigle.model
 		public var premiumExpiry:Date;
 		public var premiumLimit:int;
 		public var trackActuals:Boolean;
-		public var updatedAt:String;
+		public var updatedAtString:String;
 		private static const PRIVATE:int = 0;
 		private static const PRIVATE_BY_DEFAULT:int = 1;
 		private static const PUBLIC_BY_DEFAULT:int = 2;
@@ -51,7 +51,7 @@ package org.planigle.planigle.model
 			premiumExpiry = DateUtils.stringToDate(xml.child("premium-expiry"));			
 			premiumLimit = xml.child("premium-limit");			
 			trackActuals = xml.child("track-actuals") == "true";
-			updatedAt = xml.child("updated-at");
+			updatedAtString = xml.child("updated-at");
 
 			var newStoryAttributes:ArrayCollection = new ArrayCollection();
 			for (var i:int = 0; i < xml.child("story-attributes").child("story-attribute").length(); i++)
@@ -205,7 +205,7 @@ package org.planigle.planigle.model
 		// be passed an XMLList with errors).
 		public function update(params:Object, successFunction:Function, failureFunction:Function):void
 		{
-			params["updated_at"] = updatedAt;
+			params["updated_at"] = updatedAtString;
 			new UpdateProjectCommand(this, params, successFunction, failureFunction).execute(null);
 		}
 		

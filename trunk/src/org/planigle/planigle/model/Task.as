@@ -16,7 +16,7 @@ package org.planigle.planigle.model
 		public var description:String;
 		public var reasonBlocked:String;
 		public var individualId:String;
-		public var updatedAt:String;
+		public var updatedAtString:String;
 		protected var myEffort:String;
 		protected var myEstimate:String;
 		protected var myActual:String;
@@ -38,7 +38,7 @@ package org.planigle.planigle.model
 			statusCode = xml.child("status-code");
 			reasonBlocked = xml.child("reason-blocked");
 			priority = xml.child("priority");
-			updatedAt = xml.child("updated-at");
+			updatedAtString = xml.child("updated-at");
 		}
 
 		// Answer how much to indent this kind of item.
@@ -122,7 +122,7 @@ package org.planigle.planigle.model
 		// be passed an XMLList with errors).
 		public function update(params:Object, successFunction:Function, failureFunction:Function):void
 		{
-			params["updated_at"] = updatedAt;
+			params["updated_at"] = updatedAtString;
 			if (params["record[status_code]"] == Story.ACCEPTED && !params.hasOwnProperty("record[effort]"))
 				params["record[effort]"] = 0;
 			if (statusCode == Story.CREATED && params.hasOwnProperty("record[status_code]") && params["record[status_code]"] != Story.CREATED && !individualId && !params.hasOwnProperty("record[individual_id]"))
