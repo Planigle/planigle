@@ -16,7 +16,7 @@ package org.planigle.planigle.model
 		public var description:String;
 		public var reasonBlocked:String;
 		public var individualId:String;
-		public var updatedAt:Date;
+		public var updatedAt:String;
 		protected var myEffort:String;
 		protected var myEstimate:String;
 		protected var myActual:String;
@@ -38,7 +38,7 @@ package org.planigle.planigle.model
 			statusCode = xml.child("status-code");
 			reasonBlocked = xml.child("reason-blocked");
 			priority = xml.child("priority");
-			updatedAt = DateUtils.stringToDate(xml.child("updated-at"));
+			updatedAt = xml.child("updated-at");
 		}
 
 		// Answer how much to indent this kind of item.
