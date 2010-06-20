@@ -12,7 +12,7 @@ package org.planigle.planigle.model
 	{
 		public var id:String;
 		public var name:String;
-		public var updatedAt:Date;
+		public var updatedAt:String;
 		private var myProjects:Array = new Array();
 		public var projectSelector:ArrayCollection = new ArrayCollection();
 		private var projectMapping:Object = new Object();
@@ -23,7 +23,7 @@ package org.planigle.planigle.model
 		{
 			id = xml.id.toString() == "" ? null: xml.id;
 			name = xml.name;
-			updatedAt = DateUtils.stringToDate(xml.child("updated-at"));
+			updatedAt = xml.child("updated-at");
 
 			var newProjects:ArrayCollection = new ArrayCollection();
 			for (var j:int = 0; j < xml.projects.project.length(); j++)

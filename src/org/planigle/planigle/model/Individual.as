@@ -27,7 +27,7 @@ package org.planigle.planigle.model
 		public var phoneNumber:String;
 		public var notificationType:int;
 		public var capacity:Number;
-		public var updatedAt:Date;
+		public var updatedAt:String;
 		private static const ADMIN:int = 0;
 		private static const PROJECT_ADMIN:int = 1;
 		private static const PROJECT_USER:int = 2;
@@ -56,7 +56,7 @@ package org.planigle.planigle.model
 			acceptedAgreement = acceptedDate == "" ? null : DateUtils.stringToDate(acceptedDate);
 			phoneNumber = xml.child("phone-number");
 			notificationType = int(xml.child("notification-type"));
-			updatedAt = DateUtils.stringToDate(xml.child("updated-at"));
+			updatedAt = xml.child("updated-at");
 		}
 		
 		public function get projectIds():String

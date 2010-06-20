@@ -30,7 +30,7 @@ package org.planigle.planigle.model
 		public var userPriority:String = "";
 		public var normalizedPriority:String = ""; // Calculated by StoryFactory
 		public var custom:String; // Used for sorting
-		public var updatedAt:Date;
+		public var updatedAt:String;
 		private var myStoryValues:Array = new Array();
 		private var myTasks:Array = new Array();
 		private var myCriteria:Array = new Array();
@@ -58,7 +58,7 @@ package org.planigle.planigle.model
 			isPublic = xml.child("is-public").toString() == "true";
 			priority = xml.priority;
 			userPriority = xml.child("user-priority");
-			updatedAt = DateUtils.stringToDate(xml.child("updated-at"));
+			updatedAt = xml.child("updated-at");
 
 			var newStoryValues:ArrayCollection = new ArrayCollection();
 			for (var i:int = 0; i < xml.child("story-values").child("story-value").length(); i++)

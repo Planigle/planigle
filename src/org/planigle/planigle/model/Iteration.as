@@ -16,7 +16,7 @@ package org.planigle.planigle.model
 		public var start:Date;
 		public var finish:Date;
 		public var retrospectiveResults:String;
-		public var updatedAt:Date;
+		public var updatedAt:String;
 	
 		// Populate myself from XML.
 		public function populate(xml:XML):void
@@ -27,7 +27,7 @@ package org.planigle.planigle.model
 			start = DateUtils.stringToDate(xml.start);			
 			finish = DateUtils.stringToDate(xml.finish);
 			retrospectiveResults = xml.child("retrospective-results");
-			updatedAt = DateUtils.stringToDate(xml.child("updated-at"));
+			updatedAt = xml.child("updated-at");
 		}
 		
 		// Update me.  Params should be of the format (record[param]).  Success function
