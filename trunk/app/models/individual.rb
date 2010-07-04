@@ -266,7 +266,7 @@ class Individual < ActiveRecord::Base
   # Answer my capacity based on my load over the past 3 iterations
   def capacity
     if project
-      iterations = project.iterations.find(:all, :conditions => 'finish <= CURDATE()', :limit => 3, :order => 'start desc')
+      iterations = project.iterations.find(:all, :include => {:stories => :tasks}, :conditions => 'finish <= CURDATE()', :limit => 3, :order => 'start desc')
       iterations.size > 0 ? iterations.inject(0) {|sum, iteration| sum + utilization_in(iteration)} / iterations.size : nil
     else
       nil
@@ -276,8 +276,12 @@ class Individual < ActiveRecord::Base
   # Answer my utilization in an iteration
   def utilization_in(iteration)
     iteration.stories.inject(0) do |storyTotal, story|
-      storyTotal + story.tasks.find(:all, :conditions => {:individual_id => id, :status_code => Story::Done}).inject(0) do |sum, task|
-        sum + (task.actual ? task.actual : (task.estimate ? task.estimate : 0))
+      storyTotal + story.tasks.inject(0) do |sum, task|
+        if task.individual_id == id and task.status_code == Story::Done
+          sum + (task.actual ? task.actual : (task.estimate ? task.estimate : 0))
+        else
+          sum
+        end
       end
     end
   end

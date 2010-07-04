@@ -171,6 +171,7 @@ class Project < ActiveRecord::Base
 
   # Answer the records for a particular user.
   def self.get_records(current_user)
+    current_user.individual_story_attributes # load these in one shot
     if current_user.role >= Individual::ProjectAdmin
       if (current_user.is_premium)
         Project.find(:all, :include => [:story_attributes, :teams], :conditions => ["projects.company_id = ?", current_user.company_id])

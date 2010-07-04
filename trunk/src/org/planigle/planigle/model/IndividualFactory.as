@@ -76,6 +76,8 @@ package org.planigle.planigle.model
 		public function populate(timeUpdated:String, newIndividuals:Array):void
 		{
 			updateIndividuals(new ArrayCollection(newIndividuals));
+			if (allLoaded())
+				this.timeUpdated = timeUpdated;
 		}
 		
 		// Create a new individual.  Params should be of the format (record[param]).  Success function

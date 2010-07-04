@@ -405,7 +405,7 @@ class Story < ActiveRecord::Base
   # Answer the value for an attribute.
   def value_for(attrib)
     if attrib.is_custom
-      value = story_values.find(:first, :conditions => {:story_attribute_id => attrib.id})
+      value = story_values.detect {|val| val.story_attribute == attrib}
       value ? value.value : 0
     else
       case attrib.name
