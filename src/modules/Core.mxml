@@ -5,6 +5,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.planigle.planigle.events.RefreshEvent;
 			import mx.collections.ArrayCollection;
 			import com.adobe.viewsource.ViewSource;
 			import flash.display.DisplayObject;
@@ -153,14 +154,7 @@
 					IterationFactory.getInstance().timeUpdated = null;
 					StoryFactory.getInstance().timeUpdated = null;
 				}
-				new CompanyChangedEvent().dispatch();
-				new IndividualChangedEvent().dispatch();
-				if (!factory.currentIndividual.isAdminOnly())
-				{
-					new ReleaseChangedEvent().dispatch();
-					new IterationChangedEvent().dispatch();
-					new StoryChangedEvent().dispatch();
-				}
+				new RefreshEvent().dispatch();
 			}
 			
 			// Log out.

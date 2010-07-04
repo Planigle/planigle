@@ -4,6 +4,11 @@ package org.planigle.planigle.business
 	import mx.rpc.IResponder;
 	import mx.rpc.remoting.RemoteObject;
 	import org.planigle.planigle.vo.LoginVO;
+	import org.planigle.planigle.model.CompanyFactory;
+	import org.planigle.planigle.model.IndividualFactory;
+	import org.planigle.planigle.model.ReleaseFactory;
+	import org.planigle.planigle.model.IterationFactory;
+	import org.planigle.planigle.model.StoryFactory;
 	
 	public class SessionDelegate
 	{
@@ -28,6 +33,18 @@ package org.planigle.planigle.business
 			
 			remoteObject.create.send(params).addResponder(responder);
 		}	
+
+		// Refresh the session data.
+		public function refresh():void
+		{
+			var params:Object = new Object();
+			params["companies"] = CompanyFactory.getInstance().timeUpdated;
+			params["individuals"] = IndividualFactory.getInstance().timeUpdated;
+			params["releases"] = ReleaseFactory.getInstance().timeUpdated;
+			params["iterations"] = IterationFactory.getInstance().timeUpdated;
+			params["stories"] = StoryFactory.getInstance().timeUpdated;
+			remoteObject.refresh.send(params).addResponder(responder);
+		}
 		
 		// Log out from the server.
 		public function logout():void 

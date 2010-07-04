@@ -8,6 +8,7 @@
 		destination="rubyamf"
 		showBusyCursor="true">
 		<mx:method name="create"/>
+		<mx:method name="refresh"/>
 		<mx:method name="destroy"/>
 	</mx:RemoteObject>
 
