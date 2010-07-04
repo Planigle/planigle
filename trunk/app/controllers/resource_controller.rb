@@ -160,12 +160,6 @@ protected
     true
   end
   
-  # Answer parameters regardless of format
-  def get_params
-    parms = is_amf ? params[0] : params[:record]
-    parms == nil ? {} : parms
-  end
-  
   # Answer whether the record being changed is up to date.
   def up_to_date(record)
     timestamp = params[:updated_at]

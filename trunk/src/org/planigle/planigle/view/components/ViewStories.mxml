@@ -428,12 +428,12 @@
 		public function handleFilter():void
 		{
 			if (release.selectedItem) { // Make sure everything initialized
-				updateStoryConditions();
+				updateStoryConditions(true);
 				new StoryChangedEvent().dispatch();
 			}
 		}
 		
-		protected function updateStoryConditions():void
+		protected function updateStoryConditions(changed:Boolean = false):void
 		{
 			var conditions:Object = new Object();
 			if (release.selectedItem.id != -1) conditions["release_id"]= release.selectedItem.id ? release.selectedItem.id : "";
@@ -442,7 +442,8 @@
 			if (individual.selectedItem.id != -1) conditions["individual_id"]= individual.selectedItem.id ? individual.selectedItem.id : "";
 			if (itemStatus.selectedItem.value != -1) conditions["status_code"]= itemStatus.selectedItem.value != -2 ? itemStatus.selectedItem.value : "NotDone";
 			if (storySearchText.text != "") conditions["text"]=storySearchText.text;
-			StoryFactory.getInstance().clearTimeUpdated();
+			if (changed)
+				StoryFactory.getInstance().clearTimeUpdated();
 			Story.conditions = conditions;
 		}	
 		

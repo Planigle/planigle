@@ -73,4 +73,10 @@ protected
   def debug
     request.headers.each {|header| logger.debug(header)}
   end
+  
+  # Answer parameters regardless of format
+  def get_params
+    parms = is_amf ? params[0] : params[:record]
+    parms == nil ? {} : parms
+  end
 end

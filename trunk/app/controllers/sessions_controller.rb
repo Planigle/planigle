@@ -1,5 +1,7 @@
 # This controller handles the login/logout function of the site.  
 class SessionsController < ApplicationController
+  before_filter :login_required, :only => :refresh
+
   # Login screen or failure to log in from xml
   # GET /sessions/new
   # GET /sessions/new.xml
@@ -36,8 +38,8 @@ class SessionsController < ApplicationController
               render :action => 'new'
             end
           end
-          format.xml { render :xml => data, :status => :created }
-          format.amf { render :amf => data }
+          format.xml { render :xml => data(true), :status => :created }
+          format.amf { render :amf => data(true) }
         else
           reset_session
           format.xml { render :xml => license_agreement, :status => :unprocessable_entity }
@@ -48,6 +50,14 @@ class SessionsController < ApplicationController
         format.xml { render :xml => xml_error('Invalid Credentials'), :status => :unprocessable_entity }
         format.amf { render :amf => {:error => 'Invalid Credentials'} }
       end
+    end
+  end
+
+  # Refresh the data for the current session
+  def refresh
+    respond_to do |format|
+      format.xml { render :xml => data(false)}
+      format.amf { render :amf => data(false)}
     end
   end
 
@@ -68,17 +78,30 @@ class SessionsController < ApplicationController
 protected
 
   # Answer the data for the current user.
-  def data
+  def data(initial)
+    parms = get_params
     result = {}
     result['time'] = Time.now.to_s
-    result['system'] = System.find(:first)
-    result['current_individual'] = current_individual
-    result['companies'] = Company.get_records(current_individual)
-    result['individuals'] = Individual.get_records(current_individual, true)
+    if initial
+      result['system'] = System.find(:first)
+      result['current_individual'] = current_individual
+    end
+    if (!parms[:companies] || Company.have_records_changed(current_individual, Time.parse(parms[:companies])))
+      result['companies'] = Company.get_records(current_individual)
+    end
+    if (!parms[:individuals] || Individual.have_records_changed(current_individual, Time.parse(parms[:individuals])))
+      result['individuals'] = Individual.get_records(current_individual, true)
+    end
     if current_individual.project_id
-      result['releases'] = Release.get_records(current_individual)
-      result['iterations'] = Iteration.get_records(current_individual)
-      result['stories'] = Story.get_records(current_individual, {:status_code => 'NotDone', :team_id => 'MyTeam', :release_id => 'Current', :iteration_id => 'Current'})
+      if (!parms[:releases] || Release.have_records_changed(current_individual, Time.parse(parms[:releases])))
+        result['releases'] = Release.get_records(current_individual)
+      end
+      if (!parms[:iterations] || Iteration.have_records_changed(current_individual, Time.parse(parms[:iterations])))
+        result['iterations'] = Iteration.get_records(current_individual)
+      end
+      if (!parms[:stories] || Story.have_records_changed(current_individual, Time.parse(parms[:stories])))
+        result['stories'] = Story.get_records(current_individual, {:status_code => 'NotDone', :team_id => 'MyTeam', :release_id => 'Current', :iteration_id => 'Current'})
+      end
     end
     result
   end
