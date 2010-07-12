@@ -192,4 +192,14 @@ class TasksControllerTest < ActionController::TestCase
     assert Task.find_by_name('test_task')
     assert_select "errors"
   end
+
+  # Test changing all the tasks status to done.
+  def test_change_to_done_premium_team
+    email_count = PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
+    sms_count = PLANIGLE_SMS_NOTIFIER.number_of_notifications
+    login_as(individuals(:aaron))
+    put :update, {:id => 1, :format => 'xml', :record => {:status_code => 3}, :story_id => 1}
+    assert_equal email_count+3, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
+    assert_equal sms_count+3, PLANIGLE_SMS_NOTIFIER.number_of_notifications
+  end
 end

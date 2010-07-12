@@ -19,13 +19,13 @@ production:
   ldap_search_base: "ou=people,dc=<company name>,dc=com"
 
 
-  # The number of days without logging in to be considered inactive and notified (nil=no notification)
+  # The number of days without logging in to be considered inactive and notified (blank=no notification)
   notify_of_inactivity_after: 
 
-  # The maximum number of days to be notified of inactivity (nil=no maximum; useful when first enabling notification)
+  # The maximum number of days to be notified of inactivity (blank=no maximum; useful when first enabling notification)
   notify_of_inactivity_before: 
 
-  # The number of days before expiration to notify (nil=no notification)
+  # The number of days before expiration to notify (blank=no notification)
   notify_when_expiring_in: 
 
   # The protocol://host[:port] of the server (for URLs). Ex. http://www.planigle.com
@@ -40,5 +40,5 @@ production:
   # The URL for your backlog
   backlog_url: 
 
-  # The email address to notify of things going on with projects (creation, expiration, inactivity; nil=no one)
+  # The email address to notify of things going on with projects (creation, expiration, inactivity; blank=no one)
   who_to_notify: 

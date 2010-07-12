@@ -140,6 +140,16 @@ class StoriesControllerTest < ActionController::TestCase
     assert_equal sms_count+3, PLANIGLE_SMS_NOTIFIER.number_of_notifications
   end
 
+  # Test changing the status to done.
+  def test_change_to_done_premium_team
+    email_count = PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
+    sms_count = PLANIGLE_SMS_NOTIFIER.number_of_notifications
+    login_as(individuals(:aaron))
+    put :update, :id => 1, :record => {:status_code => 3}
+    assert_equal email_count+3, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
+    assert_equal sms_count+3, PLANIGLE_SMS_NOTIFIER.number_of_notifications
+  end
+
   # Test changing the status to blocked.
   def test_change_to_blocked_premium_no_team
     email_count = PLANIGLE_EMAIL_NOTIFIER.number_of_notifications

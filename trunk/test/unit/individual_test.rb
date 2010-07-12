@@ -477,7 +477,7 @@ class IndividualTest < ActiveSupport::TestCase
     Task.create({:story_id => 1, :name => 'test', :individual_id => 2, :status_code => 3, :estimate => 2})
     assert_equal 3, individuals(:aaron).utilization_in(iterations(:first))
     Task.create({:story_id => 1, :name => 'test', :individual_id => 2, :status_code => 3, :estimate => 6, :actual => 9})
-    assert_equal 12, individuals(:aaron).utilization_in(iterations(:first))
+    assert_equal 12, individuals(:aaron).utilization_in(iterations(:first).reload)
   end
   
   def test_have_records_changed_no_changes
