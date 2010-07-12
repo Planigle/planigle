@@ -12,7 +12,7 @@ class NotificationMailerTest < ActiveSupport::TestCase
 
   # Test notification.
   def test_notification
-    response = NotificationMailer.create_notification(projects(:first), 'test@test.com', 'test')
+    response = NotificationMailer.create_notification(projects(:first), 'test@test.com', 'test', 'test')
     assert_equal PLANIGLE_ADMIN_EMAIL, response.from[0]
     assert_equal 'test@test.com', response.to[0]
     assert_equal 'test', response.body

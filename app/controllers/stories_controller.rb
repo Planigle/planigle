@@ -96,17 +96,17 @@ class StoriesController < ResourceController
     Story.transaction do
       @record = get_record
       blocked_before = @record.is_blocked
+      done_before = @record.is_done
       should_update = (params["record"]["status_code"] != Story::Done and @record.status_code == Story::Done)
       super
       if should_update
         Survey.update_rankings(@record.project).each {|story| story.save(false)}
       end
       if !blocked_before && @record.is_blocked
-        @record.project.individuals.each do |individual|
-          if !individual.team_id || individual.team_id == @record.team_id
-            individual.send_notification(@record.project, @record.blocked_message)
-          end
-        end
+        @record.send_notification("A story is blocked", @record.blocked_message)
+      end
+      if !done_before && @record.is_done
+        @record.send_notification("A story is done", @record.done_message)
       end
     end
   rescue ActiveRecord::RecordNotFound

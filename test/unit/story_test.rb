@@ -575,6 +575,33 @@ class StoryTest < ActiveSupport::TestCase
   def test_have_records_changed_task_changed
     assert_have_records_changed(tasks(:three), tasks(:one))
   end
+  
+  def test_is_ready_to_accept
+    story = stories(:first)
+    assert !story.is_ready_to_accept
+    task = tasks(:one)
+    task.status_code = Story::Done
+    task.save(false)
+    story.reload
+    assert story.is_ready_to_accept
+  end
+  
+  def test_is_done
+    assert !stories(:first).is_done
+    assert stories(:second).is_done
+  end
+  
+  def test_send_notification
+    
+  end
+  
+  def test_ready_to_accept_message
+    assert_equal "All tasks for 'test' are done.", stories(:first).ready_to_accept_message
+  end
+  
+  def test_done_message
+    assert_equal "'test' is done.", stories(:first).done_message
+  end
 
 private
 
