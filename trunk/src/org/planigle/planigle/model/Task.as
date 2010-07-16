@@ -123,10 +123,6 @@ package org.planigle.planigle.model
 		public function update(params:Object, successFunction:Function, failureFunction:Function):void
 		{
 			params["updated_at"] = updatedAtString;
-			if (params["record[status_code]"] == Story.ACCEPTED && !params.hasOwnProperty("record[effort]"))
-				params["record[effort]"] = 0;
-			if (statusCode == Story.CREATED && params.hasOwnProperty("record[status_code]") && params["record[status_code]"] != Story.CREATED && !individualId && !params.hasOwnProperty("record[individual_id]"))
-				params["record[individual_id]"] = IndividualFactory.current().id;
 			new UpdateTaskCommand(this, params, successFunction, failureFunction).execute(null);
 		}
 		
