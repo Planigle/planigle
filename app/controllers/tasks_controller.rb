@@ -39,6 +39,7 @@ protected
   
   # Update the record given the params.
   def update_record
+    old_status = @record.status_code
     if is_amf
       @record.name = params[0].name
       @record.description = params[0].description
@@ -48,8 +49,20 @@ protected
       @record.actual = params[0].actual
       @record.status_code = params[0].status_code
       @record.priority = params[0].priority
+      effort = params[0].effort
+      status = params[0].status_code
+      owner = params[0].individual_id
     else
       @record.attributes = params[:record]
+      effort = params[:record][:effort]
+      status = params[:record][:status_code]
+      owner = params[:record][:individual_id]
+    end
+    if @record.status_code == Story::Done && effort == nil
+      @record.effort = 0
+    end
+    if old_status == Story::Created && status != nil && status != Story::Created && @record.individual_id == nil && owner == nil
+      @record.individual_id = current_individual.id
     end
   end
 end

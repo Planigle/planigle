@@ -202,4 +202,70 @@ class TasksControllerTest < ActionController::TestCase
     assert_equal email_count+3, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
     assert_equal sms_count+3, PLANIGLE_SMS_NOTIFIER.number_of_notifications
   end
+    
+  # Test successfully setting the owner.
+  def test_moving_to_done_clears_effort
+    login_as(individuals(:quentin))
+    put :update, :id => 1, :record => {:status_code =>3}, :story_id => 1
+    assert_response :success
+    assert_equal 0, tasks(:one).reload.effort
+  end
+    
+  # Test successfully setting the owner.
+  def test_moving_to_done_clears_effort_unless_set
+    login_as(individuals(:quentin))
+    put :update, :id => 1, :record => {:status_code =>3, :effort =>1}, :story_id => 1
+    assert_response :success
+    assert_equal 1, tasks(:one).reload.effort
+  end
+    
+  # Test successfully setting the owner.
+  def test_moving_to_in_progress_assigns_owner
+    prepare_for_owner_test
+    put :update, :id => 1, :record => {:status_code =>1}, :story_id => 1
+    assert_response :success
+    assert_equal 3, tasks(:one).reload.individual_id
+  end
+    
+  # Test successfully setting the owner.
+  def test_moving_to_in_progress_assigns_owner_unless_set
+    prepare_for_owner_test
+    put :update, :id => 1, :record => {:status_code =>1, :individual_id =>2}, :story_id => 1
+    assert_response :success
+    assert_equal 2, tasks(:one).reload.individual_id
+  end
+    
+  # Test successfully setting the owner.
+  def test_moving_to_in_progress_assigns_owner_unless_no_status
+    prepare_for_owner_test
+    put :update, :id => 1, :record => {:name => 'foo'}, :story_id => 1
+    assert_response :success
+    assert_nil tasks(:one).reload.individual_id
+  end
+    
+  # Test successfully setting the owner.
+  def test_moving_to_in_progress_assigns_owner_unless_status_created
+    prepare_for_owner_test
+    put :update, :id => 1, :record => {:status_code =>0}, :story_id => 1
+    assert_response :success
+    assert_nil tasks(:one).reload.individual_id
+  end
+    
+  # Test successfully setting the owner.
+  def test_moving_to_in_progress_assigns_owner_unless_owner_set
+    prepare_for_owner_test(false)
+    put :update, :id => 1, :record => {:status_code =>1}, :story_id => 1
+    assert_response :success
+    assert_equal 2, tasks(:one).reload.individual_id
+  end
+  
+  def prepare_for_owner_test(clearOwner = true)
+    task = tasks(:one)
+    task.status_code = 0
+    if clearOwner
+      task.individual_id = nil
+    end
+    task.save(false)
+    login_as(individuals(:ted))
+  end
 end
