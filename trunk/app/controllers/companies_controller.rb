@@ -22,6 +22,7 @@ class CompaniesController < ResourceController
             else
               raise ActiveRecord::RecordNotSaved
             end
+            CompanyMailer.deliver_signup_notification( @record, @project, @individual )
           end
         rescue Exception => e
           format.xml { render :xml => merge_errors(@record, @project, @individual), :status => :unprocessable_entity }

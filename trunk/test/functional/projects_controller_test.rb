@@ -2,7 +2,7 @@ require "#{File.dirname(__FILE__)}/../test_helper"
 require "#{File.dirname(__FILE__)}/../projects_test_helper"
 require "#{File.dirname(__FILE__)}/controller_resource_helper"
 require "projects_controller"
-require "project_mailer"
+require "company_mailer"
 
 # Re-raise errors caught by the controller.
 class ProjectsController; def rescue_action(e) raise e end; end
@@ -22,7 +22,7 @@ class ProjectsControllerTest < Test::Unit::TestCase
     ActionMailer::Base.perform_deliveries = true
     ActionMailer::Base.deliveries = []
     IndividualMailer.site = 'www.testxyz.com'
-    ProjectMailer.who_to_notify = 'test@testit.com'
+    CompanyMailer.who_to_notify = 'test@testit.com'
     @controller = ProjectsController.new
     @request    = ActionController::TestRequest.new
     @response   = ActionController::TestResponse.new
