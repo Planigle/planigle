@@ -417,7 +417,7 @@
 		// Answer whether to show (based on whether the item is a project and the user has rights).
 		public function shouldShowAdd(data:Object):Boolean
 		{
-			return !data.isTeam() && factory.currentIndividual.isAtLeastProjectAdmin() && (factory.currentIndividual.isPremium || !data.isCompany());
+			return !data.isTeam() && factory.currentIndividual.isAtLeastProjectAdmin() && (factory.currentIndividual.isPremium || !data.isCompany() || data.projects.length == 0);
 		}
 		
 		// Show the history for the current object.
