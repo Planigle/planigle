@@ -32,7 +32,6 @@ module ProjectsTestHelper
   # Verify that the object was created.
   def assert_create_succeeded
     assert Project.find_by_name('foo')
-    assert_equal ActionMailer::Base.deliveries.length, 1
   end
 
   # Verify that the object was updated.

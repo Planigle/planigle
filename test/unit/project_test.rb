@@ -185,7 +185,9 @@ class ProjectTest < ActiveSupport::TestCase
     project.individuals << create_individual(:last_login => now - 3)
     project.individuals << create_individual(:last_login => now - 5)
     project.individuals << create_individual
-    assert_equal now - 3, project.last_login
+    expected = now - 3
+    actual = project.last_login
+    assert_equal expected.to_s, actual.to_s
   end
 
   # Validate admin_email_addresses
