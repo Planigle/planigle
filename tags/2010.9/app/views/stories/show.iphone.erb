@@ -1,0 +1,22 @@
+<% panel do %>
+<div><strong><%= @record.name %></strong></div>
+<br/>
+<div><strong>Status:</strong></div>
+<div><%= selectStory(@record) %></div>
+<br/>
+<div><strong>Description:</strong></div>
+<div><%= @record.description ? @record.description.gsub(/\r/, '<br/>') : '' %></div>
+<br/>
+<div><strong>Acceptance Criteria:</strong></div>
+<div><%= @record.acceptance_criteria ? @record.acceptance_criteria.gsub(/\r/, '<br/>') : '' %></div>
+<br/>
+<div><strong>Tasks:</strong></div>
+<table cellpadding=5>
+<tr><td><u>Name</u></td><td><u>Owner</u></td><td><u>Status</u></td></tr>
+<% @record.tasks.each do |task| %>
+<tr><td><%= task.name %></td>
+<td><%= task.individual ? task.individual.name : 'Not Assigned' %></td>
+<td><%= selectTask(task) %></td></tr>
+<% end %>
+</table>
+<% end %>
