@@ -366,7 +366,7 @@ class Story < ActiveRecord::Base
   
   # Answer a string which describes my blocked state.
   def blocked_message
-    message = "'" + name + "' is blocked" + (reason_blocked && reason_blocked != "" ? " because " + reason_blocked : "") + "."
+    message = "'" + name + "' is blocked" + (reason_blocked && reason_blocked != "" ? " because '" + reason_blocked : "'") + "."
     tasks.each {|task| if task.is_blocked then message += "  "; message += task.blocked_message end}
     message
   end
