@@ -65,6 +65,8 @@
         		{
 	        		if (string != "")
 	        			string += "\r";
+	        		if (criteria.length > 1)
+		        		string += "-";
 	        		string += criterium.description;
 	        		if (criterium.statusCode == Criterium.DONE)
 	        			string += " (Done)";
