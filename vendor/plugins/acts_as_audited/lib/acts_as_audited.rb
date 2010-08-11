@@ -191,7 +191,8 @@ module CollectiveIdea #:nodoc:
                 story.audits.create :auditable_name => story.name, :changes => {story_attribute.name => value}, :action => 'update', :project_id => Thread.current[:user] ? Thread.current[:user].project_id : nil, :user => Thread.current[:user], :username => Thread.current[:user] ? Thread.current[:user].name : nil 
               end
             else
-              self.audits.create :auditable_name => name, :changes => changed_attributes, :action => action.to_s, :project_id => Thread.current[:user] ? Thread.current[:user].project_id : nil, :user => Thread.current[:user], :username => Thread.current[:user] ? Thread.current[:user].name : nil 
+              pr_id = respond_to?(:project_id) ? project_id : (Thread.current[:user] ? Thread.current[:user].project_id : nil)
+              self.audits.create :auditable_name => name, :changes => changed_attributes, :action => action.to_s, :project_id => pr_id, :user => Thread.current[:user], :username => Thread.current[:user] ? Thread.current[:user].name : nil 
             end
           rescue Exception => e
             logger.error(e)
