@@ -1570,6 +1570,7 @@
 					    var text:ExpandableHTMLTextArea = new ExpandableHTMLTextArea();
 					    text.id = id;
 					  	formItem.addChild(text);
+					  	\
 					  	customChildren[id] = text;
 					    break;
 					  case StoryAttribute.NUMBER:
@@ -2011,8 +2012,8 @@
 				<mx:DataGridColumn headerText="Public" dataField="isPublic"/>
 				<mx:DataGridColumn headerText="Rank" dataField="normalizedPriority" sortCompareFunction="ViewHelper.sortPriority"/>
 				<mx:DataGridColumn headerText="User Rank" dataField="modifiedUserPriority" sortCompareFunction="ViewHelper.sortUserPriority"/>
-				<mx:DataGridColumn headerText="Description" dataField="description"/>
-				<mx:DataGridColumn headerText="Acceptance Criteria" dataField="acceptanceCriteria"/>
+				<mx:DataGridColumn headerText="Description" dataField="description" wordWrap="true"/>
+				<mx:DataGridColumn headerText="Acceptance Criteria" dataField="acceptanceCriteria" wordWrap="true"/>
 				<mx:DataGridColumn headerText="Release" labelFunction="ViewHelper.formatRelease" sortCompareFunction="ViewHelper.sortRelease"/>
 				<mx:DataGridColumn resizable="false" editable="false" width="95">
 					<mx:itemRenderer>
