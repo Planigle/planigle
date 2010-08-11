@@ -1570,7 +1570,6 @@
 					    var text:ExpandableHTMLTextArea = new ExpandableHTMLTextArea();
 					    text.id = id;
 					  	formItem.addChild(text);
-					  	\
 					  	customChildren[id] = text;
 					    break;
 					  case StoryAttribute.NUMBER:
