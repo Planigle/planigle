@@ -5,6 +5,7 @@
 		import flash.events.KeyboardEvent;
 		import flash.events.MouseEvent;
 		import mx.collections.ArrayCollection;
+		import mx.controls.TextInput;
 		import mx.utils.ObjectUtil;
 		import mx.utils.StringUtil;
 		import org.planigle.planigle.model.Story;
@@ -86,6 +87,7 @@
 				criteriaGrid.editedItemPosition = {'columnIndex': 1, 'rowIndex': criteriaGrid.selectedIndex - 1};
 			else if (event.keyCode == DOWN && criteriaGrid.selectedIndex < criteria.length - 1)
 				criteriaGrid.editedItemPosition = {'columnIndex': 1, 'rowIndex': criteriaGrid.selectedIndex + 1};
+		dataGridKeyUpHandler(event);
 		}
 
         public function iconFor(data:Object):Class
@@ -110,10 +112,73 @@
         	criteriaGrid.selectedIndex = criteria.length - 1;
 			criteriaGrid.editedItemPosition = {'columnIndex': 1, 'rowIndex': criteriaGrid.selectedIndex};
         }
+
+		// see http://manishjethani.com/blog/2008/04/04/the-excel-flex-copy-n-paste-sample
+		private function dataGridKeyDownHandler(event:KeyboardEvent):void
+		{
+			var editor:TextInput = TextInput(criteriaGrid.itemEditorInstance);
+			if (event.ctrlKey && !criteriaGrid.getChildByName("clipboardProxy") && (criteriaGrid.selectedItems.length > 1 ||
+			(editor != null && editor.selectionBeginIndex == 0 && editor.selectionEndIndex == editor.text.length)))
+			{
+				// Add an invisible TextField object to the DataGrid
+				var textField:TextField = new TextField();
+				textField.name = "clipboardProxy";
+				criteriaGrid.addChild(textField);
+				textField.visible = false;
+	
+				textField.type = TextFieldType.INPUT;
+				textField.multiline = true;
+	
+				// Populate the TextField with selected data in TSV format
+				textField.text = getTextFromItems(criteriaGrid.selectedItems);
+				textField.setSelection(0, textField.text.length - 1);
+	
+				// Listen for textInput event
+				textField.addEventListener(TextEvent.TEXT_INPUT, clipboardProxyPasteHandler);
+	
+				// Set player-level focus to the TextField
+				systemManager.stage.focus = textField;
+			}
+		}
+	
+		private function dataGridKeyUpHandler(event:KeyboardEvent):void
+		{
+			if (!event.ctrlKey)
+			{
+				var textField:TextField = TextField(criteriaGrid.getChildByName("clipboardProxy"));
+				if (textField)
+					criteriaGrid.removeChild(textField);
+			}
+		}
+	
+		private function clipboardProxyPasteHandler(event:TextEvent):void
+		{
+			var rows:Array = event.text.split("\n");
+			if (!rows[rows.length - 1])
+				rows.pop();
+	
+			var rowNum:int = criteriaGrid.selectedIndex;
+			for each (var rw:String in rows)
+			{
+				if (rowNum <= criteria.length - 1)
+					criteria.getItemAt(rowNum).description = rw;
+				else
+					addNewCriterium(rw);
+				rowNum++;
+			}
+		}
+	
+		private function getTextFromItems(items:Array):String
+		{
+			var textFromItems:String = "";
+			for each (var it:Object in items)
+				textFromItems = it.description + "\n" + textFromItems;
+			return textFromItems;
+		}
 		]]>
 	</mx:Script>
 	<mx:TextArea height="0" id="criteriaDescription" text="{criteriaGrid.selectedItem == null ? '' : criteriaGrid.selectedItem.description}" change="criteriaGrid.selectedItem.description = criteriaDescription.text"/>
-	<mx:DataGrid id="criteriaGrid" variableRowHeight="true" dataProvider="{criteria}" dragEnabled="true" dropEnabled="true" dragMoveEnabled="true" allowMultipleSelection="true" showHeaders="false" editable="true" verticalGridLines="false" keyUp="handleKeystroke(event)" width="100%" height="100%">
+	<mx:DataGrid id="criteriaGrid" variableRowHeight="true" dataProvider="{criteria}" dragEnabled="true" dropEnabled="true" dragMoveEnabled="true" allowMultipleSelection="true" showHeaders="false" editable="true" verticalGridLines="false" keyDown="dataGridKeyDownHandler(event)" keyUp="handleKeystroke(event)" width="100%" height="100%">
 		<mx:columns>
 			<mx:DataGridColumn resizable="false" editable="false" width="16" textAlign="center"> 
 				<mx:itemRenderer>
