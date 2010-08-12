@@ -588,7 +588,7 @@
 			storyFormIteration.visible = true;
 			storyFormTeam.height = factory.currentIndividual.selectedProject.teamSelector.length > 1 ? NaN : -5;
 			storyFormTeam.visible = factory.currentIndividual.selectedProject.teamSelector.length > 1;
-			storyFormAcceptanceCriteria.height = 100;
+			storyFormAcceptanceCriteria.height = NaN;
 			storyFormAcceptanceCriteria.visible = true;
 			storyFormPublic.height = factory.currentIndividual.isPremium ? NaN : -5;
 			storyFormPublic.visible = factory.currentIndividual.isPremium;
@@ -1764,18 +1764,18 @@
 			<mx:RemoveChild target="{storyBtnCreate}"/>
 			<mx:AddChild relativeTo="{storyResourceGrid}" position="before">
 				<mx:target>
-					<mx:Panel width="100%" borderThicknessTop="0" borderThicknessLeft="0" borderThicknessRight="0" headerHeight="0">
-						<mx:VBox>
-							<mx:HBox>
-								<mx:VBox>
-									<mx:Form id="changeForm" defaultButton="{storyBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
+					<mx:Panel width="100%" borderThicknessTop="0" borderThicknessLeft="0" borderThicknessRight="0" headerHeight="0" height="100%">
+						<mx:VBox height="100%">
+							<mx:HBox height="100%">
+								<mx:VBox height="100%">
+									<mx:Form id="changeForm" defaultButton="{storyBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5" height="100%">
 										<mx:FormItem id="storyNameForm" label='Name' required="true">
 											<mx:TextInput id='storyFieldName' maxChars="250" text='' width="500"/>
 										</mx:FormItem>
-										<mx:FormItem label='Description'>
-											<component:ExpandableHTMLTextArea id='storyFieldDescription' height="80"/>
+										<mx:FormItem label='Description' height="100%">
+											<component:ExpandableHTMLTextArea id='storyFieldDescription' minHeight="80" height="100%"/>
 										</mx:FormItem>
-										<mx:FormItem label='Acceptance Criteria' id="storyFormAcceptanceCriteria">
+										<mx:FormItem label='Acceptance Criteria' id="storyFormAcceptanceCriteria" height="100%">
 											<component:ExpandableCriteriaGrid id='storyFieldAcceptanceCriteria' height="100%"/>
 										</mx:FormItem>
 										<mx:FormItem label='Status'>
@@ -1956,78 +1956,80 @@
 			</mx:VBox>
 			<mx:Text id="storyError" styleName="error" htmlText="{_error}" width="100%" height="0"/>
 		</mx:VBox>
-		<local:ColoredBackgroundDataGrid id="storyResourceGrid" minWidth="0" variableRowHeight="true" dataProvider="{filteredStories}" rowCount="{filteredStories.length}" height="100%" width="100%" dragEnabled="{factory.currentIndividual.isAtLeastProjectUser}" dropEnabled="true" dragMoveEnabled="true" dragStart="handleDrag(event)" dragDrop="handleReorder(event)" rowColorFunction="rowColor" headerRelease="prepareSort(event)" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectUser}" doubleClick="checkDirty(showUpdate)" allowMultipleSelection="true" columnStretch="columnStretch(event)" headerShift="headerShift(event)" horizontalScrollPolicy="auto" verticalScrollPolicy="auto">
-			<local:columns>
-				<mx:DataGridColumn resizable="false" editable="false" width="16" textAlign="center"> 
-					<mx:headerRenderer>
-						<mx:Component>
-							<mx:Box direction="horizontal" horizontalGap="0">
-								<mx:LinkButton id="storyBtnExpandAll" toolTip="Expand/Contract All" width="16" icon="{outerDocument.expandAllIcon}"/>
-							</mx:Box>
-						</mx:Component>
-					</mx:headerRenderer>
-					<mx:itemRenderer> 
-						<mx:Component>
-							<mx:Box direction="horizontal" horizontalGap="0">
-								<mx:LinkButton id="storyBtnExpand" width="16" icon="{outerDocument.expandIcon(data)}" click="outerDocument.expand(event);"/>
-							</mx:Box>
-						</mx:Component>
-					</mx:itemRenderer>
-				</mx:DataGridColumn>
-				<mx:DataGridColumn headerText="Id" dataField="fullId" sortCompareFunction="ViewHelper.sortId"/>
-				<mx:DataGridColumn headerText="Name" wordWrap="true" dataField="name">
-					<mx:itemRenderer> 
-						<mx:Component>
-							<mx:Text paddingLeft="{data.indent}" text="{data.name}" selectable="false" toolTip="{data.description}"/>
-						</mx:Component>
-					</mx:itemRenderer>
-				</mx:DataGridColumn>
-				<mx:DataGridColumn id="storyColumnIteration" headerText="Iteration" labelFunction="ViewHelper.formatIteration" sortCompareFunction="ViewHelper.sortIteration"/>
-				<mx:DataGridColumn id="storyColumnTeam" headerText="Team" labelFunction="ViewHelper.formatTeam" sortCompareFunction="ViewHelper.sortTeam"/>
-				<mx:DataGridColumn id="storyColumnIndividual" headerText="Owner" labelFunction="ViewHelper.formatIndividual" sortCompareFunction="ViewHelper.sortIndividual"/>
-				<mx:DataGridColumn headerText="Size" dataField="size" sortCompareFunction="ViewHelper.sortSize"/>
-				<mx:DataGridColumn headerText="Estimate" dataField="estimate" sortCompareFunction="ViewHelper.sortEstimate"/>
-				<mx:DataGridColumn headerText="To Do" dataField="calculatedEffort" sortCompareFunction="ViewHelper.sortCalculatedEffort"/>
-				<mx:DataGridColumn headerText="Actual" dataField="actual" sortCompareFunction="ViewHelper.sortActual"/>
-				<mx:DataGridColumn editable="false" minWidth="115" headerText="Status" sortCompareFunction="ViewHelper.sortStatus">
-					<mx:itemRenderer> 
-						<mx:Component>
-							<mx:Box direction="horizontal" horizontalGap="0" horizontalScrollPolicy="off">
-							<local:FixedComboBox maxHeight="{ViewModelLocator.getInstance().fontSize + 8}" width="100%" editable="false" selectedIndex="{data.statusCode}" change="outerDocument.updateStatus(data, event)" enabled="{outerDocument.factory.currentIndividual.isAtLeastProjectUser}">
-								<mx:Script>
-									<![CDATA[
-										import org.planigle.planigle.model.ViewModelLocator;
-									]]>
-								</mx:Script>
-								<mx:Object label="Not Started" value="0" />
-								<mx:Object label="In Progress" value="1" />
-								<mx:Object label="Blocked" value="2" />
-								<mx:Object label="Done" value="3" />
-							</local:FixedComboBox>
-							</mx:Box>
-						</mx:Component>
-					</mx:itemRenderer>
-				</mx:DataGridColumn>
-				<mx:DataGridColumn headerText="Public" dataField="isPublic"/>
-				<mx:DataGridColumn headerText="Rank" dataField="normalizedPriority" sortCompareFunction="ViewHelper.sortPriority"/>
-				<mx:DataGridColumn headerText="User Rank" dataField="modifiedUserPriority" sortCompareFunction="ViewHelper.sortUserPriority"/>
-				<mx:DataGridColumn headerText="Description" dataField="description" wordWrap="true"/>
-				<mx:DataGridColumn headerText="Acceptance Criteria" dataField="acceptanceCriteria" wordWrap="true"/>
-				<mx:DataGridColumn headerText="Release" labelFunction="ViewHelper.formatRelease" sortCompareFunction="ViewHelper.sortRelease"/>
-				<mx:DataGridColumn resizable="false" editable="false" width="95">
-					<mx:itemRenderer>
-						<mx:Component>
-							<mx:Box direction="horizontal" horizontalGap="5" width="100%">
-								<mx:LinkButton width="15" id="storyBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.checkDirty(outerDocument.showUpdate);" visible="{outerDocument.shouldShow(data)}"/>
-								<mx:LinkButton width="15" id="storyBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.shouldShow(data)}"/>
-								<mx:LinkButton width="15" id="storyBtnMoveUp" icon="{parentApplication.imgMoveUp}" toolTip="Move To Top" click="outerDocument.checkDirty(outerDocument.moveToTop);" visible="{outerDocument.shouldShowStory(data)}"/>
-								<mx:LinkButton width="15" id="taskBtnAdd" icon="{parentApplication.imgAdd}" toolTip="Add Task" click="outerDocument.checkDirty(outerDocument.showCreateTask);" visible="{outerDocument.shouldShowStory(data)}"/>
-								<mx:LinkButton width="15" id="storyBtnSplit" icon="{parentApplication.imgSplit}" toolTip="Split" click="outerDocument.checkDirty(outerDocument.showSplit);" visible="{outerDocument.shouldShowStory(data)}"/>
-							</mx:Box>
-						</mx:Component>
-					</mx:itemRenderer>
-				</mx:DataGridColumn>
-			</local:columns>
-		</local:ColoredBackgroundDataGrid>
+		<mx:VDividedBox height="100%" width="100%">
+			<local:ColoredBackgroundDataGrid id="storyResourceGrid" minWidth="0" variableRowHeight="true" dataProvider="{filteredStories}" rowCount="{filteredStories.length}" height="100%" width="100%" dragEnabled="{factory.currentIndividual.isAtLeastProjectUser}" dropEnabled="true" dragMoveEnabled="true" dragStart="handleDrag(event)" dragDrop="handleReorder(event)" rowColorFunction="rowColor" headerRelease="prepareSort(event)" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectUser}" doubleClick="checkDirty(showUpdate)" allowMultipleSelection="true" columnStretch="columnStretch(event)" headerShift="headerShift(event)" horizontalScrollPolicy="auto" verticalScrollPolicy="auto">
+				<local:columns>
+					<mx:DataGridColumn resizable="false" editable="false" width="16" textAlign="center"> 
+						<mx:headerRenderer>
+							<mx:Component>
+								<mx:Box direction="horizontal" horizontalGap="0">
+									<mx:LinkButton id="storyBtnExpandAll" toolTip="Expand/Contract All" width="16" icon="{outerDocument.expandAllIcon}"/>
+								</mx:Box>
+							</mx:Component>
+						</mx:headerRenderer>
+						<mx:itemRenderer> 
+							<mx:Component>
+								<mx:Box direction="horizontal" horizontalGap="0">
+									<mx:LinkButton id="storyBtnExpand" width="16" icon="{outerDocument.expandIcon(data)}" click="outerDocument.expand(event);"/>
+								</mx:Box>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="Id" dataField="fullId" sortCompareFunction="ViewHelper.sortId"/>
+					<mx:DataGridColumn headerText="Name" wordWrap="true" dataField="name">
+						<mx:itemRenderer> 
+							<mx:Component>
+								<mx:Text paddingLeft="{data.indent}" text="{data.name}" selectable="false" toolTip="{data.description}"/>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn id="storyColumnIteration" headerText="Iteration" labelFunction="ViewHelper.formatIteration" sortCompareFunction="ViewHelper.sortIteration"/>
+					<mx:DataGridColumn id="storyColumnTeam" headerText="Team" labelFunction="ViewHelper.formatTeam" sortCompareFunction="ViewHelper.sortTeam"/>
+					<mx:DataGridColumn id="storyColumnIndividual" headerText="Owner" labelFunction="ViewHelper.formatIndividual" sortCompareFunction="ViewHelper.sortIndividual"/>
+					<mx:DataGridColumn headerText="Size" dataField="size" sortCompareFunction="ViewHelper.sortSize"/>
+					<mx:DataGridColumn headerText="Estimate" dataField="estimate" sortCompareFunction="ViewHelper.sortEstimate"/>
+					<mx:DataGridColumn headerText="To Do" dataField="calculatedEffort" sortCompareFunction="ViewHelper.sortCalculatedEffort"/>
+					<mx:DataGridColumn headerText="Actual" dataField="actual" sortCompareFunction="ViewHelper.sortActual"/>
+					<mx:DataGridColumn editable="false" minWidth="115" headerText="Status" sortCompareFunction="ViewHelper.sortStatus">
+						<mx:itemRenderer> 
+							<mx:Component>
+								<mx:Box direction="horizontal" horizontalGap="0" horizontalScrollPolicy="off">
+								<local:FixedComboBox maxHeight="{ViewModelLocator.getInstance().fontSize + 8}" width="100%" editable="false" selectedIndex="{data.statusCode}" change="outerDocument.updateStatus(data, event)" enabled="{outerDocument.factory.currentIndividual.isAtLeastProjectUser}">
+									<mx:Script>
+										<![CDATA[
+											import org.planigle.planigle.model.ViewModelLocator;
+										]]>
+									</mx:Script>
+									<mx:Object label="Not Started" value="0" />
+									<mx:Object label="In Progress" value="1" />
+									<mx:Object label="Blocked" value="2" />
+									<mx:Object label="Done" value="3" />
+								</local:FixedComboBox>
+								</mx:Box>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="Public" dataField="isPublic"/>
+					<mx:DataGridColumn headerText="Rank" dataField="normalizedPriority" sortCompareFunction="ViewHelper.sortPriority"/>
+					<mx:DataGridColumn headerText="User Rank" dataField="modifiedUserPriority" sortCompareFunction="ViewHelper.sortUserPriority"/>
+					<mx:DataGridColumn headerText="Description" dataField="description" wordWrap="true"/>
+					<mx:DataGridColumn headerText="Acceptance Criteria" dataField="acceptanceCriteria" wordWrap="true"/>
+					<mx:DataGridColumn headerText="Release" labelFunction="ViewHelper.formatRelease" sortCompareFunction="ViewHelper.sortRelease"/>
+					<mx:DataGridColumn resizable="false" editable="false" width="95">
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:Box direction="horizontal" horizontalGap="5" width="100%">
+									<mx:LinkButton width="15" id="storyBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.checkDirty(outerDocument.showUpdate);" visible="{outerDocument.shouldShow(data)}"/>
+									<mx:LinkButton width="15" id="storyBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.shouldShow(data)}"/>
+									<mx:LinkButton width="15" id="storyBtnMoveUp" icon="{parentApplication.imgMoveUp}" toolTip="Move To Top" click="outerDocument.checkDirty(outerDocument.moveToTop);" visible="{outerDocument.shouldShowStory(data)}"/>
+									<mx:LinkButton width="15" id="taskBtnAdd" icon="{parentApplication.imgAdd}" toolTip="Add Task" click="outerDocument.checkDirty(outerDocument.showCreateTask);" visible="{outerDocument.shouldShowStory(data)}"/>
+									<mx:LinkButton width="15" id="storyBtnSplit" icon="{parentApplication.imgSplit}" toolTip="Split" click="outerDocument.checkDirty(outerDocument.showSplit);" visible="{outerDocument.shouldShowStory(data)}"/>
+								</mx:Box>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+				</local:columns>
+			</local:ColoredBackgroundDataGrid>
+		</mx:VDividedBox>
 	</mx:Panel>
 </local:ViewCanvas>

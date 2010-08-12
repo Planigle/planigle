@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" horizontalGap="0" height="64" width="514" xmlns:components="org.planigle.planigle.view.components.*" creationComplete="created()">
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" horizontalGap="0" minHeight="64" height="100%" width="514" xmlns:components="org.planigle.planigle.view.components.*" creationComplete="created()">
 	<mx:Script>
 		<![CDATA[
 		import mx.containers.Grid;
