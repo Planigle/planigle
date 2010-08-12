@@ -78,7 +78,7 @@ class Story < ActiveRecord::Base
       id,
       name,
       description,
-      acceptance_criteria,
+      acceptance_criteria("\n"),
       effort,
       estimate,
       time]
@@ -146,10 +146,10 @@ class Story < ActiveRecord::Base
   end
 
   # Answer my acceptance criteria as a string (criteria separated by \r).
-  def acceptance_criteria
+  def acceptance_criteria(line_end="\r")
     result = ''
     criteria.each do |criterium|
-      if result != ''; result << "\r"; end
+      if result != ''; result << line_end; end
       if criteria.length > 1; result << '-'; end
       result << criterium.description
       if (criterium.status_code == Criterium::Done)
