@@ -762,6 +762,8 @@
 			clearCustomAttributes()
 			storyBtnInfo.visible = false;
 			updateEditPanelSize();
+			storyBtnPrevious.visible = false;
+			storyBtnNext.visible = false;
 		}
 		
 		protected function updateEditPanelSize():void {
@@ -845,6 +847,9 @@
 				}
 			}
 			updateEditPanelSize();
+			var index:int = filteredStories.getItemIndex(currentItem);
+			storyBtnPrevious.visible = index > 0;
+			storyBtnNext.visible = index < filteredStories.length - 1;
 		}
 
 		// Fill in the custom attribute fields.
@@ -933,6 +938,26 @@
 		{
 			new AuditChangedEvent(null, currentItem.isStory() ? 'Story' : 'Task', null, null, String(currentItem.id)).dispatch();
 			tabModelLocator.selectedTab = Container(tabModelLocator.changes);
+		}
+		
+		// Show the previous object.
+		public function showPrevious(event:Event) : void
+		{
+			var index:int = filteredStories.getItemIndex(currentItem);
+			if (index > 0) {
+				storyResourceGrid.selectedItem = filteredStories.getItemAt(index - 1);
+				showUpdate();
+			}
+		}
+		
+		// Show the next object.
+		public function showNext(event:Event) : void
+		{
+			var index:int = filteredStories.getItemIndex(currentItem);
+			if (index < filteredStories.length - 1) {
+				storyResourceGrid.selectedItem = filteredStories.getItemAt(index + 1);
+				showUpdate();
+			}
 		}
 		
 		// Create parameters for the user's request to the server.
@@ -1838,12 +1863,14 @@
 									</mx:Form>	
 								</mx:VBox>
 							</mx:HBox>
-							<mx:ControlBar width="100%">
+							<mx:ControlBar width="100%" horizontalGap="5">
 								<mx:Spacer width="50"/>
 								<mx:Button label="Change" id="storyBtnChange" click="changeResource(false)"/>
 								<mx:Button label="Create &amp; Close" id="storyBtnCreateClose" click="changeResource(true)"/>
 								<mx:LinkButton label="Cancel" id="storyBtnCancel" click="resetState(event)"/>
 								<mx:LinkButton id="storyBtnInfo" icon="{parentApplication.imgInfo}" toolTip="History" click="showHistory(event);"/>
+								<mx:LinkButton id="storyBtnPrevious" icon="{parentApplication.imgPreviousItem}" toolTip="Previous" click="showPrevious(event);"/>
+								<mx:LinkButton id="storyBtnNext" icon="{parentApplication.imgNextItem}" toolTip="Next" click="showNext(event);"/>
 							</mx:ControlBar>
 						</mx:VBox>
 					</mx:Panel>
