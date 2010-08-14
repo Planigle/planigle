@@ -100,7 +100,7 @@ protected
         result['iterations'] = Iteration.get_records(current_individual)
       end
       if (!parms[:stories] || Story.have_records_changed(current_individual, Time.parse(parms[:stories])))
-        result['stories'] = Story.get_records(current_individual, {:status_code => 'NotDone', :team_id => 'MyTeam', :release_id => 'Current', :iteration_id => 'Current'})
+        result['stories'] = Story.get_records(current_individual, parms[:conditions] ? parms[:conditions] : {:status_code => 'NotDone', :team_id => 'MyTeam', :release_id => 'Current', :iteration_id => 'Current'})
       end
     end
     result

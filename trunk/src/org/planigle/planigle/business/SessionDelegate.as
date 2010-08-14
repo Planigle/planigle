@@ -8,6 +8,7 @@ package org.planigle.planigle.business
 	import org.planigle.planigle.model.IndividualFactory;
 	import org.planigle.planigle.model.ReleaseFactory;
 	import org.planigle.planigle.model.IterationFactory;
+	import org.planigle.planigle.model.Story;
 	import org.planigle.planigle.model.StoryFactory;
 	
 	public class SessionDelegate
@@ -43,6 +44,7 @@ package org.planigle.planigle.business
 			params["releases"] = ReleaseFactory.getInstance().timeUpdated;
 			params["iterations"] = IterationFactory.getInstance().timeUpdated;
 			params["stories"] = StoryFactory.getInstance().timeUpdated;
+			params["conditions"] = Story.conditions;
 			remoteObject.refresh.send(params).addResponder(responder);
 		}
 		
