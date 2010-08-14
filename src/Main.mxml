@@ -88,6 +88,14 @@
 			[Bindable]
 			public var imgCheck:Class;
 		
+			[Embed(source="../public/images/previousItem.png")]
+			[Bindable]
+			public var imgPreviousItem:Class;
+		
+			[Embed(source="../public/images/nextItem.png")]
+			[Bindable]
+			public var imgNextItem:Class;
+		
 			[Embed(source="../public/images/previous.png")]
 			[Bindable]
 			public var imgPrevious:Class;
