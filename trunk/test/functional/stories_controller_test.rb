@@ -16,6 +16,7 @@ class StoriesControllerTest < ActionController::TestCase
   fixtures :systems
   fixtures :teams
   fixtures :individuals
+  fixtures :releases
   fixtures :iterations
   fixtures :stories
   fixtures :projects
@@ -167,25 +168,25 @@ class StoriesControllerTest < ActionController::TestCase
     
   # Test exporting stories (based on role).
   def test_export_by_project_admin
-    export_by_role(individuals(:aaron), Story.find_all_by_project_id(1).length)
+    export_by_role(individuals(:aaron), Story.find_all_by_project_id(1).length, 1)
   end
 
   # Test exporting stories (based on role).
   def test_export_by_project_user
-    export_by_role(individuals(:user), Story.find_all_by_project_id(1).length)
+    export_by_role(individuals(:user), Story.find_all_by_project_id(1).length, 1)
   end
 
   # Test exporting stories (based on role).
   def test_export_by_readonly
-    export_by_role(individuals(:readonly), Story.find_all_by_project_id(1).length)
+    export_by_role(individuals(:readonly), Story.find_all_by_project_id(1).length, 1)
   end
 
   # Test exporting stories (based on role).
-  def export_by_role(user, count)
+  def export_by_role(user, count, extra=0)
     login_as(user)
     get :export
     assert_response :success
-    assert_equal count+1, @response.body.split("\n").length
+    assert_equal count+1+extra, @response.body.split("\n").length
   end
 
   # Test importing stories (based on role).

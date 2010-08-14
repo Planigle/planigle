@@ -941,7 +941,7 @@
 		}
 		
 		// Show the previous object.
-		public function showPrevious(event:Event) : void
+		public function showPrevious() : void
 		{
 			var index:int = filteredStories.getItemIndex(currentItem);
 			if (index > 0) {
@@ -951,7 +951,7 @@
 		}
 		
 		// Show the next object.
-		public function showNext(event:Event) : void
+		public function showNext() : void
 		{
 			var index:int = filteredStories.getItemIndex(currentItem);
 			if (index < filteredStories.length - 1) {
@@ -1869,8 +1869,8 @@
 								<mx:Button label="Create &amp; Close" id="storyBtnCreateClose" click="changeResource(true)"/>
 								<mx:LinkButton label="Cancel" id="storyBtnCancel" click="resetState(event)"/>
 								<mx:LinkButton id="storyBtnInfo" icon="{parentApplication.imgInfo}" toolTip="History" click="showHistory(event);"/>
-								<mx:LinkButton id="storyBtnPrevious" icon="{parentApplication.imgPreviousItem}" toolTip="Previous" click="showPrevious(event);"/>
-								<mx:LinkButton id="storyBtnNext" icon="{parentApplication.imgNextItem}" toolTip="Next" click="showNext(event);"/>
+								<mx:LinkButton id="storyBtnPrevious" icon="{parentApplication.imgPreviousItem}" toolTip="Previous" click="checkDirty(showPrevious);"/>
+								<mx:LinkButton id="storyBtnNext" icon="{parentApplication.imgNextItem}" toolTip="Next" click="checkDirty(showNext);"/>
 							</mx:ControlBar>
 						</mx:VBox>
 					</mx:Panel>
