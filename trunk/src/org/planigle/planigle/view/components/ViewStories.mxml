@@ -588,7 +588,7 @@
 			storyFormIteration.visible = true;
 			storyFormTeam.height = factory.currentIndividual.selectedProject.teamSelector.length > 1 ? NaN : -5;
 			storyFormTeam.visible = factory.currentIndividual.selectedProject.teamSelector.length > 1;
-			storyFormAcceptanceCriteria.height = NaN;
+			storyFormAcceptanceCriteria.percentHeight = 100;
 			storyFormAcceptanceCriteria.visible = true;
 			storyFormPublic.height = factory.currentIndividual.isPremium ? NaN : -5;
 			storyFormPublic.visible = factory.currentIndividual.isPremium;
@@ -761,6 +761,12 @@
 			updateRelease(); // Update release attribute values
 			clearCustomAttributes()
 			storyBtnInfo.visible = false;
+			updateEditPanelSize();
+		}
+		
+		protected function updateEditPanelSize():void {
+			changePanel.validateNow();
+			changePanel.height = changePanel.measuredHeight - (isStory ? 60 : 0);
 		}
 
 		// Show user a form to update a resource.
@@ -838,6 +844,7 @@
 					storyBtnInfo.visible = true;
 				}
 			}
+			updateEditPanelSize();
 		}
 
 		// Fill in the custom attribute fields.
@@ -1600,6 +1607,7 @@
 				setCustomAttributes();
 				setColumns();
 			}
+			updateEditPanelSize();
 		}
 
 		private var attrMapping:Object = new Object(); // Maps attribute name to attribute.
@@ -1764,7 +1772,7 @@
 			<mx:RemoveChild target="{storyBtnCreate}"/>
 			<mx:AddChild relativeTo="{storyResourceGrid}" position="before">
 				<mx:target>
-					<mx:Panel width="100%" borderThicknessTop="0" borderThicknessLeft="0" borderThicknessRight="0" headerHeight="0" height="100%">
+					<mx:Panel id="changePanel" width="100%" borderThicknessTop="0" borderThicknessLeft="0" borderThicknessRight="0" headerHeight="0" height="100%">
 						<mx:VBox height="100%">
 							<mx:HBox height="100%">
 								<mx:VBox height="100%">

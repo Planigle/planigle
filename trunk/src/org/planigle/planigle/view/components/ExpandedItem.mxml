@@ -34,7 +34,7 @@
 			private function enterResult(event:Event):void
 			{
 				var child:DisplayObject = getChildAt(0);
-				child.height = oldHeight;
+				child.height = NaN;
 				child.width = oldWidth;
 				oldParent.addChildAt(child, oldIndex);				
 				PopUpManager.removePopUp(this);
