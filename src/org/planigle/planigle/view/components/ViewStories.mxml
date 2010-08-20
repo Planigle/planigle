@@ -1499,6 +1499,7 @@
 			if (!isStory && storyFieldStatus.selectedIndex != Story.CREATED && !storyFieldOwner.selectedItem.id)
 				storyFieldOwner.selectedItem = factory.currentIndividual;
 			updateReasonBlocked();
+			updateEditPanelSize();
 		}
 		
 		// Update fields based on new status.
