@@ -12,6 +12,7 @@ first:
   priority: 3
   is_public: true
   user_priority: 2
+  reason_blocked: ''
 
 second:
   id: 2
@@ -25,6 +26,7 @@ second:
   priority: 2
   is_public: true
   user_priority: 1
+  reason_blocked: ''
 
 third:
   id: 3
@@ -36,6 +38,7 @@ third:
   priority: 1
   user_priority: 2
   is_public: false
+  reason_blocked: ''
 
 fourth:
   id: 4
@@ -46,6 +49,7 @@ fourth:
   status_code: 1
   priority: 4
   is_public: true
+  reason_blocked: ''
 
 fifth:
   id: 5
@@ -56,3 +60,4 @@ fifth:
   status_code: 2
   priority: 1
   is_public: true
+  reason_blocked: ''

@@ -50,6 +50,12 @@ class FlexStoriesTest < Test::Unit::TestCase
     create_story_cancel
   end 
 
+  # Test edit previous/next.
+  def test_an_edit_previous_next
+    init('admin2')
+    edit_story_previous_next
+  end 
+
   # Test edit failure.
   def test_an_edit_failure
     init('admin2')
@@ -446,6 +452,16 @@ private
     assert_nil @ie.button("storyBtnCancel")
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
     assert_equal ",foo 1,fourth,Test_team,ted williams,1,,,,Blocked,true,1,2,description,acceptance_criteria,second,,,,None,None,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
+  end
+    
+  # Test whether you can do previous and next.
+  def edit_story_previous_next
+    @ie.button("storyBtnEdit")[1].click
+    assert_equal "test3", @ie.text_area("storyFieldName").text
+    @ie.button("storyBtnNext").click
+    assert_equal "test", @ie.text_area("storyFieldName").text
+    @ie.button("storyBtnPrevious").click
+    assert_equal "test3", @ie.text_area("storyFieldName").text
   end
     
   # Test whether you can successfully cancel editing a story.
