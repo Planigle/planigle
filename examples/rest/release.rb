@@ -8,7 +8,7 @@
 #
 #   release.destroy
 #
-# See remote.rb in this directory for more information on interacting with Planigle via REST.
+# See resource.rb in this directory for more information on interacting with Planigle via REST.
 #
 # See attr_accessible in /app/models/release.rb for a list of allowed fields.
 

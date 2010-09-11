@@ -8,7 +8,7 @@
 #
 #   story.destroy
 #
-# See remote.rb in this directory for more information on interacting with Planigle via REST.
+# See resource.rb in this directory for more information on interacting with Planigle via REST.
 #
 # See attr_accessible in /app/models/story.rb for a list of allowed fields.  That file also contains valid status codes.
 
