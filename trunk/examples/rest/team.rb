@@ -8,7 +8,7 @@
 #
 #   team.destroy
 #
-# See remote.rb in this directory for more information on interacting with Planigle via REST.
+# See resource.rb in this directory for more information on interacting with Planigle via REST.
 #
 # See attr_accessible in /app/models/team.rb for a list of allowed fields.  See story.rb in that same direcotry for valid status codes.
 
