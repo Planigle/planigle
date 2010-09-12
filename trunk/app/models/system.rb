@@ -7,6 +7,17 @@ class System < ActiveRecord::Base
     Iteration.find(:all, :conditions => ['start < ? and finish + interval 1 day > ?', Time.now, Time.now], :include => [:stories]).each { |iteration| iteration.summarize }
     Story.update_priorities
     Project.send_notifications
+    create_demo
+  end
+
+  # Populate demo data.  You can modify / eliminate this in db/demo.sql.
+  def self.create_demo
+    sql = File.open("db/demo.sql").read
+    sql.split(';').each do |sql_statement|
+      if sql_statement.strip != ""
+        ActiveRecord::Base.connection.execute(sql_statement)
+      end
+    end
   end
 
   # No one is authorized to create.  It is a singleton.
