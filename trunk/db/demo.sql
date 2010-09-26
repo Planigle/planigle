@@ -1,18 +1,19 @@
-delete from tasks where id < 0;
-delete from stories where id < 0;
-delete from individuals_projects where project_id < 0;
-delete from individuals where id < 0;
-delete from iterations where id < 0;
-delete from releases where id < 0;
-delete from story_attributes where id < 0;
-delete from projects where id < 0;
-delete from companies where id < 0;
+delete from tasks using tasks, stories, projects where story_id=stories.id and project_id=projects.id and company_id = -10;
+delete from criteria using criteria, stories, projects where story_id=stories.id and project_id=projects.id and company_id = -10;
+delete from stories using stories, projects where project_id=projects.id and company_id = -10;
+delete from individuals_projects using individuals_projects, projects where project_id = projects.id and company_id = -10;
+delete from individuals where company_id = -10;
+delete from iterations using iterations, projects where project_id=projects.id and company_id = -10;
+delete from releases using releases, projects where project_id=projects.id and company_id = -10;
+delete from story_attributes using story_attributes, projects where project_id=projects.id and company_id = -10;
+delete from projects where company_id = -10;
+delete from companies where id = -10;
 
 insert into companies (id, name) values
 (-10, "ACME Books");
 
 insert into projects (company_id, id, name, survey_key, survey_mode, premium_expiry, premium_limit) values
-(-10, -10, "Online Bookstore", "885a0079624d19f24fc02b97040904e6ef981444", 2, curdate(), 5);
+(-10, -10, "Online Bookstore", "885a0079624d19f24fc02b97040904e6ef981444", 2, curdate() + interval 30 day, 5);
 
 insert into individuals (company_id, id, login, email, first_name, last_name, crypted_password, salt, activated_at, accepted_agreement, role) values
 (-10, -10, "demo", "demo@planigle.com", "Fred", "Hacker", "b98229cbf40ba20980cfbba4c75fda2a903d8bbc", "c305359343ecf79911ebcd78267b9ff00911119f", now() - interval 1 day, now(), 1),
@@ -79,3 +80,80 @@ insert into stories (project_id, id, name, effort, status_code, priority, releas
 (-10, -30, "User creates wish list", 3, 0, 210, -10, null, -13, 1, "", ""),
 (-10, -31, "User buys gift card", 2, 0, 220, -10, null, -13, 1, "", ""),
 (-10, -32, "User views history of orders", 3, 0, 230, -10, null, -13, 1, "", "");
+
+insert into tasks (story_id, id, name, description, status_code, estimate, effort, priority, individual_id, reason_blocked) values
+(-10, -10, "Create books table", "", 3, 3, 0, 10, -10, ""),
+(-10, -11, "Show search screen", "", 3, 2, 0, 20, -11, ""),
+(-10, -12, "Show results", "", 3, 3, 0, 30, -11, ""),
+(-10, -13, "Test screen", "", 3, 2, 0, 40, -12, ""),
+(-11, -14, "Do it", "", 3, 2, 0, 10, -10, ""),
+(-11, -15, "Test it", "", 3, 1, 0, 20, -12, ""),
+(-12, -16, "Modify schema for additional attributes", "", 3, 1, 0, 10, -11, ""),
+(-12, -17, "Create details screen", "", 3, 3, 0, 20, -10, ""),
+(-12, -18, "Test details screen", "", 3, 4, 0, 30, -12, ""),
+(-13, -19, "Capture billing information", "", 3, 3, 0, 10, -11, ""),
+(-13, -20, "Complete financial transaction", "", 3, 4, 0, 20, -10, ""),
+(-13, -21, "Notify customer", "", 3, 1, 0, 30, -10, ""),
+(-13, -22, "Test purchase", "", 3, 4, 0, 40, -12, ""),
+(-14, -23, "Create user table", "", 1, 2, 2, 10, -10, ""),
+(-14, -24, "Show login screen", "", 1, 2, 2, 20, -11, ""),
+(-14, -25, "Show user info on existing screens", "", 0, 2, 2, 30, -11, ""),
+(-14, -26, "Test login", "", 1, 2, 2, 40, -12, ""),
+(-15, -27, "Show user profile screen", "", 0, 2, 2, 10, -10, ""),
+(-15, -28, "Validate email address", "", 0, 2, 2, 20, -11, ""),
+(-15, -29, "Test profile", "", 0, 3, 3, 30, -12, ""),
+(-16, -30, "Edit profile", "", 0, 2, 2, 10, -11, ""),
+(-16, -31, "Test edits", "", 0, 2, 2, 20, -12, ""),
+(-17, -32, "Enable button on login", "", 0, 1, 1, 10, -10, ""),
+(-17, -33, "Send email", "", 0, 1, 1, 20, -10, ""),
+(-17, -34, "Show confirmation screen", "", 0, 1, 1, 30, -11, ""),
+(-17, -35, "Test forgot password", "", 0, 2, 2, 40, -12, ""),
+(-18, -36, "User adds to shopping cart", "", 0, 2, 2, 10, -11, ""),
+(-18, -37, "User checks out", "", 0, 3, 3, 20, -10, ""),
+(-18, -38, "Test shopping cart", "", 0, 2, 2, 30, -12, "");
+
+insert into criteria (story_id, id, description, status_code, priority) values
+(-10, -11, "Search is case insensitive", 1, 10),
+(-10, -12, "Search supports strings which are a substring of the matching string", 1, 20),
+(-10, -13, "User is presented with a list of matching books", 1, 30),
+(-10, -14, "User can refine search without starting over", 1, 40),
+(-11, -15, "Search is case insensitive", 1, 10),
+(-11, -16, "Search supports strings which are a substring of the matching string", 1, 20),
+(-11, -17, "User is presented with a list of matching books", 1, 30),
+(-11, -18, "User can refine search without starting over", 1, 40),
+(-12, -19, "User sees title of book", 1, 10),
+(-12, -20, "User sees author", 1, 20),
+(-12, -21, "User sees picture of book", 1, 30),
+(-12, -22, "User sees description", 1, 40),
+(-12, -23, "User sees price", 1, 50),
+(-13, -24, "User sees thumbnail of picture", 1, 10),
+(-13, -25, "User sees title", 1, 20),
+(-13, -26, "User sees author", 1, 30),
+(-13, -27, "User sees price", 1, 40),
+(-13, -28, "User enters billing information (first name, last name, street address, city, state/province, zip code, country, phone number, email address", 1, 50),
+(-13, -29, "All fields are mandatory", 1, 60),
+(-13, -30, "User taken to PayPal on clicking purchase", 1, 70),
+(-13, -31, "User receives email when purchase completed", 1, 80),
+(-14, -32, "User can click on log in at any point (if not logged on)", 0, 10),
+(-14, -33, "User sees name on corner of page if logged in", 0, 20),
+(-14, -34, "If credentials, don't match user is told 'Invalid credentials'", 0, 30),
+(-14, -35, "Password should be encrypted in non-reversible format", 0, 40),
+(-14, -36, "On purchase, user's information is filled in by default", 0, 50),
+(-15, -37, "User enters information (login, password, first name, last name, street address, city, state/province, zip code, country, phone number, email address", 0, 10),
+(-15, -38, "All fields are mandatory", 0, 20),
+(-15, -39, "If login already exists, user told 'Login already taken'", 0, 30),
+(-15, -40, "User is sent email to validate email address", 0, 40),
+(-15, -41, "User must click on link in email to be able to log in", 0, 50),
+(-16, -42, "User can click on Edit profile (by name in upper corner of screen)", 0, 10),
+(-16, -43, "Any field can be edited (except for login)", 0, 20),
+(-16, -44, "User is sent email to validate new email address if changed", 0, 30),
+(-16, -45, "User must click on link in email to be able to log in", 0, 40),
+(-17, -46, "User can click on Forgot Password", 0, 10),
+(-17, -47, "User is asked to enter email address", 0, 20),
+(-17, -48, "If invalid email address, user is told 'Unknown email address'", 0, 30),
+(-17, -49, "If valid email address, user is sent email", 0, 40),
+(-17, -50, "User clicks on link in email and is allowed to reset password", 0, 50),
+(-18, -51, "User clicks on add to shopping cart", 0, 10),
+(-18, -52, "User is shown on side of screen number of items in cart and total cost", 0, 20),
+(-18, -53, "User can click on Finish shopping to go to existing confirmation screen", 0, 30),
+(-18, -54, "Confirmation screen lists all items in cart", 0, 40);
