@@ -1,0 +1,13 @@
+first:
+  id: 1
+  description: criteria
+  status_code: 0
+  story_id: 1
+  priority: 1
+
+second:
+  id: 2
+  description: criteria2
+  status_code: 1
+  story_id: 1
+  priority: 1
