@@ -35,6 +35,7 @@ package org.planigle.planigle.model
 		// Variables
 		public var workflowState:uint = 0;
 		public var fontSize:int = 10;
+		public var refreshInProgress:Boolean = false;
 	
 		// Constants
 		public static const SIGNUP:uint = 1;

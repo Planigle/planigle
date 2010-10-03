@@ -437,24 +437,11 @@ class IndividualTest < ActiveSupport::TestCase
   def test_find
     assert_equal Individual.count, Individual.get_records(individuals(:quentin)).length
     assert_equal Individual.find_all_by_company_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:aaron)).length
-    assert_equal Individual.find_all_by_company_id(1, :joins => :projects, :conditions => "role != 0 && projects.id=1").length, Individual.get_records(individuals(:aaron), true).length
     assert_equal Individual.find_all_by_company_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:user)).length
     assert_equal Individual.find_all_by_company_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:readonly)).length
     assert_equal Individual.find(:all, :joins => :projects, :conditions => "projects.id = 2 and role != 0").length, Individual.get_records(individuals(:project_admin2)).length
     assert_equal Individual.find(:all, :joins => :projects, :conditions => "projects.id = 2 and role != 0").length, Individual.get_records(individuals(:user2)).length
     assert_equal Individual.find(:all, :joins => :projects, :conditions => "projects.id = 4 and role != 0").length, Individual.get_records(individuals(:ro2)).length
-    
-    # Try project only if individual has different project selected
-    admin2 = individuals(:admin2)
-    admin2.selected_project_id = 3
-    admin2.save(false)
-    assert_equal Individual.find_all_by_company_id(1, :joins => :projects, :conditions => "role != 0 && projects.id=3").length + 1, Individual.get_records(admin2, true).length
-    
-    # Try project only if individual has no project selected
-    quentin = individuals(:quentin)
-    quentin.selected_project_id = nil
-    quentin.save(false)
-    assert_equal 1, Individual.get_records(quentin, true).length
   end
   
   # Validate is_premium.
@@ -465,6 +452,7 @@ class IndividualTest < ActiveSupport::TestCase
   end
   
   def test_capacity
+    Thread.current[:project_id] = 1
     assert_nil individuals(:quentin).capacity
     assert_in_delta 0.33, individuals(:aaron).capacity, 0.01
     Task.create({:story_id => 1, :name => 'test', :individual_id => 2, :status_code => 2, :estimate => 2})
@@ -493,6 +481,7 @@ class IndividualTest < ActiveSupport::TestCase
   def test_have_records_changed_project_changed
     sleep 1 # Distance from set up
     start = Time.now
+    sleep 1 # At least one second elapsed
     individual = individuals(:aaron)
     individual.attributes = {:project_ids => [3]}
     individual.save(false)
@@ -511,6 +500,7 @@ private
   def assert_have_records_changed(other_project_object, project_object)
     sleep 1 # Distance from set up
     start = Time.now
+    sleep 1 # At least one second elapsed
     other_project_object.first_name = "changed"
     other_project_object.save(false)
     assert_admin_changes(start)

@@ -5,6 +5,7 @@
 		import mx.collections.ArrayCollection;
 		import mx.binding.utils.ChangeWatcher;
 		import mx.events.ListEvent;
+		import org.planigle.planigle.model.ViewModelLocator;
 		import org.planigle.planigle.model.IndividualFactory;
 		import org.planigle.planigle.model.Team;
 
@@ -62,7 +63,8 @@
 			visible = teamSelector.length > 2;
 			height = visible ? NaN : 0;
 			width = visible ? NaN : -5;
-			dispatchEvent(new ListEvent(ListEvent.CHANGE));
+			if (!ViewModelLocator.getInstance().refreshInProgress)
+				dispatchEvent(new ListEvent(ListEvent.CHANGE));
 		}
 		]]>
 	</mx:Script>

@@ -11,7 +11,6 @@ package org.planigle.planigle.model
 		public var individuals:ArrayCollection = new ArrayCollection();
 		public var individualSelector:ArrayCollection = new ArrayCollection();
 		public var currentIndividual:Individual;
-		private var allIndividualsLoaded:Boolean = false;
 		private var currentLogin:String;
 		private var individualMapping:Object = new Object();
 		private static var instance:IndividualFactory;
@@ -34,11 +33,6 @@ package org.planigle.planigle.model
 		public static function current():Individual
 		{
 			return instance.currentIndividual;
-		}
-		
-		public function allLoaded():Boolean
-		{
-			return allIndividualsLoaded || currentIndividual.allProjects.length <= 1;
 		}
 
 		// Update my individuals to be the specified individuals.
@@ -64,20 +58,11 @@ package org.planigle.planigle.model
 			individualSelector = newIndividualSelector;
 		}
 
-		// Populate all individuals (including those from other projects.
-		public function populateAll(timeUpdated:String, newIndividuals:Array):void
-		{
-			this.timeUpdated = timeUpdated;
-			populate(timeUpdated, newIndividuals);
-			allIndividualsLoaded = true;
-		}
-
 		// Populate the individuals.
 		public function populate(timeUpdated:String, newIndividuals:Array):void
 		{
+			this.timeUpdated = timeUpdated;
 			updateIndividuals(new ArrayCollection(newIndividuals));
-			if (allLoaded())
-				this.timeUpdated = timeUpdated;
 		}
 		
 		// Create a new individual.  Params should be of the format (record[param]).  Success function
@@ -116,7 +101,6 @@ package org.planigle.planigle.model
 		public function setCurrent(login:String):void
 		{
 			currentLogin = login;
-			allIndividualsLoaded = false;
 		}
 	}
 }

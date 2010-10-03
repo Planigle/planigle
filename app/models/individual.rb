@@ -177,28 +177,24 @@ class Individual < ActiveRecord::Base
 
   # Answer whether records have changed.
   def self.have_records_changed(current_user, time)
-    if current_user.role >= Individual::ProjectAdmin
-      Individual.count_with_deleted(:conditions => ["company_id = ? and role in (1,2,3) and (updated_at >= ? or deleted_at >= ?)", current_user.company_id, time, time]) > 0
+    if current_user.role >= Individual::ProjectAdmin # Note: updated_at is >, not >= to ignore the change from logging in
+      Individual.count_with_deleted(:conditions => ["company_id = ? and role in (1,2,3) and (updated_at > ? or deleted_at >= ?)", current_user.company_id, time, time]) > 0
     else
       Individual.count_with_deleted(:conditions => ["updated_at >= ? or deleted_at >= ?", time, time]) > 0
     end
   end
 
   # Answer the records for a particular user.
-  def self.get_records(current_user, selected_project_only = false)
+  def self.get_records(current_user)
     if current_user.role >= Individual::ProjectAdmin
-      if current_user.is_premium && !selected_project_only
+      if current_user.is_premium
         find(:all, :include => [:projects], :conditions => ["individuals.company_id = ? and role in (1,2,3)", current_user.company_id], :order => 'first_name, last_name')
       else
         find(:all, :include => [:projects],
           :conditions => ["(projects.id = ? and role in (1,2,3)) or individuals.id=?", current_user.project_id, current_user.id], :order => 'first_name, last_name')
       end
     else
-      if !selected_project_only
-        find(:all, :include => [:projects], :order => 'first_name, last_name')
-      else
-        find(:all, :include => [:projects], :conditions => ["projects.id = ? or individuals.id=?", current_user.project_id, current_user.id], :order => 'first_name, last_name')
-      end
+      find(:all, :include => [:projects], :order => 'first_name, last_name')
     end
   end
 
@@ -265,7 +261,7 @@ class Individual < ActiveRecord::Base
 
   # Answer my capacity based on my load over the past 3 iterations
   def capacity
-    if project
+    if project && project_id == Thread.current[:project_id]
       iterations = project.iterations.find(:all, :include => {:stories => :tasks}, :conditions => 'finish <= CURDATE()', :limit => 3, :order => 'start desc')
       iterations.size > 0 ? iterations.inject(0) {|sum, iteration| sum + utilization_in(iteration)} / iterations.size : nil
     else
