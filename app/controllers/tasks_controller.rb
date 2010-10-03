@@ -54,9 +54,11 @@ protected
       owner = params[0].individual_id
     else
       @record.attributes = params[:record]
-      effort = params[:record][:effort]
-      status = params[:record][:status_code]
-      owner = params[:record][:individual_id]
+      if (params[:record])
+        effort = params[:record][:effort]
+        status = params[:record][:status_code]
+        owner = params[:record][:individual_id]
+      end
     end
     if @record.status_code == Story::Done && effort == nil
       @record.effort = 0
