@@ -11,6 +11,7 @@ package org.planigle.planigle.commands
 	import org.planigle.planigle.model.ReleaseFactory;
 	import org.planigle.planigle.model.IterationFactory;
 	import org.planigle.planigle.model.StoryFactory;
+	import org.planigle.planigle.model.ViewModelLocator;
 	
 	public class RefreshCommand implements ICommand, IResponder
 	{
@@ -35,6 +36,7 @@ package org.planigle.planigle.commands
 			var result:Object = event.result;
 			if (!result.error)
 			{
+				ViewModelLocator.getInstance().refreshInProgress = true;
 				if (result.companies != null)
 					CompanyFactory.getInstance().populate( result.time, result.companies as Array );
 				if (result.individuals != null)
@@ -45,6 +47,7 @@ package org.planigle.planigle.commands
 					IterationFactory.getInstance().populate( result.time, result.iterations ? result.iterations as Array : new Array() );
 				if (result.stories != null)
 					StoryFactory.getInstance().populate( result.time, result.stories ? result.stories as Array : new Array() );
+				ViewModelLocator.getInstance().refreshInProgress = false;
 			}
 		}
 		

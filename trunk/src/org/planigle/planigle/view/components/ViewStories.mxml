@@ -201,7 +201,8 @@
 		private function updateReleaseFilterList(event:Event):void
 		{
 			setReleaseFilterList();
-			handleFilter();
+			if (!ViewModelLocator.getInstance().refreshInProgress)
+				handleFilter();
 		}
 		
 		// Set the releases in the filter list.
@@ -243,7 +244,8 @@
 		private function updateIterationFilterList(event:Event):void
 		{
 			setIterationFilterList();
-			handleFilter();
+			if (!ViewModelLocator.getInstance().refreshInProgress)
+				handleFilter();
 		}
 		
 		// Set the iterations in the filter list.
@@ -286,7 +288,8 @@
 		{
 			setIndividualFilterList();
 			setOwners();
-			handleFilter();
+			if (!ViewModelLocator.getInstance().refreshInProgress)
+				handleFilter();
 		}
 		
 		private function setOwners():void
@@ -535,7 +538,7 @@
 					handleSuccess();
 					if (recalc)
 					{
-						handleFilter();
+						StoryFactory.getInstance().normalizePriorities();
 						recalc = false;
 					}
 					else
@@ -568,7 +571,7 @@
 			handleFailure(xml);
 			if (recalc)
 			{
-				handleFilter();
+				StoryFactory.getInstance().normalizePriorities();
 				recalc = false;
 			}
 			else

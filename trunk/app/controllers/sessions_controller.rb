@@ -86,20 +86,24 @@ protected
       result['system'] = System.find(:first)
       result['current_individual'] = current_individual
     end
+    update_stories = false
     if (!parms[:companies] || Company.have_records_changed(current_individual, Time.parse(parms[:companies])))
       result['companies'] = Company.get_records(current_individual)
     end
     if (!parms[:individuals] || Individual.have_records_changed(current_individual, Time.parse(parms[:individuals])))
-      result['individuals'] = Individual.get_records(current_individual, true)
+      update_stories = true
+      result['individuals'] = Individual.get_records(current_individual)
     end
     if current_individual.project_id
       if (!parms[:releases] || Release.have_records_changed(current_individual, Time.parse(parms[:releases])))
+        update_stories = true
         result['releases'] = Release.get_records(current_individual)
       end
       if (!parms[:iterations] || Iteration.have_records_changed(current_individual, Time.parse(parms[:iterations])))
+        update_stories = true
         result['iterations'] = Iteration.get_records(current_individual)
       end
-      if (!parms[:stories] || Story.have_records_changed(current_individual, Time.parse(parms[:stories])))
+      if (update_stories || !parms[:stories] || Story.have_records_changed(current_individual, Time.parse(parms[:stories])))
         result['stories'] = Story.get_records(current_individual, parms[:conditions] ? parms[:conditions] : {:status_code => 'NotDone', :team_id => 'MyTeam', :release_id => 'Current', :iteration_id => 'Current'})
       end
     end

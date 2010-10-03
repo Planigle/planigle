@@ -27,7 +27,7 @@ package org.planigle.planigle.commands
 		{
 			var result:Object = event.result;
 			if (result.records != null)
-				IndividualFactory.getInstance().populateAll(result.time, result.records as Array);
+				IndividualFactory.getInstance().populate(result.time, result.records as Array);
 		}
 		
 		// Handle case where error occurs.
