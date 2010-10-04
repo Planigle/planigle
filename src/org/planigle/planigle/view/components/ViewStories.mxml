@@ -970,16 +970,16 @@
 			params['record[name]'] = storyFieldName.text;
 			params['record[description]'] = storyFieldDescription.text;
 			params['record[reason_blocked]'] = storyFieldReasonBlocked.text;
-			params['record[individual_id]'] = storyFieldOwner.selectedItem.id != -1 ? storyFieldOwner.selectedItem.id : "";
+			params['record[individual_id]'] = storyFieldOwner.selectedItem.id != null ? storyFieldOwner.selectedItem.id : "";
 			params['record[effort]'] = storyFieldEffort.text;
 			params['record[status_code]'] = storyFieldStatus.selectedItem.value;
 			if (isStory)
 			{
 				params['record[project_id]'] = storyFieldProject.selectedItem.id;
-				params['record[release_id]'] = storyFieldRelease.selectedItem.id != -1 ? storyFieldRelease.selectedItem.id : "";
-				params['record[iteration_id]'] = storyFieldIteration.selectedItem.id != -1 ? storyFieldIteration.selectedItem.id : "";
+				params['record[release_id]'] = storyFieldRelease.selectedItem.id != null ? storyFieldRelease.selectedItem.id : "";
+				params['record[iteration_id]'] = storyFieldIteration.selectedItem.id != null ? storyFieldIteration.selectedItem.id : "";
 				params['record[acceptance_criteria]'] = storyFieldAcceptanceCriteria.acceptanceCriteria;
-				params['record[team_id]'] = storyFieldTeam.selectedItem.id != -1 ? storyFieldTeam.selectedItem.id : "";
+				params['record[team_id]'] = storyFieldTeam.selectedItem.id != null ? storyFieldTeam.selectedItem.id : "";
 				params['record[is_public]'] = storyFieldPublic.selectedItem.value;
 
 				for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
