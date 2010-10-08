@@ -59,7 +59,7 @@ class Story < ActiveRecord::Base
   def self.update_priorities
     Project.find(:all).each do |project|
       project.connection.update <<-SQL, "Initializing variable"
-        select @count:=min(priority) from stories where project_id=#{project.id} and status_code<#{Done}
+        select @count:=0 from stories where project_id=#{project.id} and status_code<#{Done}
       SQL
       project.connection.update <<-SQL, "Setting priorities"
         update stories,
