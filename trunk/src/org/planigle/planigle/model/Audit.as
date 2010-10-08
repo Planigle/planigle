@@ -84,6 +84,8 @@ package org.planigle.planigle.model
 					return 'Stories';
 				case 'isPublic':
 					return 'Public';
+				case 'effort':
+					return auditableType == 'Story' ? 'Size' : 'To Do';
 				default:
 					var pattern:RegExp = /([A-Za-z][a-z]*)([A-Z][a-z]+)*/;
 					return key.replace(pattern, replace);
