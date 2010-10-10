@@ -9,6 +9,7 @@
 			import mx.collections.ArrayCollection;
 			import com.adobe.viewsource.ViewSource;
 			import flash.display.DisplayObject;
+			import flash.utils.Timer;
 			import mx.binding.utils.ChangeWatcher;
 			import mx.binding.utils.BindingUtils;
 			import mx.managers.CursorManager;
@@ -59,12 +60,22 @@
 				BindingUtils.bindProperty(mainViewStack, "selectedChild", TabModelLocator.getInstance(), "selectedTab");
 				resetState(event);
 				updateProjects(event);
+				createTimer();
 				CursorManager.removeBusyCursor();
 			}
 
 			private function onCreate(event:Event):void
 			{
 				updatePremium();
+			}
+
+			private var refreshTimer:Timer;
+			
+			private function createTimer():void
+			{
+				refreshTimer = new Timer(IndividualFactory.current().refreshInterval,0);
+				refreshTimer.addEventListener("timer",refresh);
+				refreshTimer.start();
 			}
 
 			private var watcher:ChangeWatcher;
@@ -83,10 +94,18 @@
 			// The user has changed.
 			private function changeIndividual(event:Event):void
 			{
+				resetTimer();
 				watchIndividual();
 				resetState(event);
 				updateProjects(event);
 				updatePremium();
+			}
+			
+			private function resetTimer():void
+			{
+				refreshTimer.delay = IndividualFactory.current().refreshInterval;
+				refreshTimer.reset();
+				refreshTimer.start();
 			}
 
 			// The project has changed.
@@ -160,8 +179,9 @@
 			// Log out.
 			private function logout():void
 			{
+				refreshTimer.stop();
 				new LogoutEvent().dispatch();
-			}			
+			}
 
 			private var premiumModule:IModuleInfo;
 			private var premium:DisplayObject;
