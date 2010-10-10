@@ -22,6 +22,7 @@ package org.planigle.planigle.model
 		public var role:int;
 		public var activatedAt:Date;
 		public var enabled:Boolean;
+		public var refreshInterval:int;
 		public var lastLogin:Date;
 		public var acceptedAgreement:Date;
 		public var phoneNumber:String;
@@ -50,6 +51,7 @@ package org.planigle.planigle.model
 			var activatedDate:String = xml.child("activated-at");
 			activatedAt = activatedDate == "" ? null : DateUtils.stringToDate(activatedDate);
 			enabled = xml.enabled == "true";
+			refreshInterval = xml.child("refresh-interval");
 			var loginDate:String = xml.child("last-login");
 			lastLogin = loginDate == "" ? null : DateUtils.stringToDate(loginDate);
 			var acceptedDate:String = xml.child("accepted-agreement");
