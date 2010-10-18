@@ -59,13 +59,13 @@ class Story < ActiveRecord::Base
   def self.update_priorities
     Project.find(:all).each do |project|
       project.connection.update <<-SQL, "Initializing variable"
-        select @count:=0 from stories where project_id=#{project.id} and status_code<#{Done}
+        set @count:=0
       SQL
       project.connection.update <<-SQL, "Setting priorities"
         update stories,
           (select id, (@count:=@count+10) as rank
           from stories
-          where project_id=#{project.id} and status_code<#{Done}
+          where project_id=#{project.id}
           order by priority) sorted
         set stories.priority=sorted.rank where stories.id=sorted.id
       SQL
