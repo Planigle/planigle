@@ -12,7 +12,7 @@ quentin:
   activated_at: <%= 5.days.ago.to_s :db %> 
   notification_type: 3
   phone_number: '5555555555'
-  refreshInterval: 360000
+  refresh_interval: 360000
 
 aaron:
   id: 2
@@ -29,7 +29,7 @@ aaron:
   activated_at: <%= 5.days.ago.to_s :db %> 
   notification_type: 3
   phone_number: '5555555555'
-  refreshInterval: 360000
+  refresh_interval: 360000
 
 ted:
   id: 3
@@ -43,7 +43,7 @@ ted:
   salt: salt
   crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
   activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9c 
-  refreshInterval: 360000
+  refresh_interval: 360000
 
 user:
   id: 4
@@ -59,7 +59,7 @@ user:
   activated_at: <%= 5.days.ago.to_s :db %> 
   notification_type: 3
   phone_number: '5555555555'
-  refreshInterval: 360000
+  refresh_interval: 360000
 
 readonly:
   id: 5
@@ -73,7 +73,7 @@ readonly:
   crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
   activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9c 
   activated_at: <%= 5.days.ago.to_s :db %> 
-  refreshInterval: 360000
+  refresh_interval: 360000
 
 admin2:
   id: 6
@@ -88,7 +88,7 @@ admin2:
   crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
   activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9c 
   activated_at: <%= 5.days.ago.to_s :db %> 
-  refreshInterval: 360000
+  refresh_interval: 360000
 
 user2:
   id: 7
@@ -104,7 +104,7 @@ user2:
   activated_at: <%= 5.days.ago.to_s :db %> 
   notification_type: 3
   phone_number: '5555555555'
-  refreshInterval: 360000
+  refresh_interval: 360000
   
 project_admin2:
   id: 8
@@ -120,7 +120,7 @@ project_admin2:
   activated_at: <%= 5.days.ago.to_s :db %> 
   notification_type: 3
   phone_number: '5555555555'
-  refreshInterval: 360000
+  refresh_interval: 360000
 
 user3:
   id: 9
@@ -136,7 +136,7 @@ user3:
   activated_at: <%= 5.days.ago.to_s :db %> 
   notification_type: 3
   phone_number: '5555555555'
-  refreshInterval: 360000
+  refresh_interval: 360000
 
 ro2:
   id: 10
@@ -152,7 +152,7 @@ ro2:
   activated_at: <%= 5.days.ago.to_s :db %> 
   notification_type: 3
   phone_number: '5555555555'
-  refreshInterval: 360000
+  refresh_interval: 360000
 
 user4:
   id: 11
@@ -168,4 +168,4 @@ user4:
   activated_at: <%= 5.days.ago.to_s :db %> 
   notification_type: 3
   phone_number: '5555555555'
-  refreshInterval: 360000
+  refresh_interval: 360000

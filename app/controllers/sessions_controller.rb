@@ -85,6 +85,7 @@ protected
     if initial
       result['system'] = System.find(:first)
       result['current_individual'] = current_individual
+      result['current_individual'].current_user_project = project
     end
     update_stories = false
     if (!parms[:companies] || Company.have_records_changed(current_individual, Time.parse(parms[:companies])))
@@ -93,6 +94,7 @@ protected
     if (!parms[:individuals] || Individual.have_records_changed(current_individual, Time.parse(parms[:individuals])))
       update_stories = true
       result['individuals'] = Individual.get_records(current_individual)
+      result['individuals'].each {|individual| individual.current_user_project = project}
     end
     if current_individual.project_id
       if (!parms[:releases] || Release.have_records_changed(current_individual, Time.parse(parms[:releases])))

@@ -12,6 +12,7 @@ class FlexCompaniesTest < Test::Unit::TestCase
   fixtures :iterations
   fixtures :tasks
   fixtures :audits
+  fixtures :teams
 
   def setup
     @ie = Funfx.instance 

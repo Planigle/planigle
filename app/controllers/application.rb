@@ -10,7 +10,6 @@ class ApplicationController < ActionController::Base
   filter_parameter_logging :password, :password_confirmation
 
   # before_filter :debug # Uncomment to enable output of debug logging.
-  before_filter :set_project
   after_filter :change_response
 
   # Pick a unique cookie name to distinguish our session data from others'
@@ -23,10 +22,10 @@ protected
   def project_id
     current_individual ? current_individual.project_id : nil
   end
-  
-  # Associate the current project with the 
-  def set_project
-    Thread.current[:project_id] = project_id
+
+  # Answer the current project (or nil if there is not one).
+  def project
+    current_individual ? current_individual.project : nil
   end
 
   # Flex wants all responses to be 200

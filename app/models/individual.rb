@@ -259,10 +259,18 @@ class Individual < ActiveRecord::Base
     end
   end
 
+  def current_user_project
+    @current_user_project
+  end
+
+  def current_user_project= a_project
+    @current_user_project = a_project
+  end
+
   # Answer my capacity based on my load over the past 3 iterations
   def capacity
-    if project && project_id == Thread.current[:project_id]
-      iterations = project.iterations.find(:all, :include => {:stories => :tasks}, :conditions => 'finish <= CURDATE()', :limit => 3, :order => 'start desc')
+    if projects.include? self.current_user_project
+      iterations = current_user_project.iterations.find(:all, :include => {:stories => :tasks}, :conditions => 'finish <= CURDATE()', :limit => 3, :order => 'start desc')
       iterations.size > 0 ? iterations.inject(0) {|sum, iteration| sum + utilization_in(iteration)} / iterations.size : nil
     else
       nil
