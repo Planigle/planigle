@@ -6,7 +6,8 @@ config.cache_classes = true
 
 # Use a different logger for distributed setups; set the level to warning
 # config.logger = SyslogLogger.new
-RAILS_DEFAULT_LOGGER.level = Logger::DEBUG if defined? RAILS_DEFAULT_LOGGER
+config.log_level = :warn # In some environments, logger not present yet.  This will configure it work when created.
+RAILS_DEFAULT_LOGGER.level = Logger::WARN if defined? RAILS_DEFAULT_LOGGER
 
 # Full error reports are disabled and caching is turned on
 config.action_controller.consider_all_requests_local = false
