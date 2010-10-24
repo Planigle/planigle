@@ -452,13 +452,16 @@ class IndividualTest < ActiveSupport::TestCase
   end
   
   def test_capacity
-    Thread.current[:project_id] = 1
-    assert_nil individuals(:quentin).capacity
-    assert_in_delta 0.33, individuals(:aaron).capacity, 0.01
+    individ = individuals(:quentin)
+    individ.current_user_project = Project.find(1)
+    assert_nil individ.capacity
+    individ = individuals(:aaron)
+    individ.current_user_project = Project.find(1)
+    assert_in_delta 0.33, individ.capacity, 0.01
     Task.create({:story_id => 1, :name => 'test', :individual_id => 2, :status_code => 2, :estimate => 2})
     Task.create({:story_id => 1, :name => 'test', :individual_id => 2, :status_code => 3, :estimate => 2})
     Task.create({:story_id => 1, :name => 'test', :individual_id => 2, :status_code => 3, :estimate => 6, :actual => 9})
-    assert_equal 4, individuals(:aaron).capacity
+    assert_equal 4, individ.capacity
   end
 
   def test_utilization_in
