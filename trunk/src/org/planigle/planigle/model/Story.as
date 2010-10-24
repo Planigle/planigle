@@ -11,6 +11,7 @@ package org.planigle.planigle.model
 	[Bindable]
 	public class Story
 	{
+		public static var pageSize:int = 20;
 		public static var conditions:Object = new Object();
 		public var id:int;
 		public var projectId:int;
@@ -86,6 +87,11 @@ package org.planigle.planigle.model
 				newCriteria.addItem(criterium);
 			}
 			criteria = newCriteria.source;
+		}
+		
+		public static function shouldGetMore():Boolean
+		{
+			return (StoryFactory.getInstance().stories.length % pageSize) == 0 && conditions["text"] == null && conditions["individual_id"] == null;
 		}
 		
 		// Answer the value for a custom value (or nil if it does not exist).

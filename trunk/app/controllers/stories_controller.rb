@@ -120,8 +120,10 @@ protected
     time = get_params[:time]
     cond = conditions
     if params[:iteration_id]; cond[:iteration_id] = params[:iteration_id]; end
-    if (!time || Story.have_records_changed(current_individual, Time.parse(time)))
-      Story.get_records(current_individual, cond)
+    page_size = conditions.delete(:page_size)
+    page = conditions.delete(:page)
+    if (!time || (page && page > 1) || Story.have_records_changed(current_individual, Time.parse(time)))
+      Story.get_records(current_individual, cond, page_size, page)
     else
       nil
     end

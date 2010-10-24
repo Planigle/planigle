@@ -2,9 +2,9 @@ package org.planigle.planigle.business
 {
 	import com.adobe.cairngorm.business.ServiceLocator;
 	
-	import mx.rpc.remoting.RemoteObject;
 	import mx.rpc.IResponder;
 	import mx.rpc.http.HTTPService;
+	import mx.rpc.remoting.RemoteObject;
 	
 	public class Delegate
 	{
@@ -25,11 +25,18 @@ package org.planigle.planigle.business
 		public function get():void 
 		{
 			var remoteObject:RemoteObject = ServiceLocator.getInstance().getRemoteObject(getRemoteObjectName());
+			remoteObject.showBusyCursor = showBusyCursorOnGet();
 			if (params() == null)
 				remoteObject.index.send().addResponder(responder);
 			else
 				remoteObject.index.send(params()).addResponder(responder);
 		}	
+		
+		// Answer whether to show the busy cursor on get.
+		protected function showBusyCursorOnGet():Boolean
+		{
+			return true;
+		}
 
 		// Create the object as specified.
 		public function create( factory:Object, params:Object ):void

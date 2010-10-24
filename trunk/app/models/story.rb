@@ -240,12 +240,18 @@ class Story < ActiveRecord::Base
   end
 
   # Answer the records for a particular user.
-  def self.get_records(current_user, conditions={})
+  def self.get_records(current_user, conditions={}, per_page=nil, page=nil)
     conditions = substitute_conditions(current_user, conditions)
     filter_on_individual = conditions.has_key?(:individual_id)
     individual_id = conditions.delete(:individual_id)
     text_filter = conditions.delete(:text)
-    result = Story.find(:all, :include => [:criteria, :story_values, :tasks], :conditions => conditions, :order => 'stories.priority')
+    options = {:include => [:criteria, :story_values, :tasks], :conditions => conditions, :order => 'stories.priority'}
+    should_paginate = per_page && page && !filter_on_individual && !text_filter
+    if should_paginate
+      options[:per_page] = per_page
+      options[:page] = page
+    end
+    result = should_paginate ? Story.paginate(options) : Story.find(:all, options)
     if filter_on_individual
       individual_id = individual_id ? individual_id.to_i : individual_id
       result = result.select {|story| story.individual_id==individual_id || story.tasks.detect {|task| task.individual_id==individual_id}}
@@ -276,7 +282,7 @@ class Story < ActiveRecord::Base
     end
     if conditions[:team_id] == "MyTeam"
       team_id = current_user.team_id
-      if team_id
+      if team_id && current_user.team.project_id == current_user.project_id
         conditions[:team_id] = team_id
       else
         conditions.delete(:team_id)

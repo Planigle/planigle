@@ -26,6 +26,7 @@ Icons - Active Scaffold (Rails Plugin) - MIT
 Required Gems:
 FasterCSV - Ruby (from http://fastercsv.rubyforge.org/)
 FunFX - MIT (from http://rubyforge.org/projects/funfx/)
+will_paginate - Free for use (http://gitrdoc.com/rdoc/mislav/will_paginate/b3b0f593ea9b1da13a64bc825dfe17b6bbc2828b/files/LICENSE.html)
 win32-sound - (from http://win32utils.rubyforge.org/) - This provides feedback when compilation is done on Windows.  The dependency on it can be easily removed by modifying the rake file.
 
 Suggested Gems:

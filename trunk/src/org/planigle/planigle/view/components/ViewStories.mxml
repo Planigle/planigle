@@ -25,6 +25,7 @@
 		import mx.binding.utils.ChangeWatcher;
 		import mx.containers.FormItem;
 		import mx.controls.TextInput;
+		import org.planigle.planigle.commands.GetStoriesCommand;
 		import org.planigle.planigle.model.ViewModelLocator;
 		import org.planigle.planigle.model.StoryAttributeValue;
 		import org.planigle.planigle.model.TabModelLocator;
@@ -459,7 +460,7 @@
 			var justStories:ArrayCollection = getFilteredStories();
 			justStories.sort = sort;
 			justStories.refresh();
-			storiesCount.text = justStories.length.toString();
+			storiesCount.text = justStories.length.toString() + (GetStoriesCommand.isLoading() ? "+" : "");
 			var storiesAndTasks:ArrayCollection = new ArrayCollection;
 			for each (var story:Story in justStories)
 			{
