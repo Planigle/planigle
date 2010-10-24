@@ -2,17 +2,19 @@ package org.planigle.planigle.commands
 {
 	import com.adobe.cairngorm.commands.ICommand;
 	import com.adobe.cairngorm.control.CairngormEvent;
+	
 	import mx.controls.Alert;
-	import mx.rpc.IResponder;	
+	import mx.rpc.IResponder;
+	
 	import org.planigle.planigle.business.SessionDelegate;
 	import org.planigle.planigle.events.LoginEvent;
-	import org.planigle.planigle.model.ViewModelLocator;
-	import org.planigle.planigle.model.PlanigleSystem;
 	import org.planigle.planigle.model.CompanyFactory;
 	import org.planigle.planigle.model.IndividualFactory;
-	import org.planigle.planigle.model.ReleaseFactory;
 	import org.planigle.planigle.model.IterationFactory;
+	import org.planigle.planigle.model.PlanigleSystem;
+	import org.planigle.planigle.model.ReleaseFactory;
 	import org.planigle.planigle.model.StoryFactory;
+	import org.planigle.planigle.model.ViewModelLocator;
 	import org.planigle.planigle.vo.LoginVO;
 	
 	public class LoginCommand implements ICommand, IResponder
@@ -22,9 +24,11 @@ package org.planigle.planigle.commands
 
 		public static var lastLogin:LoginVO;
 		public var viewModelLocator:ViewModelLocator = ViewModelLocator.getInstance();
+		protected var storiesCommand:GetStoriesCommand;
 		
 		public function LoginCommand()
 		{
+			storiesCommand = new GetStoriesCommand(2);
 		}
 		
 		// Required for the ICommand interface.  Event must be of type Cairngorm event.
@@ -59,6 +63,7 @@ package org.planigle.planigle.commands
 			}
 			else
 			{
+				ViewModelLocator.getInstance().refreshInProgress = true;
 				PlanigleSystem.getInstance().populateFromObject( result.system );
 				IndividualFactory.getInstance().setCurrent( result.currentIndividual.login );
 				CompanyFactory.getInstance().populate( result.time, result.companies as Array );
@@ -67,6 +72,8 @@ package org.planigle.planigle.commands
 				IterationFactory.getInstance().populate( result.time, result.iterations ? result.iterations as Array : new Array() );
 				StoryFactory.getInstance().populate( result.time, result.stories ? result.stories as Array : new Array() );
 				viewModelLocator.workflowState = ViewModelLocator.CORE_APPLICATION_SCREEN;
+				ViewModelLocator.getInstance().refreshInProgress = false;
+				storiesCommand.execute(null);
 			}
 		}
 		

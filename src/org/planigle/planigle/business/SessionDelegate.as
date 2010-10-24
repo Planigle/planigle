@@ -31,7 +31,8 @@ package org.planigle.planigle.business
 			params["password"] = loginParams.password;
 			params["accept_agreement"] = loginParams.acceptAgreement ? true : false;
 			params["remember_me"] = loginParams.rememberMe ? true : false;
-			
+			params["page_size"] = Story.pageSize;
+			remoteObject.showBusyCursor = true;
 			remoteObject.create.send(params).addResponder(responder);
 		}	
 
@@ -45,12 +46,15 @@ package org.planigle.planigle.business
 			params["iterations"] = IterationFactory.getInstance().timeUpdated;
 			params["stories"] = StoryFactory.getInstance().timeUpdated;
 			params["conditions"] = Story.conditions;
+			params["page_size"] = Story.pageSize;
+			remoteObject.showBusyCursor = false;
 			remoteObject.refresh.send(params).addResponder(responder);
 		}
 		
 		// Log out from the server.
 		public function logout():void 
 		{
+			remoteObject.showBusyCursor = true;
 			remoteObject.destroy.send(null).addResponder(responder);
 		}	
 	}

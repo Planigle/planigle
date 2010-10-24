@@ -15,8 +15,11 @@ package org.planigle.planigle.commands
 	
 	public class RefreshCommand implements ICommand, IResponder
 	{
+		protected var storiesCommand:GetStoriesCommand;
+
 		public function RefreshCommand()
 		{
+			storiesCommand = new GetStoriesCommand(2);
 		}
 		
 		// Required for the ICommand interface.  Event must be of type Cairngorm event.
@@ -48,6 +51,7 @@ package org.planigle.planigle.commands
 				if (result.stories != null)
 					StoryFactory.getInstance().populate( result.time, result.stories ? result.stories as Array : new Array() );
 				ViewModelLocator.getInstance().refreshInProgress = false;
+				storiesCommand.execute(null);
 			}
 		}
 		

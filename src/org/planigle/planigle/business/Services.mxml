@@ -6,7 +6,7 @@
 	<mx:RemoteObject id="sessionRO"
 		source="SessionsController"
 		destination="rubyamf"
-		showBusyCursor="false">
+		showBusyCursor="true">
 		<mx:method name="create"/>
 		<mx:method name="refresh"/>
 		<mx:method name="destroy"/>

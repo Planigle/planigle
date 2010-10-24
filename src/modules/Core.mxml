@@ -18,6 +18,7 @@
 			import mx.controls.Alert;
         	import mx.modules.ModuleManager;
         	import mx.modules.IModuleInfo;
+			import org.planigle.planigle.commands.GetStoriesCommand;
 			import org.planigle.planigle.model.ReleaseFactory;
 			import org.planigle.planigle.model.IterationFactory;
 			import org.planigle.planigle.model.StoryFactory;
@@ -73,9 +74,23 @@
 			
 			private function createTimer():void
 			{
-				refreshTimer = new Timer(IndividualFactory.current().refreshInterval,0);
+				refreshTimer = new Timer(getRefreshInterval(),0);
 				refreshTimer.addEventListener("timer",refresh);
-				refreshTimer.start();
+				if (shouldAutoRefresh())
+					refreshTimer.start();
+			}
+			
+			private function getRefreshInterval():int
+			{
+				var interval:int = IndividualFactory.current().refreshInterval;
+				if (isNaN(interval) || interval < 60000)
+					interval = 60000; // Safeguard to no more than once a minute
+				return interval;
+			}
+			
+			private function shouldAutoRefresh():Boolean
+			{
+				return IndividualFactory.current().refreshInterval > 0; // If 0 or negative, turn off
 			}
 
 			private var watcher:ChangeWatcher;
@@ -103,9 +118,10 @@
 			
 			private function resetTimer():void
 			{
-				refreshTimer.delay = IndividualFactory.current().refreshInterval;
+				refreshTimer.delay = getRefreshInterval();
 				refreshTimer.reset();
-				refreshTimer.start();
+				if (shouldAutoRefresh())
+					refreshTimer.start();
 			}
 
 			// The project has changed.
@@ -115,7 +131,13 @@
 					watcher.unwatch();
 				watcher = factory.currentIndividual.selectedProject ? ChangeWatcher.watch( factory.currentIndividual.selectedProject, "premiumExpiry", resetState ) : null;
 				resetState(event);
+				cancelCommands();
 				refresh(true);
+			}
+			
+			private function cancelCommands():void
+			{
+				GetStoriesCommand.cancelCommandsInProgress();
 			}
 
 			// Hide the specified tab.
@@ -173,12 +195,14 @@
 					IterationFactory.getInstance().timeUpdated = null;
 					StoryFactory.getInstance().timeUpdated = null;
 				}
-				new RefreshEvent().dispatch();
+				if (force || !GetStoriesCommand.isLoading())
+					new RefreshEvent().dispatch();
 			}
 			
 			// Log out.
 			private function logout():void
 			{
+				cancelCommands();
 				refreshTimer.stop();
 				new LogoutEvent().dispatch();
 			}

@@ -45,6 +45,9 @@ Rails::Initializer.run do |config|
   # See Rails::Configuration for more options
 end
 
+# Require will_paginate gem
+require "will_paginate" 
+
 # Add new inflection rules using the following format 
 # (all these examples are active by default):
 # Inflector.inflections do |inflect|

@@ -36,11 +36,21 @@ package org.planigle.planigle.model
 		public function populate(timeUpdated:String, someStories:Array):void
 		{
 			this.timeUpdated = timeUpdated;
-			var newStories:ArrayCollection = new ArrayCollection(someStories);
+			stories = new ArrayCollection();
 			storyMapping = new Object();
+			populateMore(someStories);
+		}
+
+		// Populate additional stories.
+		public function populateMore(someStories:Array):void
+		{
+			var newStories:ArrayCollection = new ArrayCollection(someStories);
 			for each (var story:Story in newStories)
 				storyMapping[story.id] = story;
-			stories = newStories;
+			var temp:ArrayCollection = new ArrayCollection();
+			temp.addAll(stories);
+			temp.addAll(newStories);
+			stories = temp;
 			normalizePriorities();
 		}
 		
@@ -83,7 +93,7 @@ package org.planigle.planigle.model
 		{
 			return storyMapping[id];
 		}
-
+		
 		// Normalize the priorities so that they are 1..n (excluding accepted stories).
 		public function normalizePriorities():void
 		{
