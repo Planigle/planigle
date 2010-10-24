@@ -11,6 +11,7 @@ class FlexReleasesTest < Test::Unit::TestCase
   fixtures :releases
   fixtures :iterations
   fixtures :audits
+  fixtures :teams
 
   def setup
     @ie = Funfx.instance 

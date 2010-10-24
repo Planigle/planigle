@@ -36,8 +36,8 @@ ActionController::Routing::Routes.draw do |map|
   map.resource :system
   map.refresh '/refresh', :controller => 'sessions', :action => 'refresh'
   map.summarize '/summarize', :controller => 'systems', :action => 'summarize'
-  map.summarize '/report', :controller => 'systems', :action => 'report'
-  map.summarize '/report_remaining', :controller => 'systems', :action => 'report'
+  map.report '/report', :controller => 'systems', :action => 'report'
+  map.report_remaining '/report_remaining', :controller => 'systems', :action => 'report_remaining'
   map.activate '/activate/:activation_code', :controller => 'individuals', :action => 'activate'
   map.logout '/logout', :controller => 'sessions', :action => 'destroy'
 

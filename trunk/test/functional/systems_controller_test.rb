@@ -10,6 +10,9 @@ class SystemsControllerTest < ActionController::TestCase
 
   fixtures :systems
   fixtures :individuals
+  fixtures :teams
+  fixtures :projects
+  fixtures :individuals_projects
   fixtures :release_totals
   fixtures :iteration_totals
   fixtures :iteration_story_totals
@@ -19,6 +22,8 @@ class SystemsControllerTest < ActionController::TestCase
   fixtures :stories
   fixtures :story_attributes
   fixtures :story_values
+  fixtures :tasks
+  fixtures :criteria
 
   # Test summarizing data.
   def test_summarize
@@ -30,10 +35,10 @@ class SystemsControllerTest < ActionController::TestCase
     login_as(individuals(:admin2))
     get :report
     assert_select "release-totals" do
-      assert_select "release-total", 2
+      assert_select "release-total", 0
     end
     assert_select "release-breakdowns" do
-      assert_select "category-total", 16
+      assert_select "category-total", 0
     end
     assert_select "iteration-totals" do
       assert_select "iteration-total", 2
@@ -49,6 +54,18 @@ class SystemsControllerTest < ActionController::TestCase
     end
   end
 
+  # Test getting report data.
+  def test_report_remaining
+    login_as(individuals(:admin2))
+    get :report_remaining
+    assert_select "release-totals" do
+      assert_select "release-total", 2
+    end
+    assert_select "release-breakdowns" do
+      assert_select "category-total", 16
+    end
+  end
+
   def test_report_admin
     i = individuals(:quentin)
     i.selected_project_id = 1
@@ -56,7 +73,7 @@ class SystemsControllerTest < ActionController::TestCase
     login_as(individuals(:quentin))
     get :report
     assert_select "release-totals" do
-      assert_select "release-total", 2
+      assert_select "release-total", 0
     end
     assert_select "iteration-totals" do
       assert_select "iteration-total", 2

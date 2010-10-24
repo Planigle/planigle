@@ -12,6 +12,7 @@ class FlexSessionTest < Test::Unit::TestCase
   fixtures :releases
   fixtures :iterations
   fixtures :tasks
+  fixtures :teams
 
   def setup
     @ie = Funfx.instance 

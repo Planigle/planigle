@@ -12,6 +12,7 @@ class FlexProjectsTest < Test::Unit::TestCase
   fixtures :iterations
   fixtures :tasks
   fixtures :audits
+  fixtures :teams
 
   def setup
     @ie = Funfx.instance 
@@ -60,7 +61,7 @@ class FlexProjectsTest < Test::Unit::TestCase
   # Test logging in as a project admin
   def test_project_admin
     init('pa2')
-    assert_equal 2, @ie.data_grid("projectResourceGrid").num_rows
+    assert_equal 4, @ie.data_grid("projectResourceGrid").num_rows
     assert @ie.button("teamBtnAdd")[2].visible
     assert @ie.button("projectBtnEdit")[2].visible
     assert !@ie.button("projectBtnDelete")[2].visible
@@ -69,28 +70,28 @@ class FlexProjectsTest < Test::Unit::TestCase
   # Test logging in as a project admin
   def test_project_admin_premium
     init('aaron')
-    assert_equal 3, @ie.data_grid("projectResourceGrid").num_rows
-    assert @ie.button("teamBtnAdd")[3].visible
-    assert @ie.button("projectBtnEdit")[3].visible
-    assert @ie.button("projectBtnDelete")[3].visible
+    assert_equal 5, @ie.data_grid("projectResourceGrid").num_rows
+    assert @ie.button("teamBtnAdd")[5].visible
+    assert @ie.button("projectBtnEdit")[5].visible
+    assert @ie.button("projectBtnDelete")[5].visible
   end
 
   # Test logging in as a project user
   def test_project_user
     init('user2')
-    assert_equal 2, @ie.data_grid("projectResourceGrid").num_rows
-    assert !@ie.button("teamBtnAdd")[2].visible
-    assert !@ie.button("projectBtnEdit")[2].visible
-    assert !@ie.button("projectBtnDelete")[2].visible
+    assert_equal 4, @ie.data_grid("projectResourceGrid").num_rows
+    assert !@ie.button("teamBtnAdd")[4].visible
+    assert !@ie.button("projectBtnEdit")[4].visible
+    assert !@ie.button("projectBtnDelete")[4].visible
   end
 
   # Test logging in as a project user
   def test_project_user_premium
     init('user')
-    assert_equal 3, @ie.data_grid("projectResourceGrid").num_rows
-    assert !@ie.button("teamBtnAdd")[3].visible
-    assert !@ie.button("projectBtnEdit")[3].visible
-    assert !@ie.button("projectBtnDelete")[3].visible
+    assert_equal 5, @ie.data_grid("projectResourceGrid").num_rows
+    assert !@ie.button("teamBtnAdd")[5].visible
+    assert !@ie.button("projectBtnEdit")[5].visible
+    assert !@ie.button("projectBtnDelete")[5].visible
   end
 
   # Test logging in as a read only user
@@ -105,10 +106,10 @@ class FlexProjectsTest < Test::Unit::TestCase
   # Test logging in as a read only user
   def test_read_only_premium
     init('readonly')
-    assert_equal 3, @ie.data_grid("projectResourceGrid").num_rows
-    assert !@ie.button("teamBtnAdd")[3].visible
-    assert !@ie.button("projectBtnEdit")[3].visible
-    assert !@ie.button("projectBtnDelete")[3].visible
+    assert_equal 5, @ie.data_grid("projectResourceGrid").num_rows
+    assert !@ie.button("teamBtnAdd")[5].visible
+    assert !@ie.button("projectBtnEdit")[5].visible
+    assert !@ie.button("projectBtnDelete")[5].visible
   end
   
   # Test showing the history
