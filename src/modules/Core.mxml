@@ -132,7 +132,7 @@
 				watcher = factory.currentIndividual.selectedProject ? ChangeWatcher.watch( factory.currentIndividual.selectedProject, "premiumExpiry", resetState ) : null;
 				resetState(event);
 				cancelCommands();
-				refresh(true);
+				refresh(null, true);
 			}
 			
 			private function cancelCommands():void
@@ -187,7 +187,7 @@
 			}
 					
 			// Refresh any cached data.
-			private function refresh(force:Boolean = false):void
+			private function refresh(event:Event = null, force:Boolean = false):void
 			{
 				if (force)
 				{	
