@@ -18,6 +18,16 @@ package org.planigle.planigle.model
 		{
 			if (enforcer == null) 
 				throw new Error("You Can Only Have One StoryFactory");
+			
+			initializeConditions();
+		}
+		
+		public function initializeConditions():void
+		{
+			Story.conditions["status_code"] = 'NotDone';
+			Story.conditions["team_id"] = 'MyTeam';
+			Story.conditions["release_id"] = 'Current';
+			Story.conditions["iteration_id"] = 'Current';
 		}
 
 		// Returns the single instance.
