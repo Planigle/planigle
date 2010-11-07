@@ -39,6 +39,12 @@ package org.planigle.planigle.model
 			teams = initialTeams;
 		}
 
+		public function getCurrentVersion():Object
+		{
+			var newCompany:Company = CompanyFactory.getInstance().find(companyId);
+			return newCompany == null ? null : newCompany.find(id);
+		}
+
 		// Populate myself from XML.
 		public function populate(xml:XML):void
 		{
@@ -311,6 +317,16 @@ package org.planigle.planigle.model
 		{
 			var team:Team = teamMapping[id];
 			return team ? team : Team(teamSelector.getItemAt(teamSelector.length-1));	
+		}
+		
+		public function findAttribute(id:int):StoryAttribute
+		{
+			for each(var storyAttribute:StoryAttribute in storyAttributes)
+			{
+				if (storyAttribute.id == id)
+					return storyAttribute;
+			}
+			return storyAttribute;
 		}
 		
 		// Expand the project to show its teams.

@@ -24,6 +24,12 @@ package org.planigle.planigle.model
 		public var priority:Number;
 		public var projectedIterationId:String; // Not used for tasks, but needed for the grid.
 
+		public function getCurrentVersion():Object
+		{
+			var newStory:Story = StoryFactory.getInstance().find(storyId);
+			return newStory == null ? null : newStory.find(id);
+		}
+
 		// Populate myself from XML.
 		public function populate(xml:XML):void
 		{

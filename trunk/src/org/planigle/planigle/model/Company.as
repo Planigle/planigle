@@ -17,6 +17,11 @@ package org.planigle.planigle.model
 		public var projectSelector:ArrayCollection = new ArrayCollection();
 		private var projectMapping:Object = new Object();
 		private static var expanded:Object = new Object(); // Keep in static so that it persists after reloading
+
+		public function getCurrentVersion():Object
+		{
+			return CompanyFactory.getInstance().find(id);
+		}
 	
 		// Populate myself from XML.
 		public function populate(xml:XML):void

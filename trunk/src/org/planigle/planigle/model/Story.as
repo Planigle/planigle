@@ -41,6 +41,11 @@ package org.planigle.planigle.model
 		public static const ACCEPTED:int = 3;
 		private static var expanded:Object = new Object(); // Keep in static so that it persists after reloading
 
+		public function getCurrentVersion():Object
+		{
+			return StoryFactory.getInstance().find(id);
+		}
+
 		// Populate myself from XML.
 		public function populate(xml:XML):void
 		{
@@ -178,6 +183,16 @@ package org.planigle.planigle.model
 		public function get team():Team
 		{
 			return project.find(teamId);
+		}
+
+		public function find(id:int):Task
+		{
+			for each (var task:Task in tasks)
+			{
+				if (task.id == id)
+					return task;
+			}
+			return null;
 		}
 
 		// Answer my tasks.

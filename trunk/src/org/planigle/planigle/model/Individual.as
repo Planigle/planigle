@@ -34,6 +34,11 @@ package org.planigle.planigle.model
 		private static const PROJECT_USER:int = 2;
 		private static const READ_ONLY:int = 3;
 		private static var NO_PROJECT:Project = null;
+
+		public function getCurrentVersion():Object
+		{
+			return IndividualFactory.getInstance().find(id);
+		}
 	
 		// Populate myself from XML.
 		public function populate(xml:XML):void

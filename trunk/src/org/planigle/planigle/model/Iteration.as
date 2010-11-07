@@ -17,6 +17,11 @@ package org.planigle.planigle.model
 		public var finish:Date;
 		public var retrospectiveResults:String;
 		public var updatedAtString:String;
+
+		public function getCurrentVersion():Object
+		{
+			return IterationFactory.getInstance().find(id);
+		}
 	
 		// Populate myself from XML.
 		public function populate(xml:XML):void
