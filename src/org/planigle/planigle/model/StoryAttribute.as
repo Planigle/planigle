@@ -25,6 +25,13 @@ package org.planigle.planigle.model
 		public static const LIST:int = 3;
 		public static const RELEASE_LIST:int = 4;
 
+		public function getCurrentVersion():Object
+		{
+			var newCompany:Company = CompanyFactory.getInstance().find(project.companyId);
+			var newProject:Project = newCompany == null ? null : newCompany.find(String(projectId));
+			return newProject == null ? null : newProject.findAttribute(id);
+		}
+
 		// Populate myself from XML.
 		public function populate(xml:XML):void
 		{

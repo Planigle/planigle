@@ -47,7 +47,11 @@ package org.planigle.planigle.commands
 								execute(null);
 							}
 							else
-								object.updateCompleted(result.records.children()[0]);
+							{
+								var newObject:Object = object.getCurrentVersion();
+								if (newObject != null)
+									newObject.updateCompleted(result.records.children()[0]);
+							}
 						});
 				} else if (notifyFailure != null)
 					notifyFailure(result.error);

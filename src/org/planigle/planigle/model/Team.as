@@ -16,6 +16,13 @@ package org.planigle.planigle.model
 		public var name:String;
 		public var description:String;
 		public var updatedAtString:String;
+
+		public function getCurrentVersion():Object
+		{
+			var newCompany:Company = CompanyFactory.getInstance().find(project.companyId);
+			var newProject:Project = newCompany == null ? null : newCompany.find(projectId);
+			return newProject == null ? null : newProject.find(id);
+		}
 	
 		// Populate myself from XML.
 		public function populate(xml:XML):void
