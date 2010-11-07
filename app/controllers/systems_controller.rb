@@ -17,12 +17,21 @@ class SystemsController < ResourceController
     end
   end
 
-  # Return the system data.
-  # GET /report_remaining
-  def report_remaining
+  # Return the report data for the specified release.
+  # GET /report_release
+  def report_release
     respond_to do |format|
-      format.xml { render :xml => data_remaining, :status => :success }
-      format.amf { render :amf => data_remaining }
+      format.xml { render :xml => data_release, :status => :success }
+      format.amf { render :amf => data_release }
+    end
+  end
+
+  # Return the report data for the specified iteration.
+  # GET /report_iteration
+  def report_iteration
+    respond_to do |format|
+      format.xml { render :xml => data_iteration, :status => :success }
+      format.amf { render :amf => data_iteration }
     end
   end
 
@@ -90,20 +99,28 @@ protected
     report_data
   end
   
-  # Answer the reporting data for the remaining iterations and releases.
-  def data_remaining
+  # Answer the reporting data for the specified release.
+  def data_release
     report_data = {}
-    remainingIterations = Iteration.find(:all, :order => 'start desc', :include => [{:stories => :story_values},:project], :conditions => ['iterations.project_id = ? and start < now()', project_id])
-    remainingIterations = remainingIterations.length > 4 ? remainingIterations[4,remainingIterations.length] : []
-    remainingIterationIds = remainingIterations.collect{|iteration| iteration.id}
-    remainingReleases = Release.find(:all, :order => 'start desc', :conditions => ['releases.project_id = ? and start < now()', project_id])
-    remainingReleases = remainingReleases.length > 1 ? remainingReleases[1,remainingReleases.length] : []
-    remainingReleaseIds = remainingReleases.collect{|iteration| iteration.id}
-    report_data['iteration_totals'] = IterationTotal.find(:all, :conditions => ['iterations.id in (?)', remainingIterationIds], :joins => :iteration)
-    report_data['iteration_story_totals'] = IterationStoryTotal.find(:all, :conditions => ['iterations.id in (?)', remainingIterationIds], :joins => :iteration)
-    report_data['release_totals'] = ReleaseTotal.find(:all, :conditions => ['releases.id in (?)', remainingReleaseIds], :joins => :release)
-    report_data['iteration_breakdowns'] = remainingIterations.inject([]) {|collect, iteration| collect.concat(CategoryTotal.summarize_for(iteration))}
-    report_data['release_breakdowns'] = remainingReleases.inject([]) {|collect, release| collect.concat(CategoryTotal.summarize_for(release))}
+    release_id = is_amf ? params[0][:release_id] : params[:release_id]
+    release = Release.find(release_id)
+    if (release != nil && release.project_id == project_id)
+      report_data['release_totals'] = ReleaseTotal.find(:all, :conditions => ['release_id = ?', release_id])
+      report_data['release_breakdowns'] = CategoryTotal.summarize_for(release)
+    end
+    report_data
+  end
+  
+  # Answer the reporting data for the specified iteration.
+  def data_iteration
+    report_data = {}
+    iteration_id = is_amf ? params[0][:iteration_id] : params[:iteration_id]
+    iteration = Iteration.find(iteration_id)
+    if (iteration != nil && iteration.project_id == project_id)
+      report_data['iteration_totals'] = IterationTotal.find(:all, :conditions => ['iteration_id = ?', iteration_id])
+      report_data['iteration_story_totals'] = IterationStoryTotal.find(:all, :conditions => ['iteration_id = ?', iteration_id])
+      report_data['iteration_breakdowns'] = CategoryTotal.summarize_for(iteration)
+    end
     report_data
   end
 end

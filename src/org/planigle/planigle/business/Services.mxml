@@ -90,6 +90,7 @@
 		source="SystemsController"
 		destination="rubyamf">
 		<mx:method name="report"/>
-		<mx:method name="report_remaining"/>
+		<mx:method name="report_release"/>
+		<mx:method name="report_iteration"/>
 	</mx:RemoteObject>
 </cairngorm:ServiceLocator>

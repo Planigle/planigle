@@ -55,15 +55,47 @@ class SystemsControllerTest < ActionController::TestCase
   end
 
   # Test getting report data.
-  def test_report_remaining
+  def test_report_release
     login_as(individuals(:admin2))
-    get :report_remaining
+    get :report_release, :release_id => 1
     assert_select "release-totals" do
       assert_select "release-total", 2
     end
     assert_select "release-breakdowns" do
       assert_select "category-total", 16
     end
+  end
+
+  # Test getting report data.
+  def test_report_release_diff_project
+    login_as(individuals(:project_admin2))
+    get :report_release, :release_id => 1
+    assert_select "release-totals", 0
+    assert_select "release-breakdowns", 0
+  end
+
+  # Test getting report data.
+  def test_report_iteration
+    login_as(individuals(:admin2))
+    get :report_iteration, :iteration_id => 1
+    assert_select "iteration-totals" do
+      assert_select "iteration-total", 2
+    end
+    assert_select "iteration-story-totals" do
+      assert_select "iteration-story-total", 2
+    end
+    assert_select "iteration-breakdowns" do
+      assert_select "category-total", 16
+    end
+  end
+
+  # Test getting report data.
+  def test_report_iteration_diff_project
+    login_as(individuals(:project_admin2))
+    get :report_iteration, :iteration_id => 1
+    assert_select "iteration-totals", 0
+    assert_select "iteration-story-totals", 0
+    assert_select "iteration-breakdowns", 0
   end
 
   def test_report_admin
