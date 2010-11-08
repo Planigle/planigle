@@ -944,6 +944,13 @@
 			tabModelLocator.selectedTab = Container(tabModelLocator.changes);
 		}
 		
+		// Save and Show the previous object.
+		public function saveAndShowPrevious() : void
+		{
+			updateItem(currentItem, getParams(currentItem.isStory()), showPrevious);
+			handleUpdateSuccess(); // Prime the processing.
+		}
+		
 		// Show the previous object.
 		public function showPrevious() : void
 		{
@@ -952,6 +959,13 @@
 				storyResourceGrid.selectedItem = filteredStories.getItemAt(index - 1);
 				showUpdate();
 			}
+		}
+		
+		// Save and Show the nexxt object.
+		public function saveAndShowNext() : void
+		{
+			updateItem(currentItem, getParams(currentItem.isStory()), showNext);
+			handleUpdateSuccess(); // Prime the processing.
 		}
 		
 		// Show the next object.
@@ -1135,10 +1149,11 @@
 		private var recalc:Boolean = false;
 
 		// Update an item.
-		private function updateItem(item:Object, params:Object): void
+		private function updateItem(item:Object, params:Object, success:Function = null): void
 		{
+			if (success == null) success = handleUpdateSuccess; 
 			recalc = recalc || (item.isStory() && item.statusCode == Story.ACCEPTED && params['record[status_code]'] != null && params['record[status_code]'] < Story.ACCEPTED);
-			updateQueue.addItem(new ChangeRequest(item, params, handleUpdateSuccess, handleUpdateFailure));
+			updateQueue.addItem(new ChangeRequest(item, params, success, handleUpdateFailure));
 		}
 
 		// Copy a story.
@@ -1874,8 +1889,8 @@
 								<mx:Button label="Create &amp; Close" id="storyBtnCreateClose" click="changeResource(true)"/>
 								<mx:LinkButton label="Cancel" id="storyBtnCancel" click="resetState(event)"/>
 								<mx:LinkButton id="storyBtnInfo" icon="{parentApplication.imgInfo}" toolTip="History" click="showHistory(event);"/>
-								<mx:LinkButton id="storyBtnPrevious" icon="{parentApplication.imgPreviousItem}" toolTip="Previous" click="checkDirty(showPrevious);"/>
-								<mx:LinkButton id="storyBtnNext" icon="{parentApplication.imgNextItem}" toolTip="Next" click="checkDirty(showNext);"/>
+								<mx:LinkButton id="storyBtnPrevious" icon="{parentApplication.imgPreviousItem}" toolTip="Save &amp; Go To Previous" click="saveAndShowPrevious()"/>
+								<mx:LinkButton id="storyBtnNext" icon="{parentApplication.imgNextItem}" toolTip="Save &amp; Go To Next" click="saveAndShowNext()"/>
 							</mx:ControlBar>
 						</mx:VBox>
 					</mx:Panel>
