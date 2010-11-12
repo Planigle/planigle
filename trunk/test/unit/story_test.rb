@@ -311,6 +311,18 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal 3, Story.get_records(individuals(:aaron), {:individual_id => nil}).length
   end
 
+  # Test finding based on custom list attributes.
+  def test_find_custom_list
+    assert_equal 1, Story.get_records(individuals(:aaron), {:custom_5 => 1}).length
+    assert_equal 0, Story.get_records(individuals(:aaron), {:custom_5 => 2}).length
+    assert_equal 3, Story.get_records(individuals(:aaron), {:custom_5 => nil}).length
+    assert_equal 1, Story.get_records(individuals(:aaron), {:custom_6 => 4}).length
+    assert_equal 0, Story.get_records(individuals(:aaron), {:custom_6 => 5}).length
+    assert_equal 3, Story.get_records(individuals(:aaron), {:custom_6 => nil}).length
+    assert_equal 1, Story.get_records(individuals(:aaron), {:custom_5 => 1, :custom_6 => 4}).length
+    assert_equal 0, Story.get_records(individuals(:aaron), {:custom_5 => 1, :custom_6 => 5}).length
+  end
+
   # Test finding stories matching text.
   def test_find_text
     assert_equal 0, Story.get_records(individuals(:aaron), :text => 'teststring').length

@@ -77,6 +77,7 @@
 		
 		private var baseChildren:int;
 		private var customChildren:Object = new Object();
+		private var searchChildren:Object = new Object();
 		private var originalColumns:Array;
 		private var currentColumns:Array;
 
@@ -455,7 +456,7 @@
 		}
 
 		// The filters has changed.
-		public function handleFilter():void
+		public function handleFilter(event:Event = null):void
 		{
 			if (release.selectedItem) { // Make sure everything initialized
 				updateStoryConditions(true);
@@ -472,6 +473,15 @@
 			if (individual.selectedItem.id != -1) conditions["individual_id"]= individual.selectedItem.id ? individual.selectedItem.id : "";
 			if (itemStatus.selectedItem.value != -1) conditions["status_code"]= itemStatus.selectedItem.value != -2 ? itemStatus.selectedItem.value : "NotDone";
 			if (storySearchText.text != "") conditions["text"]=storySearchText.text;
+			for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
+			{
+				if (attrib.valueType >= StoryAttribute.LIST)
+				{
+					var disp:ComboBox = searchChildren["storyField" + attrib.id.toString()];
+					if (disp.selectedItem.id != -1)
+						conditions['custom_' + attrib.id ] = disp.selectedItem.id ? disp.selectedItem.id : "";
+				}
+			}
 			if (changed)
 				StoryFactory.getInstance().clearTimeUpdated();
 			Story.conditions = conditions;
@@ -1624,8 +1634,11 @@
 		protected function updateAttributes(event:Event = null):void
 		{
 			customChildren = new Object();
+			searchChildren = new Object();
 			for (var i:int = changeForm.numChildren-1; i>=baseChildren; i--)
 				changeForm.removeChildAt(i);
+			for (var j:int = 0; j<storyMoreFilters.numChildren - 1; j++)
+				storyMoreFilters.removeChildAt(j);
 
 			if (IndividualFactory.current().selectedProject)
 			{
@@ -1670,6 +1683,23 @@
 					  	combo.selectedIndex = attrib.allValues.length - 1;
 					  	formItem.addChild(combo);
 					  	customChildren[id] = combo;
+					  	
+					  	// Add search field
+  						var searchId:String = "searchField" + attrib.id.toString();
+  						var values:ArrayCollection = attrib.allValuesPlusAll;
+					  	combo = new FixedComboBox();
+					  	combo.id = searchId;
+					  	combo.width = NaN;
+					  	combo.editable = false;
+					  	combo.labelField = "value";
+					  	combo.dataProvider = values;
+					  	combo.selectedIndex = values.length - 1;
+					  	combo.addEventListener(ListEvent.CHANGE,handleFilter);
+					  	searchChildren[id] = combo;
+						var searchForm:FormItem = new FormItem();
+						searchForm.label = attrib.name;
+						searchForm.addChild(combo);
+					  	storyMoreFilters.addChildAt(searchForm, storyMoreFilters.numChildren - 1);
 					    break;
 					}
 					changeForm.addChild(formItem);
@@ -2018,12 +2048,14 @@
 						<mx:Button icon="{parentApplication.imgSurveys}" visible="{factory.currentIndividual.isPremium}" width="{factory.currentIndividual.isPremium ? 25 : 0}" toolTip="View Surveys" click="handleSurveys(event);" id="storyBtnViewSurveys"/>
 					</mx:HBox>
 				</mx:HBox>
-				<mx:HBox id="storyMoreFilters" visible="false" height="-5" width="100%">
+				<mx:Form id="storyMoreFilters" visible="false" height="-5" paddingTop="0" paddingBottom="0" verticalGap="5" width="100%">
 					<mx:FormItem label="Search Text">
-						<mx:TextInput id='storySearchText' text='' width="200" enter="handleFilter()" valueCommit="handleFilter()"/>
+						<mx:HBox>
+							<mx:TextInput id='storySearchText' text='' width="200" enter="handleFilter()" valueCommit="handleFilter()"/>
+							<mx:LinkButton width="16" icon="{parentApplication.imgCross}" toolTip="Cancel Search" click="cancelSearch();" id="storyBtnCancelSearch"/>
+						</mx:HBox>
 					</mx:FormItem>
-					<mx:LinkButton width="16" icon="{parentApplication.imgCross}" toolTip="Cancel Search" click="cancelSearch();" id="storyBtnCancelSearch"/>
-				</mx:HBox>
+				</mx:Form>
 				<mx:HBox id="storyStatusRow" width="100%" minWidth="0" horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
 					<mx:Label text="Number of Stories:" fontWeight="bold"/>
 					<mx:Label id="storiesCount" text=""/>
