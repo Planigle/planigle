@@ -144,12 +144,30 @@ package org.planigle.planigle.model
 				return values;
 			}
 		}
+
+		// Answer the values (including None and All).
+		public function get allValuesPlusAll():ArrayCollection
+		{
+			var reallyAll:ArrayCollection = new ArrayCollection();
+			reallyAll.addAll(allValues);
+			reallyAll.addItem(allValue);
+			return reallyAll;
+		}
 		
 		// Answer a value for none.
 		private function get noneValue():StoryAttributeValue
 		{
 			var value:StoryAttributeValue = new StoryAttributeValue();
 			value.value = "None";
+			return value;
+		}
+		
+		// Answer a value for all.
+		private function get allValue():StoryAttributeValue
+		{
+			var value:StoryAttributeValue = new StoryAttributeValue();
+			value.id = -1;
+			value.value = "All";
 			return value;
 		}
 		

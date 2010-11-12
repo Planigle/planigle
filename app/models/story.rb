@@ -241,11 +241,12 @@ class Story < ActiveRecord::Base
 
   # Answer the records for a particular user.
   def self.get_records(current_user, conditions={}, per_page=nil, page=nil)
-    conditions = substitute_conditions(current_user, conditions)
+    joins = get_joins(conditions)
     filter_on_individual = conditions.has_key?(:individual_id)
     individual_id = conditions.delete(:individual_id)
     text_filter = conditions.delete(:text)
-    options = {:include => [:criteria, :story_values, :tasks], :conditions => conditions, :order => 'stories.priority'}
+    conditions = substitute_conditions(current_user, conditions)
+    options = {:include => [:criteria, :story_values, :tasks], :conditions => conditions, :order => 'stories.priority', :joins => joins}
     should_paginate = per_page && page && !filter_on_individual && !text_filter
     if should_paginate
       options[:per_page] = per_page
@@ -291,7 +292,25 @@ class Story < ActiveRecord::Base
     if conditions[:status_code] == "NotDone"
       conditions[:status_code] = [0,1,2]
     end
-    conditions
+    new_conditions = conditions.clone
+    conditions.each_pair do |key,value|
+      if key.to_s[0..6] == "custom_"
+        new_conditions[key.to_s + ".value"] = new_conditions.delete(key)
+      end
+    end
+    new_conditions
+  end
+  
+  def self.get_joins(conditions)
+    joins = ""
+    conditions.each_pair do |key,value|
+      key_string = key.to_s
+      if key_string[0..6] == "custom_"
+        # Use Integer() to make sure that key isn't used for SQL injection
+        joins = joins + "LEFT OUTER JOIN story_values AS " + key_string + " ON " + key_string + ".story_id = stories.id AND " + key_string + ".story_attribute_id=" + Integer(key_string[7..key_string.length-1]).to_s + " "
+      end
+    end
+    joins
   end
   
   # Answer whether I match the specified text.
