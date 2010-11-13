@@ -96,7 +96,8 @@ package org.planigle.planigle.model
 		
 		public static function shouldGetMore():Boolean
 		{
-			return (StoryFactory.getInstance().stories.length % pageSize) == 0 && conditions["text"] == null && conditions["individual_id"] == null;
+			var numStories:int = StoryFactory.getInstance().stories.length;
+			return numStories != 0 && (numStories % pageSize) == 0 && conditions["text"] == null && conditions["individual_id"] == null;
 		}
 		
 		// Answer the value for a custom value (or nil if it does not exist).
