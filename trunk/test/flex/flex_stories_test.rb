@@ -296,8 +296,12 @@ private
   # Test searching for a story.
   def search_stories
     @ie.button("storyBtnMoreFilters").click
+    @ie.combo_box("searchField5").click
+    @ie.combo_box("searchField5").select(:item_renderer => 'None')
+    assert_equal 2, @ie.data_grid("storyResourceGrid").num_rows
     @ie.text_area("storySearchText").input(:text => 'description' )
-    @ie.button("storyBtnMoreFilters").click
+    @ie.combo_box("searchField5").click
+    @ie.combo_box("searchField5").select(:item_renderer => 'All')
     assert_equal 1, @ie.data_grid("storyResourceGrid").num_rows
   end
 
