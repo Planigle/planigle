@@ -30,6 +30,22 @@ package org.planigle.planigle.model
 			return newStory == null ? null : newStory.find(id);
 		}
 
+		// Remove me from the UI.
+		public function remove():void
+		{
+			var oldTasks:Array = story.tasks;
+			var newTasks:Array = new Array();			
+			for (var i:int = 0, j:int = 0; i < oldTasks.length; i++)
+			{
+				if (oldTasks[i] != this)
+				{
+					newTasks[j] = oldTasks[i];
+					j++;
+				}
+			}
+			story.tasks = newTasks;
+		}
+
 		// Populate myself from XML.
 		public function populate(xml:XML):void
 		{

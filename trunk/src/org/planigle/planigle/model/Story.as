@@ -12,7 +12,7 @@ package org.planigle.planigle.model
 	public class Story
 	{
 		public static var pageSize:int = 20;
-		public static var conditions:Object = new Object();
+		public static var conditions:Object = initialConditions();
 		public var id:int;
 		public var projectId:int;
 		public var teamId:String;
@@ -41,9 +41,26 @@ package org.planigle.planigle.model
 		public static const ACCEPTED:int = 3;
 		private static var expanded:Object = new Object(); // Keep in static so that it persists after reloading
 
+		public static function initialConditions():Object
+		{
+			var initial:Object = new Object();
+			initial["status_code"] = "NotDone";
+			initial["team_id"] = "MyTeam";
+			initial["release_id"] = "Current";
+			initial["iteration_id"] = "Current";
+			return initial;
+		}
+
 		public function getCurrentVersion():Object
 		{
 			return StoryFactory.getInstance().find(id);
+		}
+
+		// Remove me from the UI.
+		public function remove():void
+		{
+			var factory:StoryFactory = StoryFactory.getInstance();
+			factory.stories.removeItemAt(factory.stories.getItemIndex(this));
 		}
 
 		// Populate myself from XML.
@@ -76,10 +93,10 @@ package org.planigle.planigle.model
 			storyValues = newStoryValues.source;
 
 			var newTasks:ArrayCollection = new ArrayCollection();
-			for (var j:int = 0; j < xml.tasks.task.length(); j++)
+			for (var j:int = 0; j < xml.child("filtered-tasks").child("filtered-task").length(); j++)
 			{
 				var task:Task = new Task();
-				task.populate(XML(xml.tasks.task[j]));
+				task.populate(XML(xml.child("filtered-tasks").child("filtered-task")[j]));
 				newTasks.addItem(task);
 			}
 			tasks = newTasks.source;
@@ -210,6 +227,12 @@ package org.planigle.planigle.model
 				task.story = this;
 
 			myTasks = tasks;
+		}
+
+		// Set my tasks.
+		public function set filteredTasks(tasks:Array):void
+		{
+			this.tasks = tasks;
 		}
 
 		// Answer my criteria.

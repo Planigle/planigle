@@ -36,7 +36,7 @@ class SessionsControllerTest < ActionController::TestCase
     i = individuals(:quentin)
     i.selected_project_id = 1
     i.save(false)
-    post :create, :login => 'quentin', :password => 'testit', :format => 'xml'
+    post :create, :login => 'quentin', :password => 'testit', :format => 'xml', :conditions => {:status_code => 'NotDone', :team_id => 'MyTeam', :release_id => 'Current', :iteration_id => 'Current'}
     assert session[:individual_id]
     assert individuals(:quentin).reload.last_login > (Time.now - 10)
     assert_select 'current-individual', 1
@@ -51,7 +51,7 @@ class SessionsControllerTest < ActionController::TestCase
 
   # Test successfully logging in.
   def test_should_login_project_admin
-    post :create, :login => 'aaron', :password => 'testit', :format => 'xml'
+    post :create, :login => 'aaron', :password => 'testit', :format => 'xml', :conditions => {:status_code => 'NotDone', :team_id => 'MyTeam', :release_id => 'Current', :iteration_id => 'Current'}
     assert session[:individual_id]
     assert individuals(:aaron).last_login > (Time.now - 10)
     assert_select 'current-individual', 1

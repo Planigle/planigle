@@ -37,7 +37,12 @@ package org.planigle.planigle.commands
 			var result:XML = XML(event.result);
 			if (result.error.length() > 0)
 			{
-				if (notifyFailure != null)
+				if (result.errorId == "FILTERED")
+				{
+ 					if (notifySuccess != null)
+ 						notifySuccess(null, result.error);
+				}
+				else if (notifyFailure != null)
 					notifyFailure(result.error);
 			}
 			else

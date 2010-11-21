@@ -9,6 +9,11 @@ package org.planigle.planigle.model
 		private static var instance:PlanigleSystem = new PlanigleSystem();
 		public var id:int;
 		public var licenseAgreement:String;
+
+		public function getCurrentVersion():Object
+		{
+			return this;
+		}
 		
 		// Returns the single instance.
 		public static function getInstance():PlanigleSystem

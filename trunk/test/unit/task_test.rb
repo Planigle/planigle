@@ -97,6 +97,15 @@ class TaskTest < ActiveSupport::TestCase
     assert tasks(:three).is_blocked
     assert tasks(:three).blocked_message
   end
+  
+  # Validate matching
+  def test_matches
+    assert tasks(:one).matches(:individual_id => 2, :status_code => 1)
+    assert tasks(:one).matches(:individual_id => 2, :status_code => 'NotDone')
+    assert !tasks(:one).matches(:individual_id => 3, :status_code => 'NotDone')
+    assert !tasks(:one).matches(:individual_id => nil, :status_code => 'NotDone')
+    assert tasks(:three).matches(:individual_id => nil, :status_code => 'NotDone')
+  end
 
 private
 

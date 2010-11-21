@@ -81,7 +81,18 @@ protected
   
   # Answer parameters regardless of format
   def get_params
-    parms = is_amf ? params[0] : params[:record]
+    parms = is_amf ? params[0] : params
     parms == nil ? {} : parms
+  end
+  
+  # Filter the results
+  def conditions
+    cond = get_params["conditions"] ? get_params["conditions"] : {}
+    if cond[:release_id] == ""; cond[:release_id] = nil; end
+    if cond[:iteration_id] == ""; cond[:iteration_id] = nil; end
+    if cond[:team_id] == ""; cond[:team_id] = nil; end
+    if cond[:individual_id] == ""; cond[:individual_id] = nil; end
+    session[:conditions] = cond
+    cond
   end
 end

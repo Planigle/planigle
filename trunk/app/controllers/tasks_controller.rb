@@ -18,9 +18,19 @@ class TasksController < ResourceController
 
 protected
 
+  # Answer descriptor for this type of object
+  def record_type
+    "Task"
+  end
+
   # Get the records based on the current individual.
   def get_records
     Task.find(:all, :conditions => ["story_id = ?", params[:story_id]], :order => 'status_code desc, name')
+  end
+
+  # Answer whether the resulting record is visible
+  def record_visible
+    @record.matches(session[:conditions])
   end
 
   # Answer the current record based on the current individual.

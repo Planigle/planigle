@@ -14,6 +14,9 @@ class StoriesXmlTest < ActionController::IntegrationTest
   fixtures :tasks
   fixtures :story_attributes
   fixtures :story_values
+  fixtures :teams
+  fixtures :iterations
+  fixtures :releases
 
   # Re-raise errors caught by the controller.
   class StoriesController; def rescue_action(e) raise e end; end
@@ -186,8 +189,8 @@ class StoriesXmlTest < ActionController::IntegrationTest
       assert_select 'story-values' do
         assert_select 'story-value'
       end
-      assert_select 'tasks' do
-        assert_select 'task'
+      assert_select 'filtered-tasks' do
+        assert_select 'filtered-task'
       end
     end
   end
@@ -202,8 +205,8 @@ class StoriesXmlTest < ActionController::IntegrationTest
       assert_select 'story-values' do
         assert_select 'story-value'
       end
-      assert_select 'tasks' do
-        assert_select 'task'
+      assert_select 'filtered-tasks' do
+        assert_select 'filtered-task'
       end
     end
   end

@@ -31,6 +31,7 @@ package org.planigle.planigle.business
 			params["password"] = loginParams.password;
 			params["accept_agreement"] = loginParams.acceptAgreement ? true : false;
 			params["remember_me"] = loginParams.rememberMe ? true : false;
+			params["conditions"] = Story.conditions;
 			params["page_size"] = Story.pageSize;
 			remoteObject.showBusyCursor = true;
 			remoteObject.create.send(params).addResponder(responder);
