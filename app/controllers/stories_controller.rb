@@ -123,10 +123,10 @@ protected
   # Get the records based on the current individual.
   def get_records
     time = get_params[:time]
-    cond = conditions
+    cond = conditions.clone
     if params[:iteration_id]; cond[:iteration_id] = params[:iteration_id]; end
-    page_size = cond.delete(:page_size)
-    page = cond.delete(:page)
+    page_size = get_params.delete(:page_size)
+    page = get_params.delete(:page)
     if (!time || (page && page > 1) || Story.have_records_changed(current_individual, Time.parse(time)))
       Story.get_records(current_individual, cond, page_size, page)
     else
