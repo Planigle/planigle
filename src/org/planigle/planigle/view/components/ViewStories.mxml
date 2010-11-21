@@ -375,72 +375,6 @@
 				individual.selectedIndex = defaultSelection;
 		}
 
-		// Answer the stories for the selected iteration.
-		private function getFilteredStories():ArrayCollection
-		{
-			var stories:ArrayCollection = new ArrayCollection();
-			for each (var story:Story in StoryFactory.getInstance().stories)
-			{
-				if (matchesStoryFilters(story))
-					stories.addItem(story);
-			}
-			return stories;
-		}
-
-		// Answer whether a story matches the filters.
-		private function matchesStoryFilters(story:Story):Boolean
-		{
-			var tasksMatchIndividual:Boolean = false;
-			for each (var task:Task in story.tasks)
-			{
-				if (matchesIndividualFilter(task))
-				{
-					tasksMatchIndividual = true;
-					break;
-				}
-			}
-			return matchesReleaseFilter(story) && matchesIterationFilter(story) && matchesTeamFilter(story) && (tasksMatchIndividual || matchesIndividualFilter(story))
-				&& matchesStatusFilter(story) && String(story.projectId) == IndividualFactory.current().selectedProjectId;
-		}
-
-		// Answer whether a task matches the filters.
-		private function matchesTaskFilters(task:Task):Boolean
-		{
-			return matchesIndividualFilter(task) && matchesStatusFilter(task);
-		}
-
-		// Answer whether the story matches the release filter.
-		private function matchesReleaseFilter(story:Story):Boolean
-		{
-			return !release.selectedItem || release.selectedItem.id == "-1" || story.releaseId == release.selectedItem.id;
-		}
-
-		// Answer whether the story matches the iteration filter.
-		private function matchesIterationFilter(story:Story):Boolean
-		{
-			return !iteration.selectedItem || iteration.selectedItem.id == "-1" || story.iterationId == iteration.selectedItem.id;
-		}
-
-		// Answer whether the story matches the team filter.
-		private function matchesTeamFilter(story:Story):Boolean
-		{
-			return !team.selectedItem || team.selectedItem.id == "-1" || story.teamId == team.selectedItem.id;
-		}
-
-		// Answer whether the story/task matches the individual filter.
-		private function matchesIndividualFilter(item:Object):Boolean
-		{
-			return !individual.selectedItem || individual.selectedItem.id == "-1" || item.individualId == individual.selectedItem.id;
-		}
-
-		// Answer whether the story/task matches the status filter.
-		private function matchesStatusFilter(item:Object):Boolean
-		{
-			return itemStatus.selectedItem.value == -1 ||
-				(itemStatus.selectedItem.value == -2 && (item.statusCode == Story.CREATED || item.statusCode == Story.IN_PROGRESS || item.statusCode == Story.BLOCKED)) ||
-				itemStatus.selectedItem.value == item.statusCode;
-		}
-
 		// Handle filtering by release.
 		public function handleReleaseFilter(event:Event):void
 		{
@@ -493,7 +427,7 @@
 			var scroll:Number = storyResourceGrid.verticalScrollPosition;
 			var sort:Sort = filteredStories.sort;
 			updateColumnVisibility();
-			var justStories:ArrayCollection = getFilteredStories();
+			var justStories:ArrayCollection = StoryFactory.getInstance().stories;
 			justStories.sort = sort;
 			justStories.refresh();
 			storiesCount.text = justStories.length.toString() + (GetStoriesCommand.isLoading() ? "+" : "");
@@ -503,10 +437,7 @@
 				storiesAndTasks.addItem(story);
 				if (story.isExpanded())
 					for each (var task:Task in story.tasks)
-					{
-						if (matchesTaskFilters(task))
-							storiesAndTasks.addItem(task);
-					}
+						storiesAndTasks.addItem(task);
 			}
 			filteredStories = storiesAndTasks;
 			filteredStories.sort = sort;
@@ -515,15 +446,15 @@
 			updateExpandAllToggle();
 			updateProjectedColumn();
 		}
-		
+
 		// Expand / collapse a story.
 		public function expand(event:Event) : void
 		{
 			if (storyResourceGrid.selectedItem.isStory())
-				{
+			{
 				storyResourceGrid.selectedItem.toggleExpanded();
 				handleFilterResult();
-				}
+			}
 		}
 
 		// Show the surveys for this project.
@@ -557,7 +488,7 @@
 		}
 		
 		// An item was successfully updated.
-		private function handleUpdateSuccess(createdObject:Object = null):void
+		private function handleUpdateSuccess(createdObject:Object = null, message:String = null):void
 		{
 			if (createdObject != null && !createdObject.isStory())
 			{
@@ -572,7 +503,7 @@
 					processQueue();
 				else
 				{
-					handleSuccess();
+					handleSuccess(message);
 					if (recalc)
 					{
 						StoryFactory.getInstance().normalizePriorities();
@@ -1169,7 +1100,7 @@
 						var index:int = allStories.getItemIndex(currentItem);
 						var nextObject:Object = index + 1 == allStories.length ? null : allStories.getItemAt( index + 1 );
 						params3['record[relative_priority]'] = currentItem.id + "," + (nextObject ? nextObject.id : "");
-						currentItem.split(params3, event.detail==Alert.YES ? handleSplitSuccess : handleSuccess, handleFailure);
+						currentItem.split(params3, event.detail==Alert.YES ? handleSplitSuccess : handleSplitNoAbortSuccess, handleFailure);
 					}
 				}, null, Alert.YES);
 			}
@@ -1179,6 +1110,13 @@
 		private function handleSplitSuccess():void
 		{
 			updateItem(currentItem, {'record[effort]': 0, 'record[status_code]': Story.ACCEPTED});
+			handleUpdateSuccess(); // Prime the processing.	
+		}
+
+		// An item was successfully split.  Don't abort it.
+		private function handleSplitNoAbortSuccess():void
+		{
+			updateItem(currentItem, {});
 			handleUpdateSuccess(); // Prime the processing.	
 		}
 
@@ -1222,15 +1160,15 @@
 		}
 
 		// Handle a successful create.
-		private function handleCreateCloseSuccess(newItem:Object):void
+		private function handleCreateCloseSuccess(newItem:Object,message:String=null):void
 		{
-			handleCreateSuccess(newItem);
+			handleCreateSuccess(newItem,message);
 			currentItem = null;
 			currentState = '';
 		}
 
 		// Handle a successful create.
-		private function handleCreateSuccess(newItem:Object):void
+		private function handleCreateSuccess(newItem:Object,message:String=null):void
 		{
 			if (currentItem)
 			{
@@ -1243,15 +1181,18 @@
 			storyResourceGrid.selectedItem = newItem; // Enables subsequent stories to be put after this one
 			showCreate(currentItem == null);
 			if (currentItem != null) defaultTaskOwner();
-			setSuccessMessage( currentItem == null ?
-				"Story was successfully created." + (matchesStoryFilters(Story(newItem)) ? "" : "  Story does not show in list due to current filtering.") :
-				"Task was successfully created." + (matchesTaskFilters(Task(newItem)) ? "" : "  Task does not show in list due to current filtering."));
+			if (message == null)
+				setSuccessMessage((currentItem == null ? "Story" : "Task") + " was successfully created.");
+			else
+				setSuccessMessage(message);
 		}
 
 		// Handle a successful change.
-		private function handleSuccess():void
+		private function handleSuccess(message:String = null):void
 		{
 			resetState(null);
+			if (message != null)
+				setSuccessMessage(message);
 			dispatchEvent(new Event("dataChanged"));
 		}
 
@@ -1571,13 +1512,7 @@
 		{
 			if (item.isStory())
 			{
-				var hasTask:Boolean = false;
-				for each (var task:Task in item.tasks)
-				{
-					if (matchesTaskFilters(task))
-						hasTask = true;
-				}
-				if (hasTask)
+				if (item.tasks.length > 0)
 					return item.isExpanded() ? parentApplication.imgExpanded : parentApplication.imgCollapsed;
 				else
 					return null;
@@ -2052,7 +1987,7 @@
 					<mx:FormItem label="Search Text">
 						<mx:HBox>
 							<mx:TextInput id='storySearchText' text='' width="200" enter="handleFilter()" valueCommit="handleFilter()"/>
-							<mx:LinkButton width="16" icon="{parentApplication.imgCross}" toolTip="Cancel Search" click="cancelSearch();" id="storyBtnCancelSearch"/>
+							<mx:LinkButton width="16" icon="{parentApplication.imgCross}" toolTip="Cancel Text Search" click="cancelSearch();" id="storyBtnCancelSearch"/>
 						</mx:HBox>
 					</mx:FormItem>
 				</mx:Form>

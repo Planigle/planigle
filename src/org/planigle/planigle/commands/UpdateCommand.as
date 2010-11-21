@@ -1,3 +1,4 @@
+
 package org.planigle.planigle.commands
 {
 	import com.adobe.cairngorm.commands.ICommand;
@@ -36,7 +37,7 @@ package org.planigle.planigle.commands
 			var result:XML = XML(event.result);
 			if (result.error.length() > 0)
 			{
-				if (result.error == "Someone else has made changes since you last refreshed.")
+				if (result.errorId == "STALE")
 				{
 					Alert.show(result.error + "  Save anyway?", "Conflict", 3, null,
 						function(event:CloseEvent):void
@@ -47,21 +48,36 @@ package org.planigle.planigle.commands
 								execute(null);
 							}
 							else
-							{
-								var newObject:Object = object.getCurrentVersion();
-								if (newObject != null)
-									newObject.updateCompleted(result.records.children()[0]);
-							}
+								updateObject(result.records.children()[0]);
 						});
-				} else if (notifyFailure != null)
+				}
+				else if (result.errorId == "FILTERED")
+				{
+					removeObject();
+					if (notifySuccess != null)
+						notifySuccess(null, result.error);
+				}
+				else if (notifyFailure != null)
 					notifyFailure(result.error);
 			}
 			else
 			{
-				object.updateCompleted(result);
+				updateObject(result);
 				if (notifySuccess != null)
 					notifySuccess();
 			}
+		}
+		
+		protected function updateObject(record:Object): void
+		{
+			var newObject:Object = object.getCurrentVersion();
+			if (newObject != null)
+				newObject.updateCompleted(record);			
+		}
+		
+		protected function removeObject(): void
+		{
+			object.getCurrentVersion().remove();
 		}
 		
 		// Handle case where error occurs.

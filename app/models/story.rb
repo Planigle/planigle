@@ -222,16 +222,40 @@ class Story < ActiveRecord::Base
       :description => self.description,
       :effort => self.effort )
   end
+
+  def current_conditions
+    @current_conditions
+  end
+
+  def current_conditions= conditions
+    @current_conditions = conditions
+  end
   
   # Override to_xml to include tasks.
   def to_xml(options = {})
     if !options[:include]
-      options[:include] = [:story_values, :tasks, :criteria]
+      options[:include] = [:story_values, :criteria]
     end
     if !options[:methods]
       options[:methods] = [:acceptance_criteria]
     end
+    if !options[:procs]
+      proc = Proc.new {|opt| filtered_tasks_as_xml(opt[:builder])}
+      options[:procs] = [proc]
+    end
     super(options)
+  end
+  
+  def filtered_tasks
+    tasks.select{|task| task.matches(self.current_conditions)}
+  end
+  
+  def filtered_tasks_as_xml(builder)
+    builder.method_missing("filtered-tasks".to_sym) do
+      filtered_tasks.each do |task|
+        task.to_xml({:builder => builder, :skip_instruct => true, :root => :filtered_task})
+      end
+    end
   end
 
   # Answer whether records have changed.
@@ -241,12 +265,13 @@ class Story < ActiveRecord::Base
 
   # Answer the records for a particular user.
   def self.get_records(current_user, conditions={}, per_page=nil, page=nil)
-    joins = get_joins(conditions)
-    filter_on_individual = conditions.has_key?(:individual_id)
-    individual_id = conditions.delete(:individual_id)
-    text_filter = conditions.delete(:text)
-    conditions = substitute_conditions(current_user, conditions)
-    options = {:include => [:criteria, :story_values, :tasks], :conditions => conditions, :order => 'stories.priority', :joins => joins}
+    modified_conditions = conditions.clone
+    joins = get_joins(modified_conditions)
+    filter_on_individual = modified_conditions.has_key?(:individual_id)
+    individual_id = modified_conditions.delete(:individual_id)
+    text_filter = modified_conditions.delete(:text)
+    modified_conditions = substitute_conditions(current_user, modified_conditions)
+    options = {:include => [:criteria, :story_values, :tasks], :conditions => modified_conditions, :order => 'stories.priority', :joins => joins}
     should_paginate = per_page && page && !filter_on_individual && !text_filter
     if should_paginate
       options[:per_page] = per_page
@@ -257,7 +282,9 @@ class Story < ActiveRecord::Base
       individual_id = individual_id ? individual_id.to_i : individual_id
       result = result.select {|story| story.individual_id==individual_id || story.tasks.detect {|task| task.individual_id==individual_id}}
     end
-    text_filter ? result.select {|story| story.matches_text(text_filter)} : result
+    result = text_filter ? result.select {|story| story.matches_text(text_filter)} : result
+    result.each{|story| story.current_conditions=conditions}
+    result
   end
   
   # Update conditions replacing logical values with actual values

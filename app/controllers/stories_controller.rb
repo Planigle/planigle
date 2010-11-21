@@ -8,10 +8,10 @@ class StoriesController < ResourceController
     respond_to do |format|
       format.iphone do
         iteration = Iteration.find_current(current_individual)
-        conditions = {}
-        if iteration; conditions[:iteration_id] = iteration.id; end
-        if current_individual.team_id && current_individual.team.project.id == project_id; conditions[:team_id] = current_individual.team_id; end
-        @records = Story.get_records(current_individual, conditions)
+        cond = {}
+        if iteration; cond[:iteration_id] = iteration.id; end
+        if current_individual.team_id && current_individual.team.project.id == project_id; cond[:team_id] = current_individual.team_id; end
+        @records = Story.get_records(current_individual, cond)
         render
       end
       format.xml { @records = get_records; render :xml => @records }
@@ -97,7 +97,7 @@ class StoriesController < ResourceController
       @record = get_record
       blocked_before = @record.is_blocked
       done_before = @record.is_done
-      should_update = (params["record"]["status_code"] != Story::Done and @record.status_code == Story::Done)
+      should_update = (params["record"] && params["record"]["status_code"] != Story::Done and @record.status_code == Story::Done)
       super
       if should_update
         Survey.update_rankings(@record.project).each {|story| story.save(false)}
@@ -115,34 +115,43 @@ class StoriesController < ResourceController
 
 protected
 
+  # Answer descriptor for this type of object
+  def record_type
+    "Story"
+  end
+
   # Get the records based on the current individual.
   def get_records
     time = get_params[:time]
     cond = conditions
     if params[:iteration_id]; cond[:iteration_id] = params[:iteration_id]; end
-    page_size = conditions.delete(:page_size)
-    page = conditions.delete(:page)
+    page_size = cond.delete(:page_size)
+    page = cond.delete(:page)
     if (!time || (page && page > 1) || Story.have_records_changed(current_individual, Time.parse(time)))
       Story.get_records(current_individual, cond, page_size, page)
     else
       nil
     end
   end
-  
-  # Filter the results
-  def conditions
-    cond = get_params
-    cond.delete("time")
-    if cond[:release_id] == ""; cond[:release_id] = nil; end
-    if cond[:iteration_id] == ""; cond[:iteration_id] = nil; end
-    if cond[:team_id] == ""; cond[:team_id] = nil; end
-    if cond[:individual_id] == ""; cond[:individual_id] = nil; end
-    cond
+
+  # Answer whether the resulting record is visible
+  def record_visible
+    cond = session[:conditions]
+    if cond
+      cond[:id] = @record.id
+      Story.get_records(current_individual, cond).length == 1
+    else
+      true
+    end
   end
 
   # Answer the current record based on the current individual.
   def get_record
-    Story.find(is_amf ? params[0] : params[:id])
+    story = Story.find(is_amf ? params[0] : params[:id])
+    if story
+      story.current_conditions = session[:conditions]
+    end
+    story
   end
   
   # Create a new record given the params.
@@ -167,7 +176,7 @@ protected
 
   # Answer if this request is authorized for update.
   def authorized_for_update?(record)
-    new_project_id = is_amf ? params[0].project_id : params[:record][:project_id]
+    new_project_id = is_amf ? params[0].project_id : params[:record] && params[:record][:project_id]
     if (new_project_id && record.project_id != new_project_id.to_i && (current_individual.role > Individual::ProjectAdmin || (current_individual.role == Individual::ProjectAdmin && record.project.company_id != current_individual.company_id)))
       false # Must be project admin to change project
     else
@@ -194,7 +203,7 @@ protected
       @record.phone_number = params[0].phone_number
       @record.notification_type = params[0].notification_type
     else
-      @record.attributes = params[:record]
+      @record.attributes = params[:record] ? params[:record] : {}
     end
   end
 end

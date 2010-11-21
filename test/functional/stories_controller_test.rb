@@ -510,4 +510,22 @@ class StoriesControllerTest < ActionController::TestCase
     get :index, {:format => 'iphone'}
     assert_redirected_to :controller => :sessions, :action => :new
   end
+  
+  def test_story_filtered_out
+    login_as(individuals(:aaron))
+    get :index, {:format => 'xml', :conditions => {:status_code => 1}}
+    put :update, :id => 1, :record => {:status_code => 2}
+    assert_select "errors" do
+      assert_select "error"
+    end
+  end
+  
+  def test_task_filtered_out
+    login_as(individuals(:aaron))
+    get :index, {:format => 'xml', :conditions => {:status_code => 1}}
+    put :update, :id => 1, :record => {}
+    assert_select "filtered-tasks" do
+      assert_select "filtered-task", :count => 1
+    end
+  end
 end

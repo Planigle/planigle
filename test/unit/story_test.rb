@@ -615,6 +615,18 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal "'test' is done.", stories(:first).done_message
   end
 
+  def test_matching_tasks
+    story = stories(:first)
+    story.current_conditions = {:individual_id => 2, :status_code => 1}
+    assert_equal 1, story.filtered_tasks.length
+    story.current_conditions = {:individual_id => 2, :status_code => 'NotDone'}
+    assert_equal 1, story.filtered_tasks.length
+    story.current_conditions = {:individual_id => 3, :status_code => 'NotDone'}
+    assert_equal 0, story.filtered_tasks.length
+    story.current_conditions = {:individual_id => nil, :status_code => 'NotDone'}
+    assert_equal 0, story.filtered_tasks.length
+  end
+
 private
 
   def assert_changes(start)

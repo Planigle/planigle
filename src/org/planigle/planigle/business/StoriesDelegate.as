@@ -24,8 +24,7 @@ package org.planigle.planigle.business
 		protected override function params():Object
 		{
 			var params:Object = new Object();
-			for (var key:String in Story.conditions)
-				params[key] = Story.conditions[key];
+			params["conditions"] = Story.conditions;
 			params['page_size'] = Story.pageSize;
 			params['page'] = page;
 			if (time != null)

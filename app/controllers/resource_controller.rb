@@ -35,17 +35,22 @@ class ResourceController < ApplicationController
   def create
     @record = create_record
     if (authorized_for_create?(@record))
-      respond_to do |format|
-        begin
-          @record.class.transaction do
-            if @record.save
-              format.xml { render :xml => @record, :status => :created }
-              format.amf { render :amf => @record }
-            else
-              raise "Errors creating"
-            end
+      begin
+        @record.class.transaction do
+          if !@record.save
+            raise "Errors creating"
           end
-        rescue Exception => e
+        end
+        if record_visible
+          respond_to do |format|
+            format.xml { render :xml => @record, :status => :created }
+            format.amf { render :amf => @record }
+          end
+        else
+          not_visible("created")
+        end
+      rescue Exception => e
+        respond_to do |format|
           if @record.valid?
             logger.error(e)
             logger.error(e.backtrace.join("\n"))
@@ -68,19 +73,25 @@ class ResourceController < ApplicationController
     @record = get_record_for_change
     if (authorized_for_update?(@record))
       if (up_to_date(@record))
-        respond_to do |format|
-          begin
-            @record.class.transaction do
-              update_record
-              if save_record
-                post_update
-                format.xml { render :xml => @record }
-                format.amf { render :amf => @record }
-              else
-                raise "Errors updating"
-              end
+        begin
+          @record.class.transaction do
+            update_record
+            if save_record
+              post_update
+            else
+              raise "Errors updating"
             end
-          rescue Exception => e
+          end
+          if record_visible
+            respond_to do |format|
+              format.xml { render :xml => @record }
+              format.amf { render :amf => @record }
+            end
+          else
+            not_visible("updated")
+          end
+        rescue Exception => e
+          respond_to do |format|
             if @record.valid?
               logger.error(e)
               logger.error(e.backtrace.join("\n"))
@@ -120,6 +131,16 @@ class ResourceController < ApplicationController
   end
   
 protected
+
+  # Answer descriptor for this type of object
+  def record_type
+    "Object"
+  end
+
+  # Answer whether the resulting record is visible
+  def record_visible
+    true
+  end
 
   # Save the record (answering whether it was successful
   def save_record
@@ -165,22 +186,33 @@ protected
     timestamp = params[:updated_at]
     !timestamp || Time.parse(timestamp) == record.updated_at
   end
-  
+
   # Send error that the record being changed is out of date.
   def out_of_date
+    respond_with_warning("Someone else has made changes since you last refreshed.", "STALE")
+  end
+
+  # Send error that the record being changed is no longer visible.
+  def not_visible(change)
+    respond_with_warning(record_type + " was successfully " + change + ".  " + record_type + " does not show in list due to current filtering.", "FILTERED")
+  end
+  
+  # Send warning.
+  def respond_with_warning(warning, warning_id)
     status = 200
     respond_to do |format|
-      format.xml { render :xml => xml_out_of_date, :status => status }
-      format.amf { render :amf => {:error => "Someone else has made changes since you last refreshed.", :record => @record} }
+      format.xml { render :xml => respond_with_xml_warning(warning, warning_id), :status => status }
+      format.amf { render :amf => {:error => warning, :record => @record} }
     end
   end
   
-  # Create xml for an out of date object
-  def xml_out_of_date
+  # Create xml for warning
+  def respond_with_xml_warning(warning, warning_id)
     builder = Builder::XmlMarkup.new
     builder.instruct!
     builder.errors do
-      builder.error "Someone else has made changes since you last refreshed."
+      builder.errorId warning_id
+      builder.error warning
       builder.records do
         builder << @record.to_xml(:skip_instruct => true)
       end

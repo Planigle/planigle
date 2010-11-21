@@ -111,7 +111,29 @@ class Task < ActiveRecord::Base
     updated_at ? updated_at.to_s : updated_at
   end
 
+  def matches(cond)
+    !cond || (matches_individual(cond) && matches_status(cond))
+  end
+
 protected
+
+  def matches_individual(cond)
+    if !cond || !cond.include?(:individual_id)
+      true
+    else
+      cond[:individual_id] ? cond[:individual_id].to_i == individual_id : !individual_id
+    end
+  end
+  
+  def matches_status(cond)
+    if !cond || !cond.include?(:status_code)
+      true
+    elsif cond[:status_code] == "NotDone"
+      [0,1,2].include?(status_code)
+    else
+      cond[:status_code].to_i == status_code
+    end
+  end
   
   # Add custom validation of the status field and relationships to give a more specific message.
   def validate()
