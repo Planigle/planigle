@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<local:ViewCanvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:local="org.planigle.planigle.view.controls.*" xmlns:component="org.planigle.planigle.view.components.*" height="100%" y="0" width="100%" x="0" creationComplete="created(event)">
+<local:ViewCanvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:local="org.planigle.planigle.view.controls.*" xmlns:component="org.planigle.planigle.view.components.*" height="100%" y="0" width="100%" x="0" initialize="setInitialState()" creationComplete="created(event)">
 	<mx:Metadata>
 		[Event(name="dataChange", type="flash.events.Event")]
 	</mx:Metadata>
@@ -41,6 +41,7 @@
 		import org.planigle.planigle.model.Story;
 		import org.planigle.planigle.model.StoryAttribute;
 		import org.planigle.planigle.model.Task;
+		import org.planigle.planigle.util.RequestProcessor;
 		import org.planigle.planigle.events.AuditChangedEvent;
 		import org.planigle.planigle.events.StoryChangedEvent;
 		import org.planigle.planigle.view.ViewHelper;
@@ -80,6 +81,11 @@
 		private var searchChildren:Object = new Object();
 		private var originalColumns:Array;
 		private var currentColumns:Array;
+		
+		private function setInitialState(event:Event = null):void
+		{
+			getInitialId();			
+		}
 
 		// Set up event listeners.  Called when the canvas has been created.
 		private function created(event:Event):void
@@ -101,34 +107,18 @@
 			handleFilterResult();
 			updateStoryConditions();
 			storyBtnImport.onCompletion(setSuccessMessage, setErrorMessage);
-			getInitialId();
 			CursorManager.removeBusyCursor();
 			addEventListener(KeyboardEvent.KEY_UP, handleKeyUp);
 		}
 		
 		private function getInitialId():void
 		{
-			var initialId:String = getRequestParameter("id");
+			var initialId:String = new RequestProcessor().getRequestParameter("id");
 			if (initialId != null)
 			{
 				showMoreFilters();
 				storySearchText.text = initialId;
-				updateStoryConditions(true);
 			}
-		}
-		
-		// Answer a request parameter exists with the given name (or null if not present).
-		private function getRequestParameter(parameter:String):String
-		{
-			if (!ExternalInterface.available) return null;
-			var js:String = "function get_request_parameter(){return window.location.href;}"
-			var url:String = ExternalInterface.call(js).toString();
-			var queryString:String = url.substring(url.indexOf("?")+1);
-			var start:int = queryString.indexOf(parameter) + 3; // after =
-			if (start == 2) return null;
-			var end:int = queryString.indexOf("&");
-			if (end == -1) end = queryString.indexOf("#");
-			return end == -1 ? queryString.substring(start) : queryString.substring(start,end);
 		}
 
 		private function handleKeyUp(event:KeyboardEvent):void {

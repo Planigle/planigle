@@ -92,6 +92,7 @@ protected
     if cond[:iteration_id] == ""; cond[:iteration_id] = nil; end
     if cond[:team_id] == ""; cond[:team_id] = nil; end
     if cond[:individual_id] == ""; cond[:individual_id] = nil; end
+    if cond[:id] && cond[:id][0] == 83; cond[:id] = cond[:id][1..cond[:id].length - 1]; end  # 83 = S
     session[:conditions] = cond
     cond
   end
