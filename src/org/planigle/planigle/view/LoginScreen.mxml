@@ -5,6 +5,8 @@
 		<![CDATA[
 			import mx.binding.utils.ChangeWatcher;
 			import org.planigle.planigle.model.ViewModelLocator;
+			import org.planigle.planigle.model.Story;
+			import org.planigle.planigle.util.RequestProcessor;
 			import org.planigle.planigle.vo.LoginVO;
 			import org.planigle.planigle.events.LoginEvent;
 			import org.planigle.planigle.events.URLEvent;
@@ -27,8 +29,20 @@
 			// Handle the user trying to log in.
 			private function loginClickHandler(event:MouseEvent):void
 			{
+				determineInitialQuery();
 				var loginEvent:LoginEvent = new LoginEvent( new LoginVO(userID.text, userPassword.text, rememberMe.selected) );		
 				loginEvent.dispatch();
+			}
+			
+			// Determine what to query initially
+			private function determineInitialQuery():void
+			{
+				var initialId:String = new RequestProcessor().getRequestParameter("id");
+				if (initialId != null)
+				{
+					Story.conditions = new Object();
+					Story.conditions["id"] = initialId;
+				}
 			}
 			
 			// Handle the user signing up for an account.

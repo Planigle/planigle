@@ -82,6 +82,9 @@ protected
     parms = get_params
     result = {}
     result['time'] = Time.now.to_s
+    if conditions.include?(:id)
+      show_story(Story.find(:all, :conditions => {:id => conditions[:id]}))
+    end
     if initial
       result['system'] = System.find(:first)
       result['current_individual'] = current_individual
@@ -110,6 +113,15 @@ protected
       end
     end
     result
+  end
+  
+  def show_story(stories)
+    if stories.length == 1
+      story = stories[0]
+      if current_individual.company.projects.include?(story.project)
+        current_individual.selected_project = story.project
+      end
+    end
   end
 
   # Answer the license agreement (for user's acceptance).
