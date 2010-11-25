@@ -14,7 +14,9 @@
 			import flash.external.ExternalInterface;
 			import org.planigle.planigle.vo.LoginVO;
 			import org.planigle.planigle.events.LoginEvent;
+			import org.planigle.planigle.model.Story;
 			import org.planigle.planigle.model.ViewModelLocator;
+			import org.planigle.planigle.util.RequestProcessor;
 
 			// Hack to work around an issue with charts.  See http://gregjessup.com/flex-3-advanceddatagrid-cannot-convert-mxmanagersdragmanagerimpl-to-mxmanagersidragmanager/.
 			import mx.managers.IDragManager; 
@@ -139,12 +141,21 @@
 			// See if a cookie is present which skips login.
 			private function created(event:Event):void
 			{
+				determineInitialQuery();
 				if (ExternalInterface.available && containsCookie("auth_token"))
 					new LoginEvent( new LoginVO('', '', true, false, true) ).dispatch();
 				else if (ExternalInterface.available && containsRequestParameter("signup"))
 					viewModelLocator.workflowState = ViewModelLocator.SIGNUP;
 				else
 					viewModelLocator.workflowState = ViewModelLocator.LOGIN_SCREEN;
+			}
+			
+			// Determine what to query initially
+			private function determineInitialQuery():void
+			{
+				var rp:RequestProcessor = new RequestProcessor();
+				if (rp.hasQueryString())
+					Story.conditions = rp.getRequestParameters();
 			}
 
 			// Answer true if a cookie exists with the given name.

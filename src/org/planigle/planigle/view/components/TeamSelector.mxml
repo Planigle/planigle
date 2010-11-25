@@ -8,6 +8,7 @@
 		import org.planigle.planigle.model.ViewModelLocator;
 		import org.planigle.planigle.model.IndividualFactory;
 		import org.planigle.planigle.model.Team;
+		import org.planigle.planigle.model.Story;
 
 		[Bindable]
 		private var teamSelector:ArrayCollection = new ArrayCollection();
@@ -37,7 +38,7 @@
 		private function setTeamSelector(event:Event):void
 		{
 			// Remember selection so that updating teams doesn't revert it.
-			var id:String = selectedItem ? selectedItem.id : "-2";
+			var id:String = Story.conditions["team_id"] ? Story.conditions["team_id"] : "-2";
 			var selection:Team = null;
 
 			var newFilter:ArrayCollection = new ArrayCollection();

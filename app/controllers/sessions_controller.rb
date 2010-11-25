@@ -82,8 +82,8 @@ protected
     parms = get_params
     result = {}
     result['time'] = Time.now.to_s
-    if conditions.include?(:id)
-      show_story(Story.find(:all, :conditions => {:id => conditions[:id]}))
+    if conditions.include?(:project_id)
+      show_project(conditions[:project_id])
     end
     if initial
       result['system'] = System.find(:first)
@@ -115,11 +115,11 @@ protected
     result
   end
   
-  def show_story(stories)
-    if stories.length == 1
-      story = stories[0]
-      if current_individual.company.projects.include?(story.project)
-        current_individual.selected_project = story.project
+  def show_project(project_id)
+    if project_id
+      project = Project.find(project_id)
+      if current_individual.company.projects.include?(project)
+        current_individual.selected_project = project
       end
     end
   end
