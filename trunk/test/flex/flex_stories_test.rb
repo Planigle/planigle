@@ -299,7 +299,7 @@ private
     @ie.combo_box("searchField5").click
     @ie.combo_box("searchField5").select(:item_renderer => 'None')
     assert_equal 2, @ie.data_grid("storyResourceGrid").num_rows
-    @ie.text_area("storySearchText").input(:text => 'description' )
+    @ie.text_area("storyTextSearch").input(:text => 'description' )
     @ie.combo_box("searchField5").click
     @ie.combo_box("searchField5").select(:item_renderer => 'All')
     assert_equal 1, @ie.data_grid("storyResourceGrid").num_rows
@@ -392,7 +392,7 @@ private
 
   # Create a story.
   def create_story(name, description, acceptance_criteria, iteration, release, team, owner, effort, status, public, custom="", reason_blocked="")
-    assert_equal false, @ie.combo_box("storyFieldProject").visible
+    assert_equal false, @ie.combo_box("storyFormProject").visible
     @ie.text_area("storyFieldName").input(:text => name )
     @ie.text_area("textArea")[0].input(:text => description )
     #@TODO: Would be good to test using the expanded text box here, but there is a bug where text fields
