@@ -21,6 +21,7 @@ rails-iui (Rails Plugin) - MIT
 Cairngorm (Flex library) - BSD
 Flex automation libraries - MPL (included for build convenience; part of Flex SDK)
 Icons - http://www.visual-blast.com/graphics/icons/free-web-application-icons-set/ - Free (no restrictions)
+Icons - http://semlabs.co.uk/journal/free-web-design-icon-set - Free (no restrictions)
 Icons - Active Scaffold (Rails Plugin) - MIT
 
 Required Gems:

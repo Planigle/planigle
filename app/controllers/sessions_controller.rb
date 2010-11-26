@@ -120,6 +120,7 @@ protected
       project = Project.find(project_id)
       if current_individual.company.projects.include?(project)
         current_individual.selected_project = project
+        current_individual.save(false)
       end
     end
   end

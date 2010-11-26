@@ -6,6 +6,7 @@ package org.planigle.planigle.model
 	import org.planigle.planigle.commands.DeleteStoryCommand;
 	import org.planigle.planigle.commands.SplitStoryCommand;
 	import org.planigle.planigle.commands.UpdateStoryCommand;
+	import org.planigle.planigle.util.RequestProcessor;
 	
 	[RemoteClass(alias='Story')]
 	[Bindable]
@@ -43,12 +44,18 @@ package org.planigle.planigle.model
 
 		public static function initialConditions():Object
 		{
-			var initial:Object = new Object();
-			initial["status_code"] = "NotDone";
-			initial["team_id"] = "MyTeam";
-			initial["release_id"] = "Current";
-			initial["iteration_id"] = "Current";
-			return initial;
+			var rp:RequestProcessor = new RequestProcessor();
+			if (rp.hasQueryString())
+				return rp.getRequestParameters();
+			else
+			{
+				var initial:Object = new Object();
+				initial["status_code"] = "NotDone";
+				initial["team_id"] = "MyTeam";
+				initial["release_id"] = "Current";
+				initial["iteration_id"] = "Current";
+				return initial;
+			}
 		}
 
 		public function getCurrentVersion():Object
