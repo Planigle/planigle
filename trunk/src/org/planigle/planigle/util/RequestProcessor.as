@@ -30,16 +30,24 @@ package org.planigle.planigle.util
 			var pos:int = 0;
 			while (pos < queryString.length)
 			{
-				if (queryString.indexOf("=",pos) == -1)
-					break;
-				var endParam:int = queryString.indexOf("=",pos);
-				var next:int = queryString.indexOf("&",pos) == -1 ? queryString.length : queryString.indexOf("&",pos);
+				var eqPos:int = queryString.indexOf("=",pos) == -1 ? queryString.length : queryString.indexOf("=",pos);
+				var andPos:int = queryString.indexOf("&",pos) == -1 ? queryString.length : queryString.indexOf("&",pos);
+				var endParam:int = eqPos < andPos ? eqPos : andPos;
 				var paramName:String = queryString.substring(pos,endParam);
 				if (paramName != "debug") // don't include this parameter
-					params[paramName] = queryString.substring(endParam + 1,next);
-				pos = next+1;
+					params[paramName] = eqPos < andPos ? queryString.substring(endParam + 1,andPos) : "";
+				pos = andPos+1;
 			}
 			return params;
+		}
+		
+		public function getBase():String
+		{
+			var url:String = getURL();
+			if (url == null) return "";
+			var index:int = url.indexOf("?");
+			index = index == -1 ? url.indexOf("#") : index;
+			return index != -1 ? url.substring(0, index) : url;
 		}
 		
 		public function hasQueryString():Boolean
@@ -61,6 +69,11 @@ package org.planigle.planigle.util
 			if (!ExternalInterface.available) return null;
 			var js:String = "function get_request_parameter(){return window.location.href;}"
 			return ExternalInterface.call(js).toString();
+		}
+
+		public function containsRequestParameter(parameter:String):Boolean
+		{
+			return getRequestParameter(parameter) != null;
 		}
 	}
 }

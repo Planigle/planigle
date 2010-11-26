@@ -9,6 +9,7 @@
 		import org.planigle.planigle.model.IndividualFactory;
 		import org.planigle.planigle.model.Team;
 		import org.planigle.planigle.model.Story;
+		import org.planigle.planigle.util.RequestProcessor;
 
 		[Bindable]
 		private var teamSelector:ArrayCollection = new ArrayCollection();
@@ -33,12 +34,27 @@
 			else watcher = null;
 			setTeamSelector(null);
 		}
+		
+		private function getDefault():String
+		{
+			if (selectedItem)
+				return selectedItem.id;
+			else if (new RequestProcessor().hasQueryString())
+			{
+				var value:String = Story.conditions["team_id"];
+				if (value)
+					return value;
+				else
+					return value == "" ? null : "-1";
+			} else
+				return "-1";
+		}
 
 		// Set the teams in the selection list.
 		private function setTeamSelector(event:Event):void
 		{
 			// Remember selection so that updating teams doesn't revert it.
-			var id:String = Story.conditions["team_id"] ? Story.conditions["team_id"] : "-2";
+			var id:String = getDefault();
 			var selection:Team = null;
 
 			var newFilter:ArrayCollection = new ArrayCollection();
