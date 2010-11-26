@@ -42,12 +42,14 @@
 			else if (new RequestProcessor().hasQueryString())
 			{
 				var value:String = Story.conditions["team_id"];
-				if (value)
+				if (value == "MyTeam")
+					return "-2";
+				else if (value)
 					return value;
 				else
 					return value == "" ? null : "-1";
 			} else
-				return "-1";
+				return "-2";
 		}
 
 		// Set the teams in the selection list.

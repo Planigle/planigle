@@ -249,7 +249,9 @@
 			else if (new RequestProcessor().hasQueryString())
 			{
 				var value:String = Story.conditions[prop];
-				if (value)
+				if (value == "Current")
+					return "-2";
+				else if (value)
 					return value;
 				else
 					return value == "" ? null : "-1";
