@@ -91,7 +91,7 @@
 					storySearchText.text = unescape(Story.conditions["text"]);
 					showMore();
 				}
-				var initialId:String = Story.conditions["id"];
+				var initialId:String = Story.conditions["id"] ? Story.conditions["id"] : Story.conditions["tasks.id"];
 				if (initialId != null)
 				{
 					storySearchText.text = initialId;
@@ -473,6 +473,12 @@
 			{
 				storyResourceGrid.selectedIndex = 0;
 				showUpdate();
+			} else if (Story.conditions["tasks.id"] && filteredStories.length == 1)
+			{
+				filteredStories.getItemAt(0).expand();
+				handleFilterResult();
+				storyResourceGrid.selectedIndex = 1;
+				showUpdate();
 			}
 		}
 
@@ -743,8 +749,8 @@
 
 			if (isStory)
 			{
-				storyFieldProject.visible = false;
-				storyFieldProject.height = -5;
+				storyFormProject.visible = false;
+				storyFormProject.height = -5;
 				storyFieldAcceptanceCriteria.clear();
 				storyFieldProject.selectedItem = values["project"];
 				storyFieldIteration.selectedItem = values["iteration"];
@@ -753,6 +759,8 @@
 				storyFieldPublic.selectedIndex = values["public"];
 			}
 
+			storyFormID.visible = false;
+			storyFormID.height = -5;
 			storyFieldOwner.selectedItem = values["owner"];
 			storyFieldEstimate.text = values["estimate"];
 			storyFieldEffort.text = values["effort"];
@@ -791,6 +799,8 @@
 					storyFieldName.text = currentItem.name;
 					storyFieldName.setFocus();
 					storyFieldName.setSelection(0, storyFieldName.text.length );
+					storyFormID.visible = true;
+					storyFormID.height = NaN;
 					storyFieldDescription.text = currentItem.description;
 					var blocked:Boolean = currentItem.statusCode == Story.BLOCKED;
 					storyFormReasonBlocked.height = blocked ? 64 : -5;
@@ -1849,9 +1859,9 @@
 			storySearchText.text = "";
 		}
 		
-		public function copyURL():void
+		public function copyFiltersURL():void
 		{
-			var url:String = new RequestProcessor().getBase() + "?project_id=" + IndividualFactory.current().selectedProjectId;
+			var url:String = getBaseURL();
 			for (var param:String in Story.conditions)
 			{
 				var value:String = Story.conditions[param];
@@ -1861,6 +1871,21 @@
 				url += escape(value);
 			}
 			System.setClipboard(url);
+		}
+		
+		public function copyObjectURL():void
+		{
+			var url:String = getBaseURL();
+			url += "&";
+			url += currentItem.isStory() ? "id" : "tasks.id";
+			url += "=";
+			url += currentItem.id;
+			System.setClipboard(url);
+		}
+		
+		protected function getBaseURL():String
+		{
+			return new RequestProcessor().getBase() + "?project_id=" + IndividualFactory.current().selectedProjectId;
 		}
 		]]>
 	</mx:Script>
@@ -1900,7 +1925,10 @@
 								<mx:VBox>
 									<mx:Form id="changeForm2" defaultButton="{storyBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
 										<mx:FormItem label="ID" id="storyFormID">
-											<mx:Label text="{currentItem.fullId}"/>
+											<mx:HBox>
+												<mx:Label text="{currentItem.fullId}"/>
+												<mx:LinkButton width="16" icon="{parentApplication.imgURL}" toolTip="Copy URL" click="copyObjectURL();" id="storyBtnCopyObjectURL"/>
+											</mx:HBox>
 										</mx:FormItem>
 										<mx:FormItem label="Project" id="storyFormProject">
 											<local:FixedComboBox id='storyFieldProject' editable="false" labelField="name" change="updateProjectField()"></local:FixedComboBox>
@@ -2035,7 +2063,7 @@
 						<mx:Object label="Done" value="3" />
 						<mx:Object label="All Statuses" value="-1" />
 					</local:FixedComboBox>
-					<mx:LinkButton width="16" icon="{parentApplication.imgURL}" toolTip="Copy URL" click="copyURL();" id="storyBtnCopyURL"/>
+					<mx:LinkButton width="16" icon="{parentApplication.imgURL}" toolTip="Copy URL" click="copyFiltersURL();" id="storyBtnCopyFiltersURL"/>
 					<mx:HBox id="buttonBox" width="100%" horizontalGap="5" horizontalAlign="right" horizontalScrollPolicy="off">
 						<mx:Button width="25" icon="{parentApplication.imgAdd}" toolTip="Create" click="showCreateStory();" id="storyBtnCreate" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
 						<mx:Button width="25" icon="{parentApplication.imgEdit}" toolTip="Update" click="showUpdate();" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnUpdateMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
