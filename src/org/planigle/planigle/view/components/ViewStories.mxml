@@ -88,13 +88,13 @@
 			{
 				if (Story.conditions["text"])
 				{
-					storySearchText.text = unescape(Story.conditions["text"]);
+					storyTextSearch.text = unescape(Story.conditions["text"]);
 					showMore();
 				}
 				var initialId:String = Story.conditions["id"] ? Story.conditions["id"] : Story.conditions["tasks.id"];
 				if (initialId != null)
 				{
-					storySearchText.text = initialId;
+					storyIDSearch.text = (Story.conditions["id"] ? "S" : "T") + initialId;
 					showMore();
 				}
 				if (Story.conditions["status_code"] != null)
@@ -145,8 +145,8 @@
 			// Ctrl f
 			if (event.charCode == 102 && event.ctrlKey) {
 				showMore();
-				storySearchText.setFocus();
-				storySearchText.setSelection(0, storySearchText.text.length );
+				storyTextSearch.setFocus();
+				storyTextSearch.setSelection(0, storyTextSearch.text.length );
 			}
 		}
 
@@ -430,7 +430,14 @@
 			if (team.selectedItem.id != -1) conditions["team_id"]= team.selectedItem.id ? team.selectedItem.id : "";
 			if (individual.selectedItem.id != -1) conditions["individual_id"]= individual.selectedItem.id ? individual.selectedItem.id : "";
 			if (itemStatus.selectedItem.value != -1) conditions["status_code"]= itemStatus.selectedItem.value != -2 ? itemStatus.selectedItem.value : "NotDone";
-			if (storySearchText.text != "") conditions["text"]=storySearchText.text;
+			if (storyTextSearch.text != "") conditions["text"]=storyTextSearch.text;
+			if (storyIDSearch.text != "")
+			{
+				if (storyIDSearch.text.charAt(0).toLowerCase() == "t")
+					conditions["tasks.id"]=storyIDSearch.text.substring(1);
+				else
+					conditions["id"]=storyIDSearch.text.substring(1);
+			}
 			for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
 			{
 				if (attrib.valueType >= StoryAttribute.LIST)
@@ -1611,7 +1618,7 @@
 			searchChildren = new Object();
 			for (var i:int = changeForm.numChildren-1; i>=baseChildren; i--)
 				changeForm.removeChildAt(i);
-			for (var j:int = 0; j<storyMoreFilters.numChildren - 1; j++)
+			for (var j:int = 0; j<storyMoreFilters.numChildren - 2; j++)
 				storyMoreFilters.removeChildAt(j);
 
 			if (IndividualFactory.current().selectedProject)
@@ -1687,7 +1694,7 @@
 						var searchForm:FormItem = new FormItem();
 						searchForm.label = attrib.name;
 						searchForm.addChild(combo);
-					  	storyMoreFilters.addChildAt(searchForm, storyMoreFilters.numChildren - 1);
+					  	storyMoreFilters.addChildAt(searchForm, storyMoreFilters.numChildren - 2);
 					    break;
 					}
 					changeForm.addChild(formItem);
@@ -1854,9 +1861,15 @@
 		}
 		
 		// Blank out the search field and show all stories meeting selected filters.
-		public function cancelSearch():void
+		public function cancelIDSearch():void
 		{
-			storySearchText.text = "";
+			storyIDSearch.text = "";
+		}
+		
+		// Blank out the search field and show all stories meeting selected filters.
+		public function cancelTextSearch():void
+		{
+			storyTextSearch.text = "";
 		}
 		
 		public function copyFiltersURL():void
@@ -2075,10 +2088,16 @@
 					</mx:HBox>
 				</mx:HBox>
 				<mx:Form id="storyMoreFilters" visible="false" height="-5" paddingTop="0" paddingBottom="0" verticalGap="5" width="100%">
+					<mx:FormItem label="ID">
+						<mx:HBox>
+							<mx:TextInput id='storyIDSearch' text='' width="60" enter="handleFilter()" valueCommit="handleFilter()"/>
+							<mx:LinkButton width="16" icon="{parentApplication.imgCross}" toolTip="Cancel ID Search" click="cancelIDSearch();" id="storyBtnCancelIDSearch"/>
+						</mx:HBox>
+					</mx:FormItem>
 					<mx:FormItem label="Search Text">
 						<mx:HBox>
-							<mx:TextInput id='storySearchText' text='' width="200" enter="handleFilter()" valueCommit="handleFilter()"/>
-							<mx:LinkButton width="16" icon="{parentApplication.imgCross}" toolTip="Cancel Text Search" click="cancelSearch();" id="storyBtnCancelSearch"/>
+							<mx:TextInput id='storyTextSearch' text='' width="200" enter="handleFilter()" valueCommit="handleFilter()"/>
+							<mx:LinkButton width="16" icon="{parentApplication.imgCross}" toolTip="Cancel Text Search" click="cancelTextSearch();" id="storyBtnCancelTextSearch"/>
 						</mx:HBox>
 					</mx:FormItem>
 				</mx:Form>
