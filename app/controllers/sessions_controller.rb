@@ -18,40 +18,44 @@ class SessionsController < ApplicationController
   def create
     respond_to do |format|
       info = is_amf ? params[0] : params
-      self.current_individual = Individual.authenticate(info[:login], info[:password])
-      if logged_in?
-        if info[:accept_agreement] == "true" || info[:accept_agreement] == true
-          self.current_individual.accepted_agreement = Time.now
-        end
-        if self.current_individual.accepted_agreement || System.find(:first).license_agreement == "" || request.format == :iphone
-          self.current_individual.last_login = Time.now
-          if info[:remember_me] == "true" || info[:remember_me] == true
-            self.current_individual.remember_me
-            cookies[:auth_token] = { :value => self.current_individual.remember_token , :expires => self.current_individual.remember_token_expires_at }
-          end
-          self.current_individual.save(false)
-          format.iphone do
-            if self.current_individual.is_premium
-              redirect_to :controller => :stories, :action => :index
-            else
-              flash[:notice] = 'You must be a premium customer to use the IPhone interface'
-              render :action => 'new'
-            end
-          end
-          format.xml { render :xml => data(true), :status => :created }
-          format.amf { render :amf => data(true) }
-        else
-          reset_session
-          format.xml { render :xml => license_agreement, :status => :unprocessable_entity }
-          format.amf { render :amf => license_agreement }
-        end
+      if is_amf && info[:version] != version
+        format.amf { render :amf => {:error => 'Your browser has cached an older version of Planigle.  To get the latest version, refresh your cache (on many browsers this can be done by holding the ctrl key down while clicking on the refresh button).'} }
       else
-        format.iphone { flash[:notice] = 'Invalid Credentials'; render :action => 'new' }
-        format.xml { render :xml => xml_error('Invalid Credentials'), :status => :unprocessable_entity }
-        format.amf { render :amf => {:error => 'Invalid Credentials'} }
+        self.current_individual = Individual.authenticate(info[:login], info[:password])
+        if logged_in?
+          if info[:accept_agreement] == "true" || info[:accept_agreement] == true
+            self.current_individual.accepted_agreement = Time.now
+          end
+          if self.current_individual.accepted_agreement || System.find(:first).license_agreement == "" || request.format == :iphone
+            self.current_individual.last_login = Time.now
+            if info[:remember_me] == "true" || info[:remember_me] == true
+              self.current_individual.remember_me
+              cookies[:auth_token] = { :value => self.current_individual.remember_token , :expires => self.current_individual.remember_token_expires_at }
+            end
+            self.current_individual.save(false)
+            format.iphone do
+              if self.current_individual.is_premium
+                redirect_to :controller => :stories, :action => :index
+              else
+                flash[:notice] = 'You must be a premium customer to use the IPhone interface'
+                render :action => 'new'
+              end
+            end
+            format.xml { render :xml => data(true), :status => :created }
+            format.amf { render :amf => data(true) }
+          else
+            reset_session
+            format.xml { render :xml => license_agreement, :status => :unprocessable_entity }
+            format.amf { render :amf => license_agreement }
+          end
+        else
+          format.iphone { flash[:notice] = 'Invalid Credentials'; render :action => 'new' }
+          format.xml { render :xml => xml_error('Invalid Credentials'), :status => :unprocessable_entity }
+          format.amf { render :amf => {:error => 'Invalid Credentials'} }
+        end
       end
     end
-  end
+  end  
 
   # Refresh the data for the current session
   def refresh

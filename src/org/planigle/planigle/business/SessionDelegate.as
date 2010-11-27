@@ -10,6 +10,7 @@ package org.planigle.planigle.business
 	import org.planigle.planigle.model.IterationFactory;
 	import org.planigle.planigle.model.Story;
 	import org.planigle.planigle.model.StoryFactory;
+	import org.planigle.planigle.model.ViewModelLocator;
 	
 	public class SessionDelegate
 	{
@@ -28,6 +29,7 @@ package org.planigle.planigle.business
 		{
 			var params:Object = new Object();
 			params["login"] = loginParams.username;
+			params["version"] = ViewModelLocator.VERSION;
 			params["password"] = loginParams.password;
 			params["accept_agreement"] = loginParams.acceptAgreement ? true : false;
 			params["remember_me"] = loginParams.rememberMe ? true : false;
