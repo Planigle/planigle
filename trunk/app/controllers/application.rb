@@ -96,4 +96,8 @@ protected
     session[:conditions] = cond
     cond
   end
+  
+  def version
+    "2010.14"
+  end
 end
