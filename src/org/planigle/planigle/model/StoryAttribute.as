@@ -183,7 +183,7 @@ package org.planigle.planigle.model
 		public function updateCompleted(xml:XML):void
 		{
 			populate(xml);
-			project.resort();
+			project.resortAttributes();
 		}
 		
 		// Delete me.  Success function if successfully deleted.  FailureFunction will be called if failed
