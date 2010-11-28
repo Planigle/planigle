@@ -110,3 +110,23 @@ class BigDecimal
     to_s.to_yaml(opts,&block)
   end
 end
+
+# Add expiration headers for static content (see http://thebogles.com/blog/2008/02/enabling-browser-caching-of-static-content-in-mongrel/).
+if defined? Mongrel::DirHandler
+  module Mongrel
+    class DirHandler
+      def send_file_with_expires(req_path, request, response, header_only=false)
+        lower = req_path.downcase
+        if lower.include?(".gif") || lower.include?(".jpg") || lower.include?(".png")
+          response.header['Cache-Control'] = 'max-age=604800, public, must-revalidate' #week
+        else
+          response.header['Cache-Control'] = 'max-age=3600, public, must-revalidate' #hour
+        end
+        response.header['Expires'] = (Time.now + 10.years).rfc2822
+        send_file_without_expires(req_path, request, response, header_only)
+      end
+      alias_method :send_file_without_expires, :send_file
+      alias_method :send_file, :send_file_with_expires
+    end
+  end
+end

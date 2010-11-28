@@ -19,7 +19,7 @@ class SessionsController < ApplicationController
     respond_to do |format|
       info = is_amf ? params[0] : params
       if is_amf && info[:version] != version
-        format.amf { render :amf => {:error => 'Your browser has cached an older version of Planigle.  To get the latest version, refresh your cache (on many browsers this can be done by holding the ctrl key down while clicking on the refresh button).'} }
+        format.amf { render :amf => {:error => 'Your browser has cached an older version of Planigle.  To get the latest version, clear your browser cache and refresh the page.'} }
       else
         self.current_individual = Individual.authenticate(info[:login], info[:password])
         if logged_in?
