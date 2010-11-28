@@ -13,6 +13,9 @@ class FlexSessionTest < Test::Unit::TestCase
   fixtures :iterations
   fixtures :tasks
   fixtures :teams
+  fixtures :story_values
+  fixtures :story_attributes
+  fixtures :story_attribute_values
 
   def setup
     @ie = Funfx.instance 
@@ -133,6 +136,60 @@ class FlexSessionTest < Test::Unit::TestCase
     assert !@ie.button("releaseBtnCreate").visible
     assert_equal 0, @ie.data_grid("iterationResourceGrid").num_rows
     assert !@ie.button("iterationBtnCreate").visible
+  end
+  
+  # Test url with all
+  def test_URL_all
+    @ie.goto(ENV['test_host']+"/index.html?project_id=1", "Main") 
+    login("aaron", "testit")
+    assert_equal 4, @ie.data_grid("storyResourceGrid").num_rows
+    assert_equal "All Releases", @ie.combo_box("release").text
+    assert_equal "All Iterations", @ie.combo_box("iteration").text
+    assert_equal "All Teams", @ie.combo_box("team").text
+    assert_equal "All Owners ", @ie.combo_box("individual").text
+    assert_equal "All Statuses", @ie.combo_box("itemStatus").text
+  end
+    
+  # Test url with selected
+  def test_URL_selected
+    @ie.goto(ENV['test_host']+"/index.html?project_id=1&release_id=1&iteration_id=1&team_id=1&team_id=1&individual_id=2&status_code=1&custom_5=1", "Main") 
+    login("aaron", "testit")
+    assert_equal 1, @ie.data_grid("storyResourceGrid").num_rows
+    assert_equal "first", @ie.combo_box("release").text
+    assert_equal "first", @ie.combo_box("iteration").text
+    assert_equal "Test_team", @ie.combo_box("team").text
+    assert_equal "aaron hank", @ie.combo_box("individual").text
+    assert_equal "In Progress", @ie.combo_box("itemStatus").text
+    assert_equal "Value 1", @ie.combo_box("searchField5").text
+  end
+    
+  # Test url with none selected
+  def test_URL_None
+    @ie.goto(ENV['test_host']+"/index.html?project_id=&release_id=&iteration_id=&team_id=&team_id=&individual_id=&status_code=NotDone&custom_5=", "Main") 
+    login("aaron", "testit")
+    assert_equal 2, @ie.data_grid("storyResourceGrid").num_rows
+    assert_equal "No Release", @ie.combo_box("release").text
+    assert_equal "Backlog", @ie.combo_box("iteration").text
+    assert_equal "No Team", @ie.combo_box("team").text
+    assert_equal "No Owner", @ie.combo_box("individual").text
+    assert_equal "Not Done", @ie.combo_box("itemStatus").text
+    assert_equal "None", @ie.combo_box("searchField5").text
+  end
+    
+  # Test url with story selected
+  def test_URL_Specific_Story
+    @ie.goto(ENV['test_host']+"/index.html?project_id=1&id=1", "Main") 
+    login("aaron", "testit")
+    assert_equal 1, @ie.data_grid("storyResourceGrid").num_rows
+    assert_equal 'test', @ie.text_area("storyFieldName").text
+  end
+    
+  # Test url with task selected
+  def test_URL_Specific_Task
+    @ie.goto(ENV['test_host']+"/index.html?project_id=1&tasks.id=1", "Main") 
+    login("aaron", "testit")
+    assert_equal 2, @ie.data_grid("storyResourceGrid").num_rows
+    assert_equal 'test_task', @ie.text_area("storyFieldName").text
   end
 
 private

@@ -157,18 +157,29 @@ package org.planigle.planigle.model
 			tm.populate( <team><id nil="true" /><name>No Team</name></team> );
 			return tm;
 		}
-
-		// Resort my teams.
+		
 		public function resort():void
 		{
-			storyAttributes=storyAttributes.concat(); // set to a copy
-			teams=teams.concat(); // set to a copy
+			resortAttributes();
+			resortTeams();
 
 			// Create copy to ensure any views get notified of changes.
 			var projects:ArrayCollection = new ArrayCollection();
 			for each (var project:Project in company.projects)
 				projects.addItem(project);
 			company.projects = projects.source;
+		}
+
+		// Resort my teams.
+		public function resortTeams():void
+		{
+			teams=teams.concat(); // set to a copy
+		}
+
+		// Resort my attributes.
+		public function resortAttributes():void
+		{
+			storyAttributes=storyAttributes.concat(); // set to a copy
 		}
 
 		// Answer my individuals.
