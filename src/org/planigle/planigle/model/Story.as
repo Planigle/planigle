@@ -48,14 +48,22 @@ package org.planigle.planigle.model
 			if (rp.hasQueryString())
 				return rp.getRequestParameters();
 			else
-			{
-				var initial:Object = new Object();
-				initial["status_code"] = "NotDone";
-				initial["team_id"] = "MyTeam";
-				initial["release_id"] = "Current";
-				initial["iteration_id"] = "Current";
-				return initial;
-			}
+				return defaultConditions();
+		}
+
+		public static function defaultConditions():Object
+		{
+			var initial:Object = new Object();
+			initial["status_code"] = "NotDone";
+			initial["team_id"] = "MyTeam";
+			initial["release_id"] = "Current";
+			initial["iteration_id"] = "Current";
+			return initial;
+		}
+
+		public static function resetConditions():void
+		{
+			conditions = defaultConditions();
 		}
 
 		public function getCurrentVersion():Object
