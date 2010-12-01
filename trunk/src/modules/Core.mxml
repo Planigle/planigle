@@ -22,6 +22,7 @@
 			import org.planigle.planigle.model.ReleaseFactory;
 			import org.planigle.planigle.model.IterationFactory;
 			import org.planigle.planigle.model.StoryFactory;
+			import org.planigle.planigle.model.Story;
 			import org.planigle.planigle.model.IndividualFactory;
 			import org.planigle.planigle.model.Individual;
 			import org.planigle.planigle.model.TabModelLocator;
@@ -132,6 +133,7 @@
 				watcher = factory.currentIndividual.selectedProject ? ChangeWatcher.watch( factory.currentIndividual.selectedProject, "premiumExpiry", resetState ) : null;
 				resetState(event);
 				cancelCommands();
+				Story.resetConditions();
 				refresh(null, true);
 			}
 			
@@ -204,6 +206,7 @@
 			{
 				cancelCommands();
 				refreshTimer.stop();
+				Story.resetConditions();
 				new LogoutEvent().dispatch();
 			}
 

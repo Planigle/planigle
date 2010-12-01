@@ -84,35 +84,36 @@
 		
 		private function setDefaults():void
 		{
-			if (new RequestProcessor().hasQueryString())
+			if (Story.conditions["text"])
 			{
-				if (Story.conditions["text"])
+				storyTextSearch.text = unescape(Story.conditions["text"]);
+				showMore();
+			} else
+				storyTextSearch.text = "";
+
+			var initialId:String = Story.conditions["id"] ? Story.conditions["id"] : Story.conditions["tasks.id"];
+			if (initialId != null)
+			{
+				storyIDSearch.text = (Story.conditions["id"] ? "S" : "T") + initialId;
+				showMore();
+			} else
+				storyIDSearch.text = "";
+
+			if (Story.conditions["status_code"] == null)
+				itemStatus.selectedIndex = 5;
+			else if (Story.conditions["status_code"] == "NotDone")
+				itemStatus.selectedIndex = 3;
+			else
+			{
+				var initialStatus:int = int(Story.conditions["status_code"]);
+				for (var i:int = 0; i < 5; i++)
 				{
-					storyTextSearch.text = unescape(Story.conditions["text"]);
-					showMore();
-				}
-				var initialId:String = Story.conditions["id"] ? Story.conditions["id"] : Story.conditions["tasks.id"];
-				if (initialId != null)
-				{
-					storyIDSearch.text = (Story.conditions["id"] ? "S" : "T") + initialId;
-					showMore();
-				}
-				if (Story.conditions["status_code"] != null)
-				{
-					if (Story.conditions["status_code"] != "NotDone")
+					if (itemStatus.dataProvider.getItemAt(i).value == initialStatus)
 					{
-						var initialStatus:int = int(Story.conditions["status_code"]);
-						for (var i:int = 0; i < 5; i++)
-						{
-							if (itemStatus.dataProvider.getItemAt(i).value == initialStatus)
-							{
-								itemStatus.selectedIndex = i;
-								break;
-							}
-						}
+						itemStatus.selectedIndex = i;
+						break;
 					}
-				} else
-					itemStatus.selectedIndex = 5;
+				}
 			}
 		}
 
@@ -120,7 +121,6 @@
 		private function created(event:Event):void
 		{
 			CursorManager.setBusyCursor();
-			setDefaults();
 			expandAllIcon = parentApplication.imgCollapsed;
 			originalColumns = storyResourceGrid.columns;
 			baseChildren = changeForm.numChildren;
@@ -157,6 +157,7 @@
 			if (projectWatcher)
 				projectWatcher.unwatch();
 			projectWatcher = ChangeWatcher.watch( IndividualFactory.current(), "selectedProjectId", updateProject );
+			setDefaults();
 			updateProject(null, initial);
 		}
 
@@ -242,28 +243,22 @@
 				handleFilter();
 		}
 		
-		private function getDefault(combo:ComboBox, prop:String, hasCurrent:Boolean):String
+		private function getDefault(prop:String, hasCurrent:Boolean):String
 		{
-			if (combo.selectedItem)
-				return combo.selectedItem.id;
-			else if (new RequestProcessor().hasQueryString())
-			{
-				var value:String = Story.conditions[prop];
-				if (value == "Current")
-					return "-2";
-				else if (value)
-					return value;
-				else
-					return value == "" ? null : "-1";
-			} else
-				return hasCurrent ? "-2" : "-1";
+			var value:String = Story.conditions[prop];
+			if (value == "Current")
+				return "-2";
+			else if (value)
+				return value;
+			else
+				return value == "" ? null : "-1";
 		}
 		
 		// Set the releases in the filter list.
 		private function setReleaseFilterList():void
 		{
 			// Remember selection so that updating releases doesn't revert it.
-			var id:String = getDefault(release, "release_id", true);
+			var id:String = getDefault("release_id", true);
 			var selection:Release = null;
 
 			var newFilter:ArrayCollection = new ArrayCollection();
@@ -306,7 +301,7 @@
 		private function setIterationFilterList():void
 		{
 			// Remember selection so that updating iterations doesn't revert it.
-			var id:String = getDefault(iteration, "iteration_id", true);
+			var id:String = getDefault("iteration_id", true);
 			var selection:Iteration = null;
 
 			var newFilter:ArrayCollection = new ArrayCollection();
@@ -368,7 +363,7 @@
 		private function setIndividualFilterList():void
 		{
 			// Remember selection so that updating individuals doesn't revert it.
-			var id:String = getDefault(individual, "individual_id", false);
+			var id:String = getDefault("individual_id", false);
 			var selection:Individual = null;
 
 			var newFilter:ArrayCollection = new ArrayCollection();
