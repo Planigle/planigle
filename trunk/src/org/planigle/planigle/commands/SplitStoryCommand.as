@@ -36,15 +36,22 @@ package org.planigle.planigle.commands
 			var result:XML = XML(event.result);
 			if (result.error.length() > 0)
 			{
-				if (notifyFailure != null)
+				if (result.errorId == "FILTERED")
+				{
+					if (notifySuccess != null)
+						notifySuccess();
+				} else if (notifyFailure != null)
 					notifyFailure(result.error);
 			}
 			else
-			{
-				story.splitCompleted(result);
-				if (notifySuccess != null)
-					notifySuccess();
-			}
+				finishSplit(result);
+		}
+		
+		protected function finishSplit(result:XML):void
+		{
+			story.splitCompleted(result);
+			if (notifySuccess != null)
+				notifySuccess();
 		}
 		
 		// Handle case where error occurs.
