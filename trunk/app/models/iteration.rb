@@ -39,9 +39,9 @@ class Iteration < ActiveRecord::Base
   # Answer the current iteration for a particular user.
   def self.find_current(current_user, release=nil)
     if release
-      current_user.project_id ? Iteration.find(:first, :conditions => ["project_id = ? and start <= CURDATE() and finish >= CURDATE() and start <= ? and finish >= ?", current_user.project_id, release.finish, release.start], :order => 'start DESC') : nil
+      current_user.project_id ? Iteration.find(:first, :conditions => ["project_id = ? and start <= CURDATE() and finish >= CURDATE() and start <= ? and finish >= ?", current_user.project_id, release.finish, release.start], :order => 'start,finish') : nil
     else
-      current_user.project_id ? Iteration.find(:first, :conditions => ["project_id = ? and start <= CURDATE() and finish >= CURDATE()", current_user.project_id], :order => 'start DESC') : nil
+      current_user.project_id ? Iteration.find(:first, :conditions => ["project_id = ? and start <= CURDATE() and finish >= CURDATE()", current_user.project_id], :order => 'start,finish') : nil
     end
   end
   

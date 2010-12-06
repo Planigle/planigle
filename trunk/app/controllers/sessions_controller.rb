@@ -93,6 +93,8 @@ protected
       result['system'] = System.find(:first)
       result['current_individual'] = current_individual
       result['current_individual'].current_user_project = project
+      result['current_release'] = current_release
+      result['current_iteration'] = current_iteration
     end
     update_stories = false
     if (!parms[:companies] || Company.have_records_changed(current_individual, Time.parse(parms[:companies])))
@@ -106,10 +108,12 @@ protected
     if current_individual.project_id
       if (!parms[:releases] || Release.have_records_changed(current_individual, Time.parse(parms[:releases])))
         update_stories = true
+        result['current_release'] = current_release
         result['releases'] = Release.get_records(current_individual)
       end
       if (!parms[:iterations] || Iteration.have_records_changed(current_individual, Time.parse(parms[:iterations])))
         update_stories = true
+        result['current_iteration'] = current_iteration
         result['iterations'] = Iteration.get_records(current_individual)
       end
       if (update_stories || !parms[:stories] || Story.have_records_changed(current_individual, Time.parse(parms[:stories])))
@@ -117,6 +121,14 @@ protected
       end
     end
     result
+  end
+
+  def current_release
+    Release.find_current(current_individual)
+  end
+  
+  def current_iteration
+    Iteration.find_current(current_individual)
   end
   
   def show_project(project_id)

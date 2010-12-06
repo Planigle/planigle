@@ -45,9 +45,15 @@ package org.planigle.planigle.commands
 				if (result.individuals != null)
 					IndividualFactory.getInstance().populate( result.time, result.individuals as Array );
 				if (result.releases != null)
+				{
+					ReleaseFactory.getInstance().currentId = result.currentRelease ? result.currentRelease.id : null;
 					ReleaseFactory.getInstance().populate( result.time, result.releases ? result.releases as Array : new Array() );
+				}
 				if (result.iterations != null)
+				{
+					IterationFactory.getInstance().currentId = result.currentIteration ? result.currentIteration.id : null;
 					IterationFactory.getInstance().populate( result.time, result.iterations ? result.iterations as Array : new Array() );
+				}
 				if (result.stories != null)
 					StoryFactory.getInstance().populate( result.time, result.stories ? result.stories as Array : new Array() );
 				ViewModelLocator.getInstance().refreshInProgress = false;

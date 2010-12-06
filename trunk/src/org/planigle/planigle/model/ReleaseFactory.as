@@ -7,6 +7,7 @@ package org.planigle.planigle.model
 	[Bindable]
 	public class ReleaseFactory
 	{
+		public var currentId:String;
 		public var timeUpdated:String;
 		public var releases:ArrayCollection = new ArrayCollection();
 		public var releaseSelector:ArrayCollection = new ArrayCollection();

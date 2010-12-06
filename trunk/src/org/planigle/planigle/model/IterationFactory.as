@@ -7,6 +7,7 @@ package org.planigle.planigle.model
 	[Bindable]
 	public class IterationFactory
 	{
+		public var currentId:String;
 		public var timeUpdated:String;
 		public var iterations:ArrayCollection = new ArrayCollection();
 		public var iterationSelector:ArrayCollection = new ArrayCollection();
