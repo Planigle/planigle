@@ -243,11 +243,11 @@
 				handleFilter();
 		}
 		
-		private function getDefault(prop:String, hasCurrent:Boolean):String
+		private function getDefault(factory:Object, prop:String):String
 		{
 			var value:String = Story.conditions[prop];
 			if (value == "Current")
-				return "-2";
+				return factory.currentId ? factory.currentId : "-1";
 			else if (value)
 				return value;
 			else
@@ -258,7 +258,7 @@
 		private function setReleaseFilterList():void
 		{
 			// Remember selection so that updating releases doesn't revert it.
-			var id:String = getDefault("release_id", true);
+			var id:String = getDefault(ReleaseFactory.getInstance(), "release_id");
 			var selection:Release = null;
 
 			var newFilter:ArrayCollection = new ArrayCollection();
@@ -278,13 +278,7 @@
 			if (selection)
 				release.selectedItem = selection;
 			else
-			{
-				var currentRelease:Release = ReleaseFactory.getInstance().current();
-				if (currentRelease)
-					release.selectedItem = currentRelease;
-				else
-					release.selectedIndex = releaseFilter.length - 1;
-			}
+				release.selectedIndex = releaseFilter.length - 1;
 			release.visible = releaseFilter.length > 2;
 			release.width = release.visible ? NaN : -8;
 		}
@@ -301,7 +295,7 @@
 		private function setIterationFilterList():void
 		{
 			// Remember selection so that updating iterations doesn't revert it.
-			var id:String = getDefault("iteration_id", true);
+			var id:String = getDefault(IterationFactory.getInstance(), "iteration_id");
 			var selection:Iteration = null;
 
 			var newFilter:ArrayCollection = new ArrayCollection();
@@ -323,13 +317,7 @@
 			if (selection)
 				iteration.selectedItem = selection;
 			else
-			{
-				var currentIteration:Iteration = IterationFactory.getInstance().current();
-				if (currentIteration && (release.selectedItem.id == "-1" || currentIteration.isIn(Release(release.selectedItem))))
-					iteration.selectedItem = currentIteration;
-				else
-					iteration.selectedIndex = iterationFilter.length - 1;
-			}
+				iteration.selectedIndex = iterationFilter.length - 1;
 		}
 		
 		// Update the individuals in the filter list.
@@ -363,7 +351,7 @@
 		private function setIndividualFilterList():void
 		{
 			// Remember selection so that updating individuals doesn't revert it.
-			var id:String = getDefault("individual_id", false);
+			var id:String = getDefault(IndividualFactory.getInstance(), "individual_id");
 			var selection:Individual = null;
 
 			var newFilter:ArrayCollection = new ArrayCollection();

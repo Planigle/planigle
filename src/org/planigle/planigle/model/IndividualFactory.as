@@ -35,6 +35,12 @@ package org.planigle.planigle.model
 			return instance.currentIndividual;
 		}
 
+		// Returns the current individual's id.
+		public function get currentId():String
+		{
+			return currentIndividual.id;
+		}
+
 		// Update my individuals to be the specified individuals.
 		public function updateIndividuals( newIndivids:ArrayCollection ):void
 		{
