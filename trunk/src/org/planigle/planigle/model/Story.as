@@ -454,6 +454,12 @@ package org.planigle.planigle.model
 		{
 			var task:Task = new Task();
 			task.populate(xml);
+			getCurrentVersion().addTask(task);
+			return task;
+		}
+		
+		protected function addTask(task:Task):void
+		{
 			task.story = this;
 
 			// Adjust my tasks
@@ -468,8 +474,6 @@ package org.planigle.planigle.model
 			for each (var story:Story in StoryFactory.getInstance().stories)
 				stories.addItem(story);
 			StoryFactory.getInstance().stories = stories;
-			
-			return task;
 		}
 		
 		// Expand the story to show its tasks.
