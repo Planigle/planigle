@@ -22,7 +22,7 @@ package org.planigle.planigle.model
 		protected var myActual:String;
 		public var statusCode:int;
 		public var priority:Number;
-		public var projectedIterationId:String; // Not used for tasks, but needed for the grid.
+		public var projectedIterationId:String = "-1"; // Not used for tasks, but needed for the grid.
 
 		public function getCurrentVersion():Object
 		{
