@@ -1,0 +1,41 @@
+/* CSS file */
+
+Application
+{
+	backgroundGradientAlphas: 1.0, 1.0;
+	backgroundGradientColors: #003469, #001f58;
+}
+	
+Button {
+	cornerRadius:10;
+	fillColors:#47473f,#dfdf7f;
+}
+
+TabBar {
+	horizontalGap:8;
+}
+
+Tab {
+	cornerRadius: 0;
+	color: #ffffff;
+	fillColors: #156aa3,#156aa3;
+	fillAlphas: 1.0,1.0;
+	backgroundColor: #054b81;
+	borderColor: #156aa3;
+	fontFamily: "Lucida Grande";
+	fontWeight: "normal";
+	paddingTop: 2;
+	paddingBottom: 5;
+	paddingLeft: 5;
+	paddingRight: 5;
+}
+
+.ToolbarLink {
+	 color: #ffffff;
+	 fontWeight: "normal";
+	 fontFamily: "Lucida Grande";
+}
+
+Panel {
+	borderColor:#054b81;
+}

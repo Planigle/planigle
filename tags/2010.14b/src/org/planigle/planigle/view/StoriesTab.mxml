@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:component="org.planigle.planigle.view.components.*" label="Stories" borderThicknessLeft="2" borderThicknessRight="2" headerHeight="0">
+	<mx:Metadata>
+		[Event(name="dataChange", type="flash.events.Event")]
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+		import org.planigle.planigle.model.ReleaseFactory;
+		import org.planigle.planigle.model.Iteration;
+
+		// Reset my state to how it was initially.
+		public function resetState(event:Event):void
+		{
+			stories.resetState(event);
+		}
+		// Answer whether any changes need to be saved.
+		public function isDirty(): Boolean
+		{
+			return stories.isDirty();
+		}
+		
+		public function selectIteration(iteration:Iteration):void
+		{
+			stories.release.selectedIndex = ReleaseFactory.getInstance().releases.length + 1;
+			stories.handleReleaseFilter(null); // ensure filter affect occurs.
+			stories.iteration.selectedItem = iteration;
+			stories.handleFilter(); // ensure filter affect occurs.
+		}
+		]]>
+	</mx:Script>
+	<component:ViewStories id="stories" height="100%" dataChange="dispatchEvent(event)"/>
+</mx:Panel>

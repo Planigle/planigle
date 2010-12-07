@@ -1,0 +1,14 @@
+To upgrade a Planigle installation, do the following:
+1) Go to the Planigle directory and execute:
+	svn up
+2) Then execute:
+	rake db:migrate RAILS_ENV="production"
+3) Replace public/Main.swf with the file from production (http://www.planigle.com/planigle/Main.swf).
+4) Replace public/Survey.swf with the file from production (http://www.planigle.com/planigle/Survey.swf).
+5) Replace public/modules/Core.swf with the file from production (http://www.planigle.com/planigle/modules/Core.swf).
+6) For premium users, replace public/modules/Premium.swf with the file from production (http://www.planigle.com/planigle/modules/Premium.swf).
+7) Restart Mongrel.
+8) You should see the new version on the login page.  If not, try refreshing your browser cache (to speed things along).
+
+Occasionally, there will be additional notes for a particular release.  These will appear below.  If you
+are upgrading multiple releases at a time, execute the instructions from oldest to newest.
