@@ -1,6 +1,6 @@
 To upgrade a Planigle installation, do the following:
 1) Go to the Planigle directory and execute:
-	svn up
+	svn switch http://planigle.googlecode.com/svn/tags/<version>
 2) Then execute:
 	rake db:migrate RAILS_ENV="production"
 3) Replace public/Main.swf with the file from production (http://www.planigle.com/planigle/Main.swf).
