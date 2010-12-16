@@ -42,7 +42,7 @@ package org.planigle.planigle.model
 		public static const LICENSE_AGREEMENT_SCREEN:uint = 2;
 		public static const LOGIN_SCREEN:uint = 3;
 		public static const CORE_APPLICATION_SCREEN:uint = 4;
-		public static const VERSION:String = "2010.14b";
+		public static const VERSION:String = "2010.15";
 	}
 }
 
