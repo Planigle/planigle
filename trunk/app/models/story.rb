@@ -51,7 +51,10 @@ class Story < ActiveRecord::Base
         current_user.project.story_attributes.find(:all, :conditions => {:is_custom => true}, :order => :name).each {|attrib| attribs << attrib.name}
       end
       csv << attribs
-      get_records(current_user, conditions).each {|story| story.export(csv)}
+      get_records(current_user, conditions).each do |story|
+        story.current_conditions = conditions
+        story.export(csv)
+      end
     end
   end
   
@@ -75,7 +78,7 @@ class Story < ActiveRecord::Base
   # Export given an instance of FasterCSV.
   def export(csv)
     values = [
-      id,
+      'S' + id.to_s,
       name,
       description,
       acceptance_criteria("\n"),
@@ -102,6 +105,7 @@ class Story < ActiveRecord::Base
       values << (value ? value.value : '')
     end
     csv << values
+    filtered_tasks.each {|task| task.export(csv)}
   end
 
   # Import from a CSV string representing the stories.
@@ -114,7 +118,10 @@ class Story < ActiveRecord::Base
         headers_shown = true
         process_headers(current_user, row, header_mapping)
       else
-        errors.push(store_values(current_user, process_values(current_user, row, header_mapping)))
+        results = store_values(current_user, process_values(current_user, row, header_mapping))
+        if results
+          errors.push(results)
+        end
       end
     end
     errors
@@ -198,17 +205,17 @@ class Story < ActiveRecord::Base
   
   # My estimate is the sum of my tasks.
   def estimate
-    tasks.inject(nil) {|sum, task| task.estimate ? (sum ? sum + task.estimate : task.estimate) : sum}
+    filtered_tasks.inject(nil) {|sum, task| task.estimate ? (sum ? sum + task.estimate : task.estimate) : sum}
   end
   
   # My time is the sum of my tasks.
   def time
-    tasks.inject(nil) {|sum, task| task.effort ? (sum ? sum + task.effort : task.effort) : sum}
+    filtered_tasks.inject(nil) {|sum, task| task.effort ? (sum ? sum + task.effort : task.effort) : sum}
   end
   
   # My actual is the sum of my tasks.
   def actual
-    tasks.inject(nil) {|sum, task| task.actual ? (sum ? sum + task.actual : task.actual) : sum}
+    filtered_tasks.inject(nil) {|sum, task| task.actual ? (sum ? sum + task.actual : task.actual) : sum}
   end
   
   # Create a new story based on this one.
@@ -665,6 +672,12 @@ private
   def self.store_values(current_user, values)
     story = nil
     if values.has_key?(:id) && values[:id]
+      id = values[:id]
+      if (id[0,1] == 'S')
+        values[:id] = id[1..id.size-1]
+      elsif (id[0,1] == 'T')
+        return nil # Abort for now
+      end
       story = Story.find(:first, :conditions => ['id = ?', values[:id]])
       if story && story.authorized_for_update?(current_user)
         story.update_attributes(values)

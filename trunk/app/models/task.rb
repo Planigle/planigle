@@ -40,6 +40,38 @@ class Task < ActiveRecord::Base
     self.status_code == Story::Done
   end
 
+  def project
+    story.project
+  end
+  
+  # Export given an instance of FasterCSV.
+  def export(csv)
+    values = [
+      'T' + id.to_s,
+      name,
+      description,
+      '', # acceptance criteria
+      '', # size
+      estimate,
+      effort]
+    if (project.track_actuals)
+      values.push actual
+    end
+    values = values.concat [
+      status,
+      reason_blocked,
+      '', # release
+      '', # iteration
+      '', # team
+      individual ? individual.name : '',
+      '', # public
+      ''] # user rank
+    project.story_attributes.find(:all, :conditions => {:is_custom => true}, :order => :name).each do |attrib|
+      values << ''
+    end
+    csv << values
+  end
+
   # Only project users or higher can create tasks.
   def authorized_for_create?(current_user)
     if current_user.role <= Individual::Admin
