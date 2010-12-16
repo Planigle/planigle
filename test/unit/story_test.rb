@@ -386,6 +386,13 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal count, Story.count
   end
 
+  def test_import_existing_task
+    count = Task.count
+    verify_no_errors(Story.import(individuals(:aaron), "pid,name\nT1,Fred"))
+    assert_equal 'Fred', tasks(:one).reload.name
+    assert_equal count, Task.count
+  end
+
   def test_import_new_story
     count = Story.count
     verify_no_errors(Story.import(individuals(:aaron), "pid,name\n,Fred"))

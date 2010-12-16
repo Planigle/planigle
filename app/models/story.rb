@@ -35,7 +35,7 @@ class Story < ActiveRecord::Base
   Blocked = 2
   Done = 3
 
-  Headers = { 'pid'=>:id, 'name'=>:name, 'description'=>:description, 'acceptance criteria'=>:acceptance_criteria, 'size'=>:effort, 'status'=>:status_code, 'reason blocked'=>:reason_blocked, 'release'=>:release_id, 'iteration'=>:iteration_id, 'team'=>:team_id, 'owner'=>:individual_id, 'public'=>:is_public}
+  Headers = { 'pid'=>:id, 'name'=>:name, 'description'=>:description, 'acceptance criteria'=>:acceptance_criteria, 'size'=>:effort, 'status'=>:status_code, 'reason blocked'=>:reason_blocked, 'release'=>:release_id, 'iteration'=>:iteration_id, 'team'=>:team_id, 'owner'=>:individual_id, 'public'=>:is_public, 'estimate'=>:estimate, 'actual'=>:actual, 'to do'=>:effort}
 
   # Assign a priority on creation
   before_create :initialize_defaults
@@ -670,31 +670,49 @@ private
   
   # Store the values for the current_user.
   def self.store_values(current_user, values)
-    story = nil
+    object = nil
     if values.has_key?(:id) && values[:id]
       id = values[:id]
-      if (id[0,1] == 'S')
+      if (id[0,1] == 'T')
         values[:id] = id[1..id.size-1]
-      elsif (id[0,1] == 'T')
-        return nil # Abort for now
-      end
-      story = Story.find(:first, :conditions => ['id = ?', values[:id]])
-      if story && story.authorized_for_update?(current_user)
-        story.update_attributes(values)
-      elsif story
-        story.errors.add(:id, "is invalid")
+        object = update_task(current_user, values)
+      else
+        if (id[0,1] == 'S')
+          values[:id] = id[1..id.size-1]
+        end
+        object = update_story(current_user, values)
       end
     else
       values[:project_id] = current_user.project_id
-      story = Story.create(values)
+      object = Story.create(values)
     end
-    if story
-      story.errors
+    if object
+      object.errors
     else
       err = ActiveRecord::Errors.new(new)
       err.add(:id, "is invalid")
       err
     end
+  end
+
+  def self.update_story(current_user, values)
+    story = Story.find(:first, :conditions => ['id = ?', values[:id]])
+    if story && story.authorized_for_update?(current_user)
+      story.update_attributes(values)
+    elsif story
+      story.errors.add(:id, "is invalid")
+    end
+    story
+  end
+
+  def self.update_task(current_user, values)
+    task = Task.find(:first, :conditions => ['id = ?', values[:id]])
+    if task && task.story.authorized_for_update?(current_user)
+      task.update_attributes(values)
+    elsif task
+      task.errors.add(:id, "is invalid")
+    end
+    task
   end
 
   # Find the object id given a value, a class and conditions.
