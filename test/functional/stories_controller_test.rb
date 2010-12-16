@@ -168,17 +168,17 @@ class StoriesControllerTest < ActionController::TestCase
     
   # Test exporting stories (based on role).
   def test_export_by_project_admin
-    export_by_role(individuals(:aaron), Story.find_all_by_project_id(1).length, 1)
+    export_by_role(individuals(:aaron), Story.find_all_by_project_id(1).length + 2, 1) # 2 tasks
   end
 
   # Test exporting stories (based on role).
   def test_export_by_project_user
-    export_by_role(individuals(:user), Story.find_all_by_project_id(1).length, 1)
+    export_by_role(individuals(:user), Story.find_all_by_project_id(1).length + 2, 1)
   end
 
   # Test exporting stories (based on role).
   def test_export_by_readonly
-    export_by_role(individuals(:readonly), Story.find_all_by_project_id(1).length, 1)
+    export_by_role(individuals(:readonly), Story.find_all_by_project_id(1).length + 2, 1)
   end
 
   # Test exporting stories (based on role).
