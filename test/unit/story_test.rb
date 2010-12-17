@@ -386,6 +386,26 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal count, Story.count
   end
 
+  def test_import_new_task_existing_story
+    scount = Story.count
+    tcount = Task.count
+    verify_no_errors(Story.import(individuals(:aaron), "pid,name\n1,Fred\nt,Bob"))
+    assert Story.find(:first, :conditions => ["name = 'Fred'"])
+    assert Task.find(:first, :conditions => ["name = 'Bob'"])
+    assert_equal scount, Story.count
+    assert_equal tcount + 1, Task.count
+  end
+
+  def test_import_new_task_new_story
+    scount = Story.count
+    tcount = Task.count
+    verify_no_errors(Story.import(individuals(:aaron), "pid,name\n,Fred\nt,Bob"))
+    assert Story.find(:first, :conditions => ["name = 'Fred'"])
+    assert Task.find(:first, :conditions => ["name = 'Bob'"])
+    assert_equal scount + 1, Story.count
+    assert_equal tcount + 1, Task.count
+  end
+
   def test_import_existing_task
     count = Task.count
     verify_no_errors(Story.import(individuals(:aaron), "pid,name\nT1,Fred"))
