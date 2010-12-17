@@ -112,19 +112,22 @@ class Story < ActiveRecord::Base
   def self.import(current_user, import_string)
     headers_shown = false
     header_mapping = {}
-    errors = [] 
+    errors = []
+    prev_object = nil
     FasterCSV.parse(import_string) do |row|
       if !headers_shown
         headers_shown = true
         process_headers(current_user, row, header_mapping)
       else
-        results = store_values(current_user, process_values(current_user, row, header_mapping))
-        if results
-          errors.push(results)
-        end
+        prev_object = store_values(current_user, process_values(current_user, row, header_mapping), prev_object ? prev_object.story : nil)
+        errors.push(prev_object.errors)
       end
     end
     errors
+  end
+  
+  def story
+    self
   end
   
   # Answer the valid values for status.
@@ -518,6 +521,10 @@ class Story < ActiveRecord::Base
   def updated_at_string
     updated_at ? updated_at.to_s : updated_at
   end
+
+  def invalid_id()
+    errors.add(:id, 'is invalid')
+  end
     
 protected
 
@@ -669,15 +676,20 @@ private
   end
   
   # Store the values for the current_user.
-  def self.store_values(current_user, values)
+  def self.store_values(current_user, values, prev_story)
     object = nil
     if values.has_key?(:id) && values[:id]
-      id = values[:id]
-      if (id[0,1] == 'T')
-        values[:id] = id[1..id.size-1]
-        object = update_task(current_user, values)
+      id = values[:id].downcase
+      if (id[0,1] == 't')
+        if (id.size == 1 && prev_story)
+          values[:story_id] = prev_story.id
+          object = Task.create(values)
+        else
+          values[:id] = id[1..id.size-1]
+          object = update_task(current_user, values)
+        end
       else
-        if (id[0,1] == 'S')
+        if (id[0,1] == 's')
           values[:id] = id[1..id.size-1]
         end
         object = update_story(current_user, values)
@@ -686,13 +698,11 @@ private
       values[:project_id] = current_user.project_id
       object = Story.create(values)
     end
-    if object
-      object.errors
-    else
-      err = ActiveRecord::Errors.new(new)
-      err.add(:id, "is invalid")
-      err
+    if !object
+      object = new
+      object.invalid_id
     end
+    object
   end
 
   def self.update_story(current_user, values)
