@@ -65,9 +65,9 @@
         		if (StringUtil.trim(criterium.description) != "" && criterium.description != INITIAL_CRITERIA)
         		{
 	        		if (string != "")
-	        			string += "\r";
+	        			string += "\n";
 	        		if (criteria.length > 1)
-		        		string += "-";
+		        		string += "*";
 	        		string += criterium.description;
 	        		if (criterium.statusCode == Criterium.DONE)
 	        			string += " (Done)";
