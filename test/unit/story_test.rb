@@ -38,19 +38,19 @@ class StoryTest < ActiveSupport::TestCase
   def test_acceptance_criteria
     assert_success(:acceptance_criteria, create_string(4096))
     assert_failure(:acceptance_criteria, create_string(4097), :criteria)
-    story = create_story(:acceptance_criteria => "Criteria 1\rCriteria 2\rCriteria 3")
+    story = create_story(:acceptance_criteria => "Criteria 1\nCriteria 2\nCriteria 3")
     assert_equal 3, story.reload.criteria.count
     assert_equal 'Criteria 1', story.criteria[0].description
     assert_equal 'Criteria 2', story.criteria[1].description
     assert_equal 'Criteria 3', story.criteria[2].description
-    assert_equal "-Criteria 1\r-Criteria 2\r-Criteria 3", story.acceptance_criteria
+    assert_equal "*Criteria 1\n*Criteria 2\n*Criteria 3", story.acceptance_criteria
 
-    story.acceptance_criteria = "-Criteria 1\r-Criteria 2\r\r-Criteria 3"
+    story.acceptance_criteria = "*Criteria 1\n*Criteria 2\n\n*Criteria 3"
     assert_equal 3, story.reload.criteria.count
     assert_equal 'Criteria 1', story.criteria[0].description
     assert_equal 'Criteria 2', story.criteria[1].description
     assert_equal 'Criteria 3', story.criteria[2].description
-    assert_equal "-Criteria 1\r-Criteria 2\r-Criteria 3", story.acceptance_criteria
+    assert_equal "*Criteria 1\n*Criteria 2\n*Criteria 3", story.acceptance_criteria
   end
 
   # Test the validation of reason blocked.
@@ -364,7 +364,7 @@ class StoryTest < ActiveSupport::TestCase
   # Validate export.
   def test_export
     string = Story.export(individuals(:aaron))
-    assert_equal "PID,Name,Description,Acceptance Criteria,Size,Estimate,To Do,Actual,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Test_List,Test_Number,Test_Release,Test_String,Test_Text\nS3,test3,\"\",\"\",1.0,,,,In Progress,\"\",\"\",\"\",\"\",\"\",false,2.0,\"\",\"\",\"\",\"\"\,\"\"\nS2,test2,\"\",\"\",1.0,,,,Done,\"\",first,first,\"\",\"\",true,1.0,\"\",\"\",\"\",\"\",\"\"\nS1,test,description,\"-criteria\n-criteria2 (Done)\",1.0,3.0,5.0,1.0,In Progress,\"\",first,first,Test_team,aaron hank,true,2.0,Value 1,5,Theme 1,test,testy\nT1,test_task,,\"\",\"\",,3.0,,In Progress,,\"\",\"\",\"\",aaron hank,\"\",\"\",\"\",\"\",\"\",\"\",\"\"\nT2,test2_task,,\"\",\"\",3.0,2.0,1.0,Done,,\"\",\"\",\"\",aaron hank,\"\",\"\",\"\",\"\",\"\",\"\",\"\"\nS4,test4,\"\",\"\",1.0,,,,In Progress,\"\",\"\",\"\",\"\",\"\",true,,\"\",\"\",\"\",\"\",\"\"\n", string
+    assert_equal "PID,Name,Description,Acceptance Criteria,Size,Estimate,To Do,Actual,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Test_List,Test_Number,Test_Release,Test_String,Test_Text\nS3,test3,\"\",\"\",1.0,,,,In Progress,\"\",\"\",\"\",\"\",\"\",false,2.0,\"\",\"\",\"\",\"\"\,\"\"\nS2,test2,\"\",\"\",1.0,,,,Done,\"\",first,first,\"\",\"\",true,1.0,\"\",\"\",\"\",\"\",\"\"\nS1,test,description,\"*criteria\n*criteria2 (Done)\",1.0,3.0,5.0,1.0,In Progress,\"\",first,first,Test_team,aaron hank,true,2.0,Value 1,5,Theme 1,test,testy\nT1,test_task,,\"\",\"\",,3.0,,In Progress,,\"\",\"\",\"\",aaron hank,\"\",\"\",\"\",\"\",\"\",\"\",\"\"\nT2,test2_task,,\"\",\"\",3.0,2.0,1.0,Done,,\"\",\"\",\"\",aaron hank,\"\",\"\",\"\",\"\",\"\",\"\",\"\"\nS4,test4,\"\",\"\",1.0,,,,In Progress,\"\",\"\",\"\",\"\",\"\",true,,\"\",\"\",\"\",\"\",\"\"\n", string
 
     string = Story.export(individuals(:project_admin2))
     assert_equal "PID,Name,Description,Acceptance Criteria,Size,Estimate,To Do,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Test_String2\nS5,test5,\"\",\"\",2.0,2.0,3.0,Blocked,\"\",\"\",\"\",\"\",\"\",true,,testit\nT3,test3,More,\"\",\"\",2.0,3.0,Blocked,,\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n", string

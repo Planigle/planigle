@@ -156,11 +156,11 @@ class Story < ActiveRecord::Base
   end
 
   # Answer my acceptance criteria as a string (criteria separated by \r).
-  def acceptance_criteria(line_end="\r")
+  def acceptance_criteria(line_end="\n")
     result = ''
     criteria.each do |criterium|
       if result != ''; result << line_end; end
-      if criteria.length > 1; result << '-'; end
+      if criteria.length > 1; result << '*'; end
       result << criterium.description
       if (criterium.status_code == Criterium::Done)
         result << " (Done)"
@@ -178,9 +178,9 @@ class Story < ActiveRecord::Base
     criteria.clear
     i = 0
     if new_criteria
-      new_criteria.split("\r").each do |criterium|
+      new_criteria.split("\n").each do |criterium|
         if criterium.strip != ""
-          criterium = criterium.match(/^\-.*$/) ? criterium[1,criterium.length-1] : criterium
+          criterium = criterium.match(/^\*.*$/) ? criterium[1,criterium.length-1] : criterium
           code = status_code == Done ? Criterium::Done : Criterium::Created
           if (match=criterium.match(/^(.*) \(Done\)$/))
             criterium = match[1]
