@@ -142,6 +142,7 @@ class FlexSessionTest < Test::Unit::TestCase
   def test_URL_all
     @ie.goto(ENV['test_host']+"/index.html?project_id=1", "Main") 
     login("aaron", "testit")
+    sleep 1
     assert_equal 4, @ie.data_grid("storyResourceGrid").num_rows
     assert_equal "All Releases", @ie.combo_box("release").text
     assert_equal "All Iterations", @ie.combo_box("iteration").text
@@ -154,6 +155,7 @@ class FlexSessionTest < Test::Unit::TestCase
   def test_URL_selected
     @ie.goto(ENV['test_host']+"/index.html?project_id=1&release_id=1&iteration_id=1&team_id=1&team_id=1&individual_id=2&status_code=1&custom_5=1", "Main") 
     login("aaron", "testit")
+    sleep 1
     assert_equal 1, @ie.data_grid("storyResourceGrid").num_rows
     assert_equal "first", @ie.combo_box("release").text
     assert_equal "first", @ie.combo_box("iteration").text
@@ -167,6 +169,7 @@ class FlexSessionTest < Test::Unit::TestCase
   def test_URL_None
     @ie.goto(ENV['test_host']+"/index.html?project_id=&release_id=&iteration_id=&team_id=&team_id=&individual_id=&status_code=NotDone&custom_5=", "Main") 
     login("aaron", "testit")
+    sleep 1
     assert_equal 2, @ie.data_grid("storyResourceGrid").num_rows
     assert_equal "No Release", @ie.combo_box("release").text
     assert_equal "Backlog", @ie.combo_box("iteration").text
@@ -180,6 +183,7 @@ class FlexSessionTest < Test::Unit::TestCase
   def test_URL_Specific_Story
     @ie.goto(ENV['test_host']+"/index.html?project_id=1&id=1", "Main") 
     login("aaron", "testit")
+    sleep 1
     assert_equal 1, @ie.data_grid("storyResourceGrid").num_rows
     assert_equal 'test', @ie.text_area("storyFieldName").text
   end
@@ -188,6 +192,7 @@ class FlexSessionTest < Test::Unit::TestCase
   def test_URL_Specific_Task
     @ie.goto(ENV['test_host']+"/index.html?project_id=1&tasks.id=1", "Main") 
     login("aaron", "testit")
+    sleep 1
     assert_equal 2, @ie.data_grid("storyResourceGrid").num_rows
     assert_equal 'test_task', @ie.text_area("storyFieldName").text
   end
