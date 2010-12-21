@@ -10,17 +10,27 @@ require 'tasks/rails'
 
 @@Windows = RUBY_PLATFORM.include? "mswin32"
 
+flex_compile = "mxmlc"
 if @@Windows
   require 'win32/sound'
   include Win32
+  flex_compile = flex_compile+".exe"
+end
+
+def normalize_paths(source)
+  if @@Windows
+    source
+  else
+    source.gsub("\\", "/")
+  end
 end
 
 namespace :build do
   desc "Build the Flex components in test mode"
   task(:test) do
-    puts %x[mxmlc.exe -compiler.debug --services=src/services-config.xml -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -link-report=report.xml --include-libraries libs\\FunFXAdapter.swc libs\\automation_agent.swc libs\\automation.swc libs\\automation_agent_rb.swc -output=public\\Main.swf src\\Main.mxml]
-    puts %x[mxmlc.exe -compiler.debug --services=src/services-config.xml -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -load-externs=report.xml -output=public\\modules\\Core.swf src\\modules\\Core.mxml]
-    puts %x[del report.xml]
+    puts %x[#{flex_compile} -compiler.debug --services=src/services-config.xml -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -link-report=report.xml #{normalize_paths(" --include-libraries libs\\FunFXAdapter.swc libs\\automation_agent.swc libs\\automation.swc libs\\automation_agent_rb.swc -output=public\\Main.swf src\\Main.mxml")}]
+    puts %x[#{flex_compile} -compiler.debug --services=src/services-config.xml -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -load-externs=report.xml  #{normalize_paths("-output=public\\modules\\Core.swf src\\modules\\Core.mxml")}]
+    File.delete('report.xml')
     if @@Windows
       Sound.play('tada.wav')
     end
@@ -28,9 +38,9 @@ namespace :build do
 
   desc "Build the Flex components in debug mode"
   task(:debug) do
-    puts %x[mxmlc.exe -compiler.debug --services=src/services-config.xml -compiler.incremental -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -link-report=report.xml -output=public\\Main.swf src\\Main.mxml]
-    puts %x[mxmlc.exe -compiler.debug --services=src/services-config.xml -compiler.incremental -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -load-externs=report.xml -output=public\\modules\\Core.swf src\\modules\\Core.mxml]
-    puts %x[del report.xml]
+    puts %x[#{flex_compile} -compiler.debug --services=src/services-config.xml -compiler.incremental -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -link-report=report.xml #{normalize_paths("-output=public\\Main.swf src\\Main.mxml")}]
+    puts %x[#{flex_compile} -compiler.debug --services=src/services-config.xml -compiler.incremental -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -load-externs=report.xml #{normalize_paths("-output=public\\modules\\Core.swf src\\modules\\Core.mxml")}]
+    File.delete('report.xml')
     if @@Windows
       Sound.play('tada.wav')
     end
@@ -38,9 +48,9 @@ namespace :build do
 
   desc "Build the Flex components in production mode"
   task(:production) do
-    puts %x[mxmlc.exe -show-unused-type-selector-warnings=false --services=src/services-config.xml -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -link-report=report.xml -output=public\\Main.swf src\\Main.mxml]
-    puts %x[mxmlc.exe --services=src/services-config.xml -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -load-externs=report.xml -output=public\\modules\\Core.swf src\\modules\\Core.mxml]
-    puts %x[del report.xml]
+    puts %x[#{flex_compile} -show-unused-type-selector-warnings=false --services=src/services-config.xml -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -link-report=report.xml #{normalize_paths("-output=public\\Main.swf src\\Main.mxml")}]
+    puts %x[#{flex_compile} --services=src/services-config.xml -compiler.source-path=src -compiler.source-path+=public -library-path+=libs -load-externs=report.xml #{normalize_paths("-output=public\\modules\\Core.swf src\\modules\\Core.mxml")}]
+    File.delete('report.xml')
     if @@Windows
       Sound.play('tada.wav')
     end
