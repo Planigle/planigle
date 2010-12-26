@@ -98,6 +98,6 @@ protected
   end
   
   def version
-    "2010.15"
+    "2011.1"
   end
 end

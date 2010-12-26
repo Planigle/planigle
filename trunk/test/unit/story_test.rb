@@ -635,11 +635,11 @@ class StoryTest < ActiveSupport::TestCase
   end
   
   def test_ready_to_accept_message
-    assert_equal "All tasks for 'test' are done.", stories(:first).ready_to_accept_message
+    assert_equal "All tasks for test are done.", stories(:first).ready_to_accept_message
   end
   
   def test_done_message
-    assert_equal "'test' is done.", stories(:first).done_message
+    assert_equal "test is done.", stories(:first).done_message
   end
 
   def test_matching_tasks
