@@ -428,19 +428,19 @@ class Story < ActiveRecord::Base
   
   # Answer a string which describes my blocked state.
   def blocked_message
-    message = "'" + name + "' is blocked" + (reason_blocked && reason_blocked != "" ? " because '" + reason_blocked : "'") + "."
+    message = name + " is blocked" + (reason_blocked && reason_blocked != "" ? " because " + reason_blocked : "") + "."
     tasks.each {|task| if task.is_blocked then message += "  "; message += task.blocked_message end}
     message
   end
   
   # Answer a string which describes my blocked state.
   def ready_to_accept_message
-    "All tasks for '" + name + "' are done."
+    "All tasks for " + name + " are done."
   end
   
   # Answer a string which describes my blocked state.
   def done_message
-    "'" + name + "' is done."
+    name + " is done."
   end
 
   # Override attributes= to handle story values set through custom_<StoryAttribute.id>.

@@ -12,3 +12,6 @@ To upgrade a Planigle installation, do the following:
 
 Occasionally, there will be additional notes for a particular release.  These will appear below.  If you
 are upgrading multiple releases at a time, execute the instructions from oldest to newest.
+
+2011.1:
+gem install fastercsv -v 1.5.3
