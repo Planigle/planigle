@@ -12,15 +12,15 @@ package org.planigle.planigle.model
 		public var story:Story;
 		public var id:int;
 		public var storyId:int;
-		public var name:String;
-		public var description:String;
-		public var reasonBlocked:String;
-		public var individualId:String;
+		public var myName:String;
+		public var myDescription:String;
+		public var myReasonBlocked:String;
+		public var myIndividualId:String;
 		public var updatedAtString:String;
 		protected var myEffort:String;
 		protected var myEstimate:String;
 		protected var myActual:String;
-		public var statusCode:int;
+		public var myStatusCode:int;
 		public var priority:Number;
 		public var projectedIterationId:String = "-1"; // Not used for tasks, but needed for the grid.
 
@@ -222,6 +222,96 @@ package org.planigle.planigle.model
 			params["record[status_code]"] = statusCode;
 			params["record[priority]"] = priority;
 			story.createTask(params, notifySuccess, notifyFailure);
+		}
+		
+		public function get boardLabel():String
+		{
+			if (individualId == null)
+				return name;
+			else {
+				return name + " - " + IndividualFactory.getInstance().find(individualId).initials;
+			}
+		}
+		
+		public function set boardLabel(boardLabel:String):void
+		{
+		}
+		
+		public function get boardDescription():String
+		{
+			var blocked:String = isBlocked ? "Blocked: " + reasonBlocked : "";
+			if (blocked != "" && description != "")
+				blocked += "\n\n";
+			return blocked + description;
+		}
+		
+		public function set boardDescription(boardDescription:String):void
+		{
+		}
+		
+		public function get isBlocked():Boolean
+		{
+			return statusCode == Story.BLOCKED;
+		}
+		
+		public function set isBlocked(isBlocked:Boolean):void
+		{
+			boardDescription = boardDescription; // force update
+		}
+		
+		public function get name():String
+		{
+			return myName;
+		}
+		
+		public function set name(name:String):void
+		{
+			myName = name;
+			boardLabel = boardLabel; // force update
+		}
+		
+		public function get description():String
+		{
+			return myDescription;
+		}
+		
+		public function set description(description:String):void
+		{
+			myDescription = description;
+			boardDescription = boardDescription; // force update
+		}
+		
+		public function get reasonBlocked():String
+		{
+			return myReasonBlocked;
+		}
+		
+		public function set reasonBlocked(reasonBlocked:String):void
+		{
+			myReasonBlocked = reasonBlocked;
+			boardDescription = boardDescription; // force update
+		}
+		
+		public function get individualId():String
+		{
+			return myIndividualId;
+		}
+		
+		public function set individualId(individualId:String):void
+		{
+			myIndividualId = individualId;
+			boardLabel = boardLabel; // force update
+		}
+		
+		public function get statusCode():int
+		{
+			return myStatusCode;
+		}
+		
+		public function set statusCode(statusCode:int):void
+		{
+			myStatusCode = statusCode;
+			isBlocked = isBlocked; // force update
 		}
 	}
 }

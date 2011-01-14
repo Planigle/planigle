@@ -242,6 +242,9 @@ package org.planigle.planigle.model
 				task.story = this;
 
 			myTasks = tasks;
+			notStartedTasks = notStartedTasks; // generate change event
+			inProgressTasks = inProgressTasks; // generate change event
+			doneTasks = doneTasks; // generate change event
 		}
 
 		// Set my tasks.
@@ -531,6 +534,43 @@ package org.planigle.planigle.model
 			params["record[public]"] = isPublic;
 			params["record[relative_priority]"] = relativePriority;
 			StoryFactory.getInstance().createStory(params, notifySuccess, notifyFailure);
+		}
+		
+		public function getTasksForStatus(status:int):ArrayCollection
+		{
+			var tasksToReturn:ArrayCollection = new ArrayCollection();
+			for each (var task:Task in tasks)
+			{
+				if (task.statusCode == status)
+					tasksToReturn.addItem(task);
+			}
+			return tasksToReturn;
+		}
+		
+		public function get notStartedTasks():ArrayCollection
+		{
+			return getTasksForStatus(Story.CREATED);
+		}
+		
+		public function set notStartedTasks(collect:ArrayCollection):void {
+		}
+		
+		public function get inProgressTasks():ArrayCollection
+		{
+			var tasksToReturn:ArrayCollection = getTasksForStatus(Story.IN_PROGRESS);
+			tasksToReturn.addAll(getTasksForStatus(Story.BLOCKED));
+			return tasksToReturn;
+		}
+		
+		public function set inProgressTasks(collect:ArrayCollection):void {
+		}
+		
+		public function get doneTasks():ArrayCollection
+		{
+			return getTasksForStatus(Story.ACCEPTED);
+		}
+		
+		public function set doneTasks(collect:ArrayCollection):void {
 		}
 	}
 }
