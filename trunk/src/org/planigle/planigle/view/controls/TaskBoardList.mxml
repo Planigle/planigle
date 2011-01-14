@@ -12,7 +12,7 @@
 			var newHeight:int = 0;
 			var paddingTop:Number = getStyle("paddingTop");
 			var paddingBottom:Number = getStyle("paddingBottom");
-			for(var i:int=0; i<dataProvider.length;i++)
+			for(var i:int=0; dataProvider != null && i<dataProvider.length;i++)
 			{
 				var item:Object = dataProvider.getItemAt(i);
 				var itemRenderer:IListItemRenderer = itemToItemRenderer(item);
