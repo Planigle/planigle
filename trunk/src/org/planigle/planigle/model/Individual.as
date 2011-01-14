@@ -397,5 +397,15 @@ package org.planigle.planigle.model
 		{
 			return null;
 		}
+		
+		public function get initials():String
+		{
+			var initials:String = "";
+			if (firstName != "")
+				initials += firstName.charAt(0);
+			if (lastName != "")
+				initials += lastName.charAt(0);
+			return initials;
+		}
 	}
 }

@@ -141,6 +141,10 @@
 			[Embed(source="../public/images/globe_link.png")]
 			[Bindable]
 			public var imgURL:Class;
+		
+			[Embed(source="../public/images/window.png")]
+			[Bindable]
+			public var imgWindow:Class;
 
 			// See if a cookie is present which skips login.
 			private function created(event:Event):void
