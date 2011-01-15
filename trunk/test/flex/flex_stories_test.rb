@@ -270,7 +270,7 @@ class FlexStoriesTest < Test::Unit::TestCase
   def test_move_up
     init('admin2')
     @ie.button("storyBtnMoveUp")[2].click
-    assert_equal ",test,first,Test_team,aaron hank,1,0,3,0,In Progress,true,1,2,description,-criteria\r-criteria2 (Done),first,test,testy,5,Value 1,Theme 1,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
+    assert_equal ",test,first,Test_team,aaron hank,1,0,3,0,In Progress,true,1,2,description,*criteria\r*criteria2 (Done),first,test,testy,5,Value 1,Theme 1,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
   end
 
   # Test clicking on the expand all button.
@@ -519,7 +519,7 @@ private
     @ie.button("updateBtnOk").click
     assert_equal '', @ie.text_area("storyError").text
     assert_equal num_rows, @ie.data_grid("storyResourceGrid").num_rows
-    assert_equal ",test,fourth,Test_team,aaron hank,1,0,3,0,Blocked,true,2,2,description,-criteria\r-criteria2 (Done),first,test,testy,5,Value 2,Theme 2,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 1, :end => 1)
+    assert_equal ",test,fourth,Test_team,aaron hank,1,0,3,0,Blocked,true,2,2,description,*criteria\r*criteria2 (Done),first,test,testy,5,Value 2,Theme 2,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 1, :end => 1)
     assert_equal ",test3,fourth,Test_team,aaron hank,1,,,,Blocked,true,1,2,,,first,,,,Value 2,Theme 2,Edit | Delete | Move To Top | Add Task | Split", @ie.data_grid("storyResourceGrid").tabular_data(:start => 0, :end => 0)
   end
 
