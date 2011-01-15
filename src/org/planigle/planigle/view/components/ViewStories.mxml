@@ -675,14 +675,10 @@
 			defaultTaskOwner();
 		}
 
-		// Default the task owner based on the story owner.
+		// Default the task owner to no one.
 		private function defaultTaskOwner():void
 		{
-			var it:String = currentItem.individualId;
-			if (!it)
-				storyFieldOwner.selectedIndex = storyFieldOwner.dataProvider.length - 1;
-			else
-				storyFieldOwner.selectedItem = IndividualFactory.getInstance().find(it);
+			storyFieldOwner.selectedIndex = storyFieldOwner.dataProvider.length - 1;
 		}
 
 		private function getInitialValues(shouldSet:Boolean = false):Object
