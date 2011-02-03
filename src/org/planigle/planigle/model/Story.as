@@ -35,6 +35,9 @@ package org.planigle.planigle.model
 		public var updatedAtString:String;
 		private var myStoryValues:Array = new Array();
 		private var myTasks:Array = new Array();
+		private var myNotStartedTasks:ArrayCollection = new ArrayCollection();
+		private var myInProgressTasks:ArrayCollection = new ArrayCollection();
+		private var myDoneTasks:ArrayCollection = new ArrayCollection();
 		private var myCriteria:Array = new Array();
 		public static const CREATED:int = 0;
 		public static const IN_PROGRESS:int = 1;
@@ -242,9 +245,9 @@ package org.planigle.planigle.model
 				task.story = this;
 
 			myTasks = tasks;
-			notStartedTasks = notStartedTasks; // generate change event
-			inProgressTasks = inProgressTasks; // generate change event
-			doneTasks = doneTasks; // generate change event
+			notStartedTasks = findNotStartedTasks(); // generate change event
+			inProgressTasks = findInProgressTasks(); // generate change event
+			doneTasks = findDoneTasks(); // generate change event
 		}
 
 		// Set my tasks.
@@ -547,30 +550,48 @@ package org.planigle.planigle.model
 			return tasksToReturn;
 		}
 		
-		public function get notStartedTasks():ArrayCollection
+		public function findNotStartedTasks():ArrayCollection
 		{
 			return getTasksForStatus(Story.CREATED);
 		}
 		
-		public function set notStartedTasks(collect:ArrayCollection):void {
+		public function get notStartedTasks():ArrayCollection
+		{
+			return myNotStartedTasks;
 		}
 		
-		public function get inProgressTasks():ArrayCollection
+		public function set notStartedTasks(collect:ArrayCollection):void {
+			myNotStartedTasks = collect;
+		}
+		
+		public function findInProgressTasks():ArrayCollection
 		{
 			var tasksToReturn:ArrayCollection = getTasksForStatus(Story.IN_PROGRESS);
 			tasksToReturn.addAll(getTasksForStatus(Story.BLOCKED));
 			return tasksToReturn;
 		}
 		
-		public function set inProgressTasks(collect:ArrayCollection):void {
+		public function get inProgressTasks():ArrayCollection
+		{
+			return myInProgressTasks;
 		}
 		
-		public function get doneTasks():ArrayCollection
+		public function set inProgressTasks(collect:ArrayCollection):void {
+			myInProgressTasks = collect;
+		}
+
+		public function findDoneTasks():ArrayCollection
 		{
 			return getTasksForStatus(Story.ACCEPTED);
 		}
 		
+		public function get doneTasks():ArrayCollection
+		{
+			return myDoneTasks;
+		}
+		
 		public function set doneTasks(collect:ArrayCollection):void {
+			myDoneTasks = collect;
 		}
 	}
 }
