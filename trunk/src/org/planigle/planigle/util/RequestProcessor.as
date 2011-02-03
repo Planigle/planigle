@@ -34,7 +34,7 @@ package org.planigle.planigle.util
 				var andPos:int = queryString.indexOf("&",pos) == -1 ? queryString.length : queryString.indexOf("&",pos);
 				var endParam:int = eqPos < andPos ? eqPos : andPos;
 				var paramName:String = queryString.substring(pos,endParam);
-				if (paramName != "debug") // don't include this parameter
+				if (paramName != "debug" && paramName != "signup") // don't include these parameters
 					params[paramName] = eqPos < andPos ? queryString.substring(endParam + 1,andPos) : "";
 				pos = andPos+1;
 			}
