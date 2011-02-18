@@ -23,6 +23,15 @@ class Project < ActiveRecord::Base
 
   before_create :initialize_defaults
   before_save :update_notifications
+  
+
+  def hide_attributes
+    @hide_attributes
+  end
+
+  def hide_attributes= hide_attributes
+    @hide_attributes = hide_attributes
+  end
 
   # Notify of any interesting activity.
   def self.send_notifications
@@ -130,9 +139,25 @@ class Project < ActiveRecord::Base
   # Override to_xml to include teams.
   def to_xml(options = {})
     if !options[:include]
-      options[:include] = [:story_attributes, :teams]
+      options[:include] = [:teams]
+    end
+    if !options[:procs]
+      proc = Proc.new {|opt| filtered_attributes_as_xml(opt[:builder])}
+      options[:procs] = [proc]
     end
     super(options)
+  end
+  
+  def filtered_attributes
+    hide_attributes ? [] : story_attributes
+  end
+  
+  def filtered_attributes_as_xml(builder)
+    builder.method_missing("filtered-attributes".to_sym) do
+      filtered_attributes.each do |task|
+        task.to_xml({:builder => builder, :skip_instruct => true, :root => :filtered_attribute})
+      end
+    end
   end
 
   ModeMapping = [ 'Private', 'Private by default', 'Public by default' ]
