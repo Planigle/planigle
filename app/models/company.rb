@@ -33,7 +33,16 @@ class Company < ActiveRecord::Base
     end
     
     # Ensure we load the settings for the current user
-    all.each {|company| company.projects.each {|project| project.story_attributes.each{|story_attribute| story_attribute.show_for(current_user)}}}
+    all.each do |company|
+      company.projects.each do |project|
+        if project == current_user.project
+          project.story_attributes.each{|story_attribute| story_attribute.show_for(current_user)}
+          project.hide_attributes = false
+        else
+          project.hide_attributes = true
+        end
+      end
+    end
     
     all
   end

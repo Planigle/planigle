@@ -96,8 +96,8 @@ module RubyAMF
       :ruby => 'Project',
       :type => 'active_record',
       :attributes => ["id", "company_id", "name", "description", "survey_key", "survey_mode", "premium_expiry", "premium_limit", "track_actuals"],
-      :methods => ['updated_at_string'],
-      :associations => ["teams", "story_attributes"])
+      :methods => ["filtered_attributes", "updated_at_string"],
+      :associations => ["teams"])
 
     ClassMappings.register(
       :actionscript => 'Team',

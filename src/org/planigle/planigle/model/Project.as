@@ -60,10 +60,10 @@ package org.planigle.planigle.model
 			updatedAtString = xml.child("updated-at");
 
 			var newStoryAttributes:ArrayCollection = new ArrayCollection();
-			for (var i:int = 0; i < xml.child("story-attributes").child("story-attribute").length(); i++)
+			for (var i:int = 0; i < xml.child("filtered-attributes").child("filtered-attribute").length(); i++)
 			{
 				var storyAttribute:StoryAttribute = new StoryAttribute();
-				storyAttribute.populate(XML(xml.child("story-attributes").child("story-attribute")[i]));
+				storyAttribute.populate(XML(xml.child("filtered-attributes").child("filtered-attribute")[i]));
 				newStoryAttributes.addItem(storyAttribute);
 			}
 			storyAttributes = newStoryAttributes.source;
@@ -76,6 +76,12 @@ package org.planigle.planigle.model
 				newTeams.addItem(team);
 			}
 			teams = newTeams.source;
+		}
+
+		// Set my attributes.
+		public function set filteredAttributes(storyAttributes:Array):void
+		{
+			this.storyAttributes = storyAttributes;
 		}
 
 		// Answer my story attributes.
