@@ -29,8 +29,8 @@ class ProjectsXmlTest < ActionController::IntegrationTest
     assert_response :success
     assert_select resource_string
     assert_select 'project' do
-      assert_select 'story-attributes' do
-        assert_select 'story-attribute'
+      assert_select 'filtered-attributes' do
+        assert_select 'filtered-attribute'
       end
       assert_select 'teams' do
         assert_select 'team'
@@ -45,8 +45,8 @@ class ProjectsXmlTest < ActionController::IntegrationTest
     assert_response :success
     assert_select resource_string
     assert_select 'project' do
-      assert_select 'story-attributes' do
-        assert_select 'story-attribute'
+      assert_select 'filtered-attributes' do
+        assert_select 'filtered-attribute'
       end
       assert_select 'teams' do
         assert_select 'team'

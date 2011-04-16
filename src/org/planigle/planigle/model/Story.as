@@ -16,6 +16,8 @@ package org.planigle.planigle.model
 		public static var conditions:Object = initialConditions();
 		public var id:int;
 		public var projectId:int;
+		public var storyId:String;
+		public var epicName:String;
 		public var teamId:String;
 		public var name:String;
 		public var description:String;
@@ -90,6 +92,8 @@ package org.planigle.planigle.model
 			name = xml.name;
 			description = xml.description;
 			acceptanceCriteria = xml.child("acceptance-criteria");
+			storyId = xml.child("story-id").toString() == "" ? null : xml.child("story-id");
+			epicName = xml.child("epic-name").toString() == "" ? null : xml.child("epic-name");
 			releaseId = xml.child("release-id").toString() == "" ? null : xml.child("release-id");
 			iterationId = xml.child("iteration-id").toString() == "" ? null : xml.child("iteration-id");
 			individualId = xml.child("individual-id").toString() == "" ? null : xml.child("individual-id");
@@ -213,6 +217,41 @@ package org.planigle.planigle.model
 		public function get project():Project
 		{
 			return IndividualFactory.current().selectedProject;
+		}
+		
+		public function get epicId():String
+		{
+			return storyId;
+		}
+		
+		public function set epicId(epicId:String):void
+		{
+			storyId = epicId;
+		}
+
+		// Answer my epic.
+		public function get epic():Story
+		{
+			return StoryFactory.getInstance().find(int(storyId));
+		}
+
+		public function epicSelector():ArrayCollection
+		{
+			var allEpics:ArrayCollection = StoryFactory.getInstance().epicSelector();
+			var newEpicSelector:ArrayCollection = new ArrayCollection();
+			if (storyId != null && !allEpics.contains(epic))
+			{
+				var myEpic:Story = new Story();
+				myEpic.id = int(storyId);
+				myEpic.name = epicName;
+				newEpicSelector.addItem( myEpic );
+			}
+			for each(var story:Story in allEpics)
+			{
+				if (story != this)
+					newEpicSelector.addItem(story);
+			}
+			return newEpicSelector;
 		}
 
 		// Answer my team.
@@ -592,6 +631,10 @@ package org.planigle.planigle.model
 		
 		public function set doneTasks(collect:ArrayCollection):void {
 			myDoneTasks = collect;
+		}
+		
+		public function canBeEpic():Boolean {
+			return tasks.length == 0;
 		}
 	}
 }

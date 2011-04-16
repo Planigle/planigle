@@ -187,7 +187,8 @@ protected
   # Update the record given the params.
   def update_record
     if is_amf
-      @record.team_id = params[0].projectteam_id
+      @record.story_id = params[0].story_id
+      @record.team_id = params[0].team_id
       @record.name = params[0].name
       @record.description = params[0].description
       @record.reason_blocked = params[0].reason_blocked

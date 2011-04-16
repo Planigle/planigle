@@ -8,12 +8,14 @@ class Story < ActiveRecord::Base
   belongs_to :release
   belongs_to :iteration
   belongs_to :individual
+  belongs_to :epic, :class_name=> "Story", :foreign_key => :story_id
+  has_many :stories, :class_name=> "Story", :foreign_key => :story_id, :dependent => :nullify
   has_many :story_values, :dependent => :destroy
   has_many :criteria, :dependent => :destroy, :order => 'criteria.priority'
   has_many :tasks, :dependent => :destroy, :order => 'tasks.priority', :conditions => "tasks.deleted_at IS NULL"
   has_many :all_tasks, :class_name => "Task"
   has_many :survey_mappings, :dependent => :destroy
-  attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :release_id, :iteration_id, :individual_id, :project_id, :is_public, :priority, :user_priority, :team_id, :reason_blocked
+  attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :release_id, :iteration_id, :individual_id, :project_id, :is_public, :priority, :user_priority, :team_id, :reason_blocked, :story_id
   acts_as_audited :except => [:user_priority]
   
   validates_presence_of     :project_id, :name
@@ -247,7 +249,7 @@ class Story < ActiveRecord::Base
       options[:include] = [:story_values, :criteria]
     end
     if !options[:methods]
-      options[:methods] = [:acceptance_criteria]
+      options[:methods] = [:acceptance_criteria, :epic_name]
     end
     if !options[:procs]
       proc = Proc.new {|opt| filtered_tasks_as_xml(opt[:builder])}
@@ -525,6 +527,10 @@ class Story < ActiveRecord::Base
   def invalid_id()
     errors.add(:id, 'is invalid')
   end
+  
+  def epic_name
+    epic ? epic.name : nil;
+  end
     
 protected
 
@@ -532,6 +538,12 @@ protected
   def validate()
     if status_code < 0 || status_code >= StatusMapping.length
       errors.add(:status_code, 'is invalid')
+    end
+    
+    if story_id && !Story.find_by_id(story_id)
+      errors.add(:epic, 'is invalid')
+    elsif epic && project_id != epic.project_id
+      errors.add(:epic, 'is not from a valid project')
     end
     
     if release_id && !Release.find_by_id(release_id)

@@ -117,8 +117,8 @@ module RubyAMF
       :actionscript => 'Story',
       :ruby => 'Story',
       :type => 'active_record',
-      :attributes => ["id", "project_id", "name", "description", "release_id", "iteration_id", "individual_id", "effort", "status_code", "priority", "user_priority", "is_public", "team_id", "reason_blocked"],
-      :methods => ["acceptance_criteria", "updated_at_string", "filtered_tasks"],
+      :attributes => ["id", "project_id", "story_id", "name", "description", "release_id", "iteration_id", "individual_id", "effort", "status_code", "priority", "user_priority", "is_public", "team_id", "reason_blocked"],
+      :methods => ["acceptance_criteria", "updated_at_string", "filtered_tasks", "epic_name"],
       :associations => ["story_values", "criteria"])
 
     ClassMappings.register(
