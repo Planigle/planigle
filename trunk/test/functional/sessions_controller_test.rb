@@ -43,7 +43,7 @@ class SessionsControllerTest < ActionController::TestCase
     assert_select 'system', 1
     assert_select 'release', Release.find_all_by_project_id(1).length
     assert_select 'iteration', Iteration.find_all_by_project_id(1).length
-    assert_select 'story', 3
+    assert_select 'story', 4
     assert_select 'company', Company.count
     assert_select 'project', Project.count
     assert_select 'individual', 11

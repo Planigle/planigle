@@ -596,6 +596,8 @@
 			storyFormProject.height = storyFormProject.visible ? NaN : -5;
 			storyFormRelease.height = ReleaseFactory.getInstance().releaseSelector.length > 1 ? NaN : -5;
 			storyFormRelease.visible = ReleaseFactory.getInstance().releaseSelector.length > 1;
+			storyFormEpic.height = NaN;
+			storyFormEpic.visible = true;
 			storyFormIteration.height = NaN;
 			storyFormIteration.visible = true;
 			storyFormTeam.height = factory.currentIndividual.selectedProject.teamSelector.length > 1 ? NaN : -5;
@@ -626,6 +628,8 @@
 			storyFormProject.height = -5;
 			storyFormRelease.height = -5;
 			storyFormRelease.visible = false;
+			storyFormEpic.height = -5;
+			storyFormEpic.visible = false;
 			storyFormIteration.height = -5;
 			storyFormIteration.visible = false;
 			storyFormTeam.height = -5;
@@ -695,6 +699,11 @@
 				values["project"] = IndividualFactory.current().selectedProject;
 				
 				if (shouldSet)
+					storyFieldEpic.dataProvider = StoryFactory.getInstance().epicSelector();
+
+				values["epic"] = storyFieldEpic.dataProvider.getItemAt(storyFieldEpic.dataProvider.length - 1);
+				
+				if (shouldSet)
 					storyFieldIteration.dataProvider = IterationFactory.getInstance().iterationsInRelease(Release(release.selectedItem));
 
 				if (iteration.selectedItem.id != "-1")
@@ -755,6 +764,7 @@
 				storyFormProject.height = -5;
 				storyFieldAcceptanceCriteria.clear();
 				storyFieldProject.selectedItem = values["project"];
+				storyFieldEpic.selectedItem = values["epic"];
 				storyFieldIteration.selectedItem = values["iteration"];
 				storyFieldRelease.selectedItem = values["release"];
 				storyFieldTeam.selectedItem = values["team"];
@@ -814,11 +824,22 @@
 						storyFieldProject.selectedItem = IndividualFactory.current().selectedProject;
 						var iteration:Iteration = IterationFactory.getInstance().find(currentItem.iterationId);
 						prepareForStory();
+
+						storyFieldEpic.dataProvider = currentItem.epicSelector();
+						var epicId:String = currentItem.epicId;
+						storyFieldEpic.selectedIndex = storyFieldEpic.dataProvider.length - 1;
+						for each(var story:Story in storyFieldEpic.dataProvider)
+						{
+							if (String(story.id) == epicId)
+								storyFieldEpic.selectedItem = story;
+						}
+							
 						if (IterationFactory.getInstance().iterationsInRelease(Release(release.selectedItem)).contains(iteration))
 							storyFieldIteration.dataProvider = IterationFactory.getInstance().iterationsInRelease(Release(release.selectedItem));
 						else
 							storyFieldIteration.dataProvider = IterationFactory.getInstance().iterationSelector;
 						storyFieldIteration.selectedItem = iteration;
+
 						if (iteration.releases().contains(ReleaseFactory.getInstance().find(currentItem.releaseId)))
 							storyFieldRelease.dataProvider = iteration.releases();
 						else
@@ -999,6 +1020,7 @@
 			if (isStory)
 			{
 				params['record[project_id]'] = storyFieldProject.selectedItem.id;
+				params['record[story_id]'] = storyFieldEpic.selectedItem.id != 0 ? storyFieldEpic.selectedItem.id : "";
 				params['record[release_id]'] = storyFieldRelease.selectedItem.id != null ? storyFieldRelease.selectedItem.id : "";
 				params['record[iteration_id]'] = storyFieldIteration.selectedItem.id != null ? storyFieldIteration.selectedItem.id : "";
 				params['record[acceptance_criteria]'] = storyFieldAcceptanceCriteria.acceptanceCriteria;
@@ -1036,6 +1058,7 @@
 				
 				if (!currentItem) {
 					if (storyFieldProject.selectedItem != values["project"]) return true;
+					if (storyFieldEpic.selectedItem != values["epic"]) return true;
 					if (storyFieldRelease.selectedItem != values["release"]) return true;
 					if (storyFieldIteration.selectedItem != values["iteration"]) return true;
 					if (storyFieldAcceptanceCriteria.acceptanceCriteria != "") return true;
@@ -1063,6 +1086,7 @@
 				
 				if (currentItem.isStory()) {
 					if (storyFieldProject.selectedItem.id != currentItem.projectId) return true;
+					if (storyFieldEpic.selectedItem.id != currentItem.epicId) return true;
 					if (storyFieldRelease.selectedItem.id != currentItem.releaseId) return true;
 					if (storyFieldIteration.selectedItem.id != currentItem.iterationId) return true;
 					if (storyFieldAcceptanceCriteria.acceptanceCriteria != currentItem.acceptanceCriteria) return true;
@@ -1489,6 +1513,7 @@
 		// Update the project related fields.
 		public function updateProjectField():void
 		{
+			storyFieldEpic.selectedIndex = storyFieldEpic.dataProvider.length - 1;
 			storyFieldIteration.selectedIndex = storyFieldIteration.dataProvider.length - 1;
 			storyFieldRelease.selectedIndex = storyFieldRelease.dataProvider.length - 1;
 			updateRelease();
@@ -1932,6 +1957,9 @@
 										</mx:FormItem>
 										<mx:FormItem label="Project" id="storyFormProject">
 											<local:FixedComboBox id='storyFieldProject' editable="false" labelField="name" change="updateProjectField()"></local:FixedComboBox>
+										</mx:FormItem>
+										<mx:FormItem label="Epic" id="storyFormEpic">
+											<local:FixedComboBox id='storyFieldEpic' editable="false" labelField="name"></local:FixedComboBox>
 										</mx:FormItem>
 										<mx:FormItem label="Iteration" id="storyFormIteration">
 											<local:FixedComboBox id='storyFieldIteration' editable="false" labelField="name" change="updateIteration()"></local:FixedComboBox>

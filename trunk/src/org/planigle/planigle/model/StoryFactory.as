@@ -32,6 +32,20 @@ package org.planigle.planigle.model
 			timeUpdated = null;
 		}
 
+		public function epicSelector():ArrayCollection
+		{
+			var newEpicSelector:ArrayCollection = new ArrayCollection();
+			for each(var story:Story in stories)
+			{
+				if (story.canBeEpic())
+					newEpicSelector.addItem(story);
+			}
+			var noEpic:Story = new Story();
+			noEpic.populate( <story><id nil="true" /><name>No Epic</name></story> );
+			newEpicSelector.addItem( noEpic );
+			return newEpicSelector;
+		}
+
 		// Populate the stories.
 		public function populate(timeUpdated:String, someStories:Array):void
 		{

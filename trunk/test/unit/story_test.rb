@@ -247,7 +247,7 @@ class StoryTest < ActiveSupport::TestCase
 
   # Test that added stories are put at the end of the list.
   def test_priority_on_add
-    assert_equal [3, 2, 1, 4] << create_story.id, Story.find(:all, :conditions => 'project_id = 1', :order=>'priority').collect {|story| story.id}    
+    assert_equal [3, 2, 1, 4, 6] << create_story.id, Story.find(:all, :conditions => 'project_id = 1', :order=>'priority').collect {|story| story.id}    
   end
   
   # Test deleting an story (should delete tasks).
@@ -308,17 +308,17 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal 1, Story.get_records(individuals(:aaron), {:individual_id => individuals(:aaron).id}).length
     Task.create(:story_id => 3, :name => 'assigned', :individual_id => individuals(:aaron).id)
     assert_equal 2, Story.get_records(individuals(:aaron), {:individual_id => individuals(:aaron).id}).length
-    assert_equal 3, Story.get_records(individuals(:aaron), {:individual_id => nil}).length
+    assert_equal 4, Story.get_records(individuals(:aaron), {:individual_id => nil}).length
   end
 
   # Test finding based on custom list attributes.
   def test_find_custom_list
     assert_equal 1, Story.get_records(individuals(:aaron), {:custom_5 => 1}).length
     assert_equal 0, Story.get_records(individuals(:aaron), {:custom_5 => 2}).length
-    assert_equal 3, Story.get_records(individuals(:aaron), {:custom_5 => nil}).length
+    assert_equal 4, Story.get_records(individuals(:aaron), {:custom_5 => nil}).length
     assert_equal 1, Story.get_records(individuals(:aaron), {:custom_6 => 4}).length
     assert_equal 0, Story.get_records(individuals(:aaron), {:custom_6 => 5}).length
-    assert_equal 3, Story.get_records(individuals(:aaron), {:custom_6 => nil}).length
+    assert_equal 4, Story.get_records(individuals(:aaron), {:custom_6 => nil}).length
     assert_equal 1, Story.get_records(individuals(:aaron), {:custom_5 => 1, :custom_6 => 4}).length
     assert_equal 0, Story.get_records(individuals(:aaron), {:custom_5 => 1, :custom_6 => 5}).length
   end
@@ -364,7 +364,7 @@ class StoryTest < ActiveSupport::TestCase
   # Validate export.
   def test_export
     string = Story.export(individuals(:aaron))
-    assert_equal "PID,Name,Description,Acceptance Criteria,Size,Estimate,To Do,Actual,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Test_List,Test_Number,Test_Release,Test_String,Test_Text\nS3,test3,\"\",\"\",1.0,,,,In Progress,\"\",\"\",\"\",\"\",\"\",false,2.0,\"\",\"\",\"\",\"\"\,\"\"\nS2,test2,\"\",\"\",1.0,,,,Done,\"\",first,first,\"\",\"\",true,1.0,\"\",\"\",\"\",\"\",\"\"\nS1,test,description,\"*criteria\n*criteria2 (Done)\",1.0,3.0,5.0,1.0,In Progress,\"\",first,first,Test_team,aaron hank,true,2.0,Value 1,5,Theme 1,test,testy\nT1,test_task,,\"\",\"\",,3.0,,In Progress,,\"\",\"\",\"\",aaron hank,\"\",\"\",\"\",\"\",\"\",\"\",\"\"\nT2,test2_task,,\"\",\"\",3.0,2.0,1.0,Done,,\"\",\"\",\"\",aaron hank,\"\",\"\",\"\",\"\",\"\",\"\",\"\"\nS4,test4,\"\",\"\",1.0,,,,In Progress,\"\",\"\",\"\",\"\",\"\",true,,\"\",\"\",\"\",\"\",\"\"\n", string
+    assert_equal "PID,Name,Description,Acceptance Criteria,Size,Estimate,To Do,Actual,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Test_List,Test_Number,Test_Release,Test_String,Test_Text\nS3,test3,\"\",\"\",1.0,,,,In Progress,\"\",\"\",\"\",\"\",\"\",false,2.0,\"\",\"\",\"\",\"\"\,\"\"\nS2,test2,\"\",\"\",1.0,,,,Done,\"\",first,first,\"\",\"\",true,1.0,\"\",\"\",\"\",\"\",\"\"\nS1,test,description,\"*criteria\n*criteria2 (Done)\",1.0,3.0,5.0,1.0,In Progress,\"\",first,first,Test_team,aaron hank,true,2.0,Value 1,5,Theme 1,test,testy\nT1,test_task,,\"\",\"\",,3.0,,In Progress,,\"\",\"\",\"\",aaron hank,\"\",\"\",\"\",\"\",\"\",\"\",\"\"\nT2,test2_task,,\"\",\"\",3.0,2.0,1.0,Done,,\"\",\"\",\"\",aaron hank,\"\",\"\",\"\",\"\",\"\",\"\",\"\"\nS4,test4,\"\",\"\",1.0,,,,In Progress,\"\",\"\",\"\",\"\",\"\",true,,\"\",\"\",\"\",\"\",\"\"\nS6,Epic,\"\",\"\",,,,,In Progress,,\"\",\"\",\"\",\"\",,,\"\",\"\",\"\",\"\",\"\"\n", string
 
     string = Story.export(individuals(:project_admin2))
     assert_equal "PID,Name,Description,Acceptance Criteria,Size,Estimate,To Do,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Test_String2\nS5,test5,\"\",\"\",2.0,2.0,3.0,Blocked,\"\",\"\",\"\",\"\",\"\",true,,testit\nT3,test3,More,\"\",\"\",2.0,3.0,Blocked,,\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n", string
@@ -652,6 +652,22 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal 0, story.filtered_tasks.length
     story.current_conditions = {:individual_id => nil, :status_code => 'NotDone'}
     assert_equal 0, story.filtered_tasks.length
+  end
+  
+  def test_epics
+    assert_equal 1, stories(:epic).stories.length
+    assert_equal stories(:epic), stories(:first).epic
+    assert_equal stories(:first), stories(:epic).stories[0]
+  end
+  
+  def test_validate_epic
+    story = stories(:first)
+    story.story_id = -1
+    story.save
+    assert_equal 1, story.errors.length # invalid story id
+    story.story_id = 5
+    story.save
+    assert_equal 1, story.errors.length # invalid project
   end
 
 private

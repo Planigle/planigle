@@ -1,5 +1,6 @@
 first:
   id: 1
+  story_id: 6
   project_id: 1
   team_id: 1
   release_id: 1
@@ -61,3 +62,11 @@ fifth:
   priority: 1
   is_public: true
   reason_blocked: ''
+  
+epic:
+  id: 6
+  project_id: 1
+  name: 'Epic'
+  description: ''
+  status_code: 1
+  priority: 10

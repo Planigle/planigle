@@ -423,7 +423,7 @@ class StoriesControllerTest < ActionController::TestCase
   # Update successfully based on role.
   def update_by_role_successful( user, params = (update_success_parameters[resource_symbol]) )
     login_as(user)
-    put :update, :id => 1, resource_symbol => params, :format => 'xml'
+    put :update, :id => 2, resource_symbol => params, :format => 'xml'
     assert_response :success
     assert_update_succeeded
   end

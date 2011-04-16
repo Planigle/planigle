@@ -1,5 +1,5 @@
-delete from tasks using tasks, stories, projects where story_id=stories.id and project_id=projects.id and company_id = -10;
-delete from criteria using criteria, stories, projects where story_id=stories.id and project_id=projects.id and company_id = -10;
+delete from tasks using tasks, stories, projects where tasks.story_id=stories.id and project_id=projects.id and company_id = -10;
+delete from criteria using criteria, stories, projects where criteria.story_id=stories.id and project_id=projects.id and company_id = -10;
 delete from stories using stories, projects where project_id=projects.id and company_id = -10;
 delete from individuals_projects using individuals_projects, projects where project_id = projects.id and company_id = -10;
 delete from individuals where company_id = -10;
