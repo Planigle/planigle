@@ -23,6 +23,7 @@
 			import org.planigle.planigle.model.IterationFactory;
 			import org.planigle.planigle.model.StoryFactory;
 			import org.planigle.planigle.model.Story;
+			import org.planigle.planigle.model.CompanyFactory;
 			import org.planigle.planigle.model.IndividualFactory;
 			import org.planigle.planigle.model.Individual;
 			import org.planigle.planigle.model.TabModelLocator;
@@ -193,6 +194,7 @@
 			{
 				if (force)
 				{	
+					CompanyFactory.getInstance().timeUpdated = null;
 					ReleaseFactory.getInstance().timeUpdated = null;
 					IterationFactory.getInstance().timeUpdated = null;
 					StoryFactory.getInstance().timeUpdated = null;
