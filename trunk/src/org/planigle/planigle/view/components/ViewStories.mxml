@@ -2178,6 +2178,13 @@
 						</mx:itemRenderer>
 					</mx:DataGridColumn>
 					<mx:DataGridColumn headerText="Id" dataField="fullId" sortCompareFunction="ViewHelper.sortId"/>
+					<mx:DataGridColumn headerText="Epic" wordWrap="true" dataField="epicName">
+						<mx:itemRenderer> 
+							<mx:Component>
+								<mx:Text text="{data.epicName}" selectable="false"/>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
 					<mx:DataGridColumn headerText="Name" wordWrap="true" dataField="name">
 						<mx:itemRenderer> 
 							<mx:Component>
