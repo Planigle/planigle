@@ -178,7 +178,6 @@
 				updatePremium();
 				updateTeamField();
 				updateAttributes(null, initial);
-				setColumns();
 				resetState();
 			}
 			else
