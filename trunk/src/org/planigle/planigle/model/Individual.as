@@ -279,6 +279,7 @@ package org.planigle.planigle.model
 		// I have been successfully updated.  Change myself to reflect the changes.
 		public function updateCompleted(xml:XML):void
 		{
+			mySelectedProjectId = xml.child("selected-project-id").toString() == "" ? null : xml.child("selected-project-id");
 			if (selectedProject.storyAttributes.length == 0)
 				return; // When changing projects, we want to ignore this change and let the refresh update
 
