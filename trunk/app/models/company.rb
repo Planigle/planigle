@@ -62,7 +62,7 @@ class Company < ActiveRecord::Base
     if !user || user.role == Individual::Admin || user.is_premium
       projects
     else
-      [user.project]
+      projects.select{|project| project == user.project}
     end
   end
 
