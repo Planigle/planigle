@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class SurveyTest < ActiveSupport::TestCase
+  fixtures :companies
   fixtures :projects
   fixtures :stories
   fixtures :surveys
@@ -14,9 +15,9 @@ class SurveyTest < ActiveSupport::TestCase
 
   # Test that a survey can be created with notification.
   def test_create_survey_premium
-    project = projects(:first)
-    project.premium_expiry = Date.today + 1
-    project.save(false)
+    company = companies(:first)
+    company.premium_expiry = Date.today + 1
+    company.save(false)
     notifications = ActionMailer::Base.deliveries.length
     assert_difference 'Survey.count' do
       survey = create_survey
@@ -28,9 +29,9 @@ class SurveyTest < ActiveSupport::TestCase
 
   # Test that a survey can be created, but no notification.
   def test_create_survey_community
-    project = projects(:first)
-    project.premium_expiry = Date.today - 1
-    project.save(false)
+    company = companies(:first)
+    company.premium_expiry = Date.today - 1
+    company.save(false)
     notifications = ActionMailer::Base.deliveries.length
     assert_difference 'Survey.count' do
       survey = create_survey

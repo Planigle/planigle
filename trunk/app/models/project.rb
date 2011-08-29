@@ -11,7 +11,7 @@ class Project < ActiveRecord::Base
   has_many :stories, :dependent => :destroy, :conditions => "stories.deleted_at IS NULL"
   has_many :story_attributes, :dependent => :destroy
   has_many :surveys, :dependent => :destroy
-  attr_accessible :company_id, :name, :description, :survey_mode, :premium_limit, :premium_expiry, :track_actuals, :last_notified_of_inactivity, :last_notified_of_expiration
+  attr_accessible :company_id, :name, :description, :survey_mode, :track_actuals, :last_notified_of_inactivity
   acts_as_audited :except => [:survey_key]
 
   validates_presence_of     :name, :company_id
@@ -19,11 +19,8 @@ class Project < ActiveRecord::Base
   validates_length_of       :description,            :maximum => 4096, :allow_nil => true
   validates_numericality_of :survey_mode
   validates_uniqueness_of   :survey_key
-  validates_numericality_of :premium_limit, :only_integer => true, :allow_nil => false, :greater_than => 0
 
   before_create :initialize_defaults
-  before_save :update_notifications
-  
 
   def hide_attributes
     @hide_attributes
@@ -37,14 +34,6 @@ class Project < ActiveRecord::Base
   def self.send_notifications
     find(:all).each do |project|
       project.notify_of_inactivity
-      project.notify_of_expiration
-    end
-  end
-  
-  # Update my notification fields based on changes.
-  def update_notifications
-    if changed_attributes['premium_expiry']
-      self.last_notified_of_expiration = nil
     end
   end
   
@@ -87,32 +76,11 @@ class Project < ActiveRecord::Base
   def admin_email_addresses
     individuals.select{|individ| individ.role == Individual::ProjectAdmin}.collect{|individ|individ.email}
   end
-  
-  # Notify if my premium status is about to expire
-  def notify_of_expiration
-    if is_about_to_expire
-      ExpirationMailer.deliver_notification(self)
-      self.last_notified_of_expiration = DateTime.now
-      save(false)
-    end
-  end
-  
-  # Answer whether my premium subscription is about to expire.
-  def is_about_to_expire
-    time_until_expiration = self.premium_expiry - Date.today
-    config_option(:notify_when_expiring_in) && !self.last_notified_of_expiration && time_until_expiration >= 0 && time_until_expiration <= config_option(:notify_when_expiring_in)
-  end
 
-  # Ensure that survey mode, premium expiry and premium limit are initialized.
+  # Ensure that survey mode and track actuals are initialized.
   def initialize(attributes={})
     if (self.class.column_names.include?('survey_mode') && !attributes.include?(:survey_mode))
       attributes[:survey_mode] = Private
-    end
-    if (self.class.column_names.include?('premium_expiry') && !attributes.include?(:premium_expiry))
-      attributes[:premium_expiry] = Date.today + 30
-    end
-    if (self.class.column_names.include?('premium_limit') && !attributes.include?(:premium_limit))
-      attributes[:premium_limit] = 1000
     end
     if (self.class.column_names.include?('track_actuals') && !attributes.include?(:track_actuals))
       attributes[:track_actuals] = false
@@ -124,16 +92,6 @@ class Project < ActiveRecord::Base
   def initialize_defaults
     self.survey_key = Digest::SHA1.hexdigest( Time.now.to_s.split(//).sort_by {rand}.join )
     add_default_attributes
-  end
-  
-  # Answer whether I am enabled for premium services.
-  def is_premium
-    premium_expiry && premium_expiry > Date.today
-  end
-  
-  # Answer whether I can add new users.
-  def can_add_users
-    !is_premium || individuals.count(:conditions => ['enabled = true and role < 3']) < premium_limit
   end
   
   # Override to_xml to include teams.

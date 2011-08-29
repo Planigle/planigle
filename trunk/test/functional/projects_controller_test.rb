@@ -218,56 +218,6 @@ class ProjectsControllerTest < Test::Unit::TestCase
     assert_change_failed
     assert_select "errors"
   end
-    
-  # Test updating project by role.
-  def test_update_premium_by_admin
-    update_premium_by_role_successful( individuals(:quentin) )
-  end
-    
-  # Test updating project by role.
-  def test_update_premium_by_project_admin
-    update_premium_by_role_unsuccessful( individuals(:aaron) )
-  end
-    
-  # Test updating project by role.
-  def test_update_premium_by_project_user
-    update_premium_by_role_unsuccessful( individuals(:user) )
-  end
-    
-  # Test updating project by role.
-  def test_update_premium_by_readonly_user
-    update_premium_by_role_unsuccessful( individuals(:readonly) )
-  end
-
-  # Update premium successfully based on role.
-  def update_premium_by_role_successful( user )
-    login_as(user)
-    new_expire = Date.tomorrow
-    put :update, :id => 1, resource_symbol => {:premium_expiry => new_expire}, :format => 'xml'
-    assert_response :success
-    assert_equal new_expire, projects(:first).reload.premium_expiry
-
-    put :update, :id => 1, resource_symbol => {:premium_limit => 2}, :format => 'xml'
-    assert_response :success
-    assert_equal 2, projects(:first).reload.premium_limit
-  end
-  
-  # Update premium unsuccessfully based on role.
-  def update_premium_by_role_unsuccessful( user )
-    login_as(user)
-    old_expire = projects(:first).premium_expiry
-    new_expire = Date.tomorrow
-    put :update, :id => 1, resource_symbol => {:premium_expiry => new_expire}, :format => 'xml'
-    assert_response 401
-    assert_equal old_expire, projects(:first).reload.premium_expiry
-    assert_select "errors"
-
-    old_limit = projects(:first).premium_limit
-    put :update, :id => 1, resource_symbol => {:premium_limit => 2}, :format => 'xml'
-    assert_response 401
-    assert_equal old_limit, projects(:first).reload.premium_limit
-    assert_select "errors"
-  end
 
   # Test deleting projects (based on role).
   def test_delete_by_project_admin

@@ -1,16 +1,18 @@
 package org.planigle.planigle.business
 {
 	import com.adobe.cairngorm.business.ServiceLocator;
+	
 	import mx.rpc.IResponder;
 	import mx.rpc.remoting.RemoteObject;
-	import org.planigle.planigle.vo.LoginVO;
+	
 	import org.planigle.planigle.model.CompanyFactory;
 	import org.planigle.planigle.model.IndividualFactory;
-	import org.planigle.planigle.model.ReleaseFactory;
 	import org.planigle.planigle.model.IterationFactory;
+	import org.planigle.planigle.model.ReleaseFactory;
 	import org.planigle.planigle.model.Story;
 	import org.planigle.planigle.model.StoryFactory;
 	import org.planigle.planigle.model.ViewModelLocator;
+	import org.planigle.planigle.vo.LoginVO;
 	
 	public class SessionDelegate
 	{
@@ -40,7 +42,7 @@ package org.planigle.planigle.business
 		}	
 
 		// Refresh the session data.
-		public function refresh():void
+		public function refresh(showCursor:Boolean):void
 		{
 			var params:Object = new Object();
 			params["companies"] = CompanyFactory.getInstance().timeUpdated;
@@ -50,7 +52,7 @@ package org.planigle.planigle.business
 			params["stories"] = StoryFactory.getInstance().timeUpdated;
 			params["conditions"] = Story.conditions;
 			params["page_size"] = Story.pageSize;
-			remoteObject.showBusyCursor = false;
+			remoteObject.showBusyCursor = showCursor;
 			remoteObject.refresh.send(params).addResponder(responder);
 		}
 		

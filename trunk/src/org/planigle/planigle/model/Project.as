@@ -18,8 +18,6 @@ package org.planigle.planigle.model
 		public var description:String;
 		public var surveyKey:String;
 		public var surveyMode:int;
-		public var premiumExpiry:Date;
-		public var premiumLimit:int;
 		public var trackActuals:Boolean;
 		public var updatedAtString:String;
 		private static const PRIVATE:int = 0;
@@ -54,8 +52,6 @@ package org.planigle.planigle.model
 			description = xml.description;
 			surveyKey = xml.child("survey-key");
 			surveyMode = int(xml.child("survey-mode"));
-			premiumExpiry = DateUtils.stringToDate(xml.child("premium-expiry"));			
-			premiumLimit = xml.child("premium-limit");			
 			trackActuals = xml.child("track-actuals") == "true";
 			updatedAtString = xml.child("updated-at");
 
@@ -210,17 +206,6 @@ package org.planigle.planigle.model
 					individuals.addItem(individual);
 			}
 			return individuals;
-		}
-
-		// Answer whether this project has premium features.
-		public function get isPremium():Boolean
-		{
-			return premiumExpiry > new Date();
-		}
-
-		// Answer whether this project has premium features.
-		public function set isPremium(isPremium:Boolean):void
-		{
 		}
 		
 		// Update me.  Params should be of the format (record[param]).  Success function

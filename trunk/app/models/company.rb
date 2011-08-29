@@ -3,11 +3,68 @@ class Company < ActiveRecord::Base
   has_many :projects, :dependent => :destroy, :conditions => "projects.deleted_at IS NULL"
   has_many :all_projects, :class_name => "Project"
   has_many :individuals, :dependent => :nullify, :conditions => "individuals.deleted_at IS NULL" # Delete non-admins
-  attr_accessible :name
+  attr_accessible :name, :premium_limit, :premium_expiry, :last_notified_of_expiration
   acts_as_audited
+  before_save :update_notifications
 
   validates_presence_of     :name
   validates_length_of       :name,                   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
+  validates_numericality_of :premium_limit, :only_integer => true, :allow_nil => false, :greater_than => 0
+  
+  # Answer the email addresses for my admins
+  def admin_email_addresses
+    individuals.select{|individ| individ.role == Individual::ProjectAdmin}.collect{|individ|individ.email}
+  end
+
+  # Notify of any interesting activity.
+  def self.send_notifications
+    find(:all).each do |company|
+      company.notify_of_expiration
+    end
+  end
+  
+  # Update my notification fields based on changes.
+  def update_notifications
+    if changed_attributes['premium_expiry']
+      self.last_notified_of_expiration = nil
+    end
+  end
+  
+  # Notify if my premium status is about to expire
+  def notify_of_expiration
+    if is_about_to_expire
+      ExpirationMailer.deliver_notification(self)
+      self.last_notified_of_expiration = DateTime.now
+      save(false)
+    end
+  end
+  
+  # Answer whether my premium subscription is about to expire.
+  def is_about_to_expire
+    time_until_expiration = self.premium_expiry - Date.today
+    config_option(:notify_when_expiring_in) && !self.last_notified_of_expiration && time_until_expiration >= 0 && time_until_expiration <= config_option(:notify_when_expiring_in)
+  end
+
+  # Ensure that premium expiry and premium limit are initialized.
+  def initialize(attributes={})
+    if (self.class.column_names.include?('premium_expiry') && !attributes.include?(:premium_expiry))
+      attributes[:premium_expiry] = Date.today + 30
+    end
+    if (self.class.column_names.include?('premium_limit') && !attributes.include?(:premium_limit))
+      attributes[:premium_limit] = 1000
+    end
+    super
+  end
+  
+  # Answer whether I am enabled for premium services.
+  def is_premium
+    premium_expiry && premium_expiry > Date.today
+  end
+  
+  # Answer whether I can add new users.
+  def can_add_users
+    !is_premium || individuals.count(:conditions => ['enabled = true and role < 3']) < premium_limit
+  end
 
   # Delete all non-admins
   def destroy

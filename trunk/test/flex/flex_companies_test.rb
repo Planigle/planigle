@@ -184,8 +184,7 @@ private
   # Test whether error handling works for editing a company.
   def edit_company_failure
     num_rows = @ie.data_grid("projectResourceGrid").num_rows
-    edit_company(' ')
-sleep 5
+    edit_company(' ', '10/10/2020', '10')
     @ie.button("projectBtnChange").click
     assert_equal "Name can't be blank", @ie.text_area("projectError").text
     assert_equal ' ', @ie.text_area("projectFieldName").text
@@ -197,7 +196,7 @@ sleep 5
   # Test whether you can successfully edit a company.
   def edit_company_success
     num_rows = @ie.data_grid("projectResourceGrid").num_rows
-    edit_company('company')
+    edit_company('company', '10/10/2020', '10')
 
     @ie.button("projectBtnChange").click
     assert_equal '', @ie.text_area("projectError").text
@@ -209,7 +208,7 @@ sleep 5
   # Test whether you can successfully cancel editing a company.
   def edit_company_cancel
     num_rows = @ie.data_grid("projectResourceGrid").num_rows
-    edit_company('company')
+    edit_company('company', '10/10/2020', '10')
     @ie.button("projectBtnCancel").click
     assert_equal '', @ie.text_area("projectError").text
     assert_nil @ie.button("projectBtnCancel")
@@ -217,9 +216,11 @@ sleep 5
   end
 
   # Edit a company.
-  def edit_company(company)
+  def edit_company(company, premium_expiry, premium_limit)
     @ie.button("projectBtnEdit")[1].click
     @ie.text_area("projectFieldName").input(:text => company )
+    @ie.text_area("projectFieldPremiumExpiry").input(:text => premium_expiry )
+    @ie.text_area("projectFieldPremiumLimit")[1].input(:text => premium_limit ) # Not sure why the array is necessary
   end
 
   # Select a company to see what is displayed in individuals.

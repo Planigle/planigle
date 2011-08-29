@@ -52,7 +52,7 @@ class IndividualsControllerTest < Test::Unit::TestCase
     
   # Test getting individuals (based on role).
   def test_index_by_admin
-    index_by_role(individuals(:quentin), Individual.count)
+    index_by_role(individuals(:quentin), 1)
   end
     
   # Test getting individuals (based on role).

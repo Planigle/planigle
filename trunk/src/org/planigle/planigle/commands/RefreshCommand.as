@@ -30,7 +30,7 @@ package org.planigle.planigle.commands
 			//  Delegate acts as both delegate and responder.
 			var delegate:SessionDelegate = new SessionDelegate( this );
 			
-			delegate.refresh();
+			delegate.refresh(refreshEvent.showCursor);
 		}
 		
 		// Handle successful server request.

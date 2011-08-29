@@ -13,11 +13,11 @@ delete from story_attributes using story_attributes, projects where project_id=p
 delete from projects where company_id = -10;
 delete from companies where id = -10;
 
-insert into companies (id, name) values
-(-10, "ACME Books");
+insert into companies (id, name, premium_expiry, premium_limit) values
+(-10, "ACME Books", curdate() + interval 30 day, 5);
 
-insert into projects (company_id, id, name, survey_key, survey_mode, premium_expiry, premium_limit) values
-(-10, -10, "Online Bookstore", "885a0079624d19f24fc02b97040904e6ef981444", 2, curdate() + interval 30 day, 5);
+insert into projects (company_id, id, name, survey_key, survey_mode) values
+(-10, -10, "Online Bookstore", "885a0079624d19f24fc02b97040904e6ef981444", 2);
 
 insert into individuals (company_id, id, login, email, first_name, last_name, crypted_password, salt, activated_at, accepted_agreement, role) values
 (-10, -10, "demo", "demo@planigle.com", "Fred", "Hacker", "b98229cbf40ba20980cfbba4c75fda2a903d8bbc", "c305359343ecf79911ebcd78267b9ff00911119f", now() - interval 1 day, now(), 1),

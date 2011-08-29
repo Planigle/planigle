@@ -15,7 +15,7 @@ class Survey < ActiveRecord::Base
   
   # Notify admins that a new survey has been created
   def notify_users
-    if project.is_premium
+    if project.company.is_premium
       SurveyNotificationMailer.deliver_notification(self)
     end
   end

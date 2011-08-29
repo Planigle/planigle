@@ -89,13 +89,13 @@ module RubyAMF
       :ruby => 'Company',
       :type => 'active_record',
       :attributes => ["id", "name"],
-      :methods => ["filtered_projects", "updated_at_string"])
+      :methods => ["filtered_projects", "updated_at_string", "premium_expiry", "premium_limit"])
 
     ClassMappings.register(
       :actionscript => 'Project',
       :ruby => 'Project',
       :type => 'active_record',
-      :attributes => ["id", "company_id", "name", "description", "survey_key", "survey_mode", "premium_expiry", "premium_limit", "track_actuals"],
+      :attributes => ["id", "company_id", "name", "description", "survey_key", "survey_mode", "track_actuals"],
       :methods => ["filtered_attributes", "updated_at_string"],
       :associations => ["teams"])
 

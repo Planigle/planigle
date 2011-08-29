@@ -12,6 +12,8 @@ package org.planigle.planigle.model
 	{
 		public var id:String;
 		public var name:String;
+		public var premiumExpiry:Date;
+		public var premiumLimit:int;
 		public var updatedAtString:String;
 		private var myProjects:Array = new Array();
 		public var projectSelector:ArrayCollection = new ArrayCollection();
@@ -28,6 +30,8 @@ package org.planigle.planigle.model
 		{
 			id = xml.id.toString() == "" ? null: xml.id;
 			name = xml.name;
+			premiumExpiry = DateUtils.stringToDate(xml.child("premium-expiry"));			
+			premiumLimit = xml.child("premium-limit");			
 			updatedAtString = xml.child("updated-at");
 
 			var newProjects:ArrayCollection = new ArrayCollection();
@@ -52,6 +56,17 @@ package org.planigle.planigle.model
 
 		// Set the indent (currently ignored; used to prevent binding issue).
 		public function set indent(indent:int):void
+		{
+		}
+
+		// Answer whether this project has premium features.
+		public function get isPremium():Boolean
+		{
+			return premiumExpiry > new Date();
+		}
+
+		// Answer whether this project has premium features.
+		public function set isPremium(isPremium:Boolean):void
 		{
 		}
 

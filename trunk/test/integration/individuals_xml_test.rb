@@ -27,6 +27,9 @@ class IndividualsXmlTest < ActionController::IntegrationTest
     ActionMailer::Base.perform_deliveries = true
     ActionMailer::Base.deliveries = []
     IndividualMailer.site = 'www.testxyz.com'
+    admin2 = individuals(:admin2)
+    admin2.selected_project_id=1
+    admin2.save(false)
   end
 
   # Test that you can't delete yourself.

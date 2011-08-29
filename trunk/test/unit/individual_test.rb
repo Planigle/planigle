@@ -27,9 +27,9 @@ class IndividualTest < ActiveSupport::TestCase
 
   # Test that too many individuals cannot be created.
   def test_create_too_many_individuals
-    project = projects(:first)
-    project.premium_limit = 4
-    project.save(false)
+    company = companies(:first)
+    company.premium_limit = 4
+    company.save(false)
     assert_no_difference 'Individual.count' do
       individual = create_individual
       assert !individual.errors.empty?
@@ -44,11 +44,6 @@ class IndividualTest < ActiveSupport::TestCase
 
     individual.enabled = false
     assert_equal true, individual.valid?
-
-    individual = individuals(:user2)
-    individual.company_id = 1
-    individual.attributes = {:project_ids => [1]}
-    assert_equal false, individual.valid?
   end
 
   # Test the validation of login.
@@ -244,23 +239,15 @@ class IndividualTest < ActiveSupport::TestCase
     assert_equal 4, i.project_id
   end
   
-  # Test new project limit tests
-  def test_new_project_limits_exceded
+  # Test new company limit tests
+  def test_new_company_limits_exceded
     individual = create_individual
     individual.save(false)
-    full_project = projects(:first)
-    full_project.premium_limit = full_project.individuals.count(:conditions => ["enabled = true and role < 3"])
-    full_project.save(false)
+    full_company = companies(:first)
+    full_company.premium_limit = full_company.individuals.count(:conditions => ["enabled = true and role < 3"])
+    full_company.save(false)
     
-    individual.attributes= {:project_ids => "1,3"}
-    assert individual.valid?
-
     individual = create_individual
-    full_project = projects(:third)
-    full_project.premium_limit = full_project.individuals.count
-    full_project.save(false)
-    
-    individual.attributes= {:project_ids => "1,3"}
     assert !individual.valid?
   end
   
@@ -435,7 +422,11 @@ class IndividualTest < ActiveSupport::TestCase
 
   # Test finding individuals for a specific user.
   def test_find
-    assert_equal Individual.count, Individual.get_records(individuals(:quentin)).length
+    quentin = individuals(:quentin)
+    assert_equal 1, Individual.get_records(quentin).length
+    quentin.selected_project_id = 1
+    quentin.save(false)
+    assert_equal Individual.find_all_by_company_id(1).length, Individual.get_records(quentin).length
     assert_equal Individual.find_all_by_company_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:aaron)).length
     assert_equal Individual.find_all_by_company_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:user)).length
     assert_equal Individual.find_all_by_company_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:readonly)).length
@@ -447,7 +438,7 @@ class IndividualTest < ActiveSupport::TestCase
   # Validate is_premium.
   def test_is_premium
     assert individuals(:aaron).is_premium
-    assert !individuals(:quentin).is_premium
+    assert !individuals(:user2).is_premium
     assert individuals(:user).is_premium
   end
   
