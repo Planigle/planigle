@@ -23,7 +23,7 @@ class ProjectTest < ActiveSupport::TestCase
     assert_difference 'Project.count' do
       project = create_project
       assert !project.new_record?, "#{project.errors.full_messages.to_sentence}"
-      assert_equal 16, project.story_attributes.length
+      assert_equal 17, project.story_attributes.length
     end
   end
 
@@ -54,20 +54,6 @@ class ProjectTest < ActiveSupport::TestCase
     assert_success( :survey_mode, 0)
     assert_failure( :survey_mode, -1 )
     assert_failure( :survey_mode, 3 )
-  end
-
-  # Test the validation of premium_expiry.
-  def test_premium_expiry
-    assert_success(:premium_expiry, Date.today)
-    assert_equal Date.today + 30, create_project().premium_expiry
-  end
-
-  # Test the validation of premium_limit.
-  def test_premium_limit
-    assert_failure( :premium_limit, nil )
-    assert_failure( :premium_limit, 0 )
-    assert_failure( :premium_limit, 1.5 )
-    assert_success( :premium_limit, 1 )
   end
 
   # Test deleting an project
@@ -119,12 +105,6 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal 1, Project.get_records(individuals(:ro2)).length
   end
   
-  # Validate is_premium.
-  def test_is_premium
-    assert projects(:first).is_premium
-    assert !projects(:second).is_premium
-  end
-  
   # Validate that notifications get sent
   def test_send_notifications
     config_option_set(:notify_of_inactivity_after, 3)
@@ -135,27 +115,6 @@ class ProjectTest < ActiveSupport::TestCase
     notifications = ActionMailer::Base.deliveries.length
     Project.send_notifications
     assert_equal notifications+2, ActionMailer::Base.deliveries.length
-  end
-  
-  # Validate update_notifications
-  def test_update_notifications_no_change
-    project = create_project
-    now = Time.now
-    project.last_notified_of_expiration = now
-    project.save(false)
-    assert_equal now, project.last_notified_of_expiration
-  end
-  
-  # Validate update_notifications
-  def test_update_notifications_change
-    project = create_project
-    today = Date.today
-    project.last_notified_of_expiration = today
-    project.save(false)
-    assert_equal today, project.last_notified_of_expiration
-    project.premium_expiry = today
-    project.save(false)
-    assert_equal nil, project.last_notified_of_expiration
   end
   
   # Validate test_notify_of_inactivity
@@ -255,60 +214,7 @@ class ProjectTest < ActiveSupport::TestCase
     project.individuals << create_individual(:last_login => now - 5*60*60*24 + 60)
     assert project.is_inactive
   end
-  
-  # Validate test_notify_of_expiration
-  def test_notify_of_expiration_not_expiring
-    config_option_set(:notify_when_expiring_in, 3)
-    today = Date.today
-    project = create_project(:premium_expiry => today + 4)
-    notifications = ActionMailer::Base.deliveries.length
-    project.notify_of_expiration
-    assert_equal notifications, ActionMailer::Base.deliveries.length
-  end
-  
-  # Validate test_notify_of_expiration
-  def test_notify_of_expiration_expiring
-    config_option_set(:notify_when_expiring_in, 3)
-    today = Date.today
-    project = create_project(:premium_expiry => today + 3)
-    notifications = ActionMailer::Base.deliveries.length
-    project.notify_of_expiration
-    assert_equal notifications+1, ActionMailer::Base.deliveries.length
-  end
-  
-  # Validate is_about_to_expire
-  def test_is_about_to_expire_not_expiring
-    config_option_set(:notify_when_expiring_in, 3)
-    today = Date.today
-    project = create_project(:premium_expiry => today + 4)
-    assert !project.is_about_to_expire
-  end
-  
-  # Validate is_about_to_expire
-  def test_is_about_to_expire_expiring
-    config_option_set(:notify_when_expiring_in, 3)
-    today = Date.today
-    project = create_project(:premium_expiry => today + 3)
-    assert project.is_about_to_expire
-  end
-  
-  # Validate is_about_to_expire
-  def test_is_about_to_expire_expiring_notified
-    config_option_set(:notify_when_expiring_in, 3)
-    today = Date.today
-    project = create_project(:premium_expiry => today + 3)
-    project.last_notified_of_expiration = today
-    assert !project.is_about_to_expire
-  end
-  
-  # Validate is_about_to_expire
-  def test_is_about_to_expire_expired
-    config_option_set(:notify_when_expiring_in, 3)
-    today = Date.today
-    project = create_project(:premium_expiry => today - 1)
-    assert !project.is_about_to_expire
-  end
-  
+    
 private
 
   # Create an project with valid values.  Options will override default values (should be :attribute => value).

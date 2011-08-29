@@ -196,11 +196,13 @@
 				{	
 					CompanyFactory.getInstance().timeUpdated = null;
 					ReleaseFactory.getInstance().timeUpdated = null;
+					if (IndividualFactory.current().company != IndividualFactory.current().selectedProject.company)
+						IndividualFactory.getInstance().timeUpdated = null;
 					IterationFactory.getInstance().timeUpdated = null;
 					StoryFactory.getInstance().timeUpdated = null;
 				}
 				if (force || !GetStoriesCommand.isLoading())
-					new RefreshEvent().dispatch();
+					new RefreshEvent(force).dispatch();
 			}
 			
 			// Log out.
@@ -308,7 +310,7 @@
 		<mx:TabBar id="mainNavigation" dataProvider="{mainViewStack}" itemClick="selectTab(event)" fontSize="{ViewModelLocator.getInstance().fontSize+3}" height="{ViewModelLocator.getInstance().fontSize+20}">
 		</mx:TabBar>
 		<mx:HBox horizontalAlign="right" width="100%">
-			<mx:ComboBox id="selectedProject" fillColors="[0xffffff, 0xffffff]" fillAlphas="[1,1]" change="selectProject()" />
+			<mx:ComboBox id="selectedProject" fillColors="[0xffffff, 0xffffff]" fillAlphas="[1,1]" change="selectProject()" rowCount="20" />
 			<mx:LinkButton label="Refresh" styleName="ToolbarLink" id="refreshButton" click="{refresh()}" fontSize="{ViewModelLocator.getInstance().fontSize+3}"/>
 			<mx:LinkButton label="Log out" styleName="ToolbarLink" id="logoutButton" click="{logout()}" fontSize="{ViewModelLocator.getInstance().fontSize+3}"/>
 			<mx:HBox horizontalGap="1">

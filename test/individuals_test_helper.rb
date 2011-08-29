@@ -28,7 +28,7 @@ module IndividualsTestHelper
   
   # Answer the number of resources that exist.
   def resource_count
-    Individual.count
+    Individual.find(:all, :conditions => {:company_id => 1}).length
   end
 
   # Verify that the object was created.

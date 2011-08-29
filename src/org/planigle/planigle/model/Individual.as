@@ -170,6 +170,8 @@ package org.planigle.planigle.model
 		public function get allProjects():ArrayCollection
 		{
 			var allProjects:ArrayCollection = new ArrayCollection();
+			if (CompanyFactory.getInstance().companySelector.length == 0)
+				return allProjects; // too early to call this; still setting up
 			if (isAdmin() || isPremium)
 			{
 				for each (var company:Company in CompanyFactory.getInstance().companies)
@@ -195,7 +197,6 @@ package org.planigle.planigle.model
 		// All projects have changed.
 		public function set allProjects(allProjects:ArrayCollection):void
 		{
-			allProjects = null;
 		}
 		
 		// Call when all projects have changed.
@@ -242,7 +243,7 @@ package org.planigle.planigle.model
 		// Answer whether this user is a premium user.
 		public function get isPremium():Boolean
 		{
-			return selectedProject && selectedProject.isPremium;
+			return company.isPremium;
 		}
 
 		// Set whether this user is a premium user.
@@ -280,12 +281,14 @@ package org.planigle.planigle.model
 		public function updateCompleted(xml:XML):void
 		{
 			mySelectedProjectId = xml.child("selected-project-id").toString() == "" ? null : xml.child("selected-project-id");
-			if (selectedProject.storyAttributes.length == 0)
-				return; // When changing projects, we want to ignore this change and let the refresh update
 
  			var oldProjects:Array = projects;
 			var oldTeamId:String = teamId;
 			populate(xml);
+
+			if (selectedProject.storyAttributes.length == 0)
+				return; // When changing projects, we want to ignore this change and let the refresh update
+
 			if (oldTeamId  != teamId)
 				StructuralChangeNotifier.getInstance().structureChanged();
 			else

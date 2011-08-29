@@ -12,8 +12,8 @@
 <p>Please visit this url to activate your account:</p>
   <p><a href="<%= @url %>"><%= @url %></a></p>
 
-<% if @project != nil && @project.individuals.count == 1 && @project.premium_expiry > Date.today %>
-  <p>Your project has been enabled for the Premium Edition of Planigle.  This includes reporting and analysis, an iPhone interface, notification and many other productivity enhancing capabilities.  For a complete list of premium features, see <a href="http://www.planigle.com/products/features">http://www.planigle.com/products/features</a>.  On <%= @project.premium_expiry.strftime("%B %e")%> your project will automatically convert to the Community Edition of Planigle.  To extend your use of the Premium Edition, contact us at <a href="mailto:<%= @support%>"><%= @support%></a>.</p>
+<% if @project != nil && @project.individuals.count == 1 && @project.company.premium_expiry > Date.today %>
+  <p>Your project has been enabled for the Premium Edition of Planigle.  This includes reporting and analysis, an iPhone interface, notification and many other productivity enhancing capabilities.  For a complete list of premium features, see <a href="http://www.planigle.com/products/features">http://www.planigle.com/products/features</a>.  On <%= @project.company.premium_expiry.strftime("%B %e")%> your project will automatically convert to the Community Edition of Planigle.  To extend your use of the Premium Edition, contact us at <a href="mailto:<%= @support%>"><%= @support%></a>.</p>
 <% end %>
 
   <p>We hope that you find Planigle to be an easy to use, productive way to manage your backlog, your iterations and your releases.  To see a quick demo of Planigle, <a href="http://www.planigle.com/demo/Planigle%20Demo.htm">click here</a>.

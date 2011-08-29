@@ -74,6 +74,100 @@ class CompanyTest < ActiveSupport::TestCase
     assert_have_records_changed(teams(:third), teams(:first))
   end
 
+  # Test the validation of premium_expiry.
+  def test_premium_expiry
+    assert_success(:premium_expiry, Date.today)
+    assert_equal Date.today + 30, create_company().premium_expiry
+  end
+
+  # Test the validation of premium_limit.
+  def test_premium_limit
+    assert_failure( :premium_limit, nil )
+    assert_failure( :premium_limit, 0 )
+    assert_failure( :premium_limit, 1.5 )
+    assert_success( :premium_limit, 1 )
+  end
+
+  # Validate is_premium.
+  def test_is_premium
+    assert companies(:first).is_premium
+    assert !companies(:second).is_premium
+  end
+
+  # Validate test_notify_of_expiration
+  def test_notify_of_expiration_not_expiring
+    config_option_set(:notify_when_expiring_in, 3)
+    today = Date.today
+    company = create_company(:premium_expiry => today + 4)
+    notifications = ActionMailer::Base.deliveries.length
+    company.notify_of_expiration
+    assert_equal notifications, ActionMailer::Base.deliveries.length
+  end
+  
+  # Validate test_notify_of_expiration
+  def test_notify_of_expiration_expiring
+    config_option_set(:notify_when_expiring_in, 3)
+    today = Date.today
+    company = create_company(:premium_expiry => today + 3)
+    notifications = ActionMailer::Base.deliveries.length
+    company.notify_of_expiration
+    assert_equal notifications+1, ActionMailer::Base.deliveries.length
+  end
+  
+  # Validate is_about_to_expire
+  def test_is_about_to_expire_not_expiring
+    config_option_set(:notify_when_expiring_in, 3)
+    today = Date.today
+    company = create_company(:premium_expiry => today + 4)
+    assert !company.is_about_to_expire
+  end
+  
+  # Validate is_about_to_expire
+  def test_is_about_to_expire_expiring
+    config_option_set(:notify_when_expiring_in, 3)
+    today = Date.today
+    company = create_company(:premium_expiry => today + 3)
+    assert company.is_about_to_expire
+  end
+  
+  # Validate is_about_to_expire
+  def test_is_about_to_expire_expiring_notified
+    config_option_set(:notify_when_expiring_in, 3)
+    today = Date.today
+    company = create_company(:premium_expiry => today + 3)
+    company.last_notified_of_expiration = today
+    assert !company.is_about_to_expire
+  end
+    
+  # Validate is_about_to_expire
+  def test_is_about_to_expire_expired
+    config_option_set(:notify_when_expiring_in, 3)
+    today = Date.today
+    company = create_company(:premium_expiry => today - 1)
+    assert !company.is_about_to_expire
+  end
+  
+  # Validate update_notifications
+  def test_update_notifications_no_change
+    company = create_company
+    now = Time.now
+    company.last_notified_of_expiration = now
+    company.save(false)
+    assert_equal now, company.last_notified_of_expiration
+  end
+  
+  # Validate update_notifications
+  def test_update_notifications_change
+    company = create_company
+    today = Date.today
+    company.last_notified_of_expiration = today
+    company.save(false)
+    assert_equal today, company.last_notified_of_expiration
+    company.premium_expiry = today
+    company.save(false)
+    assert_equal nil, company.last_notified_of_expiration
+  end
+
 private
   
   def assert_no_changes(start)

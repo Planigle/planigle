@@ -6,7 +6,7 @@ class SurveysController < ApplicationController
   # Create a survey template.
   def new
     project = Project.find(:first, :conditions => [ "survey_key = ? and survey_mode != 0", params[:survey_key]])
-    if !project || !project.is_premium
+    if !project || !project.company.is_premium
       render :xml => xml_error("Invalid survey key"), :status => :unprocessable_entity
     else
       render :xml => project.create_survey
@@ -16,7 +16,7 @@ class SurveysController < ApplicationController
   # Post a survey template.
   def create
     project = Project.find(:first, :conditions => [ "survey_key = ? and survey_mode != 0", params[:survey_key]])
-    if !project || !project.is_premium
+    if !project || !project.company.is_premium
       render :xml => xml_error("Invalid survey key"), :status => :unprocessable_entity
     else
       begin

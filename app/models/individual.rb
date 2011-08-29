@@ -193,8 +193,11 @@ class Individual < ActiveRecord::Base
         find(:all, :include => [:projects],
           :conditions => ["(projects.id = ? and role in (1,2,3)) or individuals.id=?", current_user.project_id, current_user.id], :order => 'first_name, last_name')
       end
+    elsif current_user.selected_project
+      users = find(:all, :include => [:projects], :conditions => ["individuals.company_id = ?", current_user.selected_project.company_id], :order => 'first_name, last_name')
+      !users.include?(current_user) ? users << current_user : users
     else
-      find(:all, :include => [:projects], :order => 'first_name, last_name')
+      Array[current_user]
     end
   end
 
@@ -243,7 +246,7 @@ class Individual < ActiveRecord::Base
 
   # Answer whether I am enabled for premium services.
   def is_premium
-    projects.detect {|project| project.is_premium}
+    !company || company.is_premium
   end
 
   # Notify that something has occurred.
@@ -341,30 +344,16 @@ protected
   # Ensure that the premium limit is not exceeded.
   def validate_on_update
     if will_impact_limits
-      if (changed?('project_id') && new_project_limits_exceded) ||
-        (changed?('role') && changed_attributes['role'][0] >= ReadOnlyUser && changed_attributes['role'][1] < ReadOnlyUser) ||
+      if (changed?('role') && changed_attributes['role'][0] >= ReadOnlyUser && changed_attributes['role'][1] < ReadOnlyUser) ||
         (changed?('enabled') && !changed_attributes['enabled'][0] && changed_attributes['enabled'][1])
         count_exceeded
       end
     end
   end
-  
-  # Test whether the new project settings will cause limits to be exceeded
-  def new_project_limits_exceded
-    if (changed_attributes['project_id'])
-      old_projects = changed_attributes['project_id'][0].split(',')
-      changed_attributes['project_id'][1].split(',').each do |proj_id|
-        if (!old_projects.include?(proj_id) && !Project.find(proj_id).can_add_users)
-          return true
-        end
-      end
-    end
-    false
-  end
 
   # Answer whether if saved, I will cause the premium limits to be exceeded.
   def will_impact_limits
-    role < ReadOnlyUser && enabled && projects.detect {|project| !project.can_add_users}
+    role < ReadOnlyUser && enabled && company && !company.can_add_users
   end
 
   # Add custom validation of the role field.
