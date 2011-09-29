@@ -16,7 +16,8 @@
 			import org.planigle.planigle.events.LoginEvent;
 			import org.planigle.planigle.model.Story;
 			import org.planigle.planigle.model.ViewModelLocator;
-			import org.planigle.planigle.util.RequestProcessor;
+			import org.planigle.planigle.model.ErrorHandler;
+			import org.planigle.planigle.util.RequestProcessor;			
 
 			// Hack to work around an issue with charts.  See http://gregjessup.com/flex-3-advanceddatagrid-cannot-convert-mxmanagersdragmanagerimpl-to-mxmanagersidragmanager/.
 			import mx.managers.IDragManager; 
@@ -145,10 +146,17 @@
 			[Embed(source="../public/images/window.png")]
 			[Bindable]
 			public var imgWindow:Class;
+		
+			[Embed(source="../public/images/bug.png")]
+			[Bindable]
+			public var imgBug:Class;
 
 			// See if a cookie is present which skips login.
 			private function created(event:Event):void
 			{
+				if(loaderInfo.hasOwnProperty("uncaughtErrorEvents"))
+					IEventDispatcher(loaderInfo["uncaughtErrorEvents"]).addEventListener("uncaughtError", handleUncaughtErrors);
+ 				addEventListener(ErrorEvent.ERROR, handleUncaughtErrors);
 				if (ExternalInterface.available && containsCookie("auth_token"))
 					new LoginEvent( new LoginVO('', '', true, false, true) ).dispatch();
 				else if (new RequestProcessor().containsRequestParameter("signup"))
@@ -162,6 +170,11 @@
 			{
 				var js:String = "function get_cookie(){return document.cookie;}"
 				return ExternalInterface.call(js).toString().indexOf(cookie + "=") != -1;
+			}
+			
+			private function handleUncaughtErrors(event:*):void
+			{
+				ErrorHandler.getInstance().handleError(event);
 			}
 		]]>
 	</mx:Script>

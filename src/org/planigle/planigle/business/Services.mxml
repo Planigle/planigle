@@ -12,6 +12,13 @@
 		<mx:method name="destroy"/>
 	</mx:RemoteObject>
 
+	<mx:RemoteObject id="errorRO"
+		source="ErrorsController"
+		destination="rubyamf"
+		showBusyCursor="true">
+		<mx:method name="create"/>
+	</mx:RemoteObject>
+
 	<mx:RemoteObject id="releaseRO"
 		source="ReleasesController"
 		destination="rubyamf"

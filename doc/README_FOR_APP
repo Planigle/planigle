@@ -23,6 +23,7 @@ Flex automation libraries - MPL (included for build convenience; part of Flex SD
 Icons - http://www.visual-blast.com/graphics/icons/free-web-application-icons-set/ - Free (no restrictions)
 Icons - http://semlabs.co.uk/journal/free-web-design-icon-set - Free (no restrictions)
 Icons - Active Scaffold (Rails Plugin) - MIT
+Icons - http://www.softicons.com/free-icons/toolbar-icons/48x48-free-object-icons-by-aha-soft/bug-icon - Creative Commons Attribution 3.0
 
 Required Gems:
 FasterCSV - Ruby (from http://fastercsv.rubyforge.org/)

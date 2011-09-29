@@ -13,12 +13,14 @@
 			import mx.binding.utils.ChangeWatcher;
 			import mx.binding.utils.BindingUtils;
 			import mx.managers.CursorManager;
+			import mx.managers.PopUpManager;
 			import mx.events.ModuleEvent;
 			import mx.events.CloseEvent;
 			import mx.controls.Alert;
         	import mx.modules.ModuleManager;
         	import mx.modules.IModuleInfo;
 			import org.planigle.planigle.commands.GetStoriesCommand;
+			import org.planigle.planigle.model.ErrorHandler;
 			import org.planigle.planigle.model.ReleaseFactory;
 			import org.planigle.planigle.model.IterationFactory;
 			import org.planigle.planigle.model.StoryFactory;
@@ -40,6 +42,7 @@
 			import org.planigle.planigle.view.PeopleTab;
 			import org.planigle.planigle.view.ChangesTab;
 			import org.planigle.planigle.view.SystemTab;
+			import org.planigle.planigle.view.components.ViewErrors;
 
 			[Bindable]
 			private var factory:IndividualFactory = IndividualFactory.getInstance();
@@ -304,6 +307,11 @@
 				selectedProject.visible=allProjects.length>1;
 				selectedProject.selectedItem=individual.selectedProject;
 			}
+			
+			public function viewErrors(event:Event = null):void
+			{
+				PopUpManager.centerPopUp(ViewErrors(PopUpManager.createPopUp(this, ViewErrors, true)));
+			}
 		]]>
 	</mx:Script>
 	<mx:HBox horizontalGap="5" width="100%">
@@ -311,6 +319,7 @@
 		</mx:TabBar>
 		<mx:HBox horizontalAlign="right" width="100%">
 			<mx:ComboBox id="selectedProject" fillColors="[0xffffff, 0xffffff]" fillAlphas="[1,1]" change="selectProject()" rowCount="20" />
+			<mx:LinkButton icon="{parentApplication.imgBug}" toolTip="Show Errors" visible="{ErrorHandler.getInstance().hasErrors}" click="{viewErrors()}"/>
 			<mx:LinkButton label="Refresh" styleName="ToolbarLink" id="refreshButton" click="{refresh()}" fontSize="{ViewModelLocator.getInstance().fontSize+3}"/>
 			<mx:LinkButton label="Log out" styleName="ToolbarLink" id="logoutButton" click="{logout()}" fontSize="{ViewModelLocator.getInstance().fontSize+3}"/>
 			<mx:HBox horizontalGap="1">
