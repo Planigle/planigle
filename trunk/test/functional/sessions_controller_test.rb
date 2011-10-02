@@ -28,7 +28,7 @@ class SessionsControllerTest < ActionController::TestCase
     assert_select 'story', false
     assert_select 'company', Company.count
     assert_select 'project', Project.count
-    assert_select 'individual', 11 # no project, so just load me
+    assert_select 'individual', 1 # no project, so just load me
   end
 
   # Test successfully logging in.
@@ -46,7 +46,7 @@ class SessionsControllerTest < ActionController::TestCase
     assert_select 'story', 4
     assert_select 'company', Company.count
     assert_select 'project', Project.count
-    assert_select 'individual', 11
+    assert_select 'individual', 8 # users in company + me
   end
 
   # Test successfully logging in.
