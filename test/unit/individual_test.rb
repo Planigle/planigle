@@ -426,7 +426,7 @@ class IndividualTest < ActiveSupport::TestCase
     assert_equal 1, Individual.get_records(quentin).length
     quentin.selected_project_id = 1
     quentin.save(false)
-    assert_equal Individual.find_all_by_company_id(1).length, Individual.get_records(quentin).length
+    assert_equal Individual.find_all_by_company_id(1).length + 1, Individual.get_records(quentin).length # include me
     assert_equal Individual.find_all_by_company_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:aaron)).length
     assert_equal Individual.find_all_by_company_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:user)).length
     assert_equal Individual.find_all_by_company_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:readonly)).length
