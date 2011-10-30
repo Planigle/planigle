@@ -77,5 +77,9 @@ package org.planigle.planigle.view.controls
 			if (newDropDown)
 				newDropDown.validateSize(true);
 		}	
+
+		override public function get automationValue():Array {
+			return [selectedLabel];
+		}	
 	}
 }

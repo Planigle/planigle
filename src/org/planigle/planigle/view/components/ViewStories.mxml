@@ -138,6 +138,8 @@
 			updateStoryConditions();
 			storyBtnImport.onCompletion(setSuccessMessage, setErrorMessage);
 			addEventListener(KeyboardEvent.KEY_UP, handleKeyUp);
+			storyFieldDescription.textAutomationName="descriptionText";
+			storyFieldReasonBlocked.textAutomationName="reasonBlockedText";
 			CursorManager.removeBusyCursor();
 		}
 
@@ -1659,6 +1661,7 @@
 					    break;
 					  case StoryAttribute.TEXT:
 					    var text:ExpandableHTMLTextArea = new ExpandableHTMLTextArea();
+					    text.textAutomationName=attrib.name + "Text";
 					    text.id = id;
 					  	formItem.addChild(text);
 					  	customChildren[id] = text;
@@ -2164,14 +2167,14 @@
 						<mx:headerRenderer>
 							<mx:Component>
 								<mx:Box direction="horizontal" horizontalGap="0">
-									<mx:LinkButton id="storyBtnExpandAll" toolTip="Expand/Contract All" width="16" icon="{outerDocument.expandAllIcon}"/>
+									<mx:LinkButton id="storyBtnExpandAll" toolTip="Expand/Contract All" width="16" icon="{outerDocument.expandAllIcon}" automationName="{'expandAll'}"/>
 								</mx:Box>
 							</mx:Component>
 						</mx:headerRenderer>
 						<mx:itemRenderer> 
 							<mx:Component>
 								<mx:Box direction="horizontal" horizontalGap="0">
-									<mx:LinkButton id="storyBtnExpand" width="16" icon="{outerDocument.expandIcon(data)}" click="outerDocument.expand(event);"/>
+									<mx:LinkButton id="storyBtnExpand" width="16" icon="{outerDocument.expandIcon(data)}" click="outerDocument.expand(event);" automationName="{'expand' + data.name}"/>
 								</mx:Box>
 							</mx:Component>
 						</mx:itemRenderer>
@@ -2180,15 +2183,15 @@
 					<mx:DataGridColumn headerText="Epic" wordWrap="true" dataField="epicName">
 						<mx:itemRenderer> 
 							<mx:Component>
-								<mx:Text text="{data.epicName}" selectable="false"/>
+								<mx:Text text="{data.epicName}" selectable="false" automationName="{'epic' + data.name}"/>
 							</mx:Component>
 						</mx:itemRenderer>
 					</mx:DataGridColumn>
 					<mx:DataGridColumn headerText="Name" wordWrap="true" dataField="name">
 						<mx:itemRenderer> 
 							<mx:Component>
-								<mx:Text paddingLeft="{data.indent}" text="{data.name}" selectable="false" toolTip="{data.description}"/>
-							</mx:Component>
+								<mx:Text paddingLeft="{data.indent}" text="{data.name}" selectable="false" toolTip="{data.description}" automationName="{'name' + data.name}"/>
+   							</mx:Component>
 						</mx:itemRenderer>
 					</mx:DataGridColumn>
 					<mx:DataGridColumn id="storyColumnIteration" headerText="Iteration" labelFunction="ViewHelper.formatIteration" sortCompareFunction="ViewHelper.sortIteration"/>
@@ -2202,7 +2205,7 @@
 						<mx:itemRenderer> 
 							<mx:Component>
 								<mx:Box direction="horizontal" horizontalGap="0" horizontalScrollPolicy="off">
-								<local:FixedComboBox maxHeight="{ViewModelLocator.getInstance().fontSize + 8}" width="100%" editable="false" selectedIndex="{data.statusCode}" change="outerDocument.updateStatus(data, event)" enabled="{outerDocument.factory.currentIndividual.isAtLeastProjectUser}">
+								<local:FixedComboBox maxHeight="{ViewModelLocator.getInstance().fontSize + 8}" width="100%" editable="false" selectedIndex="{data.statusCode}" change="outerDocument.updateStatus(data, event)" enabled="{outerDocument.factory.currentIndividual.isAtLeastProjectUser}" automationName="{'status' + data.name}">
 									<mx:Script>
 										<![CDATA[
 											import org.planigle.planigle.model.ViewModelLocator;
@@ -2227,11 +2230,11 @@
 						<mx:itemRenderer>
 							<mx:Component>
 								<mx:Box direction="horizontal" horizontalGap="5" width="100%">
-									<mx:LinkButton width="15" id="storyBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.checkDirty(outerDocument.showUpdate);" visible="{outerDocument.shouldShow(data)}"/>
-									<mx:LinkButton width="15" id="storyBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.shouldShow(data)}"/>
-									<mx:LinkButton width="15" id="storyBtnMoveUp" icon="{parentApplication.imgMoveUp}" toolTip="Move To Top" click="outerDocument.checkDirty(outerDocument.moveToTop);" visible="{outerDocument.shouldShowStory(data)}"/>
-									<mx:LinkButton width="15" id="taskBtnAdd" icon="{parentApplication.imgAdd}" toolTip="Add Task" click="outerDocument.checkDirty(outerDocument.showCreateTask);" visible="{outerDocument.shouldShowStory(data)}"/>
-									<mx:LinkButton width="15" id="storyBtnSplit" icon="{parentApplication.imgSplit}" toolTip="Split" click="outerDocument.checkDirty(outerDocument.showSplit);" visible="{outerDocument.shouldShowStory(data)}"/>
+									<mx:LinkButton width="15" id="storyBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.checkDirty(outerDocument.showUpdate);" visible="{outerDocument.shouldShow(data)}" automationName="{'edit' + data.name}"/>
+									<mx:LinkButton width="15" id="storyBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.shouldShow(data)}" automationName="{'delete' + data.name}"/>
+									<mx:LinkButton width="15" id="storyBtnMoveUp" icon="{parentApplication.imgMoveUp}" toolTip="Move To Top" click="outerDocument.checkDirty(outerDocument.moveToTop);" visible="{outerDocument.shouldShowStory(data)}" automationName="{'moveTop' + data.name}"/>
+									<mx:LinkButton width="15" id="taskBtnAdd" icon="{parentApplication.imgAdd}" toolTip="Add Task" click="outerDocument.checkDirty(outerDocument.showCreateTask);" visible="{outerDocument.shouldShowStory(data)}" automationName="{'addTask' + data.name}"/>
+									<mx:LinkButton width="15" id="storyBtnSplit" icon="{parentApplication.imgSplit}" toolTip="Split" click="outerDocument.checkDirty(outerDocument.showSplit);" visible="{outerDocument.shouldShowStory(data)}" automationName="{'split' + data.name}"/>
 								</mx:Box>
 							</mx:Component>
 						</mx:itemRenderer>
