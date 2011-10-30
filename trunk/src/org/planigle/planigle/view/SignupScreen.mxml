@@ -62,6 +62,7 @@
 	
 	<mx:Panel title="Sign up for a free Planigle account:" horizontalAlign="center" verticalAlign="middle" backgroundAlpha="1.0" borderStyle="outset" backgroundColor="#F2F3AF" borderThicknessLeft="2" borderThicknessRight="2" headerHeight="14">
 		<mx:Form borderStyle="outset" cornerRadius="10" themeColor="#009DFF" backgroundColor="#FFFFFF" defaultButton="{okButton}">
+			<mx:Text text="To sign up for a free Planigle account, please fill out the information below.  If you'd like to join an existing account, ask the admin for that account to add you." width="100%"/>
 			<mx:Text id="signupError" styleName="error" htmlText="{_error}" width="100%"/>
 			<mx:FormItem label='Company Name' required="true">
 				<mx:TextInput id='signupFieldCompany' maxChars="40" text='' width="350"/>
