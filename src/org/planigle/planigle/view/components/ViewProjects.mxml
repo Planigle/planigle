@@ -446,21 +446,24 @@
 					if (projectFieldDescription.text != values["description"]) return true;
 					if (currentItem.isCompany()) {
 						if (projectFieldSurveyMode.selectedIndex != 1) return true;
-						if (!DateUtils.equals(projectFieldPremiumExpiry.selectedDate, values["premiumExpiry"])) return true;
-						if (projectFieldPremiumLimit.text != values["premiumLimit"]) return true;
 						if (projectFieldTrackActuals.selectedIndex != values["trackActuals"]) return true;
 					}
+				} else {
+					if (!DateUtils.equals(projectFieldPremiumExpiry.selectedDate, values["premiumExpiry"])) return true;
+					if (projectFieldPremiumLimit.text != values["premiumLimit"]) return true;
 				}
 			}
 			else if (currentItem) {
 				if (projectFieldName.text != currentItem.name) return true;
-				if (!currentItem.isCompany())
-					if (projectFieldDescription.text != currentItem.description) return true;
-				if (currentItem.isProject()) {
-					if (projectFieldSurveyMode.selectedIndex != currentItem.surveyMode) return true;
+				if (currentItem.isCompany()) {
 					if (!DateUtils.equals(projectFieldPremiumExpiry.selectedDate, currentItem.premiumExpiry)) return true;
 					if (projectFieldPremiumLimit.text != currentItem.premiumLimit) return true;
-					if (projectFieldTrackActuals.selectedItem.value != currentItem.trackActuals) return true;
+				} else {
+					if (projectFieldDescription.text != currentItem.description) return true;
+					if (currentItem.isProject()) {
+						if (projectFieldSurveyMode.selectedIndex != currentItem.surveyMode) return true;
+						if (projectFieldTrackActuals.selectedItem.value != currentItem.trackActuals) return true;
+					}
 				}
 			}
 			return false;
