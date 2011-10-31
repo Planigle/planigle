@@ -106,6 +106,8 @@ package org.planigle.planigle.model
 				return IndividualFactory.current().selectedProject.teamSelector;
 			case 'Owner':
 				return IndividualFactory.getInstance().individualSelector;
+			case 'Epic':
+				return StoryFactory.getInstance().epicSelector();
 			case 'Status':
 				var statusValues:ArrayCollection = new ArrayCollection();
 				var statusVal:StoryAttributeValue = new StoryAttributeValue();
