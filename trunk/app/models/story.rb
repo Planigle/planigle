@@ -514,6 +514,8 @@ class Story < ActiveRecord::Base
         status_code
       when 'Public'
         is_public ? 1 : 0
+      when 'Epic'
+        story_id
       else
         nil
       end
