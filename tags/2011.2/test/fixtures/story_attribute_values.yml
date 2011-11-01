@@ -1,0 +1,32 @@
+first:
+  id: 1
+  story_attribute_id: 5
+  value: Value 1
+
+second:
+  id: 2
+  story_attribute_id: 5
+  value: Value 2
+
+third:
+  id: 3
+  story_attribute_id: 5
+  value: Value 3
+
+fourth:
+  id: 4
+  story_attribute_id: 6
+  value: Theme 1
+  release_id: 1
+  
+fifth:
+  id: 5
+  story_attribute_id: 6
+  value: Theme 2
+  release_id: 1
+  
+sixth:
+  id: 6
+  story_attribute_id: 6
+  value: Theme 3
+  release_id: 2
