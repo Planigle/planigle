@@ -16,7 +16,7 @@ package org.planigle.planigle.model
 		public static var conditions:Object = initialConditions();
 		public var id:int;
 		public var projectId:int;
-		public var storyId:String;
+		public var storyId:int;
 		public var epicName:String;
 		public var teamId:String;
 		public var name:String;
@@ -219,12 +219,12 @@ package org.planigle.planigle.model
 			return IndividualFactory.current().selectedProject;
 		}
 		
-		public function get epicId():String
+		public function get epicId():int
 		{
 			return storyId;
 		}
 		
-		public function set epicId(epicId:String):void
+		public function set epicId(epicId:int):void
 		{
 			storyId = epicId;
 		}
@@ -239,7 +239,7 @@ package org.planigle.planigle.model
 		{
 			var allEpics:ArrayCollection = StoryFactory.getInstance().epicSelector();
 			var newEpicSelector:ArrayCollection = new ArrayCollection();
-			if (storyId != null && !allEpics.contains(epic))
+			if (storyId != 0 && !allEpics.contains(epic))
 			{
 				var myEpic:Story = new Story();
 				myEpic.id = int(storyId);

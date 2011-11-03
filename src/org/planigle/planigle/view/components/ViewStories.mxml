@@ -1961,7 +1961,7 @@
 											<local:FixedComboBox id='storyFieldProject' editable="false" labelField="name" change="updateProjectField()"></local:FixedComboBox>
 										</mx:FormItem>
 										<mx:FormItem label="Epic" id="storyFormEpic">
-											<local:FixedComboBox id='storyFieldEpic' editable="false" labelField="name"></local:FixedComboBox>
+											<local:FixedComboBox id='storyFieldEpic' editable="false" labelField="name" maxWidth="230" toolTip="{storyFieldEpic.selectedItem.name}"></local:FixedComboBox>
 										</mx:FormItem>
 										<mx:FormItem label="Iteration" id="storyFormIteration">
 											<local:FixedComboBox id='storyFieldIteration' editable="false" labelField="name" change="updateIteration()"></local:FixedComboBox>
