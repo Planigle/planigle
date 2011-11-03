@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:List xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:local="org.planigle.planigle.view.controls.*" dragEnabled="true" dragMoveEnabled="true" dropEnabled="true" dragDrop="dropItem(event)" wordWrap="true" borderThickness="0" variableRowHeight="true" horizontalScrollPolicy="off" verticalScrollPolicy="off" alternatingItemColors="[white]">
+	<mx:Script>
+		<![CDATA[
+		import mx.controls.listClasses.IListItemRenderer;
+		import mx.events.DragEvent;
+		import org.planigle.planigle.model.Task;
+
+		override protected function measure():void
+		{
+			super.measure();
+			var newHeight:int = 0;
+			var paddingTop:Number = getStyle("paddingTop");
+			var paddingBottom:Number = getStyle("paddingBottom");
+			for(var i:int=0; dataProvider != null && i<dataProvider.length;i++)
+			{
+				var item:Object = dataProvider.getItemAt(i);
+				var itemRenderer:IListItemRenderer = itemToItemRenderer(item);
+				if (itemRenderer == null)
+					itemRenderer = createItemRenderer(item);
+				var rowHeight:int = itemRenderer.getExplicitOrMeasuredHeight() + paddingTop + paddingBottom;
+				newHeight += rowHeight;
+			}
+			measuredHeight = newHeight;
+		}
+
+	    public var statusCode:int;
+			
+		protected function dropItem(event:DragEvent):void
+		{
+			var movedItems:Array = event.dragSource.dataForFormat("items") as Array;
+			for each(var task:Task in movedItems)
+				task.update({"record[status_code]": statusCode}, null, null);
+		}
+		]]>
+	</mx:Script>
+	<mx:itemRenderer> 
+		<mx:Component>
+			<local:TaskBoardTask/>
+		</mx:Component>
+	</mx:itemRenderer>
+</mx:List>
