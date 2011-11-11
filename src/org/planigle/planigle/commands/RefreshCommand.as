@@ -57,7 +57,8 @@ package org.planigle.planigle.commands
 				}
 				if (result.stories != null)
 					StoryFactory.getInstance().populate( result.time, result.stories ? result.stories as Array : new Array() );
-				Stats.getInstance().populate(result.story_stats);
+				if (result.storyStats != null)
+					Stats.getInstance().populate(result.storyStats);
 				ViewModelLocator.getInstance().refreshInProgress = false;
 				storiesCommand.execute(null);
 			}
