@@ -46,22 +46,26 @@ package org.planigle.planigle.model
 		
 		public function getNotStarted(team:Team):int
 		{
-			return getStats(team)[Story.CREATED];
+			var stats:Object = getStats(team);
+			return stats == null ? 0 : stats[Story.CREATED];
 		}
 		
 		public function getInProgress(team:Team):int
 		{
-			return getStats(team)[Story.IN_PROGRESS];
+			var stats:Object = getStats(team);
+			return stats == null ? 0 : stats[Story.IN_PROGRESS];
 		}
 		
 		public function getBlocked(team:Team):int
 		{
-			return getStats(team)[Story.BLOCKED];
+			var stats:Object = getStats(team);
+			return stats == null ? 0 : stats[Story.BLOCKED];
 		}
 		
 		public function getDone(team:Team):int
 		{
-			return getStats(team)[Story.ACCEPTED];
+			var stats:Object = getStats(team);
+			return stats == null ? 0 : stats[Story.ACCEPTED];
 		}
 	}
 }
