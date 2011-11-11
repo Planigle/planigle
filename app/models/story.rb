@@ -352,6 +352,29 @@ class Story < ActiveRecord::Base
     joins
   end
   
+  def self.get_stats(current_individual, conditions)
+    stats = {}
+    current_individual.project.teams.each{|team|stats[team.id] = get_team_stats(current_individual, conditions, team)}
+    stats[0] = get_team_stats(current_individual, conditions, nil)
+    stats
+  end
+  
+  def self.get_team_stats(current_individual, conditions, team)
+    stats = {}
+    get_unknown_statuses(conditions[:status_code]).each{|status|stats[status]=Story.get_records(current_individual, {:iteration_id=>'Current',:team_id=>team,:status_code=>status}).inject(0){|result,story|result+(story.effort == nil ? 0 : story.effort)}}
+    stats
+  end
+  
+  def self.get_unknown_statuses(status)
+    if status == "NotDone"
+      [3]
+    elsif status == nil
+      []
+    else
+      [0,1,2,3] - [status.to_i]
+    end
+  end
+  
   # Answer whether I match the specified text.
   def matches_text(text)
       text = text.downcase

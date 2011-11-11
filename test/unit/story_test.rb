@@ -670,6 +670,32 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal 1, story.errors.length # invalid project
   end
 
+  def test_get_stats
+    conditions={:status_code => '1'}
+    stats = Story.get_stats(individuals(:aaron), conditions)
+    assert_equal 0, stats[0][0]
+    assert_equal nil, stats[0][1]
+    assert_equal 0, stats[0][2]
+    assert_equal 1, stats[0][3]
+    assert_equal 0, stats[1][0]
+    assert_equal nil, stats[1][1]
+    assert_equal 0, stats[1][2]
+    assert_equal 0, stats[1][3]
+    assert_equal 0, stats[2][0]
+    assert_equal nil, stats[2][1]
+    assert_equal 0, stats[2][2]
+    assert_equal 0, stats[2][3]
+  end
+  
+  def test_get_unknown_statuses
+    assert_equal [3], Story.get_unknown_statuses('NotDone')
+    assert_equal [], Story.get_unknown_statuses(nil)
+    assert_equal [1,2,3], Story.get_unknown_statuses('0')
+    assert_equal [0,2,3], Story.get_unknown_statuses('1')
+    assert_equal [0,1,3], Story.get_unknown_statuses('2')
+    assert_equal [0,1,2], Story.get_unknown_statuses('3')
+  end
+
 private
 
   def assert_changes(start)
