@@ -12,6 +12,7 @@ package org.planigle.planigle.commands
 	import org.planigle.planigle.model.IterationFactory;
 	import org.planigle.planigle.model.StoryFactory;
 	import org.planigle.planigle.model.ViewModelLocator;
+	import org.planigle.planigle.model.Stats;
 	
 	public class RefreshCommand implements ICommand, IResponder
 	{
@@ -56,6 +57,7 @@ package org.planigle.planigle.commands
 				}
 				if (result.stories != null)
 					StoryFactory.getInstance().populate( result.time, result.stories ? result.stories as Array : new Array() );
+				Stats.getInstance().populate(result.story_stats);
 				ViewModelLocator.getInstance().refreshInProgress = false;
 				storiesCommand.execute(null);
 			}

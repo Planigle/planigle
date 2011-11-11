@@ -15,6 +15,7 @@ package org.planigle.planigle.commands
 	import org.planigle.planigle.model.ReleaseFactory;
 	import org.planigle.planigle.model.StoryFactory;
 	import org.planigle.planigle.model.ViewModelLocator;
+	import org.planigle.planigle.model.Stats;
 	import org.planigle.planigle.vo.LoginVO;
 	
 	public class LoginCommand implements ICommand, IResponder
@@ -73,6 +74,7 @@ package org.planigle.planigle.commands
 				IterationFactory.getInstance().currentId = result.currentIteration ? result.currentIteration.id : null;
 				IterationFactory.getInstance().populate( result.time, result.iterations ? result.iterations as Array : new Array() );
 				StoryFactory.getInstance().populate( result.time, result.stories ? result.stories as Array : new Array() );
+				Stats.getInstance().populate(result.story_stats);
 				viewModelLocator.workflowState = ViewModelLocator.CORE_APPLICATION_SCREEN;
 				ViewModelLocator.getInstance().refreshInProgress = false;
 				storiesCommand.execute(null);

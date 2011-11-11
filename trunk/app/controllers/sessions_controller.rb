@@ -118,6 +118,9 @@ protected
       end
       if (update_stories || !parms[:stories] || Story.have_records_changed(current_individual, Time.parse(parms[:stories])))
         result['stories'] = Story.get_records(current_individual, conditions, parms.delete(:page_size), 1)
+        if(current_individual.is_premium && current_individual.project != nil)
+          result['story_stats'] = Story.get_stats(current_individual, conditions)
+        end
       end
     end
     result
