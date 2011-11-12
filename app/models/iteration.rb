@@ -11,6 +11,7 @@ class Iteration < ActiveRecord::Base
   
   validates_presence_of     :project_id, :name, :start, :finish
   validates_length_of       :name,   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
+  validates_length_of       :notable,   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
   validates_length_of       :retrospective_results, :maximum => 4096, :allow_nil => true
 
   # If project is set, set the default values based on that project.
