@@ -6,7 +6,7 @@ class Iteration < ActiveRecord::Base
   has_many :iteration_totals, :dependent => :destroy
   has_many :iteration_story_totals, :dependent => :destroy
   has_many :iteration_velocities, :dependent => :destroy
-  attr_accessible :name, :start, :finish, :project_id, :retrospective_results
+  attr_accessible :name, :start, :finish, :project_id, :retrospective_results, :notable
   acts_as_audited
   
   validates_presence_of     :project_id, :name, :start, :finish
