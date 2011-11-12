@@ -1,3 +1,4 @@
 <FlexMonkey>
-  <TestSuiteFile filename="CommunityEdition.xml"/>
+  <TestSuiteFile filename="CommunityEditionSignup.xml"/>
+  <TestSuiteFile filename="CommunityEditionMain.xml"/>
 </FlexMonkey>

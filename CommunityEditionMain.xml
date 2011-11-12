@@ -1,62 +1,5 @@
 <FlexMonkey>
-  <TestSuite name="Community Edition" description="null" ignore="false">
-    <TestCase name="Sign Up For Account" description="null" ignore="false">
-      <Test name="Login Taken" description="null" defaultThinkTime="250" ignore="false">
-        <UIEvent command="Click" value="Click here to get a free account" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
-        <UIEvent command="Input" value="signupFieldCompany" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
-          <arg value="My Company"/>
-        </UIEvent>
-        <UIEvent command="ChangeFocus" value="signupFieldCompany" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
-        <UIEvent command="Input" value="signupFieldName" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
-          <arg value="My Project"/>
-        </UIEvent>
-        <UIEvent command="ChangeFocus" value="signupFieldName" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
-        <UIEvent command="ChangeFocus" value="textArea" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
-        <UIEvent command="SelectText" value="signupFieldLogin" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
-          <arg value="0"/>
-          <arg value="0"/>
-        </UIEvent>
-        <UIEvent command="Input" value="signupFieldLogin" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
-          <arg value="admin2"/>
-        </UIEvent>
-        <UIEvent command="ChangeFocus" value="signupFieldLogin" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
-        <UIEvent command="Input" value="signupFieldPassword" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
-          <arg value="testit"/>
-        </UIEvent>
-        <UIEvent command="ChangeFocus" value="signupFieldPassword" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
-        <UIEvent command="Input" value="signupFieldPasswordConfirmation" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
-          <arg value="testit"/>
-        </UIEvent>
-        <UIEvent command="ChangeFocus" value="signupFieldPasswordConfirmation" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
-        <UIEvent command="Input" value="signupFieldEmail" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
-          <arg value="test@planigle.com"/>
-        </UIEvent>
-        <UIEvent command="ChangeFocus" value="signupFieldEmail" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
-        <UIEvent command="ChangeFocus" value="signupFieldPhoneNumber" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
-        <UIEvent command="Input" value="signupFieldFirstName" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
-          <arg value="Test"/>
-        </UIEvent>
-        <UIEvent command="ChangeFocus" value="signupFieldFirstName" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
-        <UIEvent command="Input" value="signupFieldLastName" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
-          <arg value="User"/>
-        </UIEvent>
-        <UIEvent command="Click" value="OK" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
-        <Verify value="Login has already been taken" prop="automationName" description="New Verify" isRetryable="true" delay="500" attempts="20" verifyBitmap="false" snapshotURL="verify-110-2988.snp" verifyBitmapFuzziness="0">
-          <Attribute name="automationName" expectedValue="Login has already been taken" type="property" actualValue="null"/>
-        </Verify>
-      </Test>
-      <Test name="Success" description="null" defaultThinkTime="250" ignore="false">
-        <UIEvent command="SelectText" value="signupFieldLogin" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
-          <arg value="0"/>
-          <arg value="6"/>
-        </UIEvent>
-        <UIEvent command="Input" value="signupFieldLogin" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
-          <arg value="testuser"/>
-        </UIEvent>
-        <UIEvent command="Click" value="OK" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
-        <Verify value="You have successfully signed up for Planigle.  Shortly, you will receive an email to complete the signup process." prop="automationName" description="New Verify" isRetryable="true" delay="500" attempts="20" verifyBitmap="false" snapshotURL="verify-131-2943.snp" verifyBitmapFuzziness="0"/>
-      </Test>
-    </TestCase>
+  <TestSuite name="Community Edition - Main" description="null" ignore="false">
     <TestCase name="Log in" description="null" ignore="false">
       <Test name="Failure" description="null" defaultThinkTime="250" ignore="false">
         <UIEvent command="SelectText" value="userID" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
@@ -71,7 +14,7 @@
         </UIEvent>
         <UIEvent command="Click" value="loginButton" prop="id" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
         <Verify value="Login Error" prop="automationName" description="New Verify" isRetryable="true" delay="500" attempts="20" verifyBitmap="false" snapshotURL="verify-11-3083.snp" verifyBitmapFuzziness="0">
-          <Attribute name="automationName" expectedValue="Login Error" type="property" actualValue="null"/>
+          <Attribute name="automationName" expectedValue="Login Error" type="property" actualValue="Login Error"/>
         </Verify>
         <UIEvent command="Click" value="OK" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
       </Test>
@@ -85,7 +28,7 @@
         </UIEvent>
         <UIEvent command="Click" value="loginButton" prop="id" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
         <Verify value="Stories" prop="automationName" description="New Verify" isRetryable="true" delay="500" attempts="20" verifyBitmap="false" snapshotURL="verify-12-9776.snp" verifyBitmapFuzziness="0">
-          <Attribute name="visible" expectedValue="true" type="property" actualValue="null"/>
+          <Attribute name="visible" expectedValue="true" type="property" actualValue="true"/>
         </Verify>
       </Test>
     </TestCase>
@@ -167,7 +110,7 @@
         </UIEvent>
         <UIEvent command="Click" value="Create" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
         <Verify value="Name can't be blank" prop="automationName" description="New Verify" isRetryable="true" delay="500" attempts="20" verifyBitmap="false" snapshotURL="verify-10-6968.snp" verifyBitmapFuzziness="0">
-          <Attribute name="text" expectedValue="Name can't be blank" type="property" actualValue="null"/>
+          <Attribute name="text" expectedValue="Name can't be blank" type="property" actualValue="Name can't be blank"/>
         </Verify>
       </Test>
       <Test name="Passes validation" description="null" defaultThinkTime="250" ignore="false">
@@ -278,7 +221,7 @@
         </UIEvent>
         <UIEvent command="Click" value="Update" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
         <Verify value="Name can't be blank" prop="automationName" description="New Verify" isRetryable="true" delay="500" attempts="20" verifyBitmap="false" snapshotURL="verify-10-6968.snp" verifyBitmapFuzziness="0">
-          <Attribute name="text" expectedValue="Name can't be blank" type="property" actualValue="null"/>
+          <Attribute name="text" expectedValue="Name can't be blank" type="property" actualValue="Name can't be blank"/>
         </Verify>
       </Test>
       <Test name="Passes validation" description="null" defaultThinkTime="250" ignore="false">
@@ -351,45 +294,9 @@
           <arg value="Done"/>
         </UIEvent>
         <Verify value="statustest" prop="automationName" description="New Verify" isRetryable="true" delay="500" attempts="20" verifyBitmap="false" snapshotURL="verify-152-7953.snp" verifyBitmapFuzziness="0">
-          <Attribute name="text" expectedValue="In Progress" type="property" actualValue="null"/>
+          <Attribute name="text" expectedValue="In Progress" type="property" actualValue="In Progress"/>
         </Verify>
         <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="2" col="1" expectedValue="test4" isRetryable="true" delay="1000" attempts="10"/>
-      </Test>
-    </TestCase>
-    <TestCase name="Add Task" description="null" ignore="false">
-      <Test name="Fails Validation" description="null" defaultThinkTime="250" ignore="false">
-        <UIEvent command="Click" value="addTasktest3" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
-        <UIEvent command="Input" value="descriptionText" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
-          <arg value="A description"/>
-        </UIEvent>
-        <UIEvent command="Open" value="storyFieldStatus" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
-        <UIEvent command="Select" value="storyFieldStatus" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
-          <arg value="In Progress"/>
-        </UIEvent>
-        <UIEvent command="SelectText" value="storyFieldEffort" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
-          <arg value="0"/>
-          <arg value="0"/>
-        </UIEvent>
-        <UIEvent command="Input" value="storyFieldEffort" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
-          <arg value="1"/>
-        </UIEvent>
-        <UIEvent command="Click" value="Create &amp; Close" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
-        <Verify value="Name can't be blank" prop="automationName" description="New Verify" isRetryable="true" delay="500" attempts="20" verifyBitmap="false" snapshotURL="verify-161-7136.snp" verifyBitmapFuzziness="0">
-          <Attribute name="automationName" expectedValue="Name can't be blank" type="property" actualValue="null"/>
-        </Verify>
-      </Test>
-      <Test name="Passes Validation" description="null" defaultThinkTime="250" ignore="false">
-        <UIEvent command="Input" value="storyFieldName" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
-          <arg value="New Task"/>
-        </UIEvent>
-        <UIEvent command="ChangeFocus" value="storyFieldName" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
-        <UIEvent command="Click" value="Create &amp; Close" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="1" col="1" expectedValue="New Task" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="1" col="4" expectedValue="admin2 williams" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="1" col="7" expectedValue="1" isRetryable="true" delay="1000" attempts="10"/>
-        <Verify value="statusNew Task" prop="automationName" description="New Verify" isRetryable="true" delay="500" attempts="20" verifyBitmap="false" snapshotURL="verify-152-7953.snp" verifyBitmapFuzziness="0">
-          <Attribute name="text" expectedValue="In Progress" type="property" actualValue="null"/>
-        </Verify>
       </Test>
     </TestCase>
     <TestCase name="Filters" description="null" ignore="false">
@@ -527,6 +434,42 @@
         </UIEvent>
         <VerifyProperty value="storyResourceGrid" propertyString="dataProvider.length" expectedValue="4" propertyType="equals" prop="automationName" description="New Verify Expression" isRetryable="true" delay="500" attempts="20"/>
         <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="0" col="1" expectedValue="test3" isRetryable="true" delay="1000" attempts="10"/>
+      </Test>
+    </TestCase>
+    <TestCase name="Add Task" description="null" ignore="false">
+      <Test name="Fails Validation" description="null" defaultThinkTime="250" ignore="false">
+        <UIEvent command="Click" value="addTasktest3" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
+        <UIEvent command="Input" value="descriptionText" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
+          <arg value="A description"/>
+        </UIEvent>
+        <UIEvent command="Open" value="storyFieldStatus" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
+        <UIEvent command="Select" value="storyFieldStatus" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
+          <arg value="In Progress"/>
+        </UIEvent>
+        <UIEvent command="SelectText" value="storyFieldEffort" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
+          <arg value="0"/>
+          <arg value="0"/>
+        </UIEvent>
+        <UIEvent command="Input" value="storyFieldEffort" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
+          <arg value="1"/>
+        </UIEvent>
+        <UIEvent command="Click" value="Create &amp; Close" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
+        <Verify value="Name can't be blank" prop="automationName" description="New Verify" isRetryable="true" delay="500" attempts="20" verifyBitmap="false" snapshotURL="verify-161-7136.snp" verifyBitmapFuzziness="0">
+          <Attribute name="automationName" expectedValue="Name can't be blank" type="property" actualValue="Name can't be blank"/>
+        </Verify>
+      </Test>
+      <Test name="Passes Validation" description="null" defaultThinkTime="250" ignore="false">
+        <UIEvent command="Input" value="storyFieldName" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
+          <arg value="New Task"/>
+        </UIEvent>
+        <UIEvent command="ChangeFocus" value="storyFieldName" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
+        <UIEvent command="Click" value="Create &amp; Close" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="1" col="1" expectedValue="New Task" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="1" col="4" expectedValue="admin2 williams" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="1" col="7" expectedValue="1" isRetryable="true" delay="1000" attempts="10"/>
+        <Verify value="statusNew Task" prop="automationName" description="New Verify" isRetryable="true" delay="500" attempts="20" verifyBitmap="false" snapshotURL="verify-152-7953.snp" verifyBitmapFuzziness="0">
+          <Attribute name="text" expectedValue="In Progress" type="property" actualValue="In Progress"/>
+        </Verify>
       </Test>
     </TestCase>
   </TestSuite>
