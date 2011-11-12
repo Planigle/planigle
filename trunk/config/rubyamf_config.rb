@@ -81,7 +81,7 @@ module RubyAMF
       :actionscript => 'Iteration',
       :ruby => 'Iteration',
       :type => 'active_record',
-      :attributes => ["id", "project_id", "name", "start", "finish", "retrospective_results"],
+      :attributes => ["id", "project_id", "name", "start", "finish", "retrospective_results", "notable"],
       :methods => ['updated_at_string'])
 
     ClassMappings.register(
