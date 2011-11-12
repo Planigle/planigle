@@ -104,6 +104,7 @@
 			var values:Object = getInitialValues();
 			iterationFieldName.text = values["name"];
 			iterationFieldName.setSelection(0, iterationFieldName.text.length );
+			iterationFieldNotable.text = values["notable"];
 			iterationFieldStart.selectedDate = values["start"];
 			iterationFieldFinish.selectedDate = values["finish"];
 			iterationFieldRetrospectiveResults.text = values["retrospectiveResults"];
@@ -124,6 +125,7 @@
 				iterationFieldName.text = currentItem.name;
 				iterationFieldName.setFocus();
 				iterationFieldName.setSelection(0, iterationFieldName.text.length );
+				iterationFieldNotable.text = currentItem.notable;
 				iterationFieldStart.selectedDate = currentItem.start;
 				iterationFieldFinish.selectedDate = currentItem.finish;
 				iterationFieldRetrospectiveResults.text = currentItem.retrospectiveResults;
@@ -154,6 +156,7 @@
 			var params:Object = new Object();
 			params['record[project_id]'] = factory.currentIndividual.selectedProjectId;
 			params['record[name]'] = iterationFieldName.text;
+			params['record[notable]'] = iterationFieldNotable.text;
 			params['record[start]'] = iterationFieldStart.selectedDate;
 			params['record[finish]'] = iterationFieldFinish.selectedDate;
 			params['record[retrospective_results]'] = iterationFieldRetrospectiveResults.text;
@@ -250,12 +253,14 @@
 			if (iterationBtnChange.label == 'Create') {
 				var values:Object = getInitialValues();
 				if (iterationFieldName.text != values["name"]) return true;
+				if (iterationFieldNotable.text != values["notable"]) return true;
 				if (!DateUtils.equals(iterationFieldStart.selectedDate, values["start"])) return true;
 				if (!DateUtils.equals(iterationFieldFinish.selectedDate, values["finish"])) return true;
 				if (iterationFieldRetrospectiveResults.text != values["retrospectiveResults"]) return true;
 			}
 			else if (currentItem) {
 				if (iterationFieldName.text != currentItem.name) return true;
+				if (iterationFieldNotable.text != currentItem.notable) return true;
 				if (!DateUtils.equals(iterationFieldStart.selectedDate, currentItem.start)) return true;
 				if (!DateUtils.equals(iterationFieldFinish.selectedDate, currentItem.finish)) return true;
 				if (iterationFieldRetrospectiveResults.text != currentItem.retrospectiveResults) return true;
@@ -279,6 +284,9 @@
 						</mx:FormItem>
 						<mx:FormItem label='Finish' required="true">
 							<mx:DateField id='iterationFieldFinish' editable="true" showToday="true"/>
+						</mx:FormItem>
+						<mx:FormItem label='Notable'>
+							<mx:TextInput id='iterationFieldNotable' maxChars="40" text='' width="350"/>
 						</mx:FormItem>
 						<mx:FormItem label='Retrospective Results'>
 							<component:ExpandableHTMLTextArea id='iterationFieldRetrospectiveResults'/>

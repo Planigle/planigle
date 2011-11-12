@@ -43,6 +43,7 @@ protected
       @record.start = params[0].start
       @record.length = params[0].length
       @record.retrospective_results = params[0].retrospective_results
+      @record.notable = params[0].notable
     else
       @record.attributes = params[:record]
     end

@@ -16,6 +16,7 @@ package org.planigle.planigle.model
 		public var start:Date;
 		public var finish:Date;
 		public var retrospectiveResults:String;
+		public var notable:String;
 		public var updatedAtString:String;
 
 		public function getCurrentVersion():Object
@@ -32,6 +33,7 @@ package org.planigle.planigle.model
 			start = DateUtils.stringToDate(xml.start);			
 			finish = DateUtils.stringToDate(xml.finish);
 			retrospectiveResults = xml.child("retrospective-results");
+			notable = xml.notable;
 			updatedAtString = xml.child("updated-at");
 		}
 		
