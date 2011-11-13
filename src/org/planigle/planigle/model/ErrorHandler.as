@@ -26,7 +26,10 @@ package org.planigle.planigle.model
 		}
 		
 		public function handleError(error:*):void {
-			errors.addItemAt(new PlanigleError(error),0);
+			var planigleError:PlanigleError = new PlanigleError(error);
+			trace(planigleError.message);
+			trace(planigleError.stackTrace);
+			errors.addItemAt(planigleError,0);
 			hasErrors = true;
 		}
 	}
