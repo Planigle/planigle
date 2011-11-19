@@ -48,6 +48,7 @@ class Task < ActiveRecord::Base
   def export(csv)
     values = [
       'T' + id.to_s,
+      '', # epic
       name,
       description,
       '', # acceptance criteria
