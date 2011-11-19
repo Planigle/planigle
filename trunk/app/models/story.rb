@@ -37,7 +37,7 @@ class Story < ActiveRecord::Base
   Blocked = 2
   Done = 3
 
-  Headers = { 'pid'=>:id, 'name'=>:name, 'description'=>:description, 'acceptance criteria'=>:acceptance_criteria, 'size'=>:effort, 'status'=>:status_code, 'reason blocked'=>:reason_blocked, 'release'=>:release_id, 'iteration'=>:iteration_id, 'team'=>:team_id, 'owner'=>:individual_id, 'public'=>:is_public, 'estimate'=>:estimate, 'actual'=>:actual, 'to do'=>:effort}
+  Headers = { 'pid'=>:id, 'epic'=>:story_id, 'name'=>:name, 'description'=>:description, 'acceptance criteria'=>:acceptance_criteria, 'size'=>:effort, 'status'=>:status_code, 'reason blocked'=>:reason_blocked, 'release'=>:release_id, 'iteration'=>:iteration_id, 'team'=>:team_id, 'owner'=>:individual_id, 'public'=>:is_public, 'estimate'=>:estimate, 'actual'=>:actual, 'to do'=>:effort}
 
   # Assign a priority on creation
   before_create :initialize_defaults
@@ -45,7 +45,7 @@ class Story < ActiveRecord::Base
   # Answer a CSV string representing the stories.
   def self.export(current_user, conditions = {})
     FasterCSV.generate(:row_sep => "\n") do |csv|
-      attribs = ['PID', 'Name', 'Description', 'Acceptance Criteria', 'Size', 'Estimate', 'To Do', 'Actual', 'Status', 'Reason Blocked', 'Release', 'Iteration', 'Team', 'Owner', 'Public', 'User Rank']
+      attribs = ['PID', 'Epic', 'Name', 'Description', 'Acceptance Criteria', 'Size', 'Estimate', 'To Do', 'Actual', 'Status', 'Reason Blocked', 'Release', 'Iteration', 'Team', 'Owner', 'Public', 'User Rank']
       if (current_user.project)
         if (!current_user.project.track_actuals)
           attribs.delete('Actual')
@@ -81,6 +81,7 @@ class Story < ActiveRecord::Base
   def export(csv)
     values = [
       'S' + id.to_s,
+      epic ? epic.name : '',
       name,
       description,
       acceptance_criteria("\n"),
@@ -676,6 +677,7 @@ private
         value = row[i]
         if (header && header != :ignore)
           case header
+            when :story_id then value = find_object_id(value, Story, ['name = ? and project_id = ?', value, current_user.project_id])
             when :team_id then value = find_object_id(value, Team, ['name = ? and project_id = ?', value, current_user.project_id])
             when :individual_id then value = find_object_id(value, Individual, ["concat(first_name, ' ', last_name) = ? and projects.id = ?", value, current_user.project_id], :projects)
             when :release_id then temp = find_object_id(value, Release, ['name = ? and project_id = ?', value, current_user.project_id]); value = temp == -1 ? value = find_object_id(value, Release, ['name like ? and project_id = ?', value.to_s+'%', current_user.project_id]) : temp
@@ -712,6 +714,7 @@ private
           values[:story_id] = prev_story.id
           object = Task.create(values)
         else
+          values.delete(:story_id) # don't use epic
           values[:id] = id[1..id.size-1]
           object = update_task(current_user, values)
         end
