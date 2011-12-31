@@ -163,6 +163,7 @@
 			updateProject(null, initial);
 		}
 
+		private var currentProject:Project;
 		private var premiumWatcher:ChangeWatcher;
 		private var teamWatcher:ChangeWatcher;
 
@@ -180,13 +181,15 @@
 				updatePremium();
 				updateTeamField();
 				updateAttributes(null, initial);
-				resetState();
+				if (currentProject == null || currentProject.id != project.id)
+					resetState();
 			}
 			else
 			{
 				premiumWatcher = null;
 				teamWatcher = null;
 			}
+			currentProject = project;
 		}
 
 		// Update premium attributes.
@@ -341,6 +344,7 @@
 		{
 			if (IndividualFactory.current().selectedProject)
 			{
+				var currentOwner:Individual = Individual(storyFieldOwner.selectedItem);
 				var collect:ArrayCollection = new ArrayCollection()
 				for each (var individual:Individual in IndividualFactory.current().selectedProject.enabledIndividuals())
 					collect.addItem(individual);
@@ -352,6 +356,16 @@
 						collect.addItemAt(owner, collect.length-1);
 				}
 				storyFieldOwner.dataProvider = collect;
+				if (currentOwner != null)
+				{ // Put back to previously selected owner
+					for each(var candidate:Individual in collect) {
+						if (candidate.id == currentOwner.id)
+						{
+							storyFieldOwner.selectedItem = candidate;
+							break;
+						}
+					}
+				}
 			}
 		}
 		
