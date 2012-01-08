@@ -171,7 +171,7 @@
 			individualFieldPasswordConfirmation.text = values["passwordConfirmation"];
 			individualFieldEmail.text = values["email"];
 			individualFieldPhoneNumber.text = values["phoneNumber"];
-			individualFieldNotificationType.selectedIndex = convertNotification(values["notificationType"]);
+			individualFieldNotificationType.selected = values["notificationType"] > 0; // 0 = NONE
 			individualFieldFirstName.text = values["firstName"];
 			individualFieldLastName.text = values["lastName"];
 			individualFieldRole.selectedIndex = values["role"];
@@ -180,12 +180,6 @@
 			labelPasswordConfirmation.required = true;
 			individualBtnChange.label = 'Create';
 			individualBtnInfo.visible = false;
-		}
-		
-		// Convert SMS notification to either NONE (0) or EMAIL (1).
-		protected function convertNotification(notificationType:int):int
-		{
-			return notificationType > 1 ? notificationType - 2 : notificationType;
 		}
 		
 		[Bindable]
@@ -228,7 +222,7 @@
 				individualFieldPasswordConfirmation.text = '';
 				individualFieldEmail.text = currentItem.email;
 				individualFieldPhoneNumber.text = currentItem.phoneNumber;
-				individualFieldNotificationType.selectedIndex = convertNotification(currentItem.notificationType);
+				individualFieldNotificationType.selected = currentItem.notificationType > 0;  // 0 = NONE
 				individualFieldFirstName.text = currentItem.firstName;
 				individualFieldLastName.text = currentItem.lastName;
 				individualFieldRole.selectedIndex = factory.currentIndividual.isAdmin() ? currentItem.role : currentItem.role - 1;
@@ -288,7 +282,7 @@
 			params['record[password_confirmation]'] = individualFieldPasswordConfirmation.text;
 			params['record[email]'] = individualFieldEmail.text;
 			params['record[phone_number]'] = individualFieldPhoneNumber.text;
-			params['record[notification_type]'] = individualFieldNotificationType.selectedItem.value;
+			params['record[notification_type]'] = individualFieldNotificationType.selected ? 1 : 0;
 			params['record[first_name]'] = individualFieldFirstName.text;
 			params['record[last_name]'] = individualFieldLastName.text;
 			params['record[role]'] = individualFieldRole.selectedItem.value;
@@ -395,7 +389,7 @@
 				if (individualFieldLastName.text != values["lastName"]) return true;
 				if (individualFieldEmail.text != values["email"]) return true;
 				if (individualFieldPhoneNumber.text != values["phoneNumber"]) return true;
-				if (individualFieldNotificationType.selectedIndex != convertNotification(values["notificationType"])) return true;
+				if (individualFieldNotificationType.selected != (values["notificationType"] > 0)) return true;
 			}
 			else if (currentItem) {
 				if (individualFieldCompany.selectedItem.id != currentItem.companyId) return true;
@@ -410,7 +404,7 @@
 				if (individualFieldLastName.text != currentItem.lastName) return true;
 				if (individualFieldEmail.text != currentItem.email) return true;
 				if (individualFieldPhoneNumber.text != currentItem.phoneNumber) return true;
-				if (individualFieldNotificationType.selectedItem.value != convertNotification(currentItem.notificationType)) return true;
+				if (individualFieldNotificationType.selected != (currentItem.notificationType > 0)) return true;
 			}
 			return false;
 		}
@@ -494,11 +488,8 @@
 									<mx:FormItem label='Phone Number' required="false">
 										<mx:TextInput id='individualFieldPhoneNumber' maxChars="20" text='' width="300"/>
 									</mx:FormItem>
-									<mx:FormItem id='individualFormNotificationType' label='Notify Via' visible="{factory.currentIndividual.isPremium}" height="{factory.currentIndividual.isPremium ? NaN : -5}">
-										<local:FixedComboBox id='individualFieldNotificationType' editable="false">
-											<mx:Object label="None" value="0" />
-											<mx:Object label="Email" value="1" />
-										</local:FixedComboBox>
+									<mx:FormItem id='individualFormNotificationType' label="Notification" visible="{factory.currentIndividual.isPremium}" height="{factory.currentIndividual.isPremium ? NaN : -5}">
+										<mx:CheckBox id='individualFieldNotificationType' label='Notify on story completion / acceptance' />
 									</mx:FormItem>
 								</mx:Form>
 							</mx:VBox>
