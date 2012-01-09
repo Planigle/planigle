@@ -1093,8 +1093,8 @@
 			}
 			else if (currentItem) {
 				if (storyFieldName.text != currentItem.name) return true;
-				if (storyFieldDescription.text != currentItem.description) return true;
-				if (storyFieldReasonBlocked.text != currentItem.reasonBlocked) return true;
+				if ((storyFieldDescription.text != currentItem.description) && (storyFieldDescription.text != "" || currentItem.description != null)) return true;
+				if ((storyFieldReasonBlocked.text != currentItem.reasonBlocked) && (storyFieldReasonBlocked.text != "" || currentItem.reasonBlocked != null)) return true;
 				if (storyFieldOwner.selectedItem.id != currentItem.individualId) return true;
 				if (storyFieldStatus.selectedItem.value != currentItem.statusCode) return true;
 				if (storyFieldEffort.text != (currentItem.effort == null ? "" : currentItem.effort)) return true;
