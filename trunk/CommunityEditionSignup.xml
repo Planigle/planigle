@@ -42,7 +42,7 @@
         </UIEvent>
         <UIEvent command="Click" value="OK" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
         <Verify value="Login has already been taken" prop="automationName" description="New Verify" isRetryable="true" delay="500" attempts="20" verifyBitmap="false" snapshotURL="verify-110-2988.snp" verifyBitmapFuzziness="0">
-          <Attribute name="automationName" expectedValue="Login has already been taken" type="property" actualValue="Login has already been taken"/>
+          <Attribute name="automationName" expectedValue="Login has already been taken" type="property" actualValue="null"/>
         </Verify>
       </Test>
       <Test name="Success" description="null" defaultThinkTime="250" ignore="false">

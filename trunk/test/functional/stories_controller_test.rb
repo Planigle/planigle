@@ -168,25 +168,25 @@ class StoriesControllerTest < ActionController::TestCase
     
   # Test exporting stories (based on role).
   def test_export_by_project_admin
-    export_by_role(individuals(:aaron), Story.find_all_by_project_id(1).length + 2, 1) # 2 tasks
+    export_by_role(individuals(:aaron), Story.find_all_by_project_id(1).length + 2) # 2 tasks
   end
 
   # Test exporting stories (based on role).
   def test_export_by_project_user
-    export_by_role(individuals(:user), Story.find_all_by_project_id(1).length + 2, 1)
+    export_by_role(individuals(:user), Story.find_all_by_project_id(1).length + 2)
   end
 
   # Test exporting stories (based on role).
   def test_export_by_readonly
-    export_by_role(individuals(:readonly), Story.find_all_by_project_id(1).length + 2, 1)
+    export_by_role(individuals(:readonly), Story.find_all_by_project_id(1).length + 2)
   end
 
   # Test exporting stories (based on role).
-  def export_by_role(user, count, extra=0)
+  def export_by_role(user, count)
     login_as(user)
     get :export
     assert_response :success
-    assert_equal count+1+extra, @response.body.split("\n").length
+    assert_equal count+1, @response.body.split("\n").length
   end
 
   # Test importing stories (based on role).
@@ -241,17 +241,17 @@ class StoriesControllerTest < ActionController::TestCase
     
   # Test getting stories (based on role).
   def test_index_by_project_admin
-    index_by_role(individuals(:aaron), Story.find_all_by_project_id(1).length)
+    index_by_role(individuals(:aaron), Story.find_all_by_project_id(1).length - 1)
   end
     
   # Test getting stories (based on role).
   def test_index_by_project_user
-    index_by_role(individuals(:user), Story.find_all_by_project_id(1).length)
+    index_by_role(individuals(:user), Story.find_all_by_project_id(1).length - 1)
   end
     
   # Test getting stories (based on role).
   def test_index_by_read_only_user
-    index_by_role(individuals(:readonly), Story.find_all_by_project_id(1).length)
+    index_by_role(individuals(:readonly), Story.find_all_by_project_id(1).length - 1)
   end
     
   # Test getting companies (based on role).
@@ -261,7 +261,7 @@ class StoriesControllerTest < ActionController::TestCase
     
   # Test getting companies (based on role).
   def test_index_changes
-    index_by_role(individuals(:aaron), Story.find_all_by_project_id(1).length, {:date => (Time.now - 5).to_s})
+    index_by_role(individuals(:aaron), Story.find_all_by_project_id(1).length - 1, {:date => (Time.now - 5).to_s})
   end
 
   # Test getting stories (based on role).

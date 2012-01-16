@@ -122,21 +122,21 @@
           <arg value="Test Story"/>
         </UIEvent>
         <UIEvent command="Click" value="Create &amp; Close" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="1" expectedValue="Test Story" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="2" expectedValue="first" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="3" expectedValue="Test2" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="4" expectedValue="aaron hank" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="5" expectedValue="1" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="9" expectedValue="In Progress" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="10" expectedValue="true" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="11" expectedValue="5" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="13" expectedValue="description" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="15" expectedValue="first" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="16" expectedValue="test" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="17" expectedValue="sample text" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="18" expectedValue="1" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="19" expectedValue="Value 1" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="20" expectedValue="None" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="1" expectedValue="Test Story" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="2" expectedValue="first" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="3" expectedValue="Test2" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="4" expectedValue="aaron hank" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="5" expectedValue="1" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="9" expectedValue="In Progress" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="10" expectedValue="true" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="11" expectedValue="4" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="13" expectedValue="description" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="15" expectedValue="first" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="16" expectedValue="test" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="17" expectedValue="sample text" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="18" expectedValue="1" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="19" expectedValue="Value 1" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="20" expectedValue="None" isRetryable="true" delay="1000" attempts="10"/>
       </Test>
     </TestCase>
     <TestCase name="Edit Story" description="null" ignore="false">
@@ -233,21 +233,21 @@
           <arg value="Changed Story"/>
         </UIEvent>
         <UIEvent command="Click" value="Update" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="1" expectedValue="Changed Story" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="2" expectedValue="second" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="3" expectedValue="Test_team" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="4" expectedValue="ted williams" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="5" expectedValue="2" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="9" expectedValue="Blocked" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="10" expectedValue="false" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="11" expectedValue="5" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="13" expectedValue="new desc" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="15" expectedValue="first" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="16" expectedValue="more" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="17" expectedValue="another sample" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="18" expectedValue="3" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="19" expectedValue="Value 1" isRetryable="true" delay="1000" attempts="10"/>
-        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="4" col="20" expectedValue="None" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="1" expectedValue="Changed Story" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="2" expectedValue="second" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="3" expectedValue="Test_team" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="4" expectedValue="ted williams" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="5" expectedValue="2" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="9" expectedValue="Blocked" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="10" expectedValue="false" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="11" expectedValue="4" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="13" expectedValue="new desc" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="15" expectedValue="first" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="16" expectedValue="more" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="17" expectedValue="another sample" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="18" expectedValue="3" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="19" expectedValue="Value 1" isRetryable="true" delay="1000" attempts="10"/>
+        <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="3" col="20" expectedValue="None" isRetryable="true" delay="1000" attempts="10"/>
       </Test>
     </TestCase>
     <TestCase name="Delete Story" description="null" ignore="false">
@@ -313,7 +313,7 @@
         <UIEvent command="Select" value="release" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
           <arg value="No Release"/>
         </UIEvent>
-        <VerifyProperty value="storyResourceGrid" propertyString="dataProvider.length" expectedValue="3" propertyType="equals" prop="automationName" description="New Verify Expression" isRetryable="true" delay="500" attempts="20"/>
+        <VerifyProperty value="storyResourceGrid" propertyString="dataProvider.length" expectedValue="1" propertyType="equals" prop="automationName" description="New Verify Expression" isRetryable="true" delay="500" attempts="20"/>
         <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="0" col="1" expectedValue="test3" isRetryable="true" delay="1000" attempts="10"/>
       </Test>
       <Test name="Release Filter - All Releases" description="null" defaultThinkTime="250" ignore="false">
@@ -321,7 +321,7 @@
         <UIEvent command="Select" value="release" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
           <arg value="All Releases"/>
         </UIEvent>
-        <VerifyProperty value="storyResourceGrid" propertyString="dataProvider.length" expectedValue="4" propertyType="equals" prop="automationName" description="New Verify Expression" isRetryable="true" delay="500" attempts="20"/>
+        <VerifyProperty value="storyResourceGrid" propertyString="dataProvider.length" expectedValue="2" propertyType="equals" prop="automationName" description="New Verify Expression" isRetryable="true" delay="500" attempts="20"/>
         <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="0" col="1" expectedValue="test3" isRetryable="true" delay="1000" attempts="10"/>
       </Test>
       <Test name="Iteration Filter - First" description="null" defaultThinkTime="250" ignore="false">
@@ -337,7 +337,7 @@
         <UIEvent command="Select" value="iteration" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
           <arg value="Backlog"/>
         </UIEvent>
-        <VerifyProperty value="storyResourceGrid" propertyString="dataProvider.length" expectedValue="3" propertyType="equals" prop="automationName" description="New Verify Expression" isRetryable="true" delay="500" attempts="20"/>
+        <VerifyProperty value="storyResourceGrid" propertyString="dataProvider.length" expectedValue="1" propertyType="equals" prop="automationName" description="New Verify Expression" isRetryable="true" delay="500" attempts="20"/>
         <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="0" col="1" expectedValue="test3" isRetryable="true" delay="1000" attempts="10"/>
       </Test>
       <Test name="Iteration Filter - All Iterations" description="null" defaultThinkTime="250" ignore="false">
@@ -345,7 +345,7 @@
         <UIEvent command="Select" value="iteration" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
           <arg value="All Iterations"/>
         </UIEvent>
-        <VerifyProperty value="storyResourceGrid" propertyString="dataProvider.length" expectedValue="4" propertyType="equals" prop="automationName" description="New Verify Expression" isRetryable="true" delay="500" attempts="20"/>
+        <VerifyProperty value="storyResourceGrid" propertyString="dataProvider.length" expectedValue="2" propertyType="equals" prop="automationName" description="New Verify Expression" isRetryable="true" delay="500" attempts="20"/>
         <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="0" col="1" expectedValue="test3" isRetryable="true" delay="1000" attempts="10"/>
       </Test>
       <Test name="Team Filter - Test_team" description="null" defaultThinkTime="250" ignore="false">
@@ -361,7 +361,7 @@
         <UIEvent command="Select" value="team" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
           <arg value="No Team"/>
         </UIEvent>
-        <VerifyProperty value="storyResourceGrid" propertyString="dataProvider.length" expectedValue="3" propertyType="equals" prop="automationName" description="New Verify Expression" isRetryable="true" delay="500" attempts="20"/>
+        <VerifyProperty value="storyResourceGrid" propertyString="dataProvider.length" expectedValue="1" propertyType="equals" prop="automationName" description="New Verify Expression" isRetryable="true" delay="500" attempts="20"/>
         <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="0" col="1" expectedValue="test3" isRetryable="true" delay="1000" attempts="10"/>
       </Test>
       <Test name="Team Filter - All Teams" description="null" defaultThinkTime="250" ignore="false">
@@ -369,7 +369,7 @@
         <UIEvent command="Select" value="team" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
           <arg value="All Teams"/>
         </UIEvent>
-        <VerifyProperty value="storyResourceGrid" propertyString="dataProvider.length" expectedValue="4" propertyType="equals" prop="automationName" description="New Verify Expression" isRetryable="true" delay="500" attempts="20"/>
+        <VerifyProperty value="storyResourceGrid" propertyString="dataProvider.length" expectedValue="2" propertyType="equals" prop="automationName" description="New Verify Expression" isRetryable="true" delay="500" attempts="20"/>
         <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="0" col="1" expectedValue="test3" isRetryable="true" delay="1000" attempts="10"/>
       </Test>
       <Test name="Owner Filter - aaron hank" description="null" defaultThinkTime="250" ignore="false">
@@ -400,7 +400,7 @@
         <UIEvent command="Select" value="individual" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
           <arg value="No Owner"/>
         </UIEvent>
-        <VerifyProperty value="storyResourceGrid" propertyString="dataProvider.length" expectedValue="3" propertyType="equals" prop="automationName" description="New Verify Expression" isRetryable="true" delay="500" attempts="20"/>
+        <VerifyProperty value="storyResourceGrid" propertyString="dataProvider.length" expectedValue="1" propertyType="equals" prop="automationName" description="New Verify Expression" isRetryable="true" delay="500" attempts="20"/>
         <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="0" col="1" expectedValue="test3" isRetryable="true" delay="1000" attempts="10"/>
       </Test>
       <Test name="Owner Filter - All Owners" description="null" defaultThinkTime="250" ignore="false">
@@ -408,7 +408,7 @@
         <UIEvent command="Select" value="individual" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
           <arg value="All Owners "/>
         </UIEvent>
-        <VerifyProperty value="storyResourceGrid" propertyString="dataProvider.length" expectedValue="4" propertyType="equals" prop="automationName" description="New Verify Expression" isRetryable="true" delay="500" attempts="20"/>
+        <VerifyProperty value="storyResourceGrid" propertyString="dataProvider.length" expectedValue="2" propertyType="equals" prop="automationName" description="New Verify Expression" isRetryable="true" delay="500" attempts="20"/>
         <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="0" col="1" expectedValue="test3" isRetryable="true" delay="1000" attempts="10"/>
       </Test>
       <Test name="Status Filter - Done" description="null" defaultThinkTime="250" ignore="false">
@@ -424,7 +424,7 @@
         <UIEvent command="Select" value="itemStatus" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
           <arg value="In Progress"/>
         </UIEvent>
-        <VerifyProperty value="storyResourceGrid" propertyString="dataProvider.length" expectedValue="4" propertyType="equals" prop="automationName" description="New Verify Expression" isRetryable="true" delay="500" attempts="20"/>
+        <VerifyProperty value="storyResourceGrid" propertyString="dataProvider.length" expectedValue="2" propertyType="equals" prop="automationName" description="New Verify Expression" isRetryable="true" delay="500" attempts="20"/>
         <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="0" col="1" expectedValue="test3" isRetryable="true" delay="1000" attempts="10"/>
       </Test>
       <Test name="Stats Filter - Not Done" description="null" defaultThinkTime="250" ignore="false">
@@ -432,7 +432,7 @@
         <UIEvent command="Select" value="itemStatus" prop="automationName" delay="1000" attempts="10" retryOnlyOnResponse="false">
           <arg value="Not Done"/>
         </UIEvent>
-        <VerifyProperty value="storyResourceGrid" propertyString="dataProvider.length" expectedValue="4" propertyType="equals" prop="automationName" description="New Verify Expression" isRetryable="true" delay="500" attempts="20"/>
+        <VerifyProperty value="storyResourceGrid" propertyString="dataProvider.length" expectedValue="2" propertyType="equals" prop="automationName" description="New Verify Expression" isRetryable="true" delay="500" attempts="20"/>
         <VerifyGrid value="storyResourceGrid" description="New Verify Grid" prop="automationName" row="0" col="1" expectedValue="test3" isRetryable="true" delay="1000" attempts="10"/>
       </Test>
     </TestCase>
