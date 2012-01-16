@@ -70,3 +70,4 @@ epic:
   description: ''
   status_code: 1
   priority: 10
+  is_public: true

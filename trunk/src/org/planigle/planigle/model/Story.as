@@ -14,6 +14,7 @@ package org.planigle.planigle.model
 	{
 		public static var pageSize:int = 20;
 		public static var conditions:Object = initialConditions();
+		public var indent:int = 5;
 		public var id:int;
 		public var projectId:int;
 		public var storyId:int;
@@ -36,6 +37,7 @@ package org.planigle.planigle.model
 		public var custom:String; // Used for sorting
 		public var updatedAtString:String;
 		private var myStoryValues:Array = new Array();
+		private var myStories:Array = new Array();
 		private var myTasks:Array = new Array();
 		private var myNotStartedTasks:ArrayCollection = new ArrayCollection();
 		private var myInProgressTasks:ArrayCollection = new ArrayCollection();
@@ -73,14 +75,37 @@ package org.planigle.planigle.model
 
 		public function getCurrentVersion():Object
 		{
-			return StoryFactory.getInstance().find(id);
+			for each(var story:Story in StoryFactory.getInstance().stories)
+			{
+				var foundStory:Story = story.findStory(id);
+				if (foundStory != null)
+					return foundStory;
+			}
+			return null;
+		}
+
+		public function findStory(anId:int):Story {
+			if (anId == id)
+				return this;
+			else
+			{
+				for each(var story:Story in stories)
+				{
+					var foundStory:Story = story.findStory(anId);
+					if (foundStory != null)
+						return foundStory;
+				}
+			}
+			return null;
 		}
 
 		// Remove me from the UI.
 		public function remove():void
 		{
 			var factory:StoryFactory = StoryFactory.getInstance();
-			factory.stories.removeItemAt(factory.stories.getItemIndex(this));
+			var index:int = factory.stories.getItemIndex(this);
+			if (index >=0)
+				factory.stories.removeItemAt(index);
 		}
 
 		// Populate myself from XML.
@@ -114,20 +139,29 @@ package org.planigle.planigle.model
 			}
 			storyValues = newStoryValues.source;
 
+			var newStories:ArrayCollection = new ArrayCollection();
+			for (var j:int = 0; j < xml.child("filtered-stories").child("filtered-story").length(); j++)
+			{
+				var story:Story = new Story();
+				story.populate(XML(xml.child("filtered-stories").child("filtered-story")[j]));
+				newStories.addItem(story);
+			}
+			stories = newStories.source;
+
 			var newTasks:ArrayCollection = new ArrayCollection();
-			for (var j:int = 0; j < xml.child("filtered-tasks").child("filtered-task").length(); j++)
+			for (var k:int = 0; k < xml.child("filtered-tasks").child("filtered-task").length(); k++)
 			{
 				var task:Task = new Task();
-				task.populate(XML(xml.child("filtered-tasks").child("filtered-task")[j]));
+				task.populate(XML(xml.child("filtered-tasks").child("filtered-task")[k]));
 				newTasks.addItem(task);
 			}
 			tasks = newTasks.source;
 
 			var newCriteria:ArrayCollection = new ArrayCollection();
-			for (var k:int = 0; k < xml.criteria.criterium.length(); k++)
+			for (var l:int = 0; l < xml.criteria.criterium.length(); l++)
 			{
 				var criterium:Criterium = new Criterium();
-				criterium.populate(XML(xml.criteria.criterium[k]));
+				criterium.populate(XML(xml.criteria.criterium[l]));
 				newCriteria.addItem(criterium);
 			}
 			criteria = newCriteria.source;
@@ -270,6 +304,21 @@ package org.planigle.planigle.model
 			return null;
 		}
 
+		// Answer my stories.
+		public function get stories():Array
+		{
+			return myStories;
+		}
+
+		// Set my stories.
+		public function set stories(stories:Array):void
+		{
+			stories.sortOn(["priority"], [Array.NUMERIC]);
+			for each (var story:Story in stories)
+				story.indent = indent + 25;
+			myStories = stories;
+		}
+
 		// Answer my tasks.
 		public function get tasks():Array
 		{
@@ -287,6 +336,12 @@ package org.planigle.planigle.model
 			notStartedTasks = findNotStartedTasks(); // generate change event
 			inProgressTasks = findInProgressTasks(); // generate change event
 			doneTasks = findDoneTasks(); // generate change event
+		}
+		
+		// Set my stories.
+		public function set filteredStories(stories:Array):void
+		{
+			this.stories = stories;
 		}
 
 		// Set my tasks.
@@ -311,22 +366,12 @@ package org.planigle.planigle.model
 			myCriteria = criteria;
 		}
 
-		// Resort my tasks and criteria.
+		// Resort my stories, tasks and criteria.
 		public function resort():void
 		{
+			stories=stories.concat(); // set to a copy
 			tasks=tasks.concat(); // set to a copy
 			criteria=criteria.concat(); // set to a copy
-		}
-
-		// Answer how much to indent this kind of item.
-		public function get indent():int
-		{
-			return 5;
-		}
-
-		// Set the indent (currently ignored; used to prevent binding issue).
-		public function set indent(indent:int):void
-		{
 		}
 
 		// Answer my sizing.
@@ -635,6 +680,10 @@ package org.planigle.planigle.model
 		
 		public function canBeEpic():Boolean {
 			return tasks.length == 0;
+		}
+		
+		public function hasEpic():Boolean {
+			return storyId != 0;
 		}
 	}
 }

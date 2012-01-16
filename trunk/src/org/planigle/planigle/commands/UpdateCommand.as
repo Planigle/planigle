@@ -53,7 +53,9 @@ package org.planigle.planigle.commands
 				}
 				else if (result.errorId == "FILTERED")
 				{
-					removeObject();
+					var object:Object = updateObject(result.records.children()[0]); // Child stories are not in the story factory, but still need to be updated
+					if (object != null)
+						object.remove();
 					if (notifySuccess != null)
 						notifySuccess(null, result.error);
 				}
@@ -68,16 +70,12 @@ package org.planigle.planigle.commands
 			}
 		}
 		
-		protected function updateObject(record:Object): void
+		protected function updateObject(record:Object): Object
 		{
 			var newObject:Object = object.getCurrentVersion();
 			if (newObject != null)
-				newObject.updateCompleted(record);			
-		}
-		
-		protected function removeObject(): void
-		{
-			object.getCurrentVersion().remove();
+				newObject.updateCompleted(record);
+			return newObject;
 		}
 		
 		// Handle case where error occurs.

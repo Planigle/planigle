@@ -253,10 +253,23 @@ class Story < ActiveRecord::Base
       options[:methods] = [:acceptance_criteria, :epic_name]
     end
     if !options[:procs]
-      proc = Proc.new {|opt| filtered_tasks_as_xml(opt[:builder])}
-      options[:procs] = [proc]
+      story_proc = Proc.new {|opt| filtered_stories_as_xml(opt[:builder])}
+      task_proc = Proc.new {|opt| filtered_tasks_as_xml(opt[:builder])}
+      options[:procs] = [story_proc, task_proc]
     end
     super(options)
+  end
+  
+  def filtered_stories
+    stories
+  end
+  
+  def filtered_stories_as_xml(builder)
+    builder.method_missing("filtered-stories".to_sym) do
+      filtered_stories.each do |story|
+        story.to_xml({:builder => builder, :skip_instruct => true, :root => :filtered_story})
+      end
+    end
   end
   
   def filtered_tasks
@@ -321,6 +334,9 @@ class Story < ActiveRecord::Base
         conditions.delete(:iteration_id)
       end
     end
+    if conditions[:iteration_id] && conditions[:view_epics]
+      conditions.delete(:iteration_id)
+    end
     if conditions[:team_id] == "MyTeam"
       team_id = current_user.team_id
       if team_id && current_user.team.project_id == current_user.project_id
@@ -332,6 +348,12 @@ class Story < ActiveRecord::Base
     if conditions[:status_code] == "NotDone"
       conditions[:status_code] = [0,1,2]
     end
+    if conditions[:view_epics]
+      conditions["stories.story_id"] = nil
+    else
+      conditions["child.id"] = nil
+    end
+    conditions.delete(:view_epics)
     new_conditions = conditions.clone
     conditions.each_pair do |key,value|
       if key.to_s[0..6] == "custom_"
@@ -343,11 +365,14 @@ class Story < ActiveRecord::Base
   
   def self.get_joins(conditions)
     joins = ""
+    if(!conditions[:view_epics])
+      joins += "LEFT OUTER JOIN stories as child ON stories.id=child.story_id "
+    end
     conditions.each_pair do |key,value|
       key_string = key.to_s
       if key_string[0..6] == "custom_"
         # Use Integer() to make sure that key isn't used for SQL injection
-        joins = joins + "LEFT OUTER JOIN story_values AS " + key_string + " ON " + key_string + ".story_id = stories.id AND " + key_string + ".story_attribute_id=" + Integer(key_string[7..key_string.length-1]).to_s + " "
+        joins += "LEFT OUTER JOIN story_values AS " + key_string + " ON " + key_string + ".story_id = stories.id AND " + key_string + ".story_attribute_id=" + Integer(key_string[7..key_string.length-1]).to_s + " "
       end
     end
     joins
@@ -365,7 +390,7 @@ class Story < ActiveRecord::Base
     [0,1,2,3].each{|status|stats[status]=Story.get_records(current_individual, {:iteration_id=>'Current',:team_id=>team,:status_code=>status}).inject(0){|result,story|result+(story.effort == nil ? 0 : story.effort)}}
     stats
   end
-  
+
   # Answer whether I match the specified text.
   def matches_text(text)
       text = text.downcase
@@ -460,10 +485,10 @@ class Story < ActiveRecord::Base
   end
   
   def link
-    "<a href='" + url + "'>" + name + "</a>"
+    "<a href='" + external_url + "'>" + name + "</a>"
   end
 
-  def url
+  def external_url
     "#{config_option(:site_url)}/?project_id=" + project.id.to_s() + "&id=" + id.to_s()
   end
 
