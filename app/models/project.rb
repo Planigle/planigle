@@ -141,13 +141,15 @@ class Project < ActiveRecord::Base
     builder.stories do
       i = 1
       stories.find(:all, :order => 'priority', :conditions => ['status_code != ? and is_public=true', Story::Done]).each do |story|
-        builder.story do
-          builder.id story.id
-          builder.name story.name
-          builder.description story.description
-          builder.priority i
+        if story.stories.empty?
+          builder.story do
+            builder.id story.id
+            builder.name story.name
+            builder.description story.description
+            builder.priority i
+          end
+          i += 1
         end
-        i += 1
       end
     end
   end

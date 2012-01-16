@@ -66,7 +66,7 @@ package org.planigle.planigle.model
 		// Answer how much to indent this kind of item.
 		public function get indent():int
 		{
-			return 25;
+			return story.indent + 25;
 		}
 
 		// Set the indent (currently ignored; used to prevent binding issue).

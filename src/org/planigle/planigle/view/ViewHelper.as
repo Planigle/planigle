@@ -43,7 +43,7 @@ package org.planigle.planigle.view
 		// Display the iteration's name in the table (rather than ID).
 		public static function formatIteration(item:Object, column:DataGridColumn):String
 		{
-			if (item.iterationId != "-1")
+			if (item.iterationId != "-1" && item.stories.length == 0)
 				return IterationFactory.getInstance().find(item.iterationId).name;
 			else
 				return "";

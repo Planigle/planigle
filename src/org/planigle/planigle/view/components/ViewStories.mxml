@@ -416,6 +416,7 @@
 		// Handle any special columns.
 		private function updateColumnVisibility():void
 		{
+			storyColumnEpic.visible = attrMapping['Epic'] && attrMapping['Epic'].show && !storyViewEpics.selected;
 			storyColumnIteration.visible = attrMapping['Iteration'] && attrMapping['Iteration'].show && ((!iteration.selectedItem || iteration.selectedItem.id == "-1")||(IndividualFactory.current().isPremium && iteration.selectedItem && iteration.selectedItem.id == null));
 			storyColumnTeam.visible = attrMapping['Team'] && attrMapping['Team'].show && (IndividualFactory.current().selectedProject && IndividualFactory.current().selectedProject.teams.length > 0 && (!team.selectedItem || team.selectedItem.id == "-1"));
 		}
@@ -437,6 +438,7 @@
 			if (team.selectedItem.id != -1) conditions["team_id"]= team.selectedItem.id ? team.selectedItem.id : "";
 			if (individual.selectedItem.id != -1) conditions["individual_id"]= individual.selectedItem.id ? individual.selectedItem.id : "";
 			if (itemStatus.selectedItem.value != -1) conditions["status_code"]= itemStatus.selectedItem.value != -2 ? itemStatus.selectedItem.value : "NotDone";
+			conditions["view_epics"] = storyViewEpics.selected;
 			if (storyTextSearch.text != "") conditions["text"]=storyTextSearch.text;
 			if (storyIDSearch.text != "")
 			{
@@ -471,12 +473,7 @@
 			storiesCount.text = justStories.length.toString() + (GetStoriesCommand.isLoading() ? "+" : "");
 			var storiesAndTasks:ArrayCollection = new ArrayCollection;
 			for each (var story:Story in justStories)
-			{
-				storiesAndTasks.addItem(story);
-				if (story.isExpanded())
-					for each (var task:Task in story.tasks)
-						storiesAndTasks.addItem(task);
-			}
+				addStoryToArray(storiesAndTasks, story);
 			filteredStories = storiesAndTasks;
 			filteredStories.sort = sort;
 			storyResourceGrid.verticalScrollPosition = scroll;
@@ -493,6 +490,18 @@
 				handleFilterResult();
 				storyResourceGrid.selectedIndex = 1;
 				showUpdate();
+			}
+		}
+		
+		protected function addStoryToArray(storiesAndTasks:ArrayCollection, story:Story) : void
+		{
+			storiesAndTasks.addItem(story);
+			if (story.isExpanded())
+			{
+				for each (var child:Story in story.stories)
+					addStoryToArray(storiesAndTasks, child);
+				for each (var task:Task in story.tasks)
+					storiesAndTasks.addItem(task);
 			}
 		}
 
@@ -685,13 +694,21 @@
 			showCreate(true);
 		}
 
-		// Show user a form to create a task.
-		public function showCreateTask():void
+		// Show user a form to create a task or child story.
+		public function showCreateChild():void
 		{
-			prepareForTask();
-			currentItem = storyResourceGrid.selectedItem;
-			showCreate(false);
-			defaultTaskOwner();
+			var item:Object = storyResourceGrid.selectedItem;
+			if (item.stories.length > 0)
+			{
+				showCreateStory();
+				storyFieldEpic.selectedItem = item;
+			} else
+			{
+				prepareForTask();
+				currentItem = item;
+				showCreate(false);
+				defaultTaskOwner();
+			}
 		}
 
 		// Default the task owner to no one.
@@ -848,12 +865,18 @@
 							if (String(story.id) == epicId)
 								storyFieldEpic.selectedItem = story;
 						}
-							
+						
 						if (IterationFactory.getInstance().iterationsInRelease(Release(release.selectedItem)).contains(iteration))
 							storyFieldIteration.dataProvider = IterationFactory.getInstance().iterationsInRelease(Release(release.selectedItem));
 						else
 							storyFieldIteration.dataProvider = IterationFactory.getInstance().iterationSelector;
-						storyFieldIteration.selectedItem = iteration;
+						if (currentItem.stories.length > 0)
+						{
+							storyFormIteration.height = -5;
+							storyFormIteration.visible = false;
+							storyFieldIteration.selectedIndex = storyFieldIteration.dataProvider.length - 1;
+						} else
+							storyFieldIteration.selectedItem = iteration;
 
 						if (iteration.releases().contains(ReleaseFactory.getInstance().find(currentItem.releaseId)))
 							storyFieldRelease.dataProvider = iteration.releases();
@@ -1296,6 +1319,11 @@
 					event.preventDefault();
 					return;
 				}
+				if (storyViewEpics.selected && (!object.isStory() || object.hasEpic()))
+				{
+					event.preventDefault();
+					return; // Can't drag non-epics if viewing epics
+				}
 			}
 			if (areStories && !shouldSort)
 			{
@@ -1519,6 +1547,18 @@
 			return data.isStory() && shouldShow(data);
 		}
 
+		// Answer whether to show move (based on whether the item is a story and the user has rights).
+		public function shouldShowMove(data:Object):Boolean
+		{
+			return shouldShowStory(data) && (!storyViewEpics.selected || !data.hasEpic());
+		}
+
+		// Answer whether to show split (based on whether the item is a story and the user has rights).
+		public function shouldShowSplit(data:Object):Boolean
+		{
+			return shouldShowStory(data) && !storyViewEpics.selected;
+		}
+
 		// Answer whether to show (based on whether the user has rights).
 		public function shouldShow(data:Object):Boolean
 		{
@@ -1593,7 +1633,7 @@
 		{
 			if (item.isStory())
 			{
-				if (item.tasks.length > 0)
+				if (item.stories.length > 0 || item.tasks.length > 0)
 					return item.isExpanded() ? parentApplication.imgExpanded : parentApplication.imgCollapsed;
 				else
 					return null;
@@ -1928,6 +1968,13 @@
 		{
 			return new RequestProcessor().getBase() + "?project_id=" + IndividualFactory.current().selectedProjectId;
 		}
+		
+		protected function changeViewEpics():void
+		{
+			iteration.visible = !storyViewEpics.selected;
+			iteration.width = storyViewEpics.selected ? -5 : NaN;
+			handleFilter();
+		}
 		]]>
 	</mx:Script>
  	
@@ -2160,6 +2207,9 @@
 							<mx:LinkButton width="16" icon="{parentApplication.imgCross}" toolTip="Cancel Text Search" click="cancelTextSearch();" id="storyBtnCancelTextSearch"/>
 						</mx:HBox>
 					</mx:FormItem>
+					<mx:FormItem label="View Epics">
+						<mx:CheckBox id='storyViewEpics' change="changeViewEpics()"/>
+					</mx:FormItem>
 				</mx:Form>
 				<mx:HBox id="storyStatusRow" width="100%" minWidth="0" horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
 					<mx:Label text="Number of Stories:" fontWeight="bold"/>
@@ -2194,7 +2244,7 @@
 						</mx:itemRenderer>
 					</mx:DataGridColumn>
 					<mx:DataGridColumn headerText="Id" dataField="fullId" sortCompareFunction="ViewHelper.sortId"/>
-					<mx:DataGridColumn headerText="Epic" wordWrap="true" dataField="epicName">
+					<mx:DataGridColumn id="storyColumnEpic" headerText="Epic" wordWrap="true" dataField="epicName">
 						<mx:itemRenderer> 
 							<mx:Component>
 								<mx:Text text="{data.epicName}" selectable="false" automationName="{'epic' + data.name}"/>
@@ -2246,9 +2296,9 @@
 								<mx:Box direction="horizontal" horizontalGap="5" width="100%">
 									<mx:LinkButton width="15" id="storyBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.checkDirty(outerDocument.showUpdate);" visible="{outerDocument.shouldShow(data)}" automationName="{'edit' + data.name}"/>
 									<mx:LinkButton width="15" id="storyBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.shouldShow(data)}" automationName="{'delete' + data.name}"/>
-									<mx:LinkButton width="15" id="storyBtnMoveUp" icon="{parentApplication.imgMoveUp}" toolTip="Move To Top" click="outerDocument.checkDirty(outerDocument.moveToTop);" visible="{outerDocument.shouldShowStory(data)}" automationName="{'moveTop' + data.name}"/>
-									<mx:LinkButton width="15" id="taskBtnAdd" icon="{parentApplication.imgAdd}" toolTip="Add Task" click="outerDocument.checkDirty(outerDocument.showCreateTask);" visible="{outerDocument.shouldShowStory(data)}" automationName="{'addTask' + data.name}"/>
-									<mx:LinkButton width="15" id="storyBtnSplit" icon="{parentApplication.imgSplit}" toolTip="Split" click="outerDocument.checkDirty(outerDocument.showSplit);" visible="{outerDocument.shouldShowStory(data)}" automationName="{'split' + data.name}"/>
+									<mx:LinkButton width="15" id="storyBtnMoveUp" icon="{parentApplication.imgMoveUp}" toolTip="Move To Top" click="outerDocument.checkDirty(outerDocument.moveToTop);" visible="{outerDocument.shouldShowMove(data)}" automationName="{'moveTop' + data.name}"/>
+									<mx:LinkButton width="15" id="taskBtnAdd" icon="{parentApplication.imgAdd}" toolTip="{'Add ' + (data.stories.length > 0 ? 'Story' : 'Task')}" click="outerDocument.checkDirty(outerDocument.showCreateChild);" visible="{outerDocument.shouldShowStory(data)}" automationName="{'addTask' + data.name}"/>
+									<mx:LinkButton width="15" id="storyBtnSplit" icon="{parentApplication.imgSplit}" toolTip="Split" click="outerDocument.checkDirty(outerDocument.showSplit);" visible="{outerDocument.shouldShowSplit(data)}" automationName="{'split' + data.name}"/>
 								</mx:Box>
 							</mx:Component>
 						</mx:itemRenderer>

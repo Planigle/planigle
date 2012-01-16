@@ -3,6 +3,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 class ReleaseTest < ActiveSupport::TestCase
   fixtures :teams
   fixtures :individuals
+  fixtures :individuals_projects
   fixtures :releases
   fixtures :release_totals
   fixtures :projects
@@ -54,7 +55,9 @@ class ReleaseTest < ActiveSupport::TestCase
   def test_find
     assert_equal 0, Release.get_records(individuals(:quentin)).length
     assert_equal Release.find_all_by_project_id(1).length, Release.get_records(individuals(:aaron)).length
-    assert_equal Release.find_all_by_project_id(1).length, Release.get_records(individuals(:user)).length
+    user = individuals(:user)
+    user.selected_project_id = 1
+    assert_equal Release.find_all_by_project_id(1).length, Release.get_records(user).length
     assert_equal Release.find_all_by_project_id(1).length, Release.get_records(individuals(:readonly)).length
   end
   
