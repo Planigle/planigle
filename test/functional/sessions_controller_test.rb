@@ -153,7 +153,7 @@ class SessionsControllerTest < ActionController::TestCase
   # Test logging in on an iphone
   def test_create_iphone
     post :create, :format => 'iphone', :login => 'admin2', :password => 'testit', :remember_me => "true"
-    assert_redirected_to :controller => :stories, :action => :index
+    assert_redirected_to :controller => 'stories', :action => 'index'
   end
 
   # Test logging in on an iphone w/o the agreement
@@ -162,7 +162,7 @@ class SessionsControllerTest < ActionController::TestCase
     individ.accepted_agreement = nil
     individ.save(false)
     post :create, :format => 'iphone', :login => 'admin2', :password => 'testit', :remember_me => "true"
-    assert_redirected_to :controller => :stories, :action => :index
+    assert_redirected_to :controller => 'stories', :action => 'index'
   end
 
   # Test logging in on an iphone as a community customer
@@ -175,7 +175,7 @@ class SessionsControllerTest < ActionController::TestCase
   def test_destroy_iphone
     post :create, :format => 'iphone', :login => 'admin2', :password => 'testit', :remember_me => "true"
     delete :destroy, :format => 'iphone'
-    assert_redirected_to :controller => :sessions, :action => :new
+    assert_redirected_to :controller => 'sessions', :action => 'new'
   end
 
 private

@@ -65,12 +65,12 @@ module AuthenticatedSystem
       respond_to do |format|
         format.html do
           store_location
-          redirect_to :controller => :sessions, :action => :new
+          redirect_to :controller => 'sessions', :action => 'new'
         end
 
         format.iphone do
           store_location
-          redirect_to :controller => :sessions, :action => :new
+          redirect_to :controller => 'sessions', :action => 'new'
         end
         
         # Added to fix bug where 406 was returned instead of 401 (see http://blogs.thewehners.net/josh/posts/tagged/ruby+on+rails)
