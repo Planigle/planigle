@@ -35,7 +35,7 @@ class SessionsController < ApplicationController
             self.current_individual.save(false)
             format.iphone do
               if self.current_individual.is_premium
-                redirect_to :controller => :stories, :action => :index
+                redirect_to :controller => 'stories', :action => 'index'
               else
                 flash[:notice] = 'You must be a premium customer to use the IPhone interface'
                 render :action => 'new'
@@ -73,7 +73,7 @@ class SessionsController < ApplicationController
       self.current_individual.forget_me if logged_in?
       cookies.delete :auth_token
       reset_session
-      format.iphone { redirect_to :controller => :sessions, :action => :new }
+      format.iphone { redirect_to :controller => 'sessions', :action => 'new' }
       format.xml { head :ok }
       format.amf { render :amf => 'success' }
     end

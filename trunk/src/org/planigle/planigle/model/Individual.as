@@ -243,7 +243,8 @@ package org.planigle.planigle.model
 		// Answer whether this user is a premium user.
 		public function get isPremium():Boolean
 		{
-			return selectedProject ? selectedProject.company.isPremium : company.isPremium;
+			var co:Company = selectedProject && selectedProject.company ? selectedProject.company : company;
+			return co.isPremium;
 		}
 
 		// Set whether this user is a premium user.

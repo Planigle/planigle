@@ -488,7 +488,7 @@ class StoriesControllerTest < ActionController::TestCase
   # Test showing on an iPhone without logging in.
   def test_show_iphone_project_admin_unauthorized
     get :show, {:id => 1, :format => 'iphone'}
-    assert_redirected_to :controller => :sessions, :action => :new
+    assert_redirected_to :controller => 'sessions', :action => 'new'
   end
   
   # Test index on an iPhone.
@@ -508,7 +508,7 @@ class StoriesControllerTest < ActionController::TestCase
   # Test index on an iPhone without logging in.
   def test_index_iphone_project_admin_unauthorized
     get :index, {:format => 'iphone'}
-    assert_redirected_to :controller => :sessions, :action => :new
+    assert_redirected_to :controller => 'sessions', :action => 'new'
   end
   
   def test_story_filtered_out
