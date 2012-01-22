@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" horizontalGap="0" height="64" width="514" xmlns:components="org.planigle.planigle.view.components.*" creationComplete="created()">
+	<mx:Script>
+		<![CDATA[
+		import mx.controls.TextArea;
+		import mx.managers.PopUpManager;
+		
+		[Bindable]
+		public var textAutomationName:String="";
+
+		public function created():void
+		{
+			expandText.setStyle("icon", parentApplication.imgExpandText);
+		}		
+
+		public function get text():String
+		{
+			return textArea.text;
+		}
+
+		public function set text(text:String):void
+		{
+			textArea.text = text;
+		}
+
+		private function expand():void
+		{
+			var dialog:ExpandedItem = ExpandedItem(PopUpManager.createPopUp(DisplayObject(parentApplication), ExpandedItem, true));
+			dialog.init(textArea);
+			PopUpManager.centerPopUp(dialog);
+		}
+		]]>
+	</mx:Script>
+	<components:HTMLTextArea id="textArea" height="100%" width="100%" automationName="{textAutomationName}"/>
+	<mx:LinkButton id="expandText" cornerRadius="0" focusThickness="0" paddingLeft="2" paddingRight="0" paddingTop="0" paddingBottom="0" toolTip="Edit in expanded view" click="expand()"/>
+</mx:HBox>
