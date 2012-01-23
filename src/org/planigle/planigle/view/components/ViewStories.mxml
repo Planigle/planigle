@@ -285,6 +285,16 @@
 			newFilter.addItem( all );
 			if (id == "-1")
 				selection = Release(newFilter.getItemAt(newFilter.length - 1));
+			var currentRelease:Release = ReleaseFactory.getInstance().current();
+			if (currentRelease != null)
+			{ // Add me as an easy to find entry below All Releases.
+				var current:Release = new Release();
+				current.populate( <release><id>0</id><name>Current Release</name></release> );
+				current.id = ReleaseFactory.getInstance().current().id;
+				if (selection.id == current.id)
+					selection = current;
+				newFilter.addItem(current);
+			}
 			releaseFilter = newFilter;
 			if (selection)
 				release.selectedItem = selection;
@@ -324,6 +334,16 @@
 			newFilter.addItem(all);
 			if (id == "-1")
 				selection = Iteration(newFilter.getItemAt(newFilter.length - 1));
+			var currentIteration:Iteration = IterationFactory.getInstance().current();
+			if (currentIteration != null)
+			{ // Add me as an easy to find entry below All Iterations.
+				var current:Iteration = new Iteration();
+				current.populate( <iteration><id>0</id><name>Current Iteration</name></iteration> );
+				current.id = IterationFactory.getInstance().current().id;
+				if (selection.id == current.id)
+					selection = current;
+				newFilter.addItem(current);
+			}
 			iterationFilter = newFilter;
 			if (selection)
 				iteration.selectedItem = selection;
@@ -391,7 +411,7 @@
 			newFilter.addItem(all);
 			var defaultSelection:int = newFilter.length - 1;
 			if (IndividualFactory.current().isInProject(IndividualFactory.current().selectedProject))
-			{ // Add me as an easy to find entry above All Owners.
+			{ // Add me as an easy to find entry below All Owners.
 				var me:Individual = new Individual();
 				me.populate( <individual><id>0</id><first-name>Me</first-name></individual> );
 				me.id = IndividualFactory.current().id;
