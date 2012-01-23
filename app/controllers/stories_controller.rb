@@ -103,10 +103,10 @@ class StoriesController < ResourceController
         Survey.update_rankings(@record.project).each {|story| story.save(false)}
       end
       if !blocked_before && @record.is_blocked
-        @record.send_notification("A story is blocked", @record.blocked_message)
+        @record.send_notification(current_individual, "A story is blocked", @record.blocked_message)
       end
       if !done_before && @record.is_done
-        @record.send_notification("A story is done", @record.done_message)
+        @record.send_notification(current_individual, "A story is done", @record.done_message)
       end
     end
   rescue ActiveRecord::RecordNotFound

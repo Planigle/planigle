@@ -459,9 +459,9 @@ class Story < ActiveRecord::Base
   end
   
   # Notify of changes
-  def send_notification(subject, message)
+  def send_notification(sender, subject, message)
     project.individuals.each do |individual|
-      if !individual.team_id || individual.team_id == team_id
+      if individual != sender && (!individual.team_id || individual.team_id == team_id)
         individual.send_notification(project, subject, message)
       end
     end

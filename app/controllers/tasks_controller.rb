@@ -9,7 +9,7 @@ class TasksController < ResourceController
       was_ready_to_accept_before = story.is_ready_to_accept
       super
       if !was_ready_to_accept_before && story.reload.is_ready_to_accept
-        story.send_notification("All tasks for a story are done", story.ready_to_accept_message)
+        story.send_notification(current_individual, "All tasks for a story are done", story.ready_to_accept_message)
       end
     end
   rescue ActiveRecord::RecordNotFound

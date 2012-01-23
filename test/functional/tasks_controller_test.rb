@@ -199,8 +199,8 @@ class TasksControllerTest < ActionController::TestCase
     sms_count = PLANIGLE_SMS_NOTIFIER.number_of_notifications
     login_as(individuals(:aaron))
     put :update, {:id => 1, :format => 'xml', :record => {:status_code => 3}, :story_id => 1}
-    assert_equal email_count+3, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
-    assert_equal sms_count+3, PLANIGLE_SMS_NOTIFIER.number_of_notifications
+    assert_equal email_count+2, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
+    assert_equal sms_count+2, PLANIGLE_SMS_NOTIFIER.number_of_notifications
   end
     
   # Test successfully setting the owner.
