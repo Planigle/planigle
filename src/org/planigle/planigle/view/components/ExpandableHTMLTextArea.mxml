@@ -22,6 +22,11 @@
 		{
 			textArea.text = text;
 		}
+		
+		public function set maxChars(maxChars:int):void
+		{
+			textArea.maxChars = maxChars;
+		}
 
 		private function expand():void
 		{

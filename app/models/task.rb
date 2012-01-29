@@ -7,7 +7,7 @@ class Task < ActiveRecord::Base
   
   validates_presence_of     :name, :story_id
   validates_length_of       :name,                   :maximum => 250, :allow_nil => true # Allow nil to workaround bug
-  validates_length_of       :description,            :maximum => 4096, :allow_nil => true
+  validates_length_of       :description,            :maximum => 20480, :allow_nil => true
   validates_length_of       :reason_blocked,         :maximum => 4096, :allow_nil => true
   validates_numericality_of :effort, :allow_nil => true, :greater_than_or_equal_to => 0
   validates_numericality_of :actual, :allow_nil => true, :greater_than_or_equal_to => 0

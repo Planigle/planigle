@@ -635,6 +635,7 @@
 		private function prepareForStory():void
 		{
 			storyNameForm.label = "Story Name";
+			storyFieldDescription.maxChars = 4096;
 			storyEffortForm.label = "Size";
 			storyFormProject.visible = IndividualFactory.current().isAtLeastProjectAdmin() && IndividualFactory.current().selectedProject.company.projects.length > 1;
 			storyFormProject.height = storyFormProject.visible ? NaN : -5;
@@ -668,6 +669,7 @@
 		{
 			storyNameForm.label = "Task Name";
 			storyEffortForm.label = "To Do";
+			storyFieldDescription.maxChars = 20480;
 			storyFormProject.visible = false;
 			storyFormProject.height = -5;
 			storyFormRelease.height = -5;
