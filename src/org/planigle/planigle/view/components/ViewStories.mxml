@@ -1043,7 +1043,8 @@
 		// Show the previous object.
 		public function showPrevious() : void
 		{
-			var index:int = filteredStories.getItemIndex(currentItem);
+			var currentObject:Object = currentItem.getCurrentVersion();
+			var index:int = currentObject ? filteredStories.getItemIndex(currentObject) : -1;
 			if (index > 0) {
 				storyResourceGrid.selectedItem = filteredStories.getItemAt(index - 1);
 				showUpdate();
@@ -1060,7 +1061,8 @@
 		// Show the next object.
 		public function showNext() : void
 		{
-			var index:int = filteredStories.getItemIndex(currentItem);
+			var currentObject:Object = currentItem.getCurrentVersion();
+			var index:int = currentObject ? filteredStories.getItemIndex(currentObject) : -1;
 			if (index < filteredStories.length - 1) {
 				storyResourceGrid.selectedItem = filteredStories.getItemAt(index + 1);
 				showUpdate();
