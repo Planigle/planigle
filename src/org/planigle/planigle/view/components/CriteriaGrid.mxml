@@ -135,10 +135,18 @@
 	
 				// Listen for textInput event
 				textField.addEventListener(TextEvent.TEXT_INPUT, clipboardProxyPasteHandler);
+				
+				// Prevent inappropriate messages from bubbling up (see http://old.nabble.com/Flash-Flex-Event-collision-on-TextField-input-td12412888.html)
+				textField.addEventListener(Event.CHANGE, stopPropagation);
 	
 				// Set player-level focus to the TextField
 				systemManager.stage.focus = textField;
 			}
+		}
+		
+		private function stopPropagation(event: Event):void
+		{
+			event.stopImmediatePropagation();
 		}
 	
 		private function dataGridKeyUpHandler(event:KeyboardEvent):void
