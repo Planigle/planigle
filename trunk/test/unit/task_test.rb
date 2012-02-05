@@ -27,7 +27,7 @@ class TaskTest < ActiveSupport::TestCase
 
   # Test the validation of description.
   def test_description
-    validate_field(:description, true, nil, 4096)
+    validate_field(:description, true, nil, 20480)
   end
 
   # Test the validation of reason blocked.
