@@ -1,0 +1,590 @@
+<?xml version="1.0" encoding="utf-8"?>
+<local:ViewCanvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:local="org.planigle.planigle.view.controls.*" xmlns:component="org.planigle.planigle.view.components.*" height="100%" y="0" width="100%" x="0" label="Projects" creationComplete="created(event)">
+	<mx:Metadata>
+		[Event(name="itemClick", type="flash.events.Event")]
+	</mx:Metadata>
+	
+	<mx:Script>
+		<![CDATA[
+		import flash.external.ExternalInterface;
+		import mx.rpc.events.ResultEvent;
+		import mx.core.Container;
+		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
+		import mx.controls.ComboBox;
+		import Object;
+		import mx.events.ListEvent;
+		import mx.events.CloseEvent;
+		import mx.binding.utils.ChangeWatcher;
+		import org.planigle.planigle.model.DateUtils;
+		import org.planigle.planigle.model.TabModelLocator;
+		import org.planigle.planigle.model.CompanyFactory;
+		import org.planigle.planigle.model.Company;
+		import org.planigle.planigle.model.Project;
+		import org.planigle.planigle.model.Team;
+		import org.planigle.planigle.model.IndividualFactory;
+		import org.planigle.planigle.view.ChangesTab;
+		import org.planigle.planigle.view.ViewHelper;
+		import org.planigle.planigle.events.AuditChangedEvent;
+		
+		private static const COMPANY:int = 0;
+		private static const PROJECT:int = 1;
+		private static const TEAM:int = 2;
+		
+		[Bindable]
+		private var _error:String;
+
+		[Bindable]
+		private var tabModelLocator:TabModelLocator = TabModelLocator.getInstance();
+
+		[Bindable]
+		public var companies:ArrayCollection = new ArrayCollection();
+
+		[Bindable]
+		public var factory:IndividualFactory = IndividualFactory.getInstance();
+
+		// Set up event listeners.  Called when the canvas has been created.
+		private function created(event:Event):void
+		{
+			ChangeWatcher.watch( factory, "currentIndividual", resetState );			
+			ChangeWatcher.watch( CompanyFactory.getInstance(), "companies", setCompanies );			
+			resetState(event); // This is to catch it the first time (The event has already been sent).
+			setCompanies(event);
+		}
+				
+		// Update the error message.
+		private function setErrorMessage(string:String):void {projectError.setStyle("color","Red"); _error = string}
+		private function setSuccessMessage(string:String):void {projectError.setStyle("color","Green"); _error = string}
+		private function clearErrorMessage():void {_error = ""}
+
+		// Set the companies to a copy (so that changes here won't affect elsewhere).
+		private function setCompanies(event:Event):void
+		{
+			var scroll:Number = projectResourceGrid.verticalScrollPosition;
+			var newCompanies:ArrayCollection = new ArrayCollection();
+			for each (var company:Company in CompanyFactory.getInstance().companies)
+			{
+				newCompanies.addItem(company);
+				if (company.isExpanded())
+				{
+					for each (var project:Project in company.projects)
+					{
+						newCompanies.addItem(project);
+						if (project.isExpanded())
+						{
+							for each (var team:Team in project.teams)
+								newCompanies.addItem(team);
+						}
+					}
+				}
+			}
+			companies = newCompanies;
+			projectResourceGrid.verticalScrollPosition = scroll;
+		}
+		
+		// Reset my state to how it was initially.
+		public function resetState(event:Event):void
+		{
+			currentItem = null;
+			clearErrorMessage();
+			currentState = '';
+			projectBtnChange.label = 'Update'
+		}
+
+		private function getInitialValues():Object
+		{
+			var values:Object = new Object();
+			values["name"] = '';
+			values["description"] = '';
+			values["premiumExpiry"] = new Date(new Date().time + 30*24*60*60*1000);
+			values["premiumLimit"] = '1000';
+			values["trackActuals"] = 1;
+			return values;
+		}
+
+		// Show user a form to create a resource.
+		private function showCreate():void
+		{
+			clearErrorMessage();
+			currentState = 'Change';
+			projectBtnCreateClose.visible = true;
+			projectBtnCreateClose.width = NaN;
+			var values:Object = getInitialValues();
+			projectFieldName.text = values["name"];
+			projectFieldDescription.text = values["description"];
+			projectFieldPremiumExpiry.selectedDate = values["premiumExpiry"];
+			projectFieldPremiumLimit.text = values["premiumLimit"];
+			projectFieldTrackActuals.selectedIndex = values["trackActuals"];
+			projectBtnChange.label = 'Create';
+			projectBtnInfo.visible = false;
+		}
+
+		[Bindable]
+		private var currentItem:Object; // Remember in case selection changes while form is open.
+
+		// Prepare the fields to create / edit a company.
+		private function prepareForCompany():void
+		{
+			projectFieldName.setFocus();
+			projectFieldName.setSelection(0, projectFieldName.text.length );
+			projectNameForm.label = "Company Name";
+			projectFormDescription.visible = false;
+			projectFormDescription.height = -5;
+			projectFormSurveyMode.visible = false;
+			projectFormSurveyMode.height = -5;
+			projectFormSurveyUrl.visible = false;
+			projectFormSurveyUrl.height = -5;
+			projectFormTrackActuals.visible = false;
+			projectFormTrackActuals.height = -5;
+			if (IndividualFactory.current().isAdmin())
+			{
+				projectFormPremiumExpiry.visible = true;
+				projectFormPremiumExpiry.height = NaN;
+				projectFormPremiumLimit.visible = true;
+				projectFormPremiumLimit.height = NaN;
+			}
+			else
+			{
+				projectFormPremiumExpiry.visible = false;
+				projectFormPremiumExpiry.height = -5;
+				projectFormPremiumLimit.visible = false;
+				projectFormPremiumLimit.height = -5;
+			}
+		}
+
+		// Show user a form to create a resource.
+		public function showCreateCompany():void
+		{
+			currentItem = null;
+			showCreate();
+			prepareForCompany();
+		}
+
+		// Prepare the fields to create / edit a project.
+		private function prepareForProject():void
+		{
+			projectFieldName.setFocus();
+			projectFieldName.setSelection(0, projectFieldName.text.length );
+			projectNameForm.label = "Project Name";
+			projectFormDescription.visible = true;
+			projectFormDescription.height = 64;
+			projectFormTrackActuals.visible = true;
+			projectFormTrackActuals.height = NaN;
+			projectFormPremiumExpiry.visible = false;
+			projectFormPremiumExpiry.height = -5;
+			projectFormPremiumLimit.visible = false;
+			projectFormPremiumLimit.height = -5;
+		}
+		
+		protected var isVisible:Boolean = false;
+		
+		// Update whether survey mode is visible.
+		private function setSurveyVisible(isVisible:Boolean):void
+		{
+			this.isVisible = isVisible;
+			updateSurveyVisible();
+		}
+		
+		private function updateSurveyVisible():void
+		{
+			projectFormSurveyMode.visible = isVisible;
+			projectFormSurveyMode.height = isVisible ? NaN : -5;
+			var shouldShow:Boolean = isVisible && projectFieldSurveyMode.selectedIndex > 0;
+			projectFormSurveyUrl.visible = shouldShow;
+			projectFormSurveyUrl.height = shouldShow ? NaN : -5;
+		}
+
+		// Show user a form to create a resource.
+		public function showCreateProjectOrTeam():void
+		{
+			currentItem = projectResourceGrid.selectedItem;
+			showCreate();
+			if (currentItem.isCompany())
+			{
+				prepareForProject()
+				projectFieldSurveyMode.selectedIndex = 1;
+				projectLabelSurveyUrl.text = "Will be assigned on creation";
+				setSurveyVisible(currentItem.isPremium);
+			}
+			else
+				prepareForTeam();
+		}
+
+		// Prepare the fields to create / edit a team.
+		private function prepareForTeam():void
+		{
+			projectFieldName.setFocus();
+			projectFieldName.setSelection(0, projectFieldName.text.length );
+			projectFormDescription.visible = true;
+			projectFormDescription.height = 64;
+			projectNameForm.label = "Team Name";
+			projectFormSurveyMode.visible = false;
+			projectFormSurveyMode.height = -5;
+			projectFormSurveyUrl.visible = false;
+			projectFormSurveyUrl.height = -5;
+			projectFormPremiumExpiry.visible = false;
+			projectFormPremiumExpiry.height = -5;
+			projectFormPremiumLimit.visible = false;
+			projectFormPremiumLimit.height = -5;
+			projectFormTrackActuals.visible = false;
+			projectFormTrackActuals.height = -5;
+		}
+
+		// Show user a form to update a resource.
+		public function showUpdate() : void
+		{
+			currentItem = projectResourceGrid.selectedItem;
+			if (currentItem)
+			{
+				clearErrorMessage();
+				currentState = 'Change';
+				projectFieldName.text = currentItem.name;
+				if (currentItem.isCompany()) {
+					prepareForCompany();
+					projectFieldPremiumExpiry.selectedDate = currentItem.premiumExpiry;
+					projectFieldPremiumLimit.text = currentItem.premiumLimit;
+				}
+				else if (currentItem.isTeam())
+				{
+					prepareForTeam();
+					projectFieldDescription.text = currentItem.description;
+				}
+				else
+				{
+					prepareForProject();
+					projectFieldDescription.text = currentItem.description;
+					projectFieldSurveyMode.selectedIndex = currentItem.surveyMode;
+					var base:String = ExternalInterface.call("BrowserHistory.getURL");
+					for (var index:int = base.indexOf( "/" ); base.indexOf( "/", index + 1 ) >= 0; )
+						index = base.indexOf( "/", index + 1 ); // Get the last /
+					base = base.substr( 0, index );
+					projectLabelSurveyUrl.text = base + "/survey.html?projectid=" + currentItem.id + "&surveykey=" + currentItem.surveyKey;
+					setSurveyVisible(currentItem.company.isPremium);
+					projectFieldTrackActuals.selectedIndex = currentItem.trackActuals ? 0 : 1;
+				}
+				projectBtnCreateClose.visible = false;
+				projectBtnCreateClose.width=-5;
+				projectBtnChange.label = 'Update';
+				projectBtnInfo.visible = !currentItem.isCompany();
+			}
+		}
+
+		// Confirm that user wants to delete the resource.
+		public function showDelete(event:Event) : void
+		{
+			Alert.show("Are you sure you want to delete '" + projectResourceGrid.selectedItem.name + "'?", "Delete", 3, this,
+			function(event:CloseEvent):void
+			{
+				if (event.detail==Alert.YES)
+				{
+					clearErrorMessage();
+					deleteResource(projectResourceGrid.selectedItem);
+				}
+			});
+		}
+		
+		// Create parameters for the user's request to the server.
+		private function getParams(type:int) : Object
+		{
+			var params:Object = new Object();
+			params['record[name]'] = projectFieldName.text;
+			if (type == TEAM)
+				params['record[description]'] = projectFieldDescription.text;
+			else if (type == PROJECT)
+			{
+				params['record[description]'] = projectFieldDescription.text;
+				params['record[survey_mode]'] = projectFieldSurveyMode.selectedItem.value;
+				params['record[premium_expiry]'] = projectFieldPremiumExpiry.selectedDate;
+				params['record[premium_limit]'] = projectFieldPremiumLimit.text;
+				params['record[track_actuals]'] = projectFieldTrackActuals.selectedItem.value;
+			}
+			params['random'] = Math.random(); // Prevents caching
+			return params;
+		}
+
+		// Tell the server to change a resource.
+		private function changeResource(shouldClose:Boolean) : void
+		{
+			if ( projectBtnChange.label == 'Create' )
+				createResource(shouldClose);
+			else
+				updateResource();
+		}
+		
+		// Tell the server to create a resource.
+		private function createResource(shouldClose:Boolean) : void 
+		{
+			if (currentItem && currentItem.isCompany())
+			{
+				var params:Object = getParams(PROJECT);
+				params['record[company_id]'] = currentItem.id;
+				currentItem.createProject(params, shouldClose ? handleCreateCloseSuccess : handleCreateSuccess, handleFailure);
+			}
+			else if (currentItem)
+				currentItem.createTeam(getParams(TEAM), shouldClose ? handleCreateCloseSuccess : handleCreateSuccess, handleFailure);
+			else
+				CompanyFactory.getInstance().createCompany(getParams(COMPANY), shouldClose ? handleCreateCloseSuccess : handleCreateSuccess, handleFailure);
+		}
+		
+		// Tell the server to update a resource.
+		private function updateResource() : void
+		{
+			currentItem.update(getParams(currentItem.isCompany() ? COMPANY : (currentItem.isTeam() ? TEAM : PROJECT)), handleSuccess, handleFailure);
+		}
+
+		// Tell the server to delete a resource.
+		private function deleteResource(item:Object):void
+		{
+			item.destroy(handleSuccess,handleFailure);
+			projectResourceGrid.selectedItem = null;
+			groupSelected(null); // Deletion can affect selection; ensure event is sent
+		}
+
+		// Handle a successful create.
+		private function handleCreateCloseSuccess(newItem:Object):void
+		{
+			handleCreateSuccess(newItem);
+			currentItem = null;
+			currentState = '';
+		}
+		
+		// Handle a successful create.
+		private function handleCreateSuccess(item:Object):void
+		{
+			showCreate();
+			if (currentItem)
+			{
+				setSuccessMessage( (currentItem.isCompany() ? "Project" : "Team") + " was successfully created.");
+				currentItem.expand();
+				setCompanies(null);
+			}
+			else
+				setSuccessMessage("Company was successfully created.");
+		}
+
+		// Handle a successful change.
+		private function handleSuccess():void
+		{
+			resetState(null);
+		}
+
+		// Handle errors when making changes.
+		private function handleFailure(error:XMLList):void
+		{
+			setErrorMessage(error);
+		}
+
+		public var group:Object;
+
+		// A group has been selected.  Pass it up the chain.
+		private function groupSelected(event:ListEvent):void
+		{
+			group = projectResourceGrid.selectedItem;
+			dispatchEvent(new Event("itemClick"));
+		}
+		
+		// Expand / collapse a project.
+		public function expand(event:Event) : void
+		{
+			if (!projectResourceGrid.selectedItem.isTeam())
+				{
+				projectResourceGrid.selectedItem.toggleExpanded();
+				setCompanies(event);
+				}
+		}
+		
+		// Answer an icon for my expand button.
+		public function expandIcon(item:Object):Class
+		{
+			switch (item.expandLabel())
+			{
+				case '+':
+					return parentApplication.imgCollapsed;
+				case '-':
+					return parentApplication.imgExpanded;
+				default:
+					return null;
+			}
+		}
+		
+		// Answer the color to use for a row.
+		private function rowColor(item:Object, color:uint) : uint
+		{
+			return (item && item.backgroundColor() >= 0) ? item.backgroundColor() : color;
+		}
+
+		// Answer whether to show (based on whether the item is a project and the user has rights).
+		public function shouldShowDelete(data:Object):Boolean
+		{
+			return (data.isCompany() && factory.currentIndividual.isAdmin()) ||
+				(data.isProject() && factory.currentIndividual.isAtLeastProjectAdmin() && factory.currentIndividual.isPremium) ||
+				(data.isTeam() && factory.currentIndividual.isAtLeastProjectAdmin());
+		}
+
+		// Answer whether to show (based on whether the item is a project and the user has rights).
+		public function shouldShowAdd(data:Object):Boolean
+		{
+			return !data.isTeam() && factory.currentIndividual.isAtLeastProjectAdmin() && (factory.currentIndividual.isPremium || !data.isCompany() || data.projects.length == 0);
+		}
+		
+		// Show the history for the current object.
+		public function showHistory(event:Event) : void
+		{
+			new AuditChangedEvent(null, currentItem.isTeam() ? 'Team' : 'Project', null, null, String(currentItem.id)).dispatch();
+			tabModelLocator.selectedTab = Container(tabModelLocator.changes);
+		}
+
+		// Answer whether any changes need to be saved.
+		override public function isDirty(): Boolean
+		{
+			if (currentState != 'Change')
+				return false;
+			if (projectBtnChange.label == 'Create') {
+				var values:Object = getInitialValues();
+				if (projectFieldName.text != values["name"]) return true;
+				if (currentItem) {
+					if (projectFieldDescription.text != values["description"]) return true;
+					if (currentItem.isCompany()) {
+						if (projectFieldSurveyMode.selectedIndex != 1) return true;
+						if (projectFieldTrackActuals.selectedIndex != values["trackActuals"]) return true;
+					}
+				} else {
+					if (!DateUtils.equals(projectFieldPremiumExpiry.selectedDate, values["premiumExpiry"])) return true;
+					if (projectFieldPremiumLimit.text != values["premiumLimit"]) return true;
+				}
+			}
+			else if (currentItem) {
+				if (projectFieldName.text != currentItem.name) return true;
+				if (currentItem.isCompany()) {
+					if (!DateUtils.equals(projectFieldPremiumExpiry.selectedDate, currentItem.premiumExpiry)) return true;
+					if (projectFieldPremiumLimit.text != currentItem.premiumLimit) return true;
+				} else {
+					if (projectFieldDescription.text != currentItem.description) return true;
+					if (currentItem.isProject()) {
+						if (projectFieldSurveyMode.selectedIndex != currentItem.surveyMode) return true;
+						if (projectFieldTrackActuals.selectedItem.value != currentItem.trackActuals) return true;
+					}
+				}
+			}
+			return false;
+		}
+		]]>
+	</mx:Script>
+ 	
+	<local:states>
+		<mx:State name="Change">
+			<mx:RemoveChild target="{projectBtnCreate}"/>
+			<mx:AddChild relativeTo="{projectResourceGrid}" position="before">
+				<mx:target>
+					<mx:VBox>
+						<mx:HBox>
+							<mx:VBox>
+								<mx:Form id="projectChangeForm" defaultButton="{projectBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
+									<mx:FormItem id="projectNameForm" label='Name' required="true">
+										<mx:TextInput id='projectFieldName' maxChars="40" text='' width="350"/>
+									</mx:FormItem>
+									<mx:FormItem id="projectFormDescription" label='Description'>
+										<component:ExpandableHTMLTextArea id='projectFieldDescription'/>
+									</mx:FormItem>
+									<mx:FormItem id="projectFormTrackActuals" label="Track Actuals">
+										<local:FixedComboBox id="projectFieldTrackActuals" editable="false">
+											<mx:Object label="true" value="true" />
+											<mx:Object label="false" value="false" />
+										</local:FixedComboBox>
+									</mx:FormItem>
+								</mx:Form>
+							</mx:VBox>
+							<mx:VBox>
+								<mx:Form id="projectChangeForm2" defaultButton="{projectBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
+									<mx:FormItem id="projectFormSurveyMode" label='Stories'>
+										<local:FixedComboBox id='projectFieldSurveyMode' editable="false" change="updateSurveyVisible()">
+											<mx:Object label="Private" value="0" />
+											<mx:Object label="Private by Default" value="1" />
+											<mx:Object label="Public by Default" value="2" />
+										</local:FixedComboBox>
+									</mx:FormItem>
+									<mx:FormItem id='projectFormPremiumExpiry' label='Premium Expiry' required="true">
+										<mx:DateField id='projectFieldPremiumExpiry' editable="true" showToday="true" width="100"/>
+									</mx:FormItem>
+									<mx:FormItem id='projectFormPremiumLimit' label='Premium Limit (# Users)' required="true">
+										<mx:TextInput id='projectFieldPremiumLimit' restrict="0-9" text='' width="100"/>
+									</mx:FormItem>
+								</mx:Form>
+							</mx:VBox>
+						</mx:HBox>
+						<mx:FormItem id="projectFormSurveyUrl" label='      Survey URL'>
+							<mx:Label id="projectLabelSurveyUrl" selectable="true"/>
+						</mx:FormItem>
+						<mx:ControlBar width="100%">
+							<mx:Spacer width="50"/>
+							<mx:Button label="Change" id="projectBtnChange" click="changeResource(false)"/>
+							<mx:Button label="Create &amp; Close" id="projectBtnCreateClose" click="changeResource(true)"/>
+							<mx:LinkButton label="Cancel" id="projectBtnCancel" click="resetState(event)"/>
+							<mx:LinkButton id="projectBtnInfo" icon="{parentApplication.imgInfo}" toolTip="History" click="showHistory(event);"/>
+						</mx:ControlBar>
+					</mx:VBox>
+				</mx:target>
+			</mx:AddChild>
+		</mx:State>
+	</local:states>
+	
+	<local:transitions>
+		<mx:Transition id="projectChangeItem" fromState="*" toState="Change">
+			<mx:Sequence targets="{[projectCombinedPanel]}">
+				<mx:RemoveChildAction/>
+				<mx:Resize target="{projectCombinedPanel}"/>
+				<mx:AddChildAction/>
+			</mx:Sequence>
+		</mx:Transition>
+
+		<mx:Transition id="projectReturnList" fromState="Change" toState="*">
+			<mx:Sequence targets="{[projectCombinedPanel]}">
+				<mx:RemoveChildAction/>
+				<mx:Resize target="{projectCombinedPanel}"/>
+				<mx:AddChildAction/>
+			</mx:Sequence>
+		</mx:Transition>
+
+	</local:transitions>
+	
+	<mx:Panel id="projectCombinedPanel" height="100%" y="0" width="100%" x="0"  borderThicknessTop="0" borderThicknessLeft="0" borderThicknessRight="0" headerHeight="0">
+		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="8" verticalAlign="middle" id="projectHbox1" paddingTop="5" paddingLeft="5" paddingRight="5">
+			<mx:Label text="Projects" fontWeight="bold" textDecoration="underline"/>
+			<mx:Text id="projectError" styleName="error" htmlText="{_error}" width="100%"/>
+			<mx:Button width="25" icon="{parentApplication.imgAdd}" toolTip="Create" id="projectBtnCreate" click="showCreateCompany();" visible="{factory.currentIndividual.isAdmin()}"/>
+		</mx:HBox>
+		<local:ColoredBackgroundDataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="projectResourceGrid" dataProvider="{companies}" rowCount="{companies.length}" height="100%" width="100%" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectAdmin()}" doubleClick="checkDirty(showUpdate)" itemClick="groupSelected(event)" rowColorFunction="rowColor" variableRowHeight="true" sortableColumns="false" horizontalScrollPolicy="auto" verticalScrollPolicy="auto">
+			<local:columns>
+				<mx:DataGridColumn editable="false" resizable="false" minWidth="45" width="45" sortable="false" textAlign="left"> 
+					<mx:itemRenderer> 
+						<mx:Component>
+							<mx:Box direction="horizontal" horizontalGap="0">
+								<mx:LinkButton textAlign="left" paddingLeft="{data.indent > 25 ? 0 : data.indent - 5}" id="projectBtnExpand" icon="{outerDocument.expandIcon(data)}" click="outerDocument.expand(event);"/>		 	
+							</mx:Box>
+						</mx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="Name" width="200">
+					<mx:itemRenderer> 
+						<mx:Component>
+							<mx:Text paddingLeft="{data.indent}" text="{data.name}" selectable="false"/>
+						</mx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+				<mx:DataGridColumn headerText="Description" width="400" dataField="description"/>
+				<mx:DataGridColumn headerText="Stories" width="120" labelFunction="ViewHelper.formatSurveyMode" sortCompareFunction="ViewHelper.sortSurveyMode" visible="{factory.currentIndividual.isPremium}"/>
+				<mx:DataGridColumn editable="false" width="55" minWidth="55" sortable="false">
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:Box direction="horizontal" horizontalGap="5">
+								<mx:LinkButton width="15" id="projectBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.checkDirty(outerDocument.showUpdate);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
+								<mx:LinkButton width="15" id="projectBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.shouldShowDelete(data)}"/>
+								<mx:LinkButton width="15" id="teamBtnAdd" icon="{parentApplication.imgAdd}" toolTip="{data.isCompany()?'Add Project':'Add Team'}" click="outerDocument.checkDirty(outerDocument.showCreateProjectOrTeam);" visible="{outerDocument.shouldShowAdd(data)}"/>
+							</mx:Box>
+						</mx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+			</local:columns>
+		</local:ColoredBackgroundDataGrid>
+	</mx:Panel>
+</local:ViewCanvas>

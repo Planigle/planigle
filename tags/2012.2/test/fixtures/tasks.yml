@@ -1,0 +1,31 @@
+one:
+  id: 1
+  name: test_task
+  description: 
+  effort: 3
+  status_code: 1
+  story_id: 1
+  individual_id: 2
+  priority: 2
+
+two:
+  id: 2
+  name: test2_task
+  description: 
+  estimate: 3
+  effort: 2
+  actual: 1
+  status_code: 3
+  story_id: 1
+  individual_id: 2
+  priority: 1
+
+three:
+  id: 3
+  name: test3
+  description: More
+  estimate: 2
+  effort: 3
+  status_code: 2
+  story_id: 5
+  priority: 1
