@@ -154,7 +154,7 @@
 			// Update based on the new selection type.
 			private function updateType(event:Event):void
 			{
-				formValues.visible = editAttributeAttributes.selectedItem != null && editAttributeFieldType.selectedIndex > 2;;
+				formValues.visible = editAttributeAttributes.selectedItem != null && (editAttributeFieldType.selectedIndex == StoryAttribute.LIST || editAttributeFieldType.selectedIndex == StoryAttribute.RELEASE_LIST);
 				if (selectedAttribute)
 				{
 					selectedAttribute.valueType = editAttributeFieldType.selectedIndex
@@ -234,6 +234,7 @@
 							<mx:Object label="Number" value="2" />
 							<mx:Object label="List" value="3" />
 							<mx:Object label="List Per Release" value="4" />
+							<mx:Object label="Date" value="5" />
 						</local:FixedComboBox>
 						<local:FixedComboBox id='editAttributeRelease' editable="false" dataProvider="{ReleaseFactory.getInstance().releaseSelector}" labelField="name" change="updateRelease(event)"/>
 					</mx:FormItem>

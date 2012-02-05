@@ -24,6 +24,7 @@ package org.planigle.planigle.model
 		public static const NUMBER:int = 2;
 		public static const LIST:int = 3;
 		public static const RELEASE_LIST:int = 4;
+		public static const DATE:int = 5;
 
 		public function getCurrentVersion():Object
 		{
@@ -206,6 +207,11 @@ package org.planigle.planigle.model
 					storyAttributes.addItem(storyAttribute);
 			}
 			IndividualFactory.current().selectedProject.storyAttributes = storyAttributes.source;
+		}
+		
+		public function isList():Boolean
+		{
+			return valueType == StoryAttribute.LIST || valueType == StoryAttribute.RELEASE_LIST;
 		}
 	}
 }

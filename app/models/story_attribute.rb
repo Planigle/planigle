@@ -20,6 +20,7 @@ class StoryAttribute < ActiveRecord::Base
   Number = 2
   List = 3
   ReleaseList = 4
+  Date = 5
 
   # Override attributes to allow setting of values.
   def attributes=(new_attributes, guard_protected_attributes = true)
@@ -119,7 +120,7 @@ class StoryAttribute < ActiveRecord::Base
   
   # Validate my values.
   def validate()
-    if value_type && (value_type < 0 || value_type > ReleaseList)
+    if value_type && (value_type < 0 || value_type > StoryAttribute::Date)
       errors.add(:value_type, 'is invalid')
     end
   end  
