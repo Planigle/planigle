@@ -97,7 +97,7 @@
 			{
 				for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
 				{
-					if (attrib.valueType == StoryAttribute.LIST || attrib.valueType == StoryAttribute.RELEASE_LIST)
+					if (attrib.isList())
 					{
 						var formItem:FormItem = new FormItem();
 						formItem.label = attrib.name;
@@ -174,7 +174,7 @@
 			{
 				for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
 				{
-					if (attrib.valueType == StoryAttribute.LIST || attrib.valueType == StoryAttribute.RELEASE_LIST)
+					if (attrib.isList())
 					{
 					  	var combo:FixedComboBox = FixedComboBox(customAttributes[attrib.id]);
 						if (combo.selectedItem.id != "-1")

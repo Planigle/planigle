@@ -5,6 +5,7 @@
 	</mx:Metadata>
 	<mx:Script>
 		<![CDATA[
+		import mx.controls.DateField;
 		import mx.collections.Sort;
 		import flash.display.DisplayObject;
 		import mx.collections.ArrayCollection;
@@ -489,7 +490,7 @@
 			}
 			for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
 			{
-				if (attrib.valueType >= StoryAttribute.LIST)
+				if (attrib.isList())
 				{
 					var disp:ComboBox = searchChildren["storyField" + attrib.id.toString()];
 					if (disp.selectedItem.id != -1)
@@ -976,7 +977,7 @@
 					var value:Object = currentItem.getCustomValue(attrib.id);
 					if (attrib.valueType == StoryAttribute.TEXT)
 						ExpandableHTMLTextArea(disp).text = value ? String(value) : "";
-					else if (attrib.valueType >= StoryAttribute.LIST)
+					else if (attrib.isList())
 					{
 						var selected:StoryAttributeValue = ComboBox(disp).dataProvider.getItemAt(ComboBox(disp).dataProvider.length - 1);
 						for each (var attribValue:StoryAttributeValue in ComboBox(disp).dataProvider)
@@ -986,6 +987,8 @@
 						}
 						ComboBox(disp).selectedItem = selected;
 					}
+					else if (attrib.valueType == StoryAttribute.DATE)
+						DateField(disp).text = value ? String(value) : "";
 					else
 						TextInput(disp).text = value ? String(value) : "";
 				}
@@ -1000,8 +1003,10 @@
 				var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
 				if (attrib.valueType == StoryAttribute.TEXT)
 					ExpandableHTMLTextArea(disp).text = "";
-				else if (attrib.valueType >= StoryAttribute.LIST)
+				else if (attrib.isList())
 					ComboBox(disp).selectedIndex = ComboBox(disp).dataProvider.length - 1;
+				else if (attrib.valueType == StoryAttribute.DATE)
+					DateField(disp).text = "";
 				else
 					TextInput(disp).text = "";
 			}
@@ -1114,8 +1119,13 @@
 				for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
 				{
 					var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
-					if (attrib.valueType < StoryAttribute.LIST || ComboBox(disp).selectedItem)
-						params['record[custom_' + attrib.id + ']'] = attrib.valueType == StoryAttribute.TEXT ? ExpandableHTMLTextArea(disp).text : (attrib.valueType >= StoryAttribute.LIST ? (ComboBox(disp).selectedItem.id > 0 ? ComboBox(disp).selectedItem.id : "") : TextInput(disp).text);
+					if (!attrib.isList() || ComboBox(disp).selectedItem)
+					{
+						if (attrib.valueType == StoryAttribute.TEXT) params['record[custom_' + attrib.id + ']'] = ExpandableHTMLTextArea(disp).text;
+						else if (attrib.isList()) params['record[custom_' + attrib.id + ']'] = ComboBox(disp).selectedItem.id > 0 ? ComboBox(disp).selectedItem.id : "";
+						else if (attrib.valueType == StoryAttribute.DATE) params['record[custom_' + attrib.id + ']'] = DateField(disp).text;
+						else params['record[custom_' + attrib.id + ']'] = TextInput(disp).text;
+					}
 				}
 			}
 			else
@@ -1151,8 +1161,8 @@
 					for each (var attrib1:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
 					{
 						var disp1:Object = customChildren["storyField" + attrib1.id.toString()];
-						if (attrib1.valueType >= StoryAttribute.LIST && ComboBox(disp1).selectedIndex != ComboBox(disp1).dataProvider.length - 1) return true;
-						if (attrib1.valueType < StoryAttribute.LIST && disp1.text != "") return true;
+						if (attrib1.isList() && ComboBox(disp1).selectedIndex != ComboBox(disp1).dataProvider.length - 1) return true;
+						if (!attrib1.isList() && disp1.text != "") return true;
 					}
 				}
 				else {
@@ -1179,11 +1189,11 @@
 					for each (var attrib2:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
 					{
 						var disp2:Object = customChildren["storyField" + attrib2.id.toString()];
-						if (attrib2.valueType < StoryAttribute.LIST || ComboBox(disp2).selectedItem)
+						if (!attrib2.isList() || ComboBox(disp2).selectedItem)
 						{
-							var fieldValue:Object = attrib2.valueType >= StoryAttribute.LIST ? (disp2.selectedItem.id == 0 ? null : disp2.selectedItem.id) : disp2.text;
+							var fieldValue:Object = attrib2.isList() ? (disp2.selectedItem.id == 0 ? null : disp2.selectedItem.id) : disp2.text;
 							var objectValue:Object = currentItem.getAttributeValue(attrib2);
-							if (fieldValue != ((attrib2.valueType < StoryAttribute.LIST && objectValue == null) ? "" : objectValue)) return true;
+							if (fieldValue != ((!attrib2.isList() && objectValue == null) ? "" : objectValue)) return true;
 						}
 					}
 				}
@@ -1774,6 +1784,12 @@
 					  	input2.restrict = "0-9.";
 					  	formItem.addChild(input2);
 					  	customChildren[id] = input2;
+					    break;
+					  case StoryAttribute.DATE:
+					  	var date:DateField = new DateField();
+					  	date.id = id;
+					  	formItem.addChild(date);
+					  	customChildren[id] = date;
 					    break;
 					  case StoryAttribute.LIST:
 					  case StoryAttribute.RELEASE_LIST:
