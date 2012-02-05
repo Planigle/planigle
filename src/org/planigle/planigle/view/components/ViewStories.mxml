@@ -1063,6 +1063,7 @@
 		// Show the previous object.
 		public function showPrevious() : void
 		{
+			handleFilterResult(); // Make sure the new object is in the tree
 			var currentObject:Object = currentItem.getCurrentVersion();
 			var index:int = currentObject ? filteredStories.getItemIndex(currentObject) : -1;
 			if (index > 0) {
@@ -1081,6 +1082,7 @@
 		// Show the next object.
 		public function showNext() : void
 		{
+			handleFilterResult(); // Make sure the new object is in the tree
 			var currentObject:Object = currentItem.getCurrentVersion();
 			var index:int = currentObject ? filteredStories.getItemIndex(currentObject) : -1;
 			if (index < filteredStories.length - 1) {
