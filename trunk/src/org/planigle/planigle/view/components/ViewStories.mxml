@@ -49,6 +49,9 @@
 		import org.planigle.planigle.view.requests.CopyStoryRequest;
 		import org.planigle.planigle.view.requests.CopyTaskRequest;
 		
+		private static var CURRENT_RELEASE:String = "Current Release";
+		private static var CURRENT_ITERATION:String = "Current Iteration";
+		
 		[Bindable]
 		private var _error:String;
 
@@ -289,9 +292,9 @@
 			if (currentRelease != null)
 			{ // Add me as an easy to find entry below All Releases.
 				var current:Release = new Release();
-				current.populate( <release><id>0</id><name>Current Release</name></release> );
+				current.populate( <release><id>0</id><name>{CURRENT_RELEASE}</name></release> );
 				current.id = ReleaseFactory.getInstance().current().id;
-				if (selection.id == current.id)
+				if (selection && selection.id == current.id)
 					selection = current;
 				newFilter.addItem(current);
 			}
@@ -322,7 +325,8 @@
 			var newFilter:ArrayCollection = new ArrayCollection();
 			for each (var it:Iteration in IterationFactory.getInstance().iterationSelector)
 			{
-				if (!release.selectedItem || release.selectedItem.id == "-1" || it.id == "-1" || it.id == null || it.isIn(Release(release.selectedItem)))
+				var selectedRelease:Release = getSelectedRelease();
+				if (!selectedRelease || selectedRelease.id == "-1" || it.id == "-1" || it.id == null || it.isIn(selectedRelease))
 				{
 					newFilter.addItem(it);
 					if (it.id == id)
@@ -335,12 +339,12 @@
 			if (id == "-1")
 				selection = Iteration(newFilter.getItemAt(newFilter.length - 1));
 			var currentIteration:Iteration = IterationFactory.getInstance().current();
-			if (currentIteration != null)
+			if (currentIteration != null && (selectedRelease.id == "-1" || currentIteration.isIn(selectedRelease)))
 			{ // Add me as an easy to find entry below All Iterations.
 				var current:Iteration = new Iteration();
-				current.populate( <iteration><id>0</id><name>Current Iteration</name></iteration> );
+				current.populate( <iteration><id>0</id><name>{CURRENT_ITERATION}</name></iteration> );
 				current.id = IterationFactory.getInstance().current().id;
-				if (selection.id == current.id)
+				if (selection && selection.id == current.id)
 					selection = current;
 				newFilter.addItem(current);
 			}
@@ -349,6 +353,22 @@
 				iteration.selectedItem = selection;
 			else
 				iteration.selectedIndex = iterationFilter.length - 1;
+		}
+		
+		private function getSelectedRelease():Release {
+			var selectedRelease:Release = Release(release.selectedItem);
+			if (selectedRelease && selectedRelease.name == CURRENT_RELEASE)
+				return ReleaseFactory.getInstance().current();
+			else
+				return selectedRelease;
+		}
+		
+		private function getSelectedIteration():Iteration {
+			var selectedIteration:Iteration = Iteration(iteration.selectedItem);
+			if (selectedIteration && selectedIteration.name == CURRENT_ITERATION)
+				return IterationFactory.getInstance().current();
+			else
+				return selectedIteration;
 		}
 		
 		// Update the individuals in the filter list.
@@ -557,7 +577,7 @@
 			if (iteration.selectedItem && iteration.selectedItem.id != "-1")
 			{
 				params["record[iteration_id]"] = iteration.selectedItem.id ? iteration.selectedItem.id : "";
-				var defaultRelease:Release = iteration.selectedItem.defaultRelease();
+				var defaultRelease:Release = getSelectedIteration().defaultRelease();
 				if ( defaultRelease && defaultRelease.id )
 					params["record[release_id]"] = defaultRelease.id; // Might be overriden below
 			}
@@ -758,10 +778,10 @@
 				values["epic"] = storyFieldEpic.dataProvider.getItemAt(storyFieldEpic.dataProvider.length - 1);
 				
 				if (shouldSet)
-					storyFieldIteration.dataProvider = IterationFactory.getInstance().iterationsInRelease(Release(release.selectedItem));
+					storyFieldIteration.dataProvider = IterationFactory.getInstance().iterationsInRelease(getSelectedRelease());
 
 				if (iteration.selectedItem.id != "-1")
-					values["iteration"] = iteration.selectedItem;
+					values["iteration"] = getSelectedIteration();
 				else
 					values["iteration"] = storyFieldIteration.dataProvider.getItemAt(storyFieldIteration.dataProvider.length - 1);
 
@@ -769,7 +789,7 @@
 					storyFieldRelease.dataProvider = values["iteration"].releases();
 
 				if (release.selectedItem.id != "-1")
-					values["release"] = release.selectedItem;
+					values["release"] = getSelectedRelease();
 				else
 					values["release"] = values["iteration"].defaultRelease();
 
@@ -852,7 +872,7 @@
 			{
 				var updater:UpdateItems = UpdateItems(PopUpManager.createPopUp(this, UpdateItems, true));
 				updater.title = "Select updates to apply";
-				updater.init(Release(release.selectedItem), new ArrayCollection(storyResourceGrid.selectedItems), updateItem, handleUpdateSuccess);
+				updater.init(getSelectedRelease(), new ArrayCollection(storyResourceGrid.selectedItems), updateItem, handleUpdateSuccess);
 				PopUpManager.centerPopUp(updater);
 			}
 			else
@@ -888,8 +908,8 @@
 								storyFieldEpic.selectedItem = story;
 						}
 						
-						if (IterationFactory.getInstance().iterationsInRelease(Release(release.selectedItem)).contains(iteration))
-							storyFieldIteration.dataProvider = IterationFactory.getInstance().iterationsInRelease(Release(release.selectedItem));
+						if (IterationFactory.getInstance().iterationsInRelease(getSelectedRelease()).contains(iteration))
+							storyFieldIteration.dataProvider = IterationFactory.getInstance().iterationsInRelease(getSelectedRelease());
 						else
 							storyFieldIteration.dataProvider = IterationFactory.getInstance().iterationSelector;
 						if (currentItem.stories.length > 0)
@@ -1001,7 +1021,7 @@
 					storyFieldName.setSelection(0, storyFieldName.text.length );
 					}
 				var nextIteration:Iteration = IterationFactory.getInstance().find(currentItem.iterationId).next();
-				if (!IterationFactory.getInstance().iterationsInRelease(Release(release.selectedItem)).contains(nextIteration))
+				if (!IterationFactory.getInstance().iterationsInRelease(getSelectedRelease()).contains(nextIteration))
 					storyFieldIteration.dataProvider = IterationFactory.getInstance().iterationSelector;
 				storyFieldIteration.selectedItem = nextIteration;
 				storyFieldStatus.selectedIndex = 0; // Set to created
@@ -1605,7 +1625,7 @@
 		public function updateIteration():void
 		{
 			storyFieldRelease.dataProvider = storyFieldIteration.selectedItem.releases();
-			storyFieldRelease.selectedItem = (release.selectedItem.id == "-1" || !release.selectedItem.id) ? storyFieldIteration.selectedItem.defaultRelease() : release.selectedItem;
+			storyFieldRelease.selectedItem = (release.selectedItem.id == "-1" || !release.selectedItem.id) ? storyFieldIteration.selectedItem.defaultRelease() : getSelectedRelease();
 			updateRelease();
 		}
 
