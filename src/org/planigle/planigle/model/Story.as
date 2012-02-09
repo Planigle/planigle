@@ -34,7 +34,7 @@ package org.planigle.planigle.model
 		public var priority:Number;
 		public var userPriority:String = "";
 		public var normalizedPriority:String = ""; // Calculated by StoryFactory
-		public var custom:String; // Used for sorting
+		public var custom:Object; // Used for sorting
 		public var updatedAtString:String;
 		private var myStoryValues:Array = new Array();
 		private var myStories:Array = new Array();

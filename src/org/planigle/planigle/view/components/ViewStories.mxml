@@ -26,6 +26,7 @@
 		import mx.binding.utils.ChangeWatcher;
 		import mx.containers.FormItem;
 		import mx.controls.TextInput;
+		import mx.utils.ObjectUtil;
 		import org.planigle.planigle.commands.GetStoriesCommand;
 		import org.planigle.planigle.model.ViewModelLocator;
 		import org.planigle.planigle.model.StoryAttributeValue;
@@ -1880,6 +1881,7 @@
 						newColumn.itemRenderer = CustomAttributeRenderer;
 						newColumn.dataField = "custom";
 						newColumn.visible = attrib.show;
+						newColumn.sortCompareFunction = sortCustom;
 						newColumns.addItem(newColumn);
 					}
 					attrMapping[attrib.name] = attrib;
@@ -1891,6 +1893,17 @@
 				currentColumns = storyResourceGrid.columns;
 				updateColumnVisibility();
 			}
+		}
+		
+		private function sortCustom(itemA:Object, itemB:Object):int
+		{
+			if (itemA == null || itemB == null) // Can happen if you double click on sort
+				return 0;
+				
+			if (sortDates)
+				return ObjectUtil.dateCompare(itemA.custom as Date, itemB.custom as Date);
+			else
+				return ObjectUtil.compare(itemA.custom, itemB.custom);
 		}
 
 		// Update the column between iteration and projected.
@@ -1910,6 +1923,8 @@
 			}
 		}
 		
+		private var sortDates:Boolean = false;
+		
 		// Handle an attempt to sort based on custom data.  Do so by setting the value to sort on.
 		private function sortCustomData(event:DataGridEvent):void
 		{
@@ -1917,7 +1932,14 @@
 			if (attrib != null && attrib.isCustom)
 			{
 				for each (var item:Object in filteredStories)
-					item.custom = item.getCustomFormattedValue(attrib);
+				{
+					var value:String = item.getCustomFormattedValue(attrib);
+					sortDates = attrib.valueType == StoryAttribute.DATE;
+					if(sortDates)
+						item.custom = (value == null || value == "") ? null : new Date(Date.parse(value));
+					else
+						item.custom = value;
+				}
 			}
 		}
 		
