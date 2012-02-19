@@ -1789,6 +1789,7 @@
 					  case StoryAttribute.DATE:
 					  	var date:DateField = new DateField();
 					  	date.id = id;
+					  	date.editable = true;
 					  	formItem.addChild(date);
 					  	customChildren[id] = date;
 					    break;
