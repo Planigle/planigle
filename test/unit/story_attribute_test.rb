@@ -31,8 +31,8 @@ class StoryAttributeTest < ActiveSupport::TestCase
     validate_field(:value_type, false, nil, nil)
     assert_failure(:value_type, -1)
     assert_success(:value_type, 0)
-    assert_success(:value_type, 4)
-    assert_failure(:value_type, 5)
+    assert_success(:value_type, 5)
+    assert_failure(:value_type, 6)
   end
 
   # Test the validation of ordering.
