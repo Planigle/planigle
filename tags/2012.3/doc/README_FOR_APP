@@ -1,0 +1,51 @@
+Planigle is a Ruby on Rails based agile planning application. It was developed by and is copyrighted by
+Walter Bodwell (2008-2010).  It is licensed under GPLv2 (included in this distribution).  All rights to the
+Planigle logo are reserved.  It is not permitted to use the Planigle logo outside the scope of this
+application.
+
+Required Components - License:
+Ruby - Ruby (http://www.ruby-lang.org/en/downloads/)
+Rails - MIT (http://www.rubyonrails.com/down)
+MySQL - GPLv2 (http://dev.mysql.com/downloads/mysql/5.0.html)
+HTTP Server - Apache (http://httpd.apache.org/download.cgi)
+Flex - MPL
+
+Embedded Components - License:
+Ruby AMF (Rails Plugin) - MIT
+Restful Authentication (Rails Plugin) - MIT
+acts_as_audited (Rails Plugin) - MIT
+acts_as_paranoid (Rails Plugin) - MIT
+site_config (Rails Plugin) - MIT
+iui (CSS and Images for iPhone) - Free (minimal restrictions; see license file)
+rails-iui (Rails Plugin) - MIT
+Cairngorm (Flex library) - BSD
+Flex automation libraries - MPL (included for build convenience; part of Flex SDK)
+Icons - http://www.visual-blast.com/graphics/icons/free-web-application-icons-set/ - Free (no restrictions)
+Icons - http://semlabs.co.uk/journal/free-web-design-icon-set - Free (no restrictions)
+Icons - Active Scaffold (Rails Plugin) - MIT
+Icons - http://www.softicons.com/free-icons/toolbar-icons/48x48-free-object-icons-by-aha-soft/bug-icon - Creative Commons Attribution 3.0
+
+Required Gems:
+FasterCSV - Ruby (from http://fastercsv.rubyforge.org/)
+FunFX - MIT (from http://rubyforge.org/projects/funfx/)
+will_paginate - Free for use (http://gitrdoc.com/rdoc/mislav/will_paginate/b3b0f593ea9b1da13a64bc825dfe17b6bbc2828b/files/LICENSE.html)
+win32-sound - (from http://win32utils.rubyforge.org/) - This provides feedback when compilation is done on Windows.  The dependency on it can be easily removed by modifying the rake file.
+
+Suggested Gems:
+mysql (Ruby)
+ruby-net-ldap (for LDAP authentication)
+
+Suggested Eclipse plug-ins:
+Aptana (http://update.aptana.com/update/3.2/)
+  Note: This currently doesn't work with versions of RubyGems later than 0.9.4.
+Subversion (http://subclipse.tigris.org/update_1.2.x)
+Flex Builder (See http://www.adobe.com/cfusion/tdrc/index.cfm?product=flex_eclipse&loc=en_us)
+  Note: There is a 60 day free trial, but this costs money if you chose to use it
+SQL Explorer (http://eclipsesql.sourceforge.net/)
+  Note: You can get the MySQL JDBC driver from http://dev.mysql.com/downloads/connector/j/5.0.html
+  
+See Installation_notes.rtf for help on getting your environment up and running.
+
+Testing Note: To get the Flex integration tests working, you'll need to do a test build (rake build:test).
+You'll also need to have a separate process running on the same box configured as a test environment
+when you run the tests.  Then run the rake test:flex task.
