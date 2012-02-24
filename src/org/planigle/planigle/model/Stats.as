@@ -44,25 +44,25 @@ package org.planigle.planigle.model
 			} else return storyStats[team.id];
 		}
 		
-		public function getNotStarted(team:Team):int
+		public function getNotStarted(team:Team):Number
 		{
 			var stats:Object = getStats(team);
 			return stats == null ? 0 : stats[Story.CREATED];
 		}
 		
-		public function getInProgress(team:Team):int
+		public function getInProgress(team:Team):Number
 		{
 			var stats:Object = getStats(team);
 			return stats == null ? 0 : stats[Story.IN_PROGRESS];
 		}
 		
-		public function getBlocked(team:Team):int
+		public function getBlocked(team:Team):Number
 		{
 			var stats:Object = getStats(team);
 			return stats == null ? 0 : stats[Story.BLOCKED];
 		}
 		
-		public function getDone(team:Team):int
+		public function getDone(team:Team):Number
 		{
 			var stats:Object = getStats(team);
 			return stats == null ? 0 : stats[Story.ACCEPTED];
