@@ -125,7 +125,7 @@
 				updatePremium();
 			}
 			
-			private function resetTimer():void
+			private function resetTimer(event:Event = null):void
 			{
 				refreshTimer.delay = getRefreshInterval();
 				refreshTimer.reset();
