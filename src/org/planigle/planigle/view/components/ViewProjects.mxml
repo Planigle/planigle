@@ -294,9 +294,10 @@
 			{
 				params['record[description]'] = projectFieldDescription.text;
 				params['record[survey_mode]'] = projectFieldSurveyMode.selectedItem.value;
+				params['record[track_actuals]'] = projectFieldTrackActuals.selectedItem.value;
+			} else {
 				params['record[premium_expiry]'] = projectFieldPremiumExpiry.selectedDate;
 				params['record[premium_limit]'] = projectFieldPremiumLimit.text;
-				params['record[track_actuals]'] = projectFieldTrackActuals.selectedItem.value;
 			}
 			params['random'] = Math.random(); // Prevents caching
 			return params;

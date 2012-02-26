@@ -98,6 +98,8 @@ protected
   def update_record
     if is_amf
       @record.name = params[0].name
+      @record.premium_limit = params[0].premium_limit
+      @record.premium_expiry = params[0].premium_expiry
     else
       @record.attributes = params[:record]
     end
