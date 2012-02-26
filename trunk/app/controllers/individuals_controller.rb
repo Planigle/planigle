@@ -52,6 +52,7 @@ protected
       @record.last_name = params[0].last_name
       @record.enabled = params[0].enabled
       @record.role = params[0].role
+      @record.refresh_interval = params[0].refresh_interval
     else
       @record.attributes = params[:record]
     end
