@@ -46,6 +46,7 @@
 		import org.planigle.planigle.util.RequestProcessor;
 		import org.planigle.planigle.events.AuditChangedEvent;
 		import org.planigle.planigle.events.StoryChangedEvent;
+		import org.planigle.planigle.events.StoriesChangedEvent;
 		import org.planigle.planigle.view.ViewHelper;
 		import org.planigle.planigle.view.requests.ChangeRequest;
 		import org.planigle.planigle.view.requests.CopyStoryRequest;
@@ -510,8 +511,9 @@
 		protected function selectionChanged(event:Event = null):void
 		{
 			selectedItems = storyResourceGrid.selectedItems;
+			updateStoryInfo();
 		}
-
+		
 		// The filters has changed.
 		public function handleFilterResult(event:Event = null):void
 		{
@@ -562,6 +564,26 @@
 					newSelect.push(newVersion);
 			}
 			storyResourceGrid.selectedItems = newSelect;
+			updateStoryInfo();
+		}
+		
+		protected function updateStoryInfo():void
+		{
+			var justStories:Boolean = true;
+			for each(var item:Object in selectedItems)
+			{
+				if(!item.isStory())
+					justStories = false;
+			}
+			var multipleSelected:Boolean = justStories && selectedItems.length > 1;
+			var stories:ArrayCollection = new ArrayCollection();
+			for each(var item2:Object in (multipleSelected ? selectedItems : storyResourceGrid.dataProvider))
+			{
+				if(item2.isStory())
+					stories.addItem(item2);
+			}
+			storiesCount.text = stories.length.toString() + (multipleSelected ? " selected" : "");
+			dispatchEvent(new StoriesChangedEvent(stories));
 		}
 		
 		protected function addStoryToArray(storiesAndTasks:ArrayCollection, story:Story) : void
