@@ -150,6 +150,7 @@
 			values["lastName"] = '';
 			values["role"] = 1;
 			values["enabled"] = 0;
+			values["refreshInterval"] = 5;
 
 			return values;
 		}
@@ -176,6 +177,7 @@
 			individualFieldLastName.text = values["lastName"];
 			individualFieldRole.selectedIndex = values["role"];
 			individualFieldEnabled.selectedIndex = values["enabled"];
+			individualFieldRefreshInterval.text = values["refreshInterval"];
 			labelPassword.required = true;
 			labelPasswordConfirmation.required = true;
 			individualBtnChange.label = 'Create';
@@ -227,6 +229,7 @@
 				individualFieldLastName.text = currentItem.lastName;
 				individualFieldRole.selectedIndex = factory.currentIndividual.isAdmin() ? currentItem.role : currentItem.role - 1;
 				individualFieldEnabled.selectedIndex = currentItem.enabled ? 0 : 1;
+				individualFieldRefreshInterval.text = convertRefreshIntervalToUI(currentItem.refreshInterval);
 				labelPassword.required = false;
 				labelPasswordConfirmation.required = false;
 				individualBtnCreateClose.visible = false;
@@ -287,8 +290,19 @@
 			params['record[last_name]'] = individualFieldLastName.text;
 			params['record[role]'] = individualFieldRole.selectedItem.value;
 			params['record[enabled]'] = individualFieldEnabled.selectedItem.value;
+			params['record[refresh_interval]'] = convertRefreshIntervalFromUI(individualFieldRefreshInterval.text);
 			params['random'] = Math.random(); // Prevents caching
 			return params;
+		}
+		
+		private function convertRefreshIntervalToUI(value:int):String
+		{
+			return value <= 0 ? "" : String(value / 60000);
+		}
+		
+		private function convertRefreshIntervalFromUI(value:String):int
+		{
+			return value == "" ? 0 : Number(value) * 60000;
 		}
 		
 		private function get projectIds() : Array
@@ -390,6 +404,7 @@
 				if (individualFieldEmail.text != values["email"]) return true;
 				if (individualFieldPhoneNumber.text != values["phoneNumber"]) return true;
 				if (individualFieldNotificationType.selected != (values["notificationType"] > 0)) return true;
+				if (individualFieldRefreshInterval.text != values["refreshInterval"]) return true;
 			}
 			else if (currentItem) {
 				if (individualFieldCompany.selectedItem.id != currentItem.companyId) return true;
@@ -405,6 +420,7 @@
 				if (individualFieldEmail.text != currentItem.email) return true;
 				if (individualFieldPhoneNumber.text != currentItem.phoneNumber) return true;
 				if (individualFieldNotificationType.selected != (currentItem.notificationType > 0)) return true;
+				if (individualFieldRefreshInterval.text != convertRefreshIntervalToUI(currentItem.refreshInterval)) return true;
 			}
 			return false;
 		}
@@ -490,6 +506,11 @@
 									</mx:FormItem>
 									<mx:FormItem id='individualFormNotificationType' label="Notification" visible="{factory.currentIndividual.isPremium}" height="{factory.currentIndividual.isPremium ? NaN : -5}">
 										<mx:CheckBox id='individualFieldNotificationType' label='Notify on story completion / acceptance' />
+									</mx:FormItem>
+									<mx:FormItem label='Auto Refresh Rate'>
+										<mx:HBox>
+											<mx:TextInput id='individualFieldRefreshInterval' restrict="0-9" maxChars="5" text='' width="50"/><mx:Label text="minutes"/>
+										</mx:HBox>
 									</mx:FormItem>
 								</mx:Form>
 							</mx:VBox>

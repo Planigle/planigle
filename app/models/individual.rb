@@ -11,7 +11,7 @@ class Individual < ActiveRecord::Base
   has_many :individual_story_attributes, :dependent => :destroy
   has_many :tasks, :dependent => :nullify, :conditions => "tasks.deleted_at IS NULL"
   has_many :user_errors, :dependent => :destroy, :class_name => 'Error'
-  attr_accessible :login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled, :role, :last_login, :accepted_agreement, :team_id, :phone_number, :notification_type, :company_id, :selected_project_id
+  attr_accessible :login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled, :role, :last_login, :accepted_agreement, :team_id, :phone_number, :notification_type, :company_id, :selected_project_id, :refresh_interval
   acts_as_audited :except => [:selected_project_id, :crypted_password, :salt, :remember_token, :remember_token_expires_at, :activation_code, :activated_at, :last_login, :accepted_agreement]
 
   # Virtual attribute for the unencrypted password

@@ -100,6 +100,7 @@
 
 			private var watcher:ChangeWatcher;
 			private var watcher2:ChangeWatcher;
+			private var watcher3:ChangeWatcher;
 			
 			private function watchIndividual():void
 			{
@@ -107,8 +108,11 @@
 					watcher.unwatch();
 				if (watcher2)
 					watcher2.unwatch();
+				if (watcher3)
+					watcher3.unwatch();
 				watcher = factory.currentIndividual && factory.currentIndividual.selectedProject ? ChangeWatcher.watch( factory.currentIndividual.selectedProject, "premiumExpiry", resetState ) : null;
 				watcher2 = factory.currentIndividual ? ChangeWatcher.watch( factory.currentIndividual, "allProjects", updateProjects ) : null;
+				watcher3 = factory.currentIndividual ? ChangeWatcher.watch( factory.currentIndividual, "refreshInterval", resetTimer ) : null;
 			}
 
 			// The user has changed.
