@@ -988,12 +988,14 @@
 					storyBtnCreateClose.width=-5;
 					storyBtnChange.label = 'Update';
 					storyBtnInfo.visible = true;
-				}
+
+					updateEditPanelSize();
+					var index:int = filteredStories.getItemIndex(currentItem);
+					storyBtnPrevious.visible = index > 0;
+					storyBtnNext.visible = index < filteredStories.length - 1;
+				} else
+					currentState = '';
 			}
-			updateEditPanelSize();
-			var index:int = filteredStories.getItemIndex(currentItem);
-			storyBtnPrevious.visible = index > 0;
-			storyBtnNext.visible = index < filteredStories.length - 1;
 		}
 
 		// Fill in the custom attribute fields.
