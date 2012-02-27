@@ -561,7 +561,10 @@
 			{
 				var newVersion:Object = selectedItems[i].getCurrentVersion();
 				if(newVersion != null && storyResourceGrid.dataProvider.contains(newVersion))
+				{
 					newSelect.push(newVersion);
+					selectedItems[i] = newVersion;
+				}
 			}
 			storyResourceGrid.selectedItems = newSelect;
 			updateStoryInfo();
@@ -570,19 +573,25 @@
 		protected function updateStoryInfo():void
 		{
 			var justStories:Boolean = true;
+			var actualSelected:ArrayCollection = new ArrayCollection();
 			for each(var item:Object in selectedItems)
 			{
 				if(!item.isStory())
+				{
 					justStories = false;
+					break;
+				}
+				if(storyResourceGrid.dataProvider.contains(item))
+					actualSelected.addItem(item);
 			}
-			var multipleSelected:Boolean = justStories && selectedItems.length > 1;
+			var multipleSelected:Boolean = justStories && actualSelected.length > 1;
 			var stories:ArrayCollection = new ArrayCollection();
-			for each(var item2:Object in (multipleSelected ? selectedItems : storyResourceGrid.dataProvider))
+			for each(var item2:Object in (multipleSelected ? actualSelected : storyResourceGrid.dataProvider))
 			{
 				if(item2.isStory())
 					stories.addItem(item2);
 			}
-			storiesCount.text = stories.length.toString() + (multipleSelected ? " selected" : "");
+			storiesCount.text = stories.length.toString() + (multipleSelected ? " Selected" : "");
 			dispatchEvent(new StoriesChangedEvent(stories));
 		}
 		
