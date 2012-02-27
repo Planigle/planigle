@@ -121,6 +121,12 @@ package org.planigle.planigle.model
 			return DateUtils.lessThanOrEquals(start, date) && DateUtils.greaterThanOrEquals(finish, date);
 		}
 
+		// Answer true if I am active on or after a given date.
+		public function isActiveOnOrAfter(date:Date):Boolean
+		{
+			return DateUtils.greaterThanOrEquals(finish, date);
+		}
+
 		// Answer the releases that could be worked on during me.
 		public function releases():ArrayCollection
 		{

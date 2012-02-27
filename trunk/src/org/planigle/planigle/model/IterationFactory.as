@@ -86,13 +86,16 @@ package org.planigle.planigle.model
 		// Answer the first iteration whose dates include today.  If none, return null.
 		public function current():Iteration
 		{
+			var candidate:Iteration = null;
 			for (var i:int = iterations.length - 1; i >= 0; i--)
 			{ // go backwards
 				var iteration:Iteration = Iteration(iterations.getItemAt(i));
 				if(iteration.isCurrent())
 					return iteration;
+				if(iteration.isActiveOnOrAfter(DateUtils.today()))
+					candidate = iteration;
 			}
-			return null;
+			return candidate;
 		}
 		
 		// Answer the current iteration or if none, the most recent.  If no iterations, return null.
