@@ -32,7 +32,7 @@ package org.planigle.planigle.model
 				var combined:Object = new Object();
 				for(var id:String in storyStats)
 				{
-					var statuses:Object = storyStats[id]["statuses"];
+					var statuses:Object = getSubcategory(storyStats[id],"statuses");
 					for(var status:String in statuses)
 					{
 						if(combined[status] == null)
@@ -41,7 +41,7 @@ package org.planigle.planigle.model
 					}
 				}
 				return combined;
-			} else return storyStats[team.id]["statuses"];
+			} else return getSubcategory(storyStats[team.id],"statuses");
 		}
 		
 		public function getIterations(team:Team):Object
@@ -51,7 +51,7 @@ package org.planigle.planigle.model
 				var combined:Object = new Object();
 				for(var id:String in storyStats)
 				{
-					var iterations:Object = storyStats[id]["iterations"];
+					var iterations:Object = getSubcategory(storyStats[id],"iterations");
 					for(var iteration:String in iterations)
 					{
 						if(combined[iteration] == null)
@@ -60,7 +60,12 @@ package org.planigle.planigle.model
 					}
 				}
 				return combined;
-			} else return storyStats[team.id]["iterations"];
+			} else return getSubcategory(storyStats[team.id],"iterations");
+		}
+		
+		protected function getSubcategory(stats:Object, subcategory:String):Object
+		{
+			return stats == null ? null : stats[subcategory];
 		}
 		
 		public function getNotStarted(team:Team):Number
