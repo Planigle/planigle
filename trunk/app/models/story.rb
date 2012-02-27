@@ -386,8 +386,15 @@ class Story < ActiveRecord::Base
   end
   
   def self.get_team_stats(current_individual, conditions, team)
-    stats = {}
-    [0,1,2,3].each{|status|stats[status]=Story.get_records(current_individual, {:iteration_id=>'Current',:team_id=>team,:status_code=>status}).inject(0){|result,story|result+(story.effort == nil ? 0 : story.effort)}}
+    stats = {:statuses => {}, :iterations => {}}
+    [0,1,2,3].each do |status|
+      stats[:statuses][status]=Story.get_records(current_individual, {:iteration_id=>'Current',:team_id=>team,:status_code=>status}).inject(0){|result,story|result+(story.effort == nil ? 0 : story.effort)}
+    end
+    Iteration.get_records(current_individual).each do |iteration|
+      if iteration.finish >= DateTime.now
+        stats[:iterations][iteration.id]=Story.get_records(current_individual,{:iteration_id=>iteration.id,:team_id=>team}).inject(0){|result,story|result+(story.effort == nil ? 0 : story.effort)}
+      end
+    end
     stats
   end
 
