@@ -25,14 +25,14 @@ package org.planigle.planigle.model
 			storyStats = stats == null ? new Object() : stats;
 		}
 		
-		public function getStats(team:Team):Object
+		public function getStatuses(team:Team):Object
 		{
 			if(int(team.id) == -1)
 			{
 				var combined:Object = new Object();
 				for(var id:String in storyStats)
 				{
-					var statuses:Object = storyStats[id];
+					var statuses:Object = storyStats[id]["statuses"];
 					for(var status:String in statuses)
 					{
 						if(combined[status] == null)
@@ -41,31 +41,56 @@ package org.planigle.planigle.model
 					}
 				}
 				return combined;
-			} else return storyStats[team.id];
+			} else return storyStats[team.id]["statuses"];
+		}
+		
+		public function getIterations(team:Team):Object
+		{
+			if(int(team.id) == -1)
+			{
+				var combined:Object = new Object();
+				for(var id:String in storyStats)
+				{
+					var iterations:Object = storyStats[id]["iterations"];
+					for(var iteration:String in iterations)
+					{
+						if(combined[iteration] == null)
+							combined[iteration] = 0;
+						combined[iteration] += iterations[iteration];
+					}
+				}
+				return combined;
+			} else return storyStats[team.id]["iterations"];
 		}
 		
 		public function getNotStarted(team:Team):Number
 		{
-			var stats:Object = getStats(team);
+			var stats:Object = getStatuses(team);
 			return stats == null ? 0 : stats[Story.CREATED];
 		}
 		
 		public function getInProgress(team:Team):Number
 		{
-			var stats:Object = getStats(team);
+			var stats:Object = getStatuses(team);
 			return stats == null ? 0 : stats[Story.IN_PROGRESS];
 		}
 		
 		public function getBlocked(team:Team):Number
 		{
-			var stats:Object = getStats(team);
+			var stats:Object = getStatuses(team);
 			return stats == null ? 0 : stats[Story.BLOCKED];
 		}
 		
 		public function getDone(team:Team):Number
 		{
-			var stats:Object = getStats(team);
+			var stats:Object = getStatuses(team);
 			return stats == null ? 0 : stats[Story.ACCEPTED];
+		}
+		
+		public function getAssignedPoints(iteration:Iteration, team:Team):Number
+		{
+			var stats:Object = getIterations(team);
+			return stats == null ? 0 : (stats[iteration.id] == null ? 0 : stats[iteration.id]);
 		}
 	}
 }

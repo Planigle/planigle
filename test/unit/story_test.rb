@@ -679,18 +679,19 @@ class StoryTest < ActiveSupport::TestCase
   def test_get_stats
     conditions={:status_code => '1'}
     stats = Story.get_stats(individuals(:aaron), conditions)
-    assert_equal 0, stats[0][0]
-    assert_equal 2, stats[0][1]
-    assert_equal 0, stats[0][2]
-    assert_equal 1, stats[0][3]
-    assert_equal 0, stats[1][0]
-    assert_equal 1, stats[1][1]
-    assert_equal 0, stats[1][2]
-    assert_equal 0, stats[1][3]
-    assert_equal 0, stats[2][0]
-    assert_equal 0, stats[2][1]
-    assert_equal 0, stats[2][2]
-    assert_equal 0, stats[2][3]
+    assert_equal 0, stats[0][:statuses][0]
+    assert_equal 2, stats[0][:statuses][1]
+    assert_equal 0, stats[0][:statuses][2]
+    assert_equal 1, stats[0][:statuses][3]
+    assert_equal 0, stats[1][:statuses][0]
+    assert_equal 1, stats[1][:statuses][1]
+    assert_equal 0, stats[1][:statuses][2]
+    assert_equal 0, stats[1][:statuses][3]
+    assert_equal 0, stats[2][:statuses][0]
+    assert_equal 0, stats[2][:statuses][1]
+    assert_equal 0, stats[2][:statuses][2]
+    assert_equal 0, stats[2][:statuses][3]
+    assert stats[0][:iterations].empty?
   end
 
 private
