@@ -1,0 +1,8 @@
+<% if @logo != nil %><%= @logo %><% end %><br/>
+Project: <%= @survey.project.name %><br/>
+<br/>
+User: <%= @survey.name %><br/>
+Company: <%= @survey.company %><br/>
+Email: <%= @survey.email %><br/>
+<% @survey.survey_mappings.each do |mapping| %>
+<%= mapping.priority %>: <%= mapping.story.name %><br/><% end %>

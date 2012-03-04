@@ -1,0 +1,73 @@
+first:
+  id: 1
+  story_id: 6
+  project_id: 1
+  team_id: 1
+  release_id: 1
+  iteration_id: 1
+  individual_id: 2
+  name: 'test'
+  description: 'description'
+  effort: 1
+  status_code: 1
+  priority: 3
+  is_public: true
+  user_priority: 2
+  reason_blocked: ''
+
+second:
+  id: 2
+  project_id: 1
+  release_id: 1
+  iteration_id: 1
+  name: 'test2'
+  description: ''
+  effort: 1
+  status_code: 3
+  priority: 2
+  is_public: true
+  user_priority: 1
+  reason_blocked: ''
+
+third:
+  id: 3
+  project_id: 1
+  name: 'test3'
+  description: ''
+  effort: 1
+  status_code: 1
+  priority: 1
+  user_priority: 2
+  is_public: false
+  reason_blocked: ''
+
+fourth:
+  id: 4
+  project_id: 1
+  name: 'test4'
+  description: ''
+  effort: 1
+  status_code: 1
+  priority: 4
+  is_public: true
+  reason_blocked: ''
+
+fifth:
+  id: 5
+  project_id: 2
+  name: 'test5'
+  description: ''
+  effort: 2
+  status_code: 2
+  priority: 1
+  is_public: true
+  reason_blocked: ''
+  
+epic:
+  id: 6
+  project_id: 1
+  name: 'Epic'
+  description: ''
+  status_code: 1
+  priority: 10
+  is_public: true
