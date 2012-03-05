@@ -14,6 +14,8 @@ package org.planigle.planigle.commands
 	public class GetStoriesCommand implements ICommand, IResponder
 	{
 		static protected var commands:ArrayCollection = new ArrayCollection();		
+		static protected var currentId:int = 0;
+		protected var id:int;
 		protected var page:int;
 		protected var cancelled:Boolean = false;
 
@@ -41,6 +43,7 @@ package org.planigle.planigle.commands
 		
 		public function GetStoriesCommand(page:int = 1)
 		{
+			this.id = ++currentId;
 			this.page = page;
 			addCommand(this);
 		}
@@ -58,7 +61,7 @@ package org.planigle.planigle.commands
 		public function result( event:Object ):void
 		{
 			var result:Object = event.result;
-			if (result.records != null && !cancelled)
+			if (id == currentId && result.records != null && !cancelled)
 			{
 				var stories:Array = result.records as Array;
 				if (stories.length == 0)
