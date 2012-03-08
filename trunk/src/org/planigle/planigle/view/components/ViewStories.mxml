@@ -1864,6 +1864,7 @@
 					  	combo.labelField = "value";
 					  	combo.dataProvider = attrib.allValues;
 					  	combo.selectedIndex = attrib.allValues.length - 1;
+					  	combo.rowCount = Math.min(attrib.allValues.length,15);
 					  	formItem.addChild(combo);
 					  	customChildren[id] = combo;
 					  	
@@ -1877,6 +1878,7 @@
 					  	combo.labelField = "value";
 					  	combo.dataProvider = values;
 					  	combo.selectedIndex = values.length - 1;
+					  	combo.rowCount = Math.min(values.length,15);
 					  	if (initial && Story.conditions["custom_" + attrib.id.toString()] != null) 
 					  	{
 					  		var target:String = Story.conditions["custom_" + attrib.id.toString()];
