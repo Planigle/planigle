@@ -549,7 +549,10 @@
 			}
 
 			if (!GetStoriesCommand.isLoading() && storyResourceGrid.dataProvider.length > 0)
-				updateSelectedItems();
+			{
+ 				storyResourceGrid.dataProvider.refresh(); // See http://www.experts-exchange.com/Web_Development/Web_Languages-Standards/Flex/Q_26580956.html
+ 				updateSelectedItems();
+			}
 			selectionWatcher = ChangeWatcher.watch(storyResourceGrid, "selectedItems", selectionChanged);
 		}
 		
