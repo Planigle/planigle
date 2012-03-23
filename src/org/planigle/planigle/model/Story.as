@@ -36,6 +36,8 @@ package org.planigle.planigle.model
 		public var normalizedPriority:String = ""; // Calculated by StoryFactory
 		public var custom:Object; // Used for sorting
 		public var updatedAtString:String;
+		public var leadTime:String;
+		public var cycleTime:String;
 		private var myStoryValues:Array = new Array();
 		private var myStories:Array = new Array();
 		private var myTasks:Array = new Array();
@@ -129,6 +131,8 @@ package org.planigle.planigle.model
 			priority = xml.priority;
 			userPriority = xml.child("user-priority");
 			updatedAtString = xml.child("updated-at");
+			leadTime = xml.child("lead-time");
+			cycleTime = xml.child("cycle-time");
 
 			var newStoryValues:ArrayCollection = new ArrayCollection();
 			for (var i:int = 0; i < xml.child("story-values").child("story-value").length(); i++)

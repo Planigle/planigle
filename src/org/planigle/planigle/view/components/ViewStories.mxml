@@ -2442,6 +2442,8 @@
 					<mx:DataGridColumn headerText="Description" dataField="description" wordWrap="true"/>
 					<mx:DataGridColumn headerText="Acceptance Criteria" dataField="acceptanceCriteria" wordWrap="true"/>
 					<mx:DataGridColumn headerText="Release" labelFunction="ViewHelper.formatRelease" sortCompareFunction="ViewHelper.sortRelease"/>
+					<mx:DataGridColumn headerText="Lead Time" dataField="leadTime" sortCompareFunction="ViewHelper.sortLeadTime"/>
+					<mx:DataGridColumn headerText="Cycle Time" dataField="cycleTime" sortCompareFunction="ViewHelper.sortCycleTime"/>
 					<mx:DataGridColumn resizable="false" editable="false" width="95">
 						<mx:itemRenderer>
 							<mx:Component>

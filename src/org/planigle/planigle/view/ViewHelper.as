@@ -240,6 +240,18 @@ package org.planigle.planigle.view
 			return ObjectUtil.numericCompare(Number(item1.userPriority),Number(item2.userPriority));
 		}
 
+		// Sort numerically.
+		public static function sortLeadTime(item1:Object, item2:Object):int
+		{
+			return ObjectUtil.numericCompare(Number(item1.leadTime),Number(item2.leadTime));
+		}
+
+		// Sort numerically.
+		public static function sortCycleTime(item1:Object, item2:Object):int
+		{
+			return ObjectUtil.numericCompare(Number(item1.cycleTime),Number(item2.cycleTime));
+		}
+
 		// Sort last login numerically.
 		public static function sortLastLogin(item1:Object, item2:Object):int
 		{

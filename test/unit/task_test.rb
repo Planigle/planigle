@@ -107,6 +107,57 @@ class TaskTest < ActiveSupport::TestCase
     assert tasks(:three).matches(:individual_id => nil, :status_code => 'NotDone')
   end
 
+  def test_in_progress_at
+    task = tasks(:one)
+    task.status_code = Story::Created
+    assert_equal nil, task.in_progress_at
+    task.status_code = Story::InProgress
+    assert task.in_progress_at != nil
+    task.status_code = Story::Blocked
+    assert task.in_progress_at != nil
+    task.status_code = Story::Done
+    assert task.in_progress_at != nil
+  end
+  
+  def test_done_at
+    task = tasks(:one)
+    task.status_code = Story::Created
+    assert_equal nil, task.done_at
+    task.status_code = Story::InProgress
+    assert_equal nil, task.done_at
+    task.status_code = Story::Blocked
+    assert_equal nil, task.done_at
+    task.status_code = Story::Done
+    assert task.done_at != nil
+  end
+
+  def test_lead_time
+    task = tasks(:one)
+    task.created_at = Time.utc(2010,1,1,12,0,0)
+    task.done_at = Time.utc(2010,1,5,18,0,0)
+    assert_equal 4.25, task.lead_time
+
+    task = stories(:first)
+    task.created_at = Time.now - 24*60*60
+    task.done_at = nil
+    assert_equal 1, task.lead_time.to_i
+  end
+  
+  def test_cycle_time
+    task = tasks(:one)
+    task.in_progress_at = Time.utc(2010,1,1,12,0,0)
+    task.done_at = Time.utc(2010,1,5,18,0,0)
+    assert_equal 4.25, task.cycle_time
+
+    task.in_progress_at = Time.now - 24*60*60
+    task.done_at = nil
+    assert_equal 1, task.cycle_time.to_i
+
+    task.in_progress_at = nil
+    task.done_at = nil
+    assert_equal nil, task.cycle_time
+  end
+
 private
 
   # Create a task with valid values.  Options will override default values (should be :attribute => value).

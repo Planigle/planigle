@@ -22,6 +22,8 @@ package org.planigle.planigle.model
 		protected var myActual:String;
 		public var myStatusCode:int;
 		public var priority:Number;
+		public var leadTime:String;
+		public var cycleTime:String;
 		public var projectedIterationId:String = "-1"; // Not used for tasks, but needed for the grid.
 
 		public function getCurrentVersion():Object
@@ -61,6 +63,8 @@ package org.planigle.planigle.model
 			reasonBlocked = xml.child("reason-blocked");
 			priority = xml.child("priority");
 			updatedAtString = xml.child("updated-at");
+			leadTime = xml.child("lead-time");
+			cycleTime = xml.child("cycle-time");
 		}
 
 		// Answer how much to indent this kind of item.

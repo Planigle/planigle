@@ -2,6 +2,7 @@ require 'faster_csv'
 
 class Story < ActiveRecord::Base
   include Utilities::Text
+  include Utilities::CycleTimeObject
   acts_as_paranoid
   belongs_to :project
   belongs_to :team
@@ -16,7 +17,7 @@ class Story < ActiveRecord::Base
   has_many :all_tasks, :class_name => "Task"
   has_many :survey_mappings, :dependent => :destroy
   attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :release_id, :iteration_id, :individual_id, :project_id, :is_public, :priority, :user_priority, :team_id, :reason_blocked, :story_id
-  acts_as_audited :except => [:user_priority]
+  acts_as_audited :except => [:user_priority, :in_progress_at, :done_at]
   
   validates_presence_of     :project_id, :name
   validates_length_of       :name,                   :maximum => 250, :allow_nil => true # Allow nil to workaround bug
@@ -45,7 +46,7 @@ class Story < ActiveRecord::Base
   # Answer a CSV string representing the stories.
   def self.export(current_user, conditions = {})
     FasterCSV.generate(:row_sep => "\n") do |csv|
-      attribs = ['PID', 'Epic', 'Name', 'Description', 'Acceptance Criteria', 'Size', 'Estimate', 'To Do', 'Actual', 'Status', 'Reason Blocked', 'Release', 'Iteration', 'Team', 'Owner', 'Public', 'User Rank']
+      attribs = ['PID', 'Epic', 'Name', 'Description', 'Acceptance Criteria', 'Size', 'Estimate', 'To Do', 'Actual', 'Status', 'Reason Blocked', 'Release', 'Iteration', 'Team', 'Owner', 'Public', 'User Rank', 'Lead Time', 'Cycle Time']
       if (current_user.project)
         if (!current_user.project.track_actuals)
           attribs.delete('Actual')
@@ -99,7 +100,9 @@ class Story < ActiveRecord::Base
       team ? team.name : '',
       individual ? individual.name : '',
       is_public,
-      user_priority]
+      user_priority,
+      lead_time,
+      cycle_time]
     project.story_attributes.find(:all, :conditions => {:is_custom => true}, :order => :name).each do |attrib|
       value = story_values.find(:first, :conditions => {:story_attribute_id => attrib.id})
       if (attrib.value_type == StoryAttribute::List || attrib.value_type == StoryAttribute::ReleaseList) && value
@@ -250,7 +253,7 @@ class Story < ActiveRecord::Base
       options[:include] = [:story_values, :criteria]
     end
     if !options[:methods]
-      options[:methods] = [:acceptance_criteria, :epic_name]
+      options[:methods] = [:acceptance_criteria, :epic_name, :lead_time, :cycle_time]
     end
     if !options[:procs]
       story_proc = Proc.new {|opt| filtered_stories_as_xml(opt[:builder])}

@@ -9,7 +9,7 @@ class ChangeStoryIndices < ActiveRecord::Migration
   def self.down
     remove_index :stories, [:project_id,:status_code]
     remove_index :stories, [:project_id,:iteration_id]
-    remove_index :stories, [:project_id,:story_id]
+    remove_index :stories, [:story_id]
     add_index :stories, [:project_id], :unique => false
   end
 end
