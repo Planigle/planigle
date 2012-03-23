@@ -269,7 +269,7 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal 0, mapping['Not Started']
   end
 
-  # Test finding individuals for a specific user.
+  # Test finding stories for a specific user.
   def test_find
     assert_equal 0, Story.get_records(individuals(:quentin)).length
     assert_equal Story.find_all_by_project_id(1).length - 1, Story.get_records(individuals(:aaron)).length
@@ -370,13 +370,13 @@ class StoryTest < ActiveSupport::TestCase
   # Validate export.
   def test_export
     string = Story.export(individuals(:aaron))
-    assert_equal "PID,Epic,Name,Description,Acceptance Criteria,Size,Estimate,To Do,Actual,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Test_List,Test_Number,Test_Release,Test_String,Test_Text\nS3,\"\",test3,\"\",\"\",1.0,,,,In Progress,\"\",\"\",\"\",\"\",\"\",false,2.0,\"\",\"\",\"\",\"\"\,\"\"\nS2,\"\",test2,\"\",\"\",1.0,,,,Done,\"\",first,first,\"\",\"\",true,1.0,\"\",\"\",\"\",\"\",\"\"\nS1,Epic,test,description,\"*criteria\n*criteria2 (Done)\",1.0,3.0,5.0,1.0,In Progress,\"\",first,first,Test_team,aaron hank,true,2.0,Value 1,5,Theme 1,test,testy\nT1,\"\",test_task,,\"\",\"\",,3.0,,In Progress,,\"\",\"\",\"\",aaron hank,\"\",\"\",\"\",\"\",\"\",\"\",\"\"\nT2,\"\",test2_task,,\"\",\"\",3.0,2.0,1.0,Done,,\"\",\"\",\"\",aaron hank,\"\",\"\",\"\",\"\",\"\",\"\",\"\"\nS4,\"\",test4,\"\",\"\",1.0,,,,In Progress,\"\",\"\",\"\",\"\",\"\",true,,\"\",\"\",\"\",\"\",\"\"\n", string
+    assert_equal "PID,Epic,Name,Description,Acceptance Criteria,Size,Estimate,To Do,Actual,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Lead Time,Cycle Time,Test_List,Test_Number,Test_Release,Test_String,Test_Text\nS3,\"\",test3,\"\",\"\",1.0,,,,In Progress,\"\",\"\",\"\",\"\",\"\",false,2.0,0.0,,\"\",\"\",\"\",\"\"\,\"\"\nS2,\"\",test2,\"\",\"\",1.0,,,,Done,\"\",first,first,\"\",\"\",true,1.0,0.0,,\"\",\"\",\"\",\"\",\"\"\nS1,Epic,test,description,\"*criteria\n*criteria2 (Done)\",1.0,3.0,5.0,1.0,In Progress,\"\",first,first,Test_team,aaron hank,true,2.0,0.0,,Value 1,5,Theme 1,test,testy\nT1,\"\",test_task,,\"\",\"\",,3.0,,In Progress,,\"\",\"\",\"\",aaron hank,\"\",\"\",0.0,,\"\",\"\",\"\",\"\",\"\"\nT2,\"\",test2_task,,\"\",\"\",3.0,2.0,1.0,Done,,\"\",\"\",\"\",aaron hank,\"\",\"\",0.0,,\"\",\"\",\"\",\"\",\"\"\nS4,\"\",test4,\"\",\"\",1.0,,,,In Progress,\"\",\"\",\"\",\"\",\"\",true,,0.0,,\"\",\"\",\"\",\"\",\"\"\n", string
 
     string = Story.export(individuals(:project_admin2))
-    assert_equal "PID,Epic,Name,Description,Acceptance Criteria,Size,Estimate,To Do,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Test_String2\nS5,\"\",test5,\"\",\"\",2.0,2.0,3.0,Blocked,\"\",\"\",\"\",\"\",\"\",true,,testit\nT3,\"\",test3,More,\"\",\"\",2.0,3.0,Blocked,,\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n", string
+    assert_equal "PID,Epic,Name,Description,Acceptance Criteria,Size,Estimate,To Do,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Lead Time,Cycle Time,Test_String2\nS5,\"\",test5,\"\",\"\",2.0,2.0,3.0,Blocked,\"\",\"\",\"\",\"\",\"\",true,,0.0,,testit\nT3,\"\",test3,More,\"\",\"\",2.0,3.0,Blocked,,\"\",\"\",\"\",\"\",\"\",\"\",0.0,,\"\"\n", string
 
     string = Story.export(individuals(:aaron), {:name => 'test3'})
-    assert_equal "PID,Epic,Name,Description,Acceptance Criteria,Size,Estimate,To Do,Actual,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Test_List,Test_Number,Test_Release,Test_String,Test_Text\nS3,\"\",test3,\"\",\"\",1.0,,,,In Progress,\"\",\"\",\"\",\"\",\"\",false,2.0,\"\",\"\",\"\",\"\"\,\"\"\n", string
+    assert_equal "PID,Epic,Name,Description,Acceptance Criteria,Size,Estimate,To Do,Actual,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Lead Time,Cycle Time,Test_List,Test_Number,Test_Release,Test_String,Test_Text\nS3,\"\",test3,\"\",\"\",1.0,,,,In Progress,\"\",\"\",\"\",\"\",\"\",false,2.0,0.0,,\"\",\"\",\"\",\"\"\,\"\"\n", string
   end
 
   def test_import_invalid_id
@@ -692,6 +692,57 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal 0, stats[2][:statuses][2]
     assert_equal 0, stats[2][:statuses][3]
     assert stats[0][:iterations].empty?
+  end
+  
+  def test_in_progress_at
+    story = stories(:first)
+    story.status_code = Story::Created
+    assert_equal nil, story.in_progress_at
+    story.status_code = Story::InProgress
+    assert story.in_progress_at != nil
+    story.status_code = Story::Blocked
+    assert story.in_progress_at != nil
+    story.status_code = Story::Done
+    assert story.in_progress_at != nil
+  end
+  
+  def test_done_at
+    story = stories(:first)
+    story.status_code = Story::Created
+    assert_equal nil, story.done_at
+    story.status_code = Story::InProgress
+    assert_equal nil, story.done_at
+    story.status_code = Story::Blocked
+    assert_equal nil, story.done_at
+    story.status_code = Story::Done
+    assert story.done_at != nil
+  end
+  
+  def test_lead_time
+    story = stories(:first)
+    story.created_at = Time.utc(2010,1,1,12,0,0)
+    story.done_at = Time.utc(2010,1,5,18,0,0)
+    assert_equal 4.25, story.lead_time
+
+    story = stories(:first)
+    story.created_at = Time.now - 24*60*60
+    story.done_at = nil
+    assert_equal 1, story.lead_time.to_i
+  end
+  
+  def test_cycle_time
+    story = stories(:first)
+    story.in_progress_at = Time.utc(2010,1,1,12,0,0)
+    story.done_at = Time.utc(2010,1,5,18,0,0)
+    assert_equal 4.25, story.cycle_time
+
+    story.in_progress_at = Time.now - 24*60*60
+    story.done_at = nil
+    assert_equal 1, story.cycle_time.to_i
+
+    story.in_progress_at = nil
+    story.done_at = nil
+    assert_equal nil, story.cycle_time
   end
 
 private

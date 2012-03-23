@@ -1,9 +1,10 @@
 class Task < ActiveRecord::Base
+  include Utilities::CycleTimeObject
   acts_as_paranoid
   belongs_to :individual
   belongs_to :story
   attr_accessible :name, :description, :effort, :status_code, :individual_id, :story_id, :reason_blocked, :priority, :actual, :estimate
-  acts_as_audited :except => [:story_id]
+  acts_as_audited :except => [:story_id, :in_progress_at, :done_at]
   
   validates_presence_of     :name, :story_id
   validates_length_of       :name,                   :maximum => 250, :allow_nil => true # Allow nil to workaround bug
@@ -44,6 +45,14 @@ class Task < ActiveRecord::Base
     story.project
   end
   
+  # Override to_xml to include lead and cycle time.
+  def to_xml(options = {})
+    if !options[:methods]
+      options[:methods] = [:lead_time, :cycle_time]
+    end
+    super(options)
+  end
+  
   # Export given an instance of FasterCSV.
   def export(csv)
     values = [
@@ -66,7 +75,9 @@ class Task < ActiveRecord::Base
       '', # team
       individual ? individual.name : '',
       '', # public
-      ''] # user rank
+      '', # user rank
+      lead_time,
+      cycle_time]
     project.story_attributes.find(:all, :conditions => {:is_custom => true}, :order => :name).each do |attrib|
       values << ''
     end
