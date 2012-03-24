@@ -514,6 +514,8 @@
 			updateStoryInfo();
 		}
 		
+		private var oldSort:Sort = null;
+		
 		// The filters has changed.
 		public function handleFilterResult(event:Event = null):void
 		{
@@ -522,8 +524,13 @@
 			
 			var scroll:Number = storyResourceGrid.verticalScrollPosition;
 			var sort:Sort = filteredStories.sort;
+			if(sort == null)
+				sort = oldSort;
+			else
+				oldSort = sort;
 			updateColumnVisibility();
-			var justStories:ArrayCollection = StoryFactory.getInstance().stories;
+			var justStories:ArrayCollection = new ArrayCollection();
+			justStories.addAll(StoryFactory.getInstance().stories);
 			justStories.sort = sort;
 			justStories.refresh();
 			storiesCount.text = justStories.length.toString() + (GetStoriesCommand.isLoading() ? "+" : "");
@@ -531,7 +538,6 @@
 			for each (var story:Story in justStories)
 				addStoryToArray(storiesAndTasks, story);
 			filteredStories = storiesAndTasks;
-			filteredStories.sort = sort;
 			storyResourceGrid.verticalScrollPosition = scroll;
 			dispatchEvent(new Event("dataChanged"));
 			updateExpandAllToggle();
@@ -1619,6 +1625,7 @@
 			if (changes)
 				handleFilterResult();
 			sortCustomData(event);
+			oldSort = null;
 		}
 		
 		// Answer the color to use for a row.
