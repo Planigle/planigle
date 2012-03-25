@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:TitleWindow xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:component="org.planigle.planigle.view.components.*" fontSize="{ViewModelLocator.getInstance().fontSize}">
+	<mx:Script>
+		<![CDATA[
+			// Enter text.  When done, call the function specified by
+			// the doneFunction variable and pass the text as a String.
+			import mx.managers.PopUpManager;
+			import org.planigle.planigle.model.ViewModelLocator;
+			
+			private var doneFunction:Function;
+			private var cancelFunction:Function;
+
+			// Initialize the dialog.
+			public function init(textLabel:String, doneFunction:Function, cancelFunction:Function): void
+			{
+				entryLabel.label = textLabel;
+				this.doneFunction = doneFunction;
+				this.cancelFunction = cancelFunction;	
+				entryField.setFocus();
+			}
+						
+			// Select the specified items.
+			private function enterText(event:Event):void
+			{
+				var text:String = entryField.text;
+				PopUpManager.removePopUp(this);
+				if (doneFunction != null)
+					doneFunction(text);
+			}
+						
+			// Cancel.
+			private function cancel(event:Event):void
+			{
+				PopUpManager.removePopUp(this);
+				if (cancelFunction != null)
+					cancelFunction();
+			}
+		]]>
+	</mx:Script>
+	<mx:Form defaultButton="{btn_ok}" width="100%" height="100%">
+		<mx:FormItem id="entryLabel" label="eeeeeeeeeeeeee">
+			<component:ExpandableHTMLTextArea id='entryField'/>
+		</mx:FormItem>
+		<mx:HBox y="270" width="100%" horizontalAlign="center">
+			<mx:Button id="btn_ok" label="OK" click="enterText(event)"/>
+			<mx:Button label="Cancel" click="cancel(event)"/>
+		</mx:HBox>	
+	</mx:Form>
+</mx:TitleWindow>

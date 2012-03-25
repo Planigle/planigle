@@ -1,0 +1,2471 @@
+<?xml version="1.0" encoding="utf-8"?>
+<local:ViewCanvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:local="org.planigle.planigle.view.controls.*" xmlns:component="org.planigle.planigle.view.components.*" height="100%" y="0" width="100%" x="0" creationComplete="created(event)">
+	<mx:Metadata>
+		[Event(name="dataChange", type="flash.events.Event")]
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+		import mx.controls.DateField;
+		import mx.collections.Sort;
+		import flash.display.DisplayObject;
+		import mx.collections.ArrayCollection;
+		import mx.rpc.events.ResultEvent;
+		import mx.managers.PopUpManager;
+		import mx.managers.CursorManager;
+		import mx.core.Container;
+		import mx.controls.Alert;
+		import mx.controls.DataGrid;
+		import mx.controls.dataGridClasses.DataGridColumn;
+		import mx.controls.ComboBox;
+		import mx.events.DataGridEvent;
+		import mx.events.DragEvent;
+		import mx.events.CloseEvent;
+		import mx.events.ListEvent;
+		import mx.events.ResizeEvent;
+		import mx.events.IndexChangedEvent;
+		import mx.binding.utils.ChangeWatcher;
+		import mx.containers.FormItem;
+		import mx.controls.TextInput;
+		import mx.utils.ObjectUtil;
+		import org.planigle.planigle.commands.GetStoriesCommand;
+		import org.planigle.planigle.model.ViewModelLocator;
+		import org.planigle.planigle.model.StoryAttributeValue;
+		import org.planigle.planigle.model.TabModelLocator;
+		import org.planigle.planigle.model.IndividualFactory;
+		import org.planigle.planigle.model.Project;
+		import org.planigle.planigle.model.Individual;
+		import org.planigle.planigle.model.Team;
+		import org.planigle.planigle.model.ReleaseFactory;
+		import org.planigle.planigle.model.Release;
+		import org.planigle.planigle.model.IterationFactory;
+		import org.planigle.planigle.model.Iteration;
+		import org.planigle.planigle.model.StoryFactory;
+		import org.planigle.planigle.model.Story;
+		import org.planigle.planigle.model.StoryAttribute;
+		import org.planigle.planigle.model.Task;
+		import org.planigle.planigle.util.RequestProcessor;
+		import org.planigle.planigle.events.AuditChangedEvent;
+		import org.planigle.planigle.events.StoryChangedEvent;
+		import org.planigle.planigle.events.StoriesChangedEvent;
+		import org.planigle.planigle.view.ViewHelper;
+		import org.planigle.planigle.view.requests.ChangeRequest;
+		import org.planigle.planigle.view.requests.CopyStoryRequest;
+		import org.planigle.planigle.view.requests.CopyTaskRequest;
+		
+		private static var CURRENT_RELEASE:String = "Current Release";
+		private static var CURRENT_ITERATION:String = "Current Iteration";
+		
+		[Bindable]
+		private var _error:String;
+
+		[Bindable]
+		private var tabModelLocator:TabModelLocator = TabModelLocator.getInstance();
+
+		[Bindable]
+		public var factory:IndividualFactory = IndividualFactory.getInstance();
+
+		[Bindable] // List of releases plus All Releases
+		private var releaseFilter:ArrayCollection = new ArrayCollection();
+
+		[Bindable] // List of iterations plus Backlog and All Iterations
+		private var iterationFilter:ArrayCollection = new ArrayCollection();
+
+		[Bindable] // List of teams plus All Teams and No Team
+		private var teamFilter:ArrayCollection = new ArrayCollection();
+
+		[Bindable] // List of individuals plus All Owners and No Owner
+		private var individualFilter:ArrayCollection = new ArrayCollection();
+
+		[Bindable] // List of stories (filtered for selected iteration)
+		public var filteredStories:ArrayCollection = new ArrayCollection();
+
+		[Bindable]
+		private var panelHeight:int;
+		
+		private var baseChildren:int;
+		private var customChildren:Object = new Object();
+		private var searchChildren:Object = new Object();
+		private var originalColumns:Array;
+		private var currentColumns:Array;
+		
+		private function setDefaults():void
+		{
+			if (Story.conditions["text"])
+			{
+				storyTextSearch.text = unescape(Story.conditions["text"]);
+				showMore();
+			} else
+				storyTextSearch.text = "";
+
+			var initialId:String = Story.conditions["id"] ? Story.conditions["id"] : Story.conditions["tasks.id"];
+			if (initialId != null)
+			{
+				storyIDSearch.text = (Story.conditions["id"] ? "S" : "T") + initialId;
+				showMore();
+			} else
+				storyIDSearch.text = "";
+
+			if (Story.conditions["status_code"] == null)
+				itemStatus.selectedIndex = 5;
+			else if (Story.conditions["status_code"] == "NotDone")
+				itemStatus.selectedIndex = 3;
+			else
+			{
+				var initialStatus:int = int(Story.conditions["status_code"]);
+				for (var i:int = 0; i < 5; i++)
+				{
+					if (itemStatus.dataProvider.getItemAt(i).value == initialStatus)
+					{
+						itemStatus.selectedIndex = i;
+						break;
+					}
+				}
+			}
+		}
+
+		// Set up event listeners.  Called when the canvas has been created.
+		private function created(event:Event):void
+		{
+			CursorManager.setBusyCursor();
+			expandAllIcon = parentApplication.imgCollapsed;
+			originalColumns = storyResourceGrid.columns;
+			baseChildren = changeForm.numChildren;
+			panelHeight = combinedPanel.height;
+			ChangeWatcher.watch( factory, "currentIndividual", updateIndividual );
+			ChangeWatcher.watch( ReleaseFactory.getInstance(), "releaseSelector", updateReleaseFilterList );
+			ChangeWatcher.watch( IterationFactory.getInstance(), "iterationSelector", updateIterationFilterList );
+			ChangeWatcher.watch( IndividualFactory.getInstance(), "individualSelector", updateIndividualFilterList );
+			ChangeWatcher.watch( StoryFactory.getInstance(), "stories", handleFilterResult );
+			updateIndividual(null, true);
+			setReleaseFilterList();
+			setIterationFilterList();
+			setIndividualFilterList();
+			handleFilterResult();
+			updateStoryConditions();
+			storyBtnImport.onCompletion(setSuccessMessage, setErrorMessage);
+			addEventListener(KeyboardEvent.KEY_UP, handleKeyUp);
+			storyFieldDescription.textAutomationName="descriptionText";
+			storyFieldReasonBlocked.textAutomationName="reasonBlockedText";
+			CursorManager.removeBusyCursor();
+		}
+
+		private function handleKeyUp(event:KeyboardEvent):void {
+			// Ctrl f
+			if (event.charCode == 102 && event.ctrlKey) {
+				showMore();
+				storyTextSearch.setFocus();
+				storyTextSearch.setSelection(0, storyTextSearch.text.length );
+			}
+		}
+
+		private var projectWatcher:ChangeWatcher;
+
+		private function updateIndividual(event:Event = null, initial:Boolean = false):void
+		{
+			if (projectWatcher)
+				projectWatcher.unwatch();
+			projectWatcher = ChangeWatcher.watch( IndividualFactory.current(), "selectedProjectId", updateProject );
+			setDefaults();
+			updateProject(null, initial);
+		}
+
+		private var currentProject:Project;
+		private var premiumWatcher:ChangeWatcher;
+		private var teamWatcher:ChangeWatcher;
+
+		private function updateProject(event:Event = null, initial:Boolean = false):void
+		{
+			if (premiumWatcher)
+				premiumWatcher.unwatch();
+			if (teamWatcher)
+				teamWatcher.unwatch();
+			var project:Project = IndividualFactory.current().selectedProject;
+			if (project)
+			{
+				premiumWatcher = ChangeWatcher.watch( project, "premiumExpiry", updatePremium );
+				teamWatcher = ChangeWatcher.watch( project, "teams", updateTeamField );
+				updatePremium();
+				updateTeamField();
+				updateAttributes(null, initial);
+				if (currentProject == null || currentProject.id != project.id)
+					resetState();
+			}
+			else
+			{
+				premiumWatcher = null;
+				teamWatcher = null;
+			}
+			currentProject = project;
+		}
+
+		// Update premium attributes.
+		private function updatePremium(event:Event = null):void		
+		{
+			storyUtilizationRow.visible = IndividualFactory.current().isPremium;
+			storyUtilizationRow.width = IndividualFactory.current().isPremium ? NaN : 0;
+		}
+
+		// Update the teams in the form.
+		private function updateTeamField(event:Event = null):void
+		{
+			if (IndividualFactory.current().selectedProject)
+				storyFieldTeam.dataProvider = IndividualFactory.current().selectedProject.teamSelector;
+		}
+		// Set the error message.
+		private function setMessage(message:String):void
+		{
+			_error = message;
+			storyError.height = message == "" ? 0 : NaN;
+			vbox.setStyle( "verticalGap", message == "" ? 0 : 6 );
+		}
+
+		// Set the error message.
+		private function setErrorMessage(message:String):void
+		{
+			storyError.setStyle("color","Red");
+			setMessage(message);
+		}
+
+		// Set the success message.
+		private function setSuccessMessage(message:String):void
+		{
+			storyError.setStyle("color","Green");
+			setMessage(message);
+		}
+
+		// Clear the error message.
+		private function clearErrorMessage():void {setMessage("")}
+		
+		// Reset my state to how it was initially.
+		public function resetState(event:Event = null):void
+		{
+			currentItem = null;
+			clearErrorMessage();
+			currentState = '';
+			storyBtnChange.label = 'Update'
+		}
+		
+		protected function returnFromTaskBoard():void
+		{
+			resetState();
+			updateStoryConditions(true);
+			new StoryChangedEvent().dispatch();
+		}
+
+		// Update the releases in the filter list.
+		private function updateReleaseFilterList(event:Event):void
+		{
+			setReleaseFilterList();
+			if (!ViewModelLocator.getInstance().refreshInProgress)
+				handleFilter();
+		}
+		
+		private function getDefault(factory:Object, prop:String):String
+		{
+			var value:String = Story.conditions[prop];
+			if (value == "Current")
+				return factory.currentId ? factory.currentId : "-1";
+			else if (value)
+				return value;
+			else
+				return value == "" ? null : "-1";
+		}
+		
+		// Set the releases in the filter list.
+		private function setReleaseFilterList():void
+		{
+			// Remember selection so that updating releases doesn't revert it.
+			var id:String = getDefault(ReleaseFactory.getInstance(), "release_id");
+			var selection:Release = null;
+
+			var newFilter:ArrayCollection = new ArrayCollection();
+			for each (var it:Release in ReleaseFactory.getInstance().releaseSelector)
+			{
+				newFilter.addItem(it);
+				if (it.id == id)
+					selection = it;
+			}
+			var all:Release = new Release;
+			all.id = "-1";
+			all.name = "All Releases";
+			newFilter.addItem( all );
+			if (id == "-1")
+				selection = Release(newFilter.getItemAt(newFilter.length - 1));
+			var currentRelease:Release = ReleaseFactory.getInstance().current();
+			if (currentRelease != null)
+			{ // Add me as an easy to find entry below All Releases.
+				var current:Release = new Release();
+				current.populate( <release><id>0</id><name>{CURRENT_RELEASE}</name></release> );
+				current.id = ReleaseFactory.getInstance().current().id;
+				if (selection && selection.id == current.id)
+					selection = current;
+				newFilter.addItem(current);
+			}
+			releaseFilter = newFilter;
+			if (selection)
+				release.selectedItem = selection;
+			else
+				release.selectedIndex = releaseFilter.length - 1;
+			release.visible = releaseFilter.length > 2;
+			release.width = release.visible ? NaN : -8;
+		}
+				
+		// Update the iterations in the filter list.
+		private function updateIterationFilterList(event:Event):void
+		{
+			setIterationFilterList();
+			if (!ViewModelLocator.getInstance().refreshInProgress)
+				handleFilter();
+		}
+		
+		// Set the iterations in the filter list.
+		private function setIterationFilterList():void
+		{
+			// Remember selection so that updating iterations doesn't revert it.
+			var id:String = getDefault(IterationFactory.getInstance(), "iteration_id");
+			var selection:Iteration = null;
+
+			var newFilter:ArrayCollection = new ArrayCollection();
+			for each (var it:Iteration in IterationFactory.getInstance().iterationSelector)
+			{
+				var selectedRelease:Release = getSelectedRelease();
+				if (!selectedRelease || selectedRelease.id == "-1" || it.id == "-1" || it.id == null || it.isIn(selectedRelease))
+				{
+					newFilter.addItem(it);
+					if (it.id == id)
+						selection = it;
+				}
+			}
+			var all:Iteration = new Iteration();
+			all.populate( <iteration><id>-1</id><name>All Iterations</name></iteration> );
+			newFilter.addItem(all);
+			if (id == "-1")
+				selection = Iteration(newFilter.getItemAt(newFilter.length - 1));
+			var currentIteration:Iteration = IterationFactory.getInstance().current();
+			if (currentIteration != null && (selectedRelease.id == "-1" || currentIteration.isIn(selectedRelease)))
+			{ // Add me as an easy to find entry below All Iterations.
+				var current:Iteration = new Iteration();
+				current.populate( <iteration><id>0</id><name>{CURRENT_ITERATION}</name></iteration> );
+				current.id = IterationFactory.getInstance().current().id;
+				if (selection && selection.id == current.id)
+					selection = current;
+				newFilter.addItem(current);
+			}
+			iterationFilter = newFilter;
+			if (selection)
+				iteration.selectedItem = selection;
+			else
+				iteration.selectedIndex = iterationFilter.length - 1;
+		}
+		
+		private function getSelectedRelease():Release {
+			var selectedRelease:Release = Release(release.selectedItem);
+			if (selectedRelease && selectedRelease.name == CURRENT_RELEASE)
+				return ReleaseFactory.getInstance().current();
+			else
+				return selectedRelease;
+		}
+		
+		private function getSelectedIteration():Iteration {
+			var selectedIteration:Iteration = Iteration(iteration.selectedItem);
+			if (selectedIteration && selectedIteration.name == CURRENT_ITERATION)
+				return IterationFactory.getInstance().current();
+			else
+				return selectedIteration;
+		}
+		
+		// Update the individuals in the filter list.
+		private function updateIndividualFilterList(event:Event):void
+		{
+			setIndividualFilterList();
+			setOwners();
+			if (!ViewModelLocator.getInstance().refreshInProgress)
+				handleFilter();
+		}
+		
+		private function setOwners():void
+		{
+			if (IndividualFactory.current().selectedProject)
+			{
+				var currentOwner:Individual = Individual(storyFieldOwner.selectedItem);
+				var collect:ArrayCollection = new ArrayCollection()
+				for each (var individual:Individual in IndividualFactory.current().selectedProject.enabledIndividuals())
+					collect.addItem(individual);
+				if (currentItem)
+				{
+					var id:String = currentItem.individualId;
+					var owner:Individual = id ? IndividualFactory.getInstance().find(id) : null;
+					if (owner && owner.id && !collect.contains(owner))
+						collect.addItemAt(owner, collect.length-1);
+				}
+				storyFieldOwner.dataProvider = collect;
+				if (currentOwner != null)
+				{ // Put back to previously selected owner
+					for each(var candidate:Individual in collect) {
+						if (candidate.id == currentOwner.id)
+						{
+							storyFieldOwner.selectedItem = candidate;
+							break;
+						}
+					}
+				}
+			}
+		}
+		
+		// Set the individuals in the filter list.
+		private function setIndividualFilterList():void
+		{
+			// Remember selection so that updating individuals doesn't revert it.
+			var id:String = getDefault(IndividualFactory.getInstance(), "individual_id");
+			var selection:Individual = null;
+
+			var newFilter:ArrayCollection = new ArrayCollection();
+			if (IndividualFactory.current().selectedProject)
+			{
+				for each (var it:Individual in IndividualFactory.current().selectedProject.enabledIndividuals())
+				{
+					newFilter.addItem(it);
+					if (it.id == id)
+						selection = it;
+				}
+			}
+ 			var all:Individual = new Individual();
+			all.populate( <individual><id>-1</id><first-name>All Owners</first-name></individual> );
+			newFilter.addItem(all);
+			var defaultSelection:int = newFilter.length - 1;
+			if (IndividualFactory.current().isInProject(IndividualFactory.current().selectedProject))
+			{ // Add me as an easy to find entry below All Owners.
+				var me:Individual = new Individual();
+				me.populate( <individual><id>0</id><first-name>Me</first-name></individual> );
+				me.id = IndividualFactory.current().id;
+				if (it.id == me.id)
+					selection = me;
+				newFilter.addItem(me);
+			}
+			individualFilter = newFilter;
+			if (selection)
+				individual.selectedItem = selection;
+			else
+				individual.selectedIndex = defaultSelection;
+		}
+
+		// Handle filtering by release.
+		public function handleReleaseFilter(event:Event):void
+		{
+			setIterationFilterList(); // Since release affects iterations shown.
+			handleFilter();
+		}
+		
+		// Handle any special columns.
+		private function updateColumnVisibility():void
+		{
+			storyColumnEpic.visible = attrMapping['Epic'] && attrMapping['Epic'].show && !storyViewEpics.selected;
+			storyColumnIteration.visible = attrMapping['Iteration'] && attrMapping['Iteration'].show && ((!iteration.selectedItem || iteration.selectedItem.id == "-1")||(IndividualFactory.current().isPremium && iteration.selectedItem && iteration.selectedItem.id == null));
+			storyColumnTeam.visible = attrMapping['Team'] && attrMapping['Team'].show && (IndividualFactory.current().selectedProject && IndividualFactory.current().selectedProject.teams.length > 0 && (!team.selectedItem || team.selectedItem.id == "-1"));
+		}
+
+		// The filters has changed.
+		public function handleFilter(event:Event = null):void
+		{
+			if (release.selectedItem) { // Make sure everything initialized
+				updateStoryConditions(true);
+				new StoryChangedEvent().dispatch();
+			}
+		}
+		
+		protected function updateStoryConditions(changed:Boolean = false):void
+		{
+			var conditions:Object = new Object();
+			if (release.selectedItem.id != -1) conditions["release_id"]= release.selectedItem.id ? release.selectedItem.id : "";
+			if (iteration.selectedItem.id != -1) conditions["iteration_id"]= iteration.selectedItem.id ? iteration.selectedItem.id : "";
+			if (team.selectedItem.id != -1) conditions["team_id"]= team.selectedItem.id ? team.selectedItem.id : "";
+			if (individual.selectedItem.id != -1) conditions["individual_id"]= individual.selectedItem.id ? individual.selectedItem.id : "";
+			if (itemStatus.selectedItem.value != -1) conditions["status_code"]= itemStatus.selectedItem.value != -2 ? itemStatus.selectedItem.value : "NotDone";
+			conditions["view_epics"] = storyViewEpics.selected;
+			if (storyTextSearch.text != "") conditions["text"]=storyTextSearch.text;
+			if (storyIDSearch.text != "")
+			{
+				if (storyIDSearch.text.charAt(0).toLowerCase() == "t")
+					conditions["tasks.id"]=storyIDSearch.text.substring(1);
+				else
+					conditions["id"]=storyIDSearch.text.substring(1);
+			}
+			for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
+			{
+				if (attrib.isList())
+				{
+					var disp:ComboBox = searchChildren["storyField" + attrib.id.toString()];
+					if (disp.selectedItem.id != -1)
+						conditions['custom_' + attrib.id ] = disp.selectedItem.id ? disp.selectedItem.id : "";
+				}
+			}
+			if (changed)
+				StoryFactory.getInstance().clearTimeUpdated();
+			Story.conditions = conditions;
+		}	
+		
+		protected var selectedItems:Array = new Array();
+		protected var selectionWatcher:ChangeWatcher = null;
+
+		// Remember the selection so that we can restore after refresh.
+		protected function selectionChanged(event:Event = null):void
+		{
+			selectedItems = storyResourceGrid.selectedItems;
+			updateStoryInfo();
+		}
+		
+		private var oldSort:Sort = null;
+		
+		// The filters has changed.
+		public function handleFilterResult(event:Event = null):void
+		{
+			if(selectionWatcher != null)
+				selectionWatcher.unwatch();
+			
+			var scroll:Number = storyResourceGrid.verticalScrollPosition;
+			var sort:Sort = filteredStories.sort;
+			if(sort == null)
+				sort = oldSort;
+			else
+				oldSort = sort;
+			updateColumnVisibility();
+			var justStories:ArrayCollection = new ArrayCollection();
+			justStories.addAll(StoryFactory.getInstance().stories);
+			justStories.sort = sort;
+			justStories.refresh();
+			storiesCount.text = justStories.length.toString() + (GetStoriesCommand.isLoading() ? "+" : "");
+			var storiesAndTasks:ArrayCollection = new ArrayCollection;
+			for each (var story:Story in justStories)
+				addStoryToArray(storiesAndTasks, story);
+			filteredStories = storiesAndTasks;
+			storyResourceGrid.verticalScrollPosition = scroll;
+			dispatchEvent(new Event("dataChanged"));
+			updateExpandAllToggle();
+			updateProjectedColumn();
+			if (Story.conditions["id"] && filteredStories.length == 1)
+			{
+				storyResourceGrid.selectedIndex = 0;
+				showUpdate();
+			} else if (Story.conditions["tasks.id"] && filteredStories.length == 1)
+			{
+				filteredStories.getItemAt(0).expand();
+				handleFilterResult();
+				storyResourceGrid.selectedIndex = 1;
+				showUpdate();
+			}
+
+			if (!GetStoriesCommand.isLoading() && storyResourceGrid.dataProvider.length > 0)
+			{
+ 				storyResourceGrid.dataProvider.refresh(); // See http://www.experts-exchange.com/Web_Development/Web_Languages-Standards/Flex/Q_26580956.html
+ 				updateSelectedItems();
+			}
+			selectionWatcher = ChangeWatcher.watch(storyResourceGrid, "selectedItems", selectionChanged);
+		}
+		
+		// Update the selection to the current version of the selected rows (leaving out any that no longer exist).
+		protected function updateSelectedItems():void
+		{
+			var newSelect:Array = new Array();
+			for(var i:int = 0; i<selectedItems.length; i++)
+			{
+				var newVersion:Object = selectedItems[i].getCurrentVersion();
+				if(newVersion != null && storyResourceGrid.dataProvider.contains(newVersion))
+				{
+					newSelect.push(newVersion);
+					selectedItems[i] = newVersion;
+				}
+			}
+			storyResourceGrid.selectedItems = newSelect;
+			updateStoryInfo();
+		}
+		
+		protected function updateStoryInfo():void
+		{
+			var justStories:Boolean = true;
+			var actualSelected:ArrayCollection = new ArrayCollection();
+			for each(var item:Object in selectedItems)
+			{
+				if(!item.isStory())
+				{
+					justStories = false;
+					break;
+				}
+				if(storyResourceGrid.dataProvider.contains(item))
+					actualSelected.addItem(item);
+			}
+			var multipleSelected:Boolean = justStories && actualSelected.length > 1;
+			var stories:ArrayCollection = new ArrayCollection();
+			for each(var item2:Object in (multipleSelected ? actualSelected : storyResourceGrid.dataProvider))
+			{
+				if(item2.isStory())
+					stories.addItem(item2);
+			}
+			storiesCount.text = stories.length.toString() + (multipleSelected ? " Selected" : "");
+			dispatchEvent(new StoriesChangedEvent(stories));
+		}
+		
+		protected function addStoryToArray(storiesAndTasks:ArrayCollection, story:Story) : void
+		{
+			storiesAndTasks.addItem(story);
+			if (story.isExpanded())
+			{
+				for each (var child:Story in story.stories)
+					addStoryToArray(storiesAndTasks, child);
+				for each (var task:Task in story.tasks)
+					storiesAndTasks.addItem(task);
+			}
+		}
+
+		// Expand / collapse a story.
+		public function expand(event:Event) : void
+		{
+			if (storyResourceGrid.selectedItem.isStory())
+			{
+				storyResourceGrid.selectedItem.toggleExpanded();
+				handleFilterResult();
+			}
+		}
+
+		// Show the surveys for this project.
+		private function handleSurveys(event:Event):void
+		{
+			currentState = "Survey";
+		}
+
+		// Show the task board for this project.
+		private function handleTaskBoard(event:Event):void
+		{
+			storyTaskBoard.updateStories();
+			currentState = "TaskBoard";
+		}
+		
+		private var updateQueue:ArrayCollection = new ArrayCollection();
+		
+		// Add a story to the current iteration.
+		private function addStory(stories:Array):void
+		{
+			var params:Object = new Object();
+			if (iteration.selectedItem && iteration.selectedItem.id != "-1")
+			{
+				params["record[iteration_id]"] = iteration.selectedItem.id ? iteration.selectedItem.id : "";
+				var defaultRelease:Release = getSelectedIteration().defaultRelease();
+				if ( defaultRelease && defaultRelease.id )
+					params["record[release_id]"] = defaultRelease.id; // Might be overriden below
+			}
+			if (release.selectedItem && release.selectedItem.id != "-1")
+				params["record[release_id]"] = release.selectedItem.id ? release.selectedItem.id : "";
+			if (team.selectedItem && team.selectedItem.id != "-1")
+				params["record[team_id]"] = team.selectedItem.id ? team.selectedItem.id : "";
+			if (individual.selectedItem && individual.selectedItem.id != "-1")
+				params["record[individual_id]"] = individual.selectedItem.id ? individual.selectedItem.id : "";
+			for each (var story:Story in stories)
+				updateItem(story, params);
+			handleUpdateSuccess(); // Prime the processing.
+		}
+		
+		// An item was successfully updated.
+		private function handleUpdateSuccess(createdObject:Object = null, message:String = null):void
+		{
+			if (createdObject != null && !createdObject.isStory())
+			{
+				createdObject.story.expand();
+			}
+			if (updateQueue.length > 0)
+				processQueue();
+			else
+			{
+				updateStories();
+				if (updateQueue.length > 0)
+					processQueue();
+				else
+				{
+					handleSuccess(message);
+					if (recalc)
+					{
+						StoryFactory.getInstance().normalizePriorities();
+						recalc = false;
+					}
+					else
+						handleFilterResult(); // Update list of stories when done.
+				}
+			}
+		}
+
+		// Process the next item in the queue.
+		private function processQueue():void
+		{
+			updateQueue.removeItemAt(0).perform();
+		}
+
+		// If task changes have resulted in any changes to the stories, update them.
+		private function updateStories():void
+		{
+			for each (var story:Story in StoryFactory.getInstance().stories)
+			{
+				var newStatus:int = story.newStatus();
+				if (newStatus != -1)
+					updateItem( story, {'record[status_code]': newStatus});
+			}
+		}
+
+		// A story was not successfully updated.
+		private function handleUpdateFailure(xml:XMLList):void
+		{
+			updateQueue = new ArrayCollection(); // Cancel remaining changes
+			handleFailure(xml);
+			if (recalc)
+			{
+				StoryFactory.getInstance().normalizePriorities();
+				recalc = false;
+			}
+			else
+				handleFilterResult(); // Update list of stories when done.
+		}
+		
+		// Prepare the form for a story.
+		private function prepareForStory():void
+		{
+			storyNameForm.label = "Story Name";
+			storyFieldDescription.maxChars = 4096;
+			storyEffortForm.label = "Size";
+			storyFormProject.visible = IndividualFactory.current().isAtLeastProjectAdmin() && IndividualFactory.current().selectedProject.company.projects.length > 1;
+			storyFormProject.height = storyFormProject.visible ? NaN : -5;
+			storyFormRelease.height = ReleaseFactory.getInstance().releaseSelector.length > 1 ? NaN : -5;
+			storyFormRelease.visible = ReleaseFactory.getInstance().releaseSelector.length > 1;
+			storyFormEpic.height = NaN;
+			storyFormEpic.visible = true;
+			storyFormIteration.height = NaN;
+			storyFormIteration.visible = true;
+			storyFormTeam.height = factory.currentIndividual.selectedProject.teamSelector.length > 1 ? NaN : -5;
+			storyFormTeam.visible = factory.currentIndividual.selectedProject.teamSelector.length > 1;
+			storyFormAcceptanceCriteria.percentHeight = 100;
+			storyFormAcceptanceCriteria.visible = true;
+			storyFormPublic.height = factory.currentIndividual.isPremium ? NaN : -5;
+			storyFormPublic.visible = factory.currentIndividual.isPremium;
+			storyFormEstimate.height = -5;
+			storyFormEstimate.visible = false;
+			storyFormActual.height = -5;
+			storyFormActual.visible = false;
+			storyBtnEditAttributes.visible = factory.currentIndividual.isAtLeastProjectAdmin();
+			for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
+			{
+				var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()].parent;
+				disp.visible = true;
+				disp.height = (attrib.valueType == StoryAttribute.TEXT) ? 65 : NaN;
+			}
+		}
+		
+		// Prepare the form for a task.
+		private function prepareForTask():void
+		{
+			storyNameForm.label = "Task Name";
+			storyEffortForm.label = "To Do";
+			storyFieldDescription.maxChars = 20480;
+			storyFormProject.visible = false;
+			storyFormProject.height = -5;
+			storyFormRelease.height = -5;
+			storyFormRelease.visible = false;
+			storyFormEpic.height = -5;
+			storyFormEpic.visible = false;
+			storyFormIteration.height = -5;
+			storyFormIteration.visible = false;
+			storyFormTeam.height = -5;
+			storyFormTeam.visible = false;
+			storyFormAcceptanceCriteria.height = -5;
+			storyFormAcceptanceCriteria.visible = false;
+			storyFormPublic.height = -5;
+			storyFormPublic.visible = false;
+			storyFormEstimate.height = NaN;
+			storyFormEstimate.visible = true;
+			if (IndividualFactory.current().selectedProject.trackActuals)
+			{
+				storyFormActual.height = NaN;
+				storyFormActual.visible = true;
+			}
+			else
+			{
+				storyFormActual.height = -5;
+				storyFormActual.visible = false;
+			}
+			storyBtnEditAttributes.visible = false;
+			for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
+			{
+				var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()].parent;
+				disp.visible = false;
+				disp.height = -5;
+			}
+		}
+
+		[Bindable]
+		private var currentItem:Object; // Remember in case selection changes while form is open.
+
+		// Show user a form to create a story.
+		private function showCreateStory():void
+		{
+			prepareForStory();
+			currentItem = null;
+			showCreate(true);
+		}
+
+		// Show user a form to create a task or child story.
+		public function showCreateChild():void
+		{
+			var item:Object = storyResourceGrid.selectedItem;
+			if (item.stories.length > 0)
+			{
+				showCreateStory();
+				storyFieldEpic.selectedItem = item;
+			} else
+			{
+				prepareForTask();
+				currentItem = item;
+				showCreate(false);
+				defaultTaskOwner();
+			}
+		}
+
+		// Default the task owner to no one.
+		private function defaultTaskOwner():void
+		{
+			storyFieldOwner.selectedIndex = storyFieldOwner.dataProvider.length - 1;
+		}
+
+		private function getInitialValues(shouldSet:Boolean = false):Object
+		{
+			var values:Object = new Object();
+			values["name"] = '';
+			values["description"] = '';
+			values["reasonBlocked"] = '';
+
+			if (isStory)
+			{
+				if (shouldSet)
+					storyFieldProject.dataProvider = IndividualFactory.current().selectedProject.company.projects;
+				values["project"] = IndividualFactory.current().selectedProject;
+				
+				if (shouldSet)
+					storyFieldEpic.dataProvider = StoryFactory.getInstance().epicSelector();
+
+				values["epic"] = storyFieldEpic.dataProvider.getItemAt(storyFieldEpic.dataProvider.length - 1);
+				
+				if (shouldSet)
+					storyFieldIteration.dataProvider = IterationFactory.getInstance().iterationsInRelease(getSelectedRelease());
+
+				if (iteration.selectedItem.id != "-1")
+					values["iteration"] = getSelectedIteration();
+				else
+					values["iteration"] = storyFieldIteration.dataProvider.getItemAt(storyFieldIteration.dataProvider.length - 1);
+
+				if (shouldSet)
+					storyFieldRelease.dataProvider = values["iteration"].releases();
+
+				if (release.selectedItem.id != "-1")
+					values["release"] = getSelectedRelease();
+				else
+					values["release"] = values["iteration"].defaultRelease();
+
+				if (team.selectedItem.id != "-1")
+					values["team"] = team.selectedItem;
+				else
+					values["team"] = storyFieldTeam.dataProvider.getItemAt(storyFieldTeam.dataProvider.length - 1);
+
+				values["public"] = IndividualFactory.current().selectedProject.surveyMode == 2 ? 0 : 1;
+			}
+
+			if (shouldSet)
+				setOwners();
+			if (individual.selectedItem.id != "-1")
+				values["owner"] = individual.selectedItem;
+			else
+				values["owner"] = storyFieldOwner.dataProvider.getItemAt(storyFieldOwner.dataProvider.length - 1);
+
+			values["estimate"] = '';
+			values["effort"] = '';
+			values["actual"] = '';
+			values["status"] = 0;
+			return values;
+		}
+
+		// Show user a form to create a resource.
+		private function showCreate(isStory:Boolean):void
+		{
+			clearErrorMessage();
+			currentState = 'Change';
+			storyBtnCreateClose.visible = true;
+			storyBtnCreateClose.width = NaN;
+			storyBtnChange.label = 'Create';
+			storyFieldName.setFocus();
+			var values:Object = getInitialValues(true);
+			
+			storyFieldName.text = values["name"];
+			storyFieldDescription.text = values["description"];
+			storyFieldReasonBlocked.text = values["reasonBlocked"];
+			storyFormReasonBlocked.height = -5;
+			storyFormReasonBlocked.visible = false;
+
+			if (isStory)
+			{
+				storyFormProject.visible = false;
+				storyFormProject.height = -5;
+				storyFieldAcceptanceCriteria.clear();
+				storyFieldProject.selectedItem = values["project"];
+				storyFieldEpic.selectedItem = values["epic"];
+				storyFieldIteration.selectedItem = values["iteration"];
+				storyFieldRelease.selectedItem = values["release"];
+				storyFieldTeam.selectedItem = values["team"];
+				storyFieldPublic.selectedIndex = values["public"];
+			}
+
+			storyFormID.visible = false;
+			storyFormID.height = -5;
+			storyFieldOwner.selectedItem = values["owner"];
+			storyFieldEstimate.text = values["estimate"];
+			storyFieldEffort.text = values["effort"];
+			storyFieldActual.text = values["actual"];
+			storyFieldStatus.selectedIndex = values["status"];
+			updateRelease(); // Update release attribute values
+			clearCustomAttributes()
+			storyBtnInfo.visible = false;
+			updateEditPanelSize();
+			storyBtnPrevious.visible = false;
+			storyBtnNext.visible = false;
+		}
+		
+		protected function updateEditPanelSize():void {
+			changePanel.validateNow();
+			changePanel.height = changePanel.measuredHeight - (isStory ? 60 : 0);
+		}
+
+		// Show user a form to update a resource.
+		public function showUpdate() : void
+		{
+			if (storyResourceGrid.selectedItems.length > 1)
+			{
+				var updater:UpdateItems = UpdateItems(PopUpManager.createPopUp(this, UpdateItems, true));
+				updater.title = "Select updates to apply";
+				updater.init(getSelectedRelease(), new ArrayCollection(storyResourceGrid.selectedItems), updateItem, handleUpdateSuccess);
+				PopUpManager.centerPopUp(updater);
+			}
+			else
+			{
+				currentItem = storyResourceGrid.selectedItem;
+				if (currentItem)
+				{
+					clearErrorMessage();
+					currentState = 'Change';
+					storyFieldName.text = currentItem.name;
+					storyFieldName.setFocus();
+					storyFieldName.setSelection(0, storyFieldName.text.length );
+					storyFormID.visible = true;
+					storyFormID.height = NaN;
+					storyFieldDescription.text = currentItem.description;
+					var blocked:Boolean = currentItem.statusCode == Story.BLOCKED;
+					storyFormReasonBlocked.height = blocked ? 64 : -5;
+					storyFormReasonBlocked.visible = blocked;
+					storyFieldReasonBlocked.text = currentItem.reasonBlocked;
+					if (currentItem.isStory())
+					{
+						storyFieldProject.dataProvider = IndividualFactory.current().selectedProject.company.projects;
+						storyFieldProject.selectedItem = IndividualFactory.current().selectedProject;
+						var iteration:Iteration = IterationFactory.getInstance().find(currentItem.iterationId);
+						prepareForStory();
+
+						storyFieldEpic.dataProvider = currentItem.epicSelector();
+						var epicId:String = currentItem.epicId;
+						storyFieldEpic.selectedIndex = storyFieldEpic.dataProvider.length - 1;
+						for each(var story:Story in storyFieldEpic.dataProvider)
+						{
+							if (String(story.id) == epicId)
+								storyFieldEpic.selectedItem = story;
+						}
+						
+						if (IterationFactory.getInstance().iterationsInRelease(getSelectedRelease()).contains(iteration))
+							storyFieldIteration.dataProvider = IterationFactory.getInstance().iterationsInRelease(getSelectedRelease());
+						else
+							storyFieldIteration.dataProvider = IterationFactory.getInstance().iterationSelector;
+						if (currentItem.stories.length > 0)
+						{
+							storyFormIteration.height = -5;
+							storyFormIteration.visible = false;
+							storyFieldIteration.selectedIndex = storyFieldIteration.dataProvider.length - 1;
+						} else
+							storyFieldIteration.selectedItem = iteration;
+
+						if (iteration.releases().contains(ReleaseFactory.getInstance().find(currentItem.releaseId)))
+							storyFieldRelease.dataProvider = iteration.releases();
+						else
+							storyFieldRelease.dataProvider = ReleaseFactory.getInstance().releaseSelector;
+						storyFieldRelease.selectedItem = ReleaseFactory.getInstance().find(currentItem.releaseId);
+						updateRelease();
+						storyFieldAcceptanceCriteria.story = Story(currentItem);
+
+						var it:String = currentItem.teamId;
+						if (!it)
+							storyFieldTeam.selectedIndex = IndividualFactory.current().selectedProject.teamSelector.length - 1;
+						else
+							storyFieldTeam.selectedItem = IndividualFactory.current().selectedProject.find(it);
+
+						storyFieldPublic.selectedIndex = currentItem.isPublic ? 0 : 1;
+						setCustomAttributes();
+					}
+					else
+					{
+						storyFieldEstimate.text = currentItem.estimate;
+						storyFieldActual.text = currentItem.actual;
+						prepareForTask();
+					}
+	
+					setOwners();
+					var it2:String = currentItem.individualId;
+					if (!it2)
+						storyFieldOwner.selectedIndex = storyFieldOwner.dataProvider.length - 1;
+					else
+						storyFieldOwner.selectedItem = IndividualFactory.getInstance().find(it2);
+	
+					storyFieldEffort.text = currentItem.effort;
+					storyFieldStatus.selectedIndex = currentItem.statusCode;
+					storyBtnCreateClose.visible = false;
+					storyBtnCreateClose.width=-5;
+					storyBtnChange.label = 'Update';
+					storyBtnInfo.visible = true;
+
+					updateEditPanelSize();
+					var index:int = filteredStories.getItemIndex(currentItem);
+					storyBtnPrevious.visible = index > 0;
+					storyBtnNext.visible = index < filteredStories.length - 1;
+				} else
+					currentState = '';
+			}
+		}
+
+		// Fill in the custom attribute fields.
+		public function setCustomAttributes(): void
+		{
+			if (currentItem && currentItem.isStory())
+			{
+				for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
+				{
+					var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
+					var value:Object = currentItem.getCustomValue(attrib.id);
+					if (attrib.valueType == StoryAttribute.TEXT)
+						ExpandableHTMLTextArea(disp).text = value ? String(value) : "";
+					else if (attrib.isList())
+					{
+						var selected:StoryAttributeValue = ComboBox(disp).dataProvider.getItemAt(ComboBox(disp).dataProvider.length - 1);
+						for each (var attribValue:StoryAttributeValue in ComboBox(disp).dataProvider)
+						{
+							if (attribValue.id == int(value))
+								selected = attribValue;
+						}
+						ComboBox(disp).selectedItem = selected;
+					}
+					else if (attrib.valueType == StoryAttribute.DATE)
+						DateField(disp).text = value ? String(value) : "";
+					else
+						TextInput(disp).text = value ? String(value) : "";
+				}
+			}
+		}
+
+		// Clear the custom attribute fields.
+		public function clearCustomAttributes(): void
+		{
+			for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
+			{
+				var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
+				if (attrib.valueType == StoryAttribute.TEXT)
+					ExpandableHTMLTextArea(disp).text = "";
+				else if (attrib.isList())
+					ComboBox(disp).selectedIndex = ComboBox(disp).dataProvider.length - 1;
+				else if (attrib.valueType == StoryAttribute.DATE)
+					DateField(disp).text = "";
+				else
+					TextInput(disp).text = "";
+			}
+		}
+
+		// Show user a form to split a story.
+		public function showSplit() : void
+		{
+			showUpdate();
+			if (currentItem)
+			{
+				var splits:Array = currentItem.name.split(" ");
+				if (int(splits[splits.length-1]) > 0)
+					{ // Increment last component of name if an integer.
+					splits[splits.length-1] = (int(splits[splits.length-1])+1).toString();
+					storyFieldName.text = splits.join(" ");
+					storyFieldName.setSelection(0, storyFieldName.text.length );
+					}
+				var nextIteration:Iteration = IterationFactory.getInstance().find(currentItem.iterationId).next();
+				if (!IterationFactory.getInstance().iterationsInRelease(getSelectedRelease()).contains(nextIteration))
+					storyFieldIteration.dataProvider = IterationFactory.getInstance().iterationSelector;
+				storyFieldIteration.selectedItem = nextIteration;
+				storyFieldStatus.selectedIndex = 0; // Set to created
+				storyFieldAcceptanceCriteria.filterDone();
+				storyBtnChange.label = 'Split';
+			}
+		}
+
+		// Confirm that user wants to delete the resource.
+		public function showDelete(event:Event) : void
+		{
+			var plural:String = storyResourceGrid.selectedItems.length > 1 ? 'the selected items' : "'" + storyResourceGrid.selectedItems[0].name + "'";
+			Alert.show("Are you sure you want to delete "+plural+"?", "Delete", 3, this,
+			function(event:CloseEvent):void
+			{
+				if (event.detail==Alert.YES)
+				{
+					clearErrorMessage();
+					for each (var item:Object in storyResourceGrid.selectedItems )
+						deleteResource(item);
+				}
+			});
+		}
+		
+		// Show the history for the current object.
+		public function showHistory(event:Event) : void
+		{
+			new AuditChangedEvent(null, currentItem.isStory() ? 'Story' : 'Task', null, null, String(currentItem.id)).dispatch();
+			tabModelLocator.selectedTab = Container(tabModelLocator.changes);
+		}
+		
+		// Save and Show the previous object.
+		public function saveAndShowPrevious() : void
+		{
+			updateItem(currentItem, getParams(currentItem.isStory()), showPrevious);
+			handleUpdateSuccess(); // Prime the processing.
+		}
+		
+		// Show the previous object.
+		public function showPrevious() : void
+		{
+			handleFilterResult(); // Make sure the new object is in the tree
+			var currentObject:Object = currentItem.getCurrentVersion();
+			var index:int = currentObject ? filteredStories.getItemIndex(currentObject) : -1;
+			if (index > 0) {
+				storyResourceGrid.selectedItem = filteredStories.getItemAt(index - 1);
+				showUpdate();
+			}
+		}
+		
+		// Save and Show the nexxt object.
+		public function saveAndShowNext() : void
+		{
+			updateItem(currentItem, getParams(currentItem.isStory()), showNext);
+			handleUpdateSuccess(); // Prime the processing.
+		}
+		
+		// Show the next object.
+		public function showNext() : void
+		{
+			handleFilterResult(); // Make sure the new object is in the tree
+			var currentObject:Object = currentItem.getCurrentVersion();
+			var index:int = currentObject ? filteredStories.getItemIndex(currentObject) : -1;
+			if (index < filteredStories.length - 1) {
+				storyResourceGrid.selectedItem = filteredStories.getItemAt(index + 1);
+				showUpdate();
+			}
+		}
+		
+		// Create parameters for the user's request to the server.
+		private function getParams(isStory:Boolean) : Object
+		{
+			var params:Object = new Object();
+			params['record[name]'] = storyFieldName.text;
+			params['record[description]'] = storyFieldDescription.text;
+			params['record[reason_blocked]'] = storyFieldReasonBlocked.text;
+			params['record[individual_id]'] = storyFieldOwner.selectedItem.id != null ? storyFieldOwner.selectedItem.id : "";
+			params['record[effort]'] = storyFieldEffort.text;
+			params['record[status_code]'] = storyFieldStatus.selectedItem.value;
+			if (isStory)
+			{
+				params['record[project_id]'] = storyFieldProject.selectedItem.id;
+				params['record[story_id]'] = storyFieldEpic.selectedItem.id != 0 ? storyFieldEpic.selectedItem.id : "";
+				params['record[release_id]'] = storyFieldRelease.selectedItem.id != null ? storyFieldRelease.selectedItem.id : "";
+				params['record[iteration_id]'] = storyFieldIteration.selectedItem.id != null ? storyFieldIteration.selectedItem.id : "";
+				params['record[acceptance_criteria]'] = storyFieldAcceptanceCriteria.acceptanceCriteria;
+				params['record[team_id]'] = storyFieldTeam.selectedItem.id != null ? storyFieldTeam.selectedItem.id : "";
+				params['record[is_public]'] = storyFieldPublic.selectedItem.value;
+
+				for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
+				{
+					var disp:DisplayObject = customChildren["storyField" + attrib.id.toString()];
+					if (!attrib.isList() || ComboBox(disp).selectedItem)
+					{
+						if (attrib.valueType == StoryAttribute.TEXT) params['record[custom_' + attrib.id + ']'] = ExpandableHTMLTextArea(disp).text;
+						else if (attrib.isList()) params['record[custom_' + attrib.id + ']'] = ComboBox(disp).selectedItem.id > 0 ? ComboBox(disp).selectedItem.id : "";
+						else if (attrib.valueType == StoryAttribute.DATE) params['record[custom_' + attrib.id + ']'] = DateField(disp).text;
+						else params['record[custom_' + attrib.id + ']'] = TextInput(disp).text;
+					}
+				}
+			}
+			else
+			{
+				params['record[estimate]'] = storyFieldEstimate.text;
+				params['record[actual]'] = storyFieldActual.text;
+			}
+			return params;
+		}
+		
+		// Answer whether any changes need to be saved.
+		override public function isDirty(): Boolean
+		{
+			if (currentState != 'Change')
+				return false;
+			if (storyBtnChange.label == 'Create') {
+				var values:Object = getInitialValues();
+				if (storyFieldName.text != values["name"]) return true;
+				if (storyFieldDescription.text != values["description"]) return true;
+				if (storyFieldReasonBlocked.text != values["reasonBlocked"]) return true;
+				if (storyFieldOwner.selectedItem != values["owner"]) return true;
+				if (storyFieldStatus.selectedIndex != values["status"]) return true;
+				if (storyFieldEffort.text != values["effort"]) return true;
+				
+				if (!currentItem) {
+					if (storyFieldProject.selectedItem != values["project"]) return true;
+					if (storyFieldEpic.selectedItem != values["epic"]) return true;
+					if (storyFieldRelease.selectedItem != values["release"]) return true;
+					if (storyFieldIteration.selectedItem != values["iteration"]) return true;
+					if (storyFieldAcceptanceCriteria.acceptanceCriteria != "") return true;
+					if (storyFieldTeam.selectedItem != values["team"]) return true;
+					if (storyFieldPublic.selectedIndex != values["public"]) return true;
+					for each (var attrib1:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
+					{
+						var disp1:Object = customChildren["storyField" + attrib1.id.toString()];
+						if (attrib1.isList() && ComboBox(disp1).selectedIndex != ComboBox(disp1).dataProvider.length - 1) return true;
+						if (!attrib1.isList() && disp1.text != "") return true;
+					}
+				}
+				else {
+					if (storyFieldEstimate.text != values["estimate"]) return true;
+					if (storyFieldActual.text != values["actual"]) return true;
+				}
+			}
+			else if (currentItem) {
+				if (storyFieldName.text != currentItem.name) return true;
+				if ((storyFieldDescription.text != currentItem.description) && (storyFieldDescription.text != "" || currentItem.description != null)) return true;
+				if ((storyFieldReasonBlocked.text != currentItem.reasonBlocked) && (storyFieldReasonBlocked.text != "" || currentItem.reasonBlocked != null)) return true;
+				if (storyFieldOwner.selectedItem.id != currentItem.individualId) return true;
+				if (storyFieldStatus.selectedItem.value != currentItem.statusCode) return true;
+				if (storyFieldEffort.text != (currentItem.effort == null ? "" : currentItem.effort)) return true;
+				
+				if (currentItem.isStory()) {
+					if (storyFieldProject.selectedItem.id != currentItem.projectId) return true;
+					if (storyFieldEpic.selectedItem.id != currentItem.epicId) return true;
+					if (storyFieldRelease.selectedItem.id != currentItem.releaseId) return true;
+					if (storyFieldIteration.selectedItem.id != currentItem.iterationId) return true;
+					if (storyFieldAcceptanceCriteria.acceptanceCriteria != currentItem.acceptanceCriteria) return true;
+					if (storyFieldTeam.selectedItem.id != currentItem.teamId) return true;
+					if (storyFieldPublic.selectedItem.value != currentItem.isPublic) return true;
+					for each (var attrib2:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
+					{
+						var disp2:Object = customChildren["storyField" + attrib2.id.toString()];
+						if (!attrib2.isList() || ComboBox(disp2).selectedItem)
+						{
+							var fieldValue:Object = attrib2.isList() ? (disp2.selectedItem.id == 0 ? null : disp2.selectedItem.id) : disp2.text;
+							var objectValue:Object = currentItem.getAttributeValue(attrib2);
+							if (fieldValue != ((!attrib2.isList() && objectValue == null) ? "" : objectValue)) return true;
+						}
+					}
+				}
+				else {
+					if (storyFieldEstimate.text != (currentItem.estimate == null ? "" : currentItem.estimate)) return true;
+					if (storyFieldActual.text != (currentItem.actual == null ? "" : currentItem.actual)) return true;
+				}
+			}
+			return false;
+		}
+
+		// Tell the server to change a resource.
+		private function changeResource(shouldClose:Boolean) : void
+		{
+			if (storyBtnChange.label == 'Create')
+			{
+				if (currentItem)
+				{
+					var taskParams:Object = getParams(false);
+					if (storyResourceGrid.selectedItem != null && !storyResourceGrid.selectedItem.isStory() && storyResourceGrid.selectedItem.story == currentItem)
+					{
+						var selectedTask:Task = Task(storyResourceGrid.selectedItem);
+						var nextTaskIndex:int = currentItem.tasks.indexOf(selectedTask) + 1;
+						if (currentItem.tasks.length > nextTaskIndex)
+						{
+							var nextTask:Task = Task(currentItem.tasks[nextTaskIndex]);
+							taskParams['record[priority]'] = (selectedTask.priority + nextTask.priority) / 2.0;
+						}
+					}
+					currentItem.createTask(taskParams, shouldClose ? handleCreateCloseSuccess : handleCreateSuccess, handleFailure);
+				}
+				else
+				{
+					var storyParams:Object = getParams(true);
+					if (storyResourceGrid.selectedItem != null)
+					{
+						var selectedStory:Story = storyResourceGrid.selectedItem.isStory() ? Story(storyResourceGrid.selectedItem) : Story(storyResourceGrid.selectedItem.story);
+						var nextStoryIndex:int = StoryFactory.getInstance().stories.getItemIndex(selectedStory) + 1;
+						if (StoryFactory.getInstance().stories.length > nextStoryIndex)
+						{
+							var nextStory:Story = Story(StoryFactory.getInstance().stories.getItemAt(nextStoryIndex));
+							storyParams['record[relative_priority]'] = selectedStory.id + "," + nextStory.id;
+						}
+					}
+					StoryFactory.getInstance().createStory(storyParams, shouldClose ? handleCreateCloseSuccess : handleCreateSuccess, handleFailure);
+				}
+			}
+			else if (storyBtnChange.label == 'Update')
+			{
+				var params2:Object = getParams(currentItem.isStory());
+				updateItem(currentItem, params2);
+				handleUpdateSuccess(); // Prime the processing.
+			}
+			else
+			{	// Split and default to priority between current story and next in priority
+				Alert.show("Would you like to abort the previous story (change its size to 0 and mark as done)?", "Abort", Alert.YES | Alert.NO | Alert.CANCEL, this,
+				function(event:CloseEvent):void
+				{
+					if (event.detail!=Alert.CANCEL)
+					{
+						var params3:Object = getParams(true);
+						var allStories:ArrayCollection = StoryFactory.getInstance().stories;
+						var index:int = allStories.getItemIndex(currentItem);
+						var nextObject:Object = index + 1 == allStories.length ? null : allStories.getItemAt( index + 1 );
+						params3['record[relative_priority]'] = currentItem.id + "," + (nextObject ? nextObject.id : "");
+						currentItem.split(params3, event.detail==Alert.YES ? handleSplitSuccess : handleSplitNoAbortSuccess, handleFailure);
+					}
+				}, null, Alert.YES);
+			}
+		}
+
+		// An item was successfully split.  Abort it.
+		private function handleSplitSuccess():void
+		{
+			updateItem(currentItem, {'record[effort]': 0, 'record[status_code]': Story.ACCEPTED});
+			handleUpdateSuccess(); // Prime the processing.	
+		}
+
+		// An item was successfully split.  Don't abort it.
+		private function handleSplitNoAbortSuccess():void
+		{
+			updateItem(currentItem, {});
+			handleUpdateSuccess(); // Prime the processing.	
+		}
+
+		private var recalc:Boolean = false;
+
+		// Update an item.
+		private function updateItem(item:Object, params:Object, success:Function = null): void
+		{
+			if (success == null) success = handleUpdateSuccess; 
+			recalc = recalc || (item.isStory() && item.statusCode == Story.ACCEPTED && params['record[status_code]'] != null && params['record[status_code]'] < Story.ACCEPTED);
+			updateQueue.addItem(new ChangeRequest(item, params, success, handleUpdateFailure));
+		}
+
+		// Copy a story.
+		private function copyStory(story:Story, priority:String): void
+		{
+			updateQueue.addItem(new CopyStoryRequest(story, priority, handleUpdateSuccess, handleUpdateFailure));
+		}
+
+		// Copy a task.
+		private function copyTask(task:Task, story:Story, priority:Number): void
+		{
+			updateQueue.addItem(new CopyTaskRequest(task, story, priority, handleUpdateSuccess, handleUpdateFailure));
+		}
+		
+		// Tell the server to delete a resource.
+		private function deleteResource(resource:Object):void
+		{
+			resource.destroy(handleDeleteSuccess, handleFailure);
+		}
+
+		// Handle a successful delete.
+		private function handleDeleteSuccess():void
+		{
+			for each (var story:Story in StoryFactory.getInstance().stories)
+			{
+				var newStatus:int = story.newStatus();
+				if (newStatus != -1)
+					story.update({'record[status_code]': newStatus}, null, handleFailure);
+			}
+		}
+
+		// Handle a successful create.
+		private function handleCreateCloseSuccess(newItem:Object,message:String=null):void
+		{
+			handleCreateSuccess(newItem,message);
+			currentItem = null;
+			currentState = '';
+		}
+
+		// Handle a successful create.
+		private function handleCreateSuccess(newItem:Object,message:String=null):void
+		{
+			if (currentItem)
+			{
+				currentItem.expand();
+				handleFilterResult();
+				var newStatus:int = currentItem.newStatus();
+				if (newStatus != -1)
+					currentItem.update({'record[status_code]': newStatus}, null, handleFailure);
+			}
+			storyResourceGrid.selectedItem = newItem; // Enables subsequent stories to be put after this one
+			showCreate(currentItem == null);
+			if (currentItem != null) defaultTaskOwner();
+			if (message == null)
+				setSuccessMessage((currentItem == null ? "Story" : "Task") + " was successfully created.");
+			else
+				setSuccessMessage(message);
+		}
+
+		// Handle a successful change.
+		private function handleSuccess(message:String = null):void
+		{
+			resetState(null);
+			if (message != null)
+				setSuccessMessage(message);
+			dispatchEvent(new Event("dataChanged"));
+		}
+
+		// Handle errors when making changes.
+		private function handleFailure(error:XMLList):void
+		{
+			setErrorMessage(error);
+		}
+		
+		private var shouldSort:Boolean = true;
+
+		// The user is reordering the stories / tasks.
+		private function handleDrag(event:DragEvent):void
+		{
+			var movedItems:Array = DataGrid(event.dragInitiator).selectedItems;
+			var areStories:Boolean = movedItems.length > 0 ? movedItems[0].isStory() : true;
+			for each (var object:Object in movedItems)
+			{
+				if (object.isStory() != areStories) // Can't drag mixed stories and tasks.
+				{
+					event.preventDefault();
+					return;
+				}
+				if (storyViewEpics.selected && (!object.isStory() || object.hasEpic()))
+				{
+					event.preventDefault();
+					return; // Can't drag non-epics if viewing epics
+				}
+			}
+			if (areStories && !shouldSort)
+			{
+				Alert.show("You can only drag and drop to prioritize after sorting by rank.");
+				event.preventDefault();
+			}
+		}
+		
+		// The user has reordered the stories.
+		private function handleReorder(event:DragEvent):void
+		{
+			var movedItems:Array = event.dragSource.dataForFormat("items") as Array;
+			var newIndex:int = storyResourceGrid.calculateDropIndex(event);
+			var shouldCopy:Boolean = event.ctrlKey;
+			if (movedItems.length > 0 && movedItems[0].isStory())
+				handleReorderStories(movedItems, newIndex, shouldCopy);
+			else
+				handleMoveTasks(movedItems, newIndex, shouldCopy);
+		}
+		
+		// The user has reordered the stories.
+		private function handleReorderStories(movedItems:Array, newIndex:int, shouldCopy:Boolean):void
+		{
+			// Eliminate the tasks from the list
+			var stories:ArrayCollection = new ArrayCollection();
+			for each (var item:Object in filteredStories)
+				if (item.isStory()) stories.addItem(item);
+
+			// Adjust the new index
+			if (newIndex == filteredStories.length)
+				newIndex = stories.length;
+			else if (filteredStories.getItemAt(newIndex).isStory())
+				newIndex = stories.getItemIndex(filteredStories.getItemAt(newIndex));
+			else
+				newIndex = stories.getItemIndex(filteredStories.getItemAt(newIndex).story) + 1;
+
+			var before:Object = null;
+			var after:Object = null;
+			for (var i:int = movedItems.length - 1; i >= 0; i--)
+			{ // Go backwards since these are in reverse order
+				var story:Story = movedItems[i]
+				if (newIndex == stories.length) // Move to end
+				{
+					if (before == null) // If first story to move
+					{
+						var lastStory:Story = Story(stories.getItemAt(newIndex - 1));
+						if (movedItems.length == 1 && lastStory == story)
+							return; // Not moved
+						before = lastStory;
+					}
+				}
+				else
+				{
+					if (before == null) // If first story to move
+					{
+						var itemAtIndex:Story = Story(stories.getItemAt(newIndex));
+						if (movedItems.length == 1 && itemAtIndex == story)
+							return; // Not moved
+						before = newIndex == 0 ? null : stories.getItemAt(newIndex-1);
+					}
+					after = itemAtIndex;
+				}
+				var priority:String = (before ? before.id : "") + "," + (after ? after.id : "");
+				before = story;
+				if (shouldCopy)
+					copyStory(story, priority);
+				else
+					updateItem(story, {"record[relative_priority]": priority});
+			}
+			handleUpdateSuccess(); // Prime the processing.
+		}
+		
+		// The user has moved the tasks.
+		private function handleMoveTasks(movedItems:Array, newIndex:int, shouldCopy:Boolean):void
+		{
+			newIndex = newIndex == 0 ? 0 : newIndex - 1;
+			var item:Object = filteredStories.getItemAt(newIndex);
+			var story:Story = item.isStory() ? Story(item) : item.story;
+			var min:Number = 0;
+			var max:Number = 0;
+			if (story.isExpanded())
+			{
+				min = item.isStory() ? 0 : item.priority;
+				max = item.isStory() ? (story.tasks.length == 0 ? movedItems.length + 1 : story.tasks[0].priority) : (story.tasks.length == story.tasks.indexOf(item) + 1 ? min + movedItems.length + 1 : story.tasks[story.tasks.indexOf(item)+1].priority);
+			}
+			else
+			{
+				min = story.tasks.length == 0 ? 0 : story.tasks[story.tasks.length - 1].priority;
+				max = min + movedItems.length + 1;
+			}
+			var increment:Number = (max - min) / 2.0;
+			for each (var task:Task in movedItems)
+			{
+				min += increment;
+				if (shouldCopy)
+					copyTask(task, story, min);
+				else
+					updateItem(task, {"record[story_id]": story.id, "record[priority]": min});
+			}
+			handleUpdateSuccess(); // Prime the processing.
+		}
+
+		// The user has moved a story to the top.
+		public function moveToTop():void
+		{
+			var story:Story = Story(storyResourceGrid.selectedItem);
+			var itemAtIndex:Story = Story(filteredStories.getItemAt(0));
+			if (itemAtIndex == story)
+				return; // Not moved
+			updateItem(story, {"record[relative_priority]": "," + itemAtIndex.id });
+			handleUpdateSuccess(); // Prime the processing.
+		}
+
+		// Answer whether the toggle should expand all.
+		private function isAllExpanded():Boolean
+		{
+			for each(var item:Object in filteredStories)
+			{
+				if(item.isStory() && !item.isExpanded() && item.tasks.length > 0)
+					return false;
+			}
+			return true;
+		}
+
+		// Expand all stories if any are not expanded.  Collapse all stories otherwise.
+		private function expandAll():void
+		{
+			var allExpanded:Boolean = isAllExpanded();
+			for each(var item2:Object in filteredStories)
+			{
+				if(item2.isStory())
+					allExpanded ? item2.collapse() : item2.expand();
+			}
+			handleFilterResult();
+		}
+		
+		[Bindable]
+		public var expandAllIcon:Class;
+
+		// Update the icon for the expand all toggle.
+		private function updateExpandAllToggle():void
+		{
+			expandAllIcon = isAllExpanded() ? parentApplication.imgExpanded : parentApplication.imgCollapsed;
+		}
+
+		// Prepare for sorting by collapsing all stories.
+		private function prepareSort(event:DataGridEvent):void
+		{
+			if (event.columnIndex == 0)
+			{
+				expandAll();
+				event.preventDefault();
+				return;
+			}
+			else if (event.columnIndex == storyResourceGrid.columnCount - 1)
+			{
+				selectAttributes();
+				event.preventDefault();
+				return;
+			}
+			shouldSort = storyResourceGrid.columns[event.columnIndex].headerText == "Rank";
+			var changes:Boolean = false;
+			for each (var object:Object in filteredStories)
+			{
+				if (object.isStory() && object.isExpanded())
+				{
+					changes = true;
+					object.collapse();
+				}
+			}
+			if (changes)
+				handleFilterResult();
+			sortCustomData(event);
+			oldSort = null;
+		}
+		
+		// Answer the color to use for a row.
+		private function rowColor(item:Object, color:uint) : uint
+		{
+			return (item && item.backgroundColor() >= 0) ? item.backgroundColor() : color;
+		}
+
+		private var statusEvent:Event;
+		
+		// The user has updated the story / task status in the table.
+		public function updateStatus(item:Object, event:ListEvent):void
+		{
+			currentItem = item;
+			statusEvent = event;
+			if (event.target.selectedIndex == Story.BLOCKED)
+			{
+				var dialog:EnterText = EnterText(PopUpManager.createPopUp(this, EnterText, true));
+				dialog.title = "Enter reason for blockage";
+				dialog.init("Reason Blocked", updateStatusWithReason, cancelStatus);
+				PopUpManager.centerPopUp(dialog);
+			}
+			else
+			{
+				updateItem(currentItem, {"record[status_code]": statusEvent.target.selectedIndex, 'record[reason_blocked]': ''});
+				handleUpdateSuccess(); // Prime processing.
+			}
+		}
+
+		// The user has canceled the change of status.
+		public function cancelStatus():void
+		{
+			var current:int = currentItem.statusCode;
+			currentItem.statusCode = Story.BLOCKED;
+			currentItem.statusCode = current;
+		}
+		
+		// The user has entered a reason for blocking (if appropriate).
+		public function updateStatusWithReason(reason:String):void
+		{
+			updateItem(currentItem, {"record[status_code]": statusEvent.target.selectedIndex, 'record[reason_blocked]': reason});
+			handleUpdateSuccess(); // Prime processing.
+		}
+
+		// Answer whether to show (based on whether the item is a story and the user has rights).
+		public function shouldShowStory(data:Object):Boolean
+		{
+			return data.isStory() && shouldShow(data);
+		}
+
+		// Answer whether to show move (based on whether the item is a story and the user has rights).
+		public function shouldShowMove(data:Object):Boolean
+		{
+			return shouldShowStory(data) && (!storyViewEpics.selected || !data.hasEpic());
+		}
+
+		// Answer whether to show split (based on whether the item is a story and the user has rights).
+		public function shouldShowSplit(data:Object):Boolean
+		{
+			return shouldShowStory(data) && !storyViewEpics.selected;
+		}
+
+		// Answer whether to show (based on whether the user has rights).
+		public function shouldShow(data:Object):Boolean
+		{
+			return factory.currentIndividual.isAtLeastProjectUser;
+		}
+		
+		// Update the project related fields.
+		public function updateProjectField():void
+		{
+			storyFieldEpic.selectedIndex = storyFieldEpic.dataProvider.length - 1;
+			storyFieldIteration.selectedIndex = storyFieldIteration.dataProvider.length - 1;
+			storyFieldRelease.selectedIndex = storyFieldRelease.dataProvider.length - 1;
+			updateRelease();
+			storyFieldTeam.selectedIndex = storyFieldTeam.dataProvider.length - 1;
+			if (storyFieldOwner.selectedItem.projects.indexOf(storyFieldProject.selectedItem) == -1)
+				storyFieldOwner.selectedIndex = storyFieldOwner.dataProvider.length - 1;
+		}
+
+		// Update the release based on the change to the iteration.
+		public function updateIteration():void
+		{
+			storyFieldRelease.dataProvider = storyFieldIteration.selectedItem.releases();
+			storyFieldRelease.selectedItem = (release.selectedItem.id == "-1" || !release.selectedItem.id) ? storyFieldIteration.selectedItem.defaultRelease() : getSelectedRelease();
+			updateRelease();
+		}
+
+		// The selected release has changed.
+		public function updateRelease():void
+		{
+			for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
+			{
+				if (attrib.valueType == StoryAttribute.RELEASE_LIST)
+				{
+					var id:String = "storyField" + attrib.id.toString();
+					var values:ArrayCollection = attrib.allValuesFor(Release(storyFieldRelease.selectedItem));
+					ComboBox(customChildren[id]).dataProvider = values;
+					ComboBox(customChildren[id]).selectedIndex = values.length - 1;
+				}
+			}
+		}
+		
+		// Answer whether I'm working with a story.
+		private function get isStory():Boolean
+		{
+			return (currentState != 'Change' && !currentItem) || (currentState == 'Change' &&
+				((storyBtnChange.label == 'Create' && !currentItem) ||
+				(storyBtnChange.label != 'Create' && currentItem && currentItem.isStory())));
+		}
+		
+		// Update fields based on new status.
+		private function updateStatusCode(event:Event = null):void
+		{
+			if (!isStory && storyFieldStatus.selectedIndex == Story.ACCEPTED)
+				storyFieldEffort.text = "0";
+			if (!isStory && storyFieldStatus.selectedIndex != Story.CREATED && !storyFieldOwner.selectedItem.id)
+				storyFieldOwner.selectedItem = factory.currentIndividual;
+			updateReasonBlocked();
+			updateEditPanelSize();
+		}
+		
+		// Update fields based on new status.
+		private function updateReasonBlocked():void
+		{
+			var blocked:Boolean = storyFieldStatus.selectedIndex == Story.BLOCKED;
+			storyFormReasonBlocked.height = blocked ? 64 : -5;
+			storyFormReasonBlocked.visible = blocked;
+			blocked ? null : storyFieldReasonBlocked.text = "";
+		}
+		
+		// Answer an icon for my expand button.
+		public function expandIcon(item:Object):Class
+		{
+			if (item.isStory())
+			{
+				if (item.stories.length > 0 || item.tasks.length > 0)
+					return item.isExpanded() ? parentApplication.imgExpanded : parentApplication.imgCollapsed;
+				else
+					return null;
+			}
+			else
+				return null;
+		}
+		
+		// Answer a color for an item.
+		public function color(item:Object):uint
+		{
+			return item.color;
+		}
+		
+		// Answer a icon for an item.
+		public function iconString(item:Object):String
+		{
+			return null;
+		}
+		
+		// Answer velocity tree size.
+		public function adjustVelocitySize(event:Event):void
+		{
+			velocity.width = velocity.measureWidthOfItems();
+			velocity.adjustHeight();
+		}
+		
+		// Answer utilization tree size.
+		public function adjustUtilizationSize(event:Event):void
+		{
+			utilization.width = utilization.measureWidthOfItems();
+			utilization.adjustHeight();
+		}
+		
+		// Select the story attributes.
+		protected function selectAttributes():void
+		{
+			var selector:SelectAttributes = SelectAttributes(PopUpManager.createPopUp(this, SelectAttributes, true));
+			selector.title = "Select Attributes to Show in Table";
+			selector.init(setColumns);
+			PopUpManager.centerPopUp(selector);
+		}		
+		
+		// Edit the story attributes.
+		protected function editAttributes(event:Event):void
+		{
+			var editor:EditAttributes = EditAttributes(PopUpManager.createPopUp(this, EditAttributes, true));
+			editor.title = "Edit Custom Story Attributes";
+			editor.init(updateAttributes);
+			PopUpManager.centerPopUp(editor);
+		}
+		
+		// Update the story attributes.
+		protected function updateAttributes(event:Event = null, initial:Boolean = false):void
+		{
+			customChildren = new Object();
+			searchChildren = new Object();
+			for (var i:int = changeForm.numChildren-1; i>=baseChildren; i--)
+				changeForm.removeChildAt(i);
+			for (var j:int = 0; j<storyMoreFilters.numChildren - 2; j++)
+				storyMoreFilters.removeChildAt(j);
+
+			if (IndividualFactory.current().selectedProject)
+			{
+				for each (var attrib:StoryAttribute in IndividualFactory.current().selectedProject.customStoryAttributes)
+				{
+					var formItem:FormItem = new FormItem();
+					formItem.label = attrib.name;
+					var id:String = "storyField" + attrib.id.toString();
+					switch (attrib.valueType)
+					{
+					  case StoryAttribute.STRING:
+					  	var input:TextInput = new HTMLTextInput();
+					  	input.id = id;
+					  	input.maxChars = 4096;
+					  	input.width = 500;
+					  	formItem.addChild(input);
+					  	customChildren[id] = input;
+					    break;
+					  case StoryAttribute.TEXT:
+					    var text:ExpandableHTMLTextArea = new ExpandableHTMLTextArea();
+					    text.textAutomationName=attrib.name + "Text";
+					    text.id = id;
+					  	formItem.addChild(text);
+					  	customChildren[id] = text;
+					    break;
+					  case StoryAttribute.NUMBER:
+					  	var input2:TextInput = new TextInput();
+					  	input2.id = id;
+					  	input2.maxChars = 4096;
+					  	input2.width = 100;
+					  	input2.restrict = "0-9.";
+					  	formItem.addChild(input2);
+					  	customChildren[id] = input2;
+					    break;
+					  case StoryAttribute.DATE:
+					  	var date:DateField = new DateField();
+					  	date.id = id;
+					  	date.editable = true;
+					  	formItem.addChild(date);
+					  	customChildren[id] = date;
+					    break;
+					  case StoryAttribute.LIST:
+					  case StoryAttribute.RELEASE_LIST:
+					  	var combo:ComboBox = new FixedComboBox();
+					  	combo.id = id;
+					  	combo.width = NaN;
+					  	combo.editable = false;
+					  	combo.labelField = "value";
+					  	combo.dataProvider = attrib.allValues;
+					  	combo.selectedIndex = attrib.allValues.length - 1;
+					  	combo.rowCount = Math.min(attrib.allValues.length,15);
+					  	formItem.addChild(combo);
+					  	customChildren[id] = combo;
+					  	
+					  	// Add search field
+  						var searchId:String = "searchField" + attrib.id.toString();
+  						var values:ArrayCollection = attrib.allValuesPlusAll;
+					  	combo = new FixedComboBox();
+					  	combo.id = searchId;
+					  	combo.width = NaN;
+					  	combo.editable = false;
+					  	combo.labelField = "value";
+					  	combo.dataProvider = values;
+					  	combo.selectedIndex = values.length - 1;
+					  	combo.rowCount = Math.min(values.length,15);
+					  	if (initial && Story.conditions["custom_" + attrib.id.toString()] != null) 
+					  	{
+					  		var target:String = Story.conditions["custom_" + attrib.id.toString()];
+					  		for (var k:int = 0; k < values.length; k++)
+					  		{
+					  			var value:String = String(values.getItemAt(k).id);
+					  			if (value == target || (value == "0" && target == ""))
+					  			{
+					  				combo.selectedIndex = k;
+									showMore();
+									break;
+					  			}
+					  		}
+						}
+					  	combo.addEventListener(ListEvent.CHANGE,handleFilter);
+					  	searchChildren[id] = combo;
+						var searchForm:FormItem = new FormItem();
+						searchForm.label = attrib.name;
+						searchForm.addChild(combo);
+					  	storyMoreFilters.addChildAt(searchForm, storyMoreFilters.numChildren - 2);
+					    break;
+					}
+					changeForm.addChild(formItem);
+				}
+			  	updateRelease();
+				setCustomAttributes();
+				setColumns();
+			}
+			updateEditPanelSize();
+		}
+
+		private var attrMapping:Object = new Object(); // Maps attribute name to attribute.
+		private var columnMapping:Object = new Object(); // Maps column index to attribute.
+
+		// Set the columns for the table.
+		private function setColumns():void
+		{
+			if (IndividualFactory.current().selectedProject.id != null)
+			{
+				var newColumns:ArrayCollection = new ArrayCollection();
+				newColumns.addItem(originalColumns[0]);
+				var i:int = 1;
+				for each(var attrib:StoryAttribute in IndividualFactory.current().selectedProject.storyAttributes)
+				{
+					if (!attrib.isCustom)
+					{
+						var name:String = attrib.name;
+						
+						for each(var column:DataGridColumn in originalColumns)
+						{
+							if ((column.headerText == name) || (column.headerText == "Projected" && name == "Iteration"))
+							{
+								newColumns.addItem(column);
+								column.width = attrib.width;
+								column.visible = attrib.show;
+							}
+						}
+					}
+					else
+					{
+						var newColumn:DataGridColumn = new DataGridColumn();
+						newColumn.headerText = attrib.name;
+						newColumn.width = attrib.width;
+						newColumn.wordWrap = true;
+						newColumn.itemRenderer = CustomAttributeRenderer;
+						newColumn.dataField = "custom";
+						newColumn.visible = attrib.show;
+						newColumn.sortCompareFunction = sortCustom;
+						newColumns.addItem(newColumn);
+					}
+					attrMapping[attrib.name] = attrib;
+					columnMapping[i] = attrib;
+					i++;
+				}
+				newColumns.addItem(originalColumns[originalColumns.length - 1]);
+				storyResourceGrid.columns = newColumns.toArray();
+				currentColumns = storyResourceGrid.columns;
+				updateColumnVisibility();
+			}
+		}
+		
+		private function sortCustom(itemA:Object, itemB:Object):int
+		{
+			if (itemA == null || itemB == null) // Can happen if you double click on sort
+				return 0;
+				
+			if (sortDates)
+				return ObjectUtil.dateCompare(itemA.custom as Date, itemB.custom as Date);
+			else
+				return ObjectUtil.compare(itemA.custom, itemB.custom);
+		}
+
+		// Update the column between iteration and projected.
+		private function updateProjectedColumn():void
+		{
+			if (!iteration.selectedItem || iteration.selectedItem.id == "-1" || !IndividualFactory.current().isPremium)
+			{
+				storyColumnIteration.headerText = "Iteration";
+				storyColumnIteration.labelFunction = ViewHelper.formatIteration;
+				storyColumnIteration.sortCompareFunction = ViewHelper.sortIteration;
+			}
+			else
+			{
+				storyColumnIteration.headerText = "Projected";
+				storyColumnIteration.labelFunction = ViewHelper.formatProjectedIteration;
+				storyColumnIteration.sortCompareFunction = ViewHelper.sortProjectedIteration;
+			}
+		}
+		
+		private var sortDates:Boolean = false;
+		
+		// Handle an attempt to sort based on custom data.  Do so by setting the value to sort on.
+		private function sortCustomData(event:DataGridEvent):void
+		{
+			var attrib:StoryAttribute = attrMapping[storyResourceGrid.columns[event.columnIndex].headerText];
+			if (attrib != null && attrib.isCustom)
+			{
+				for each (var item:Object in filteredStories)
+				{
+					var value:String = item.getCustomFormattedValue(attrib);
+					sortDates = attrib.valueType == StoryAttribute.DATE;
+					if(sortDates)
+						item.custom = (value == null || value == "") ? null : new Date(Date.parse(value));
+					else
+						item.custom = value;
+				}
+			}
+		}
+		
+		// Get the custom data for a particular field for a particular object.
+		public function getCustomData(columnIndex:int, item:Object):String
+		{
+			var attrib:StoryAttribute = attrMapping[storyResourceGrid.columns[columnIndex].headerText];
+			return item.getCustomFormattedValue(attrib);
+		}
+		
+		// The user has resized a column.  Save the new column width.
+		private function columnStretch(event:DataGridEvent):void
+		{
+			columnMapping[event.columnIndex].update({'record[width]': storyResourceGrid.columns[event.columnIndex].width}, handleUpdateSuccess, handleUpdateFailure);
+		}
+		
+		// The user has moved a column.  Save the new order.
+		private function headerShift(event:IndexChangedEvent):void
+		{
+			if (event.newIndex == 0 || event.oldIndex == 0 || event.newIndex == storyResourceGrid.columnCount - 1 || event.oldIndex == storyResourceGrid.columnCount - 1)
+				storyResourceGrid.columns = currentColumns;
+			else
+			{
+				if (event.newIndex < event.oldIndex)
+				{
+					var old1:Object = columnMapping[event.oldIndex];
+					for(var i:int = event.oldIndex; i > event.newIndex; i--)
+						columnMapping[i] = columnMapping[i-1];
+					columnMapping[event.newIndex] = old1;
+				}
+				else
+				{
+					var old2:Object = columnMapping[event.oldIndex];
+					for(var j:int = event.oldIndex; j < event.newIndex; j++)
+						columnMapping[j] = columnMapping[j+1];
+					columnMapping[event.newIndex] = old2;
+				}
+				columnMapping[event.newIndex].update({'record[ordering]': event.newIndex == 1 ? (columnMapping[2].ordering/2) : (event.newIndex == storyResourceGrid.columnCount - 2 ? (columnMapping[event.newIndex-1].ordering + 10) : ((columnMapping[event.newIndex-1].ordering + columnMapping[event.newIndex+1].ordering)/2))}, handleUpdateSuccess, handleUpdateFailure);
+				currentColumns = storyResourceGrid.columns;
+			}
+		}
+		
+		// Create the query string for exporting.  Should either by the empty string or start with &.
+		public function getExportQueryString():String
+		{
+			var queryString:String = "";
+			for (var key:Object in Story.conditions)
+				queryString += "&conditions[" + key + "]=" + Story.conditions[key];
+			return queryString;
+		}
+		
+		public function showMoreFilters():void
+		{
+			if (storyBtnMoreFilters.toolTip == "More Filters") {
+				showMore();
+			}
+			else {
+				storyBtnMoreFilters.setStyle("icon", parentApplication.imgExpand);
+				storyBtnMoreFilters.toolTip = "More Filters";
+				storyMoreFilters.visible = false;
+				storyMoreFilters.height = -5;
+			}
+		}
+		
+		public function showMore():void
+		{
+			storyBtnMoreFilters.setStyle("icon", parentApplication.imgContract);
+			storyBtnMoreFilters.toolTip = "Less Filters";
+			storyMoreFilters.visible = true;
+			storyMoreFilters.height = NaN;
+		}
+		
+		// Blank out the search field and show all stories meeting selected filters.
+		public function cancelIDSearch():void
+		{
+			storyIDSearch.text = "";
+		}
+		
+		// Blank out the search field and show all stories meeting selected filters.
+		public function cancelTextSearch():void
+		{
+			storyTextSearch.text = "";
+		}
+		
+		public function copyFiltersURL():void
+		{
+			var url:String = getBaseURL();
+			for (var param:String in Story.conditions)
+			{
+				var value:String = Story.conditions[param];
+				url += "&";
+				url += param;
+				url += "=";
+				url += escape(value);
+			}
+			System.setClipboard(url);
+		}
+		
+		public function copyObjectURL():void
+		{
+			var url:String = getBaseURL();
+			url += "&";
+			url += currentItem.isStory() ? "id" : "tasks.id";
+			url += "=";
+			url += currentItem.id;
+			System.setClipboard(url);
+		}
+		
+		protected function getBaseURL():String
+		{
+			return new RequestProcessor().getBase() + "?project_id=" + IndividualFactory.current().selectedProjectId;
+		}
+		
+		protected function changeViewEpics():void
+		{
+			iteration.visible = !storyViewEpics.selected;
+			iteration.width = storyViewEpics.selected ? -5 : NaN;
+			handleFilter();
+		}
+		]]>
+	</mx:Script>
+ 	
+	<local:states>
+		<mx:State name="Change">
+			<mx:RemoveChild target="{storyBtnCreate}"/>
+			<mx:AddChild relativeTo="{storyResourceGrid}" position="before">
+				<mx:target>
+					<mx:Panel id="changePanel" width="100%" borderThicknessTop="0" borderThicknessLeft="0" borderThicknessRight="0" headerHeight="0" height="100%">
+						<mx:VBox height="100%">
+							<mx:HBox height="100%">
+								<mx:VBox height="100%">
+									<mx:Form id="changeForm" defaultButton="{storyBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5" height="100%">
+										<mx:FormItem id="storyNameForm" label='Name' required="true">
+											<mx:TextInput id='storyFieldName' maxChars="250" text='' width="500"/>
+										</mx:FormItem>
+										<mx:FormItem label='Description' height="100%">
+											<component:ExpandableHTMLTextArea id='storyFieldDescription' minHeight="80" height="100%"/>
+										</mx:FormItem>
+										<mx:FormItem label='Acceptance Criteria' id="storyFormAcceptanceCriteria" height="100%">
+											<component:ExpandableCriteriaGrid id='storyFieldAcceptanceCriteria' height="100%"/>
+										</mx:FormItem>
+										<mx:FormItem label='Status'>
+											<local:FixedComboBox id='storyFieldStatus' editable="false" change="updateStatusCode(event)">
+												<mx:Object label="Not Started" value="0" />
+												<mx:Object label="In Progress" value="1" />
+												<mx:Object label="Blocked" value="2" />
+												<mx:Object label="Done" value="3" />
+											</local:FixedComboBox>
+										</mx:FormItem>
+										<mx:FormItem id='storyFormReasonBlocked' label='Reason Blocked'>
+											<component:ExpandableHTMLTextArea id='storyFieldReasonBlocked'/>
+										</mx:FormItem>
+									</mx:Form>	
+								</mx:VBox>
+								<mx:VBox>
+									<mx:Form id="changeForm2" defaultButton="{storyBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
+										<mx:FormItem label="ID" id="storyFormID">
+											<mx:HBox>
+												<mx:Label text="{currentItem.fullId}"/>
+												<mx:LinkButton width="16" icon="{parentApplication.imgURL}" toolTip="Copy URL" click="copyObjectURL();" id="storyBtnCopyObjectURL"/>
+											</mx:HBox>
+										</mx:FormItem>
+										<mx:FormItem label="Project" id="storyFormProject">
+											<local:FixedComboBox id='storyFieldProject' editable="false" labelField="name" change="updateProjectField()"></local:FixedComboBox>
+										</mx:FormItem>
+										<mx:FormItem label="Epic" id="storyFormEpic">
+											<local:FixedComboBox id='storyFieldEpic' editable="false" labelField="name" maxWidth="230" toolTip="{storyFieldEpic.selectedItem.name}"></local:FixedComboBox>
+										</mx:FormItem>
+										<mx:FormItem label="Iteration" id="storyFormIteration">
+											<local:FixedComboBox id='storyFieldIteration' editable="false" labelField="name" change="updateIteration()"></local:FixedComboBox>
+										</mx:FormItem>
+										<mx:FormItem label="Release" id="storyFormRelease">
+											<local:FixedComboBox id='storyFieldRelease' editable="false" labelField="name" change="updateRelease()"></local:FixedComboBox>
+										</mx:FormItem>
+										<mx:FormItem label='Team' id="storyFormTeam">
+											<local:FixedComboBox id='storyFieldTeam' editable="false" dataProvider="{IndividualFactory.current().selectedProject.teamSelector}" labelField="name"></local:FixedComboBox>
+										</mx:FormItem>
+										<mx:FormItem label='Owner'>
+											<local:FixedComboBox id='storyFieldOwner' editable="false" labelField="fullName"></local:FixedComboBox>
+										</mx:FormItem>
+										<mx:FormItem id="storyFormEstimate" label='Estimate'>
+											<mx:TextInput id='storyFieldEstimate' restrict="0-9." text='' width="100" enabled="{storyFieldStatus.selectedIndex==Story.CREATED}" change="storyFieldEffort.text = storyFieldEstimate.text"/>
+										</mx:FormItem>
+										<mx:FormItem id="storyEffortForm" label='To Do'>
+											<mx:TextInput id='storyFieldEffort' restrict="0-9." text='' width="100" enabled="{!currentItem || currentItem.isStory() || storyFieldStatus.selectedIndex!=Story.ACCEPTED}"/>
+										</mx:FormItem>
+										<mx:FormItem id="storyFormActual" label='Actual'>
+											<mx:TextInput id='storyFieldActual' restrict="0-9." text='' width="100"/>
+										</mx:FormItem>
+										<mx:FormItem label='Public' id="storyFormPublic">
+											<local:FixedComboBox id='storyFieldPublic' editable="false">
+												<mx:Object label="true" value='true' />
+												<mx:Object label="false" value='false' />
+											</local:FixedComboBox>
+										</mx:FormItem>
+										<mx:Button label="Edit Attributes" id="storyBtnEditAttributes" click="editAttributes(event)" visible="{factory.currentIndividual.isAtLeastProjectAdmin()}"/>
+									</mx:Form>	
+								</mx:VBox>
+							</mx:HBox>
+							<mx:ControlBar width="100%" horizontalGap="5">
+								<mx:Spacer width="50"/>
+								<mx:Button label="Change" id="storyBtnChange" click="changeResource(false)"/>
+								<mx:Button label="Create &amp; Close" id="storyBtnCreateClose" click="changeResource(true)"/>
+								<mx:LinkButton label="Cancel" id="storyBtnCancel" click="resetState(event)"/>
+								<mx:LinkButton id="storyBtnInfo" icon="{parentApplication.imgInfo}" toolTip="History" click="showHistory(event);"/>
+								<mx:LinkButton id="storyBtnPrevious" icon="{parentApplication.imgPreviousItem}" toolTip="Save &amp; Go To Previous" click="saveAndShowPrevious()"/>
+								<mx:LinkButton id="storyBtnNext" icon="{parentApplication.imgNextItem}" toolTip="Save &amp; Go To Next" click="saveAndShowNext()"/>
+							</mx:ControlBar>
+						</mx:VBox>
+					</mx:Panel>
+				</mx:target>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="Survey">
+			<mx:AddChild relativeTo="{combinedPanel}" position="before">
+				<mx:target>
+					<component:ViewSurveys id="surveysView" done="resetState(event)">
+					</component:ViewSurveys>
+				</mx:target>
+			</mx:AddChild>
+		</mx:State>
+		<mx:State name="TaskBoard">
+			<mx:AddChild relativeTo="{combinedPanel}" position="before">
+				<mx:target>
+					<component:TaskBoard id="storyTaskBoard" done="returnFromTaskBoard()">
+					</component:TaskBoard>
+				</mx:target>
+			</mx:AddChild>
+		</mx:State>
+	</local:states>
+	
+	<local:transitions>
+		<mx:Transition id="changeItem" fromState="*" toState="Change">
+			<mx:Sequence targets="{[storyBtnBox, combinedPanel]}">
+				<mx:RemoveChildAction/>
+				<mx:SetPropertyAction target="{storyBtnBox}" name="visible" value="false"/>
+				<mx:SetPropertyAction target="{storyBtnBox}" name="height" value="0"/>
+				<mx:Resize target="{combinedPanel}"/>
+				<mx:AddChildAction/>
+			</mx:Sequence>
+		</mx:Transition>
+
+		<mx:Transition id="returnList" fromState="Change" toState="*">
+			<mx:Sequence targets="{[storyBtnBox, combinedPanel]}">
+				<mx:RemoveChildAction/>
+				<mx:SetPropertyAction target="{storyBtnBox}" name="height" value="null"/>
+				<mx:SetPropertyAction target="{storyBtnBox}" name="visible" value="true"/>
+				<mx:Resize target="{combinedPanel}"/>
+				<mx:AddChildAction/>
+			</mx:Sequence>
+		</mx:Transition>
+
+		<mx:Transition id="survey" fromState="*" toState="Survey">
+			<mx:Sequence targets="{[combinedPanel]}">
+				<mx:RemoveChildAction/>
+				<mx:SetPropertyAction target="{combinedPanel}" name="visible" value="false"/>
+				<mx:SetPropertyAction target="{combinedPanel}" name="height" value="0"/>
+				<mx:Resize target="{combinedPanel}"/>
+				<mx:AddChildAction/>
+			</mx:Sequence>
+		</mx:Transition>
+
+		<mx:Transition id="survey2" fromState="Survey" toState="*">
+			<mx:Sequence targets="{[combinedPanel]}">
+				<mx:RemoveChildAction/>
+				<mx:SetPropertyAction target="{combinedPanel}" name="visible" value="true"/>
+				<mx:SetPropertyAction target="{combinedPanel}" name="height" value="{panelHeight}"/>
+				<mx:Resize target="{combinedPanel}"/>
+				<mx:AddChildAction/>
+			</mx:Sequence>
+		</mx:Transition>
+
+		<mx:Transition id="board" fromState="*" toState="TaskBoard">
+			<mx:Sequence targets="{[combinedPanel]}">
+				<mx:RemoveChildAction/>
+				<mx:SetPropertyAction target="{combinedPanel}" name="visible" value="false"/>
+				<mx:SetPropertyAction target="{combinedPanel}" name="height" value="0"/>
+				<mx:Resize target="{combinedPanel}"/>
+				<mx:AddChildAction/>
+			</mx:Sequence>
+		</mx:Transition>
+
+		<mx:Transition id="board2" fromState="TaskBoard" toState="*">
+			<mx:Sequence targets="{[combinedPanel]}">
+				<mx:RemoveChildAction/>
+				<mx:SetPropertyAction target="{combinedPanel}" name="visible" value="true"/>
+				<mx:SetPropertyAction target="{combinedPanel}" name="height" value="{panelHeight}"/>
+				<mx:Resize target="{combinedPanel}"/>
+				<mx:AddChildAction/>
+			</mx:Sequence>
+		</mx:Transition>
+	</local:transitions>
+	
+	<mx:Component id="CustomAttributeRenderer">	
+		<mx:Text paddingLeft="5" text="{outerDocument.getCustomData(getColumnIndex(), data)}" selectable="false">
+			<mx:Script>
+				<![CDATA[
+					// This class is used for the cells on a custom attribute column.
+					import org.planigle.planigle.model.ViewModelLocator;
+					import mx.controls.dataGridClasses.DataGridListData;
+					private function getColumnIndex():int
+					{
+						return DataGridListData(listData).columnIndex;
+					}
+				]]>
+			</mx:Script>
+		</mx:Text>
+	</mx:Component>
+
+	<mx:Panel id="combinedPanel" height="100%" width="100%" y="0" x="0" borderThicknessTop="0" borderThicknessLeft="0" borderThicknessRight="0" headerHeight="0">
+		<mx:VBox id="vbox" width="100%" paddingTop="5" paddingLeft="5" paddingRight="5">
+			<mx:VBox id="storyBtnBox" width="100%">
+				<mx:HBox width="100%" horizontalGap="5" minWidth="0" horizontalScrollPolicy="off">
+					<mx:LinkButton width="16" icon="{parentApplication.imgExpand}" toolTip="More Filters" click="showMoreFilters();" id="storyBtnMoreFilters"/>
+					<local:FixedComboBox id='release' editable="false" dataProvider="{releaseFilter}" labelField="name" change="handleReleaseFilter(event)"></local:FixedComboBox>
+					<local:FixedComboBox id='iteration' editable="false" dataProvider="{iterationFilter}" labelField="name" change="handleFilter()"></local:FixedComboBox>
+					<component:TeamSelector id='team' change="handleFilter()"></component:TeamSelector>
+					<local:FixedComboBox id='individual' editable="false" dataProvider="{individualFilter}" labelField="fullName" change="handleFilter()"></local:FixedComboBox>
+					<local:FixedComboBox id='itemStatus' editable="false" change="handleFilter()" selectedIndex="3">
+						<mx:Object label="Not Started" value="0" />
+						<mx:Object label="In Progress" value="1" />
+						<mx:Object label="Blocked" value="2" />
+						<mx:Object label="Not Done" value="-2" />
+						<mx:Object label="Done" value="3" />
+						<mx:Object label="All Statuses" value="-1" />
+					</local:FixedComboBox>
+					<mx:LinkButton width="16" icon="{parentApplication.imgURL}" toolTip="Copy URL" click="copyFiltersURL();" id="storyBtnCopyFiltersURL"/>
+					<mx:HBox id="buttonBox" width="100%" horizontalGap="5" horizontalAlign="right" horizontalScrollPolicy="off">
+						<mx:Button width="25" icon="{parentApplication.imgAdd}" toolTip="Create" click="showCreateStory();" id="storyBtnCreate" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
+						<mx:Button width="25" icon="{parentApplication.imgEdit}" toolTip="Update" click="showUpdate();" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnUpdateMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
+						<mx:Button width="25" icon="{parentApplication.imgCross}" toolTip="Delete" click="showDelete(event);" enabled="{storyResourceGrid.selectedItems.length > 0}" id="storyBtnDeleteMultiple" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
+						<mx:Button width="25" icon="{parentApplication.imgCheck}" toolTip="Select Columns" click="selectAttributes()" id="storyBtnSelectAttributes"/>
+						<component:ImportButton width="25" id="storyBtnImport" visible="{factory.currentIndividual.isAtLeastProjectUser}"/>
+						<component:ExportButton width="25" id="storyBtnExport" queryStringFunction="{getExportQueryString}" queryStringObject="{this}"/>
+						<mx:Button icon="{parentApplication.imgSurveys}" visible="{factory.currentIndividual.isPremium}" width="{factory.currentIndividual.isPremium ? 25 : 0}" toolTip="View Surveys" click="handleSurveys(event);" id="storyBtnViewSurveys"/>
+						<mx:Button icon="{parentApplication.imgWindow}" visible="{factory.currentIndividual.isPremium}" width="{factory.currentIndividual.isPremium ? 25 : 0}" toolTip="View Task Board" click="handleTaskBoard(event);" id="storyBtnViewTaskBoard"/>
+					</mx:HBox>
+				</mx:HBox>
+				<mx:Form id="storyMoreFilters" visible="false" height="-5" paddingTop="0" paddingBottom="0" verticalGap="5" width="100%">
+					<mx:FormItem label="ID">
+						<mx:HBox>
+							<mx:TextInput id='storyIDSearch' text='' width="60" enter="handleFilter()" valueCommit="handleFilter()"/>
+							<mx:LinkButton width="16" icon="{parentApplication.imgCross}" toolTip="Cancel ID Search" click="cancelIDSearch();" id="storyBtnCancelIDSearch"/>
+						</mx:HBox>
+					</mx:FormItem>
+					<mx:FormItem label="Search Text">
+						<mx:HBox>
+							<mx:TextInput id='storyTextSearch' text='' width="200" enter="handleFilter()" valueCommit="handleFilter()"/>
+							<mx:LinkButton width="16" icon="{parentApplication.imgCross}" toolTip="Cancel Text Search" click="cancelTextSearch();" id="storyBtnCancelTextSearch"/>
+						</mx:HBox>
+					</mx:FormItem>
+					<mx:FormItem label="View Epics">
+						<mx:CheckBox id='storyViewEpics' change="changeViewEpics()"/>
+					</mx:FormItem>
+				</mx:Form>
+				<mx:HBox id="storyStatusRow" width="100%" minWidth="0" horizontalScrollPolicy="off" horizontalAlign="center" verticalAlign="middle">
+					<mx:Label text="Number of Stories:" fontWeight="bold"/>
+					<mx:Label id="storiesCount" text=""/>
+					<mx:HBox id="storyUtilizationRow" verticalAlign="middle">
+						<mx:Label text="Velocity Allocation:" fontWeight="bold"/>
+						<local:ColoredTree id="velocity" rowColorFunction="color" labelField="utilization" iconFunction="iconString" borderStyle="none" rowCount="1" itemOpen="adjustVelocitySize(event)" itemClose="adjustVelocitySize(event)" selectable="false" dataProvider="Loading..."/>
+						<mx:Label text="Utilization:" fontWeight="bold"/>
+						<local:ColoredTree id="utilization" rowColorFunction="color" labelField="utilization" iconFunction="iconString" borderStyle="none" rowCount="1" itemOpen="adjustUtilizationSize(event)" itemClose="adjustUtilizationSize(event)" selectable="false" dataProvider="Loading..."/>
+					</mx:HBox>
+				</mx:HBox>
+			</mx:VBox>
+			<mx:Text id="storyError" styleName="error" htmlText="{_error}" width="100%" height="0"/>
+		</mx:VBox>
+		<mx:VDividedBox height="100%" width="100%">
+			<local:ColoredBackgroundDataGrid id="storyResourceGrid" minWidth="0" variableRowHeight="true" dataProvider="{filteredStories}" height="100%" width="100%" dragEnabled="{factory.currentIndividual.isAtLeastProjectUser}" dropEnabled="true" dragMoveEnabled="true" dragStart="handleDrag(event)" dragDrop="handleReorder(event)" rowColorFunction="rowColor" headerRelease="prepareSort(event)" doubleClickEnabled="{factory.currentIndividual.isAtLeastProjectUser}" doubleClick="checkDirty(showUpdate)" allowMultipleSelection="true" columnStretch="columnStretch(event)" headerShift="headerShift(event)" horizontalScrollPolicy="auto" verticalScrollPolicy="auto">
+				<local:columns>
+					<mx:DataGridColumn resizable="false" editable="false" width="16" textAlign="center"> 
+						<mx:headerRenderer>
+							<mx:Component>
+								<mx:Box direction="horizontal" horizontalGap="0">
+									<mx:LinkButton id="storyBtnExpandAll" toolTip="Expand/Contract All" width="16" icon="{outerDocument.expandAllIcon}" automationName="{'expandAll'}"/>
+								</mx:Box>
+							</mx:Component>
+						</mx:headerRenderer>
+						<mx:itemRenderer> 
+							<mx:Component>
+								<mx:Box direction="horizontal" horizontalGap="0">
+									<mx:LinkButton id="storyBtnExpand" width="16" icon="{outerDocument.expandIcon(data)}" click="outerDocument.expand(event);" automationName="{'expand' + data.name}"/>
+								</mx:Box>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="Id" dataField="fullId" sortCompareFunction="ViewHelper.sortId"/>
+					<mx:DataGridColumn id="storyColumnEpic" headerText="Epic" wordWrap="true" dataField="epicName">
+						<mx:itemRenderer> 
+							<mx:Component>
+								<mx:Text text="{data.epicName}" selectable="false" automationName="{'epic' + data.name}"/>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="Name" wordWrap="true" dataField="name">
+						<mx:itemRenderer> 
+							<mx:Component>
+								<mx:Text paddingLeft="{data.indent}" text="{data.name}" selectable="false" toolTip="{data.description}" automationName="{'name' + data.name}"/>
+   							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn id="storyColumnIteration" headerText="Iteration" labelFunction="ViewHelper.formatIteration" sortCompareFunction="ViewHelper.sortIteration"/>
+					<mx:DataGridColumn id="storyColumnTeam" headerText="Team" labelFunction="ViewHelper.formatTeam" sortCompareFunction="ViewHelper.sortTeam"/>
+					<mx:DataGridColumn id="storyColumnIndividual" headerText="Owner" labelFunction="ViewHelper.formatIndividual" sortCompareFunction="ViewHelper.sortIndividual"/>
+					<mx:DataGridColumn headerText="Size" dataField="size" sortCompareFunction="ViewHelper.sortSize"/>
+					<mx:DataGridColumn headerText="Estimate" dataField="estimate" sortCompareFunction="ViewHelper.sortEstimate"/>
+					<mx:DataGridColumn headerText="To Do" dataField="calculatedEffort" sortCompareFunction="ViewHelper.sortCalculatedEffort"/>
+					<mx:DataGridColumn headerText="Actual" dataField="actual" sortCompareFunction="ViewHelper.sortActual"/>
+					<mx:DataGridColumn editable="false" minWidth="115" headerText="Status" sortCompareFunction="ViewHelper.sortStatus">
+						<mx:itemRenderer> 
+							<mx:Component>
+								<mx:Box direction="horizontal" horizontalGap="0" horizontalScrollPolicy="off">
+								<local:FixedComboBox maxHeight="{ViewModelLocator.getInstance().fontSize + 8}" width="100%" editable="false" selectedIndex="{data.statusCode}" change="outerDocument.updateStatus(data, event)" enabled="{outerDocument.factory.currentIndividual.isAtLeastProjectUser}" automationName="{'status' + data.name}">
+									<mx:Script>
+										<![CDATA[
+											import org.planigle.planigle.model.ViewModelLocator;
+										]]>
+									</mx:Script>
+									<mx:Object label="Not Started" value="0" />
+									<mx:Object label="In Progress" value="1" />
+									<mx:Object label="Blocked" value="2" />
+									<mx:Object label="Done" value="3" />
+								</local:FixedComboBox>
+								</mx:Box>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+					<mx:DataGridColumn headerText="Public" dataField="isPublic"/>
+					<mx:DataGridColumn headerText="Rank" dataField="normalizedPriority" sortCompareFunction="ViewHelper.sortPriority"/>
+					<mx:DataGridColumn headerText="User Rank" dataField="modifiedUserPriority" sortCompareFunction="ViewHelper.sortUserPriority"/>
+					<mx:DataGridColumn headerText="Description" dataField="description" wordWrap="true"/>
+					<mx:DataGridColumn headerText="Acceptance Criteria" dataField="acceptanceCriteria" wordWrap="true"/>
+					<mx:DataGridColumn headerText="Release" labelFunction="ViewHelper.formatRelease" sortCompareFunction="ViewHelper.sortRelease"/>
+					<mx:DataGridColumn headerText="Lead Time" dataField="leadTime" sortCompareFunction="ViewHelper.sortLeadTime"/>
+					<mx:DataGridColumn headerText="Cycle Time" dataField="cycleTime" sortCompareFunction="ViewHelper.sortCycleTime"/>
+					<mx:DataGridColumn resizable="false" editable="false" width="95">
+						<mx:itemRenderer>
+							<mx:Component>
+								<mx:Box direction="horizontal" horizontalGap="5" width="100%">
+									<mx:LinkButton width="15" id="storyBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.checkDirty(outerDocument.showUpdate);" visible="{outerDocument.shouldShow(data)}" automationName="{'edit' + data.name}"/>
+									<mx:LinkButton width="15" id="storyBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.shouldShow(data)}" automationName="{'delete' + data.name}"/>
+									<mx:LinkButton width="15" id="storyBtnMoveUp" icon="{parentApplication.imgMoveUp}" toolTip="Move To Top" click="outerDocument.checkDirty(outerDocument.moveToTop);" visible="{outerDocument.shouldShowMove(data)}" automationName="{'moveTop' + data.name}"/>
+									<mx:LinkButton width="15" id="taskBtnAdd" icon="{parentApplication.imgAdd}" toolTip="{'Add ' + (data.stories.length > 0 ? 'Story' : 'Task')}" click="outerDocument.checkDirty(outerDocument.showCreateChild);" visible="{outerDocument.shouldShowStory(data)}" automationName="{'addTask' + data.name}"/>
+									<mx:LinkButton width="15" id="storyBtnSplit" icon="{parentApplication.imgSplit}" toolTip="Split" click="outerDocument.checkDirty(outerDocument.showSplit);" visible="{outerDocument.shouldShowSplit(data)}" automationName="{'split' + data.name}"/>
+								</mx:Box>
+							</mx:Component>
+						</mx:itemRenderer>
+					</mx:DataGridColumn>
+				</local:columns>
+			</local:ColoredBackgroundDataGrid>
+		</mx:VDividedBox>
+	</mx:Panel>
+</local:ViewCanvas>
