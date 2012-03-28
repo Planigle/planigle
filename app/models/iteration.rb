@@ -92,6 +92,32 @@ class Iteration < ActiveRecord::Base
     updated_at ? updated_at.to_s : updated_at
   end
   
+  def average_lead_time
+    story_count = 0
+    total = 0
+    stories.each do |story|
+      lead_time = story.lead_time
+      if lead_time != nil
+        story_count += 1
+        total += lead_time
+      end
+    end
+    story_count == 0 ? nil : ((total / story_count)*100).to_i / 100.to_f
+  end
+  
+  def average_cycle_time
+    story_count = 0
+    total = 0
+    stories.each do |story|
+      cycle_time = story.cycle_time
+      if cycle_time != nil
+        story_count += 1
+        total += cycle_time
+      end
+    end
+    story_count == 0 ? nil : ((total / story_count)*100).to_i / 100.to_f
+  end
+  
 protected
   
   # Ensure finish is greater than start.
