@@ -20,10 +20,15 @@ class Total < ActiveRecord::Base
           else done += effort
         end
       end
-      capture( object.id, team ? team.id : nil, created, in_progress, done, blocked)
+      post_process(object, capture(object.id, team ? team.id : nil, created, in_progress, done, blocked))
     end
   end
   
+  # Allow subclasses to do additional processing
+  def self.post_process(object, total)
+    total
+  end
+
   # Create or update summarized data.
   def self.capture(id, team_id, created, in_progress, done, blocked)
     total = find(:first, :conditions => {id_field => id, :team_id => team_id, :date => Date.today})

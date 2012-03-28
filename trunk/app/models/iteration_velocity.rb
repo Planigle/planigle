@@ -17,6 +17,13 @@ class IterationVelocity < Total
     end
   end
 
+  # Allow subclasses to do additional processing
+  def self.post_process(iteration, total)
+    total.lead_time = iteration.average_lead_time
+    total.cycle_time = iteration.average_cycle_time
+    total
+  end
+
   # This should be overridden in subclasses.
   def self.id_field
     :iteration_id

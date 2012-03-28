@@ -134,6 +134,25 @@ class IterationTest < ActiveSupport::TestCase
   def test_have_records_changed_iteration_changed
     assert_have_records_changed(iterations(:third), iterations(:first))
   end
+  
+  def test_average_lead_time
+    iteration = iterations(:first)
+    story1 = iteration.stories[0]
+    story1.created_at = Time.now - 60*60*24
+    story2 = iteration.stories[1]
+    story2.created_at = Time.now - 2*60*60*24
+    story2.done_at = Time.now
+    assert_equal 1.5, iteration.average_lead_time
+  end
+  
+  def test_average_cycle_time
+    iteration = iterations(:first)
+    story1 = iteration.stories[0]
+    story1.in_progress_at = Time.now - 60*60*24
+    story1.done_at = Time.now
+    story2 = iteration.stories[1]
+    assert_equal 1, iteration.average_cycle_time
+  end
 
 private
   
