@@ -97,7 +97,7 @@ class Iteration < ActiveRecord::Base
     total = 0
     stories.each do |story|
       lead_time = story.lead_time
-      if lead_time != nil
+      if lead_time != nil && story.size != 0
         story_count += 1
         total += lead_time
       end
@@ -110,7 +110,7 @@ class Iteration < ActiveRecord::Base
     total = 0
     stories.each do |story|
       cycle_time = story.cycle_time
-      if cycle_time != nil
+      if cycle_time != nil && story.size != 0
         story_count += 1
         total += cycle_time
       end

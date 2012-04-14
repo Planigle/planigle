@@ -236,7 +236,8 @@ class Story < ActiveRecord::Base
       :iteration_id => next_iteration ? next_iteration.id : nil,
       :individual_id => self.individual_id,
       :description => self.description,
-      :effort => self.effort )
+      :effort => self.effort,
+      :in_progress_at => self.in_progress_at )
   end
 
   def current_conditions
