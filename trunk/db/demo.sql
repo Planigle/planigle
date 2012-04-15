@@ -163,8 +163,8 @@ insert into criteria (story_id, id, description, status_code, priority) values
 (-18, -54, "Confirmation screen lists all items in cart", 0, 40);
 
 insert into iteration_velocities values
-(-10,-10,null,9,9,0,0),
-(-11,-11,null,10,0,0,0);
+(-10,-10,null,9,9,20,12,3),
+(-11,-11,null,10,0,22,12,4);
 
 insert into iteration_totals (id,iteration_id,date,created,in_progress,blocked,done) values
 (-10,-10,curdate()-interval 17 day,33,0,0,0),

@@ -78,8 +78,10 @@ class StoriesController < ResourceController
         @tasks = @old.tasks.select{|task| !task.accepted?}
         @criteria = @old.criteria.select{|criterium| !criterium.accepted?}
         create
-        @record.created_at = @old.created_at
-        @record.save(false)
+        if authorized_for_create?(@record) && @record.errors.empty?
+          @record.created_at = @old.created_at
+          @record.save(false)
+        end
       end
     end
   rescue ActiveRecord::RecordNotFound
