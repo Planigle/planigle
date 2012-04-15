@@ -156,7 +156,7 @@ module RubyAMF
       :actionscript => 'IterationVelocity',
       :ruby => 'IterationVelocity',
       :type => 'active_record',
-      :attributes => ["id", "iteration_id", "team_id", "attempted", "completed", "lead_time", "cycle_time"])
+      :attributes => ["id", "iteration_id", "team_id", "attempted", "completed", "lead_time", "cycle_time", "num_stories"])
 
     ClassMappings.register(
       :actionscript => 'ReleaseTotal',

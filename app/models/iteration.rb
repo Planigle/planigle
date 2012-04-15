@@ -92,30 +92,32 @@ class Iteration < ActiveRecord::Base
     updated_at ? updated_at.to_s : updated_at
   end
   
-  def average_lead_time
-    story_count = 0
+  def lead_time(team)
     total = 0
     stories.each do |story|
-      lead_time = story.lead_time
-      if lead_time != nil && story.effort != 0
-        story_count += 1
-        total += lead_time
+      if story.team == team
+        if story.lead_time != nil && story.status_code == Story::Done && story.effort != 0 && story.effort != nil
+          total += story.lead_time
+        end
       end
     end
-    story_count == 0 ? nil : ((total / story_count)*100).to_i / 100.to_f
+    total
   end
   
-  def average_cycle_time
-    story_count = 0
+  def cycle_time(team)
     total = 0
     stories.each do |story|
-      cycle_time = story.cycle_time
-      if cycle_time != nil && story.effort != 0
-        story_count += 1
-        total += cycle_time
+      if story.team == team
+        if story.cycle_time != nil && story.status_code == Story::Done && story.effort != 0 && story.effort != nil
+          total += story.cycle_time
+        end
       end
     end
-    story_count == 0 ? nil : ((total / story_count)*100).to_i / 100.to_f
+    total
+  end
+  
+  def num_stories(team)
+    stories.select {|story|story.team == team && story.status_code == Story::Done && story.effort != 0 && story.effort != nil}.length
   end
   
 protected

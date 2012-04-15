@@ -18,7 +18,7 @@ module Utilities::CycleTimeObject
   end
   
   def lead_time
-    created_at == nil ? 0 : time_since(created_at)
+    created_at == nil ? nil : time_since(created_at)
   end
   
   def cycle_time
