@@ -1101,7 +1101,6 @@
 				if (!IterationFactory.getInstance().iterationsInRelease(getSelectedRelease()).contains(nextIteration))
 					storyFieldIteration.dataProvider = IterationFactory.getInstance().iterationSelector;
 				storyFieldIteration.selectedItem = nextIteration;
-				storyFieldStatus.selectedIndex = 0; // Set to created
 				storyFieldAcceptanceCriteria.filterDone();
 				storyBtnChange.label = 'Split';
 			}

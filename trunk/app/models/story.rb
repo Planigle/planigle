@@ -230,15 +230,13 @@ class Story < ActiveRecord::Base
   # Create a new story based on this one.
   def split
     next_iteration = self.iteration ? Iteration.find(:first, :conditions => ["start>? and project_id=?", self.iteration.start, self.project_id], :order => 'start') : nil
-    newStory = Story.new(
+    Story.new(
       :name => increment_name(self.name, self.name + ' Part Two'),
       :project_id => self.project_id,
       :iteration_id => next_iteration ? next_iteration.id : nil,
       :individual_id => self.individual_id,
       :description => self.description,
       :effort => self.effort )
-    newStory.in_progress_at = self.in_progress_at
-    newStory
   end
 
   def current_conditions

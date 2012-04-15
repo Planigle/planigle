@@ -201,7 +201,6 @@ class StoryTest < ActiveSupport::TestCase
   # Test splitting a story.
   def test_split
     orig = stories(:first)
-    orig.in_progress_at = Time.now
     story = orig.split
     assert_equal 'test Part Two', story.name
     assert_equal 1, story.project_id
@@ -210,7 +209,6 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal 'description', story.description
     assert_equal 1, story.effort
     assert_equal 0, story.status_code
-    assert_equal orig.in_progress_at, story.in_progress_at
   end
   
   # Test splitting a story where the story ends up in the backlog.
