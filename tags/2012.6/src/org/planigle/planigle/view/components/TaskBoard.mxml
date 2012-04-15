@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Panel xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:local="org.planigle.planigle.view.controls.*" height="100%" y="0" width="100%" x="0" borderThicknessLeft="0" borderThicknessRight="0" headerHeight="0" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+	<mx:Metadata>
+		[Event(name="done", type="flash.events.Event")]
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+		import org.planigle.planigle.model.IterationFactory;
+		import org.planigle.planigle.model.Iteration;
+		import mx.collections.ArrayCollection;
+		import org.planigle.planigle.model.StoryFactory;
+		import org.planigle.planigle.model.Story;
+		import org.planigle.planigle.events.StoryChangedEvent;
+
+		[Bindable]
+		private var _error:String;
+
+		[Bindable]
+		public var stories:ArrayCollection = new ArrayCollection();
+		
+		public function updateStories():void
+		{
+			var conditions:Object = new Object();
+			conditions["iteration_id"]="Current";
+			conditions["team_id"]="MyTeam";
+			StoryFactory.getInstance().clearTimeUpdated();
+			Story.conditions = conditions;
+			new StoryChangedEvent().dispatch();
+		}
+
+		// Return to stories screen.
+		private function showStories(event:Event = null):void
+		{
+			dispatchEvent(new Event("done"));
+		}
+		]]>
+	</mx:Script>
+
+	<mx:Canvas id="taskBoard" x="0" y="0" height="100%" width="100%" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+		<mx:HBox id="btnBox" width="100%" horizontalAlign="left" verticalAlign="middle" paddingTop="5" paddingLeft="5" paddingRight="5">
+			<mx:Text id="boardError" styleName="error" htmlText="{_error}" width="100%"/>
+			<mx:Button label="Return to Stories" click="showStories(event);" id="btnShowStories"/>
+		</mx:HBox>
+		<mx:Canvas y="32" height="100%" width="100%" horizontalScrollPolicy="off" verticalScrollPolicy="auto">
+			<local:TaskBoardDataGrid id="taskGrid" dataProvider="{StoryFactory.getInstance().stories}" width="100%"/>
+		</mx:Canvas>
+	</mx:Canvas>
+</mx:Panel>

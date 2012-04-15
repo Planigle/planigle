@@ -1,0 +1,671 @@
+first:
+  id: 1
+  story_attribute_id: 1
+  individual_id: 2
+  width: 60
+  ordering: 160
+  show: false
+
+second:
+  id: 2
+  story_attribute_id: 2
+  individual_id: 2
+  width: 60
+  ordering: 170
+  show: false
+
+third:
+  id: 3
+  story_attribute_id: 3
+  individual_id: 2
+  width: 60
+  ordering: 180
+  show: false
+
+fourth:
+  id: 4
+  story_attribute_id: 4
+  individual_id: 2
+  width: 60
+  ordering: 160
+  show: false
+
+fifth:
+  id: 5
+  story_attribute_id: 5
+  individual_id: 2
+  width: 60
+  ordering: 190
+  show: true
+  
+sixth:
+  id: 6
+  story_attribute_id: 6
+  individual_id: 2
+  width: 60
+  ordering: 200
+  show: false
+
+std_1_1:
+  id: 7
+  story_attribute_id: 7
+  individual_id: 2
+  width: 115
+  ordering: 10
+  show: true
+
+std_1_2:
+  id: 8
+  story_attribute_id: 8
+  individual_id: 2
+  width: 75
+  ordering: 20
+  show: true
+
+std_1_3:
+  id: 9
+  story_attribute_id: 9
+  individual_id: 2
+  width: 80
+  ordering: 30
+  show: true
+
+std_1_4:
+  id: 10
+  story_attribute_id: 10
+  individual_id: 2
+  width: 80
+  ordering: 40
+  show: true
+
+std_1_5:
+  id: 11
+  story_attribute_id: 11
+  individual_id: 2
+  width: 40
+  ordering: 50
+  show: true
+
+std_1_6:
+  id: 12
+  story_attribute_id: 12
+  individual_id: 2
+  width: 40
+  ordering: 70
+  show: true
+
+std_1_7:
+  id: 13
+  story_attribute_id: 13
+  individual_id: 2
+  width: 100
+  ordering: 90
+  show: true
+
+std_1_8:
+  id: 14
+  story_attribute_id: 14
+  individual_id: 2
+  width: 60
+  ordering: 100
+  show: true
+
+std_1_9:
+  id: 15
+  story_attribute_id: 15
+  individual_id: 2
+  width: 65
+  ordering: 110
+  show: true
+
+std_1_10:
+  id: 16
+  story_attribute_id: 16
+  individual_id: 2
+  width: 65
+  ordering: 120
+  show: true
+
+std_1_11:
+  id: 17
+  story_attribute_id: 17
+  individual_id: 2
+  width: 300
+  ordering: 130
+  show: false
+
+std_1_12:
+  id: 18
+  story_attribute_id: 18
+  individual_id: 2
+  width: 300
+  ordering: 140
+  show: false
+
+std_1_13:
+  id: 19
+  story_attribute_id: 19
+  individual_id: 2
+  width: 135
+  ordering: 150
+  show: false
+
+std_1_14:
+  id: 20
+  story_attribute_id: 33
+  individual_id: 2
+  width: 50
+  ordering: 60
+  show: false
+
+std_1_15:
+  id: 21
+  story_attribute_id: 34
+  individual_id: 2
+  width: 40
+  ordering: 80
+  show: false
+
+first_a:
+  id: 22
+  story_attribute_id: 1
+  individual_id: 4
+  width: 60
+  ordering: 160
+  show: false
+
+second_a:
+  id: 23
+  story_attribute_id: 2
+  individual_id: 4
+  width: 60
+  ordering: 170
+  show: false
+
+third_a:
+  id: 24
+  story_attribute_id: 3
+  individual_id: 4
+  width: 60
+  ordering: 180
+  show: false
+
+fourth_a:
+  id: 25
+  story_attribute_id: 4
+  individual_id: 4
+  width: 60
+  ordering: 160
+  show: false
+
+fifth_a:
+  id: 26
+  story_attribute_id: 5
+  individual_id: 4
+  width: 60
+  ordering: 190
+  show: true
+  
+sixth_a:
+  id: 27
+  story_attribute_id: 6
+  individual_id: 4
+  width: 60
+  ordering: 200
+  show: false
+
+std_1_1_a:
+  id: 28
+  story_attribute_id: 7
+  individual_id: 4
+  width: 115
+  ordering: 10
+  show: true
+
+std_1_2_a:
+  id: 29
+  story_attribute_id: 8
+  individual_id: 4
+  width: 75
+  ordering: 20
+  show: true
+
+std_1_3_a:
+  id: 30
+  story_attribute_id: 9
+  individual_id: 4
+  width: 80
+  ordering: 30
+  show: true
+
+std_1_4_a:
+  id: 31
+  story_attribute_id: 10
+  individual_id: 4
+  width: 80
+  ordering: 40
+  show: true
+
+std_1_5_a:
+  id: 32
+  story_attribute_id: 11
+  individual_id: 4
+  width: 40
+  ordering: 50
+  show: true
+
+std_1_6_a:
+  id: 33
+  story_attribute_id: 12
+  individual_id: 4
+  width: 40
+  ordering: 70
+  show: true
+
+std_1_7_a:
+  id: 34
+  story_attribute_id: 13
+  individual_id: 4
+  width: 100
+  ordering: 90
+  show: true
+
+std_1_8_a:
+  id: 35
+  story_attribute_id: 14
+  individual_id: 4
+  width: 60
+  ordering: 100
+  show: true
+
+std_1_9_a:
+  id: 36
+  story_attribute_id: 15
+  individual_id: 4
+  width: 65
+  ordering: 110
+  show: true
+
+std_1_10_a:
+  id: 37
+  story_attribute_id: 16
+  individual_id: 4
+  width: 65
+  ordering: 120
+  show: true
+
+std_1_11_a:
+  id: 38
+  story_attribute_id: 17
+  individual_id: 4
+  width: 300
+  ordering: 130
+  show: false
+
+std_1_12_a:
+  id: 39
+  story_attribute_id: 18
+  individual_id: 4
+  width: 300
+  ordering: 140
+  show: false
+
+std_1_13_a:
+  id: 40
+  story_attribute_id: 19
+  individual_id: 4
+  width: 135
+  ordering: 150
+  show: false
+
+std_1_14_a:
+  id: 41
+  story_attribute_id: 33
+  individual_id: 4
+  width: 50
+  ordering: 60
+  show: false
+
+std_1_15_a:
+  id: 42
+  story_attribute_id: 34
+  individual_id: 4
+  width: 40
+  ordering: 80
+  show: false
+
+first_b:
+  id: 43
+  story_attribute_id: 1
+  individual_id: 5
+  width: 60
+  ordering: 160
+  show: false
+
+second_b:
+  id: 44
+  story_attribute_id: 2
+  individual_id: 5
+  width: 60
+  ordering: 170
+  show: false
+
+third_b:
+  id: 45
+  story_attribute_id: 3
+  individual_id: 5
+  width: 60
+  ordering: 180
+  show: false
+
+fourth_b:
+  id: 46
+  story_attribute_id: 4
+  individual_id: 5
+  width: 60
+  ordering: 160
+  show: false
+
+fifth_b:
+  id: 47
+  story_attribute_id: 5
+  individual_id: 5
+  width: 60
+  ordering: 190
+  show: true
+  
+sixth_b:
+  id: 48
+  story_attribute_id: 6
+  individual_id: 5
+  width: 60
+  ordering: 200
+  show: false
+
+std_1_1_b:
+  id: 49
+  story_attribute_id: 7
+  individual_id: 5
+  width: 115
+  ordering: 10
+  show: true
+
+std_1_2_b:
+  id: 50
+  story_attribute_id: 8
+  individual_id: 5
+  width: 75
+  ordering: 20
+  show: true
+
+std_1_3_b:
+  id: 51
+  story_attribute_id: 9
+  individual_id: 5
+  width: 80
+  ordering: 30
+  show: true
+
+std_1_4_b:
+  id: 52
+  story_attribute_id: 10
+  individual_id: 5
+  width: 80
+  ordering: 40
+  show: true
+
+std_1_5_b:
+  id: 53
+  story_attribute_id: 11
+  individual_id: 5
+  width: 40
+  ordering: 50
+  show: true
+
+std_1_6_b:
+  id: 54
+  story_attribute_id: 12
+  individual_id: 5
+  width: 40
+  ordering: 70
+  show: true
+
+std_1_7_b:
+  id: 55
+  story_attribute_id: 13
+  individual_id: 5
+  width: 100
+  ordering: 90
+  show: true
+
+std_1_8_b:
+  id: 56
+  story_attribute_id: 14
+  individual_id: 5
+  width: 60
+  ordering: 100
+  show: true
+
+std_1_9_b:
+  id: 57
+  story_attribute_id: 15
+  individual_id: 5
+  width: 65
+  ordering: 110
+  show: true
+
+std_1_10_b:
+  id: 58
+  story_attribute_id: 16
+  individual_id: 5
+  width: 65
+  ordering: 120
+  show: true
+
+std_1_11_b:
+  id: 59
+  story_attribute_id: 17
+  individual_id: 5
+  width: 300
+  ordering: 130
+  show: false
+
+std_1_12_b:
+  id: 60
+  story_attribute_id: 18
+  individual_id: 5
+  width: 300
+  ordering: 140
+  show: false
+
+std_1_13_b:
+  id: 61
+  story_attribute_id: 19
+  individual_id: 5
+  width: 135
+  ordering: 150
+  show: false
+
+std_1_14_b:
+  id: 62
+  story_attribute_id: 33
+  individual_id: 5
+  width: 50
+  ordering: 60
+  show: false
+
+std_1_15_b:
+  id: 63
+  story_attribute_id: 34
+  individual_id: 5
+  width: 40
+  ordering: 80
+  show: false
+
+first_c:
+  id: 64
+  story_attribute_id: 1
+  individual_id: 6
+  width: 60
+  ordering: 160
+  show: false
+
+second_c:
+  id: 65
+  story_attribute_id: 2
+  individual_id: 6
+  width: 60
+  ordering: 170
+  show: false
+
+third_c:
+  id: 66
+  story_attribute_id: 3
+  individual_id: 6
+  width: 60
+  ordering: 180
+  show: false
+
+fourth_c:
+  id: 67
+  story_attribute_id: 4
+  individual_id: 6
+  width: 60
+  ordering: 160
+  show: false
+
+fifth_c:
+  id: 68
+  story_attribute_id: 5
+  individual_id: 6
+  width: 60
+  ordering: 190
+  show: true
+  
+sixth_c:
+  id: 69
+  story_attribute_id: 6
+  individual_id: 6
+  width: 60
+  ordering: 200
+  show: false
+
+std_1_1_c:
+  id: 70
+  story_attribute_id: 7
+  individual_id: 6
+  width: 115
+  ordering: 10
+  show: true
+
+std_1_2_c:
+  id: 71
+  story_attribute_id: 8
+  individual_id: 6
+  width: 75
+  ordering: 20
+  show: true
+
+std_1_3_c:
+  id: 72
+  story_attribute_id: 9
+  individual_id: 6
+  width: 80
+  ordering: 30
+  show: true
+
+std_1_4_c:
+  id: 73
+  story_attribute_id: 10
+  individual_id: 6
+  width: 80
+  ordering: 40
+  show: true
+
+std_1_5_c:
+  id: 74
+  story_attribute_id: 11
+  individual_id: 6
+  width: 40
+  ordering: 50
+  show: true
+
+std_1_6_c:
+  id: 75
+  story_attribute_id: 12
+  individual_id: 6
+  width: 40
+  ordering: 70
+  show: true
+
+std_1_7_c:
+  id: 76
+  story_attribute_id: 13
+  individual_id: 6
+  width: 100
+  ordering: 90
+  show: true
+
+std_1_8_c:
+  id: 77
+  story_attribute_id: 14
+  individual_id: 6
+  width: 60
+  ordering: 100
+  show: true
+
+std_1_9_c:
+  id: 78
+  story_attribute_id: 15
+  individual_id: 6
+  width: 65
+  ordering: 110
+  show: true
+
+std_1_10_c:
+  id: 79
+  story_attribute_id: 16
+  individual_id: 6
+  width: 65
+  ordering: 120
+  show: true
+
+std_1_11_c:
+  id: 80
+  story_attribute_id: 17
+  individual_id: 6
+  width: 300
+  ordering: 130
+  show: false
+
+std_1_12_c:
+  id: 81
+  story_attribute_id: 18
+  individual_id: 6
+  width: 300
+  ordering: 140
+  show: false
+
+std_1_13_c:
+  id: 82
+  story_attribute_id: 19
+  individual_id: 6
+  width: 135
+  ordering: 150
+  show: false
+
+std_1_14_c:
+  id: 83
+  story_attribute_id: 33
+  individual_id: 6
+  width: 50
+  ordering: 60
+  show: false
+
+std_1_15_c:
+  id: 84
+  story_attribute_id: 34
+  individual_id: 6
+  width: 45
+  ordering: 85
+  show: true

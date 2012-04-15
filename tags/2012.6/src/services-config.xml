@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<services-config>
+	<services>
+		<service id="rubyamf-flashremoting-service" class="flex.messaging.services.RemotingService" messageTypes="flex.messaging.messages.RemotingMessage">
+			<destination id="rubyamf">
+				<channels>
+					<channel ref="rubyamfhttps"/>
+					<channel ref="rubyamfhttp"/>
+				</channels>
+				<properties>
+					<source>*</source>
+				</properties>
+			</destination>
+		</service>
+	</services>
+	<channels>
+		<channel-definition id="rubyamfhttps" class="mx.messaging.channels.SecureAMFChannel">
+			<endpoint uri="rubyamf_gateway" class="flex.messaging.endpoints.SecureAMFEndpoint"/>
+		</channel-definition>
+		<channel-definition id="rubyamfhttp" class="mx.messaging.channels.AMFChannel">
+			<endpoint uri="rubyamf_gateway" class="flex.messaging.endpoints.AMFEndpoint"/>
+		</channel-definition>
+	</channels>
+</services-config>
