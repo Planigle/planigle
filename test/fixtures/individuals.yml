@@ -60,6 +60,7 @@ user:
   notification_type: 3
   phone_number: '5555555555'
   refresh_interval: 360000
+  selected_project_id: 1
 
 readonly:
   id: 5
