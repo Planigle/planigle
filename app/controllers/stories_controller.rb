@@ -80,6 +80,7 @@ class StoriesController < ResourceController
         create
         if authorized_for_create?(@record) && @record.errors.empty?
           @record.created_at = @old.created_at
+          @record.in_progress_at = @old.in_progress_at
           @record.save(false)
         end
       end
