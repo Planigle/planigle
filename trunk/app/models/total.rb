@@ -20,12 +20,12 @@ class Total < ActiveRecord::Base
           else done += effort
         end
       end
-      post_process(object, capture(object.id, team ? team.id : nil, created, in_progress, done, blocked))
+      post_process(object, team, capture(object.id, team ? team.id : nil, created, in_progress, done, blocked))
     end
   end
   
   # Allow subclasses to do additional processing
-  def self.post_process(object, total)
+  def self.post_process(object, team, total)
     total
   end
 

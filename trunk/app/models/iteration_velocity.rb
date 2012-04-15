@@ -18,9 +18,10 @@ class IterationVelocity < Total
   end
 
   # Allow subclasses to do additional processing
-  def self.post_process(iteration, total)
-    total.lead_time = iteration.average_lead_time
-    total.cycle_time = iteration.average_cycle_time
+  def self.post_process(iteration, team, total)
+    total.lead_time = iteration.average_lead_time(team)
+    total.cycle_time = iteration.average_cycle_time(team)
+    total.num_stories = iteration.num_stories(team)
     total
   end
 
