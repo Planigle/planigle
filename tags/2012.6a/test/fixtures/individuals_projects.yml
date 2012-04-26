@@ -1,0 +1,43 @@
+aaron:
+  individual_id: 2
+  project_id: 1
+
+ted:
+  individual_id: 3
+  project_id: 1
+
+user:
+  individual_id: 4
+  project_id: 1
+
+user_other_project:
+  individual_id: 4
+  project_id: 3
+
+readonly:
+  individual_id: 5
+  project_id: 1
+
+admin2:
+  individual_id: 6
+  project_id: 1
+
+user2:
+  individual_id: 7
+  project_id: 2
+  
+project_admin2:
+  individual_id: 8
+  project_id: 2
+
+user3:
+  individual_id: 9
+  project_id: 3
+
+ro2:
+  individual_id: 10
+  project_id: 4
+  
+user4:
+  individual_id: 11
+  project_id: 1

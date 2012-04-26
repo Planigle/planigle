@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:mx="http://www.adobe.com/2006/mxml" initialize="onInitialize()" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+	
+	<mx:Script>
+		<![CDATA[			
+			import mx.managers.CursorManager;
+			import org.planigle.planigle.model.TabModelLocator;
+
+			private static var instance:TabModelLocator = TabModelLocator.getInstance(); // Ensure a single instance is used by all modules.
+		
+			private function onInitialize():void
+			{
+				coreLoader.loadModule();
+			}
+		]]>
+	</mx:Script>
+	<mx:ModuleLoader id="coreLoader" url="modules/Core.swf" height="100%" width="100%" loading="CursorManager.setBusyCursor()" ready="CursorManager.removeBusyCursor();"/>
+</mx:VBox>

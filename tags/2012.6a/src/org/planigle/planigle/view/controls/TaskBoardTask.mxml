@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Box xmlns:mx="http://www.adobe.com/2006/mxml" direction="vertical" width="100%" borderStyle="outset" borderColor="{data.isBlocked ? 0xff0000 : 0x777777}" horizontalScrollPolicy="off" verticalScrollPolicy="off">
+	<mx:Text width="100%" selectable="false" text="{data.boardLabel}" toolTip="{data.boardDescription}" />
+</mx:Box>
