@@ -98,6 +98,6 @@ protected
   end
   
   def version
-    "2012.6"
+    "2012.6a"
   end
 end

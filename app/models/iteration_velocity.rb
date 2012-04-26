@@ -22,6 +22,7 @@ class IterationVelocity < Total
     total.lead_time = iteration.lead_time(team)
     total.cycle_time = iteration.cycle_time(team)
     total.num_stories = iteration.num_stories(team)
+    total.save(false)
     total
   end
 
