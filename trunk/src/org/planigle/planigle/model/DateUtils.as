@@ -83,5 +83,12 @@ package org.planigle.planigle.model
 			date2 = toDate(date2);
 			return date1 > date2 || equals(date1, date2);
 		}
+		
+		public static const millisecondsPerDay:int = 1000 * 60 * 60 * 24; 
+		
+		// Answer the difference between two dates in days.
+		public static function getDifference(date1:Date, date2:Date):Number {
+			return Math.ceil((toDate(date2).getTime() - toDate(date1).getTime()) / millisecondsPerDay);
+		}
 	}
 }
