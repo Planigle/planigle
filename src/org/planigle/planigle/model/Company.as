@@ -64,6 +64,11 @@ package org.planigle.planigle.model
 		{
 			return premiumExpiry > new Date();
 		}
+		
+		public function get daysUntilExpiration():int
+		{
+			return DateUtils.getDifference(new Date(),premiumExpiry);
+		}
 
 		// Answer whether this project has premium features.
 		public function set isPremium(isPremium:Boolean):void

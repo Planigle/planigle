@@ -5,6 +5,8 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import org.planigle.planigle.model.Project;
+			import org.planigle.planigle.model.Company;
 			import org.planigle.planigle.events.RefreshEvent;
 			import mx.collections.ArrayCollection;
 			import com.adobe.viewsource.ViewSource;
@@ -98,19 +100,15 @@
 				return IndividualFactory.current().refreshInterval > 0; // If 0 or negative, turn off
 			}
 
-			private var watcher:ChangeWatcher;
 			private var watcher2:ChangeWatcher;
 			private var watcher3:ChangeWatcher;
 			
 			private function watchIndividual():void
 			{
-				if (watcher)
-					watcher.unwatch();
 				if (watcher2)
 					watcher2.unwatch();
 				if (watcher3)
 					watcher3.unwatch();
-				watcher = factory.currentIndividual && factory.currentIndividual.selectedProject ? ChangeWatcher.watch( factory.currentIndividual.selectedProject, "premiumExpiry", resetState ) : null;
 				watcher2 = factory.currentIndividual ? ChangeWatcher.watch( factory.currentIndividual, "allProjects", updateProjects ) : null;
 				watcher3 = factory.currentIndividual ? ChangeWatcher.watch( factory.currentIndividual, "refreshInterval", resetTimer ) : null;
 			}
@@ -136,9 +134,6 @@
 			// The project has changed.
 			private function changeProject(event:Event = null):void
 			{
-				if (watcher)
-					watcher.unwatch();
-				watcher = factory.currentIndividual.selectedProject ? ChangeWatcher.watch( factory.currentIndividual.selectedProject, "premiumExpiry", resetState ) : null;
 				resetState(event);
 				cancelCommands();
 				Story.resetConditions();
@@ -194,6 +189,17 @@
 			{
 				if (!factory.currentIndividual.isAdminOnly())
 					factory.currentIndividual.isPremium ? showPremium() : hidePremium();
+				expiringMessage.label = "";
+				if (factory.currentIndividual.isPremium)
+				{
+					var project:Project = factory.currentIndividual.selectedProject;
+					if (project != null)
+					{
+						var daysUntilExpiration:int = project.company.daysUntilExpiration;
+						if(daysUntilExpiration <= 7)
+							expiringMessage.label = "Premium expires in " + daysUntilExpiration + " days";
+						}
+				}
 			}
 					
 			// Refresh any cached data.
@@ -322,6 +328,7 @@
 		<mx:TabBar id="mainNavigation" dataProvider="{mainViewStack}" itemClick="selectTab(event)" fontSize="{ViewModelLocator.getInstance().fontSize+3}" height="{ViewModelLocator.getInstance().fontSize+20}">
 		</mx:TabBar>
 		<mx:HBox horizontalAlign="right" width="100%">
+			<mx:LinkButton label="" styleName="ToolbarLink" id="expiringMessage" click="new URLEvent('http://www.planigle.com/buy').dispatch()" fontSize="{ViewModelLocator.getInstance().fontSize+3}" color="red"/>
 			<mx:ComboBox id="selectedProject" fillColors="[0xffffff, 0xffffff]" fillAlphas="[1,1]" change="selectProject()" rowCount="20" />
 			<mx:LinkButton icon="{parentApplication.imgBug}" toolTip="Show Errors" visible="{ErrorHandler.getInstance().hasErrors}" click="{viewErrors()}"/>
 			<mx:LinkButton label="Refresh" styleName="ToolbarLink" id="refreshButton" click="{refresh()}" fontSize="{ViewModelLocator.getInstance().fontSize+3}"/>

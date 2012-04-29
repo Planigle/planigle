@@ -6,6 +6,7 @@
 	
 	<mx:Script>
 		<![CDATA[
+			import mx.formatters.DateFormatter;
 		import flash.external.ExternalInterface;
 		import mx.rpc.events.ResultEvent;
 		import mx.core.Container;
@@ -136,19 +137,35 @@
 			projectFormSurveyUrl.height = -5;
 			projectFormTrackActuals.visible = false;
 			projectFormTrackActuals.height = -5;
+			projectFormPremiumExpiry.visible = true;
+			projectFormPremiumExpiry.height = NaN;
+			projectFormPremiumLimit.visible = true;
+			projectFormPremiumLimit.height = NaN;
 			if (IndividualFactory.current().isAdmin())
 			{
-				projectFormPremiumExpiry.visible = true;
-				projectFormPremiumExpiry.height = NaN;
-				projectFormPremiumLimit.visible = true;
-				projectFormPremiumLimit.height = NaN;
+				projectFormPremiumExpiry.required = true;
+				projectFieldPremiumExpiry.visible = true;
+				projectFieldPremiumExpiry.height = NaN;
+				projectLabelPremiumExpiry.visible = false;
+				projectLabelPremiumExpiry.height = -5;
+				projectFormPremiumLimit.required = true;
+				projectFieldPremiumLimit.visible = true;
+				projectFieldPremiumLimit.height = NaN;
+				projectLabelPremiumLimit.visible = false;
+				projectLabelPremiumLimit.height = -5;
 			}
 			else
 			{
-				projectFormPremiumExpiry.visible = false;
-				projectFormPremiumExpiry.height = -5;
-				projectFormPremiumLimit.visible = false;
-				projectFormPremiumLimit.height = -5;
+				projectFormPremiumExpiry.required = false;
+				projectFieldPremiumExpiry.visible = false;
+				projectFieldPremiumExpiry.height = -5;
+				projectLabelPremiumExpiry.visible = true;
+				projectLabelPremiumExpiry.height = NaN;
+				projectFormPremiumLimit.required = false;
+				projectFieldPremiumLimit.visible = false;
+				projectFieldPremiumLimit.height = -5;
+				projectLabelPremiumLimit.visible = true;
+				projectLabelPremiumLimit.height = NaN;
 			}
 		}
 
@@ -242,7 +259,11 @@
 				if (currentItem.isCompany()) {
 					prepareForCompany();
 					projectFieldPremiumExpiry.selectedDate = currentItem.premiumExpiry;
+					var formatter:DateFormatter = new DateFormatter();
+					formatter.formatString = "MMMM D, YYYY";
+					projectLabelPremiumExpiry.text = formatter.format(currentItem.premiumExpiry);
 					projectFieldPremiumLimit.text = currentItem.premiumLimit;
+					projectLabelPremiumLimit.text = currentItem.premiumLimit;
 				}
 				else if (currentItem.isTeam())
 				{
@@ -506,9 +527,11 @@
 									</mx:FormItem>
 									<mx:FormItem id='projectFormPremiumExpiry' label='Premium Expiry' required="true">
 										<mx:DateField id='projectFieldPremiumExpiry' editable="true" showToday="true" width="100"/>
+										<mx:Label id='projectLabelPremiumExpiry' />
 									</mx:FormItem>
 									<mx:FormItem id='projectFormPremiumLimit' label='Premium Limit (# Users)' required="true">
 										<mx:TextInput id='projectFieldPremiumLimit' restrict="0-9" text='' width="100"/>
+										<mx:Label id='projectLabelPremiumLimit' />
 									</mx:FormItem>
 								</mx:Form>
 							</mx:VBox>
