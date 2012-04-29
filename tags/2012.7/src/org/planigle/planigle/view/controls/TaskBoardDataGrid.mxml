@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<local:AutoSizingAdvancedDataGrid xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:local="org.planigle.planigle.view.controls.*" variableRowHeight="true" alternatingItemColors="[white]" horizontalGridLines="true" horizontalGridLineColor="#a9a9a9" verticalGridLines="true" horizontalScrollPolicy="off">
+	<local:columns>
+		<mx:AdvancedDataGridColumn headerText="Story" wordWrap="true" dataField="name" sortable="false">
+			<mx:itemRenderer> 
+				<mx:Component>
+					<mx:Text text="{data.name}" selectable="false" toolTip="{data.description}"/>
+				</mx:Component>
+			</mx:itemRenderer>
+		</mx:AdvancedDataGridColumn>
+		<mx:AdvancedDataGridColumn headerText="Not Started" dataField="notStartedTasks" sortable="false">
+			<mx:itemRenderer>
+				<mx:Component>
+					<local:TaskBoardList statusCode="0" dataProvider="{data.notStartedTasks}" rowCount="{data.notStartedTasks.length}"/>
+				</mx:Component>
+			</mx:itemRenderer>
+		</mx:AdvancedDataGridColumn>
+		<mx:AdvancedDataGridColumn headerText="In Progress" dataField="inProgressTasks" sortable="false">
+			<mx:itemRenderer>
+				<mx:Component>
+					<local:TaskBoardList statusCode="1" dataProvider="{data.inProgressTasks}" rowCount="{data.inProgressTasks.length}"/>
+				</mx:Component>
+			</mx:itemRenderer>
+		</mx:AdvancedDataGridColumn>
+		<mx:AdvancedDataGridColumn headerText="Done" dataField="doneTasks" sortable="false">
+			<mx:itemRenderer>
+				<mx:Component>
+					<local:TaskBoardList statusCode="3" dataProvider="{data.doneTasks}" rowCount="{data.doneTasks.length}"/>
+				</mx:Component>
+			</mx:itemRenderer>
+		</mx:AdvancedDataGridColumn>
+	</local:columns>
+</local:AutoSizingAdvancedDataGrid>
