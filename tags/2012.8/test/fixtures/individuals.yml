@@ -1,0 +1,172 @@
+<% require 'digest/sha1' %>
+quentin:
+  id: 1
+  role: 0
+  login: quentin
+  first_name: quentin
+  last_name: tarantino
+  email: quentin@example.com
+  salt: salt
+  crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
+  activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9b 
+  activated_at: <%= 5.days.ago.to_s :db %> 
+  notification_type: 3
+  phone_number: '5555555555'
+  refresh_interval: 360000
+
+aaron:
+  id: 2
+  role: 1
+  company_id: 1
+  team_id: 1
+  login: aaron
+  first_name: aaron
+  last_name: hank
+  email: aaron@example.com
+  salt: salt
+  crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
+  activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9a 
+  activated_at: <%= 5.days.ago.to_s :db %> 
+  notification_type: 3
+  phone_number: '5555555555'
+  refresh_interval: 360000
+
+ted:
+  id: 3
+  role: 1
+  company_id: 1
+  team_id: 2
+  login: ted
+  first_name: ted
+  last_name: williams
+  email: ted@example.com
+  salt: salt
+  crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
+  activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9c 
+  refresh_interval: 360000
+
+user:
+  id: 4
+  role: 2
+  company_id: 1
+  login: user
+  first_name: user
+  last_name: williams
+  email: user@example.com
+  salt: salt
+  crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
+  activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9c 
+  activated_at: <%= 5.days.ago.to_s :db %> 
+  notification_type: 3
+  phone_number: '5555555555'
+  refresh_interval: 360000
+  selected_project_id: 1
+
+readonly:
+  id: 5
+  role: 3
+  company_id: 1
+  login: readonly
+  first_name: readonly
+  last_name: williams
+  email: readonly@example.com
+  salt: salt
+  crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
+  activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9c 
+  activated_at: <%= 5.days.ago.to_s :db %> 
+  refresh_interval: 360000
+
+admin2:
+  id: 6
+  role: 0
+  company_id: 1
+  selected_project_id: 1
+  login: admin2
+  first_name: admin2
+  last_name: williams
+  email: admin2@example.com
+  salt: salt
+  crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
+  activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9c 
+  activated_at: <%= 5.days.ago.to_s :db %> 
+  refresh_interval: 360000
+
+user2:
+  id: 7
+  role: 2
+  company_id: 2
+  login: user2
+  first_name: user
+  last_name: williams
+  email: user2@example.com
+  salt: salt
+  crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
+  activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9c 
+  activated_at: <%= 5.days.ago.to_s :db %> 
+  notification_type: 3
+  phone_number: '5555555555'
+  refresh_interval: 360000
+  
+project_admin2:
+  id: 8
+  role: 1
+  company_id: 2
+  login: pa2
+  first_name: project
+  last_name: admin
+  email: pa@example.com
+  salt: salt
+  crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
+  activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9c 
+  activated_at: <%= 5.days.ago.to_s :db %> 
+  notification_type: 3
+  phone_number: '5555555555'
+  refresh_interval: 360000
+
+user3:
+  id: 9
+  role: 2
+  company_id: 1
+  login: user3
+  first_name: user3
+  last_name: williams
+  email: user3@example.com
+  salt: salt
+  crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
+  activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9c 
+  activated_at: <%= 5.days.ago.to_s :db %> 
+  notification_type: 3
+  phone_number: '5555555555'
+  refresh_interval: 360000
+
+ro2:
+  id: 10
+  role: 3
+  company_id: 2
+  login: ro2
+  first_name: ro2
+  last_name: williams
+  email: ro2@example.com
+  salt: salt
+  crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
+  activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9c 
+  activated_at: <%= 5.days.ago.to_s :db %> 
+  notification_type: 3
+  phone_number: '5555555555'
+  refresh_interval: 360000
+
+user4:
+  id: 11
+  role: 2
+  company_id: 1
+  login: user4
+  first_name: user4
+  last_name: williams
+  email: user4@example.com
+  salt: salt
+  crypted_password: <%= Digest::SHA1.hexdigest("--salt--testit--") %>
+  activation_code: 8f24789ae988411ccf33ab0c30fe9106fab32e9c 
+  activated_at: <%= 5.days.ago.to_s :db %> 
+  notification_type: 3
+  phone_number: '5555555555'
+  refresh_interval: 360000

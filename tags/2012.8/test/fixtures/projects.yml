@@ -1,0 +1,31 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+first:
+  id: 1
+  company_id: 1
+  name: Test
+  survey_key: 1
+  survey_mode: 1
+  track_actuals: true
+
+second:
+  id: 2
+  company_id: 2
+  name: Test2
+  survey_key: 2
+  survey_mode: 0
+  track_actuals: false
+
+third:
+  id: 3
+  company_id: 1
+  name: Test3
+  survey_key: 3
+  survey_mode: 1
+
+fourth:
+  id: 4
+  company_id: 2
+  name: Test4
+  survey_key: 4
+  survey_mode: 0
