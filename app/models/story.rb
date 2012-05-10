@@ -57,6 +57,9 @@ class Story < ActiveRecord::Base
       get_records(current_user, conditions).each do |story|
         story.current_conditions = conditions
         story.export(csv)
+        story.stories.each do |child|
+          child.export(csv)
+        end
       end
     end
   end
@@ -245,6 +248,7 @@ class Story < ActiveRecord::Base
 
   def current_conditions= conditions
     @current_conditions = conditions
+    stories.each {|child| child.current_conditions=conditions}
   end
   
   # Override to_xml to include tasks.
