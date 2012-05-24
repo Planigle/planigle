@@ -226,8 +226,7 @@ class Individual < ActiveRecord::Base
     case current_user.role
       when Individual::Admin then true
       when Individual::ProjectAdmin then (current_user.project_id == project_id || (current_user.is_premium && current_user.company_id == company_id)) && role != Individual::Admin
-      when Individual::ProjectUser then current_user.id == id
-      else false
+      else current_user.id == id
     end
   end
 
