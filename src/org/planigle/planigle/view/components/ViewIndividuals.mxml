@@ -374,7 +374,7 @@
 		// Answer whether to show the edit button
 		public function showEdit( data:Object ):Boolean
 		{
-			return factory.currentIndividual.isAtLeastProjectAdmin() || (!factory.currentIndividual.isReadOnly() && data == factory.currentIndividual);
+			return factory.currentIndividual.isAtLeastProjectAdmin() || data == factory.currentIndividual;
 		}
 		
 		// Show the history for the current object.
@@ -553,7 +553,7 @@
 			<mx:Text id="individualError" styleName="error" htmlText="{_error}" width="100%"/>
 			<mx:Button width="25" icon="{parentApplication.imgAdd}" toolTip="Create" id="individualBtnCreate" styleName="individualBtnCreate" click="showCreate(event);" visible="{factory.currentIndividual.isAtLeastProjectAdmin()}"/>
 		</mx:HBox>
-		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="individualResourceGrid" dataProvider="{individuals}" rowCount="{individuals.length}" height="100%" width="100%" doubleClickEnabled="{!factory.currentIndividual.isReadOnly()}" doubleClick="checkDirty(showUpdate)" horizontalScrollPolicy="auto" verticalScrollPolicy="auto">
+		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="individualResourceGrid" dataProvider="{individuals}" rowCount="{individuals.length}" height="100%" width="100%" doubleClickEnabled="true" doubleClick="checkDirty(showUpdate)" horizontalScrollPolicy="auto" verticalScrollPolicy="auto">
 				<mx:columns>
 				<mx:DataGridColumn width="105" headerText="Company" labelFunction="ViewHelper.formatCompany" sortCompareFunction="ViewHelper.sortCompany" id="columnCompany"/>
 				<mx:DataGridColumn width="105" headerText="Projects" labelFunction="ViewHelper.formatProject" sortCompareFunction="ViewHelper.sortProject" id="columnProject"/>
