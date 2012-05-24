@@ -1,0 +1,581 @@
+<?xml version="1.0" encoding="utf-8"?>
+<local:ViewCanvas xmlns:mx="http://www.adobe.com/2006/mxml" xmlns:local="org.planigle.planigle.view.controls.*" height="100%" y="0" width="100%" x="0" label="Individuals" creationComplete="created(event)">
+	<mx:Script>
+		<![CDATA[
+		import mx.collections.SortField;
+		import mx.collections.Sort;
+		import org.planigle.planigle.model.Team;
+		import mx.rpc.events.ResultEvent;
+		import mx.collections.ArrayCollection;
+		import mx.controls.Alert;
+		import mx.core.Container;
+		import mx.events.CloseEvent;
+		import mx.binding.utils.ChangeWatcher;
+		import org.planigle.planigle.model.TabModelLocator;
+		import org.planigle.planigle.model.CompanyFactory;
+		import org.planigle.planigle.model.Company;
+		import org.planigle.planigle.model.Project;
+		import org.planigle.planigle.model.IndividualFactory;
+		import org.planigle.planigle.model.Individual;
+		import org.planigle.planigle.view.ChangesTab;
+		import org.planigle.planigle.view.ViewHelper;
+		import org.planigle.planigle.events.AuditChangedEvent;
+		import org.planigle.planigle.events.IndividualChangedEvent;
+
+		[Bindable]
+		public var group:Object;
+		
+		[Bindable]
+		private var _error:String;
+
+		[Bindable]
+		private var tabModelLocator:TabModelLocator = TabModelLocator.getInstance();
+
+		[Bindable]
+		public var individuals:ArrayCollection = new ArrayCollection();
+
+		[Bindable]
+		public var factory:IndividualFactory = IndividualFactory.getInstance();
+
+		// Set up event listeners.  Called when the canvas has been created.
+		private function created(event:Event):void
+		{
+			ChangeWatcher.watch( factory, "currentIndividual", resetState );
+			ChangeWatcher.watch( IndividualFactory.getInstance(), "individuals", setIndividuals );			
+			ChangeWatcher.watch( this, "group", setIndividuals );			
+			resetState(event); // This is to catch it the first time (The event has already been sent).
+			setIndividuals(event);
+		}
+		
+		// Update the error message.
+		private function setErrorMessage(string:String):void {individualError.setStyle("color","Red"); _error = string}
+		private function setSuccessMessage(string:String):void {individualError.setStyle("color","Green"); _error = string}
+		private function clearErrorMessage():void {_error = ""}
+
+		// Set the individuals to a copy (so that changes here won't affect elsewhere).
+		private function setIndividuals(event:Event):void
+		{
+			var newIndividuals:ArrayCollection = new ArrayCollection();
+			for each (var individual:Individual in IndividualFactory.getInstance().individuals)
+			{
+				if (!group || group.containsIndividual(individual))
+					newIndividuals.addItem(individual);
+			}
+			individuals = newIndividuals;
+
+			columnCompany.visible = IndividualFactory.current().isAdmin() && !group;
+
+			var projectsExist:Boolean = false;
+			var teamsExist:Boolean = false;
+			for each (var company:Company in CompanyFactory.getInstance().companies)
+			{
+				if (company.hasProjects())
+					projectsExist = true;
+				if (company.hasTeams())
+					teamsExist = true;
+			}
+			columnProject.visible = (factory.currentIndividual.isAdmin() || factory.currentIndividual.isPremium) && (!group || (group.isCompany() && group.hasProjects()));
+			columnTeam.visible = teamsExist && (!group || (!group.isTeam() && group.hasTeams()));
+		}
+		
+		// Reset my state to how it was initially.
+		public function resetState(event:Event):void
+		{
+			currentItem = null;
+			clearErrorMessage();
+			currentState = '';
+			if (IndividualFactory.current())
+			{
+				var show:Boolean = factory.currentIndividual.isAdmin();
+				individualFormCompany.visible = show;
+				individualFormCompany.maxHeight = show ? NaN : -5;
+
+				show = factory.currentIndividual.isAdmin() || (factory.currentIndividual.isAtLeastProjectAdmin() && factory.currentIndividual.isPremium);
+				individualFormProject.visible = show;
+				individualFormProject.maxHeight = show ? 69 : -5;
+
+				var collect:ArrayCollection = new ArrayCollection();
+				if (factory.currentIndividual.isAdmin())
+					collect.addItem({label:"Admin", value:0});
+				collect.addItem({label:"Project Admin", value:1});
+				collect.addItem({label:"Project User", value:2});
+				collect.addItem({label:"Read Only User", value:3});
+				individualFieldRole.dataProvider = collect;
+			}
+			individualBtnChange.label = 'Update'
+		}
+
+		private function getInitialValues(shouldSet:Boolean = false):Object
+		{
+			var values:Object = new Object();
+
+			if (group)
+				values["company"] = group.isCompany() ? group : group.company;
+			else if (factory.currentIndividual.companyId)
+				values["company"] = factory.currentIndividual.company;
+			else
+				values["company"] = individualFieldCompany.dataProvider.getItemAt(individualFieldCompany.dataProvider.length - 1);
+
+			if (shouldSet)
+			{
+				individualFieldCompany.selectedItem = values["company"];
+				updateProject();
+			}
+			if (group)
+				values["project"] = group.isProject() ? group : (group.isTeam() ? group.project : group.projectSelector[0]);
+			else if (factory.currentIndividual.selectedProject)
+				values["project"] = factory.currentIndividual.selectedProject;
+			else
+				values["project"] = individualFieldProject.dataProvider.getItemAt(individualFieldProject.dataProvider.length - 1);
+
+			if (shouldSet)
+			{
+				individualFieldProject.selectedItem = values["project"];
+				updateTeam();
+			}
+			if (group)
+				values["team"] = group.isTeam() ? group : availableTeams.getItemAt(availableTeams.length - 1);
+			else if (factory.currentIndividual.teamId)
+				values["team"] = factory.currentIndividual.team;
+			else
+				values["team"] = individualFieldTeam.dataProvider.getItemAt(individualFieldTeam.dataProvider.length - 1);
+
+			values["login"] = '';
+			values["password"] = '';
+			values["passwordConfirmation"] = '';
+			values["email"] = '';
+			values["phoneNumber"] = '';
+			values["notificationType"] = 0;
+			values["firstName"] = '';
+			values["lastName"] = '';
+			values["role"] = 1;
+			values["enabled"] = 0;
+			values["refreshInterval"] = 5;
+
+			return values;
+		}
+
+		// Show user a form to create a resource.
+		private function showCreate(event:Event):void
+		{
+			clearErrorMessage();
+			currentState = 'Change';
+			individualBtnCreateClose.visible = true;
+			individualBtnCreateClose.width = NaN;
+			factory.currentIndividual.isAdmin() ? individualFieldCompany.setFocus() : (individualFormProject.visible ? individualFieldProject.setFocus() : (individualFormTeam.visible ? individualFieldTeam.setFocus() : individualFieldLogin.setFocus()));
+			var values:Object = getInitialValues(true);
+			individualFieldCompany.selectedItem = values["company"];
+			individualFieldProject.selectedItem = values["project"];
+			individualFieldTeam.selectedItem = values["team"];
+			individualFieldLogin.text = values["login"];
+			individualFieldPassword.text = values["password"];
+			individualFieldPasswordConfirmation.text = values["passwordConfirmation"];
+			individualFieldEmail.text = values["email"];
+			individualFieldPhoneNumber.text = values["phoneNumber"];
+			individualFieldNotificationType.selected = values["notificationType"] > 0; // 0 = NONE
+			individualFieldFirstName.text = values["firstName"];
+			individualFieldLastName.text = values["lastName"];
+			individualFieldRole.selectedIndex = values["role"];
+			individualFieldEnabled.selectedIndex = values["enabled"];
+			individualFieldRefreshInterval.text = values["refreshInterval"];
+			labelPassword.required = true;
+			labelPasswordConfirmation.required = true;
+			individualBtnChange.label = 'Create';
+			individualBtnInfo.visible = false;
+		}
+		
+		[Bindable]
+		private var currentItem:Object;
+
+		// Show user a form to update a resource.
+		public function showUpdate() : void
+		{
+			currentItem = individualResourceGrid.selectedItem;
+			if (currentItem && showEdit( currentItem ))
+			{
+				clearErrorMessage();
+				currentState = 'Change';
+
+				var it:String = currentItem.companyId;
+				if (it)
+					individualFieldCompany.selectedItem = CompanyFactory.getInstance().find(it);
+				else
+					individualFieldCompany.selectedIndex = CompanyFactory.getInstance().companySelector.length - 1;
+
+				updateProject();
+				individualFieldProject.selectedItems = currentItem.projects;
+	
+				updateTeam();
+				it = currentItem.teamId;
+				if (it)
+				{
+					var team:Team = findTeam(it);
+					if (team)
+						individualFieldTeam.selectedItem = team;
+					else
+						individualFieldTeam.selectedIndex = availableTeams.length - 1;
+				}
+				else
+					individualFieldTeam.selectedIndex = availableTeams.length - 1;
+	
+				factory.currentIndividual.isAdmin() ? individualFieldCompany.setFocus() : (individualFormProject.visible ? individualFormProject.setFocus() : (individualFormTeam.visible ? individualFieldTeam.setFocus() : individualFieldLogin.setFocus()));
+				individualFieldLogin.text = currentItem.login;
+				individualFieldPassword.text = '';
+				individualFieldPasswordConfirmation.text = '';
+				individualFieldEmail.text = currentItem.email;
+				individualFieldPhoneNumber.text = currentItem.phoneNumber;
+				individualFieldNotificationType.selected = currentItem.notificationType > 0;  // 0 = NONE
+				individualFieldFirstName.text = currentItem.firstName;
+				individualFieldLastName.text = currentItem.lastName;
+				individualFieldRole.selectedIndex = factory.currentIndividual.isAdmin() ? currentItem.role : currentItem.role - 1;
+				individualFieldEnabled.selectedIndex = currentItem.enabled ? 0 : 1;
+				individualFieldRefreshInterval.text = convertRefreshIntervalToUI(currentItem.refreshInterval);
+				labelPassword.required = false;
+				labelPasswordConfirmation.required = false;
+				individualBtnCreateClose.visible = false;
+				individualBtnCreateClose.width=-5;
+				individualBtnChange.label = 'Update';
+				individualBtnInfo.visible = true;
+			}
+		}
+
+		// Update the project.
+		private function updateProject():void
+		{
+			var selector:ArrayCollection = new ArrayCollection(individualFieldCompany.selectedItem.projects);
+			individualFieldProject.dataProvider = selector;
+			individualFieldProject.selectedIndex = 0;
+			updateTeam();
+		}
+
+		// Update the team.
+		private function updateTeam():void
+		{
+			var team:Team = Team(individualFieldTeam.selectedItem);
+			updateAvailableTeams();
+			if (!team || !findTeam(team.id))
+				individualFieldTeam.selectedIndex = 0;
+			else
+				individualFieldTeam.selectedItem = findTeam(team.id);
+		}
+
+		// Confirm that user wants to delete the resource.
+		public function showDelete(event:Event) : void
+		{
+			Alert.show("Are you sure you want to delete '" + individualResourceGrid.selectedItem.name + "'?", "Delete", 3, this,
+			function(event:CloseEvent):void
+			{
+				if (event.detail==Alert.YES)
+				{
+					clearErrorMessage();
+					deleteResource(individualResourceGrid.selectedItem);
+				}
+			});
+		}
+		
+		// Create parameters for the user's request to the server.
+		private function getParams() : Object
+		{
+			var params:Object = new Object();
+			params['record[company_id]'] = individualFieldCompany.selectedItem.id ? individualFieldCompany.selectedItem.id : "";
+			params['record[project_ids]'] = projectIds.join(",");
+			params['record[team_id]'] = individualFieldTeam.selectedItem.id ? individualFieldTeam.selectedItem.id : "";
+			params['record[login]'] = individualFieldLogin.text;
+			params['record[password]'] = individualFieldPassword.text;
+			params['record[password_confirmation]'] = individualFieldPasswordConfirmation.text;
+			params['record[email]'] = individualFieldEmail.text;
+			params['record[phone_number]'] = individualFieldPhoneNumber.text;
+			params['record[notification_type]'] = individualFieldNotificationType.selected ? 1 : 0;
+			params['record[first_name]'] = individualFieldFirstName.text;
+			params['record[last_name]'] = individualFieldLastName.text;
+			params['record[role]'] = individualFieldRole.selectedItem.value;
+			params['record[enabled]'] = individualFieldEnabled.selectedItem.value;
+			params['record[refresh_interval]'] = convertRefreshIntervalFromUI(individualFieldRefreshInterval.text);
+			params['random'] = Math.random(); // Prevents caching
+			return params;
+		}
+		
+		private function convertRefreshIntervalToUI(value:int):String
+		{
+			return value <= 0 ? "" : String(value / 60000);
+		}
+		
+		private function convertRefreshIntervalFromUI(value:String):int
+		{
+			return value == "" ? 0 : Number(value) * 60000;
+		}
+		
+		private function get projectIds() : Array
+		{
+			var projectIds:Array = new Array(individualFieldProject.selectedItems.length);
+			var i:int = 0;
+			for each (var project:Project in individualFieldProject.selectedItems)
+			{
+				projectIds[i] = project.id;
+				i++
+			}
+			return projectIds;
+		}
+
+		// Tell the server to change a resource.
+		private function changeResource(shouldClose:Boolean) : void
+		{
+			if ( individualBtnChange.label == 'Create' )
+				createResource(shouldClose);
+			else
+				updateResource();
+		}
+		
+		// Tell the server to create a resource.
+		private function createResource(shouldClose:Boolean) : void 
+		{
+			factory.createIndividual(getParams(), shouldClose ? handleCreateCloseSuccess : handleCreateSuccess, handleFailure);
+		}
+		
+		// Tell the server to update a resource.
+		private function updateResource() : void
+		{
+			currentItem.update(getParams(), handleSuccess, handleFailure);
+		}
+
+		// Tell the server to delete a resource.
+		private function deleteResource(item:Object):void
+		{
+			item.destroy(handleSuccess,handleFailure);
+		}
+
+		// Handle a successful create.
+		private function handleCreateCloseSuccess(newItem:Object):void
+		{
+			handleCreateSuccess(newItem);
+			currentItem = null;
+			currentState = '';
+		}
+		
+		// Handle a successful create.
+		private function handleCreateSuccess(item:Object):void
+		{
+			showCreate(null);
+			setSuccessMessage("Individual was successfully created.");
+		}
+
+		// Handle a successful change.
+		private function handleSuccess():void
+		{
+			resetState(null);
+		}
+
+		// Handle errors when making changes.
+		private function handleFailure(error:XMLList):void
+		{
+			setErrorMessage(error);
+		}
+
+		// Answer whether to show the edit button
+		public function showEdit( data:Object ):Boolean
+		{
+			return factory.currentIndividual.isAtLeastProjectAdmin() || data == factory.currentIndividual;
+		}
+		
+		// Show the history for the current object.
+		public function showHistory(event:Event) : void
+		{
+			new AuditChangedEvent(null, 'Individual', null, null, String(currentItem.id)).dispatch();
+			tabModelLocator.selectedTab = Container(tabModelLocator.changes);
+		}
+
+		// Answer whether any changes need to be saved.
+		override public function isDirty(): Boolean
+		{
+			if (currentState != 'Change')
+				return false;
+			if (individualBtnChange.label == 'Create') {
+				var values:Object = getInitialValues();
+				if (individualFieldCompany.selectedItem != values["company"]) return true;
+				if (individualFieldProject.selectedItem != values["project"]) return true;
+				if (individualFieldTeam.selectedItem != values["team"]) return true;
+				if (individualFieldLogin.text != values["login"]) return true;
+				if (individualFieldPassword.text != values["password"]) return true;
+				if (individualFieldPasswordConfirmation.text != values["passwordConfirmation"]) return true;				
+				if (individualFieldRole.selectedIndex != values["role"]) return true;
+				if (individualFieldEnabled.selectedIndex != values["enabled"]) return true;
+				if (individualFieldFirstName.text != values["firstName"]) return true;
+				if (individualFieldLastName.text != values["lastName"]) return true;
+				if (individualFieldEmail.text != values["email"]) return true;
+				if (individualFieldPhoneNumber.text != values["phoneNumber"]) return true;
+				if (individualFieldNotificationType.selected != (values["notificationType"] > 0)) return true;
+				if (individualFieldRefreshInterval.text != values["refreshInterval"]) return true;
+			}
+			else if (currentItem) {
+				if (individualFieldCompany.selectedItem.id != currentItem.companyId) return true;
+				if (projectIds.sort().join(",") != currentItem.projectIds.split(",").sort().join(",")) return true;
+				if (individualFieldTeam.selectedItem.id != currentItem.teamId) return true;
+				if (individualFieldLogin.text != currentItem.login) return true;
+				if (individualFieldPassword.text != "") return true;
+				if (individualFieldPasswordConfirmation.text != "") return true;				
+				if (individualFieldRole.selectedItem.value != currentItem.role) return true;
+				if (individualFieldEnabled.selectedItem.value != currentItem.enabled) return true;
+				if (individualFieldFirstName.text != currentItem.firstName) return true;
+				if (individualFieldLastName.text != currentItem.lastName) return true;
+				if (individualFieldEmail.text != currentItem.email) return true;
+				if (individualFieldPhoneNumber.text != currentItem.phoneNumber) return true;
+				if (individualFieldNotificationType.selected != (currentItem.notificationType > 0)) return true;
+				if (individualFieldRefreshInterval.text != convertRefreshIntervalToUI(currentItem.refreshInterval)) return true;
+			}
+			return false;
+		}
+		
+		[Bindable]
+		public var availableTeams:ArrayCollection = new ArrayCollection();
+		
+		public function updateAvailableTeams(): void {
+			var projects:Array = individualFieldProject.selectedItems;
+			var teams:ArrayCollection = new ArrayCollection();
+			for each (var project:Project in projects)
+			{
+				for each (var team:Team in project.teams)
+					teams.addItem(team);
+			}
+			var sort:Sort = new Sort();
+			sort.fields = [new SortField("name")];
+			teams.sort = sort;
+			teams.addItem(Project.noTeam);
+			availableTeams = teams;
+		}
+		
+		protected function findTeam(id:String):Team
+		{
+			for each(var team:Team in individualFieldTeam.dataProvider)
+				if (team.id == id) return team;
+			return null;
+		}
+		]]>
+	</mx:Script>
+ 	
+	<local:states>
+		<mx:State name="Change">
+			<mx:RemoveChild target="{individualBtnCreate}"/>
+			<mx:AddChild relativeTo="{individualResourceGrid}" position="before">
+				<mx:target>
+					<mx:VBox>
+						<mx:HBox>
+							<mx:VBox>
+								<mx:Form id="changeForm" defaultButton="{individualBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
+									<mx:FormItem id='individualFormCompany' label='Company'>
+										<local:FixedComboBox id='individualFieldCompany' editable="false" dataProvider="{CompanyFactory.getInstance().companySelector}" labelField="name" change="updateProject()"></local:FixedComboBox>
+									</mx:FormItem>
+									<mx:FormItem id='individualFormProject' label='Projects'>
+										<mx:List id='individualFieldProject' height="68" labelField="name" change="updateTeam()" allowMultipleSelection="true"/>
+									</mx:FormItem>
+									<mx:FormItem id='individualFormTeam' label='Team' visible="{availableTeams.length > 1}" height="{availableTeams.length > 1 ? NaN : -5}">
+										<local:FixedComboBox id='individualFieldTeam' dataProvider="{availableTeams}" editable="false" labelField="name"></local:FixedComboBox>
+									</mx:FormItem>
+									<mx:FormItem label='Login' required="true">
+										<mx:TextInput id='individualFieldLogin' maxChars="40" text='' width="300"/>
+									</mx:FormItem>
+									<mx:FormItem label='Password' id="labelPassword">
+										<mx:TextInput id='individualFieldPassword' maxChars="40" text='' width="300" displayAsPassword="true"/>
+									</mx:FormItem>
+									<mx:FormItem label='Password Confirmation' id="labelPasswordConfirmation">
+										<mx:TextInput id='individualFieldPasswordConfirmation' maxChars="40" text='' width="300" displayAsPassword="true"/>
+									</mx:FormItem>
+									<mx:FormItem id='individualFormRole' label='Role' visible="{currentItem != factory.currentIndividual}" height="{currentItem != factory.currentIndividual ? NaN : -5}">
+										<local:FixedComboBox id='individualFieldRole' editable="false"/>
+									</mx:FormItem>
+									<mx:FormItem id='individualFormEnabled' label='Enabled' visible="{currentItem != factory.currentIndividual}" height="{currentItem != factory.currentIndividual ? NaN : -5}">
+										<local:FixedComboBox id='individualFieldEnabled' editable="false">
+											<mx:Object label="true" value='true' />
+											<mx:Object label="false" value='false' />
+										</local:FixedComboBox>
+									</mx:FormItem>
+								</mx:Form>
+							</mx:VBox>
+							<mx:VBox>
+								<mx:Form id="changeForm2" defaultButton="{individualBtnChange}" paddingTop="0" paddingBottom="0" verticalGap="5">
+									<mx:FormItem label='First Name' required="true">
+										<mx:TextInput id='individualFieldFirstName' maxChars="40" text='' width="300"/>
+									</mx:FormItem>
+									<mx:FormItem label='Last Name' required="true">
+										<mx:TextInput id='individualFieldLastName' maxChars="40" text='' width="300"/>
+									</mx:FormItem>
+									<mx:FormItem label='Email' required="true">
+										<mx:TextInput id='individualFieldEmail' maxChars="100" text='' width="300"/>
+									</mx:FormItem>
+									<mx:FormItem label='Phone Number' required="false">
+										<mx:TextInput id='individualFieldPhoneNumber' maxChars="20" text='' width="300"/>
+									</mx:FormItem>
+									<mx:FormItem id='individualFormNotificationType' label="Notification" visible="{factory.currentIndividual.isPremium}" height="{factory.currentIndividual.isPremium ? NaN : -5}">
+										<mx:CheckBox id='individualFieldNotificationType' label='Notify on story completion / acceptance' />
+									</mx:FormItem>
+									<mx:FormItem label='Auto Refresh Rate'>
+										<mx:HBox>
+											<mx:TextInput id='individualFieldRefreshInterval' restrict="0-9" maxChars="5" text='' width="50"/><mx:Label text="minutes"/>
+										</mx:HBox>
+									</mx:FormItem>
+								</mx:Form>
+							</mx:VBox>
+						</mx:HBox>
+						<mx:ControlBar width="100%">
+							<mx:Spacer width="50"/>
+							<mx:Button label="Change" id="individualBtnChange" click="changeResource(false)"/>
+							<mx:Button label="Create &amp; Close" id="individualBtnCreateClose" click="changeResource(true)"/>
+							<mx:LinkButton label="Cancel" id="individualBtnCancel" click="resetState(event)"/>
+							<mx:LinkButton id="individualBtnInfo" icon="{parentApplication.imgInfo}" toolTip="History" click="showHistory(event);"/>
+						</mx:ControlBar>
+					</mx:VBox>
+				</mx:target>
+			</mx:AddChild>
+		</mx:State>
+	</local:states>
+	
+	<local:transitions>
+		<mx:Transition id="changeItem" fromState="*" toState="Change">
+			<mx:Sequence targets="{[combinedPanel]}">
+				<mx:RemoveChildAction/>
+				<mx:Resize target="{combinedPanel}"/>
+				<mx:AddChildAction/>
+			</mx:Sequence>
+		</mx:Transition>
+
+		<mx:Transition id="returnList" fromState="Change" toState="*">
+			<mx:Sequence targets="{[combinedPanel]}">
+				<mx:RemoveChildAction/>
+				<mx:Resize target="{combinedPanel}"/>
+				<mx:AddChildAction/>
+			</mx:Sequence>
+		</mx:Transition>
+
+	</local:transitions>
+	
+	<mx:Panel id="combinedPanel" height="100%" y="0" width="100%" x="0" borderThicknessTop="0" borderThicknessLeft="0" borderThicknessRight="0" headerHeight="0">
+		<mx:HBox width="100%" horizontalAlign="right" horizontalGap="8" verticalAlign="middle" id="hbox1" paddingTop="5" paddingLeft="5" paddingRight="5">
+			<mx:Label text="Individuals" fontWeight="bold" textDecoration="underline"/>
+			<mx:Text id="individualError" styleName="error" htmlText="{_error}" width="100%"/>
+			<mx:Button width="25" icon="{parentApplication.imgAdd}" toolTip="Create" id="individualBtnCreate" styleName="individualBtnCreate" click="showCreate(event);" visible="{factory.currentIndividual.isAtLeastProjectAdmin()}"/>
+		</mx:HBox>
+		<mx:DataGrid xmlns:mx="http://www.adobe.com/2006/mxml" id="individualResourceGrid" dataProvider="{individuals}" rowCount="{individuals.length}" height="100%" width="100%" doubleClickEnabled="true" doubleClick="checkDirty(showUpdate)" horizontalScrollPolicy="auto" verticalScrollPolicy="auto">
+				<mx:columns>
+				<mx:DataGridColumn width="105" headerText="Company" labelFunction="ViewHelper.formatCompany" sortCompareFunction="ViewHelper.sortCompany" id="columnCompany"/>
+				<mx:DataGridColumn width="105" headerText="Projects" labelFunction="ViewHelper.formatProject" sortCompareFunction="ViewHelper.sortProject" id="columnProject"/>
+				<mx:DataGridColumn width="85" headerText="Team" labelFunction="ViewHelper.formatTeam" sortCompareFunction="ViewHelper.sortTeam" id="columnTeam"/>
+				<mx:DataGridColumn width="85" headerText="Login" dataField="login"/>
+				<mx:DataGridColumn headerText="First Name" width="75" dataField="firstName"/>
+				<mx:DataGridColumn headerText="Last Name" width="75" dataField="lastName"/>
+				<mx:DataGridColumn headerText="Role" width="85" dataField="role" labelFunction="ViewHelper.formatRole"/>
+				<mx:DataGridColumn width="65" headerText="Activated" dataField="activated"/>
+				<mx:DataGridColumn width="55" headerText="Enabled" dataField="enabled"/>
+				<mx:DataGridColumn width="145" headerText="Last Logged In" dataField="lastLoginTime" sortCompareFunction="ViewHelper.sortLastLogin"/>
+				<mx:DataGridColumn editable="false" width="35" minWidth="35" sortable="false">
+					<mx:itemRenderer>
+						<mx:Component>
+							<mx:Box direction="horizontal" horizontalGap="5">
+								<mx:LinkButton width="15" id="individualBtnEdit" icon="{parentApplication.imgEdit}" toolTip="Edit" click="outerDocument.checkDirty(outerDocument.showUpdate);" visible="{outerDocument.showEdit(data)}"/>
+								<mx:LinkButton width="15" id="individualBtnDelete" icon="{parentApplication.imgCross}" toolTip="Delete" click="outerDocument.showDelete(event);" visible="{outerDocument.factory.currentIndividual.isAtLeastProjectAdmin()}"/>
+							</mx:Box>
+						</mx:Component>
+					</mx:itemRenderer>
+				</mx:DataGridColumn>
+			</mx:columns>
+		</mx:DataGrid>
+	</mx:Panel>
+</local:ViewCanvas>
