@@ -1137,7 +1137,7 @@
 		}
 		
 		// Show the previous object.
-		public function showPrevious() : void
+		public function showPrevious(object:Object = null, message:String = null) : void
 		{
 			handleFilterResult(); // Make sure the new object is in the tree
 			var currentObject:Object = currentItem.getCurrentVersion();
@@ -1156,7 +1156,7 @@
 		}
 		
 		// Show the next object.
-		public function showNext() : void
+		public function showNext(object:Object = null, message:String = null) : void
 		{
 			handleFilterResult(); // Make sure the new object is in the tree
 			var currentObject:Object = currentItem.getCurrentVersion();
