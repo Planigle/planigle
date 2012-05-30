@@ -523,6 +523,13 @@ package org.planigle.planigle.model
 		// I have been successfully deleted.  Remove myself to reflect the changes.
 		public function destroyCompleted():void
 		{
+			if (epic != null)
+			{
+				var storyCollect:ArrayCollection = new ArrayCollection(epic.stories);
+				storyCollect.removeItemAt(storyCollect.getItemIndex(this));
+				epic.stories = storyCollect.source;
+			}
+
 			// Create copy to ensure any views get notified of changes.
 			var stories:ArrayCollection = new ArrayCollection();
 			for each (var story:Story in StoryFactory.getInstance().stories)
