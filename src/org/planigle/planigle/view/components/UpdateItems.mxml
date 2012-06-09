@@ -13,6 +13,7 @@
 			import org.planigle.planigle.model.Team;
 			import org.planigle.planigle.model.IndividualFactory;
 			import org.planigle.planigle.model.Individual;
+			import org.planigle.planigle.model.StoryFactory;
 			import org.planigle.planigle.model.Story;
 			import org.planigle.planigle.model.StoryAttribute;
 			import org.planigle.planigle.model.ViewModelLocator;
@@ -24,6 +25,9 @@
 
 			[Bindable]
 			private var projects:ArrayCollection = new ArrayCollection();
+
+			[Bindable]
+			private var epics:ArrayCollection = new ArrayCollection();
 
 			[Bindable]
 			private var iterations:ArrayCollection = new ArrayCollection();
@@ -64,6 +68,10 @@
 					formProject.height = -5;
 					height -= 20;
 				}
+
+				epics.addItem(noChange);
+				for each (var epic:Story in StoryFactory.getInstance().epicSelector())
+					epics.addItem(epic);
 
 				iterations.addItem(noChange);
 				for each (var iteration:Iteration in IterationFactory.getInstance().iterationsInRelease(release))
@@ -135,6 +143,8 @@
 				var taskParams:Object = new Object();
 				if (updateFieldProject.selectedItem.id != "-1")
 					storyParams['record[project_id]'] = updateFieldProject.selectedItem.id;
+				if (updateFieldEpic.selectedItem.id != "-1")
+					storyParams['record[story_id]'] = updateFieldEpic.selectedItem.id ? updateFieldEpic.selectedItem.id : "";
 				if (updateFieldIteration.selectedItem.id != "-1")
 					storyParams['record[iteration_id]'] = updateFieldIteration.selectedItem.id ? updateFieldIteration.selectedItem.id : "";
 				if (updateFieldRelease.selectedItem.id != "-1")
@@ -231,6 +241,9 @@
 	<mx:Form id="updateForm" defaultButton="{updateBtnOk}" height="100%" width="100%" paddingLeft="0" paddingRight="0" paddingTop="0" paddingBottom="0" verticalGap="5">
 		<mx:FormItem label="Project" id="formProject">
 			<local:FixedComboBox id='updateFieldProject' editable="false" dataProvider="{projects}" labelField="name" change="updateProject()"></local:FixedComboBox>
+		</mx:FormItem>
+		<mx:FormItem label="Epic" id="formEpic">
+			<local:FixedComboBox id='updateFieldEpic' editable="false" dataProvider="{epics}" labelField="name" maxWidth="230" toolTip="{updateFieldEpic.selectedItem.name}"></local:FixedComboBox>
 		</mx:FormItem>
 		<mx:FormItem label="Iteration" id="formIteration">
 			<local:FixedComboBox id='updateFieldIteration' editable="false" dataProvider="{iterations}" labelField="name" change="updateIteration()"></local:FixedComboBox>

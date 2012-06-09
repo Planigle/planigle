@@ -460,8 +460,30 @@ package org.planigle.planigle.model
 		// I have been successfully updated.  Change myself to reflect the changes.
 		public function updateCompleted(xml:XML):void
 		{
+			var currentEpic:Story = epic;
 			var currentStatus:int = statusCode;
 			populate(xml);
+			if(epic != currentEpic)
+			{
+				if(currentEpic != null)
+				{
+					var newStories:Array = new Array();
+					for each (var story:Story in currentEpic.stories)
+					{
+						if(story.id != id)
+							newStories.push(story);
+					}
+					currentEpic.stories = newStories
+				}
+				if(epic != null)
+				{
+					epic.stories = epic.stories.concat(this);
+				} else if(currentEpic != null)
+				{
+					indent = 5;
+					StoryFactory.getInstance().stories.addItem(this);
+				}
+			}
 			StoryFactory.getInstance().normalizePriorities()
 			if (currentStatus != ACCEPTED && statusCode == ACCEPTED)
 			{
