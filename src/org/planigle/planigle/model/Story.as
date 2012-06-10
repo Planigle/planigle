@@ -485,6 +485,9 @@ package org.planigle.planigle.model
 				if(epic != null)
 				{
 					epic.stories = epic.stories.concat(this);
+					var index:int = StoryFactory.getInstance().stories.getItemIndex(this);
+					if(index >=0)
+						StoryFactory.getInstance().stories.removeItemAt(index);
 				} else if(currentEpic != null)
 				{
 					indent = 5;
