@@ -607,7 +607,7 @@ protected
       errors.add(:epic, 'is invalid')
     elsif epic && project_id != epic.project_id
       errors.add(:epic, 'is not from a valid project')
-    elsif story_id == id
+    elsif story_id != nil && story_id == id
       errors.add(:epic, 'cannot be its own epic')
     end
     
