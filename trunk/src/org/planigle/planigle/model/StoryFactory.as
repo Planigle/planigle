@@ -105,7 +105,17 @@ package org.planigle.planigle.model
 		// Find a story given its ID.  If no story, return null.
 		public function find(id:int):Story
 		{
-			return storyMapping[id];
+			var story:Story = storyMapping[id];
+			if(story == null)
+			{
+				for each (var candidate:Story in stories)
+				{
+					story = candidate.findStory(id);
+					if(story != null)
+						break;
+				}
+			}
+			return story;
 		}
 		
 		// Normalize the priorities so that they are 1..n (excluding accepted stories).
