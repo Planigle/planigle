@@ -727,7 +727,7 @@
 		{
 			storyNameForm.label = "Story Name";
 			storyFieldDescription.maxChars = 4096;
-			storyEffortForm.label = "Size";
+			storyFormEffort.label = "Size";
 			storyFormProject.visible = IndividualFactory.current().isAtLeastProjectAdmin() && IndividualFactory.current().selectedProject.company.projects.length > 1;
 			storyFormProject.height = storyFormProject.visible ? NaN : -5;
 			storyFormRelease.height = ReleaseFactory.getInstance().releaseSelector.length > 1 ? NaN : -5;
@@ -742,6 +742,16 @@
 			storyFormAcceptanceCriteria.visible = true;
 			storyFormPublic.height = factory.currentIndividual.isPremium ? NaN : -5;
 			storyFormPublic.visible = factory.currentIndividual.isPremium;
+			if(currentItem != null && currentItem.isEpic())
+			{
+				storyFormEffort.height = -5;
+				storyFormEffort.visible = false;
+			}
+			else
+			{
+				storyFormEffort.height = NaN;
+				storyFormEffort.visible = true;
+			}
 			storyFormEstimate.height = -5;
 			storyFormEstimate.visible = false;
 			storyFormActual.height = -5;
@@ -759,7 +769,7 @@
 		private function prepareForTask():void
 		{
 			storyNameForm.label = "Task Name";
-			storyEffortForm.label = "To Do";
+			storyFormEffort.label = "To Do";
 			storyFieldDescription.maxChars = 20480;
 			storyFormProject.visible = false;
 			storyFormProject.height = -5;
@@ -775,6 +785,8 @@
 			storyFormAcceptanceCriteria.visible = false;
 			storyFormPublic.height = -5;
 			storyFormPublic.visible = false;
+			storyFormEffort.height = NaN;
+			storyFormEffort.visible = true;
 			storyFormEstimate.height = NaN;
 			storyFormEstimate.visible = true;
 			if (IndividualFactory.current().selectedProject.trackActuals)
@@ -2197,7 +2209,7 @@
 										<mx:FormItem id="storyFormEstimate" label='Estimate'>
 											<mx:TextInput id='storyFieldEstimate' restrict="0-9." text='' width="100" enabled="{storyFieldStatus.selectedIndex==Story.CREATED}" change="storyFieldEffort.text = storyFieldEstimate.text"/>
 										</mx:FormItem>
-										<mx:FormItem id="storyEffortForm" label='To Do'>
+										<mx:FormItem id="storyFormEffort" label='To Do'>
 											<mx:TextInput id='storyFieldEffort' restrict="0-9." text='' width="100" enabled="{!currentItem || currentItem.isStory() || storyFieldStatus.selectedIndex!=Story.ACCEPTED}"/>
 										</mx:FormItem>
 										<mx:FormItem id="storyFormActual" label='Actual'>
