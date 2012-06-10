@@ -377,47 +377,54 @@ package org.planigle.planigle.model
 			tasks=tasks.concat(); // set to a copy
 			criteria=criteria.concat(); // set to a copy
 		}
+		
+		protected function totalValues(collect:Array, attrib:String):String
+		{
+			var sum:Number = 0;
+			for each (var object:Object in collect)
+			{
+				if (object[attrib] != null && object[attrib] != "")
+					sum += Number(object[attrib]);
+			}
+			return sum.toString();				
+		}
 
 		// Answer my sizing.
 		public function get size():String
 		{
-			return effort != null && effort != "" ? Number(effort).toString() : effort;
+			if(isEpic())
+			{
+				return totalValues(stories, "size");
+			}
+			else
+			{
+				return effort != null && effort != "" ? Number(effort).toString() : effort;
+			}
 		}
 
 		// For stories, the calculated effort is the sum of the effort of its tasks.
 		public function get calculatedEffort():String
 		{
-			var sum:Number = 0;
-			for each (var task:Task in tasks)
+			if(isEpic())
 			{
-				if (task.effort != null && task.effort != "")
-					sum += Number(task.effort);
+				return totalValues(stories, "calculatedEffort");
 			}
-			return tasks.length == 0 ? "" : sum.toString();
+			else
+			{
+				return totalValues(tasks, "effort");
+			}
 		}
 
 		// For stories, the calculated estimate is the sum of the estimate of its tasks.
 		public function get estimate():String
 		{
-			var sum:Number = 0;
-			for each (var task:Task in tasks)
-			{
-				if (task.estimate != null && task.estimate != "")
-					sum += Number(task.estimate);
-			}
-			return tasks.length == 0 ? "" : sum.toString();
+			return totalValues(isEpic() ? stories : tasks, "estimate");
 		}
 
 		// For stories, the actual is the sum of the actual of its tasks.
 		public function get actual():String
 		{
-			var sum:Number = 0;
-			for each (var task:Task in tasks)
-			{
-				if (task.actual != null && task.actual != "")
-					sum += Number(task.actual);
-			}
-			return tasks.length == 0 ? "" : sum.toString();
+			return totalValues(isEpic() ? stories : tasks, "actual");
 		}
 
 		// Only show user priority if not accepted.
@@ -707,16 +714,24 @@ package org.planigle.planigle.model
 			return myDoneTasks;
 		}
 		
-		public function set doneTasks(collect:ArrayCollection):void {
+		public function set doneTasks(collect:ArrayCollection):void
+		{
 			myDoneTasks = collect;
 		}
 		
-		public function canBeEpic():Boolean {
+		public function canBeEpic():Boolean
+		{
 			return tasks.length == 0;
 		}
 		
-		public function hasEpic():Boolean {
+		public function hasEpic():Boolean
+		{
 			return storyId != 0;
+		}
+		
+		public function isEpic():Boolean
+		{
+			return stories.length > 0;
 		}
 	}
 }
