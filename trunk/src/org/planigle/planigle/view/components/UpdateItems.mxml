@@ -188,7 +188,7 @@
 					{
 					  	var combo:FixedComboBox = FixedComboBox(customAttributes[attrib.id]);
 						if (combo.selectedItem.id != "-1")
-							storyParams['record[custom_'+attrib.id+']'] = combo.selectedItem.id;
+							storyParams['record[custom_'+attrib.id+']'] = combo.selectedItem.id == 0 ? '' : combo.selectedItem.id;
 					}
 				}
 			}
