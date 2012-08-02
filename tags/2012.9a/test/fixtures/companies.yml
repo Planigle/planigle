@@ -1,0 +1,13 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+first:
+  id: 1
+  name: Test_company
+  premium_expiry: <%= (Time.now + 30*24*60*60).to_s :db %>
+  premium_limit: 100
+
+second:
+  id: 2
+  name: Test2_company
+  premium_expiry: <%= (Time.now - 30*24*60*60).to_s :db %>
+  premium_limit: 100
