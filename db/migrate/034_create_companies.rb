@@ -8,11 +8,11 @@ class CreateCompanies < ActiveRecord::Migration
 
     Project.reset_column_information # Work around an issue where the new columns are not in the cache.
     Individual.reset_column_information # Work around an issue where the new columns are not in the cache.
-    Project.find_with_deleted(:all).each do |project|
+    Project.with_deleted.each do |project|
       company = Company.create(:name => project.name)
       project.company = company
-      project.save(false)
-      project.individuals.each {|individual| individual.company = company; individual.save(false)}
+      project.save( :validate=> false )
+      project.individuals.each {|individual| individual.company = company; individual.save( :validate=> false )}
     end
   end
 

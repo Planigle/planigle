@@ -3,8 +3,8 @@
 <% end %>
 <p>Welcome to Planigle!  An account has been created for you:</p>
   <p><b>Username:</b> <%= @individual.login %><br />
-  <% if config_option(:use_ldap) %>
-    <b>Password:</b> Please use your LDAP password for domain <%= config_option(:domain_suffix) %></p>
+  <% if Rails.configuration.use_ldap %>
+    <b>Password:</b> Please use your LDAP password for domain <%= Rails.configuration.domain_suffix %></p>
   <% else %>
     <b>Password:</b> <%= @individual.password %></p>
   <% end %>

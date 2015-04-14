@@ -1,7 +1,6 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
 require "#{File.dirname(__FILE__)}/../tasks_test_helper"
 require "#{File.dirname(__FILE__)}/controller_resource_helper"
-require "tasks_controller"
 
 # Re-raise errors caught by the controller.
 class TasksController; def rescue_action(e) raise e end; end
@@ -265,7 +264,7 @@ class TasksControllerTest < ActionController::TestCase
     if clearOwner
       task.individual_id = nil
     end
-    task.save(false)
+    task.save( :validate=> false )
     login_as(individuals(:ted))
   end
 end

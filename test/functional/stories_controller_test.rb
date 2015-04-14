@@ -1,7 +1,6 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
 require "#{File.dirname(__FILE__)}/../stories_test_helper"
 require "#{File.dirname(__FILE__)}/controller_resource_helper"
-require "stories_controller"
 require "bigdecimal"
 require "notification/test_notifier"
 require "stringio"

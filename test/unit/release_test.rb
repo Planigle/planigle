@@ -54,11 +54,11 @@ class ReleaseTest < ActiveSupport::TestCase
   # Test finding individuals for a specific user.
   def test_find
     assert_equal 0, Release.get_records(individuals(:quentin)).length
-    assert_equal Release.find_all_by_project_id(1).length, Release.get_records(individuals(:aaron)).length
+    assert_equal Release.where(project_id: 1).length, Release.get_records(individuals(:aaron)).length
     user = individuals(:user)
     user.selected_project_id = 1
-    assert_equal Release.find_all_by_project_id(1).length, Release.get_records(user).length
-    assert_equal Release.find_all_by_project_id(1).length, Release.get_records(individuals(:readonly)).length
+    assert_equal Release.where(project_id: 1).length, Release.get_records(user).length
+    assert_equal Release.where(project_id: 1).length, Release.get_records(individuals(:readonly)).length
   end
   
   # Test finding the current release
@@ -98,11 +98,11 @@ private
     sleep 1 # Distance from set up
     start = Time.now
     other_project_object.name = "changed"
-    other_project_object.save(false)
+    other_project_object.save( :validate=> false )
     assert !Iteration.have_records_changed(individuals(:aaron), start)
 
     project_object.name = "changed"
-    project_object.save(false)
+    project_object.save( :validate=> false )
     assert Iteration.have_records_changed(individuals(:aaron), start)
 
     project_object.destroy

@@ -1,6 +1,6 @@
 class AddLeanMetrics < ActiveRecord::Migration
   def self.up
-    Project.find_with_deleted(:all).each do |project|
+    Project.with_deleted.each do |project|
       maxOrdering = 0
       project.story_attributes.each {|attrib|maxOrdering = maxOrdering >= attrib.ordering ? maxOrdering : attrib.ordering}
       StoryAttribute.create(:project_id => project.id, :name => "Lead Time", :value_type => StoryAttribute::Number, :is_custom => false, :show => false, :width => 90, :ordering => maxOrdering + 10)

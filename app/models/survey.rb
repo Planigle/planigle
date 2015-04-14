@@ -10,13 +10,12 @@ class Survey < ActiveRecord::Base
   validates_length_of       :email, :within => 6..100
   validates_format_of       :email, :with => /(^([^@\s]+)@((?:[-_a-z0-9]+\.)+[a-z]{2,})$)|(^$)/i
 
-  attr_accessible :project_id, :name, :company, :email, :excluded
   after_update :notify_users
   
   # Notify admins that a new survey has been created
   def notify_users
     if project.company.is_premium
-      SurveyNotificationMailer.deliver_notification(self)
+      SurveyNotificationMailer.notification(self).deliver_now
     end
   end
   
@@ -41,9 +40,9 @@ class Survey < ActiveRecord::Base
     # For each survey, adjust priority by removing stories that have been accepted.  This ensures that
     # older surveys don't throw off the rankings.
     hash = {}
-    project.surveys.find(:all, :conditions => 'excluded=false', :include => :survey_mappings).each do |survey|
+    project.surveys.includes(:survey_mappings).where(excluded: false).each do |survey|
       i = 1
-      survey.survey_mappings.find(:all, :conditions => ['s.status_code != ?', Story::Done], :include => :story, :joins => 'inner join stories as s on survey_mappings.story_id = s.id', :order => 'survey_mappings.priority').each do |sm|
+      survey.survey_mappings.joins('inner join stories as s on survey_mappings.story_id = s.id').includes(:story).where(['s.status_code != :status_code', {status_code: Story.Done}]).order('survey_mappings.priority').each do |sm|
         if !hash.include? sm.story
           hash[sm.story] = []
         end

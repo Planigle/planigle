@@ -1,0 +1,88 @@
+IndividualTest: 4
+StoryTest: 3
+ProjectTest: 2
+StoryAttributeTest: 1
+IndividualStoryAttributeTest: 1
+CompanyMailerTest 1
+
+12
+
+  1) Error:
+ProjectTest#test_create_survey:
+NameError: uninitialized constant ActiveRecord::Associations::Builder::XmlMarkup
+    app/models/project.rb:139:in `create_survey'
+    test/unit/project_test.rb:88:in `test_create_survey'
+
+
+  2) Failure:
+ProjectTest#test_last_login [C:/Users/Walter/workspace/planigle/test/unit/project_test.rb:149]:
+Expected: "2015-04-12 18:19:38 -0500"
+  Actual: "2015-04-12 23:19:38 UTC"
+
+
+  3) Error:
+StoryAttributeTest#test_values:
+ActiveRecord::UnknownAttributeError: unknown attribute 'values' for StoryAttribute.
+    test/unit/story_attribute_test.rb:160:in `create_storyattribute'
+    test/unit/story_attribute_test.rb:65:in `test_values'
+
+
+  4) Failure:
+StoryTest#test_delete_story [C:/Users/Walter/workspace/planigle/test/unit/story_test.rb:261]:
+Expected #<ActiveRecord::Relation []> to be nil.
+
+
+  5) Failure:
+StoryTest#test_export [C:/Users/Walter/workspace/planigle/test/unit/story_test.rb:374]:
+--- expected
++++ actual
+@@ -3,7 +3,7 @@
+ S2,\"\",test2,\"\",\"\",1.0,,,,Done,\"\",first,first,\"\",\"\",true,1.0,0.0,,\"\",\"\",\"\",\"\",\"\"
+ S1,Epic,test,description,\"*criteria
+ *criteria2 (Done)\",1.0,3.0,5.0,1.0,In Progress,\"\",first,first,Test_team,aaron hank,true,2.0,0.0,,Value 1,5,Theme 1,test,testy
+-T1,\"\",test_task,,\"\",\"\",,3.0,,In Progress,,\"\",\"\",\"\",aaron hank,\"\",\"\",0.0,,\"\",\"\",\"\",\"\",\"\"
+ T2,\"\",test2_task,,\"\",\"\",3.0,2.0,1.0,Done,,\"\",\"\",\"\",aaron hank,\"\",\"\",0.0,,\"\",\"\",\"\",\"\",\"\"
++T1,\"\",test_task,,\"\",\"\",,3.0,,In Progress,,\"\",\"\",\"\",aaron hank,\"\",\"\",0.0,,\"\",\"\",\"\",\"\",\"\"
+ S4,\"\",test4,\"\",\"\",1.0,,,,In Progress,\"\",\"\",\"\",\"\",\"\",true,,0.0,,\"\",\"\",\"\",\"\",\"\"
+ "
+
+
+
+  6) Failure:
+StoryTest#test_import_extra_column [C:/Users/Walter/workspace/planigle/test/unit/story_test.rb:797]:
+Failed assertion, no message given.
+
+
+  1) Failure:
+IndividualTest#test_company_id [C:/Users/Walter/workspace/planigle/test/unit/individual_test.rb:263]:
+Expected false to be nil.
+
+
+  3) Error:
+IndividualTest#test_find:
+ActiveRecord::StatementInvalid: Mysql2::Error: Unknown column 'projects.deleted_at' in 'where clause': SELECT `individuals_projects`.* FROM `individuals_projects` WHERE `projects`.`deleted_at` IS NULL
+ AND `individuals_projects`.`individual_id` IN (2, 6, 5, 3, 4, 9, 11)
+    app/models/individual.rb:199:in `get_records'
+    test/unit/individual_test.rb:426:in `test_find'
+
+
+  5) Failure:
+IndividualTest#test_password_confirmation_no_match [C:/Users/Walter/workspace/planigle/test/unit/individual_test.rb:311]:
+Failed assertion, no message given.
+
+
+  6) Failure:
+IndividualTest#test_team_id [C:/Users/Walter/workspace/planigle/test/unit/individual_test.rb:144]:
+Expected false to be nil.
+
+
+ 14) Failure:
+CompanyMailerTest#test_signup_notification [C:/Users/Walter/workspace/planigle/test/unit/company_mailer_test.rb:22]:
+Expected: "ksksk@ksdkdaiu.com"
+  Actual: "test@example.com"
+
+
+ 15) Failure:
+IndividualStoryAttributeTest#test_create_individual_story_attribute [C:/Users/Walter/workspace/planigle/test/unit/individual_story_attribute_test.rb:10]:
+Expected: 10
+  Actual: 210

@@ -81,7 +81,7 @@ class StoriesController < ResourceController
         if authorized_for_create?(@record) && @record.errors.empty?
           @record.created_at = @old.created_at
           @record.in_progress_at = @old.in_progress_at
-          @record.save(false)
+          @record.save( :validate=> false )
         end
       end
     end
@@ -102,10 +102,10 @@ class StoriesController < ResourceController
       @record = get_record
       blocked_before = @record.is_blocked
       done_before = @record.is_done
-      should_update = (params["record"] && params["record"]["status_code"] != Story::Done and @record.status_code == Story::Done)
+      should_update = (params["record"] && params["record"]["status_code"] != Story.Done and @record.status_code == Story.Done)
       super
       if should_update
-        Survey.update_rankings(@record.project).each {|story| story.save(false)}
+        Survey.update_rankings(@record.project).each {|story| story.save( :validate=> false )}
       end
       if !blocked_before && @record.is_blocked
         @record.send_notification(current_individual, "A story is blocked", @record.blocked_message)
@@ -211,5 +211,10 @@ protected
     else
       @record.attributes = params[:record] ? params[:record] : {}
     end
+  end
+  
+private
+  def record_params
+    params.require(:record).permit(:name, :description, :acceptance_criteria, :effort, :status_code, :release_id, :iteration_id, :individual_id, :project_id, :is_public, :priority, :user_priority, :team_id, :reason_blocked, :story_id)
   end
 end

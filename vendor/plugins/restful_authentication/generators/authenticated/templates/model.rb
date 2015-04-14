@@ -51,7 +51,7 @@ class <%= class_name %> < ActiveRecord::Base
     @activated = true
     self.activated_at = Time.now.utc
     self.activation_code = nil
-    save(false)
+    save( :validate=> false )
   end
 
   def active?
@@ -99,13 +99,13 @@ class <%= class_name %> < ActiveRecord::Base
   def remember_me_until(time)
     self.remember_token_expires_at = time
     self.remember_token            = encrypt("#{email}--#{remember_token_expires_at}")
-    save(false)
+    save( :validate=> false )
   end
 
   def forget_me
     self.remember_token_expires_at = nil
     self.remember_token            = nil
-    save(false)
+    save( :validate=> false )
   end
 
   # Returns true if the user has just been activated.

@@ -1,7 +1,7 @@
 class AddRetrospectiveResultsToIterations < ActiveRecord::Migration
   def self.up
     add_column :iterations, :retrospective_results, :text, :limit => 4096
-    Iteration.update_all :retrospective_results => ""
+    Iteration.with_deleted.each {|iteration| iteration.retrospective_results(""); iteration.save( :validate=> false );}
   end
 
   def self.down

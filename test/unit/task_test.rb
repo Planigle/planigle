@@ -109,25 +109,25 @@ class TaskTest < ActiveSupport::TestCase
 
   def test_in_progress_at
     task = tasks(:one)
-    task.status_code = Story::Created
+    task.status_code = Story.Created
     assert_equal nil, task.in_progress_at
-    task.status_code = Story::InProgress
+    task.status_code = Story.InProgress
     assert task.in_progress_at != nil
-    task.status_code = Story::Blocked
+    task.status_code = Story.Blocked
     assert task.in_progress_at != nil
-    task.status_code = Story::Done
+    task.status_code = Story.Done
     assert task.in_progress_at != nil
   end
   
   def test_done_at
     task = tasks(:one)
-    task.status_code = Story::Created
+    task.status_code = Story.Created
     assert_equal nil, task.done_at
-    task.status_code = Story::InProgress
+    task.status_code = Story.InProgress
     assert_equal nil, task.done_at
-    task.status_code = Story::Blocked
+    task.status_code = Story.Blocked
     assert_equal nil, task.done_at
-    task.status_code = Story::Done
+    task.status_code = Story.Done
     assert task.done_at != nil
   end
 

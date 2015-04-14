@@ -15,7 +15,7 @@ class ProjectTest < ActiveSupport::TestCase
     ActionMailer::Base.delivery_method = :test
     ActionMailer::Base.perform_deliveries = true
     ActionMailer::Base.deliveries = []
-    config_option_set(:who_to_notify, 'ksksk@ksdkdaiu.com')
+    Rails.configuration.who_to_notify = 'ksksk@ksdkdaiu.com'
   end
 
   # Test that an project can be created.
@@ -68,7 +68,7 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal projects(:first), story_attributes(:first).project
     i = individuals(:quentin)
     i.selected_project_id = 1
-    i.save(false)
+    i.save( :validate=> false )
     assert_equal projects(:first), individuals(:quentin).selected_project
     projects(:first).destroy
     assert_nil Team.find_by_id(1)
@@ -107,10 +107,10 @@ class ProjectTest < ActiveSupport::TestCase
   
   # Validate that notifications get sent
   def test_send_notifications
-    config_option_set(:notify_of_inactivity_after, 3)
-    config_option_set(:notify_when_expiring_in, 3)
+    Rails.configuration.notify_of_inactivity_after = 3
+    Rails.configuration.notify_when_expiring_in = 3
     today = Date.today
-    project = create_project(:premium_expiry => today - 2)
+    project = create_project()
     project.individuals << create_individual(:last_login => today - 4)
     notifications = ActionMailer::Base.deliveries.length
     Project.send_notifications
@@ -119,7 +119,7 @@ class ProjectTest < ActiveSupport::TestCase
   
   # Validate test_notify_of_inactivity
   def test_notify_of_inactivity_active
-    config_option_set(:notify_of_inactivity_after, 3)
+    Rails.configuration.notify_of_inactivity_after = 3
     project = create_project
     notifications = ActionMailer::Base.deliveries.length
     project.notify_of_inactivity
@@ -128,7 +128,7 @@ class ProjectTest < ActiveSupport::TestCase
   
   # Validate test_notify_of_inactivity
   def test_notify_of_inactivity_inactive
-    config_option_set(:notify_of_inactivity_after, 3)
+    Rails.configuration.notify_of_inactivity_after = 3
     project = create_project
     now = Time.now
     project.individuals << create_individual(:last_login => now - 3*24*60*60 - 60)
@@ -163,14 +163,14 @@ class ProjectTest < ActiveSupport::TestCase
   
   # Validate is_inactive
   def test_is_inactive_no_setting
-    config_option_set(:notify_of_inactivity, nil)
+    Rails.configuration.notify_of_inactivity = nil
     project = Project.new
     assert !project.is_inactive
   end
   
   # Validate is_inactive
   def test_is_inactive_recent_users
-    config_option_set(:notify_of_inactivity_after, 3)
+    Rails.configuration.notify_of_inactivity_after = 3
     now = Time.now
     project = Project.new
     project.individuals << create_individual(:last_login => now - 3*60*60*24 + 60)
@@ -179,7 +179,7 @@ class ProjectTest < ActiveSupport::TestCase
   
   # Validate is_inactive
   def test_is_inactive_no_recent_users
-    config_option_set(:notify_of_inactivity_after, 3)
+    Rails.configuration.notify_of_inactivity_after = 3
     now = Time.now
     project = Project.new
     project.individuals << create_individual(:last_login => now - 3*60*60*24 - 60)
@@ -188,7 +188,7 @@ class ProjectTest < ActiveSupport::TestCase
   
   # Validate is_inactive
   def test_is_inactive_no_recent_users_notified
-    config_option_set(:notify_of_inactivity_after, 3)
+    Rails.configuration.notify_of_inactivity_after = 3
     now = Time.now
     project = Project.new(:last_notified_of_inactivity => now)
     project.individuals << create_individual(:last_login => now - 3*60*60*24 - 60)
@@ -197,8 +197,8 @@ class ProjectTest < ActiveSupport::TestCase
   
   # Validate is_inactive
   def test_is_inactive_no_users_in_range
-    config_option_set(:notify_of_inactivity_after, 3)
-    config_option_set(:notify_of_inactivity_before, 5)
+    Rails.configuration.otify_of_inactivity_after = 3
+    Rails.configuration.notify_of_inactivity_before = 5
     now = Time.now
     project = Project.new
     project.individuals << create_individual(:last_login => now - 5*60*60*24 - 60)
@@ -207,8 +207,8 @@ class ProjectTest < ActiveSupport::TestCase
   
   # Validate is_inactive
   def test_is_inactive_users_in_range
-    config_option_set(:notify_of_inactivity_after, 3)
-    config_option_set(:notify_of_inactivity_before, 5)
+    Rails.configuration.notify_of_inactivity_after = 3
+    Rails.configuration.notify_of_inactivity_before = 5
     now = Time.now
     project = Project.new
     project.individuals << create_individual(:last_login => now - 5*60*60*24 + 60)

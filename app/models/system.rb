@@ -1,10 +1,8 @@
 class System < ActiveRecord::Base
-  attr_accessible :license_agreement
-
   # Summarize my recent data for reporting.  Add a day to the finish to make it end at the following day's midnight.
   def self.summarize
-    Release.find(:all, :conditions => ['start < ? and finish + interval 14 day > ?', Time.now, Time.now], :include => [:stories]).each { |release| release.summarize }
-    Iteration.find(:all, :conditions => ['start < ? and finish + interval 14 day > ?', Time.now, Time.now], :include => [:stories]).each { |iteration| iteration.summarize }
+    Release.includes(:stories).where(['start < :now and finish + interval 14 day > :now', {now: Time.now}]).each { |release| release.summarize }
+    Iteration.includes(:stories).where(['start < :now and finish + interval 14 day > :now', {now: Time.now}]).each { |iteration| iteration.summarize }
     Story.update_priorities
     Company.send_notifications
     Project.send_notifications

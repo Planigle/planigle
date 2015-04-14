@@ -7,7 +7,7 @@ class CreateReleases < ActiveRecord::Migration
       t.date :finish
     end
     add_column :stories, :release_id, :integer
-    Project.find_with_deleted(:all).each do |project|
+    Project.with_deleted.each do |project|
       iterations = project.iterations(:order => "start")
       if !iterations.empty?
         id = Release.create(:name =>"Current Release", :project_id => project.id, :start => iterations.first.start, :finish => iterations.last.start + iterations.last.length * 7).id

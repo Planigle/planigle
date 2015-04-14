@@ -1,6 +1,6 @@
 class ErrorObserver < ActiveRecord::Observer
   # Send out email on creation of a new error.
   def after_create( error )
-    ErrorMailer.deliver_error_notification( error )
+    ErrorMailer.error_notification( error ).deliver_now
   end
 end

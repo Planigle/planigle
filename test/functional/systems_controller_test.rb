@@ -1,6 +1,5 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
 require "#{File.dirname(__FILE__)}/../systems_test_helper"
-require "systems_controller"
 
 # Re-raise errors caught by the controller.
 class SystemsController; def rescue_action(e) raise e end; end
@@ -101,7 +100,7 @@ class SystemsControllerTest < ActionController::TestCase
   def test_report_admin
     i = individuals(:quentin)
     i.selected_project_id = 1
-    i.save(false)
+    i.save( :validate=> false )
     login_as(individuals(:quentin))
     get :report
     assert_select "release-totals" do

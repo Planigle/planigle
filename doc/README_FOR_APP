@@ -15,7 +15,6 @@ Ruby AMF (Rails Plugin) - MIT
 Restful Authentication (Rails Plugin) - MIT
 acts_as_audited (Rails Plugin) - MIT
 acts_as_paranoid (Rails Plugin) - MIT
-site_config (Rails Plugin) - MIT
 iui (CSS and Images for iPhone) - Free (minimal restrictions; see license file)
 rails-iui (Rails Plugin) - MIT
 Cairngorm (Flex library) - BSD
@@ -26,7 +25,6 @@ Icons - Active Scaffold (Rails Plugin) - MIT
 Icons - http://www.softicons.com/free-icons/toolbar-icons/48x48-free-object-icons-by-aha-soft/bug-icon - Creative Commons Attribution 3.0
 
 Required Gems:
-FasterCSV - Ruby (from http://fastercsv.rubyforge.org/)
 FunFX - MIT (from http://rubyforge.org/projects/funfx/)
 will_paginate - Free for use (http://gitrdoc.com/rdoc/mislav/will_paginate/b3b0f593ea9b1da13a64bc825dfe17b6bbc2828b/files/LICENSE.html)
 win32-sound - (from http://win32utils.rubyforge.org/) - This provides feedback when compilation is done on Windows.  The dependency on it can be easily removed by modifying the rake file.

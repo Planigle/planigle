@@ -32,4 +32,9 @@ protected
       @record.attributes = params[:record]
     end
   end
+  
+private
+  def record_params
+    params.require(:record).permit(:company_id, :name, :description, :survey_mode, :track_actuals, :last_notified_of_inactivity)
+  end
 end

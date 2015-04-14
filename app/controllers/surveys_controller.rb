@@ -131,4 +131,9 @@ class SurveysController < ApplicationController
   rescue ActiveRecord::RecordNotFound
     head 404
   end
+  
+private
+  def record_params
+    params.require(:record).permit(:project_id, :name, :company, :email, :excluded)
+  end
 end

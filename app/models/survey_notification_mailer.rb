@@ -5,16 +5,17 @@ class SurveyNotificationMailer < ActionMailer::Base
     setup_email(survey)
   end
   
-  protected
+protected
 
   # Set up common email properties.
   def setup_email(survey)
-    @subject     = "Someone has completed a Planigle survey for your project"
-    @body[:logo] = config_option(:site_logo)
-    @body[:survey]  = survey
-    @recipients  = "#{survey.project.admin_email_addresses.join(',')}"
-    @from        = "#{PLANIGLE_ADMIN_EMAIL}"
-    @sent_on     = Time.now
-    @content_type = 'text/html'
+    @logo = Rails.configuration.site_logo
+    @survey = survey
+    mail(
+      from: "#{PLANIGLE_ADMIN_EMAIL}",
+      to: "#{survey.project.admin_email_addresses.join(',')}",
+      subject: "Someone has completed a Planigle survey for your project",
+      content_type: 'text/html'
+    )
   end
 end

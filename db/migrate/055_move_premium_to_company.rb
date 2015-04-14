@@ -4,7 +4,7 @@ class MovePremiumToCompany < ActiveRecord::Migration
     add_column :companies, :premium_limit, :integer
     add_column :companies, :last_notified_of_expiration, :datetime
     Company.reset_column_information # Work around an issue where the new columns are not in the cache.
-    Company.find(:all).each do |company|
+    Company.find_each do |company|
       min_val = 10.years.ago
       max_expiry = min_val.to_date
       max_limit = 0
@@ -26,7 +26,7 @@ class MovePremiumToCompany < ActiveRecord::Migration
       company.premium_expiry = max_expiry
       company.premium_limit = max_limit
       company.last_notified_of_expiration = max_notified
-      company.save(false)
+      company.save( :validate=> false )
     end
     remove_column :projects, :premium_expiry
     remove_column :projects, :premium_limit
@@ -38,12 +38,12 @@ end
     add_column :projects, :premium_limit, :integer
     add_column :projects, :last_notified_of_expiration, :datetime
     Project.reset_column_information # Work around an issue where the new columns are not in the cache.
-    Company.find(:all).each do |company|
+    Company.find_each do |company|
       company.projects.each do |project|
         project.premium_expiry = company.premium_expiry
         project.premium_limit = company.premium_limit
         project.last_notified_of_expiration = company.last_notified_of_expiration
-        project.save(false)
+        project.save( :validate=> false )
       end
     end
     remove_column :companies, :premium_expiry

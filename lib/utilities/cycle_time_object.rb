@@ -1,13 +1,13 @@
 module Utilities::CycleTimeObject
   def status_code=(new_code)
-    if new_code.to_i >= Story::InProgress
+    if new_code.to_i >= Story.InProgress
       if in_progress_at == nil
         write_attribute(:in_progress_at,Time.now)
       end
     else
       write_attribute(:in_progress_at,nil)
     end
-    if new_code.to_i >= Story::Done
+    if new_code.to_i >= Story.Done
       if done_at == nil
         write_attribute(:done_at,Time.now)
       end

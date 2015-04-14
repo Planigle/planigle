@@ -14,9 +14,9 @@ class Total < ActiveRecord::Base
         effort = item.effort
         effort = effort != nil ? effort : 0
         case item.status_code
-          when Story::Created then created += effort
-          when Story::InProgress then in_progress += effort
-          when Story::Blocked then blocked += effort
+          when Story.Created then created += effort
+          when Story.InProgress then in_progress += effort
+          when Story.Blocked then blocked += effort
           else done += effort
         end
       end
@@ -31,13 +31,15 @@ class Total < ActiveRecord::Base
 
   # Create or update summarized data.
   def self.capture(id, team_id, created, in_progress, done, blocked)
-    total = find(:first, :conditions => {id_field => id, :team_id => team_id, :date => Date.today})
+    where_clause = {team_id: team_id, date: Date.today}
+    where_clause[id_field] = id
+    total = where(where_clause).first
     if total
       total.created = created
       total.in_progress = in_progress
       total.done = done
       total.blocked = blocked
-      total.save(false)
+      total.save( :validate=> false )
       total
     else
       create(id_field => id, :team_id => team_id, :date => Date.today, :created => created, :in_progress => in_progress, :done => done, :blocked => blocked) 

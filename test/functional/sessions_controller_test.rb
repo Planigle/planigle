@@ -1,6 +1,4 @@
 require File.dirname(__FILE__) + '/../test_helper'
-require 'sessions_controller'
-require 'application'
 
 # Re-raise errors caught by the controller.
 class SessionsController; def rescue_action(e) raise e end; end
@@ -35,7 +33,7 @@ class SessionsControllerTest < ActionController::TestCase
   def test_should_login_selected_project
     i = individuals(:quentin)
     i.selected_project_id = 1
-    i.save(false)
+    i.save( :validate=> false )
     post :create, :login => 'quentin', :password => 'testit', :format => 'xml', :conditions => {:status_code => 'NotDone', :team_id => 'MyTeam', :release_id => 'Current', :iteration_id => 'Current'}
     assert session[:individual_id]
     assert individuals(:quentin).reload.last_login > (Time.now - 10)
@@ -102,7 +100,7 @@ class SessionsControllerTest < ActionController::TestCase
   # Test that cookie's presence results in automatic login.
   def test_should_login_with_cookie
     individuals(:quentin).remember_me
-    individuals(:quentin).save(false)
+    individuals(:quentin).save( :validate=> false )
     @request.cookies["auth_token"] = cookie_for(:quentin)
     get :new
     assert @controller.send(:logged_in?)
@@ -111,7 +109,7 @@ class SessionsControllerTest < ActionController::TestCase
   # Test that an expired cookie does not log you in.
   def test_should_fail_expired_cookie_login
     individuals(:quentin).remember_me
-    individuals(:quentin).save(false)
+    individuals(:quentin).save( :validate=> false )
     individuals(:quentin).update_attribute :remember_token_expires_at, 5.minutes.ago
     @request.cookies["auth_token"] = cookie_for(:quentin)
     get :new
@@ -121,7 +119,7 @@ class SessionsControllerTest < ActionController::TestCase
   # Test that if the server doesn't know about the remember me cookie, it is ignored.
   def test_should_fail_cookie_login
     individuals(:quentin).remember_me
-    individuals(:quentin).save(false)
+    individuals(:quentin).save( :validate=> false )
     @request.cookies["auth_token"] = auth_token('invalid_auth_token')
     get :new
     assert !@controller.send(:logged_in?)
@@ -131,7 +129,7 @@ class SessionsControllerTest < ActionController::TestCase
   def test_should_require_accept_license
     system = System.find(:first)
     system.license_agreement = "You must accept"
-    system.save(false)
+    system.save( :validate=> false )
     post :create, :login => 'quentin', :password => 'testit', :format => 'xml'
     assert_response 422
     assert_select "error"
@@ -160,7 +158,7 @@ class SessionsControllerTest < ActionController::TestCase
   def test_create_iphone_no_agreement
     individ = individuals(:admin2)
     individ.accepted_agreement = nil
-    individ.save(false)
+    individ.save( :validate=> false )
     post :create, :format => 'iphone', :login => 'admin2', :password => 'testit', :remember_me => "true"
     assert_redirected_to :controller => 'stories', :action => 'index'
   end

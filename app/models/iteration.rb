@@ -2,17 +2,17 @@ class Iteration < ActiveRecord::Base
   include Utilities::Text
   acts_as_paranoid
   belongs_to :project
-  has_many :stories, :dependent => :nullify, :conditions => "stories.deleted_at IS NULL"
+  has_many :stories, -> {where(deleted_at: nil)}, dependent: :nullify
   has_many :iteration_totals, :dependent => :destroy
   has_many :iteration_story_totals, :dependent => :destroy
   has_many :iteration_velocities, :dependent => :destroy
-  attr_accessible :name, :start, :finish, :project_id, :retrospective_results, :notable
-  acts_as_audited
+  audited
   
   validates_presence_of     :project_id, :name, :start, :finish
   validates_length_of       :name,   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
   validates_length_of       :notable,   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
   validates_length_of       :retrospective_results, :maximum => 4096, :allow_nil => true
+  validate :validate
 
   # If project is set, set the default values based on that project.
   def project=(project)
@@ -22,27 +22,27 @@ class Iteration < ActiveRecord::Base
   # If project is set, set the default values based on that project.
   def project_id=(project_id)
     if project_id
-      stories.each {|story| story.project_id = project_id; story.save(false)}
+      stories.each {|story| story.project_id = project_id; story.save( :validate=> false )}
     end
     write_attribute(:project_id, project_id)
   end
 
   # Answer whether records have changed.
   def self.have_records_changed(current_user, time)
-    Iteration.count_with_deleted(:conditions => ["project_id = ? and (updated_at >= ? or deleted_at >= ?)", current_user.project_id, time, time]) > 0
+    Iteration.with_deleted.where(["project_id = :project_id and (updated_at >= :time or deleted_at >= :time)", {project_id: current_user.project_id, time: time}]).count > 0
   end
 
   # Answer the records for a particular user.
   def self.get_records(current_user)
-    Iteration.find(:all, :conditions => ["project_id = ?", current_user.project_id ], :order => 'start')
+    Iteration.where(project_id: current_user.project_id).order('start')
   end
 
   # Answer the current iteration for a particular user.
   def self.find_current(current_user, release=nil)
     if release
-      current_user.project_id ? Iteration.find(:first, :conditions => ["project_id = ? and start <= CURDATE() and finish >= CURDATE() and start <= ? and finish >= ?", current_user.project_id, release.finish, release.start], :order => 'start,finish') : nil
+      current_user.project_id ? Iteration.where(["project_id = :project_id and start <= CURDATE() and finish >= CURDATE() and start <= :start and finish >= :finish", {project_id: current_user.project_id, start: release.finish, finish: release.start}]).order('start,finish').first : nil
     else
-      current_user.project_id ? Iteration.find(:first, :conditions => ["project_id = ? and start <= CURDATE() and finish >= CURDATE()", current_user.project_id], :order => 'start,finish') : nil
+      current_user.project_id ? Iteration.where(["project_id = :project_id and start <= CURDATE() and finish >= CURDATE()", {project_id: current_user.project_id}]).order('start,finish').first : nil
     end
   end
   
@@ -96,7 +96,7 @@ class Iteration < ActiveRecord::Base
     total = 0
     stories.each do |story|
       if story.team == team
-        if story.lead_time != nil && story.status_code == Story::Done && story.effort != 0 && story.effort != nil
+        if story.lead_time != nil && story.status_code == Story.Done && story.effort != 0 && story.effort != nil
           total += story.lead_time
         end
       end
@@ -108,7 +108,7 @@ class Iteration < ActiveRecord::Base
     total = 0
     stories.each do |story|
       if story.team == team
-        if story.cycle_time != nil && story.status_code == Story::Done && story.effort != 0 && story.effort != nil
+        if story.cycle_time != nil && story.status_code == Story.Done && story.effort != 0 && story.effort != nil
           total += story.cycle_time
         end
       end
@@ -117,7 +117,7 @@ class Iteration < ActiveRecord::Base
   end
   
   def num_stories(team)
-    stories.select {|story|story.team == team && story.status_code == Story::Done && story.effort != 0 && story.effort != nil}.length
+    stories.select {|story|story.team == team && story.status_code == Story.Done && story.effort != 0 && story.effort != nil}.length
   end
   
 protected

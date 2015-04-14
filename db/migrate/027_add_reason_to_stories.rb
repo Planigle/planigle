@@ -2,8 +2,8 @@ class AddReasonToStories < ActiveRecord::Migration
   def self.up
     add_column :stories, :reason_blocked, :text, :limit => 4096
     add_column :tasks, :reason_blocked, :text, :limit => 4096
-    Story.update_all :reason_blocked => ""
-    Task.update_all :reason_blocked => ""
+    Story.with_deleted.each {|story| story.reason_blocked(""); story.save( :validate=> false )}
+    Task.with_deleted.each {|story| story.reason_blocked(""); story.save( :validate=> false )}
   end
 
   def self.down

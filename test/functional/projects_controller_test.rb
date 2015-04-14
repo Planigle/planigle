@@ -1,13 +1,12 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
 require "#{File.dirname(__FILE__)}/../projects_test_helper"
 require "#{File.dirname(__FILE__)}/controller_resource_helper"
-require "projects_controller"
 require "company_mailer"
 
 # Re-raise errors caught by the controller.
 class ProjectsController; def rescue_action(e) raise e end; end
 
-class ProjectsControllerTest < Test::Unit::TestCase
+class ProjectsControllerTest < ActiveSupport::TestCase
   include ControllerResourceHelper
   include ProjectsTestHelper
 

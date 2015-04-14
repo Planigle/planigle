@@ -75,7 +75,7 @@ class StoryTest < ActiveSupport::TestCase
     story = stories(:first)
     assert_equal 1, story.effort
     story.effort=nil
-    story.save(false)
+    story.save( :validate=> false )
     assert_nil story.effort
     assert_equal 5, story.time
   end
@@ -116,13 +116,13 @@ class StoryTest < ActiveSupport::TestCase
     story = create_story
     single_task = Task.create(:story_id => story.id, :name => 'test', :individual_id => single_individ.id)
     multi_task = Task.create(:story_id => story.id, :name => 'test', :individual_id => multi_individ.id)
-    story.attributes={:custom_1 => 'foo', :custom_2 => 'bar', :custom_3 => 5, :custom_5 => 1}
-    story.save(false)
+    story.assign_attributes(:custom_1 => 'foo', :custom_2 => 'bar', :custom_3 => 5, :custom_5 => 1)
+    story.save( :validate=> false )
     story.reload
     assert_equal 4, story.story_values.size
 
-    story.attributes={:project_id => 3}
-    story.save(false)
+    story.assign_attributes(:project_id => 3)
+    story.save( :validate=> false )
     assert_nil single_task.reload.individual_id
     assert_equal multi_individ.id, multi_task.reload.individual_id
     assert_equal 0, story.reload.story_values.size
@@ -131,51 +131,51 @@ class StoryTest < ActiveSupport::TestCase
   # Test a custom attribute.
   def test_custom
     story = create_story(:custom_1 => 'test1')
-    assert_equal 'test1', story.story_values.find(:first, :conditions => {:story_attribute_id => 1}).value
+    assert_equal 'test1', story.story_values.where(story_attribute_id: 1).first.value
     story = create_story(:custom_2 => 'test2')
-    assert_equal 'test2', story.story_values.find(:first, :conditions => {:story_attribute_id => 2}).value
+    assert_equal 'test2', story.story_values.where(story_attribute_id: 2).first.value
     story = create_story(:custom_3 => '5')
-    assert_equal '5', story.story_values.find(:first, :conditions => {:story_attribute_id => 3}).value
+    assert_equal '5', story.story_values.where(story_attribute_id: 3).first.value
     story = create_story(:custom_10 => '5')
-    assert_equal 1, story.errors.length
-    assert_equal nil, story.story_values.find(:first, :conditions => {:story_attribute_id => 10})
+    assert_equal 1, story.errors.count
+    assert_equal nil, story.story_values.where(story_attribute_id: 10).first
   end
   
   # Test a custom list attribute.
   def test_custom_list
     story = create_story(:custom_5 => 1)
-    assert_equal "1", story.story_values.find(:first, :conditions => {:story_attribute_id => 5}).value
+    assert_equal "1", story.story_values.where(story_attribute_id: 5).first.value
     story_attribute_values(:first).destroy
-    assert_nil story.story_values.find(:first, :conditions => {:story_attribute_id => 5})
+    assert_nil story.story_values.where(story_attribute_id: 5).first
   end
   
   # Test a custom list attribute with an invalid value.
   def test_custom_list_invalid
     story = create_story(:custom_5 => 6)
-    assert_equal 1, story.errors.length
-    assert_nil story.story_values.find(:first, :conditions => {:story_attribute_id => 6})
+    assert_equal 1, story.errors.count
+    assert_nil story.story_values.where(story_attribute_id: 6).first
   end
   
   # Test a custom release list attribute.
   def test_custom_release_list
     story = create_story(:custom_6 => 4, :release_id => 1)
-    assert_equal "4", story.story_values.find(:first, :conditions => {:story_attribute_id => 6}).value
+    assert_equal "4", story.story_values.where(story_attribute_id: 6).first.value
     story_attribute_values(:fourth).destroy
-    assert_nil story.story_values.find(:first, :conditions => {:story_attribute_id => 6})
+    assert_nil story.story_values.where(story_attribute_id: 6).first
   end
   
   # Test a custom release list attribute with an invalid value.
   def test_custom_release_list_invalid
     story = create_story(:custom_6 => 7)
-    assert_equal 1, story.errors.length
-    assert_nil story.story_values.find(:first, :conditions => {:story_attribute_id => 6})
+    assert_equal 1, story.errors.count
+    assert_nil story.story_values.where(story_attribute_id: 6).first
   end
   
   # Test a custom release list attribute with an invalid value.
   def test_custom_release_list_invalid_release
     story = create_story(:custom_6 => 6)
-    assert_equal 1, story.errors.length
-    assert_nil story.story_values.find(:first, :conditions => {:story_attribute_id => 6})
+    assert_equal 1, story.errors.count
+    assert_nil story.story_values.where(story_attribute_id: 6).first
   end
 
   # Test the accepted? method.
@@ -239,7 +239,7 @@ class StoryTest < ActiveSupport::TestCase
   def test_split_null_effort
     story = stories(:first)
     story.effort = nil
-    story.save(false)
+    story.save( :validate=> false )
     assert_nil story.effort
     assert_equal 5, story.time # Total of tasks
     story = story.split
@@ -248,7 +248,7 @@ class StoryTest < ActiveSupport::TestCase
 
   # Test that added stories are put at the end of the list.
   def test_priority_on_add
-    assert_equal [3, 2, 1, 4, 6] << create_story.id, Story.find(:all, :conditions => 'project_id = 1', :order=>'priority').collect {|story| story.id}    
+    assert_equal [3, 2, 1, 4, 6] << create_story.id, Story.where(project_id: 1).order('priority').collect {|story| story.id}    
   end
   
   # Test deleting an story (should delete tasks).
@@ -258,8 +258,8 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal survey_mappings(:first).story, stories(:first)
     assert_equal story_values(:first).story, stories(:first)
     stories(:first).destroy
-    assert_nil Criterium.find_by_description('test_ac')
-    assert_nil Task.find_by_name('test')
+    assert_nil Criterium.where(description: 'test_ac')
+    assert_nil Task.where(name: 'test')
     assert_nil SurveyMapping.find_by_id('1')
     assert_nil StoryValue.find_by_id('1')
   end
@@ -273,35 +273,35 @@ class StoryTest < ActiveSupport::TestCase
   # Test finding stories for a specific user.
   def test_find
     assert_equal 0, Story.get_records(individuals(:quentin)).length
-    assert_equal Story.find_all_by_project_id(1).length - 1, Story.get_records(individuals(:aaron)).length
-    assert_equal Story.find_all_by_project_id(1).length - 1, Story.get_records(individuals(:user)).length
-    assert_equal Story.find_all_by_project_id(1).length - 1, Story.get_records(individuals(:readonly)).length
-    assert_equal Story.find(:all, :conditions => {:project_id => 1, :iteration_id => 1}).length, Story.get_records(individuals(:readonly), {:iteration_id => iterations(:first).id}).length
+    assert_equal Story.where(project_id: 1).length - 1, Story.get_records(individuals(:aaron)).length
+    assert_equal Story.where(project_id: 1).length - 1, Story.get_records(individuals(:user)).length
+    assert_equal Story.where(project_id: 1).length - 1, Story.get_records(individuals(:readonly)).length
+    assert_equal Story.where(project_id: 1, iteration_id: 1).length, Story.get_records(individuals(:readonly), {:iteration_id => iterations(:first).id}).length
   end
   
   # Test finding individuals for a specific user.
   def test_find_not_done
-    assert_equal Story.find(:all, :conditions => {:project_id => 1, :status_code => [0,1,2]}).length - 1, Story.get_records(individuals(:readonly), {:status_code => 'NotDone'}).length
+    assert_equal Story.where(project_id: 1, status_code: [0,1,2]).length - 1, Story.get_records(individuals(:readonly), {:status_code => 'NotDone'}).length
   end
   
   # Test finding individuals for a specific user.
   def test_find_current_release
-    assert_equal Story.find(:all, :conditions => {:project_id => 1}).length - 1, Story.get_records(individuals(:readonly), {:release_id => 'Current'}).length
+    assert_equal Story.where(project_id: 1).length - 1, Story.get_records(individuals(:readonly), {:release_id => 'Current'}).length
     release = Release.create(:project_id => 1, :name => 'Test', :start => Date.today, :finish =>  Date.today + 14)
-    assert_equal Story.find(:all, :conditions => {:project_id => 1, :release_id => release.id}).length, Story.get_records(individuals(:readonly), {:release_id => 'Current'}).length
+    assert_equal Story.where(project_id: 1, release_id: release.id).length, Story.get_records(individuals(:readonly), {:release_id => 'Current'}).length
   end
 
   # Test finding individuals for a specific user.
   def test_find_current_iteration
-    assert_equal Story.find(:all, :conditions => {:project_id => 1}).length - 1, Story.get_records(individuals(:readonly), {:iteration_id => 'Current'}).length
+    assert_equal Story.where(project_id: 1).length - 1, Story.get_records(individuals(:readonly), {:iteration_id => 'Current'}).length
     iteration = Iteration.create(:project_id => 1, :name => 'Test', :start => Date.today, :finish =>  Date.today + 14)
-    assert_equal Story.find(:all, :conditions => {:project_id => 1, :iteration_id => iteration.id}).length, Story.get_records(individuals(:readonly), {:iteration_id => 'Current'}).length
+    assert_equal Story.where(project_id: 1, iteration_id: iteration.id).length, Story.get_records(individuals(:readonly), {:iteration_id => 'Current'}).length
   end
 
   # Test finding individuals for a specific user.
   def test_find_my_team
-    assert_equal Story.find(:all, :conditions => {:project_id => 1, :team_id => individuals(:aaron).team_id}).length, Story.get_records(individuals(:aaron), {:team_id => 'MyTeam'}).length
-    assert_equal Story.find(:all, :conditions => {:project_id => 1}).length - 1, Story.get_records(individuals(:readonly), {:team_id => 'MyTeam'}).length
+    assert_equal Story.where(project_id: 1, team_id: individuals(:aaron).team_id).length, Story.get_records(individuals(:aaron), {:team_id => 'MyTeam'}).length
+    assert_equal Story.where(project_id: 1).length - 1, Story.get_records(individuals(:readonly), {:team_id => 'MyTeam'}).length
   end
 
   # Test finding individuals for a specific user.
@@ -397,8 +397,8 @@ class StoryTest < ActiveSupport::TestCase
     scount = Story.count
     tcount = Task.count
     verify_no_errors(Story.import(individuals(:aaron), "pid,name\n1,Fred\nt,Bob"))
-    assert Story.find(:first, :conditions => ["name = 'Fred'"])
-    assert Task.find(:first, :conditions => ["name = 'Bob'"])
+    assert Story.where(name: 'Fred').first
+    assert Task.where(name: 'Bob').first
     assert_equal scount, Story.count
     assert_equal tcount + 1, Task.count
   end
@@ -407,8 +407,8 @@ class StoryTest < ActiveSupport::TestCase
     scount = Story.count
     tcount = Task.count
     verify_no_errors(Story.import(individuals(:aaron), "pid,name\n,Fred\nt,Bob"))
-    assert Story.find(:first, :conditions => ["name = 'Fred'"])
-    assert Task.find(:first, :conditions => ["name = 'Bob'"])
+    assert Story.where(name: 'Fred').first
+    assert Task.where(name: 'Bob').first
     assert_equal scount + 1, Story.count
     assert_equal tcount + 1, Task.count
   end
@@ -423,14 +423,14 @@ class StoryTest < ActiveSupport::TestCase
   def test_import_new_story
     count = Story.count
     verify_no_errors(Story.import(individuals(:aaron), "pid,name\n,Fred"))
-    assert Story.find(:first, :conditions => ["name = 'Fred'"])
+    assert Story.where(name: 'Fred').first
     assert_equal count + 1, Story.count
   end
 
   def test_import_non_relational_attributes
     count = Story.count
     verify_no_errors(Story.import(individuals(:aaron), "pid,name,description,acceptance criteria,size,status,reason blocked,public\n,Fred,description,acceptance,1,Blocked,because I said so,false"))
-    story = Story.find(:first, :conditions => ["name = 'Fred'"])
+    story = Story.where(name: 'Fred').first
     assert story
     assert_equal count + 1, Story.count
     assert_equal 'description', story.description
@@ -446,7 +446,7 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal name, stories(:first).reload.name
   end
 
-  def test_import_extra column
+  def test_import_extra_column
     verify_errors(Story.import(individuals(:aaron), "pid,name,foo\n1,Fred,"))
     assert_equal 'Fred', stories(:first).reload.name
   end
@@ -486,7 +486,7 @@ class StoryTest < ActiveSupport::TestCase
   def test_import_valid_main_release
     release = releases(:second)
     release.name='1.0'
-    release.save(false)
+    release.save( :validate=> false )
     verify_no_errors(Story.import(individuals(:aaron), "pid,release\n1,1"))
     assert_equal '1.0', stories(:first).release.reload.name
   end
@@ -510,7 +510,7 @@ class StoryTest < ActiveSupport::TestCase
 
   def test_import_valid_status_code
     verify_no_errors(Story.import(individuals(:aaron), "pid,status\n1,Done"))
-    assert_equal Story::Done, stories(:first).reload.status_code
+    assert_equal Story.Done, stories(:first).reload.status_code
   end
 
   def test_import_invalid_status_code
@@ -527,12 +527,12 @@ class StoryTest < ActiveSupport::TestCase
 
   def test_import_custom_update
     verify_no_errors(Story.import(individuals(:admin2), "pid,Test_String\n1,5"))
-    assert_equal "5", StoryValue.find(:first, :conditions => {:story_id => 1, :story_attribute_id => 1}).reload.value
+    assert_equal "5", StoryValue.where(story_id: 1, story_attribute_id: 1).first.reload.value
   end
 
   def test_import_custom_list
     verify_no_errors(Story.import(individuals(:admin2), "pid,Test_List\n1,value 1"))
-    assert_equal "1", StoryValue.find(:first, :conditions => {:story_id => 1, :story_attribute_id => 5}).reload.value
+    assert_equal "1", StoryValue.where(story_id: 1, story_attribute_id: 5).first.reload.value
   end
 
   def test_import_custom_list_invalid
@@ -541,12 +541,12 @@ class StoryTest < ActiveSupport::TestCase
 
   def test_import_custom_list_none
     verify_no_errors(Story.import(individuals(:admin2), "pid,Test_List\n1,"))
-    assert_equal 0, StoryValue.find(:all, :conditions => {:story_id => 1, :story_attribute_id => 5}).length
+    assert_equal 0, StoryValue.where(story_id: 1, story_attribute_id: 5).length
   end
 
   def test_import_custom_release_list
     verify_no_errors(Story.import(individuals(:admin2), "pid,Test_Release\n1,Theme 1"))
-    assert_equal "4", StoryValue.find(:first, :conditions => {:story_id => 1, :story_attribute_id => 6}).reload.value
+    assert_equal "4", StoryValue.where(story_id: 1, story_attribute_id: 6).first.reload.value
   end
 
   def test_import_custom_release_list_invalid
@@ -559,17 +559,17 @@ class StoryTest < ActiveSupport::TestCase
 
   def test_import_custom_release_list_none
     verify_no_errors(Story.import(individuals(:admin2), "pid,Test_Release\n1,"))
-    assert_equal 0, StoryValue.find(:all, :conditions => {:story_id => 1, :story_attribute_id => 6}).length
+    assert_equal 0, StoryValue.where(story_id: 1, story_attribute_id: 6).length
   end
 
   def test_import_custom_create
     verify_no_errors(Story.import(individuals(:admin2), "pid,Test_String\n2,5"))
-    assert_equal "5", StoryValue.find(:first, :conditions => {:story_id => 2, :story_attribute_id => 1}).reload.value
+    assert_equal "5", StoryValue.where(story_id: 2, story_attribute_id: 1).first.reload.value
   end
 
   def test_import_custom_delete
     verify_no_errors(Story.import(individuals(:admin2), "pid,Test_String\n1,"))
-    assert_nil StoryValue.find(:first, :conditions => {:story_id => 1, :story_attribute_id => 1})  
+    assert_nil StoryValue.where(story_id: 1, story_attribute_id: 1).first  
   end
   
   def test_value_for
@@ -594,8 +594,8 @@ class StoryTest < ActiveSupport::TestCase
 
   def test_relative_priority
     story = create_story
-    story.attributes={:relative_priority => "3,2"}
-    story.save(false)
+    story.assign_attributes(:relative_priority => "3,2")
+    story.save( :validate=> false )
     assert_equal 1.5, story.priority
   end
   
@@ -626,8 +626,8 @@ class StoryTest < ActiveSupport::TestCase
     story = stories(:first)
     assert !story.is_ready_to_accept
     task = tasks(:one)
-    task.status_code = Story::Done
-    task.save(false)
+    task.status_code = Story.Done
+    task.save( :validate=> false )
     story.reload
     assert story.is_ready_to_accept
   end
@@ -671,10 +671,10 @@ class StoryTest < ActiveSupport::TestCase
     story = stories(:first)
     story.story_id = -1
     story.save
-    assert_equal 1, story.errors.length # invalid story id
+    assert_equal 1, story.errors.count # invalid story id
     story.story_id = 5
     story.save
-    assert_equal 1, story.errors.length # invalid project
+    assert_equal 1, story.errors.count # invalid project
   end
 
   def test_get_stats
@@ -697,25 +697,25 @@ class StoryTest < ActiveSupport::TestCase
   
   def test_in_progress_at
     story = stories(:first)
-    story.status_code = Story::Created
+    story.status_code = Story.Created
     assert_equal nil, story.in_progress_at
-    story.status_code = Story::InProgress
+    story.status_code = Story.InProgress
     assert story.in_progress_at != nil
-    story.status_code = Story::Blocked
+    story.status_code = Story.Blocked
     assert story.in_progress_at != nil
-    story.status_code = Story::Done
+    story.status_code = Story.Done
     assert story.in_progress_at != nil
   end
   
   def test_done_at
     story = stories(:first)
-    story.status_code = Story::Created
+    story.status_code = Story.Created
     assert_equal nil, story.done_at
-    story.status_code = Story::InProgress
+    story.status_code = Story.InProgress
     assert_equal nil, story.done_at
-    story.status_code = Story::Blocked
+    story.status_code = Story.Blocked
     assert_equal nil, story.done_at
-    story.status_code = Story::Done
+    story.status_code = Story.Done
     assert story.done_at != nil
   end
   
@@ -760,11 +760,11 @@ private
     sleep 1 # Distance from set up
     start = Time.now
     other_project_object.name = "changed"
-    other_project_object.save(false)
+    other_project_object.save( :validate=> false )
     assert_no_changes(start)
 
     project_object.name = "changed"
-    project_object.save(false)
+    project_object.save( :validate=> false )
     assert_changes(start)
 
     project_object.destroy

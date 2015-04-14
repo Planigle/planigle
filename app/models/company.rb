@@ -1,14 +1,12 @@
 class Company < ActiveRecord::Base
   acts_as_paranoid
-  has_many :projects, :dependent => :destroy, :conditions => "projects.deleted_at IS NULL"
-  has_many :all_projects, :class_name => "Project"
-  has_many :individuals, :dependent => :nullify, :conditions => "individuals.deleted_at IS NULL" # Delete non-admins
-  attr_accessible :name, :premium_limit, :premium_expiry, :last_notified_of_expiration
-  acts_as_audited
+  has_many :projects, -> {where(deleted_at: nil)}, dependent: :destroy
+  has_many :individuals, -> {where(deleted_at: nil)}, dependent: :nullify
+  audited
   before_save :update_notifications
 
   validates_presence_of     :name
-  validates_length_of       :name,                   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
+  validates_length_of       :name, :maximum => 40, :allow_nil => true # Allow nil to workaround bug
   validates_numericality_of :premium_limit, :only_integer => true, :allow_nil => false, :greater_than => 0
   
   # Answer the email addresses for my admins
@@ -18,7 +16,7 @@ class Company < ActiveRecord::Base
 
   # Notify of any interesting activity.
   def self.send_notifications
-    find(:all).each do |company|
+    find_each do |company|
       company.notify_of_expiration
     end
   end
@@ -33,16 +31,16 @@ class Company < ActiveRecord::Base
   # Notify if my premium status is about to expire
   def notify_of_expiration
     if is_about_to_expire
-      ExpirationMailer.deliver_notification(self)
+      ExpirationMailer.notification(self).deliver_now
       self.last_notified_of_expiration = DateTime.now
-      save(false)
+      save( :validate=> false )
     end
   end
   
   # Answer whether my premium subscription is about to expire.
   def is_about_to_expire
     time_until_expiration = self.premium_expiry - Date.today
-    config_option(:notify_when_expiring_in) && !self.last_notified_of_expiration && time_until_expiration >= 0 && time_until_expiration <= config_option(:notify_when_expiring_in)
+    Rails.configuration.notify_when_expiring_in && !self.last_notified_of_expiration && time_until_expiration >= 0 && time_until_expiration <= Rails.configuration.notify_when_expiring_in
   end
 
   # Ensure that premium expiry and premium limit are initialized.
@@ -63,7 +61,7 @@ class Company < ActiveRecord::Base
   
   # Answer whether I can add new users.
   def can_add_users
-    !is_premium || individuals.count(:conditions => ['enabled = true and role < 3']) < premium_limit
+    !is_premium || individuals.where('enabled = true and role < 3').count < premium_limit
   end
 
   # Delete all non-admins
@@ -75,18 +73,18 @@ class Company < ActiveRecord::Base
   # Answer whether records have changed.
   def self.have_records_changed(current_user, time)
     if current_user.role >= Individual::ProjectAdmin
-      Company.count_with_deleted(:include => [{:all_projects => :all_teams}], :conditions => ["companies.id = ? and (companies.updated_at >= ? or companies.deleted_at >= ? or projects.updated_at >= ? or projects.deleted_at >= ? or teams.updated_at >= ? or teams.deleted_at >= ?)", current_user.company_id, time, time, time, time, time, time]) > 0
+      Company.with_deleted.joins('LEFT OUTER JOIN projects ON projects.company_id=companies.id LEFT OUTER JOIN teams ON teams.project_id=projects.id').where(["companies.id = :company_id and (companies.updated_at >= :time or companies.deleted_at >= :time or projects.updated_at >= :time or projects.deleted_at >= :time or teams.updated_at >= :time or teams.deleted_at >= :time)", {company_id: current_user.company_id, time: time}]).count > 0
     else
-      Company.count_with_deleted(:include => [{:all_projects => :all_teams}], :conditions => ["companies.updated_at >= ? or companies.deleted_at >= ? or projects.updated_at >= ? or projects.deleted_at >= ? or teams.updated_at >= ? or teams.deleted_at >= ?", time, time, time, time, time, time]) > 0
+      Company.with_deleted.joins('LEFT OUTER JOIN projects ON projects.company_id=companies.id LEFT OUTER JOIN teams ON teams.project_id=projects.id').where(["companies.updated_at >= :time or companies.deleted_at >= :time or projects.updated_at >= :time or projects.deleted_at >= :time or teams.updated_at >= :time or teams.deleted_at >= :time", {time: time}]).count > 0
     end
   end
 
   # Answer the records for a particular user.
   def self.get_records(current_user)
     if current_user.role >= Individual::ProjectAdmin
-      all = Company.find(:all, :include => [{:projects => [:teams, {:story_attributes => :story_attribute_values}]}], :conditions => ["companies.id = ?", current_user.company_id])
+      all = Company.includes(:projects => [:teams, {:story_attributes => :story_attribute_values}]).where(["companies.id = :company_id", {company_id: current_user.company_id}])
     else
-      all = Company.find(:all, :include => [{:projects => [:teams, {:story_attributes => :story_attribute_values}]}], :order => 'companies.name')
+      all = Company.includes(:projects => [:teams, {:story_attributes => :story_attribute_values}]).order('companies.name')
     end
     
     # Ensure we load the settings for the current user

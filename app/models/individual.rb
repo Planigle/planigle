@@ -3,16 +3,14 @@ require 'digest/sha1'
 class Individual < ActiveRecord::Base
   acts_as_paranoid
   belongs_to :company
-  has_and_belongs_to_many :projects, :conditions => "projects.deleted_at IS NULL"
-  has_and_belongs_to_many :all_projects, :class_name => "Project"
+  has_and_belongs_to_many :projects, -> {where(deleted_at: nil)}
   belongs_to :selected_project, :class_name => "Project", :foreign_key => "selected_project_id"
   belongs_to :team
-  has_many :stories, :dependent => :nullify, :conditions => "stories.deleted_at IS NULL"
+  has_many :stories, -> {where(deleted_at: nil)}, dependent: :nullify
   has_many :individual_story_attributes, :dependent => :destroy
-  has_many :tasks, :dependent => :nullify, :conditions => "tasks.deleted_at IS NULL"
+  has_many :tasks, -> {where(deleted_at: nil)}, dependent: :nullify
   has_many :user_errors, :dependent => :destroy, :class_name => 'Error'
-  attr_accessible :login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled, :role, :last_login, :accepted_agreement, :team_id, :phone_number, :notification_type, :company_id, :selected_project_id, :refresh_interval
-  acts_as_audited :except => [:selected_project_id, :crypted_password, :salt, :remember_token, :remember_token_expires_at, :activation_code, :activated_at, :last_login, :accepted_agreement]
+  audited :except => [:selected_project_id, :crypted_password, :salt, :remember_token, :remember_token_expires_at, :activation_code, :activated_at, :last_login, :accepted_agreement]
 
   # Virtual attribute for the unencrypted password
   attr_accessor :password
@@ -29,7 +27,10 @@ class Individual < ActiveRecord::Base
   validates_uniqueness_of   :login, :email, :case_sensitive => false
   validates_format_of       :email, :with => /(^([^@\s]+)@((?:[-_a-z0-9]+\.)+[a-z]{2,})$)|(^$)/i
   validates_numericality_of :role, :notification_type
-  validates_format_of       :phone_number, :message => "must be a valid telephone number", :with => /^[\(\)0-9\- \+\.]{10,20}$/, :allow_nil => true, :allow_blank => true
+  validates_format_of       :phone_number, :message => "must be a valid telephone number", :with => /\A[\(\)0-9\- \+\.]{10,20}\z/, :allow_nil => true, :allow_blank => true
+  validate :validate
+  validate :validate_on_create, on: :create
+  validate :validate_on_update, on: :update
 
   # Ensure that the individual's email address is validated.
   before_create :make_activation_code
@@ -50,13 +51,13 @@ class Individual < ActiveRecord::Base
   # Authenticates an individual by their login name and unencrypted password.  Returns the individual or nil.
   def self.authenticate(login, password)
     # Authentication uses case insensitive login comparison (password is case sensitive)
-    individual = find :first, :conditions => ['STRCMP( login, ?)=0 and activated_at IS NOT NULL and enabled', login] # need to get the salt
+    individual = where(['STRCMP( login, :login)=0 and activated_at IS NOT NULL and enabled', {login: login}]).first # need to get the salt
     individual && individual.authenticated?(password) ? individual : nil
   end
 
   # Answer if a password is valid for this individual.
   def authenticated?(password)
-   if(config_option(:use_ldap))
+   if(Rails.configuration.use_ldap)
      Authenticate.ldap(self.login, password)
    else
      crypted_password == encrypt(password)
@@ -100,38 +101,39 @@ class Individual < ActiveRecord::Base
   end
 
   # Override attributes= to handle project_ids.
-  def attributes=(new_attributes, guard_protected_attributes = true)
-    keys_to_remove = []
+  def assign_attributes(new_attributes)
+    @changed_attributes = changes
+    keys_to_remove = [:agreement_accepted]
     new_attributes.each_pair do |key, value|
       if key.to_sym == :project_id
         keys_to_remove << key
-        changed_attributes['project_id'] = [project_ids, nil]
+        @changed_attributes['project_id'] = [project_ids, nil]
         projects.clear
         if (value)
           projects << Project.find(value)
         end
         if (changed_attributes['project_id'][0] == project_ids)
-          changed_attributes.delete('project_id')
+          @changed_attributes.delete('project_id')
         else
-          changed_attributes['project_id'][1] = project_ids
+          @changed_attributes['project_id'][1] = project_ids
         end
       end
       if key.to_sym == :project_ids
         keys_to_remove << key
-        changed_attributes['project_id'] = [project_ids, nil]
+        @changed_attributes['project_id'] = [project_ids, nil]
         projects.clear
         if (value)
           value.split(",").each {|project_id| projects << Project.find(project_id)}
         end
         if (changed_attributes['project_id'][0] == project_ids)
-          changed_attributes.delete('project_id')
+          @changed_attributes.delete('project_id')
         else
-          changed_attributes['project_id'][1] = project_ids
+          @changed_attributes['project_id'][1] = project_ids
         end
       end
     end
     keys_to_remove.each {|key| new_attributes.delete(key)} # Prevents warning
-    super(new_attributes, guard_protected_attributes)
+    super(new_attributes)
   end
 
   # Answer how I should be displayed to the user.
@@ -179,9 +181,9 @@ class Individual < ActiveRecord::Base
   # Answer whether records have changed.
   def self.have_records_changed(current_user, time)
     if current_user.role >= Individual::ProjectAdmin # Note: updated_at is >, not >= to ignore the change from logging in
-      Individual.count_with_deleted(:conditions => ["company_id = ? and role in (1,2,3) and (updated_at > ? or deleted_at >= ?)", current_user.company_id, time, time]) > 0
+      Individual.with_deleted.where(["company_id = :company_id and role in (1,2,3) and (updated_at > :time or deleted_at >= :time)", {company_id: current_user.company_id, time: time}]).count > 0
     else
-      Individual.count_with_deleted(:conditions => ["updated_at >= ? or deleted_at >= ?", time, time]) > 0
+      Individual.with_deleted.where(["updated_at >= :time or deleted_at >= :time", {time: time}]).count > 0
     end
   end
 
@@ -189,13 +191,12 @@ class Individual < ActiveRecord::Base
   def self.get_records(current_user)
     if current_user.role >= Individual::ProjectAdmin
       if current_user.is_premium
-        find(:all, :include => [:projects], :conditions => ["individuals.company_id = ? and role in (1,2,3)", current_user.company_id], :order => 'first_name, last_name')
+        includes(:projects).where(["individuals.company_id = :company_id and role in (1,2,3)", {company_id: current_user.company_id}]).order('first_name, last_name')
       else
-        find(:all, :include => [:projects],
-          :conditions => ["(projects.id = ? and role in (1,2,3)) or individuals.id=?", current_user.project_id, current_user.id], :order => 'first_name, last_name')
+        includes(:projects).where(["(projects.id = :project_id and role in (1,2,3)) or individuals.id=:user_id", {project_id: current_user.project_id, user_id: current_user.id}]).order('first_name, last_name')
       end
     elsif current_user.selected_project
-      users = find(:all, :include => [:projects], :conditions => ["individuals.company_id = ?", current_user.selected_project.company_id], :order => 'first_name, last_name')
+      users = includes(:projects).where(["individuals.company_id = :company_id", {company_id: current_user.selected_project.company_id}]).order('first_name, last_name')
       !users.include?(current_user) ? users << current_user : users
     else
       Array[current_user]
@@ -241,7 +242,7 @@ class Individual < ActiveRecord::Base
    
   # Too many users have been added.
   def count_exceeded
-    errors.add_to_base("Too many users exist to make this change.  To address the issue, delete or disable a user or contact support to extend your limits.")
+    errors.add(:base, "Too many users exist to make this change.  To address the issue, delete or disable a user or contact support to extend your limits.")
   end
 
   # Answer whether I am enabled for premium services.
@@ -273,7 +274,7 @@ class Individual < ActiveRecord::Base
   # Answer my capacity based on my load over the past 3 iterations
   def capacity
     if projects.include? self.current_user_project
-      iterations = current_user_project.iterations.find(:all, :include => {:stories => :tasks}, :conditions => 'finish <= CURDATE()', :limit => 3, :order => 'start desc')
+      iterations = current_user_project.iterations.includes(:stories => :tasks).where('finish <= CURDATE()').order('start desc').first(3)
       iterations.size > 0 ? iterations.inject(0) {|sum, iteration| sum + utilization_in(iteration)} / iterations.size : nil
     else
       nil
@@ -284,7 +285,7 @@ class Individual < ActiveRecord::Base
   def utilization_in(iteration)
     iteration.stories.inject(0) do |storyTotal, story|
       storyTotal + story.tasks.inject(0) do |sum, task|
-        if task.individual_id == id and task.status_code == Story::Done
+        if task.individual_id == id and task.status_code == Story.Done
           sum + (task.actual ? task.actual : (task.estimate ? task.estimate : 0))
         else
           sum
@@ -344,8 +345,8 @@ protected
   # Ensure that the premium limit is not exceeded.
   def validate_on_update
     if will_impact_limits
-      if (changed?('role') && changed_attributes['role'][0] >= ReadOnlyUser && changed_attributes['role'][1] < ReadOnlyUser) ||
-        (changed?('enabled') && !changed_attributes['enabled'][0] && changed_attributes['enabled'][1])
+      if (role_changed? && role_was >= ReadOnlyUser && role < ReadOnlyUser) ||
+        (enabled_changed? && !enabled_was && enabled)
         count_exceeded
       end
     end

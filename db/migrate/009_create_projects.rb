@@ -8,8 +8,8 @@ class CreateProjects < ActiveRecord::Migration
     add_column :iterations, :project_id, :integer
     add_column :stories, :project_id, :integer
     default_project = Project.new(:name => 'Default')
-    Story.find_with_deleted(:all).each {|story| story.project = default_project; story.save(false)}
-    Iteration.find_with_deleted(:all).each {|iteration| iteration.project = default_project; iteration.save(false)}
+    Story.with_deleted.each {|story| story.project = default_project; story.save( :validate=> false )}
+    Iteration.with_deleted.each {|iteration| iteration.project = default_project; iteration.save( :validate=> false )}
   end
 
   def self.down

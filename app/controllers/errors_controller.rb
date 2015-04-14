@@ -36,4 +36,9 @@ protected
   def authorized_for_destroy?(record)
     false
   end
+  
+private
+  def record_params
+    params.require(:record).permit(:time, :message, :stack_trace, :individual_id)
+  end
 end

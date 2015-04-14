@@ -64,18 +64,18 @@ class StoryAttributeTest < ActiveSupport::TestCase
   def test_values
     attrib = create_storyattribute(:value_type => 3, :values => "val 1,val 2,val 3")
     assert_equal 3, attrib.story_attribute_values.length
-    val = attrib.story_attribute_values.find(:all, :conditions => {:value => 'val 1'})
+    val = attrib.story_attribute_values.where(value: 'val 1')
     assert_equal 1, val.length
-    assert_equal 1, attrib.story_attribute_values.find(:all, :conditions => {:value => 'val 2'}).length
-    assert_equal 1, attrib.story_attribute_values.find(:all, :conditions => {:value => 'val 3'}).length
+    assert_equal 1, attrib.story_attribute_values.where(value: 'val 2').length
+    assert_equal 1, attrib.story_attribute_values.where(value: 'val 3').length
 
     attrib.update_values(["val 1","v2"])
     attrib.reload # Blow cache
     assert_equal 2, attrib.story_attribute_values.length
-    val2 = attrib.story_attribute_values.find(:all, :conditions => {:value => 'val 1'})
+    val2 = attrib.story_attribute_values.where(value: 'val 1')
     assert_equal 1, val2.length
     assert_equal val[0].id, val2[0].id
-    assert_equal 1, attrib.story_attribute_values.find(:all, :conditions => {:value => 'v2'}).length
+    assert_equal 1, attrib.story_attribute_values.where(value: 'v2').length
   end
   
   # Test updating existing values.

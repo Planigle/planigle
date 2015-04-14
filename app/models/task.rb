@@ -3,8 +3,7 @@ class Task < ActiveRecord::Base
   acts_as_paranoid
   belongs_to :individual
   belongs_to :story
-  attr_accessible :name, :description, :effort, :status_code, :individual_id, :story_id, :reason_blocked, :priority, :actual, :estimate
-  acts_as_audited :except => [:story_id, :in_progress_at, :done_at]
+  audited :except => [:story_id, :in_progress_at, :done_at]
   
   validates_presence_of     :name, :story_id
   validates_length_of       :name,                   :maximum => 250, :allow_nil => true # Allow nil to workaround bug
@@ -16,6 +15,7 @@ class Task < ActiveRecord::Base
   validates_numericality_of :estimate, :allow_nil => true, :greater_than_or_equal_to => 0
   validates_numericality_of :status_code
   validates_numericality_of :priority, :allow_nil => true # Needed for priority since not set until after check
+  validate :validate
 
   # Assign a priority on creation
   before_create :initialize_defaults
@@ -38,7 +38,7 @@ class Task < ActiveRecord::Base
 
   # Answer true if I have been accepted.
   def accepted?
-    self.status_code == Story::Done
+    self.status_code == Story.Done
   end
 
   def project
@@ -53,7 +53,6 @@ class Task < ActiveRecord::Base
     super(options)
   end
   
-  # Export given an instance of FasterCSV.
   def export(csv)
     values = [
       'T' + id.to_s,
@@ -78,7 +77,7 @@ class Task < ActiveRecord::Base
       '', # user rank
       lead_time,
       cycle_time]
-    project.story_attributes.find(:all, :conditions => {:is_custom => true}, :order => :name).each do |attrib|
+    project.story_attributes.where(is_custom: true).order('name').each do |attrib|
       values << ''
     end
     csv << values
@@ -125,7 +124,7 @@ class Task < ActiveRecord::Base
 
   # Answer whether I am blocked.
   def is_blocked
-    status_code == Story::Blocked
+    status_code == Story.Blocked
   end
   
   # Answer a string which describes my blocked state.
@@ -136,7 +135,7 @@ class Task < ActiveRecord::Base
   # Set the initial priority to the number of tasks (+1 for me).
   def initialize_defaults
     if !self.priority
-      highest = story.tasks.find(:first, :order=>'priority desc')
+      highest = story.tasks.order('priority desc').first
       self.priority = highest ? highest.priority + 1 : 1
     end
   end
@@ -180,7 +179,7 @@ protected
   end
   
   # Add custom validation of the status field and relationships to give a more specific message.
-  def validate()
+  def validate
     if status_code < 0 || status_code >= Story::StatusMapping.length
       errors.add(:status_code, 'is invalid')
     end

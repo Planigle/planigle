@@ -2,7 +2,7 @@ require "#{File.dirname(__FILE__)}/../test_helper"
 require "#{File.dirname(__FILE__)}/../stories_test_helper"
 require "#{File.dirname(__FILE__)}/resource_helper"
 
-class StoriesXmlTest < ActionController::IntegrationTest
+class StoriesXmlTest < ActionDispatch::IntegrationTest
   include ResourceHelper
   include StoriesTestHelper
 

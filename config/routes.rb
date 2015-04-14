@@ -1,69 +1,65 @@
-ActionController::Routing::Routes.draw do |map|
-  map.rubyamf_gateway 'rubyamf_gateway', :controller => 'rubyamf', :action => 'gateway'
+Planigle::Application.routes.draw do
+#  rubyamf_gateway 'rubyamf_gateway', :controller => 'rubyamf', :action => 'gateway'
 
-  map.import '/stories/import', :controller => 'stories', :action => 'import'
-  map.import_format '/stories/import', :controller => 'stories', :action => 'import'
+  post '/stories/import', :to => 'stories#import', :as => 'import'
+  get '/stories/export', :to => 'stories#export', :as => 'export'
+  post '/stories/split/:id', :to => 'stories#split', :as => 'split'
 
-  map.export '/stories/export', :controller => 'stories', :action => 'export'
-  map.export_format '/stories/export', :controller => 'stories', :action => 'export'
-
-  map.split '/stories/split/:id', :controller => 'stories', :action => 'split'
-  map.split_format '/stories/split/:id.:format', :controller => 'stories', :action => 'split'
+  resources :audits
   
-  map.resources :audits
-  
-  map.resources :stories do |stories|
-    stories.resources :tasks
+  resources :stories do
+    resources :tasks
   end
 
-  map.resources :iterations do |iterations|
-    iterations.resources :stories
+  resources :iterations do
+    resources :stories
   end
 
-  map.resources :releases
+  resources :releases
 
-  map.resources :companies
+  resources :companies
 
-  map.resources :projects do |projects|
-    projects.resources :teams
+  resources :projects do
+    resources :teams
   end
 
-  map.resources :individuals
-  map.resources :surveys
-  map.resources :story_attributes
+  resources :individuals
+  resources :surveys
+  resources :story_attributes
 
-  map.resource :session
-  map.resource :system
-  map.resources :errors
-  map.refresh '/refresh', :controller => 'sessions', :action => 'refresh'
-  map.summarize '/summarize', :controller => 'systems', :action => 'summarize'
-  map.report '/report', :controller => 'systems', :action => 'report'
-  map.report_iteration '/report_iteration', :controller => 'systems', :action => 'report_iteration'
-  map.report_release '/report_release', :controller => 'systems', :action => 'report_release'
-  map.activate '/activate/:activation_code', :controller => 'individuals', :action => 'activate'
-  map.logout '/logout', :controller => 'sessions', :action => 'destroy'
+  resource :session
+  resource :system
+  resources :errors
+
+  get '/refresh', :to => 'sessions#refresh', :as => 'refresh'
+  get '/summarize', :to => 'systems#summarize', :as => 'summarize'
+  get '/report', :to => 'systems#report', :as => 'report'
+  get '/report_iteration', :to => 'systems#report_iteration', :as => 'report_iteration'
+  get '/report_release', :to => 'systems#report_release', :as => 'report_release'
+  get '/activate/:activation_code', :to => 'individuals#activate', :as => 'activate'
+  get '/logout', :to => 'sessions#logout', :as => 'logout'
 
   # The priority is based upon order of creation: first created -> highest priority.
   
   # Sample of regular route:
-  # map.connect 'products/:id', :controller => 'catalog', :action => 'view'
+  # connect 'products/:id', :controller => 'catalog', :action => 'view'
   # Keep in mind you can assign values other than :controller and :action
 
   # Sample of named route:
-  # map.purchase 'products/:id/purchase', :controller => 'catalog', :action => 'purchase'
+  # purchase 'products/:id/purchase', :controller => 'catalog', :action => 'purchase'
   # This route can be invoked with purchase_url(:id => product.id)
 
   # You can have the root of your site routed by hooking up '' 
   # -- just remember to delete public/index.html.
-  # map.connect '', :controller => "welcome"
+  # connect '', :controller => "welcome"
 
-  #map.connect '', :controller => 'stories', :action => 'index'
+  #connect '', :controller => 'stories', :action => 'index'
   
   # Allow downloading Web Service WSDL as a file with an extension
   # instead of a file named 'wsdl'
-  # map.connect ':controller/service.wsdl', :action => 'wsdl'
+  # connect ':controller/service.wsdl', :action => 'wsdl'
 
   # Install the default route as the lowest priority.
-  # map.connect ':controller/:action/:id.:format'
-  # map.connect ':controller/:action/:id'
+  # connect ':controller/:action/:id.:format'
+  # connect ':controller/:action/:id'
 end

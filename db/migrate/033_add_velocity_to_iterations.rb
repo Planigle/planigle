@@ -6,7 +6,7 @@ class AddVelocityToIterations < ActiveRecord::Migration
       t.decimal :attempted, :precision => 7, :scale => 2
       t.decimal :completed, :precision => 7, :scale => 2
     end
-    Iteration.find_with_deleted(:all).each do |iteration|
+    Iteration.with_deleted.each do |iteration|
       attempted = nil
       completed = nil
       (Array.new(iteration.project.teams) << nil).each do |team|

@@ -26,7 +26,7 @@ module IterationsTestHelper
   
   # Answer the number of resources that exist.
   def resource_count
-    Iteration.count(:conditions => {:project_id => 1})
+    Iteration.where(project_id: 1).count
   end
 
   # Verify that the object was created.

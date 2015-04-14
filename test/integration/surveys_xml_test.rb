@@ -1,6 +1,6 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
 
-class SurveysXmlTest < ActionController::IntegrationTest
+class SurveysXmlTest < ActionDispatch::IntegrationTest
 
   fixtures :systems
   fixtures :individuals
@@ -147,7 +147,7 @@ class SurveysXmlTest < ActionController::IntegrationTest
     assert_response :success
 
     assert_select 'surveys' do
-      assert_select 'survey', Survey.count( :conditions => {:project_id => 1} ) do
+      assert_select 'survey', Survey.where(project_id: 1).count do
         assert_select 'id'
         assert_select 'name'
         assert_select 'company'
@@ -164,7 +164,7 @@ class SurveysXmlTest < ActionController::IntegrationTest
     assert_response :success
 
     assert_select 'surveys' do
-      assert_select 'survey', Survey.count(:conditions => {:project_id => 1}) do
+      assert_select 'survey', Survey.where(project_id: 1).count do
         assert_select 'id'
         assert_select 'name'
         assert_select 'company'

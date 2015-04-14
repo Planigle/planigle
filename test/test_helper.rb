@@ -1,8 +1,8 @@
 ENV["RAILS_ENV"] = "test"
 require File.expand_path(File.dirname(__FILE__) + "/../config/environment")
-require 'test_help'
+require 'rails/test_help'
 
-class Test::Unit::TestCase
+class ActiveSupport::TestCase
   # Transactional fixtures accelerate your tests by wrapping each test method
   # in a transaction that's rolled back on completion.  This ensures that the
   # test database remains unchanged so your fixtures don't have to be reloaded
@@ -57,7 +57,7 @@ class Test::Unit::TestCase
   def assert_failure(field, value, errorField = field)
     assert_no_difference get_count do
       obj = send( create_object, field => value)
-      assert obj.errors.on(errorField)
+      assert obj.errors[errorField].present?
     end
   end
 

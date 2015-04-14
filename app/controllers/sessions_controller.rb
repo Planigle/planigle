@@ -32,7 +32,7 @@ class SessionsController < ApplicationController
               self.current_individual.remember_me
               cookies[:auth_token] = { :value => self.current_individual.remember_token , :expires => self.current_individual.remember_token_expires_at }
             end
-            self.current_individual.save(false)
+            self.current_individual.save( :validate=> false )
             format.iphone do
               if self.current_individual.is_premium
                 redirect_to :controller => 'stories', :action => 'index'
@@ -139,7 +139,7 @@ protected
       project = Project.find(project_id)
       if current_individual.company.projects.include?(project)
         current_individual.selected_project = project
-        current_individual.save(false)
+        current_individual.save( :validate=> false )
       end
     end
   end

@@ -8,6 +8,6 @@ class ReleaseTotal < Total
   
   # Answer the items to measure the effort (stories in this case).
   def self.find_items(object, team)
-    object.stories.find(:all, :conditions => {:team_id => team ? team.id : nil})
+    object.stories.where(team_id: team ? team.id : nil)
   end
 end

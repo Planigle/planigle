@@ -123,4 +123,9 @@ protected
     end
     report_data
   end
+  
+private
+  def record_params
+    params.require(:record).permit(:license_agreement)
+  end
 end

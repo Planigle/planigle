@@ -2,7 +2,7 @@ require "#{File.dirname(__FILE__)}/../test_helper"
 require "#{File.dirname(__FILE__)}/../releases_test_helper"
 require "#{File.dirname(__FILE__)}/resource_helper"
 
-class ReleasesXmlTest < ActionController::IntegrationTest
+class ReleasesXmlTest < ActionDispatch::IntegrationTest
   include ResourceHelper
   include ReleasesTestHelper
 

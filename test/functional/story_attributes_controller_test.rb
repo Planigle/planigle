@@ -1,7 +1,6 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
 require "#{File.dirname(__FILE__)}/../story_attributes_test_helper"
 require "#{File.dirname(__FILE__)}/controller_resource_helper"
-require "story_attributes_controller"
 
 # Re-raise errors caught by the controller.
 class StoryAttributesController; def rescue_action(e) raise e end; end

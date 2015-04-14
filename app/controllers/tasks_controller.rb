@@ -70,11 +70,16 @@ protected
         owner = params[:record][:individual_id]
       end
     end
-    if @record.status_code == Story::Done && effort == nil
+    if @record.status_code == Story.Done && effort == nil
       @record.effort = 0
     end
-    if old_status == Story::Created && status != nil && status != Story::Created && @record.individual_id == nil && owner == nil
+    if old_status == Story.Created && status != nil && status != Story.Created && @record.individual_id == nil && owner == nil
       @record.individual_id = current_individual.id
     end
+  end
+  
+private
+  def record_params
+    params.require(:record).permit(:name, :description, :effort, :status_code, :individual_id, :story_id, :reason_blocked, :priority, :actual, :estimate)
   end
 end

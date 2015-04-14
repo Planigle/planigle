@@ -55,4 +55,9 @@ protected
   def post_update
     @record.show_for(current_individual)
   end
+  
+private
+  def record_params
+    params.require(:record).permit(:project_id, :name, :value_type, :ordering, :is_custom, :show, :width)
+  end
 end

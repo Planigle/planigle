@@ -2,7 +2,7 @@ require "#{File.dirname(__FILE__)}/../test_helper"
 require "#{File.dirname(__FILE__)}/../tasks_test_helper"
 require "#{File.dirname(__FILE__)}/resource_helper"
 
-class StoryTasksXmlTest < ActionController::IntegrationTest
+class StoryTasksXmlTest < ActionDispatch::IntegrationTest
   include ResourceHelper
   include TasksTestHelper
 

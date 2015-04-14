@@ -17,12 +17,12 @@ class SurveyTest < ActiveSupport::TestCase
   def test_create_survey_premium
     company = companies(:first)
     company.premium_expiry = Date.today + 1
-    company.save(false)
+    company.save( :validate=> false )
     notifications = ActionMailer::Base.deliveries.length
     assert_difference 'Survey.count' do
       survey = create_survey
       assert !survey.new_record?, "#{survey.errors.full_messages.to_sentence}"
-      survey.save(false) # Saving generates the notification; this is when the mappings are added
+      survey.save( :validate=> false ) # Saving generates the notification; this is when the mappings are added
       assert_equal notifications+1, ActionMailer::Base.deliveries.length
     end
   end
@@ -31,12 +31,12 @@ class SurveyTest < ActiveSupport::TestCase
   def test_create_survey_community
     company = companies(:first)
     company.premium_expiry = Date.today - 1
-    company.save(false)
+    company.save( :validate=> false )
     notifications = ActionMailer::Base.deliveries.length
     assert_difference 'Survey.count' do
       survey = create_survey
       assert !survey.new_record?, "#{survey.errors.full_messages.to_sentence}"
-      survey.save(false) # Saving generates the notification; this is when the mappings are added
+      survey.save( :validate=> false ) # Saving generates the notification; this is when the mappings are added
       assert_equal notifications, ActionMailer::Base.deliveries.length
     end
   end
@@ -74,7 +74,7 @@ class SurveyTest < ActiveSupport::TestCase
   # Test summarization.
   def test_summarize
     surveys(:first).apply_to_stories.each do |story|
-      story.save(false)
+      story.save( :validate=> false )
     end
     assert_equal 1.0, stories(:first).user_priority
     assert_equal 1.0, stories(:second).user_priority

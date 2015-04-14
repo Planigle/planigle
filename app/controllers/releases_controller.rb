@@ -46,4 +46,9 @@ protected
       @record.attributes = params[:record]
     end
   end
+  
+private
+  def record_params
+    params.require(:record).permit(:name, :start, :finish, :project_id)
+  end
 end

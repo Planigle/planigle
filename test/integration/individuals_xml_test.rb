@@ -1,9 +1,8 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
 require "#{File.dirname(__FILE__)}/../individuals_test_helper"
 require "#{File.dirname(__FILE__)}/resource_helper"
-require "application"
 
-class IndividualsXmlTest < ActionController::IntegrationTest
+class IndividualsXmlTest < ActionDispatch::IntegrationTest
   include ResourceHelper
   include IndividualsTestHelper
 
@@ -29,7 +28,7 @@ class IndividualsXmlTest < ActionController::IntegrationTest
     IndividualMailer.site = 'www.testxyz.com'
     admin2 = individuals(:admin2)
     admin2.selected_project_id=1
-    admin2.save(false)
+    admin2.save( :validate=> false )
   end
 
   # Test that you can't delete yourself.

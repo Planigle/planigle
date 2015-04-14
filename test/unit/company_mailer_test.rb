@@ -17,10 +17,10 @@ class CompanyMailerTest < ActiveSupport::TestCase
 
   # Test notification on signup.
   def test_signup_notification
-    response = CompanyMailer.create_signup_notification(companies(:first), projects(:first), individuals(:aaron))
+    response = CompanyMailer.signup_notification(companies(:first), projects(:first), individuals(:aaron))
     assert_equal PLANIGLE_ADMIN_EMAIL, response.from[0]
     assert_equal CompanyMailer.who_to_notify, response.to[0]
     reg = /.*#{projects(:first).company.name}.*/
-    assert_match reg, response.body
+    assert_match reg, response.body.to_s
   end
 end

@@ -1,7 +1,6 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
-require "application"
 
-class SessionsXmlTest < ActionController::IntegrationTest
+class SessionsXmlTest < ActionDispatch::IntegrationTest
   fixtures :systems
   fixtures :individuals
   

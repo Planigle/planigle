@@ -5,15 +5,16 @@ class NotificationMailer < ActionMailer::Base
     setup_email(project, emailAddresses, subject, message)
   end
   
-  protected
+protected
 
   # Set up common email properties.
   def setup_email(project, emailAddresses, subject, message)
-    @subject     = "[#{project.name}] " + subject
-    @body[:message_to_send]  = "#{message}"
-    @recipients  = "#{emailAddresses}"
-    @from        = "#{PLANIGLE_ADMIN_EMAIL}"
-    @sent_on     = Time.now
-    @content_type = 'text/html'
+    @message_to_send = "#{message}"
+    mail(
+      from: "#{PLANIGLE_ADMIN_EMAIL}",
+      to: "#{emailAddresses}",
+      subject: "[#{project.name}] " + subject,
+      content_type: 'text/html'
+    )
   end
 end

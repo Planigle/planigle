@@ -3,27 +3,27 @@ class Release < ActiveRecord::Base
   acts_as_paranoid
   belongs_to :project
   has_many :story_attribute_values, :dependent => :destroy
-  has_many :stories, :dependent => :nullify, :conditions => "stories.deleted_at IS NULL"
+  has_many :stories, -> {where(deleted_at: nil)}, dependent: :nullify
   has_many :release_totals, :dependent => :destroy
-  attr_accessible :name, :start, :finish, :project_id
-  acts_as_audited
+  audited
  
   validates_presence_of     :project_id, :name, :start, :finish
   validates_length_of       :name,   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
+  validate :validate
 
   # Answer whether records have changed.
   def self.have_records_changed(current_user, time)
-    Release.count_with_deleted(:conditions => ["project_id = ? and (updated_at >= ? or deleted_at >= ?)", current_user.project_id, time, time]) > 0
+    Release.with_deleted.where(["project_id = :project_id and (updated_at >= :time or deleted_at >= :time)", {project_id: current_user.project_id, time: time}]).count > 0
   end
 
   # Answer the records for a particular user.
   def self.get_records(current_user)
-    Release.find(:all, :conditions => ["project_id = ?", current_user.project_id], :order => 'start')
+    Release.where(project_id: current_user.project_id).order('start')
   end
 
   # Answer the current release for a particular user.
   def self.find_current(current_user)
-    current_user.project_id ? Release.find(:first, :conditions => ["project_id = ? and start <= CURDATE() and finish >= CURDATE()", current_user.project_id], :order => 'start,finish') : nil
+    current_user.project_id ? Release.where(["project_id = :project_id and start <= CURDATE() and finish >= CURDATE()", {project_id: current_user.project_id}]).order('start,finish').first : nil
   end
 
   # Summarize my current data.

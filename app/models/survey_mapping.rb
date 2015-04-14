@@ -5,7 +5,7 @@ class SurveyMapping < ActiveRecord::Base
   validates_presence_of :survey_id, :priority
   validates_numericality_of :priority
 
-  attr_accessible :survey_id, :story_id, :priority
+  # attr_accessible :survey_id, :story_id, :priority
 
   # Override to_xml to exclude private attributes.
   def to_xml(options = {})
@@ -29,8 +29,8 @@ class SurveyMapping < ActiveRecord::Base
   end
   
   def normalized_priority
-    if story.priority && story.status_code < Story::Done
-      ((((survey.survey_mappings.collect {|mapping| mapping.story}).select{|story| story.status_code<Story::Done}).collect{|story| story.priority}).sort).index(story.priority) + 1
+    if story.priority && story.status_code < Story.Done
+      ((((survey.survey_mappings.collect {|mapping| mapping.story}).select{|story| story.status_code<Story.Done}).collect{|story| story.priority}).sort).index(story.priority) + 1
     else
       nil
     end

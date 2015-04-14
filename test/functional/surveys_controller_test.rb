@@ -1,5 +1,4 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
-require "surveys_controller"
 
 # Re-raise errors caught by the controller.
 class SurveysController; def rescue_action(e) raise e end; end

@@ -1,7 +1,6 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
 require "#{File.dirname(__FILE__)}/../iterations_test_helper"
 require "#{File.dirname(__FILE__)}/controller_resource_helper"
-require "iterations_controller"
 
 # Re-raise errors caught by the controller.
 class IterationsController; def rescue_action(e) raise e end; end
@@ -15,6 +14,10 @@ class IterationsControllerTest < ActionController::TestCase
   fixtures :iterations
   fixtures :projects
   fixtures :individuals_projects
+
+  def setup
+    @controller = IterationsController.new
+  end
     
   # Test getting iterations (based on role).
   def test_index_by_admin

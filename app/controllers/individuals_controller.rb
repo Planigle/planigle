@@ -5,7 +5,7 @@ class IndividualsController < ResourceController
   # GET /activate/<activation code>
   def activate    
     if (individual = Individual.activate(params[:activation_code]))
-      individual.save(false)
+      individual.save( :validate=> false )
     end
     redirect_to(ENV['url_after_activate'] ? ENV['url_after_activate'] : '/')
   end
@@ -79,5 +79,10 @@ protected
     else
       super
     end
+  end
+  
+private
+  def record_params
+    params.require(:record).permit(:login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled, :role, :last_login, :accepted_agreement, :team_id, :phone_number, :notification_type, :company_id, :selected_project_id, :refresh_interval)
   end
 end

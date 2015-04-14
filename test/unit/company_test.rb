@@ -96,7 +96,7 @@ class CompanyTest < ActiveSupport::TestCase
 
   # Validate test_notify_of_expiration
   def test_notify_of_expiration_not_expiring
-    config_option_set(:notify_when_expiring_in, 3)
+    Rails.configuration.notify_when_expiring_in = 3
     today = Date.today
     company = create_company(:premium_expiry => today + 4)
     notifications = ActionMailer::Base.deliveries.length
@@ -106,7 +106,8 @@ class CompanyTest < ActiveSupport::TestCase
   
   # Validate test_notify_of_expiration
   def test_notify_of_expiration_expiring
-    config_option_set(:notify_when_expiring_in, 3)
+    Rails.configuration.who_to_notify = "test@example.com"
+    Rails.configuration.notify_when_expiring_in = 3
     today = Date.today
     company = create_company(:premium_expiry => today + 3)
     notifications = ActionMailer::Base.deliveries.length
@@ -116,7 +117,7 @@ class CompanyTest < ActiveSupport::TestCase
   
   # Validate is_about_to_expire
   def test_is_about_to_expire_not_expiring
-    config_option_set(:notify_when_expiring_in, 3)
+    Rails.configuration.notify_when_expiring_in = 3
     today = Date.today
     company = create_company(:premium_expiry => today + 4)
     assert !company.is_about_to_expire
@@ -124,7 +125,7 @@ class CompanyTest < ActiveSupport::TestCase
   
   # Validate is_about_to_expire
   def test_is_about_to_expire_expiring
-    config_option_set(:notify_when_expiring_in, 3)
+    Rails.configuration.notify_when_expiring_in = 3
     today = Date.today
     company = create_company(:premium_expiry => today + 3)
     assert company.is_about_to_expire
@@ -132,7 +133,7 @@ class CompanyTest < ActiveSupport::TestCase
   
   # Validate is_about_to_expire
   def test_is_about_to_expire_expiring_notified
-    config_option_set(:notify_when_expiring_in, 3)
+    Rails.configuration.notify_when_expiring_in = 3
     today = Date.today
     company = create_company(:premium_expiry => today + 3)
     company.last_notified_of_expiration = today
@@ -141,7 +142,7 @@ class CompanyTest < ActiveSupport::TestCase
     
   # Validate is_about_to_expire
   def test_is_about_to_expire_expired
-    config_option_set(:notify_when_expiring_in, 3)
+    Rails.configuration.notify_when_expiring_in = 3
     today = Date.today
     company = create_company(:premium_expiry => today - 1)
     assert !company.is_about_to_expire
@@ -152,7 +153,7 @@ class CompanyTest < ActiveSupport::TestCase
     company = create_company
     now = Time.now
     company.last_notified_of_expiration = now
-    company.save(false)
+    company.save( :validate=> false )
     assert_equal now, company.last_notified_of_expiration
   end
   
@@ -161,10 +162,10 @@ class CompanyTest < ActiveSupport::TestCase
     company = create_company
     today = Date.today
     company.last_notified_of_expiration = today
-    company.save(false)
+    company.save( :validate=> false )
     assert_equal today, company.last_notified_of_expiration
     company.premium_expiry = today
-    company.save(false)
+    company.save( :validate=> false )
     assert_equal nil, company.last_notified_of_expiration
   end
 
@@ -181,11 +182,11 @@ private
     sleep 1 # Distance from set up
     start = Time.now
     other_project_object.name = "changed"
-    other_project_object.save(false)
+    other_project_object.save( :validate=> false )
     assert_admin_changes(start)
 
     project_object.name = "changed"
-    project_object.save(false)
+    project_object.save( :validate=> false )
     assert_all_changes(start)
 
     project_object.destroy

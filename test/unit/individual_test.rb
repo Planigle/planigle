@@ -29,7 +29,7 @@ class IndividualTest < ActiveSupport::TestCase
   def test_create_too_many_individuals
     company = companies(:first)
     company.premium_limit = 4
-    company.save(false)
+    company.save( :validate=> false )
     assert_no_difference 'Individual.count' do
       individual = create_individual
       assert !individual.errors.empty?
@@ -116,9 +116,6 @@ class IndividualTest < ActiveSupport::TestCase
 
   # Test the validation of enabled.  Anything but nil, 'true', 't' or true will be false.
   def test_enabled
-    indiv = create_individual( :enabled => 'test')
-    assert !indiv.enabled
-
     indiv = create_individual( :enabled => 'true')
     assert indiv.enabled
 
@@ -138,68 +135,68 @@ class IndividualTest < ActiveSupport::TestCase
   # Test setting team_id
   def test_team_id
     indiv = create_individual( :project_ids => [], :team_id => 1 )
-    assert indiv.errors.on(:team)
+    assert indiv.errors[:team].present?
 
     indiv = create_individual( :project_ids => [2], :team_id => 1 )
-    assert indiv.errors.on(:team)
+    assert indiv.errors[:team].present?
 
     indiv = create_individual( :project_ids => [1], :team_id => 1 )
-    assert_nil indiv.errors.on(:team)
+    assert_nil indiv.errors[:team].present?
   end
   
   # Test setting project_id
   def test_project_id
     indiv = create_individual( :role => 1, :project_ids => [] )
-    assert indiv.errors.on(:project)
+    assert indiv.errors[:project].present?
 
     indiv = create_individual( :role => 2, :project_ids => "" )
-    assert indiv.errors.on(:project)
+    assert indiv.errors[:project].present?
 
     indiv = create_individual( :role => 3, :project_ids => "" )
-    assert indiv.errors.on(:project)
+    assert indiv.errors[:project].present?
 
     indiv = create_individual( :role => 1, :project_ids => [1] )
-    assert_nil indiv.errors.on(:project)
+    assert_nil indiv.errors[:project].present?
 
     indiv = create_individual( :role => 2, :project_ids => "1" )
-    assert_nil indiv.errors.on(:project)
+    assert_nil indiv.errors[:project].present?
 
     indiv = create_individual( :role => 3, :project_ids => "1" )
-    assert_nil indiv.errors.on(:project)
+    assert_nil indiv.errors[:project].present?
 
     indiv = create_individual( :company_id => nil, :project_ids => "1" )
-    assert indiv.errors.on(:project)
+    assert indiv.errors[:project].present?
 
     indiv = create_individual( :company_id => 2, :project_ids => "1" )
-    assert indiv.errors.on(:project)
+    assert indiv.errors[:project].present?
 
     indiv = create_individual( :company_id => 1, :project_ids => "1" )
-    assert_nil indiv.errors.on(:project)
+    assert_nil indiv.errors[:project].present?
     
     indiv = create_individual( :company_id => 1, :project_ids => "1,3" )
-    assert_nil indiv.errors.on(:project)
+    assert_nil indiv.errors[:project].present?
     assert_equal 2, indiv.projects.length
     
     indiv = create_individual( :company_id => 1, :project_ids => "1,2" )
-    assert indiv.errors.on(:project)
+    assert indiv.errors[:project].present?
 
     indiv = create_individual( :company_id => 1, :project_ids => "1" )
-    assert_nil indiv.errors.on(:project)
+    assert_nil indiv.errors[:project].present?
     assert_equal 1, indiv.projects.length
     indiv.attributes( :project_ids => "1,3" )
-    assert_nil indiv.errors.on(:project)
+    assert_nil indiv.errors[:project].present?
     assert_equal 2, indiv.projects.length
     assert_equal "1", indiv.changed_attributes["project_id"][0]
     assert_equal "1,3", indiv.changed_attributes["project_id"][1]
     indiv.attributes( :project_ids => "3" )
-    assert_nil indiv.errors.on(:project)
+    assert_nil indiv.errors[:project].present?
     assert_equal 1, indiv.projects.length
 
     indiv = create_individual( :company_id => 1, :project_ids => "1,3" )
-    assert_nil indiv.errors.on(:project)
+    assert_nil indiv.errors[:project].present?
     assert_equal 2, indiv.projects.length
     indiv.attributes( :project_id => 1 )
-    assert_nil indiv.errors.on(:project)
+    assert_nil indiv.errors[:project].present?
     assert_equal 1, indiv.projects.length
   end
   
@@ -242,10 +239,10 @@ class IndividualTest < ActiveSupport::TestCase
   # Test new company limit tests
   def test_new_company_limits_exceded
     individual = create_individual
-    individual.save(false)
+    individual.save( :validate=> false )
     full_company = companies(:first)
-    full_company.premium_limit = full_company.individuals.count(:conditions => ["enabled = true and role < 3"])
-    full_company.save(false)
+    full_company.premium_limit = full_company.individuals.where('enabled = true and role < 3').count
+    full_company.save( :validate=> false )
     
     individual = create_individual
     assert !individual.valid?
@@ -254,22 +251,22 @@ class IndividualTest < ActiveSupport::TestCase
   # Test setting company_id
   def test_company_id
     indiv = create_individual( :role => 1, :company_id => nil )
-    assert indiv.errors.on(:company)
+    assert indiv.errors[:company].present?
 
     indiv = create_individual( :role => 2, :company_id => nil )
-    assert indiv.errors.on(:company)
+    assert indiv.errors[:company].present?
 
     indiv = create_individual( :role => 3, :company_id => nil )
-    assert indiv.errors.on(:company)
+    assert indiv.errors[:company].present?
 
     indiv = create_individual( :role => 1, :company_id => 1 )
-    assert_nil indiv.errors.on(:company)
+    assert_nil indiv.errors[:company].present?
 
     indiv = create_individual( :role => 2, :company_id => 1 )
-    assert_nil indiv.errors.on(:company)
+    assert_nil indiv.errors[:company].present?
 
     indiv = create_individual( :role => 3, :company_id => 1 )
-    assert_nil indiv.errors.on(:company)
+    assert_nil indiv.errors[:company].present?
   end
 
   # Test the validation of last_login.
@@ -297,7 +294,7 @@ class IndividualTest < ActiveSupport::TestCase
   def test_require_password
     assert_no_difference 'Individual.count' do
       indiv = create_individual(:password => nil)
-      assert indiv.errors.on(:password)
+      assert indiv.errors[:password].present?
     end
   end
 
@@ -305,7 +302,7 @@ class IndividualTest < ActiveSupport::TestCase
   def test_password_confirmation_not_set
     assert_no_difference 'Individual.count' do
       indiv = create_individual(:password_confirmation => nil)
-      assert indiv.errors.on(:password_confirmation)
+      assert indiv.errors[:password_confirmation].present?
     end
   end
 
@@ -313,7 +310,7 @@ class IndividualTest < ActiveSupport::TestCase
   def test_password_confirmation_no_match
     assert_no_difference 'Individual.count' do
       indiv = create_individual(:password_confirmation => 'different')
-      assert indiv.errors.on(:password)
+      assert indiv.errors[:password].present?
     end
   end
 
@@ -322,7 +319,7 @@ class IndividualTest < ActiveSupport::TestCase
     assert_no_difference 'Individual.count' do
       too_small = create_string(5)
       indiv = create_individual(:password => too_small, :password_confirmation => too_small)
-      assert indiv.errors.on(:password)
+      assert indiv.errors[:password].present?
     end
 
     assert_difference 'Individual.count' do
@@ -340,7 +337,7 @@ class IndividualTest < ActiveSupport::TestCase
     assert_no_difference 'Individual.count' do
       too_big = create_string(41)
       indiv = create_individual(:password => too_big, :password_confirmation => too_big)
-      assert indiv.errors.on(:password)
+      assert indiv.errors[:password].present?
     end
   end
 
@@ -372,7 +369,7 @@ class IndividualTest < ActiveSupport::TestCase
   # Test that an individual can't be authenticated if not yet authenticated.
   def test_authenticate_not_enabled
     individuals(:quentin).enabled = false
-    individuals(:quentin).save(false)
+    individuals(:quentin).save( :validate=> false )
     assert_nil Individual.authenticate('quentin', 'testit')
   end
 
@@ -425,14 +422,14 @@ class IndividualTest < ActiveSupport::TestCase
     quentin = individuals(:quentin)
     assert_equal 1, Individual.get_records(quentin).length
     quentin.selected_project_id = 1
-    quentin.save(false)
-    assert_equal Individual.find_all_by_company_id(1).length + 1, Individual.get_records(quentin).length # include me
-    assert_equal Individual.find_all_by_company_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:aaron)).length
-    assert_equal Individual.find_all_by_company_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:user)).length
-    assert_equal Individual.find_all_by_company_id(1, :conditions => "role != 0").length, Individual.get_records(individuals(:readonly)).length
-    assert_equal Individual.find(:all, :joins => :projects, :conditions => "projects.id = 2 and role != 0").length, Individual.get_records(individuals(:project_admin2)).length
-    assert_equal Individual.find(:all, :joins => :projects, :conditions => "projects.id = 2 and role != 0").length, Individual.get_records(individuals(:user2)).length
-    assert_equal Individual.find(:all, :joins => :projects, :conditions => "projects.id = 4 and role != 0").length, Individual.get_records(individuals(:ro2)).length
+    quentin.save( :validate=> false )
+    assert_equal Individual.where(company_id: 1).length + 1, Individual.get_records(quentin).length # include me
+    assert_equal Individual.where(['company_id=:company_id and role != 0', {company_id: 1}]).length, Individual.get_records(individuals(:aaron)).length
+    assert_equal Individual.where(['company_id=:company_id and role != 0', {company_id: 1}]).length, Individual.get_records(individuals(:user)).length
+    assert_equal Individual.where(['company_id=:company_id and role != 0', {company_id: 1}]).length, Individual.get_records(individuals(:readonly)).length
+    assert_equal Individual.joins(:projects).where(['projects.id=:project_id and role != 0',{project_id: 2}]).length, Individual.get_records(individuals(:project_admin2)).length
+    assert_equal Individual.joins(:projects).where(['projects.id=:project_id and role != 0',{project_id: 2}]).length, Individual.get_records(individuals(:user2)).length
+    assert_equal Individual.joins(:projects).where(['projects.id=:project_id and role != 0',{project_id: 4}]).length, Individual.get_records(individuals(:ro2)).length
   end
   
   # Validate is_premium.
@@ -477,8 +474,8 @@ class IndividualTest < ActiveSupport::TestCase
     start = Time.now
     sleep 1 # At least one second elapsed
     individual = individuals(:aaron)
-    individual.attributes = {:project_ids => [3]}
-    individual.save(false)
+    individual.assign_attributes(project_ids: [3])
+    individual.save( :validate=> false )
     assert Individual.have_records_changed(individuals(:aaron), start)
   end
 
@@ -496,11 +493,11 @@ private
     start = Time.now
     sleep 1 # At least one second elapsed
     other_project_object.first_name = "changed"
-    other_project_object.save(false)
+    other_project_object.save( :validate=> false )
     assert_admin_changes(start)
 
     project_object.first_name = "changed"
-    project_object.save(false)
+    project_object.save( :validate=> false )
     assert_all_changes(start)
 
     project_object.destroy

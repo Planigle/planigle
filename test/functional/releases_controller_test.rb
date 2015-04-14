@@ -1,7 +1,6 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
 require "#{File.dirname(__FILE__)}/../releases_test_helper"
 require "#{File.dirname(__FILE__)}/controller_resource_helper"
-require "releases_controller"
 
 # Re-raise errors caught by the controller.
 class ReleasesController; def rescue_action(e) raise e end; end

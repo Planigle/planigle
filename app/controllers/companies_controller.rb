@@ -22,7 +22,7 @@ class CompaniesController < ResourceController
             else
               raise ActiveRecord::RecordNotSaved
             end
-            CompanyMailer.deliver_signup_notification( @record, @project, @individual )
+            CompanyMailer.signup_notification( @record, @project, @individual ).deliver_now
           end
         rescue Exception => e
           format.xml { render :xml => merge_errors(@record, @project, @individual), :status => :unprocessable_entity }
@@ -127,5 +127,11 @@ protected
     else
       super
     end
+  end
+
+private
+
+  def record_params
+    params.require(:record).permit(:name, :premium_limit, :premium_expiry, :last_notified_of_expiration)
   end
 end

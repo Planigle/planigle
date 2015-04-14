@@ -1,7 +1,6 @@
 class IndividualMailer < ActionMailer::Base
 
   # Users can override the site URL.  Note: This is obsolete and remains for backwards compatibility.
-  # Instead set the values in config/site_config.yml
   @@site = ''
   cattr_accessor :site
   @@logo = ''
@@ -14,22 +13,24 @@ class IndividualMailer < ActionMailer::Base
   # Send a notification on sign up.
   def signup_notification(individual)
     setup_email(individual)
-    @subject     = 'Please activate your new account'
-    @body[:url]  = "#{config_option(:site_url) ? config_option(:site_url) : site}/activate/#{individual.activation_code}"
-    @body[:logo] = config_option(:site_logo) ? config_option(:site_logo) : logo
-    @body[:support] = config_option(:support_email) ? config_option(:support_email) : support
-    @body[:backlog] = config_option(:backlog_url) ? config_option(:backlog_url) : backlog
   end
   
   protected
 
   # Set up common email properties.
   def setup_email(individual)
-    @recipients  = "#{individual.email}"
-    @from        = "#{PLANIGLE_ADMIN_EMAIL}"
-    @sent_on     = Time.now
-    @body[:project] = individual.project
-    @body[:individual] = individual
-    @content_type = 'text/html'
+    @url = "#{Rails.configuration.site_url ? Rails.configuration.site_url : site}/activate/#{individual.activation_code}"
+    @logo = Rails.configuration.site_logo ? Rails.configuration.site_logo : logo
+    @support = Rails.configuration.support_email ? Rails.configuration.support_email : support
+    @backlog = Rails.configuration.backlog_url ? Rails.configuration.backlog_url : backlog
+    @project = individual.project
+    @individual = individual
+    mail(
+      from: "#{PLANIGLE_ADMIN_EMAIL}",
+      to: "#{individual.email}",
+      bcc: "#{Rails.configuration.who_to_notify}",
+      subject: 'Please activate your new account',
+      content_type: 'text/html'
+    )
   end
 end

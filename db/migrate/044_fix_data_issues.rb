@@ -1,9 +1,15 @@
 class FixDataIssues < ActiveRecord::Migration
   def self.up
-    Iteration.find_with_deleted(:all, :conditions => ['start < ? and finish > "2008/12/15"', Time.now]).each { |iteration| IterationVelocity.summarize_for(iteration) }
-    Task.find_with_deleted(:all, :conditions => 'status_code = 3 and effort > 0').each do |task|
-      task.effort = 0
-      task.save(false)
+    Iteration.with_deleted.each do |iteration|
+      if start < Time.now and finish > Time.new(2008, 12, 15)
+        IterationVelocity.summarize_for(iteration)
+      end
+    end
+    Task.with_deleted.each do |task|
+      if task.status_code == 3 && effort > 0
+        task.effort = 0
+        task.save( :validate=> false )
+      end
     end
   end
 

@@ -2,23 +2,23 @@ require 'digest/sha1'
 class Project < ActiveRecord::Base
   acts_as_paranoid
   belongs_to :company
-  has_many :teams, :dependent => :destroy, :conditions => "teams.deleted_at IS NULL"
-  has_many :all_teams, :class_name => "Team"
+  has_many :teams, -> {where(deleted_at: nil)}, dependent: :destroy
+  has_many :all_teams, -> { with_deleted }, class_name: "Team"
   has_and_belongs_to_many :individuals, :conditions => "individuals.deleted_at IS NULL"
-  has_many :individuals_with_selection, :class_name => "Individual", :foreign_key => "selected_project_id", :dependent => :nullify, :conditions => "individuals.deleted_at IS NULL"
-  has_many :releases, :dependent => :destroy, :conditions => "releases.deleted_at IS NULL"
-  has_many :iterations, :dependent => :destroy, :conditions => "iterations.deleted_at IS NULL"
-  has_many :stories, :dependent => :destroy, :conditions => "stories.deleted_at IS NULL"
+  has_many :individuals_with_selection, -> {where(deleted_at: nil)}, class_name: "Individual", foreign_key: "selected_project_id", dependent: :nullify
+  has_many :releases, -> {where(deleted_at: nil)}, dependent: :destroy
+  has_many :iterations, -> {where(deleted_at: nil)}, dependent: :destroy
+  has_many :stories, -> {where(deleted_at: nil)}, dependent: :destroy
   has_many :story_attributes, :dependent => :destroy
   has_many :surveys, :dependent => :destroy
-  attr_accessible :company_id, :name, :description, :survey_mode, :track_actuals, :last_notified_of_inactivity
-  acts_as_audited :except => [:survey_key]
+  audited :except => [:survey_key]
 
   validates_presence_of     :name, :company_id
   validates_length_of       :name,                   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
   validates_length_of       :description,            :maximum => 4096, :allow_nil => true
   validates_numericality_of :survey_mode
   validates_uniqueness_of   :survey_key
+  validate :validate
 
   before_create :initialize_defaults
 
@@ -32,7 +32,7 @@ class Project < ActiveRecord::Base
 
   # Notify of any interesting activity.
   def self.send_notifications
-    find(:all).each do |project|
+    find_each do |project|
       project.notify_of_inactivity
     end
   end
@@ -40,19 +40,19 @@ class Project < ActiveRecord::Base
   # Notify if none of my users have logged in for a while.
   def notify_of_inactivity
     if is_inactive
-      InactivityMailer.deliver_notification(self, last_login)
+      InactivityMailer.notification(self, last_login).deliver_now
       self.last_notified_of_inactivity = DateTime.now
-      save(false)
+      save( :validate=> false )
     end
   end
   
   # Answer whether I am inactive.
   def is_inactive
     last_project_login = last_login
-    if config_option(:notify_of_inactivity_after) && last_project_login
+    if Rails.configuration.notify_of_inactivity_after && last_project_login
       if !self.last_notified_of_inactivity || last_project_login > self.last_notified_of_inactivity
         time_since_active = Time.now - last_project_login
-        if time_since_active >= config_option(:notify_of_inactivity_after)*24*60*60 && (!config_option(:notify_of_inactivity_before) || time_since_active <= config_option(:notify_of_inactivity_before)*24*60*60)
+        if time_since_active >= Rails.configuration.notify_of_inactivity_after*24*60*60 && (!Rails.configuration.notify_of_inactivity_before || time_since_active <= Rails.configuration.notify_of_inactivity_before*24*60*60)
           return true
         end
       end
@@ -140,7 +140,7 @@ class Project < ActiveRecord::Base
     builder.instruct!
     builder.stories do
       i = 1
-      stories.find(:all, :order => 'priority', :conditions => ['status_code != ? and is_public=true', Story::Done]).each do |story|
+      stories.where(status_code: Story.Done, is_public: true).order('priority').each do |story|
         if story.stories.empty?
           builder.story do
             builder.id story.id
@@ -159,12 +159,12 @@ class Project < ActiveRecord::Base
     current_user.individual_story_attributes # load these in one shot
     if current_user.role >= Individual::ProjectAdmin
       if (current_user.is_premium)
-        Project.find(:all, :include => [:story_attributes, :teams], :conditions => ["projects.company_id = ?", current_user.company_id])
+        Project.includes(:story_attributes, :teams).where(["projects.company_id = :company_id",{company_id: current_user.company_id}])
       else
-        Project.find(:all, :include => [:story_attributes, :teams], :conditions => ["projects.id = ?", current_user.project_id])
+        Project.includes(:story_attributes, :teams).where(["projects.id = :project_id", {project_id: current_user.project_id}])
       end
     else
-      Project.find(:all, :include => [:story_attributes, :teams], :order => 'projects.name')
+      Project.includes(:story_attributes, :teams).order('projects.name')
     end
   end
 
@@ -229,7 +229,7 @@ class Project < ActiveRecord::Base
 protected
   
   # Add custom validation of the status field and relationships to give a more specific message.
-  def validate()
+  def validate
     if survey_mode < 0 || survey_mode >= ModeMapping.length
       errors.add(:survey_mode, ' is invalid')
     end

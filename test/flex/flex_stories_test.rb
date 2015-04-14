@@ -1,7 +1,6 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
-require 'test/unit'
 
-class FlexStoriesTest < Test::Unit::TestCase
+class FlexStoriesTest < ActiveSupport::TestCase
   fixtures :systems
   fixtures :teams
   fixtures :individuals

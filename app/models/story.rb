@@ -1,4 +1,4 @@
-require 'faster_csv'
+require 'csv'
 
 class Story < ActiveRecord::Base
   include Utilities::Text
@@ -12,12 +12,10 @@ class Story < ActiveRecord::Base
   belongs_to :epic, :class_name=> "Story", :foreign_key => :story_id
   has_many :stories, :class_name=> "Story", :foreign_key => :story_id, :dependent => :nullify
   has_many :story_values, :dependent => :destroy
-  has_many :criteria, :dependent => :destroy, :order => 'criteria.priority'
-  has_many :tasks, :dependent => :destroy, :order => 'tasks.priority', :conditions => "tasks.deleted_at IS NULL"
-  has_many :all_tasks, :class_name => "Task"
+  has_many :criteria, -> {order('criteria.priority')}, dependent: :destroy
+  has_many :tasks, -> {where(deleted_at: nil).order('tasks.priority')}, dependent: :destroy
   has_many :survey_mappings, :dependent => :destroy
-  attr_accessible :name, :description, :acceptance_criteria, :effort, :status_code, :release_id, :iteration_id, :individual_id, :project_id, :is_public, :priority, :user_priority, :team_id, :reason_blocked, :story_id
-  acts_as_audited :except => [:user_priority, :in_progress_at, :done_at]
+  audited :except => [:user_priority, :in_progress_at, :done_at]
   
   validates_presence_of     :project_id, :name
   validates_length_of       :name,                   :maximum => 250, :allow_nil => true # Allow nil to workaround bug
@@ -26,6 +24,7 @@ class Story < ActiveRecord::Base
   validates_numericality_of :effort, :allow_nil => true, :greater_than_or_equal_to => 0
   validates_numericality_of :priority, :user_priority, :allow_nil => true # Needed for priority since not set until after check
   validates_numericality_of :status_code
+  validate :validate
 
   before_create :save_relative_priority
   after_create :save_custom_attributes
@@ -33,10 +32,18 @@ class Story < ActiveRecord::Base
   after_save :save_custom_attributes
 
   StatusMapping = [ 'Not Started', 'In Progress', 'Blocked', 'Done' ]
-  Created = 0
-  InProgress = 1
-  Blocked = 2
-  Done = 3
+
+  @@Created = 0
+  cattr_reader :Created
+
+  @@InProgress = 1
+  cattr_reader :InProgress
+
+  @@Blocked = 2
+  cattr_reader :Blocked
+
+  @@Done = 3
+  cattr_reader :Done
 
   Headers = { 'pid'=>:id, 'epic'=>:story_id, 'name'=>:name, 'description'=>:description, 'acceptance criteria'=>:acceptance_criteria, 'size'=>:effort, 'status'=>:status_code, 'reason blocked'=>:reason_blocked, 'release'=>:release_id, 'iteration'=>:iteration_id, 'team'=>:team_id, 'owner'=>:individual_id, 'public'=>:is_public, 'estimate'=>:estimate, 'actual'=>:actual, 'to do'=>:effort}
 
@@ -45,13 +52,13 @@ class Story < ActiveRecord::Base
 
   # Answer a CSV string representing the stories.
   def self.export(current_user, conditions = {})
-    FasterCSV.generate(:row_sep => "\n") do |csv|
+    CSV.generate(:row_sep => "\n") do |csv|
       attribs = ['PID', 'Epic', 'Name', 'Description', 'Acceptance Criteria', 'Size', 'Estimate', 'To Do', 'Actual', 'Status', 'Reason Blocked', 'Release', 'Iteration', 'Team', 'Owner', 'Public', 'User Rank', 'Lead Time', 'Cycle Time']
       if (current_user.project)
         if (!current_user.project.track_actuals)
           attribs.delete('Actual')
         end
-        current_user.project.story_attributes.find(:all, :conditions => {:is_custom => true}, :order => :name).each {|attrib| attribs << attrib.name}
+        current_user.project.story_attributes.where(is_custom: true).order("name").each {|attrib| attribs << attrib.name}
       end
       csv << attribs
       get_records(current_user, conditions).each do |story|
@@ -66,11 +73,11 @@ class Story < ActiveRecord::Base
   
   # Space the priorities out to prevent bunching.
   def self.update_priorities
-    Project.find(:all).each do |project|
-      project.connection.update <<-SQL, "Initializing variable"
+    Project.find_each do |project|
+      ActiveRecord::Base.connection.update <<-SQL, "Initializing variable"
         set @count:=0
       SQL
-      project.connection.update <<-SQL, "Setting priorities"
+      ActiveRecord::Base.connection.update <<-SQL, "Setting priorities"
         update stories,
           (select id, (@count:=@count+10) as rank
           from stories
@@ -81,7 +88,6 @@ class Story < ActiveRecord::Base
     end
   end
   
-  # Export given an instance of FasterCSV.
   def export(csv)
     values = [
       'S' + id.to_s,
@@ -106,10 +112,10 @@ class Story < ActiveRecord::Base
       user_priority,
       lead_time,
       cycle_time]
-    project.story_attributes.find(:all, :conditions => {:is_custom => true}, :order => :name).each do |attrib|
-      value = story_values.find(:first, :conditions => {:story_attribute_id => attrib.id})
+    project.story_attributes.where(is_custom: true).order('name').each do |attrib|
+      value = story_values.where(story_attribute_id: attrib.id).first
       if (attrib.value_type == StoryAttribute::List || attrib.value_type == StoryAttribute::ReleaseList) && value
-        value = attrib.story_attribute_values.find(:first, :conditions => {:id => value.value})
+        value = attrib.story_attribute_values.where(id: value.value).first
       end
       values << (value ? value.value : '')
     end
@@ -123,7 +129,7 @@ class Story < ActiveRecord::Base
     header_mapping = {}
     errors = []
     prev_object = nil
-    FasterCSV.parse(import_string) do |row|
+    CSV.parse(import_string) do |row|
       if !headers_shown
         headers_shown = true
         process_headers(current_user, row, header_mapping)
@@ -155,7 +161,7 @@ class Story < ActiveRecord::Base
   # Answer an abbreviated label for me.
   def caption
     task_count = tasks.length
-    task_status = (tasks.empty? || status_code == Created || status_code == Done) ? '' : ' - ' + tasks.select {|task| task.status_code == Done }.size.to_s + ' of ' + task_count.to_s + ' task' + (task_count == 1 ? '' : 's') + ' done'
+    task_status = (tasks.empty? || status_code == @@Created || status_code == @@Done) ? '' : ' - ' + tasks.select {|task| task.status_code == @@Done }.size.to_s + ' of ' + task_count.to_s + ' task' + (task_count == 1 ? '' : 's') + ' done'
     name + '<br/>' + status + task_status
   end
   
@@ -171,7 +177,7 @@ class Story < ActiveRecord::Base
       if result != ''; result << line_end; end
       if criteria.length > 1; result << '*'; end
       result << criterium.description
-      if (criterium.status_code == Criterium::Done)
+      if (criterium.status_code == Criterium.Done)
         result << " (Done)"
       end
     end
@@ -190,10 +196,10 @@ class Story < ActiveRecord::Base
       new_criteria.split("\n").each do |criterium|
         if criterium.strip != ""
           criterium = criterium.match(/^\*.*$/) ? criterium[1,criterium.length-1] : criterium
-          code = status_code == Done ? Criterium::Done : Criterium::Created
+          code = status_code == @@Done ? Criterium.Done : Criterium.Created
           if (match=criterium.match(/^(.*) \(Done\)$/))
             criterium = match[1]
-            code = Criterium::Done
+            code = Criterium.Done
           end
           criteria << Criterium.new(:description => criterium, :priority => i, :status_code => code)
           i += 1
@@ -201,7 +207,7 @@ class Story < ActiveRecord::Base
       end
     end
     if new_criteria != old_criteria
-      changed_attributes['acceptance_criteria'] = [old_criteria, new_criteria]
+      @changed_attributes['acceptance_criteria'] = [old_criteria, new_criteria]
     end
   end
 
@@ -212,7 +218,7 @@ class Story < ActiveRecord::Base
 
   # Answer true if I have been accepted.
   def accepted?
-    self.status_code == Done
+    self.status_code == @@Done
   end
   
   # My estimate is the sum of my tasks.
@@ -232,7 +238,7 @@ class Story < ActiveRecord::Base
   
   # Create a new story based on this one.
   def split
-    next_iteration = self.iteration ? Iteration.find(:first, :conditions => ["start>? and project_id=?", self.iteration.start, self.project_id], :order => 'start') : nil
+    next_iteration = self.iteration ? Iteration.where(["start>:start and project_id=:project_id",{start: self.iteration.start, project_id: self.project_id}]).order('start').first : nil
     Story.new(
       :name => increment_name(self.name, self.name + ' Part Two'),
       :project_id => self.project_id,
@@ -293,7 +299,7 @@ class Story < ActiveRecord::Base
 
   # Answer whether records have changed.
   def self.have_records_changed(current_user, time)
-    Story.count_with_deleted(:include => [:all_tasks], :conditions => ["(stories.updated_at >= ? or stories.deleted_at >= ? or tasks.updated_at >= ? or tasks.deleted_at >= ?) and stories.project_id = ?", time, time, time, time, current_user.project_id]) > 0
+    Story.with_deleted.joins('LEFT OUTER JOIN tasks ON tasks.story_id=stories.id').where(["(stories.updated_at >= :time or stories.deleted_at >= :time or tasks.updated_at >= :time or tasks.deleted_at >= :time) and stories.project_id = :project_id", {time: time, project_id: current_user.project_id}]).count > 0
   end
 
   # Answer the records for a particular user.
@@ -310,7 +316,15 @@ class Story < ActiveRecord::Base
       options[:per_page] = per_page
       options[:page] = page
     end
-    result = should_paginate ? Story.paginate(options) : Story.find(:all, options)
+    result = Story
+    if should_paginate
+      result = Story.paginate(options)
+    else
+      if options[:include] then result = result.includes(options[:include]) end
+      if options[:joins] then result = result.joins(options[:joins]) end
+      if options[:conditions] then result = result.where(options[:conditions]) end
+      if options[:order] then result = result.order(options[:order]) end
+    end
     if filter_on_individual
       individual_id = individual_id ? individual_id.to_i : individual_id
       result = result.select {|story| story.individual_id==individual_id || story.tasks.detect {|task| task.individual_id==individual_id}}
@@ -459,17 +473,17 @@ class Story < ActiveRecord::Base
 
   # Answer whether I am blocked.
   def is_blocked
-    status_code == Blocked
+    status_code == @@Blocked
   end
   
   # Answer whether I am ready to be accepted (i.e., all my tasks are done).
   def is_ready_to_accept
-    !tasks.any? {|task|task.status_code != Done}
+    !tasks.any? {|task|task.status_code != @@Done}
   end
   
   # Answer whether I am blocked.
   def is_done
-    status_code == Done
+    status_code == @@Done
   end
   
   # Notify of changes
@@ -503,11 +517,11 @@ class Story < ActiveRecord::Base
   end
 
   def external_url
-    "#{config_option(:site_url)}/?project_id=" + project.id.to_s() + "&id=" + id.to_s()
+    "#{Rails.configuration.site_url}/?project_id=" + project.id.to_s() + "&id=" + id.to_s()
   end
 
-  # Override attributes= to handle story values set through custom_<StoryAttribute.id>.
-  def attributes=(new_attributes, guard_protected_attributes = true)
+  # Override assign_attributes to handle story values set through custom_<StoryAttribute.id>.
+  def assign_attributes(new_attributes)
     modified_attributes = {}
     new_attributes.each_pair do |key, value|
       if attrib_id = key.to_s.match(/custom_(.*)/)
@@ -521,7 +535,7 @@ class Story < ActiveRecord::Base
         modified_attributes[key] = value
       end
     end
-    super(modified_attributes, guard_protected_attributes)
+    super(modified_attributes)
   end
 
   # When changing projects, blank out my tasks.
@@ -532,7 +546,7 @@ class Story < ActiveRecord::Base
       tasks.each do |task|
         if (task.individual && !task.individual.projects.include?(Project.find(new_project_id)))
           task.individual_id = nil
-          task.save(false)
+          task.save( :validate=> false )
         end
       end
       @delete_custom_attribute_values = true
@@ -543,11 +557,11 @@ class Story < ActiveRecord::Base
   def determine_priority(before, after)
     if before == ''
       after = Story.find(after).priority
-      before = Story.find(:first, :conditions => ['project_id = ? and priority < ?', project.id, after], :order => 'priority desc')
+      before = Story.where(["project_id = :project_id and priority < :priority",{project_id: project.id, priority: after}]).order('priority desc').first
       before = before == nil ? after - 2 : before.priority
     elsif after == ''
       before = Story.find(before).priority
-      after = Story.find(:first, :conditions => ['project_id = ? and priority > ?', project.id, before], :order => 'priority')
+      after = Story.where(["project_id = :project_id and priority > :priority", {project_id: project.id, priority: before}]).order('priority').first
       after = after == nil ? before + 2 : after.priority
     else
       before = Story.find(before).priority
@@ -598,7 +612,7 @@ class Story < ActiveRecord::Base
 protected
 
   # Add custom validation of the status field and relationships to give a more specific message.
-  def validate()
+  def validate
     if status_code < 0 || status_code >= StatusMapping.length
       errors.add(:status_code, 'is invalid')
     end
@@ -642,10 +656,10 @@ protected
   def validate_custom_attributes
     if @custom_attributes && !@delete_custom_attribute_values
       @custom_attributes.each_pair do |key, value|
-        attrib = project ? project.story_attributes.find(:first, :conditions => {:id => key, :is_custom => true}) : nil
-        if attrib && (attrib.value_type != StoryAttribute::List || value == "" || value == nil || attrib.story_attribute_values.find(:first, :conditions => {:id => value})) && (attrib.value_type != StoryAttribute::ReleaseList || value == "" || value == nil || attrib.story_attribute_values.find(:first, :conditions => {:id => value, :release_id => release_id}))
+        attrib = project ? project.story_attributes.where(id: key, is_custom: true).first : nil
+        if attrib && (attrib.value_type != StoryAttribute::List || value == "" || value == nil || attrib.story_attribute_values.where(id: value).first) && (attrib.value_type != StoryAttribute::ReleaseList || value == "" || value == nil || attrib.story_attribute_values.where(id: value, release_id: release_id).first)
         elsif !attrib
-          errors.add_to_base("Invalid attribute")
+          errors.add(:base, "Invalid attribute")
         else
           errors.add(attrib.name.to_sym, "is invalid")
         end
@@ -668,15 +682,19 @@ protected
       story_values.each {|val| val.destroy}      
     elsif @custom_attributes
       @custom_attributes.each_pair do |key, value|
-        attrib = project.story_attributes.find(:first, :conditions => {:id => key, :is_custom => true})
-        val = story_values.find(:first, :conditions => {:story_attribute_id => key})
-        if val && value != nil and value != ""
-          val.value = value
-          val.save(false)
-        elsif val
-          val.destroy
-        elsif value != nil and value != ""
-          story_values << StoryValue.new({:story_attribute_id => attrib.id, :value => value})
+        attrib = project.story_attributes.where(id: key, is_custom: true).first
+        if attrib
+          val = story_values.where(story_attribute_id: key).first
+          if val && value != nil and value != ""
+            val.value = value
+            val.save( :validate=> false )
+          elsif val
+            val.destroy
+          elsif value != nil and value != ""
+            story_values << StoryValue.new({:story_attribute_id => attrib.id, :value => value})
+          end
+        else
+          errors.add('custom_' + id.to_s, "Invalid attribute")
         end
       end
     end
@@ -687,7 +705,7 @@ protected
   # Set the initial priority to the number of stories (+1 for me).  Set public to false if not set.
   def initialize_defaults
     if !self.priority
-      highest = Story.find(:first, :order=>'priority desc')
+      highest = Story.order('priority desc').first
       self.priority = highest ? highest.priority + 1 : 1
     end
   end
@@ -704,7 +722,7 @@ private
           header_mapping[i] = Headers[down]
         else # Check for custom attribute
           header_mapping[i] = :ignore
-          current_user.selected_project.story_attributes.find(:all, :conditions => {:is_custom => true}).each do |attrib|
+          current_user.selected_project.story_attributes.where(is_custom: true).each do |attrib|
             if attrib.name.downcase == down
               header_mapping[i] = "custom_" + attrib.id.to_s
               break;
@@ -735,12 +753,12 @@ private
             when :effort then value = value ? value.to_f : value
             else
               if attrib = header.to_s.match(/custom_(.*)/)
-                attribute = current_user.selected_project.story_attributes.find(:first, :conditions => {:id => attrib[1]});
+                attribute = current_user.selected_project.story_attributes.where(id: attrib[1]).first;
                 if attribute && (attribute.value_type == StoryAttribute::List || attribute.value_type == StoryAttribute::ReleaseList)
                   if !value || value == ""
                     value = nil
                   else
-                    attrib_value = attribute.story_attribute_values.find(:first, :conditions => {:value => value})
+                    attrib_value = attribute.story_attribute_values.where(value: value).first
                     value = attrib_value ? attrib_value.id : -1
                   end
                 end
@@ -785,7 +803,7 @@ private
   end
 
   def self.update_story(current_user, values)
-    story = Story.find(:first, :conditions => ['id = ?', values[:id]])
+    story = Story.where(id: values[:id]).first
     if story && story.authorized_for_update?(current_user)
       story.update_attributes(values)
     elsif story
@@ -795,7 +813,7 @@ private
   end
 
   def self.update_task(current_user, values)
-    task = Task.find(:first, :conditions => ['id = ?', values[:id]])
+    task = Task.where(id: values[:id]).first
     if task && task.story.authorized_for_update?(current_user)
       task.update_attributes(values)
     elsif task
@@ -808,9 +826,9 @@ private
   def self.find_object_id(value, klass, conditions, joins=nil)
     if !value || value == ""; return nil; end
     if joins
-      object = klass.find(:first, :conditions => conditions, :joins => joins)
+      object = klass.joins(joins).where(conditions).first
     else
-      object = klass.find(:first, :conditions => conditions)
+      object = klass.where(conditions).first
     end
     object ? object.id : -1
   end
