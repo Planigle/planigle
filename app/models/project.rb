@@ -1,4 +1,5 @@
 require 'digest/sha1'
+require 'active_support/builder' unless defined?(Builder)
 class Project < ActiveRecord::Base
   acts_as_paranoid
   belongs_to :company
@@ -136,7 +137,7 @@ class Project < ActiveRecord::Base
 
   # Create a survey for this project (in XML)
   def create_survey
-    builder = Builder::XmlMarkup.new
+    builder = ::Builder::XmlMarkup.new
     builder.instruct!
     builder.stories do
       i = 1

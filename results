@@ -1,0 +1,3108 @@
+Run options: --seed 3036
+
+# Running:
+
+EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+
+Finished in 103.535515s, 4.6071 runs/s, 0.0193 assertions/s.
+
+  1) Error:
+SessionsControllerTest#test_create_iphone:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/sessions_controller_test.rb:153:in `test_create_iphone'
+
+
+  2) Error:
+SessionsControllerTest#test_create_iphone_community:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/sessions_controller_test.rb:168:in `test_create_iphone_community'
+
+
+  3) Error:
+SessionsControllerTest#test_create_iphone_no_agreement:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/sessions_controller_test.rb:162:in `test_create_iphone_no_agreement'
+
+
+  4) Error:
+SessionsControllerTest#test_destroy_iphone:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/sessions_controller_test.rb:174:in `test_destroy_iphone'
+
+
+  5) Error:
+SessionsControllerTest#test_new_iphone:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/sessions_controller_test.rb:147:in `test_new_iphone'
+
+
+  6) Error:
+SessionsControllerTest#test_should_delete_token_on_logout:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/sessions_controller_test.rb:94:in `test_should_delete_token_on_logout'
+
+
+  7) Error:
+SessionsControllerTest#test_should_fail_cookie_login:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/sessions_controller_test.rb:124:in `test_should_fail_cookie_login'
+
+
+  8) Error:
+SessionsControllerTest#test_should_fail_expired_cookie_login:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/sessions_controller_test.rb:115:in `test_should_fail_expired_cookie_login'
+
+
+  9) Error:
+SessionsControllerTest#test_should_fail_login:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/sessions_controller_test.rb:67:in `test_should_fail_login'
+
+
+ 10) Error:
+SessionsControllerTest#test_should_login_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/sessions_controller_test.rb:19:in `test_should_login_admin'
+
+
+ 11) Error:
+SessionsControllerTest#test_should_login_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/sessions_controller_test.rb:52:in `test_should_login_project_admin'
+
+
+ 12) Error:
+SessionsControllerTest#test_should_login_selected_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/sessions_controller_test.rb:37:in `test_should_login_selected_project'
+
+
+ 13) Error:
+SessionsControllerTest#test_should_login_with_cookie:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/sessions_controller_test.rb:105:in `test_should_login_with_cookie'
+
+
+ 14) Error:
+SessionsControllerTest#test_should_logout:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/sessions_controller_test.rb:74:in `test_should_logout'
+
+
+ 15) Error:
+SessionsControllerTest#test_should_not_remember_me:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/sessions_controller_test.rb:88:in `test_should_not_remember_me'
+
+
+ 16) Error:
+SessionsControllerTest#test_should_remember_me:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/sessions_controller_test.rb:82:in `test_should_remember_me'
+
+
+ 17) Error:
+SessionsControllerTest#test_should_require_accept_license:
+ActiveRecord::RecordNotFound: Couldn't find System with 'id'=first
+    test/functional/sessions_controller_test.rb:130:in `test_should_require_accept_license'
+
+
+ 18) Error:
+SurveysControllerTest#test_create_survey:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/surveys_controller_test.rb:18:in `test_create_survey'
+
+
+ 19) Error:
+SurveysControllerTest#test_create_survey_community:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/surveys_controller_test.rb:43:in `test_create_survey_community'
+
+
+ 20) Error:
+SurveysControllerTest#test_create_survey_invalid:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/surveys_controller_test.rb:33:in `test_create_survey_invalid'
+
+
+ 21) Error:
+SurveysControllerTest#test_index_by_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/surveys_controller_test.rb:200:in `index_by_role'
+    test/functional/surveys_controller_test.rb:179:in `test_index_by_admin'
+
+
+ 22) Error:
+SurveysControllerTest#test_index_by_project_admin:
+NoMethodError: undefined method `find_all_by_project_id' for #<Class:0x57fd620>
+    test/functional/surveys_controller_test.rb:184:in `test_index_by_project_admin'
+
+
+ 23) Error:
+SurveysControllerTest#test_index_by_project_user:
+NoMethodError: undefined method `find_all_by_project_id' for #<Class:0x57fd620>
+    test/functional/surveys_controller_test.rb:189:in `test_index_by_project_user'
+
+
+ 24) Error:
+SurveysControllerTest#test_index_by_read_only_user:
+NoMethodError: undefined method `find_all_by_project_id' for #<Class:0x57fd620>
+    test/functional/surveys_controller_test.rb:194:in `test_index_by_read_only_user'
+
+
+ 25) Error:
+SurveysControllerTest#test_list_survey:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/surveys_controller_test.rb:107:in `test_list_survey'
+
+
+ 26) Error:
+SurveysControllerTest#test_list_survey_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/surveys_controller_test.rb:100:in `test_list_survey_unauthorized'
+
+
+ 27) Error:
+SurveysControllerTest#test_show_survey:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/surveys_controller_test.rb:130:in `test_show_survey'
+
+
+ 28) Error:
+SurveysControllerTest#test_show_survey_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/surveys_controller_test.rb:123:in `test_show_survey_unauthorized'
+
+
+ 29) Error:
+SurveysControllerTest#test_show_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/surveys_controller_test.rb:210:in `test_show_wrong_project'
+
+
+ 30) Error:
+SurveysControllerTest#test_submit_survey_community:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/surveys_controller_test.rb:89:in `test_submit_survey_community'
+
+
+ 31) Error:
+SurveysControllerTest#test_submit_survey_failure:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/surveys_controller_test.rb:67:in `test_submit_survey_failure'
+
+
+ 32) Error:
+SurveysControllerTest#test_submit_survey_invalid:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/surveys_controller_test.rb:78:in `test_submit_survey_invalid'
+
+
+ 33) Error:
+SurveysControllerTest#test_submit_survey_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/surveys_controller_test.rb:54:in `test_submit_survey_success'
+
+
+ 34) Error:
+SurveysControllerTest#test_update_by_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/surveys_controller_test.rb:241:in `update_by_role_successful'
+    test/functional/surveys_controller_test.rb:216:in `test_update_by_project_admin'
+
+
+ 35) Error:
+SurveysControllerTest#test_update_by_project_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/surveys_controller_test.rb:249:in `update_by_role_unsuccessful'
+    test/functional/surveys_controller_test.rb:221:in `test_update_by_project_user'
+
+
+ 36) Error:
+SurveysControllerTest#test_update_by_read_only_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/surveys_controller_test.rb:249:in `update_by_role_unsuccessful'
+    test/functional/surveys_controller_test.rb:226:in `test_update_by_read_only_user'
+
+
+ 37) Error:
+SurveysControllerTest#test_update_survey:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/surveys_controller_test.rb:154:in `test_update_survey'
+
+
+ 38) Error:
+SurveysControllerTest#test_update_survey_invalid:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/surveys_controller_test.rb:164:in `test_update_survey_invalid'
+
+
+ 39) Error:
+SurveysControllerTest#test_update_survey_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/surveys_controller_test.rb:171:in `test_update_survey_unauthorized'
+
+
+ 40) Error:
+SurveysControllerTest#test_update_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/surveys_controller_test.rb:232:in `test_update_wrong_project'
+
+
+ 41) Error:
+IndividualsControllerTest#test_create_by_project_admin:
+ActiveRecord::RecordNotFound: Couldn't find all Individuals with 'id': (all, {:conditions=>{:company_id=>1}}) [WHERE `individuals`.`deleted_at` IS NULL] (found 0 results, but was looking for 2)
+    test/individuals_test_helper.rb:31:in `resource_count'
+    test/functional/individuals_controller_test.rb:202:in `create_by_role_successful'
+    test/functional/individuals_controller_test.rb:137:in `test_create_by_project_admin'
+
+
+ 42) Error:
+IndividualsControllerTest#test_create_by_project_user:
+ActiveRecord::RecordNotFound: Couldn't find all Individuals with 'id': (all, {:conditions=>{:company_id=>1}}) [WHERE `individuals`.`deleted_at` IS NULL] (found 0 results, but was looking for 2)
+    test/individuals_test_helper.rb:31:in `resource_count'
+    test/functional/individuals_controller_test.rb:212:in `create_by_role_unsuccessful'
+    test/functional/individuals_controller_test.rb:142:in `test_create_by_project_user'
+
+
+ 43) Error:
+IndividualsControllerTest#test_create_by_read_only_user:
+ActiveRecord::RecordNotFound: Couldn't find all Individuals with 'id': (all, {:conditions=>{:company_id=>1}}) [WHERE `individuals`.`deleted_at` IS NULL] (found 0 results, but was looking for 2)
+    test/individuals_test_helper.rb:31:in `resource_count'
+    test/functional/individuals_controller_test.rb:212:in `create_by_role_unsuccessful'
+    test/functional/individuals_controller_test.rb:147:in `test_create_by_read_only_user'
+
+
+ 44) Error:
+IndividualsControllerTest#test_create_failure:
+ActiveRecord::RecordNotFound: Couldn't find all Individuals with 'id': (all, {:conditions=>{:company_id=>1}}) [WHERE `individuals`.`deleted_at` IS NULL] (found 0 results, but was looking for 2)
+    test/individuals_test_helper.rb:31:in `resource_count'
+    test/functional/controller_resource_helper.rb:36:in `test_create_failure'
+
+
+ 45) Error:
+IndividualsControllerTest#test_create_other_project_in_company:
+ActiveRecord::RecordNotFound: Couldn't find all Individuals with 'id': (all, {:conditions=>{:company_id=>1}}) [WHERE `individuals`.`deleted_at` IS NULL] (found 0 results, but was looking for 2)
+    test/individuals_test_helper.rb:31:in `resource_count'
+    test/functional/individuals_controller_test.rb:177:in `test_create_other_project_in_company'
+
+
+ 46) Error:
+IndividualsControllerTest#test_create_success:
+ActiveRecord::RecordNotFound: Couldn't find all Individuals with 'id': (all, {:conditions=>{:company_id=>1}}) [WHERE `individuals`.`deleted_at` IS NULL] (found 0 results, but was looking for 2)
+    test/individuals_test_helper.rb:31:in `resource_count'
+    test/functional/controller_resource_helper.rb:27:in `test_create_success'
+
+
+ 47) Error:
+IndividualsControllerTest#test_create_unauthorized:
+ActiveRecord::RecordNotFound: Couldn't find all Individuals with 'id': (all, {:conditions=>{:company_id=>1}}) [WHERE `individuals`.`deleted_at` IS NULL] (found 0 results, but was looking for 2)
+    test/individuals_test_helper.rb:31:in `resource_count'
+    test/functional/controller_resource_helper.rb:17:in `test_create_unauthorized'
+
+
+ 48) Error:
+IndividualsControllerTest#test_create_wrong_company:
+ActiveRecord::RecordNotFound: Couldn't find all Individuals with 'id': (all, {:conditions=>{:company_id=>1}}) [WHERE `individuals`.`deleted_at` IS NULL] (found 0 results, but was looking for 2)
+    test/individuals_test_helper.rb:31:in `resource_count'
+    test/functional/individuals_controller_test.rb:190:in `test_create_wrong_company'
+
+
+ 49) Error:
+IndividualsControllerTest#test_create_wrong_project:
+ActiveRecord::RecordNotFound: Couldn't find all Individuals with 'id': (all, {:conditions=>{:company_id=>1}}) [WHERE `individuals`.`deleted_at` IS NULL] (found 0 results, but was looking for 2)
+    test/individuals_test_helper.rb:31:in `resource_count'
+    test/functional/individuals_controller_test.rb:165:in `test_create_wrong_project'
+
+
+ 50) Error:
+IndividualsControllerTest#test_delete_admin_by_project_admin:
+NoMethodError: undefined method `delete' for #<IndividualsControllerTest:0x5910990>
+    test/functional/individuals_controller_test.rb:457:in `test_delete_admin_by_project_admin'
+
+
+ 51) Error:
+IndividualsControllerTest#test_delete_by_project_admin:
+NoMethodError: undefined method `delete' for #<IndividualsControllerTest:0x59aa2c0>
+    test/functional/individuals_controller_test.rb:475:in `delete_by_role_successful'
+    test/functional/individuals_controller_test.rb:406:in `test_delete_by_project_admin'
+
+
+ 52) Error:
+IndividualsControllerTest#test_delete_by_project_user:
+NoMethodError: undefined method `delete' for #<IndividualsControllerTest:0x58e8310>
+    test/functional/individuals_controller_test.rb:483:in `delete_by_role_unsuccessful'
+    test/functional/individuals_controller_test.rb:411:in `test_delete_by_project_user'
+
+
+ 53) Error:
+IndividualsControllerTest#test_delete_by_read_only_user:
+NoMethodError: undefined method `delete' for #<IndividualsControllerTest:0x599e6b0>
+    test/functional/individuals_controller_test.rb:483:in `delete_by_role_unsuccessful'
+    test/functional/individuals_controller_test.rb:416:in `test_delete_by_read_only_user'
+
+
+ 54) Error:
+IndividualsControllerTest#test_delete_no_company:
+NoMethodError: undefined method `delete' for #<IndividualsControllerTest:0x54c2328>
+    test/functional/individuals_controller_test.rb:448:in `test_delete_no_company'
+
+
+ 55) Error:
+IndividualsControllerTest#test_delete_self:
+NoMethodError: undefined method `delete' for #<IndividualsControllerTest:0x59417d0>
+    test/functional/individuals_controller_test.rb:466:in `test_delete_self'
+
+
+ 56) Error:
+IndividualsControllerTest#test_delete_wrong_company:
+NoMethodError: undefined method `delete' for #<IndividualsControllerTest:0x67b7518>
+    test/functional/individuals_controller_test.rb:439:in `test_delete_wrong_company'
+
+
+ 57) Error:
+IndividualsControllerTest#test_delete_wrong_project:
+NoMethodError: undefined method `delete' for #<IndividualsControllerTest:0x59350e0>
+    test/functional/individuals_controller_test.rb:422:in `test_delete_wrong_project'
+
+
+ 58) Error:
+IndividualsControllerTest#test_delete_wrong_project_premium:
+NoMethodError: undefined method `delete' for #<IndividualsControllerTest:0x59c2110>
+    test/functional/individuals_controller_test.rb:431:in `test_delete_wrong_project_premium'
+
+
+ 59) Error:
+IndividualsControllerTest#test_destroy_not_found:
+NoMethodError: undefined method `delete' for #<IndividualsControllerTest:0x590feb0>
+    test/functional/controller_resource_helper.rb:113:in `test_destroy_not_found'
+
+
+ 60) Error:
+IndividualsControllerTest#test_destroy_success:
+NoMethodError: undefined method `delete' for #<IndividualsControllerTest:0x59caaf8>
+    test/functional/controller_resource_helper.rb:105:in `test_destroy_success'
+
+
+ 61) Error:
+IndividualsControllerTest#test_destroy_unauthorized:
+NoMethodError: undefined method `delete' for #<IndividualsControllerTest:0x569f3b8>
+    test/functional/controller_resource_helper.rb:97:in `test_destroy_unauthorized'
+
+
+ 62) Error:
+IndividualsControllerTest#test_index_by_admin:
+NoMethodError: undefined method `get' for #<IndividualsControllerTest:0x5967a38>
+    test/functional/individuals_controller_test.rb:99:in `index_by_role'
+    test/functional/individuals_controller_test.rb:53:in `test_index_by_admin'
+
+
+ 63) Error:
+IndividualsControllerTest#test_index_by_project_admin:
+ActiveRecord::RecordNotFound: Couldn't find all Individuals with 'id': (all, {:joins=>:projects, :conditions=>"projects.id = 2 and role != 0"}) [WHERE `individuals`.`deleted_at` IS NULL] (found 0 results, but was looking for 2)
+    test/functional/individuals_controller_test.rb:58:in `test_index_by_project_admin'
+
+
+ 64) Error:
+IndividualsControllerTest#test_index_by_project_admin_premium:
+NoMethodError: undefined method `find_all_by_company_id' for #<Class:0x503f598>
+    test/functional/individuals_controller_test.rb:63:in `test_index_by_project_admin_premium'
+
+
+ 65) Error:
+IndividualsControllerTest#test_index_by_project_user:
+ActiveRecord::RecordNotFound: Couldn't find all Individuals with 'id': (all, {:joins=>:projects, :conditions=>"projects.id = 2 and role != 0"}) [WHERE `individuals`.`deleted_at` IS NULL] (found 0 results, but was looking for 2)
+    test/functional/individuals_controller_test.rb:68:in `test_index_by_project_user'
+
+
+ 66) Error:
+IndividualsControllerTest#test_index_by_project_user_premium:
+NoMethodError: undefined method `find_all_by_company_id' for #<Class:0x503f598>
+    test/functional/individuals_controller_test.rb:73:in `test_index_by_project_user_premium'
+
+
+ 67) Error:
+IndividualsControllerTest#test_index_by_read_only_user:
+ActiveRecord::RecordNotFound: Couldn't find all Individuals with 'id': (all, {:joins=>:projects, :conditions=>"projects.id = 4 and role != 0"}) [WHERE `individuals`.`deleted_at` IS NULL] (found 0 results, but was looking for 2)
+    test/functional/individuals_controller_test.rb:78:in `test_index_by_read_only_user'
+
+
+ 68) Error:
+IndividualsControllerTest#test_index_by_read_only_user_premium:
+NoMethodError: undefined method `find_all_by_company_id' for #<Class:0x503f598>
+    test/functional/individuals_controller_test.rb:83:in `test_index_by_read_only_user_premium'
+
+
+ 69) Error:
+IndividualsControllerTest#test_index_changes:
+NoMethodError: undefined method `find_all_by_company_id' for #<Class:0x503f598>
+    test/functional/individuals_controller_test.rb:93:in `test_index_changes'
+
+
+ 70) Error:
+IndividualsControllerTest#test_index_no_changes:
+NoMethodError: undefined method `get' for #<IndividualsControllerTest:0x3583680>
+    test/functional/individuals_controller_test.rb:99:in `index_by_role'
+    test/functional/individuals_controller_test.rb:88:in `test_index_no_changes'
+
+
+ 71) Error:
+IndividualsControllerTest#test_index_success:
+NoMethodError: undefined method `get' for #<IndividualsControllerTest:0x5982648>
+    test/functional/controller_resource_helper.rb:11:in `test_index_success'
+
+
+ 72) Error:
+IndividualsControllerTest#test_index_unauthorized:
+NoMethodError: undefined method `get' for #<IndividualsControllerTest:0x5949990>
+    test/functional/controller_resource_helper.rb:4:in `test_index_unauthorized'
+
+
+ 73) Error:
+IndividualsControllerTest#test_project_admin_create_admin:
+ActiveRecord::RecordNotFound: Couldn't find all Individuals with 'id': (all, {:conditions=>{:company_id=>1}}) [WHERE `individuals`.`deleted_at` IS NULL] (found 0 results, but was looking for 2)
+    test/individuals_test_helper.rb:31:in `resource_count'
+    test/functional/individuals_controller_test.rb:153:in `test_project_admin_create_admin'
+
+
+ 74) Error:
+IndividualsControllerTest#test_should_activate_user:
+NoMethodError: undefined method `get' for #<IndividualsControllerTest:0x5a5a5e8>
+    test/functional/individuals_controller_test.rb:30:in `test_should_activate_user'
+
+
+ 75) Error:
+IndividualsControllerTest#test_should_not_activate_user_with_blank_key:
+NoMethodError: undefined method `get' for #<IndividualsControllerTest:0x58f6c80>
+    test/functional/individuals_controller_test.rb:45:in `test_should_not_activate_user_with_blank_key'
+
+
+ 76) Error:
+IndividualsControllerTest#test_should_not_activate_user_without_key:
+NoMethodError: undefined method `get' for #<IndividualsControllerTest:0x5a31bd8>
+    test/functional/individuals_controller_test.rb:37:in `test_should_not_activate_user_without_key'
+
+
+ 77) Error:
+IndividualsControllerTest#test_show_admin_by_project_admin:
+NoMethodError: undefined method `get' for #<IndividualsControllerTest:0x46a0df0>
+    test/functional/individuals_controller_test.rb:131:in `test_show_admin_by_project_admin'
+
+
+ 78) Error:
+IndividualsControllerTest#test_show_not_found:
+NoMethodError: undefined method `get' for #<IndividualsControllerTest:0x59a9ee8>
+    test/functional/controller_resource_helper.rb:61:in `test_show_not_found'
+
+
+ 79) Error:
+IndividualsControllerTest#test_show_success:
+NoMethodError: undefined method `get' for #<IndividualsControllerTest:0x5982a20>
+    test/functional/controller_resource_helper.rb:52:in `test_show_success'
+
+
+ 80) Error:
+IndividualsControllerTest#test_show_unauthorized:
+NoMethodError: undefined method `get' for #<IndividualsControllerTest:0x598f560>
+    test/functional/controller_resource_helper.rb:45:in `test_show_unauthorized'
+
+
+ 81) Error:
+IndividualsControllerTest#test_show_wrong_company:
+NoMethodError: undefined method `get' for #<IndividualsControllerTest:0x5a89238>
+    test/functional/individuals_controller_test.rb:124:in `test_show_wrong_company'
+
+
+ 82) Error:
+IndividualsControllerTest#test_show_wrong_project:
+NoMethodError: undefined method `get' for #<IndividualsControllerTest:0x58e49b0>
+    test/functional/individuals_controller_test.rb:109:in `test_show_wrong_project'
+
+
+ 83) Error:
+IndividualsControllerTest#test_show_wrong_project_premium:
+NoMethodError: undefined method `get' for #<IndividualsControllerTest:0x5a42cf0>
+    test/functional/individuals_controller_test.rb:116:in `test_show_wrong_project_premium'
+
+
+ 84) Error:
+IndividualsControllerTest#test_update_admin_by_project_admin:
+NoMethodError: undefined method `put' for #<IndividualsControllerTest:0x5047a28>
+    test/functional/individuals_controller_test.rb:325:in `test_update_admin_by_project_admin'
+
+
+ 85) Error:
+IndividualsControllerTest#test_update_by_project_admin:
+NoMethodError: undefined method `put' for #<IndividualsControllerTest:0x5a104b8>
+    test/functional/individuals_controller_test.rb:345:in `update_by_role_successful'
+    test/functional/individuals_controller_test.rb:221:in `test_update_by_project_admin'
+
+
+ 86) Error:
+IndividualsControllerTest#test_update_by_project_user:
+NoMethodError: undefined method `put' for #<IndividualsControllerTest:0x599d438>
+    test/functional/individuals_controller_test.rb:369:in `update_by_role_unsuccessful'
+    test/functional/individuals_controller_test.rb:226:in `test_update_by_project_user'
+
+
+ 87) Error:
+IndividualsControllerTest#test_update_by_read_only_user:
+NoMethodError: undefined method `put' for #<IndividualsControllerTest:0x59c89f8>
+    test/functional/individuals_controller_test.rb:369:in `update_by_role_unsuccessful'
+    test/functional/individuals_controller_test.rb:231:in `test_update_by_read_only_user'
+
+
+ 88) Error:
+IndividualsControllerTest#test_update_company_by_admin:
+NoMethodError: undefined method `put' for #<IndividualsControllerTest:0x5aa7e68>
+    test/functional/individuals_controller_test.rb:353:in `update_company_by_role_successful'
+    test/functional/individuals_controller_test.rb:244:in `test_update_company_by_admin'
+
+
+ 89) Error:
+IndividualsControllerTest#test_update_company_by_project_admin:
+NoMethodError: undefined method `put' for #<IndividualsControllerTest:0x5925678>
+    test/functional/individuals_controller_test.rb:378:in `update_company_by_role_unsuccessful'
+    test/functional/individuals_controller_test.rb:249:in `test_update_company_by_project_admin'
+
+
+ 90) Error:
+IndividualsControllerTest#test_update_company_by_project_user:
+NoMethodError: undefined method `put' for #<IndividualsControllerTest:0x5a83cd0>
+    test/functional/individuals_controller_test.rb:378:in `update_company_by_role_unsuccessful'
+    test/functional/individuals_controller_test.rb:254:in `test_update_company_by_project_user'
+
+
+ 91) Error:
+IndividualsControllerTest#test_update_company_by_readonly_user:
+NoMethodError: undefined method `put' for #<IndividualsControllerTest:0x53a2700>
+    test/functional/individuals_controller_test.rb:378:in `update_company_by_role_unsuccessful'
+    test/functional/individuals_controller_test.rb:259:in `test_update_company_by_readonly_user'
+
+
+ 92) Error:
+IndividualsControllerTest#test_update_failure:
+NoMethodError: undefined method `put' for #<IndividualsControllerTest:0x5a3d9e0>
+    test/functional/controller_resource_helper.rb:83:in `test_update_failure'
+
+
+ 93) Error:
+IndividualsControllerTest#test_update_no_company:
+NoMethodError: undefined method `put' for #<IndividualsControllerTest:0x59802c0>
+    test/functional/individuals_controller_test.rb:316:in `test_update_no_company'
+
+
+ 94) Error:
+IndividualsControllerTest#test_update_not_found:
+NoMethodError: undefined method `put' for #<IndividualsControllerTest:0x5a2b3f8>
+    test/functional/controller_resource_helper.rb:91:in `test_update_not_found'
+
+
+ 95) Error:
+IndividualsControllerTest#test_update_project_by_admin:
+NoMethodError: undefined method `put' for #<IndividualsControllerTest:0x5b03cf8>
+    test/functional/individuals_controller_test.rb:361:in `update_project_by_role_successful'
+    test/functional/individuals_controller_test.rb:264:in `test_update_project_by_admin'
+
+
+ 96) Error:
+IndividualsControllerTest#test_update_project_by_project_admin_different_company:
+NoMethodError: undefined method `put' for #<IndividualsControllerTest:0x59658a8>
+    test/functional/individuals_controller_test.rb:388:in `update_project_by_role_unsuccessful'
+    test/functional/individuals_controller_test.rb:274:in `test_update_project_by_project_admin_different_company'
+
+
+ 97) Error:
+IndividualsControllerTest#test_update_project_by_project_admin_same_company:
+NoMethodError: undefined method `put' for #<IndividualsControllerTest:0x5a44ef8>
+    test/functional/individuals_controller_test.rb:361:in `update_project_by_role_successful'
+    test/functional/individuals_controller_test.rb:269:in `test_update_project_by_project_admin_same_company'
+
+
+ 98) Error:
+IndividualsControllerTest#test_update_project_by_project_user:
+NoMethodError: undefined method `put' for #<IndividualsControllerTest:0x67c9290>
+    test/functional/individuals_controller_test.rb:388:in `update_project_by_role_unsuccessful'
+    test/functional/individuals_controller_test.rb:279:in `test_update_project_by_project_user'
+
+
+ 99) Error:
+IndividualsControllerTest#test_update_project_by_readonly_user:
+NoMethodError: undefined method `put' for #<IndividualsControllerTest:0x59b0608>
+    test/functional/individuals_controller_test.rb:388:in `update_project_by_role_unsuccessful'
+    test/functional/individuals_controller_test.rb:284:in `test_update_project_by_readonly_user'
+
+
+100) Error:
+IndividualsControllerTest#test_update_role_self:
+NoMethodError: undefined method `put' for #<IndividualsControllerTest:0x67c0260>
+    test/functional/individuals_controller_test.rb:237:in `test_update_role_self'
+
+
+101) Error:
+IndividualsControllerTest#test_update_success:
+NoMethodError: undefined method `put' for #<IndividualsControllerTest:0x56f42a0>
+    test/functional/controller_resource_helper.rb:75:in `test_update_success'
+
+
+102) Error:
+IndividualsControllerTest#test_update_to_admin_by_project_admin:
+NoMethodError: undefined method `put' for #<IndividualsControllerTest:0x5a9e5e0>
+    test/functional/individuals_controller_test.rb:336:in `test_update_to_admin_by_project_admin'
+
+
+103) Error:
+IndividualsControllerTest#test_update_unauthorized:
+NoMethodError: undefined method `put' for #<IndividualsControllerTest:0x67ec5d0>
+    test/functional/controller_resource_helper.rb:67:in `test_update_unauthorized'
+
+
+104) Error:
+IndividualsControllerTest#test_update_wrong_company:
+NoMethodError: undefined method `put' for #<IndividualsControllerTest:0x5a6ed18>
+    test/functional/individuals_controller_test.rb:307:in `test_update_wrong_company'
+
+
+105) Error:
+IndividualsControllerTest#test_update_wrong_project:
+NoMethodError: undefined method `put' for #<IndividualsControllerTest:0x5b0f278>
+    test/functional/individuals_controller_test.rb:290:in `test_update_wrong_project'
+
+
+106) Error:
+IndividualsControllerTest#test_update_wrong_project_premium:
+NoMethodError: undefined method `put' for #<IndividualsControllerTest:0x5a350a0>
+    test/functional/individuals_controller_test.rb:299:in `test_update_wrong_project_premium'
+
+
+107) Error:
+AuditsControllerTest#test_index_by_admin:
+ActiveRecord::StatementInvalid: Mysql2::Error: Unknown column 'changes' in 'field list': INSERT INTO `audits` (`id`, `auditable_id`, `auditable_type`, `project_id`, `user_id`, `user_type`, `username`, `action`, `changes`, `version`, `created_at`) VALUES (1, 1, 'Story', 1, 2, 'Individual', 'aaron hank', 'update', '--- {}', 1, '2008-11-01')
+    
+
+Error:
+AuditsControllerTest#test_index_by_admin:
+NoMethodError: undefined method `each' for nil:NilClass
+    
+
+
+108) Error:
+AuditsControllerTest#test_index_by_project_admin:
+ActiveRecord::StatementInvalid: Mysql2::Error: Unknown column 'changes' in 'field list': INSERT INTO `audits` (`id`, `auditable_id`, `auditable_type`, `project_id`, `user_id`, `user_type`, `username`, `action`, `changes`, `version`, `created_at`) VALUES (1, 1, 'Story', 1, 2, 'Individual', 'aaron hank', 'update', '--- {}', 1, '2008-11-01')
+    
+
+Error:
+AuditsControllerTest#test_index_by_project_admin:
+NoMethodError: undefined method `each' for nil:NilClass
+    
+
+
+109) Error:
+AuditsControllerTest#test_index_by_project_user:
+ActiveRecord::StatementInvalid: Mysql2::Error: Unknown column 'changes' in 'field list': INSERT INTO `audits` (`id`, `auditable_id`, `auditable_type`, `project_id`, `user_id`, `user_type`, `username`, `action`, `changes`, `version`, `created_at`) VALUES (1, 1, 'Story', 1, 2, 'Individual', 'aaron hank', 'update', '--- {}', 1, '2008-11-01')
+    
+
+Error:
+AuditsControllerTest#test_index_by_project_user:
+NoMethodError: undefined method `each' for nil:NilClass
+    
+
+
+110) Error:
+AuditsControllerTest#test_index_by_read_only_user:
+ActiveRecord::StatementInvalid: Mysql2::Error: Unknown column 'changes' in 'field list': INSERT INTO `audits` (`id`, `auditable_id`, `auditable_type`, `project_id`, `user_id`, `user_type`, `username`, `action`, `changes`, `version`, `created_at`) VALUES (1, 1, 'Story', 1, 2, 'Individual', 'aaron hank', 'update', '--- {}', 1, '2008-11-01')
+    
+
+Error:
+AuditsControllerTest#test_index_by_read_only_user:
+NoMethodError: undefined method `each' for nil:NilClass
+    
+
+
+111) Error:
+AuditsControllerTest#test_index_end:
+ActiveRecord::StatementInvalid: Mysql2::Error: Unknown column 'changes' in 'field list': INSERT INTO `audits` (`id`, `auditable_id`, `auditable_type`, `project_id`, `user_id`, `user_type`, `username`, `action`, `changes`, `version`, `created_at`) VALUES (1, 1, 'Story', 1, 2, 'Individual', 'aaron hank', 'update', '--- {}', 1, '2008-11-01')
+    
+
+Error:
+AuditsControllerTest#test_index_end:
+NoMethodError: undefined method `each' for nil:NilClass
+    
+
+
+112) Error:
+AuditsControllerTest#test_index_object_id:
+ActiveRecord::StatementInvalid: Mysql2::Error: Unknown column 'changes' in 'field list': INSERT INTO `audits` (`id`, `auditable_id`, `auditable_type`, `project_id`, `user_id`, `user_type`, `username`, `action`, `changes`, `version`, `created_at`) VALUES (1, 1, 'Story', 1, 2, 'Individual', 'aaron hank', 'update', '--- {}', 1, '2008-11-01')
+    
+
+Error:
+AuditsControllerTest#test_index_object_id:
+NoMethodError: undefined method `each' for nil:NilClass
+    
+
+
+113) Error:
+AuditsControllerTest#test_index_start:
+ActiveRecord::StatementInvalid: Mysql2::Error: Unknown column 'changes' in 'field list': INSERT INTO `audits` (`id`, `auditable_id`, `auditable_type`, `project_id`, `user_id`, `user_type`, `username`, `action`, `changes`, `version`, `created_at`) VALUES (1, 1, 'Story', 1, 2, 'Individual', 'aaron hank', 'update', '--- {}', 1, '2008-11-01')
+    
+
+Error:
+AuditsControllerTest#test_index_start:
+NoMethodError: undefined method `each' for nil:NilClass
+    
+
+
+114) Error:
+AuditsControllerTest#test_index_success:
+ActiveRecord::StatementInvalid: Mysql2::Error: Unknown column 'changes' in 'field list': INSERT INTO `audits` (`id`, `auditable_id`, `auditable_type`, `project_id`, `user_id`, `user_type`, `username`, `action`, `changes`, `version`, `created_at`) VALUES (1, 1, 'Story', 1, 2, 'Individual', 'aaron hank', 'update', '--- {}', 1, '2008-11-01')
+    
+
+Error:
+AuditsControllerTest#test_index_success:
+NoMethodError: undefined method `each' for nil:NilClass
+    
+
+
+115) Error:
+AuditsControllerTest#test_index_type:
+ActiveRecord::StatementInvalid: Mysql2::Error: Unknown column 'changes' in 'field list': INSERT INTO `audits` (`id`, `auditable_id`, `auditable_type`, `project_id`, `user_id`, `user_type`, `username`, `action`, `changes`, `version`, `created_at`) VALUES (1, 1, 'Story', 1, 2, 'Individual', 'aaron hank', 'update', '--- {}', 1, '2008-11-01')
+    
+
+Error:
+AuditsControllerTest#test_index_type:
+NoMethodError: undefined method `each' for nil:NilClass
+    
+
+
+116) Error:
+AuditsControllerTest#test_index_unauthorized:
+ActiveRecord::StatementInvalid: Mysql2::Error: Unknown column 'changes' in 'field list': INSERT INTO `audits` (`id`, `auditable_id`, `auditable_type`, `project_id`, `user_id`, `user_type`, `username`, `action`, `changes`, `version`, `created_at`) VALUES (1, 1, 'Story', 1, 2, 'Individual', 'aaron hank', 'update', '--- {}', 1, '2008-11-01')
+    
+
+Error:
+AuditsControllerTest#test_index_unauthorized:
+NoMethodError: undefined method `each' for nil:NilClass
+    
+
+
+117) Error:
+AuditsControllerTest#test_index_user_id:
+ActiveRecord::StatementInvalid: Mysql2::Error: Unknown column 'changes' in 'field list': INSERT INTO `audits` (`id`, `auditable_id`, `auditable_type`, `project_id`, `user_id`, `user_type`, `username`, `action`, `changes`, `version`, `created_at`) VALUES (1, 1, 'Story', 1, 2, 'Individual', 'aaron hank', 'update', '--- {}', 1, '2008-11-01')
+    
+
+Error:
+AuditsControllerTest#test_index_user_id:
+NoMethodError: undefined method `each' for nil:NilClass
+    
+
+
+118) Error:
+AuditsControllerTest#test_show_not_found:
+ActiveRecord::StatementInvalid: Mysql2::Error: Unknown column 'changes' in 'field list': INSERT INTO `audits` (`id`, `auditable_id`, `auditable_type`, `project_id`, `user_id`, `user_type`, `username`, `action`, `changes`, `version`, `created_at`) VALUES (1, 1, 'Story', 1, 2, 'Individual', 'aaron hank', 'update', '--- {}', 1, '2008-11-01')
+    
+
+Error:
+AuditsControllerTest#test_show_not_found:
+NoMethodError: undefined method `each' for nil:NilClass
+    
+
+
+119) Error:
+AuditsControllerTest#test_show_success:
+ActiveRecord::StatementInvalid: Mysql2::Error: Unknown column 'changes' in 'field list': INSERT INTO `audits` (`id`, `auditable_id`, `auditable_type`, `project_id`, `user_id`, `user_type`, `username`, `action`, `changes`, `version`, `created_at`) VALUES (1, 1, 'Story', 1, 2, 'Individual', 'aaron hank', 'update', '--- {}', 1, '2008-11-01')
+    
+
+Error:
+AuditsControllerTest#test_show_success:
+NoMethodError: undefined method `each' for nil:NilClass
+    
+
+
+120) Error:
+AuditsControllerTest#test_show_unauthorized:
+ActiveRecord::StatementInvalid: Mysql2::Error: Unknown column 'changes' in 'field list': INSERT INTO `audits` (`id`, `auditable_id`, `auditable_type`, `project_id`, `user_id`, `user_type`, `username`, `action`, `changes`, `version`, `created_at`) VALUES (1, 1, 'Story', 1, 2, 'Individual', 'aaron hank', 'update', '--- {}', 1, '2008-11-01')
+    
+
+Error:
+AuditsControllerTest#test_show_unauthorized:
+NoMethodError: undefined method `each' for nil:NilClass
+    
+
+
+121) Error:
+AuditsControllerTest#test_show_wrong_project:
+ActiveRecord::StatementInvalid: Mysql2::Error: Unknown column 'changes' in 'field list': INSERT INTO `audits` (`id`, `auditable_id`, `auditable_type`, `project_id`, `user_id`, `user_type`, `username`, `action`, `changes`, `version`, `created_at`) VALUES (1, 1, 'Story', 1, 2, 'Individual', 'aaron hank', 'update', '--- {}', 1, '2008-11-01')
+    
+
+Error:
+AuditsControllerTest#test_show_wrong_project:
+NoMethodError: undefined method `each' for nil:NilClass
+    
+
+
+122) Error:
+ReleasesControllerTest#test_create_by_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/releases_controller_test.rb:100:in `create_by_role_successful'
+    test/functional/releases_controller_test.rb:71:in `test_create_by_project_admin'
+
+
+123) Error:
+ReleasesControllerTest#test_create_by_project_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/releases_controller_test.rb:110:in `create_by_role_unsuccessful'
+    test/functional/releases_controller_test.rb:76:in `test_create_by_project_user'
+
+
+124) Error:
+ReleasesControllerTest#test_create_by_read_only_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/releases_controller_test.rb:110:in `create_by_role_unsuccessful'
+    test/functional/releases_controller_test.rb:81:in `test_create_by_read_only_user'
+
+
+125) Error:
+ReleasesControllerTest#test_create_failure:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:37:in `test_create_failure'
+
+
+126) Error:
+ReleasesControllerTest#test_create_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:28:in `test_create_success'
+
+
+127) Error:
+ReleasesControllerTest#test_create_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:18:in `test_create_unauthorized'
+
+
+128) Error:
+ReleasesControllerTest#test_create_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/releases_controller_test.rb:90:in `test_create_wrong_project'
+
+
+129) Error:
+ReleasesControllerTest#test_delete_by_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/releases_controller_test.rb:189:in `delete_by_role_successful'
+    test/functional/releases_controller_test.rb:164:in `test_delete_by_project_admin'
+
+
+130) Error:
+ReleasesControllerTest#test_delete_by_project_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/releases_controller_test.rb:197:in `delete_by_role_unsuccessful'
+    test/functional/releases_controller_test.rb:169:in `test_delete_by_project_user'
+
+
+131) Error:
+ReleasesControllerTest#test_delete_by_read_only_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/releases_controller_test.rb:197:in `delete_by_role_unsuccessful'
+    test/functional/releases_controller_test.rb:174:in `test_delete_by_read_only_user'
+
+
+132) Error:
+ReleasesControllerTest#test_delete_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/releases_controller_test.rb:180:in `test_delete_wrong_project'
+
+
+133) Error:
+ReleasesControllerTest#test_destroy_not_found:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:113:in `test_destroy_not_found'
+
+
+134) Error:
+ReleasesControllerTest#test_destroy_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:105:in `test_destroy_success'
+
+
+135) Error:
+ReleasesControllerTest#test_destroy_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:97:in `test_destroy_unauthorized'
+
+
+136) Error:
+ReleasesControllerTest#test_index_by_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/releases_controller_test.rb:51:in `index_by_role'
+    test/functional/releases_controller_test.rb:20:in `test_index_by_admin'
+
+
+137) Error:
+ReleasesControllerTest#test_index_by_project_admin:
+NoMethodError: undefined method `find_all_by_project_id' for #<Class:0x567a188>
+    test/functional/releases_controller_test.rb:25:in `test_index_by_project_admin'
+
+
+138) Error:
+ReleasesControllerTest#test_index_by_project_user:
+NoMethodError: undefined method `find_all_by_project_id' for #<Class:0x567a188>
+    test/functional/releases_controller_test.rb:30:in `test_index_by_project_user'
+
+
+139) Error:
+ReleasesControllerTest#test_index_by_read_only_user:
+NoMethodError: undefined method `find_all_by_project_id' for #<Class:0x567a188>
+    test/functional/releases_controller_test.rb:35:in `test_index_by_read_only_user'
+
+
+140) Error:
+ReleasesControllerTest#test_index_changes:
+NoMethodError: undefined method `find_all_by_project_id' for #<Class:0x567a188>
+    test/functional/releases_controller_test.rb:45:in `test_index_changes'
+
+
+141) Error:
+ReleasesControllerTest#test_index_no_changes:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/releases_controller_test.rb:51:in `index_by_role'
+    test/functional/releases_controller_test.rb:40:in `test_index_no_changes'
+
+
+142) Error:
+ReleasesControllerTest#test_index_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:11:in `test_index_success'
+
+
+143) Error:
+ReleasesControllerTest#test_index_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:4:in `test_index_unauthorized'
+
+
+144) Error:
+ReleasesControllerTest#test_show_not_found:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:61:in `test_show_not_found'
+
+
+145) Error:
+ReleasesControllerTest#test_show_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:52:in `test_show_success'
+
+
+146) Error:
+ReleasesControllerTest#test_show_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:45:in `test_show_unauthorized'
+
+
+147) Error:
+ReleasesControllerTest#test_show_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/releases_controller_test.rb:65:in `test_show_wrong_project'
+
+
+148) Error:
+ReleasesControllerTest#test_update_by_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/releases_controller_test.rb:148:in `update_by_role_successful'
+    test/functional/releases_controller_test.rb:118:in `test_update_by_project_admin'
+
+
+149) Error:
+ReleasesControllerTest#test_update_by_project_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/releases_controller_test.rb:156:in `update_by_role_unsuccessful'
+    test/functional/releases_controller_test.rb:128:in `test_update_by_project_user'
+
+
+150) Error:
+ReleasesControllerTest#test_update_by_read_only_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/releases_controller_test.rb:156:in `update_by_role_unsuccessful'
+    test/functional/releases_controller_test.rb:133:in `test_update_by_read_only_user'
+
+
+151) Error:
+ReleasesControllerTest#test_update_failure:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:83:in `test_update_failure'
+
+
+152) Error:
+ReleasesControllerTest#test_update_not_found:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:91:in `test_update_not_found'
+
+
+153) Error:
+ReleasesControllerTest#test_update_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/releases_controller_test.rb:156:in `update_by_role_unsuccessful'
+    test/functional/releases_controller_test.rb:123:in `test_update_project'
+
+
+154) Error:
+ReleasesControllerTest#test_update_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:75:in `test_update_success'
+
+
+155) Error:
+ReleasesControllerTest#test_update_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:67:in `test_update_unauthorized'
+
+
+156) Error:
+ReleasesControllerTest#test_update_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/releases_controller_test.rb:139:in `test_update_wrong_project'
+
+
+157) Error:
+TasksControllerTest#test_change_to_done_premium_team:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/tasks_controller_test.rb:200:in `test_change_to_done_premium_team'
+
+
+158) Error:
+TasksControllerTest#test_create_by_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/tasks_controller_test.rb:97:in `create_by_role_successful'
+    test/functional/tasks_controller_test.rb:71:in `test_create_by_project_admin'
+
+
+159) Error:
+TasksControllerTest#test_create_by_project_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/tasks_controller_test.rb:97:in `create_by_role_successful'
+    test/functional/tasks_controller_test.rb:76:in `test_create_by_project_user'
+
+
+160) Error:
+TasksControllerTest#test_create_by_read_only_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/tasks_controller_test.rb:107:in `create_by_role_unsuccessful'
+    test/functional/tasks_controller_test.rb:81:in `test_create_by_read_only_user'
+
+
+161) Error:
+TasksControllerTest#test_create_failure:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:37:in `test_create_failure'
+
+
+162) Error:
+TasksControllerTest#test_create_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:28:in `test_create_success'
+
+
+163) Error:
+TasksControllerTest#test_create_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:18:in `test_create_unauthorized'
+
+
+164) Error:
+TasksControllerTest#test_create_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/tasks_controller_test.rb:88:in `test_create_wrong_project'
+
+
+165) Error:
+TasksControllerTest#test_delete_by_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/tasks_controller_test.rb:181:in `delete_by_role_successful'
+    test/functional/tasks_controller_test.rb:156:in `test_delete_by_project_admin'
+
+
+166) Error:
+TasksControllerTest#test_delete_by_project_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/tasks_controller_test.rb:181:in `delete_by_role_successful'
+    test/functional/tasks_controller_test.rb:161:in `test_delete_by_project_user'
+
+
+167) Error:
+TasksControllerTest#test_delete_by_read_only_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/tasks_controller_test.rb:189:in `delete_by_role_unsuccessful'
+    test/functional/tasks_controller_test.rb:166:in `test_delete_by_read_only_user'
+
+
+168) Error:
+TasksControllerTest#test_delete_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/tasks_controller_test.rb:172:in `test_delete_wrong_project'
+
+
+169) Error:
+TasksControllerTest#test_destroy_not_found:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:113:in `test_destroy_not_found'
+
+
+170) Error:
+TasksControllerTest#test_destroy_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:105:in `test_destroy_success'
+
+
+171) Error:
+TasksControllerTest#test_destroy_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:97:in `test_destroy_unauthorized'
+
+
+172) Error:
+TasksControllerTest#test_index_by_admin:
+NoMethodError: undefined method `find_all_by_project_id' for #<Class:0x46708c8>
+    test/functional/tasks_controller_test.rb:34:in `test_index_by_admin'
+
+
+173) Error:
+TasksControllerTest#test_index_by_project_admin:
+NoMethodError: undefined method `find_all_by_project_id' for #<Class:0x46708c8>
+    test/functional/tasks_controller_test.rb:39:in `test_index_by_project_admin'
+
+
+174) Error:
+TasksControllerTest#test_index_by_project_user:
+NoMethodError: undefined method `find_all_by_project_id' for #<Class:0x46708c8>
+    test/functional/tasks_controller_test.rb:44:in `test_index_by_project_user'
+
+
+175) Error:
+TasksControllerTest#test_index_by_read_only_user:
+NoMethodError: undefined method `find_all_by_project_id' for #<Class:0x46708c8>
+    test/functional/tasks_controller_test.rb:49:in `test_index_by_read_only_user'
+
+
+176) Error:
+TasksControllerTest#test_index_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:11:in `test_index_success'
+
+
+177) Error:
+TasksControllerTest#test_index_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:4:in `test_index_unauthorized'
+
+
+178) Error:
+TasksControllerTest#test_moving_to_done_clears_effort:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/tasks_controller_test.rb:208:in `test_moving_to_done_clears_effort'
+
+
+179) Error:
+TasksControllerTest#test_moving_to_done_clears_effort_unless_set:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/tasks_controller_test.rb:216:in `test_moving_to_done_clears_effort_unless_set'
+
+
+180) Error:
+TasksControllerTest#test_moving_to_in_progress_assigns_owner:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/tasks_controller_test.rb:224:in `test_moving_to_in_progress_assigns_owner'
+
+
+181) Error:
+TasksControllerTest#test_moving_to_in_progress_assigns_owner_unless_no_status:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/tasks_controller_test.rb:240:in `test_moving_to_in_progress_assigns_owner_unless_no_status'
+
+
+182) Error:
+TasksControllerTest#test_moving_to_in_progress_assigns_owner_unless_owner_set:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/tasks_controller_test.rb:256:in `test_moving_to_in_progress_assigns_owner_unless_owner_set'
+
+
+183) Error:
+TasksControllerTest#test_moving_to_in_progress_assigns_owner_unless_set:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/tasks_controller_test.rb:232:in `test_moving_to_in_progress_assigns_owner_unless_set'
+
+
+184) Error:
+TasksControllerTest#test_moving_to_in_progress_assigns_owner_unless_status_created:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/tasks_controller_test.rb:248:in `test_moving_to_in_progress_assigns_owner_unless_status_created'
+
+
+185) Error:
+TasksControllerTest#test_set_owner_failure:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/tasks_controller_test.rb:27:in `test_set_owner_failure'
+
+
+186) Error:
+TasksControllerTest#test_set_owner_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/tasks_controller_test.rb:19:in `test_set_owner_success'
+
+
+187) Error:
+TasksControllerTest#test_show_not_found:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:61:in `test_show_not_found'
+
+
+188) Error:
+TasksControllerTest#test_show_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:52:in `test_show_success'
+
+
+189) Error:
+TasksControllerTest#test_show_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:45:in `test_show_unauthorized'
+
+
+190) Error:
+TasksControllerTest#test_show_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/tasks_controller_test.rb:65:in `test_show_wrong_project'
+
+
+191) Error:
+TasksControllerTest#test_update_by_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/tasks_controller_test.rb:140:in `update_by_role_successful'
+    test/functional/tasks_controller_test.rb:115:in `test_update_by_project_admin'
+
+
+192) Error:
+TasksControllerTest#test_update_by_project_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/tasks_controller_test.rb:140:in `update_by_role_successful'
+    test/functional/tasks_controller_test.rb:120:in `test_update_by_project_user'
+
+
+193) Error:
+TasksControllerTest#test_update_by_read_only_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/tasks_controller_test.rb:148:in `update_by_role_unsuccessful'
+    test/functional/tasks_controller_test.rb:125:in `test_update_by_read_only_user'
+
+
+194) Error:
+TasksControllerTest#test_update_failure:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:83:in `test_update_failure'
+
+
+195) Error:
+TasksControllerTest#test_update_not_found:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:91:in `test_update_not_found'
+
+
+196) Error:
+TasksControllerTest#test_update_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:75:in `test_update_success'
+
+
+197) Error:
+TasksControllerTest#test_update_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:67:in `test_update_unauthorized'
+
+
+198) Error:
+TasksControllerTest#test_update_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/tasks_controller_test.rb:131:in `test_update_wrong_project'
+
+
+199) Error:
+StoriesControllerTest#test_change_to_blocked_not_premium:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:128:in `test_change_to_blocked_not_premium'
+
+
+200) Error:
+StoriesControllerTest#test_change_to_blocked_premium_no_team:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:158:in `test_change_to_blocked_premium_no_team'
+
+
+201) Error:
+StoriesControllerTest#test_change_to_blocked_premium_team:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:138:in `test_change_to_blocked_premium_team'
+
+
+202) Error:
+StoriesControllerTest#test_change_to_done_premium_team:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:148:in `test_change_to_done_premium_team'
+
+
+203) Error:
+StoriesControllerTest#test_create_by_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:318:in `create_by_role_successful'
+    test/functional/stories_controller_test.rb:289:in `test_create_by_project_admin'
+
+
+204) Error:
+StoriesControllerTest#test_create_by_project_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:318:in `create_by_role_successful'
+    test/functional/stories_controller_test.rb:294:in `test_create_by_project_user'
+
+
+205) Error:
+StoriesControllerTest#test_create_by_read_only_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:328:in `create_by_role_unsuccessful'
+    test/functional/stories_controller_test.rb:299:in `test_create_by_read_only_user'
+
+
+206) Error:
+StoriesControllerTest#test_create_failure:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:37:in `test_create_failure'
+
+
+207) Error:
+StoriesControllerTest#test_create_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:28:in `test_create_success'
+
+
+208) Error:
+StoriesControllerTest#test_create_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:18:in `test_create_unauthorized'
+
+
+209) Error:
+StoriesControllerTest#test_create_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:308:in `test_create_wrong_project'
+
+
+210) Error:
+StoriesControllerTest#test_delete_by_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:466:in `delete_by_role_successful'
+    test/functional/stories_controller_test.rb:441:in `test_delete_by_project_admin'
+
+
+211) Error:
+StoriesControllerTest#test_delete_by_project_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:466:in `delete_by_role_successful'
+    test/functional/stories_controller_test.rb:446:in `test_delete_by_project_user'
+
+
+212) Error:
+StoriesControllerTest#test_delete_by_read_only_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:474:in `delete_by_role_unsuccessful'
+    test/functional/stories_controller_test.rb:451:in `test_delete_by_read_only_user'
+
+
+213) Error:
+StoriesControllerTest#test_delete_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:457:in `test_delete_wrong_project'
+
+
+214) Error:
+StoriesControllerTest#test_destroy_not_found:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:113:in `test_destroy_not_found'
+
+
+215) Error:
+StoriesControllerTest#test_destroy_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:105:in `test_destroy_success'
+
+
+216) Error:
+StoriesControllerTest#test_destroy_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:97:in `test_destroy_unauthorized'
+
+
+217) Error:
+StoriesControllerTest#test_export_by_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:186:in `export_by_role'
+    test/functional/stories_controller_test.rb:165:in `test_export_by_admin'
+
+
+218) Error:
+StoriesControllerTest#test_export_by_project_admin:
+NoMethodError: undefined method `find_all_by_project_id' for #<Class:0x46708c8>
+    test/functional/stories_controller_test.rb:170:in `test_export_by_project_admin'
+
+
+219) Error:
+StoriesControllerTest#test_export_by_project_user:
+NoMethodError: undefined method `find_all_by_project_id' for #<Class:0x46708c8>
+    test/functional/stories_controller_test.rb:175:in `test_export_by_project_user'
+
+
+220) Error:
+StoriesControllerTest#test_export_by_readonly:
+NoMethodError: undefined method `find_all_by_project_id' for #<Class:0x46708c8>
+    test/functional/stories_controller_test.rb:180:in `test_export_by_readonly'
+
+
+221) Error:
+StoriesControllerTest#test_import_by_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:215:in `import_by_role'
+    test/functional/stories_controller_test.rb:193:in `test_import_by_admin'
+
+
+222) Error:
+StoriesControllerTest#test_import_by_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:215:in `import_by_role'
+    test/functional/stories_controller_test.rb:198:in `test_import_by_project_admin'
+
+
+223) Error:
+StoriesControllerTest#test_import_by_project_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:215:in `import_by_role'
+    test/functional/stories_controller_test.rb:203:in `test_import_by_project_user'
+
+
+224) Error:
+StoriesControllerTest#test_import_by_readonly_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:215:in `import_by_role'
+    test/functional/stories_controller_test.rb:208:in `test_import_by_readonly_user'
+
+
+225) Error:
+StoriesControllerTest#test_import_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:230:in `test_import_wrong_project'
+
+
+226) Error:
+StoriesControllerTest#test_index_by_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:269:in `index_by_role'
+    test/functional/stories_controller_test.rb:238:in `test_index_by_admin'
+
+
+227) Error:
+StoriesControllerTest#test_index_by_project_admin:
+NoMethodError: undefined method `find_all_by_project_id' for #<Class:0x46708c8>
+    test/functional/stories_controller_test.rb:243:in `test_index_by_project_admin'
+
+
+228) Error:
+StoriesControllerTest#test_index_by_project_user:
+NoMethodError: undefined method `find_all_by_project_id' for #<Class:0x46708c8>
+    test/functional/stories_controller_test.rb:248:in `test_index_by_project_user'
+
+
+229) Error:
+StoriesControllerTest#test_index_by_read_only_user:
+NoMethodError: undefined method `find_all_by_project_id' for #<Class:0x46708c8>
+    test/functional/stories_controller_test.rb:253:in `test_index_by_read_only_user'
+
+
+230) Error:
+StoriesControllerTest#test_index_changes:
+NoMethodError: undefined method `find_all_by_project_id' for #<Class:0x46708c8>
+    test/functional/stories_controller_test.rb:263:in `test_index_changes'
+
+
+231) Error:
+StoriesControllerTest#test_index_iphone_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:496:in `test_index_iphone_admin'
+
+
+232) Error:
+StoriesControllerTest#test_index_iphone_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:503:in `test_index_iphone_project_admin'
+
+
+233) Error:
+StoriesControllerTest#test_index_iphone_project_admin_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:509:in `test_index_iphone_project_admin_unauthorized'
+
+
+234) Error:
+StoriesControllerTest#test_index_no_changes:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:269:in `index_by_role'
+    test/functional/stories_controller_test.rb:258:in `test_index_no_changes'
+
+
+235) Error:
+StoriesControllerTest#test_index_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:11:in `test_index_success'
+
+
+236) Error:
+StoriesControllerTest#test_index_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:4:in `test_index_unauthorized'
+
+
+237) Error:
+StoriesControllerTest#test_set_iteration_failure:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:88:in `test_set_iteration_failure'
+
+
+238) Error:
+StoriesControllerTest#test_set_iteration_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:80:in `test_set_iteration_success'
+
+
+239) Error:
+StoriesControllerTest#test_set_owner_failure:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:104:in `test_set_owner_failure'
+
+
+240) Error:
+StoriesControllerTest#test_set_owner_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:96:in `test_set_owner_success'
+
+
+241) Error:
+StoriesControllerTest#test_show_iphone:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:483:in `test_show_iphone'
+
+
+242) Error:
+StoriesControllerTest#test_show_iphone_project_admin_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:489:in `test_show_iphone_project_admin_unauthorized'
+
+
+243) Error:
+StoriesControllerTest#test_show_not_found:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:61:in `test_show_not_found'
+
+
+244) Error:
+StoriesControllerTest#test_show_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:52:in `test_show_success'
+
+
+245) Error:
+StoriesControllerTest#test_show_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:45:in `test_show_unauthorized'
+
+
+246) Error:
+StoriesControllerTest#test_show_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:283:in `test_show_wrong_project'
+
+
+247) Error:
+StoriesControllerTest#test_split_by_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:367:in `split_by_role_successful'
+    test/functional/stories_controller_test.rb:336:in `test_split_by_project_admin'
+
+
+248) Error:
+StoriesControllerTest#test_split_by_project_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:367:in `split_by_role_successful'
+    test/functional/stories_controller_test.rb:341:in `test_split_by_project_user'
+
+
+249) Error:
+StoriesControllerTest#test_split_by_read_only_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:382:in `split_by_role_unsuccessful'
+    test/functional/stories_controller_test.rb:346:in `test_split_by_read_only_user'
+
+
+250) Error:
+StoriesControllerTest#test_split_get_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:37:in `test_split_get_success'
+
+
+251) Error:
+StoriesControllerTest#test_split_get_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:30:in `test_split_get_unauthorized'
+
+
+252) Error:
+StoriesControllerTest#test_split_put_failure:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:71:in `test_split_put_failure'
+
+
+253) Error:
+StoriesControllerTest#test_split_put_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:57:in `test_split_put_success'
+
+
+254) Error:
+StoriesControllerTest#test_split_put_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:46:in `test_split_put_unauthorized'
+
+
+255) Error:
+StoriesControllerTest#test_split_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:355:in `test_split_wrong_project'
+
+
+256) Error:
+StoriesControllerTest#test_status_code_change:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:114:in `test_status_code_change'
+
+
+257) Error:
+StoriesControllerTest#test_story_filtered_out:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:515:in `test_story_filtered_out'
+
+
+258) Error:
+StoriesControllerTest#test_task_filtered_out:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:524:in `test_task_filtered_out'
+
+
+259) Error:
+StoriesControllerTest#test_update_by_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:425:in `update_by_role_successful'
+    test/functional/stories_controller_test.rb:390:in `test_update_by_project_admin'
+
+
+260) Error:
+StoriesControllerTest#test_update_by_project_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:425:in `update_by_role_successful'
+    test/functional/stories_controller_test.rb:400:in `test_update_by_project_user'
+
+
+261) Error:
+StoriesControllerTest#test_update_by_read_only_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:433:in `update_by_role_unsuccessful'
+    test/functional/stories_controller_test.rb:410:in `test_update_by_read_only_user'
+
+
+262) Error:
+StoriesControllerTest#test_update_failure:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:83:in `test_update_failure'
+
+
+263) Error:
+StoriesControllerTest#test_update_not_found:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:91:in `test_update_not_found'
+
+
+264) Error:
+StoriesControllerTest#test_update_project_by_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:425:in `update_by_role_successful'
+    test/functional/stories_controller_test.rb:395:in `test_update_project_by_project_admin'
+
+
+265) Error:
+StoriesControllerTest#test_update_project_by_project_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:433:in `update_by_role_unsuccessful'
+    test/functional/stories_controller_test.rb:405:in `test_update_project_by_project_user'
+
+
+266) Error:
+StoriesControllerTest#test_update_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:75:in `test_update_success'
+
+
+267) Error:
+StoriesControllerTest#test_update_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:67:in `test_update_unauthorized'
+
+
+268) Error:
+StoriesControllerTest#test_update_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/stories_controller_test.rb:416:in `test_update_wrong_project'
+
+
+269) Error:
+SystemsControllerTest#test_create_by_read_only_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:196:in `create_by_role_unsuccessful'
+    test/functional/systems_controller_test.rb:189:in `test_create_by_read_only_user'
+
+
+270) Error:
+SystemsControllerTest#test_create_by_system_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:196:in `create_by_role_unsuccessful'
+    test/functional/systems_controller_test.rb:179:in `test_create_by_system_admin'
+
+
+271) Error:
+SystemsControllerTest#test_create_by_system_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:196:in `create_by_role_unsuccessful'
+    test/functional/systems_controller_test.rb:184:in `test_create_by_system_user'
+
+
+272) Error:
+SystemsControllerTest#test_create_failure:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:133:in `test_create_failure'
+
+
+273) Error:
+SystemsControllerTest#test_create_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:123:in `test_create_unauthorized'
+
+
+274) Error:
+SystemsControllerTest#test_delete_by_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:261:in `delete_by_role_unsuccessful'
+    test/functional/systems_controller_test.rb:245:in `test_delete_by_project_admin'
+
+
+275) Error:
+SystemsControllerTest#test_delete_by_project_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:261:in `delete_by_role_unsuccessful'
+    test/functional/systems_controller_test.rb:250:in `test_delete_by_project_user'
+
+
+276) Error:
+SystemsControllerTest#test_delete_by_read_only_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:261:in `delete_by_role_unsuccessful'
+    test/functional/systems_controller_test.rb:255:in `test_delete_by_read_only_user'
+
+
+277) Error:
+SystemsControllerTest#test_destroy_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:172:in `test_destroy_success'
+
+
+278) Error:
+SystemsControllerTest#test_destroy_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:164:in `test_destroy_unauthorized'
+
+
+279) Error:
+SystemsControllerTest#test_report:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:35:in `test_report'
+
+
+280) Error:
+SystemsControllerTest#test_report_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:105:in `test_report_admin'
+
+
+281) Error:
+SystemsControllerTest#test_report_iteration:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:79:in `test_report_iteration'
+
+
+282) Error:
+SystemsControllerTest#test_report_iteration_diff_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:94:in `test_report_iteration_diff_project'
+
+
+283) Error:
+SystemsControllerTest#test_report_release:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:59:in `test_report_release'
+
+
+284) Error:
+SystemsControllerTest#test_report_release_diff_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:71:in `test_report_release_diff_project'
+
+
+285) Error:
+SystemsControllerTest#test_summarize:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:29:in `test_summarize'
+
+
+286) Error:
+SystemsControllerTest#test_update_by_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:237:in `update_by_role_unsuccessful'
+    test/functional/systems_controller_test.rb:204:in `test_update_by_project_admin'
+
+
+287) Error:
+SystemsControllerTest#test_update_by_project_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:237:in `update_by_role_unsuccessful'
+    test/functional/systems_controller_test.rb:209:in `test_update_by_project_user'
+
+
+288) Error:
+SystemsControllerTest#test_update_by_read_only_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:237:in `update_by_role_unsuccessful'
+    test/functional/systems_controller_test.rb:214:in `test_update_by_read_only_user'
+
+
+289) Error:
+SystemsControllerTest#test_update_failure:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:157:in `test_update_failure'
+
+
+290) Error:
+SystemsControllerTest#test_update_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:149:in `test_update_success'
+
+
+291) Error:
+SystemsControllerTest#test_update_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:141:in `test_update_unauthorized'
+
+
+292) Error:
+SystemsControllerTest#test_update_wrong_system:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/systems_controller_test.rb:220:in `test_update_wrong_system'
+
+
+293) Error:
+StoryAttributesControllerTest#test_create_by_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/story_attributes_controller_test.rb:108:in `create_by_role_successful'
+    test/functional/story_attributes_controller_test.rb:80:in `test_create_by_project_admin'
+
+
+294) Error:
+StoryAttributesControllerTest#test_create_by_project_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/story_attributes_controller_test.rb:118:in `create_by_role_unsuccessful'
+    test/functional/story_attributes_controller_test.rb:85:in `test_create_by_project_user'
+
+
+295) Error:
+StoryAttributesControllerTest#test_create_by_read_only_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/story_attributes_controller_test.rb:118:in `create_by_role_unsuccessful'
+    test/functional/story_attributes_controller_test.rb:90:in `test_create_by_read_only_user'
+
+
+296) Error:
+StoryAttributesControllerTest#test_create_failure:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:37:in `test_create_failure'
+
+
+297) Error:
+StoryAttributesControllerTest#test_create_no_custom:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/story_attributes_controller_test.rb:130:in `test_create_no_custom'
+
+
+298) Error:
+StoryAttributesControllerTest#test_create_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:28:in `test_create_success'
+
+
+299) Error:
+StoryAttributesControllerTest#test_create_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:18:in `test_create_unauthorized'
+
+
+300) Error:
+StoryAttributesControllerTest#test_create_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/story_attributes_controller_test.rb:99:in `test_create_wrong_project'
+
+
+301) Error:
+StoryAttributesControllerTest#test_delete_by_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/story_attributes_controller_test.rb:223:in `delete_by_role_successful'
+    test/functional/story_attributes_controller_test.rb:198:in `test_delete_by_project_admin'
+
+
+302) Error:
+StoryAttributesControllerTest#test_delete_by_project_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/story_attributes_controller_test.rb:231:in `delete_by_role_unsuccessful'
+    test/functional/story_attributes_controller_test.rb:203:in `test_delete_by_project_user'
+
+
+303) Error:
+StoryAttributesControllerTest#test_delete_by_read_only_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/story_attributes_controller_test.rb:231:in `delete_by_role_unsuccessful'
+    test/functional/story_attributes_controller_test.rb:208:in `test_delete_by_read_only_user'
+
+
+304) Error:
+StoryAttributesControllerTest#test_delete_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/story_attributes_controller_test.rb:214:in `test_delete_wrong_project'
+
+
+305) Error:
+StoryAttributesControllerTest#test_destroy_not_found:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:113:in `test_destroy_not_found'
+
+
+306) Error:
+StoryAttributesControllerTest#test_destroy_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:105:in `test_destroy_success'
+
+
+307) Error:
+StoryAttributesControllerTest#test_destroy_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:97:in `test_destroy_unauthorized'
+
+
+308) Error:
+StoryAttributesControllerTest#test_index_by_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/story_attributes_controller_test.rb:64:in `index_by_role'
+    test/functional/story_attributes_controller_test.rb:43:in `test_index_by_admin'
+
+
+309) Error:
+StoryAttributesControllerTest#test_index_by_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/story_attributes_controller_test.rb:64:in `index_by_role'
+    test/functional/story_attributes_controller_test.rb:48:in `test_index_by_project_admin'
+
+
+310) Error:
+StoryAttributesControllerTest#test_index_by_project_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/story_attributes_controller_test.rb:64:in `index_by_role'
+    test/functional/story_attributes_controller_test.rb:53:in `test_index_by_project_user'
+
+
+311) Error:
+StoryAttributesControllerTest#test_index_by_read_only_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/story_attributes_controller_test.rb:64:in `index_by_role'
+    test/functional/story_attributes_controller_test.rb:58:in `test_index_by_read_only_user'
+
+
+312) Error:
+StoryAttributesControllerTest#test_index_get_values:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/story_attributes_controller_test.rb:22:in `test_index_get_values'
+
+
+313) Error:
+StoryAttributesControllerTest#test_index_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:11:in `test_index_success'
+
+
+314) Error:
+StoryAttributesControllerTest#test_index_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:4:in `test_index_unauthorized'
+
+
+315) Error:
+StoryAttributesControllerTest#test_show_get_values:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/story_attributes_controller_test.rb:32:in `test_show_get_values'
+
+
+316) Error:
+StoryAttributesControllerTest#test_show_not_found:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:61:in `test_show_not_found'
+
+
+317) Error:
+StoryAttributesControllerTest#test_show_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:52:in `test_show_success'
+
+
+318) Error:
+StoryAttributesControllerTest#test_show_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:45:in `test_show_unauthorized'
+
+
+319) Error:
+StoryAttributesControllerTest#test_show_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/story_attributes_controller_test.rb:74:in `test_show_wrong_project'
+
+
+320) Error:
+StoryAttributesControllerTest#test_update_by_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/story_attributes_controller_test.rb:171:in `update_by_role_successful'
+    test/functional/story_attributes_controller_test.rb:139:in `test_update_by_project_admin'
+
+
+321) Error:
+StoryAttributesControllerTest#test_update_by_project_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/story_attributes_controller_test.rb:171:in `update_by_role_successful'
+    test/functional/story_attributes_controller_test.rb:149:in `test_update_by_project_user'
+
+
+322) Error:
+StoryAttributesControllerTest#test_update_by_read_only_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/story_attributes_controller_test.rb:171:in `update_by_role_successful'
+    test/functional/story_attributes_controller_test.rb:154:in `test_update_by_read_only_user'
+
+
+323) Error:
+StoryAttributesControllerTest#test_update_failure:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:83:in `test_update_failure'
+
+
+324) Error:
+StoryAttributesControllerTest#test_update_no_custom:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/story_attributes_controller_test.rb:190:in `test_update_no_custom'
+
+
+325) Error:
+StoryAttributesControllerTest#test_update_not_found:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:91:in `test_update_not_found'
+
+
+326) Error:
+StoryAttributesControllerTest#test_update_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/story_attributes_controller_test.rb:179:in `update_by_role_unsuccessful'
+    test/functional/story_attributes_controller_test.rb:144:in `test_update_project'
+
+
+327) Error:
+StoryAttributesControllerTest#test_update_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:75:in `test_update_success'
+
+
+328) Error:
+StoryAttributesControllerTest#test_update_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:67:in `test_update_unauthorized'
+
+
+329) Error:
+StoryAttributesControllerTest#test_update_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/story_attributes_controller_test.rb:162:in `test_update_wrong_project'
+
+
+330) Error:
+ProjectsControllerTest#test_create_by_project_admin:
+NoMethodError: undefined method `post' for #<ProjectsControllerTest:0x82cb840>
+    test/functional/projects_controller_test.rb:145:in `create_by_role_unsuccessful'
+    test/functional/projects_controller_test.rb:113:in `test_create_by_project_admin'
+
+
+331) Error:
+ProjectsControllerTest#test_create_by_project_admin_premium:
+NoMethodError: undefined method `post' for #<ProjectsControllerTest:0x82554a8>
+    test/functional/projects_controller_test.rb:135:in `create_by_role_successful'
+    test/functional/projects_controller_test.rb:118:in `test_create_by_project_admin_premium'
+
+
+332) Error:
+ProjectsControllerTest#test_create_by_project_user:
+NoMethodError: undefined method `post' for #<ProjectsControllerTest:0x8390b20>
+    test/functional/projects_controller_test.rb:145:in `create_by_role_unsuccessful'
+    test/functional/projects_controller_test.rb:123:in `test_create_by_project_user'
+
+
+333) Error:
+ProjectsControllerTest#test_create_by_read_only_user:
+NoMethodError: undefined method `post' for #<ProjectsControllerTest:0x8238318>
+    test/functional/projects_controller_test.rb:145:in `create_by_role_unsuccessful'
+    test/functional/projects_controller_test.rb:128:in `test_create_by_read_only_user'
+
+
+334) Error:
+ProjectsControllerTest#test_create_failure:
+NoMethodError: undefined method `post' for #<ProjectsControllerTest:0x838fc80>
+    test/functional/controller_resource_helper.rb:37:in `test_create_failure'
+
+
+335) Error:
+ProjectsControllerTest#test_create_success:
+NoMethodError: undefined method `post' for #<ProjectsControllerTest:0x80570e8>
+    test/functional/controller_resource_helper.rb:28:in `test_create_success'
+
+
+336) Error:
+ProjectsControllerTest#test_create_unauthorized:
+NoMethodError: undefined method `post' for #<ProjectsControllerTest:0x8373468>
+    test/functional/controller_resource_helper.rb:18:in `test_create_unauthorized'
+
+
+337) Error:
+ProjectsControllerTest#test_delete_by_project_admin:
+NoMethodError: undefined method `delete' for #<ProjectsControllerTest:0x81915a8>
+    test/functional/projects_controller_test.rb:259:in `delete_by_role_unsuccessful'
+    test/functional/projects_controller_test.rb:223:in `test_delete_by_project_admin'
+
+
+338) Error:
+ProjectsControllerTest#test_delete_by_project_admin_premium:
+NoMethodError: undefined method `delete' for #<ProjectsControllerTest:0x8365aa0>
+    test/functional/projects_controller_test.rb:250:in `delete_by_role_successful'
+    test/functional/projects_controller_test.rb:228:in `test_delete_by_project_admin_premium'
+
+
+339) Error:
+ProjectsControllerTest#test_delete_by_project_admin_premium_own:
+NoMethodError: undefined method `delete' for #<ProjectsControllerTest:0x80e80f0>
+    test/functional/projects_controller_test.rb:259:in `delete_by_role_unsuccessful'
+    test/functional/projects_controller_test.rb:233:in `test_delete_by_project_admin_premium_own'
+
+
+340) Error:
+ProjectsControllerTest#test_delete_by_project_user:
+NoMethodError: undefined method `delete' for #<ProjectsControllerTest:0x82cb648>
+    test/functional/projects_controller_test.rb:259:in `delete_by_role_unsuccessful'
+    test/functional/projects_controller_test.rb:238:in `test_delete_by_project_user'
+
+
+341) Error:
+ProjectsControllerTest#test_delete_by_read_only_user:
+NoMethodError: undefined method `delete' for #<ProjectsControllerTest:0x80ea298>
+    test/functional/projects_controller_test.rb:259:in `delete_by_role_unsuccessful'
+    test/functional/projects_controller_test.rb:243:in `test_delete_by_read_only_user'
+
+
+342) Error:
+ProjectsControllerTest#test_destroy_not_found:
+NoMethodError: undefined method `delete' for #<ProjectsControllerTest:0x81053a0>
+    test/functional/controller_resource_helper.rb:113:in `test_destroy_not_found'
+
+
+343) Error:
+ProjectsControllerTest#test_destroy_success:
+NoMethodError: undefined method `delete' for #<ProjectsControllerTest:0x8044bf0>
+    test/functional/controller_resource_helper.rb:105:in `test_destroy_success'
+
+
+344) Error:
+ProjectsControllerTest#test_destroy_unauthorized:
+NoMethodError: undefined method `delete' for #<ProjectsControllerTest:0x82cb2a0>
+    test/functional/controller_resource_helper.rb:97:in `test_destroy_unauthorized'
+
+
+345) Error:
+ProjectsControllerTest#test_index_by_admin:
+NoMethodError: undefined method `get' for #<ProjectsControllerTest:0x7f2c588>
+    test/functional/projects_controller_test.rb:82:in `index_by_role'
+    test/functional/projects_controller_test.rb:46:in `test_index_by_admin'
+
+
+346) Error:
+ProjectsControllerTest#test_index_by_project_admin:
+NoMethodError: undefined method `get' for #<ProjectsControllerTest:0x8107b00>
+    test/functional/projects_controller_test.rb:82:in `index_by_role'
+    test/functional/projects_controller_test.rb:51:in `test_index_by_project_admin'
+
+
+347) Error:
+ProjectsControllerTest#test_index_by_project_admin_premium:
+NoMethodError: undefined method `get' for #<ProjectsControllerTest:0x70862e8>
+    test/functional/projects_controller_test.rb:82:in `index_by_role'
+    test/functional/projects_controller_test.rb:56:in `test_index_by_project_admin_premium'
+
+
+348) Error:
+ProjectsControllerTest#test_index_by_project_user:
+NoMethodError: undefined method `get' for #<ProjectsControllerTest:0x82ce4f8>
+    test/functional/projects_controller_test.rb:82:in `index_by_role'
+    test/functional/projects_controller_test.rb:61:in `test_index_by_project_user'
+
+
+349) Error:
+ProjectsControllerTest#test_index_by_project_user_premium:
+NoMethodError: undefined method `get' for #<ProjectsControllerTest:0x6debc58>
+    test/functional/projects_controller_test.rb:82:in `index_by_role'
+    test/functional/projects_controller_test.rb:66:in `test_index_by_project_user_premium'
+
+
+350) Error:
+ProjectsControllerTest#test_index_by_read_only_user:
+NoMethodError: undefined method `get' for #<ProjectsControllerTest:0x8106258>
+    test/functional/projects_controller_test.rb:82:in `index_by_role'
+    test/functional/projects_controller_test.rb:71:in `test_index_by_read_only_user'
+
+
+351) Error:
+ProjectsControllerTest#test_index_by_read_only_user_premium:
+NoMethodError: undefined method `get' for #<ProjectsControllerTest:0x838c5d8>
+    test/functional/projects_controller_test.rb:82:in `index_by_role'
+    test/functional/projects_controller_test.rb:76:in `test_index_by_read_only_user_premium'
+
+
+352) Error:
+ProjectsControllerTest#test_index_success:
+NoMethodError: undefined method `get' for #<ProjectsControllerTest:0x8363538>
+    test/functional/controller_resource_helper.rb:11:in `test_index_success'
+
+
+353) Error:
+ProjectsControllerTest#test_index_unauthorized:
+NoMethodError: undefined method `get' for #<ProjectsControllerTest:0x82a99a0>
+    test/functional/controller_resource_helper.rb:4:in `test_index_unauthorized'
+
+
+354) Error:
+ProjectsControllerTest#test_show_not_found:
+NoMethodError: undefined method `get' for #<ProjectsControllerTest:0x8107710>
+    test/functional/controller_resource_helper.rb:61:in `test_show_not_found'
+
+
+355) Error:
+ProjectsControllerTest#test_show_success:
+NoMethodError: undefined method `get' for #<ProjectsControllerTest:0x845a408>
+    test/functional/controller_resource_helper.rb:52:in `test_show_success'
+
+
+356) Error:
+ProjectsControllerTest#test_show_unauthorized:
+NoMethodError: undefined method `get' for #<ProjectsControllerTest:0x836a180>
+    test/functional/controller_resource_helper.rb:45:in `test_show_unauthorized'
+
+
+357) Error:
+ProjectsControllerTest#test_show_wrong_company:
+NoMethodError: undefined method `get' for #<ProjectsControllerTest:0x829f158>
+    test/functional/projects_controller_test.rb:107:in `test_show_wrong_company'
+
+
+358) Error:
+ProjectsControllerTest#test_show_wrong_project:
+NoMethodError: undefined method `get' for #<ProjectsControllerTest:0x82c3db8>
+    test/functional/projects_controller_test.rb:92:in `test_show_wrong_project'
+
+
+359) Error:
+ProjectsControllerTest#test_show_wrong_project_premium:
+NoMethodError: undefined method `get' for #<ProjectsControllerTest:0x837a200>
+    test/functional/projects_controller_test.rb:99:in `test_show_wrong_project_premium'
+
+
+360) Error:
+ProjectsControllerTest#test_update_by_project_admin:
+NoMethodError: undefined method `put' for #<ProjectsControllerTest:0x829daa8>
+    test/functional/projects_controller_test.rb:207:in `update_by_role_successful'
+    test/functional/projects_controller_test.rb:165:in `test_update_by_project_admin'
+
+
+361) Error:
+ProjectsControllerTest#test_update_by_project_user:
+NoMethodError: undefined method `put' for #<ProjectsControllerTest:0x837bf28>
+    test/functional/projects_controller_test.rb:215:in `update_by_role_unsuccessful'
+    test/functional/projects_controller_test.rb:170:in `test_update_by_project_user'
+
+
+362) Error:
+ProjectsControllerTest#test_update_by_read_only_user:
+NoMethodError: undefined method `put' for #<ProjectsControllerTest:0x81cb568>
+    test/functional/projects_controller_test.rb:215:in `update_by_role_unsuccessful'
+    test/functional/projects_controller_test.rb:175:in `test_update_by_read_only_user'
+
+
+363) Error:
+ProjectsControllerTest#test_update_failure:
+NoMethodError: undefined method `put' for #<ProjectsControllerTest:0x836f910>
+    test/functional/controller_resource_helper.rb:83:in `test_update_failure'
+
+
+364) Error:
+ProjectsControllerTest#test_update_not_found:
+NoMethodError: undefined method `put' for #<ProjectsControllerTest:0x7fa75e8>
+    test/functional/controller_resource_helper.rb:91:in `test_update_not_found'
+
+
+365) Error:
+ProjectsControllerTest#test_update_success:
+NoMethodError: undefined method `put' for #<ProjectsControllerTest:0x836d6f0>
+    test/functional/controller_resource_helper.rb:75:in `test_update_success'
+
+
+366) Error:
+ProjectsControllerTest#test_update_unauthorized:
+NoMethodError: undefined method `put' for #<ProjectsControllerTest:0x7f33158>
+    test/functional/controller_resource_helper.rb:67:in `test_update_unauthorized'
+
+
+367) Error:
+ProjectsControllerTest#test_update_wrong_company:
+NoMethodError: undefined method `put' for #<ProjectsControllerTest:0x8371068>
+    test/functional/projects_controller_test.rb:198:in `test_update_wrong_company'
+
+
+368) Error:
+ProjectsControllerTest#test_update_wrong_project:
+NoMethodError: undefined method `put' for #<ProjectsControllerTest:0x7d30ef8>
+    test/functional/projects_controller_test.rb:181:in `test_update_wrong_project'
+
+
+369) Error:
+ProjectsControllerTest#test_update_wrong_project_premium:
+NoMethodError: undefined method `put' for #<ProjectsControllerTest:0x836fd00>
+    test/functional/projects_controller_test.rb:190:in `test_update_wrong_project_premium'
+
+
+370) Error:
+ProjectsControllerTest#test_xml:
+NoMethodError: undefined method `get' for #<ProjectsControllerTest:0x7c9d5c8>
+    test/functional/projects_controller_test.rb:33:in `test_xml'
+
+
+371) Error:
+IterationsControllerTest#test_create_by_project_admin:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x7f9cc20 @_url_options=nil>
+    test/functional/iterations_controller_test.rb:104:in `create_by_role_successful'
+    test/functional/iterations_controller_test.rb:75:in `test_create_by_project_admin'
+
+
+372) Error:
+IterationsControllerTest#test_create_by_project_user:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x82419f0 @_url_options=nil>
+    test/functional/iterations_controller_test.rb:114:in `create_by_role_unsuccessful'
+    test/functional/iterations_controller_test.rb:80:in `test_create_by_project_user'
+
+
+373) Error:
+IterationsControllerTest#test_create_by_read_only_user:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x835b9f0 @_url_options=nil>
+    test/functional/iterations_controller_test.rb:114:in `create_by_role_unsuccessful'
+    test/functional/iterations_controller_test.rb:85:in `test_create_by_read_only_user'
+
+
+374) Error:
+IterationsControllerTest#test_create_failure:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x84f5fa0 @_url_options=nil>
+    test/functional/controller_resource_helper.rb:37:in `test_create_failure'
+
+
+375) Error:
+IterationsControllerTest#test_create_success:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x82a2bc0 @_url_options=nil>
+    test/functional/controller_resource_helper.rb:28:in `test_create_success'
+
+
+376) Error:
+IterationsControllerTest#test_create_unauthorized:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x7fa4420 @_url_options=nil>
+    test/functional/controller_resource_helper.rb:18:in `test_create_unauthorized'
+
+
+377) Error:
+IterationsControllerTest#test_create_wrong_project:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x8502450 @_url_options=nil>
+    test/functional/iterations_controller_test.rb:94:in `test_create_wrong_project'
+
+
+378) Error:
+IterationsControllerTest#test_delete_by_project_admin:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x83875f8 @_url_options=nil>
+    test/functional/iterations_controller_test.rb:193:in `delete_by_role_successful'
+    test/functional/iterations_controller_test.rb:168:in `test_delete_by_project_admin'
+
+
+379) Error:
+IterationsControllerTest#test_delete_by_project_user:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x84fc378 @_url_options=nil>
+    test/functional/iterations_controller_test.rb:201:in `delete_by_role_unsuccessful'
+    test/functional/iterations_controller_test.rb:173:in `test_delete_by_project_user'
+
+
+380) Error:
+IterationsControllerTest#test_delete_by_read_only_user:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x823ff38 @_url_options=nil>
+    test/functional/iterations_controller_test.rb:201:in `delete_by_role_unsuccessful'
+    test/functional/iterations_controller_test.rb:178:in `test_delete_by_read_only_user'
+
+
+381) Error:
+IterationsControllerTest#test_delete_wrong_project:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x84e6370 @_url_options=nil>
+    test/functional/iterations_controller_test.rb:184:in `test_delete_wrong_project'
+
+
+382) Error:
+IterationsControllerTest#test_destroy_not_found:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x84320a0 @_url_options=nil>
+    test/functional/controller_resource_helper.rb:113:in `test_destroy_not_found'
+
+
+383) Error:
+IterationsControllerTest#test_destroy_success:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x82a9640 @_url_options=nil>
+    test/functional/controller_resource_helper.rb:105:in `test_destroy_success'
+
+
+384) Error:
+IterationsControllerTest#test_destroy_unauthorized:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x8444328 @_url_options=nil>
+    test/functional/controller_resource_helper.rb:97:in `test_destroy_unauthorized'
+
+
+385) Error:
+IterationsControllerTest#test_index_by_admin:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x836ef98 @_url_options=nil>
+    test/functional/iterations_controller_test.rb:55:in `index_by_role'
+    test/functional/iterations_controller_test.rb:24:in `test_index_by_admin'
+
+
+386) Error:
+IterationsControllerTest#test_index_by_project_admin:
+NoMethodError: undefined method `find_all_by_project_id' for #<Class:0x56ce530>
+    test/functional/iterations_controller_test.rb:29:in `test_index_by_project_admin'
+
+
+387) Error:
+IterationsControllerTest#test_index_by_project_user:
+NoMethodError: undefined method `find_all_by_project_id' for #<Class:0x56ce530>
+    test/functional/iterations_controller_test.rb:34:in `test_index_by_project_user'
+
+
+388) Error:
+IterationsControllerTest#test_index_by_read_only_user:
+NoMethodError: undefined method `find_all_by_project_id' for #<Class:0x56ce530>
+    test/functional/iterations_controller_test.rb:39:in `test_index_by_read_only_user'
+
+
+389) Error:
+IterationsControllerTest#test_index_changes:
+NoMethodError: undefined method `find_all_by_project_id' for #<Class:0x56ce530>
+    test/functional/iterations_controller_test.rb:49:in `test_index_changes'
+
+
+390) Error:
+IterationsControllerTest#test_index_no_changes:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x84499e0 @_url_options=nil>
+    test/functional/iterations_controller_test.rb:55:in `index_by_role'
+    test/functional/iterations_controller_test.rb:44:in `test_index_no_changes'
+
+
+391) Error:
+IterationsControllerTest#test_index_success:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x839adc8 @_url_options=nil>
+    test/functional/controller_resource_helper.rb:11:in `test_index_success'
+
+
+392) Error:
+IterationsControllerTest#test_index_unauthorized:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x82bcab0 @_url_options=nil>
+    test/functional/controller_resource_helper.rb:4:in `test_index_unauthorized'
+
+
+393) Error:
+IterationsControllerTest#test_show_not_found:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x8585370 @_url_options=nil>
+    test/functional/controller_resource_helper.rb:61:in `test_show_not_found'
+
+
+394) Error:
+IterationsControllerTest#test_show_success:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x8580db0 @_url_options=nil>
+    test/functional/controller_resource_helper.rb:52:in `test_show_success'
+
+
+395) Error:
+IterationsControllerTest#test_show_unauthorized:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x8367c00 @_url_options=nil>
+    test/functional/controller_resource_helper.rb:45:in `test_show_unauthorized'
+
+
+396) Error:
+IterationsControllerTest#test_show_wrong_project:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x84dd3b8 @_url_options=nil>
+    test/functional/iterations_controller_test.rb:69:in `test_show_wrong_project'
+
+
+397) Error:
+IterationsControllerTest#test_update_by_project_admin:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x842de88 @_url_options=nil>
+    test/functional/iterations_controller_test.rb:152:in `update_by_role_successful'
+    test/functional/iterations_controller_test.rb:122:in `test_update_by_project_admin'
+
+
+398) Error:
+IterationsControllerTest#test_update_by_project_user:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x84cd9c8 @_url_options=nil>
+    test/functional/iterations_controller_test.rb:160:in `update_by_role_unsuccessful'
+    test/functional/iterations_controller_test.rb:132:in `test_update_by_project_user'
+
+
+399) Error:
+IterationsControllerTest#test_update_by_read_only_user:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x85a4720 @_url_options=nil>
+    test/functional/iterations_controller_test.rb:160:in `update_by_role_unsuccessful'
+    test/functional/iterations_controller_test.rb:137:in `test_update_by_read_only_user'
+
+
+400) Error:
+IterationsControllerTest#test_update_failure:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x8298168 @_url_options=nil>
+    test/functional/controller_resource_helper.rb:83:in `test_update_failure'
+
+
+401) Error:
+IterationsControllerTest#test_update_not_found:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x85f8630 @_url_options=nil>
+    test/functional/controller_resource_helper.rb:91:in `test_update_not_found'
+
+
+402) Error:
+IterationsControllerTest#test_update_project:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x843c1c8 @_url_options=nil>
+    test/functional/iterations_controller_test.rb:160:in `update_by_role_unsuccessful'
+    test/functional/iterations_controller_test.rb:127:in `test_update_project'
+
+
+403) Error:
+IterationsControllerTest#test_update_success:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x860b7d0 @_url_options=nil>
+    test/functional/controller_resource_helper.rb:75:in `test_update_success'
+
+
+404) Error:
+IterationsControllerTest#test_update_unauthorized:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x84de360 @_url_options=nil>
+    test/functional/controller_resource_helper.rb:67:in `test_update_unauthorized'
+
+
+405) Error:
+IterationsControllerTest#test_update_wrong_project:
+NoMethodError: undefined method `formats=' for #<IterationsController:0x7f3f218 @_url_options=nil>
+    test/functional/iterations_controller_test.rb:143:in `test_update_wrong_project'
+
+
+406) Error:
+TeamsControllerTest#test_create_by_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/teams_controller_test.rb:83:in `create_by_role_successful'
+    test/functional/teams_controller_test.rb:57:in `test_create_by_project_admin'
+
+
+407) Error:
+TeamsControllerTest#test_create_by_project_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/teams_controller_test.rb:93:in `create_by_role_unsuccessful'
+    test/functional/teams_controller_test.rb:62:in `test_create_by_project_user'
+
+
+408) Error:
+TeamsControllerTest#test_create_by_read_only_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/teams_controller_test.rb:93:in `create_by_role_unsuccessful'
+    test/functional/teams_controller_test.rb:67:in `test_create_by_read_only_user'
+
+
+409) Error:
+TeamsControllerTest#test_create_failure:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:37:in `test_create_failure'
+
+
+410) Error:
+TeamsControllerTest#test_create_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:28:in `test_create_success'
+
+
+411) Error:
+TeamsControllerTest#test_create_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:18:in `test_create_unauthorized'
+
+
+412) Error:
+TeamsControllerTest#test_create_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/teams_controller_test.rb:74:in `test_create_wrong_project'
+
+
+413) Error:
+TeamsControllerTest#test_delete_by_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/teams_controller_test.rb:172:in `delete_by_role_successful'
+    test/functional/teams_controller_test.rb:147:in `test_delete_by_project_admin'
+
+
+414) Error:
+TeamsControllerTest#test_delete_by_project_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/teams_controller_test.rb:180:in `delete_by_role_unsuccessful'
+    test/functional/teams_controller_test.rb:152:in `test_delete_by_project_user'
+
+
+415) Error:
+TeamsControllerTest#test_delete_by_read_only_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/teams_controller_test.rb:180:in `delete_by_role_unsuccessful'
+    test/functional/teams_controller_test.rb:157:in `test_delete_by_read_only_user'
+
+
+416) Error:
+TeamsControllerTest#test_delete_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/teams_controller_test.rb:163:in `test_delete_wrong_project'
+
+
+417) Error:
+TeamsControllerTest#test_destroy_not_found:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:113:in `test_destroy_not_found'
+
+
+418) Error:
+TeamsControllerTest#test_destroy_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:105:in `test_destroy_success'
+
+
+419) Error:
+TeamsControllerTest#test_destroy_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:97:in `test_destroy_unauthorized'
+
+
+420) Error:
+TeamsControllerTest#test_index_by_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/teams_controller_test.rb:41:in `index_by_role'
+    test/functional/teams_controller_test.rb:20:in `test_index_by_admin'
+
+
+421) Error:
+TeamsControllerTest#test_index_by_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/teams_controller_test.rb:41:in `index_by_role'
+    test/functional/teams_controller_test.rb:25:in `test_index_by_project_admin'
+
+
+422) Error:
+TeamsControllerTest#test_index_by_project_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/teams_controller_test.rb:41:in `index_by_role'
+    test/functional/teams_controller_test.rb:30:in `test_index_by_project_user'
+
+
+423) Error:
+TeamsControllerTest#test_index_by_read_only_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/teams_controller_test.rb:41:in `index_by_role'
+    test/functional/teams_controller_test.rb:35:in `test_index_by_read_only_user'
+
+
+424) Error:
+TeamsControllerTest#test_index_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:11:in `test_index_success'
+
+
+425) Error:
+TeamsControllerTest#test_index_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:4:in `test_index_unauthorized'
+
+
+426) Error:
+TeamsControllerTest#test_show_not_found:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:61:in `test_show_not_found'
+
+
+427) Error:
+TeamsControllerTest#test_show_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:52:in `test_show_success'
+
+
+428) Error:
+TeamsControllerTest#test_show_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:45:in `test_show_unauthorized'
+
+
+429) Error:
+TeamsControllerTest#test_show_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/teams_controller_test.rb:51:in `test_show_wrong_project'
+
+
+430) Error:
+TeamsControllerTest#test_update_by_project_admin:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/teams_controller_test.rb:131:in `update_by_role_successful'
+    test/functional/teams_controller_test.rb:101:in `test_update_by_project_admin'
+
+
+431) Error:
+TeamsControllerTest#test_update_by_project_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/teams_controller_test.rb:139:in `update_by_role_unsuccessful'
+    test/functional/teams_controller_test.rb:111:in `test_update_by_project_user'
+
+
+432) Error:
+TeamsControllerTest#test_update_by_read_only_user:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/teams_controller_test.rb:139:in `update_by_role_unsuccessful'
+    test/functional/teams_controller_test.rb:116:in `test_update_by_read_only_user'
+
+
+433) Error:
+TeamsControllerTest#test_update_failure:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:83:in `test_update_failure'
+
+
+434) Error:
+TeamsControllerTest#test_update_not_found:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:91:in `test_update_not_found'
+
+
+435) Error:
+TeamsControllerTest#test_update_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/teams_controller_test.rb:139:in `update_by_role_unsuccessful'
+    test/functional/teams_controller_test.rb:106:in `test_update_project'
+
+
+436) Error:
+TeamsControllerTest#test_update_success:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:75:in `test_update_success'
+
+
+437) Error:
+TeamsControllerTest#test_update_unauthorized:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/controller_resource_helper.rb:67:in `test_update_unauthorized'
+
+
+438) Error:
+TeamsControllerTest#test_update_wrong_project:
+RuntimeError: @controller is nil: make sure you set it in your test's setup method.
+    test/functional/teams_controller_test.rb:122:in `test_update_wrong_project'
+
+
+439) Error:
+CompaniesControllerTest#test_create_by_project_admin:
+NoMethodError: undefined method `post' for #<CompaniesControllerTest:0x8261250>
+    test/functional/companies_controller_test.rb:160:in `create_by_role_unsuccessful'
+    test/functional/companies_controller_test.rb:133:in `test_create_by_project_admin'
+
+
+440) Error:
+CompaniesControllerTest#test_create_by_project_user:
+NoMethodError: undefined method `post' for #<CompaniesControllerTest:0x86a85e0>
+    test/functional/companies_controller_test.rb:160:in `create_by_role_unsuccessful'
+    test/functional/companies_controller_test.rb:138:in `test_create_by_project_user'
+
+
+441) Error:
+CompaniesControllerTest#test_create_by_read_only_user:
+NoMethodError: undefined method `post' for #<CompaniesControllerTest:0x80d8970>
+    test/functional/companies_controller_test.rb:160:in `create_by_role_unsuccessful'
+    test/functional/companies_controller_test.rb:143:in `test_create_by_read_only_user'
+
+
+442) Error:
+CompaniesControllerTest#test_create_failure:
+NoMethodError: undefined method `post' for #<CompaniesControllerTest:0x86ba718>
+    test/functional/controller_resource_helper.rb:37:in `test_create_failure'
+
+
+443) Error:
+CompaniesControllerTest#test_create_success:
+NoMethodError: undefined method `post' for #<CompaniesControllerTest:0x825a830>
+    test/functional/controller_resource_helper.rb:28:in `test_create_success'
+
+
+444) Error:
+CompaniesControllerTest#test_create_unauthorized:
+NoMethodError: undefined method `post' for #<CompaniesControllerTest:0x8786688>
+    test/functional/controller_resource_helper.rb:18:in `test_create_unauthorized'
+
+
+445) Error:
+CompaniesControllerTest#test_delete_by_project_admin:
+NoMethodError: undefined method `delete' for #<CompaniesControllerTest:0x835cc08>
+    test/functional/companies_controller_test.rb:233:in `delete_by_role_unsuccessful'
+    test/functional/companies_controller_test.rb:209:in `test_delete_by_project_admin'
+
+
+446) Error:
+CompaniesControllerTest#test_delete_by_project_user:
+NoMethodError: undefined method `delete' for #<CompaniesControllerTest:0x87a8af8>
+    test/functional/companies_controller_test.rb:233:in `delete_by_role_unsuccessful'
+    test/functional/companies_controller_test.rb:214:in `test_delete_by_project_user'
+
+
+447) Error:
+CompaniesControllerTest#test_delete_by_read_only_user:
+NoMethodError: undefined method `delete' for #<CompaniesControllerTest:0x8459670>
+    test/functional/companies_controller_test.rb:233:in `delete_by_role_unsuccessful'
+    test/functional/companies_controller_test.rb:219:in `test_delete_by_read_only_user'
+
+
+448) Error:
+CompaniesControllerTest#test_destroy_not_found:
+NoMethodError: undefined method `delete' for #<CompaniesControllerTest:0x8803de8>
+    test/functional/controller_resource_helper.rb:113:in `test_destroy_not_found'
+
+
+449) Error:
+CompaniesControllerTest#test_destroy_success:
+NoMethodError: undefined method `delete' for #<CompaniesControllerTest:0x8440ec0>
+    test/functional/controller_resource_helper.rb:105:in `test_destroy_success'
+
+
+450) Error:
+CompaniesControllerTest#test_destroy_unauthorized:
+NoMethodError: undefined method `delete' for #<CompaniesControllerTest:0x8834d90>
+    test/functional/controller_resource_helper.rb:97:in `test_destroy_unauthorized'
+
+
+451) Error:
+CompaniesControllerTest#test_index_by_admin:
+NoMethodError: undefined method `get' for #<CompaniesControllerTest:0x83827c8>
+    test/functional/companies_controller_test.rb:117:in `index_by_role'
+    test/functional/companies_controller_test.rb:86:in `test_index_by_admin'
+
+
+452) Error:
+CompaniesControllerTest#test_index_by_project_admin:
+NoMethodError: undefined method `get' for #<CompaniesControllerTest:0x8810310>
+    test/functional/companies_controller_test.rb:117:in `index_by_role'
+    test/functional/companies_controller_test.rb:91:in `test_index_by_project_admin'
+
+
+453) Error:
+CompaniesControllerTest#test_index_by_project_user:
+NoMethodError: undefined method `get' for #<CompaniesControllerTest:0x857e740>
+    test/functional/companies_controller_test.rb:117:in `index_by_role'
+    test/functional/companies_controller_test.rb:96:in `test_index_by_project_user'
+
+
+454) Error:
+CompaniesControllerTest#test_index_by_read_only_user:
+NoMethodError: undefined method `get' for #<CompaniesControllerTest:0x8824a88>
+    test/functional/companies_controller_test.rb:117:in `index_by_role'
+    test/functional/companies_controller_test.rb:101:in `test_index_by_read_only_user'
+
+
+455) Error:
+CompaniesControllerTest#test_index_changes:
+NoMethodError: undefined method `get' for #<CompaniesControllerTest:0x84e7ac8>
+    test/functional/companies_controller_test.rb:117:in `index_by_role'
+    test/functional/companies_controller_test.rb:111:in `test_index_changes'
+
+
+456) Error:
+CompaniesControllerTest#test_index_no_changes:
+NoMethodError: undefined method `get' for #<CompaniesControllerTest:0x8611290>
+    test/functional/companies_controller_test.rb:117:in `index_by_role'
+    test/functional/companies_controller_test.rb:106:in `test_index_no_changes'
+
+
+457) Error:
+CompaniesControllerTest#test_index_success:
+NoMethodError: undefined method `get' for #<CompaniesControllerTest:0x85fe288>
+    test/functional/controller_resource_helper.rb:11:in `test_index_success'
+
+
+458) Error:
+CompaniesControllerTest#test_index_unauthorized:
+NoMethodError: undefined method `get' for #<CompaniesControllerTest:0x891cd08>
+    test/functional/controller_resource_helper.rb:4:in `test_index_unauthorized'
+
+
+459) Error:
+CompaniesControllerTest#test_show_not_found:
+NoMethodError: undefined method `get' for #<CompaniesControllerTest:0x84e1c48>
+    test/functional/controller_resource_helper.rb:61:in `test_show_not_found'
+
+
+460) Error:
+CompaniesControllerTest#test_show_success:
+NoMethodError: undefined method `get' for #<CompaniesControllerTest:0x8779188>
+    test/functional/controller_resource_helper.rb:52:in `test_show_success'
+
+
+461) Error:
+CompaniesControllerTest#test_show_unauthorized:
+NoMethodError: undefined method `get' for #<CompaniesControllerTest:0x86d28e0>
+    test/functional/controller_resource_helper.rb:45:in `test_show_unauthorized'
+
+
+462) Error:
+CompaniesControllerTest#test_show_wrong_company:
+NoMethodError: undefined method `get' for #<CompaniesControllerTest:0x8916c30>
+    test/functional/companies_controller_test.rb:127:in `test_show_wrong_company'
+
+
+463) Error:
+CompaniesControllerTest#test_signup_failure:
+NoMethodError: undefined method `post' for #<CompaniesControllerTest:0x8615aa8>
+    test/functional/companies_controller_test.rb:55:in `test_signup_failure'
+
+
+464) Error:
+CompaniesControllerTest#test_signup_success:
+NoMethodError: undefined method `post' for #<CompaniesControllerTest:0x881f3d0>
+    test/functional/companies_controller_test.rb:37:in `test_signup_success'
+
+
+465) Error:
+CompaniesControllerTest#test_update_by_project_admin:
+NoMethodError: undefined method `put' for #<CompaniesControllerTest:0x88120b0>
+    test/functional/companies_controller_test.rb:193:in `update_by_role_successful'
+    test/functional/companies_controller_test.rb:168:in `test_update_by_project_admin'
+
+
+466) Error:
+CompaniesControllerTest#test_update_by_project_user:
+NoMethodError: undefined method `put' for #<CompaniesControllerTest:0x8996868>
+    test/functional/companies_controller_test.rb:201:in `update_by_role_unsuccessful'
+    test/functional/companies_controller_test.rb:173:in `test_update_by_project_user'
+
+
+467) Error:
+CompaniesControllerTest#test_update_by_read_only_user:
+NoMethodError: undefined method `put' for #<CompaniesControllerTest:0x88247b8>
+    test/functional/companies_controller_test.rb:201:in `update_by_role_unsuccessful'
+    test/functional/companies_controller_test.rb:178:in `test_update_by_read_only_user'
+
+
+468) Error:
+CompaniesControllerTest#test_update_failure:
+NoMethodError: undefined method `put' for #<CompaniesControllerTest:0x89008e0>
+    test/functional/controller_resource_helper.rb:83:in `test_update_failure'
+
+
+469) Error:
+CompaniesControllerTest#test_update_not_found:
+NoMethodError: undefined method `put' for #<CompaniesControllerTest:0x88f1748>
+    test/functional/controller_resource_helper.rb:91:in `test_update_not_found'
+
+
+470) Error:
+CompaniesControllerTest#test_update_premium_by_admin:
+NoMethodError: undefined method `put' for #<CompaniesControllerTest:0x880b798>
+    test/functional/companies_controller_test.rb:263:in `update_premium_by_role_successful'
+    test/functional/companies_controller_test.rb:241:in `test_update_premium_by_admin'
+
+
+471) Error:
+CompaniesControllerTest#test_update_premium_by_project_admin:
+NoMethodError: undefined method `put' for #<CompaniesControllerTest:0x8809d10>
+    test/functional/companies_controller_test.rb:277:in `update_premium_by_role_unsuccessful'
+    test/functional/companies_controller_test.rb:246:in `test_update_premium_by_project_admin'
+
+
+472) Error:
+CompaniesControllerTest#test_update_premium_by_project_user:
+NoMethodError: undefined method `put' for #<CompaniesControllerTest:0x85f27b0>
+    test/functional/companies_controller_test.rb:277:in `update_premium_by_role_unsuccessful'
+    test/functional/companies_controller_test.rb:251:in `test_update_premium_by_project_user'
+
+
+473) Error:
+CompaniesControllerTest#test_update_premium_by_readonly_user:
+NoMethodError: undefined method `put' for #<CompaniesControllerTest:0x88f2930>
+    test/functional/companies_controller_test.rb:277:in `update_premium_by_role_unsuccessful'
+    test/functional/companies_controller_test.rb:256:in `test_update_premium_by_readonly_user'
+
+
+474) Error:
+CompaniesControllerTest#test_update_success:
+NoMethodError: undefined method `put' for #<CompaniesControllerTest:0x88f6380>
+    test/functional/controller_resource_helper.rb:75:in `test_update_success'
+
+
+475) Error:
+CompaniesControllerTest#test_update_unauthorized:
+NoMethodError: undefined method `put' for #<CompaniesControllerTest:0x881d690>
+    test/functional/controller_resource_helper.rb:67:in `test_update_unauthorized'
+
+
+476) Error:
+CompaniesControllerTest#test_update_wrong_company:
+NoMethodError: undefined method `put' for #<CompaniesControllerTest:0x8a31d40>
+    test/functional/companies_controller_test.rb:184:in `test_update_wrong_company'
+
+
+477) Error:
+CompaniesControllerTest#test_xml:
+NoMethodError: undefined method `get' for #<CompaniesControllerTest:0x8991a80>
+    test/functional/companies_controller_test.rb:69:in `test_xml'
+
+477 runs, 2 assertions, 0 failures, 477 errors, 0 skips

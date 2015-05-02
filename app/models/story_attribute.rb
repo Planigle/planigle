@@ -23,7 +23,7 @@ class StoryAttribute < ActiveRecord::Base
   Date = 5
 
   # Override attributes to allow setting of values.
-  def attributes=(new_attributes)
+  def assign_attributes(new_attributes)
     if new_attributes.include? :values
       update_values(new_attributes[:values].split(','))
       new_attributes.delete(:values)

@@ -191,12 +191,12 @@ class Individual < ActiveRecord::Base
   def self.get_records(current_user)
     if current_user.role >= Individual::ProjectAdmin
       if current_user.is_premium
-        includes(:projects).where(["individuals.company_id = :company_id and role in (1,2,3)", {company_id: current_user.company_id}]).order('first_name, last_name')
+        joins(:projects).includes(:projects).where(["individuals.company_id = :company_id and role in (1,2,3)", {company_id: current_user.company_id}]).order('first_name, last_name')
       else
-        includes(:projects).where(["(projects.id = :project_id and role in (1,2,3)) or individuals.id=:user_id", {project_id: current_user.project_id, user_id: current_user.id}]).order('first_name, last_name')
+        joins(:projects).includes(:projects).where(["(projects.id = :project_id and role in (1,2,3)) or individuals.id=:user_id", {project_id: current_user.project_id, user_id: current_user.id}]).order('first_name, last_name')
       end
     elsif current_user.selected_project
-      users = includes(:projects).where(["individuals.company_id = :company_id", {company_id: current_user.selected_project.company_id}]).order('first_name, last_name')
+      users = where(["company_id = :company_id", {company_id: current_user.selected_project.company_id}]).order('first_name, last_name')
       !users.include?(current_user) ? users << current_user : users
     else
       Array[current_user]
