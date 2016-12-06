@@ -102,11 +102,10 @@ class Company < ActiveRecord::Base
     all
   end
   
-  # Override to_xml to include projects.
-  def to_xml(options = {})
-    if !options[:procs]
-      proc = Proc.new {|opt| opt[:builder]<< filtered_projects.to_xml(:skip_instruct => true)}
-      options[:procs] = [proc]
+  # Override as_json to include projects.
+  def as_json(options = {})
+    if !options[:methods]
+      options[:methods] = [:filtered_projects]
     end
     super(options)
   end

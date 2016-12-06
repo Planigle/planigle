@@ -119,6 +119,14 @@ class Iteration < ActiveRecord::Base
   def num_stories(team)
     stories.select {|story|story.team == team && story.status_code == Story.Done && story.effort != 0 && story.effort != nil}.length
   end
+
+  # Override as_json to exclude private attributes.
+  def as_json(options = {})
+    if !options[:except]
+      options[:except] = [:created_at, :updated_at, :deleted_at]
+    end
+    super(options)
+  end  
   
 protected
   

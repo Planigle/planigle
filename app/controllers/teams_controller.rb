@@ -1,11 +1,11 @@
 class TeamsController < ResourceController
-  before_filter :login_required
+  before_action :login_required
 
 protected
 
   # Get the records based on the current individual.
   def get_records
-    Team.find(:all, :conditions => ["project_id = ?", params[:project_id]], :order => 'name')
+    Team.where(project_id: params[:project_id]).order('name')
   end
 
   # Answer the current record based on the current individual.

@@ -1,5 +1,5 @@
 class TasksController < ResourceController
-  before_filter :login_required
+  before_action :login_required
 
   # Notify of key changes.
   def update

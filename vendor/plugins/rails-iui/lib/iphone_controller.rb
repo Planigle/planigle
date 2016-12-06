@@ -10,9 +10,9 @@ module ActionController
       def acts_as_iphone_controller(iphone_test_mode = nil)
         include ActionController::IphoneController::InstanceMethods
         if iphone_test_mode 
-          before_filter :force_iphone_format
+          before_action :force_iphone_format
         else
-          before_filter :set_iphone_format
+          before_action :set_iphone_format
         end
         helper_method :is_iphone_request?
       end

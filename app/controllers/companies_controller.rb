@@ -1,6 +1,6 @@
 class CompaniesController < ResourceController
-  before_filter :login_required, :except => :create
-  before_filter :login_or_signup_required, :only => :create
+  before_action :login_required, :except => :create
+  before_action :login_or_signup_required, :only => :create
 
   # POST /companies
   # POST /companies.xml

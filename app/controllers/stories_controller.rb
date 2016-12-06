@@ -1,22 +1,11 @@
 class StoriesController < ResourceController
-  before_filter :login_required
-  session :cookie_only => false, :only => [:import, :export]
+  before_action :login_required
+#  session :cookie_only => false, :only => [:import, :export]
 
   # GET /records
-  # GET /records.xml
   def index
-    respond_to do |format|
-      format.iphone do
-        iteration = Iteration.find_current(current_individual)
-        cond = {}
-        if iteration; cond[:iteration_id] = iteration.id; end
-        if current_individual.team_id && current_individual.team.project.id == project_id; cond[:team_id] = current_individual.team_id; end
-        @records = Story.get_records(current_individual, cond)
-        render
-      end
-      format.xml { @records = get_records; render :xml => @records }
-      format.amf { @records = get_records; render :amf => {:time => Time.now.to_s, :records => @records} }
-    end
+    @records = get_records
+    render :json => @records
   end
   
   # POST /stories/import               Imports new/existing stories.
@@ -129,7 +118,6 @@ protected
   def get_records
     time = get_params[:time]
     cond = conditions.clone
-    if params[:iteration_id]; cond[:iteration_id] = params[:iteration_id]; end
     page_size = get_params.delete(:page_size)
     page = get_params.delete(:page)
     if (!time || (page && page > 1) || Story.have_records_changed(current_individual, Time.parse(time)))

@@ -3,7 +3,7 @@ class StoryAttribute < ActiveRecord::Base
   has_many :individual_story_attributes, :dependent => :destroy
   has_many :story_attribute_values, :dependent => :destroy
   has_many :story_values, :dependent => :destroy
-  audited :except => [:project_id]
+#  audited :except => [:project_id]
 
   validates_presence_of     :name, :value_type
   validates_length_of       :name, :maximum => 40, :allow_nil => true # Allow nil to workaround bug
@@ -72,16 +72,16 @@ class StoryAttribute < ActiveRecord::Base
   # Answer the records for a particular user.
   def self.get_records(current_user)
     if current_user.role >= Individual::ProjectAdmin or current_user.project_id
-      values = StoryAttribute.includes(:story_attribute_values, :individual_story_attributes).where(project_id: current_user.project_id).order('story_attributes.ordering')
+      values = StoryAttribute.includes(:story_attribute_values, :individual_story_attributes).where(project_id: current_user.project_id)
     else
-      values = StoryAttribute.includes(:story_attribute_values, :individual_story_attributes).order('story_attributes.ordering')
+      values = StoryAttribute.includes(:story_attribute_values, :individual_story_attributes)
     end
     
     # Replace my values with those of the individual.
     values.each do |value|
       value.show_for(current_user)
     end
-    values
+    values.sort{ | a, b | a.ordering <=> b.ordering }
   end
 
   # Only project_admins can create story attributes.
@@ -125,8 +125,8 @@ class StoryAttribute < ActiveRecord::Base
     end
   end  
   
-  # Override to_xml to include story attribute values.
-  def to_xml(options = {})
+  # Override as_json to include story attribute values.
+  def as_json(options = {})
     if !options[:include]
       options[:include] = [:story_attribute_values]
     end

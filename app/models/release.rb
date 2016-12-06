@@ -69,6 +69,14 @@ class Release < ActiveRecord::Base
   def updated_at_string
     updated_at ? updated_at.to_s : updated_at
   end
+
+  # Override as_json to exclude private attributes.
+  def as_json(options = {})
+    if !options[:except]
+      options[:except] = [:created_at, :updated_at, :deleted_at]
+    end
+    super(options)
+  end  
   
 protected
   

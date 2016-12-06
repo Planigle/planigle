@@ -1,26 +1,24 @@
+default: &default
+  adapter: mysql2
+  encoding: utf8
+  pool: 5
+  timeout: 5000
+  host: 127.0.0.1
+
 development:
-  adapter: mysql2
-  encoding: utf8
+  <<: *default
   database: planigle_development
-  pool: 5
-  username: root
-  password:
-  host: 127.0.0.1
-
-test:
-  adapter: mysql2
-  encoding: utf8
-  database: planigle_test
-  pool: 5
-  username: root
-  password:
-  host: 127.0.0.1
-
-production:
-  adapter: mysql2
-  encoding: utf8
-  database: planigle_production
-  pool: 5
   username: root
   password: 
-  host: 127.0.0.1
+
+test:
+  <<: *default
+  database: planigle_test
+  username: root
+  password:
+
+production:
+  <<: *default
+  database: planigle_production
+  username: root
+  password: 

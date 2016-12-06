@@ -141,18 +141,18 @@ class Individual < ActiveRecord::Base
     "#{first_name} #{last_name}"
   end
 
-  # Override to_xml to exclude private attributes.
-  def to_xml(options = {})
+  # Override as_json to exclude private attributes.
+  def as_json(options = {})
     if !options[:except]
-      options[:except] = [:crypted_password, :salt, :remember_token, :remember_token_expires_at, :activation_code ]
+      options[:except] = [:crypted_password, :salt, :remember_token, :remember_token_expires_at, :activation_code, :accepted_agreement, :created_at, :updated_at, :deleted_at]
     end
     if !options[:methods]
       options[:methods] = [:project_ids]
     end
     super(options)
-  end
+  end  
 
-  # Prettier method name for xml.
+  # Prettier method name for json.
   def activated
     activated?
   end

@@ -1,5 +1,5 @@
 class SurveysController < ApplicationController
-  before_filter :login_required, :except => [:new, :create]
+  before_action :login_required, :except => [:new, :create]
 
   require 'cgi'
 

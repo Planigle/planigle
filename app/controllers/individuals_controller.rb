@@ -1,5 +1,5 @@
 class IndividualsController < ResourceController
-  before_filter :login_required, :except => :activate
+  before_action :login_required, :except => :activate
 
   # Allow the user to activate himself/herself by clicking on an email link.
   # GET /activate/<activation code>

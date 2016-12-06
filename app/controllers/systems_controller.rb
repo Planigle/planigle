@@ -1,5 +1,5 @@
 class SystemsController < ResourceController
-  before_filter :login_required, :except => :summarize
+  before_action :login_required, :except => :summarize
 
   # Summarize the system data.
   # GET /summarize
@@ -44,12 +44,12 @@ protected
 
   # Answer the current record.
   def get_record
-    System.find(:first)
+    System.first
   end
   
   # You cannot create new instances.
   def create_record
-    System.find(:first)
+    System.first
   end
   
   # Update the record given the params.

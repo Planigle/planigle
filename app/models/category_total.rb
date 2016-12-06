@@ -22,19 +22,16 @@ class CategoryTotal
     collect
   end
 
-  def to_xml(options = {})
-     options[:indent] ||= 2
-     options[:dasherize] = true
-     xml = options[:builder] ||= Builder::XmlMarkup.new(:indent => options[:indent])
-     xml.instruct! unless options[:skip_instruct]
-     xml.tag!("category-total") do
-       xml.tag!(:id, @id)
-       xml.tag!("story-attribute_id", @story_attribute_id)
-       xml.tag!("team-id", @team_id)
-       xml.tag!(:category, @category)
-       xml.tag!(:total, @total)
-     end
-   end
+  def as_json(options = {})
+    return
+      "{" +
+        "\"id\": " + @id +
+        "\"story-attribute-id\": " + @story_attribute_id +
+        "\"team-id\": " + @team_id +
+        "\"category\": " + @category +
+        "\"total\": " + @total +
+      "}";
+  end
 
 protected
   

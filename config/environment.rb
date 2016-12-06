@@ -1,8 +1,8 @@
-# Load the rails application
-require File.expand_path('../application', __FILE__)
+# Load the Rails application.
+require_relative 'application'
 
-# Initialize the rails application
-Planigle::Application.initialize!
+# Initialize the Rails application.
+Rails.application.initialize!
 
 # Require will_paginate gem
 require "will_paginate" 
@@ -19,9 +19,6 @@ require "will_paginate"
 # Add new mime types for use in respond_to blocks:
 # Mime::Type.register "text/richtext", :rtf
 # Mime::Type.register "application/x-mobile", :mobile
-
-# Include your application configuration below
-Mime::Type.register "application/x-amf", :amf
 
 # The following code is a work-around for the Flash 8 bug that prevents our multiple file uploader
 # from sending the _session_id.  Here, we hack the Session#initialize method and force the session_id

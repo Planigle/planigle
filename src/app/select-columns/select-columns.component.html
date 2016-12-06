@@ -1,0 +1,18 @@
+<div class="modal-header">
+	<button type="button" class="close" aria-label="Close" (click)="cancel()">
+		<span aria-hidden="true">&times;</span>
+	</button>
+	<h4 class="modal-title">Select Attributes</h4>
+</div>
+<div class="modal-body">
+	<div class="form-check" *ngFor="let attrib of storyAttributes">
+		<label class="form-check-label">
+			<input class="form-check-input" type="checkbox" [(ngModel)]="attrib.show" [value]="attrib.id">
+			{{attrib.name}}
+			</label>
+	</div>
+</div>
+<div class="modal-footer">
+	<button type="button" class="btn btn-secondary" (click)="ok()">OK</button>
+	<button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+</div>

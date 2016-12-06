@@ -1,6 +1,4 @@
 Planigle::Application.routes.draw do
-#  rubyamf_gateway 'rubyamf_gateway', :controller => 'rubyamf', :action => 'gateway'
-
   post '/stories/import', :to => 'stories#import', :as => 'import'
   get '/stories/export', :to => 'stories#export', :as => 'export'
   post '/stories/split/:id', :to => 'stories#split', :as => 'split'

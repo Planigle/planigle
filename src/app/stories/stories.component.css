@@ -1,0 +1,49 @@
+.action-bar {
+	border-style: solid;
+	border-color: #ddd #ddd transparent;
+	border-top-width: 0px;
+	border-left-width: 1px;
+	border-right-width: 1px;
+	border-bottom-width: 0px;
+	padding: 3px;
+	float: left;
+}
+
+.btn-group {
+	float: right;
+	padding-right: 5px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.btn-group button {
+	padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+select {
+	font-size: 14px;
+}
+
+ag-grid-ng2 {
+	width: 100%;
+	height: 0px;
+}
+
+.ag-fresh {
+	font-size: 12px;
+}
+
+:host /deep/ .ag-fresh .ag-group-cell {
+	font-style: normal;
+}
+
+:host /deep/ .ag-row-level-1 {
+	background: #D4E5FD;
+}
+
+:host /deep/ .ag-row-level-1 .ag-cell:first-child span {
+	display: none;
+}

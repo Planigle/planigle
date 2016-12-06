@@ -1,28 +1,19 @@
 class ResourceController < ApplicationController
 
   # GET /records
-  # GET /records.xml
   def index
     time = get_params[:time]
     if (!time || have_records_changed(Time.parse(time)))
       @records = get_records
     end
-    respond_to do |format|
-      format.xml { render :xml => @records }
-      format.amf { render :amf => {:time => Time.now.to_s, :records => @records} }
-    end
+    render :json => @records
   end
   
   # GET /records/1
-  # GET /records/1.xml
   def show
     @record = get_record
     if (authorized_for_read?(@record))
-      respond_to do |format|
-        format.iphone { render :layout => false }
-        format.xml { render :xml => @record }
-        format.amf { render :amf => @record }
-      end
+      render :json => @record
     else
       unauthorized
     end
@@ -31,7 +22,6 @@ class ResourceController < ApplicationController
   end
 
   # POST /records
-  # POST /records.xml
   def create
     @record = create_record
     if (authorized_for_create?(@record))
@@ -42,10 +32,7 @@ class ResourceController < ApplicationController
           end
         end
         if record_visible
-          respond_to do |format|
-            format.xml { render :xml => @record, :status => :created }
-            format.amf { render :amf => @record }
-          end
+          render :json => @record, :status => :created
         else
           not_visible("created")
         end
@@ -54,11 +41,9 @@ class ResourceController < ApplicationController
           if @record.valid?
             logger.error(e)
             logger.error(e.backtrace.join("\n"))
-            format.xml { render :xml => xml_error('Error creating'), :status => 500 }
-            format.amf { render :amf => 'Error creating' }
+            render :json => {:error => 'Error creating'}, :status => 500
           else
-            format.xml { render :xml => @record.errors, :status => :unprocessable_entity }
-            format.amf { render :amf => @record.errors.full_messages }
+            render :json => @record.errors, :status => :unprocessable_entity
           end
         end
       end
@@ -68,7 +53,6 @@ class ResourceController < ApplicationController
   end
   
   # PUT /records/1
-  # PUT /records/1.xml
   def update
     @record = get_record_for_change
     if (authorized_for_update?(@record))
@@ -83,24 +67,17 @@ class ResourceController < ApplicationController
             end
           end
           if record_visible
-            respond_to do |format|
-              format.xml { render :xml => @record }
-              format.amf { render :amf => @record }
-            end
+            render :json => @record
           else
             not_visible("updated")
           end
         rescue Exception => e
-          respond_to do |format|
-            if @record.valid?
-              logger.error(e)
-              logger.error(e.backtrace.join("\n"))
-              format.xml { render :xml => xml_error('Error updating'), :status => 500 }
-              format.amf { render :amf => 'Error updating' }
-            else
-              format.xml { render :xml => @record.errors, :status => :unprocessable_entity }
-              format.amf { render :amf => @record.errors.full_messages }
-            end
+          if @record.valid?
+            logger.error(e)
+            logger.error(e.backtrace.join("\n"))
+            render :json => {:error => 'Error updating'}, :status => 500
+          else
+            render :json => @record.errors, :status => :unprocessable_entity
           end
         end
       else
@@ -114,15 +91,11 @@ class ResourceController < ApplicationController
   end
 
   # DELETE /records/1
-  # DELETE /records/1.xml
   def destroy
     @record = get_record_for_change
     if (authorized_for_destroy?(@record))
       @record.destroy
-      respond_to do |format|
-        format.xml { render :xml => @record }
-        format.amf { render :amf => @record }
-      end
+      render :json => @record
     else
       unauthorized
     end
@@ -200,22 +173,6 @@ protected
   # Send warning.
   def respond_with_warning(warning, warning_id)
     status = 200
-    respond_to do |format|
-      format.xml { render :xml => respond_with_xml_warning(warning, warning_id), :status => status }
-      format.amf { render :amf => {:error => warning, :record => @record} }
-    end
-  end
-  
-  # Create xml for warning
-  def respond_with_xml_warning(warning, warning_id)
-    builder = Builder::XmlMarkup.new
-    builder.instruct!
-    builder.errors do
-      builder.errorId warning_id
-      builder.error warning
-      builder.records do
-        builder << @record.to_xml(:skip_instruct => true)
-      end
-    end
+    render :json => {:errorId => warning_id, :error => warning, :record => @record}, :status => status
   end
 end

@@ -254,49 +254,47 @@ class Story < ActiveRecord::Base
 
   def current_conditions= conditions
     @current_conditions = conditions
-    stories.each {|child| child.current_conditions=conditions}
+#    stories.each {|child| child.current_conditions=conditions}
   end
   
-  # Override to_xml to include tasks.
-  def to_xml(options = {})
+  # Override as_json to include tasks.
+  def as_json(options = {})
+    if !options[:except]
+      options[:except] = [:created_at, :updated_at, :deleted_at, :in_progress_at]
+    end
     if !options[:include]
       options[:include] = [:story_values, :criteria]
     end
     if !options[:methods]
-      options[:methods] = [:acceptance_criteria, :epic_name, :lead_time, :cycle_time]
-    end
-    if !options[:procs]
-      story_proc = Proc.new {|opt| filtered_stories_as_xml(opt[:builder])}
-      task_proc = Proc.new {|opt| filtered_tasks_as_xml(opt[:builder])}
-      options[:procs] = [story_proc, task_proc]
+      options[:methods] = [:acceptance_criteria, :epic_name, :lead_time, :cycle_time, :filtered_tasks, :release_name, :iteration_name, :team_name, :individual_name] #:filtered_stories, 
     end
     super(options)
+  end
+
+  def release_name
+    release == nil ? nil : release.name
+  end
+  
+  def iteration_name
+    iteration == nil ? nil : iteration.name
+  end
+  
+  def team_name
+    team == nil ? nil : team.name
+  end
+  
+  def individual_name
+    individual == nil ? nil : individual.name
   end
   
   def filtered_stories
     stories
   end
   
-  def filtered_stories_as_xml(builder)
-    builder.method_missing("filtered-stories".to_sym) do
-      filtered_stories.each do |story|
-        story.to_xml({:builder => builder, :skip_instruct => true, :root => :filtered_story})
-      end
-    end
-  end
-  
   def filtered_tasks
     tasks.select{|task| task.matches(self.current_conditions)}
   end
   
-  def filtered_tasks_as_xml(builder)
-    builder.method_missing("filtered-tasks".to_sym) do
-      filtered_tasks.each do |task|
-        task.to_xml({:builder => builder, :skip_instruct => true, :root => :filtered_task})
-      end
-    end
-  end
-
   # Answer whether records have changed.
   def self.have_records_changed(current_user, time)
     Story.with_deleted.joins('LEFT OUTER JOIN tasks ON tasks.story_id=stories.id').where(["(stories.updated_at >= :time or stories.deleted_at >= :time or tasks.updated_at >= :time or tasks.deleted_at >= :time) and stories.project_id = :project_id", {time: time, project_id: current_user.project_id}]).count > 0
@@ -310,7 +308,7 @@ class Story < ActiveRecord::Base
     individual_id = modified_conditions.delete(:individual_id)
     text_filter = modified_conditions.delete(:text)
     modified_conditions = substitute_conditions(current_user, modified_conditions)
-    options = {:include => [:criteria, :story_values, :tasks], :conditions => modified_conditions, :order => 'stories.priority', :joins => joins}
+    options = {:include => [:criteria, :story_values, :tasks, :iteration, :release, :team, :individual], :conditions => modified_conditions, :order => 'stories.priority', :joins => joins}
     should_paginate = per_page && page && !filter_on_individual && !text_filter
     if should_paginate
       options[:per_page] = per_page

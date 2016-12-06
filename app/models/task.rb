@@ -11,7 +11,6 @@ class Task < ActiveRecord::Base
   validates_length_of       :reason_blocked,         :maximum => 4096, :allow_nil => true
   validates_numericality_of :effort, :allow_nil => true, :greater_than_or_equal_to => 0
   validates_numericality_of :actual, :allow_nil => true, :greater_than_or_equal_to => 0
-  validates_numericality_of :effort, :allow_nil => true, :greater_than_or_equal_to => 0
   validates_numericality_of :estimate, :allow_nil => true, :greater_than_or_equal_to => 0
   validates_numericality_of :status_code
   validates_numericality_of :priority, :allow_nil => true # Needed for priority since not set until after check
@@ -45,12 +44,19 @@ class Task < ActiveRecord::Base
     story.project
   end
   
-  # Override to_xml to include lead and cycle time.
-  def to_xml(options = {})
+  # Override as_json to include lead and cycle time.
+  def as_json(options = {})
+    if !options[:except]
+      options[:except] = [:created_at, :updated_at, :deleted_at, :in_progress_at, :done_at]
+    end
     if !options[:methods]
-      options[:methods] = [:lead_time, :cycle_time]
+      options[:methods] = [:lead_time, :cycle_time, :individual_name]
     end
     super(options)
+  end
+
+  def individual_name
+    individual == nil ? nil : individual.name
   end
   
   def export(csv)

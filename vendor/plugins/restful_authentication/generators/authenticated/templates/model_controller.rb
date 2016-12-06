@@ -3,8 +3,8 @@ class <%= model_controller_class_name %>Controller < ApplicationController
   include AuthenticatedSystem
   <% if options[:stateful] %>
   # Protect these actions behind an admin login
-  # before_filter :admin_required, :only => [:suspend, :unsuspend, :destroy, :purge]
-  before_filter :find_<%= file_name %>, :only => [:suspend, :unsuspend, :destroy, :purge]
+  # before_action :admin_required, :only => [:suspend, :unsuspend, :destroy, :purge]
+  before_action :find_<%= file_name %>, :only => [:suspend, :unsuspend, :destroy, :purge]
   <% end %>
 
   # render new.rhtml

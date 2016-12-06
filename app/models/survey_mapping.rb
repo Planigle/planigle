@@ -7,8 +7,8 @@ class SurveyMapping < ActiveRecord::Base
 
   # attr_accessible :survey_id, :story_id, :priority
 
-  # Override to_xml to exclude private attributes.
-  def to_xml(options = {})
+  # Override as_json to exclude private attributes.
+  def as_json(options = {})
     if !options[:except]
       options[:except] = []
     end

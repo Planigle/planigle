@@ -1,82 +1,45 @@
 # This controller handles the login/logout function of the site.  
 class SessionsController < ApplicationController
-  before_filter :login_required, :only => :refresh
-
-  # Login screen or failure to log in from xml
-  # GET /sessions/new
-  # GET /sessions/new.xml
-  def new
-    respond_to do |format|
-      format.iphone
-      format.xml { render :xml => xml_error('Invalid Credentials'), :status => 401 }
-    end
-  end
+  before_action :login_required, :only => :refresh
 
   # Process login results by creating a session.
-  # POST /sessions
-  # POST /sessions.xml
+  # POST /session
   def create
-    respond_to do |format|
-      info = is_amf ? params[0] : params
-      if is_amf && info[:version] != version
-        format.amf { render :amf => {:error => 'Your browser has cached an older version of Planigle.  To get the latest version, clear your browser cache and refresh the page.'} }
-      else
-        self.current_individual = Individual.authenticate(info[:login], info[:password])
-        if logged_in?
-          if info[:accept_agreement] == "true" || info[:accept_agreement] == true
-            self.current_individual.accepted_agreement = Time.now
-          end
-          if self.current_individual.accepted_agreement || System.find(:first).license_agreement == "" || request.format == :iphone
-            self.current_individual.last_login = Time.now
-            if info[:remember_me] == "true" || info[:remember_me] == true
-              self.current_individual.remember_me
-              cookies[:auth_token] = { :value => self.current_individual.remember_token , :expires => self.current_individual.remember_token_expires_at }
-            end
-            self.current_individual.save( :validate=> false )
-            format.iphone do
-              if self.current_individual.is_premium
-                redirect_to :controller => 'stories', :action => 'index'
-              else
-                flash[:notice] = 'You must be a premium customer to use the IPhone interface'
-                render :action => 'new'
-              end
-            end
-            format.xml { render :xml => data(true), :status => :created }
-            format.amf { render :amf => data(true) }
-          else
-            reset_session
-            format.xml { render :xml => license_agreement, :status => :unprocessable_entity }
-            format.amf { render :amf => license_agreement }
-          end
-        else
-          format.iphone { flash[:notice] = 'Invalid Credentials'; render :action => 'new' }
-          format.xml { render :xml => xml_error('Invalid Credentials'), :status => :unprocessable_entity }
-          format.amf { render :amf => {:error => 'Invalid Credentials'} }
-        end
+    if !logged_in?
+      self.current_individual = Individual.authenticate(params[:login], params[:password])
+    end
+    if logged_in?
+      if params[:accept_agreement] == "true" || params[:accept_agreement] == true
+        self.current_individual.accepted_agreement = Time.now
       end
+      if self.current_individual.accepted_agreement || System.first.license_agreement == ""
+        self.current_individual.last_login = Time.now
+        self.current_individual.remember_me
+        cookies[:auth_token] = { :value => self.current_individual.remember_token , :expires => self.current_individual.remember_token_expires_at }
+        self.current_individual.save( :validate=> false )
+        render :json => self.current_individual, :status => :created
+      else
+        reset_session
+        render :json => license_agreement, :status => :unprocessable_entity
+      end
+    else
+      render :json => {:error => 'Invalid Credentials'}, :status => :unprocessable_entity
     end
   end  
 
   # Refresh the data for the current session
   def refresh
-    respond_to do |format|
-      format.xml { render :xml => data(false)}
-      format.amf { render :amf => data(false)}
-    end
+    render :json => data(false)
   end
 
   # Log out
-  # DELETE /sessions
-  # DELETE /sessions.xml
+  # DELETE /session
   def destroy
-    respond_to do |format|
-      self.current_individual.forget_me if logged_in?
-      cookies.delete :auth_token
-      reset_session
-      format.iphone { redirect_to :controller => 'sessions', :action => 'new' }
-      format.xml { head :ok }
-      format.amf { render :amf => 'success' }
-    end
+    self.current_individual.forget_me if logged_in?
+    cookies.delete :auth_token
+    session.delete :individual_id
+    reset_session
+    render :json => {}, :status => :ok
   end
 
 protected
@@ -90,7 +53,7 @@ protected
       show_project(conditions[:project_id])
     end
     if initial
-      result['system'] = System.find(:first)
+      result['system'] = System.first()
       result['current_individual'] = current_individual
       result['current_individual'].current_user_project = project
       result['current_release'] = current_release
@@ -148,7 +111,7 @@ protected
   def license_agreement
     result = {}
     result["error"] = 'You must accept the license agreement to proceed'
-    result["agreement"] = System.find(:first).license_agreement
+    result["agreement"] = System.first().license_agreement
     result
   end
 end

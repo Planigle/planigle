@@ -95,28 +95,19 @@ class Project < ActiveRecord::Base
     add_default_attributes
   end
   
-  # Override to_xml to include teams.
-  def to_xml(options = {})
+  # Override as_json to include teams.
+  def as_json(options = {})
     if !options[:include]
       options[:include] = [:teams]
     end
-    if !options[:procs]
-      proc = Proc.new {|opt| filtered_attributes_as_xml(opt[:builder])}
-      options[:procs] = [proc]
+    if !options[:methods]
+      options[:methods] = [:filtered_attributes]
     end
     super(options)
   end
   
   def filtered_attributes
     hide_attributes ? [] : story_attributes
-  end
-  
-  def filtered_attributes_as_xml(builder)
-    builder.method_missing("filtered-attributes".to_sym) do
-      filtered_attributes.each do |task|
-        task.to_xml({:builder => builder, :skip_instruct => true, :root => :filtered_attribute})
-      end
-    end
   end
 
   ModeMapping = [ 'Private', 'Private by default', 'Public by default' ]

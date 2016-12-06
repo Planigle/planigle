@@ -1,0 +1,31 @@
+<div class="container">
+    <div class="row">
+        <div class="account-wall mx-auto">
+        	<img class="profile-img" src="images/logo.png" alt="Planigle logo">
+        	<div class="text-xs-center">Version 2016.1</div>
+        	<form class="form-signin">
+        		<input [(ngModel)]="user.login" name="login" type="text" class="form-control" placeholder="User Name" required autofocus autocomplete="off">
+        		<input [(ngModel)]="user.password" name="password" type="password" class="form-control" placeholder="Password" required autocomplete="off">
+		        <div class="error">{{response.error}}</div>
+        		<button (click)="login()" class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+        	</form>
+        </div>
+	</div>
+</div>
+<!-- Agreement dialog -->
+<div class="modal fade" id="agreementDialog" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" (click)="declineAgreement()">&times;</button>
+        <h4 class="modal-title" i18n></h4>
+      </div>
+      <div class="modal-body agreement">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="acceptAgreement()" i18n>Accept</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="declineAgreement()" i18n>Decline</button>
+      </div>
+    </div>
+  </div>
+</div>

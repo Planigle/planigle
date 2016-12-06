@@ -19,8 +19,8 @@ class Survey < ActiveRecord::Base
     end
   end
   
-  # Override to_xml to include survey mappings.
-  def to_xml(options = {})
+  # Override as_json to include survey mappings.
+  def as_json(options = {})
     if !options[:include]
       options[:include] = [:survey_mappings]
     end

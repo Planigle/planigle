@@ -1,5 +1,5 @@
 class AuditsController < ApplicationController
-  before_filter :login_required
+  before_action :login_required
 
   # GET /records?user_id=9999&type=<Story|Task|Release|Iteration|Project|Team|Individual>&start=yyyy-mm-dd&end=yyyy-mm-dd&object_id=9999
   # GET /records.xml?user_id=9999&type=<Story|Task|Release|Iteration|Project|Team|Individual>&start=yyyy-mm-dd&end=yyyy-mm-dd&object_id=9999
