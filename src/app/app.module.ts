@@ -13,6 +13,11 @@ import { LoginComponent } from './login/login.component';
 import { StoriesComponent } from './stories/stories.component';
 import { HeaderComponent } from './header/header.component';
 import { SelectColumnsComponent } from './select-columns/select-columns.component';
+import { EditStoryComponent } from './edit-story/edit-story.component';
+import { EditTaskComponent } from './edit-task/edit-task.component';
+import { ChooseStatusComponent } from './choose-status/choose-status.component';
+import { ButtonBarComponent } from './button-bar/button-bar.component';
+import { ReasonBlockedComponent } from './reason-blocked/reason-blocked.component';
 
 const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -26,10 +31,16 @@ const appRoutes: Routes = [
     LoginComponent,
     StoriesComponent,
     HeaderComponent,
-    SelectColumnsComponent
+    SelectColumnsComponent,
+    EditStoryComponent,
+    EditTaskComponent,
+    ChooseStatusComponent,
+    ButtonBarComponent,
+    ReasonBlockedComponent
   ],
   entryComponents: [
-    SelectColumnsComponent
+    SelectColumnsComponent,
+    ReasonBlockedComponent
   ],
   imports: [
     BrowserModule,
@@ -38,7 +49,10 @@ const appRoutes: Routes = [
     HttpModule,
     NgbModule.forRoot(),
     Angular2FontawesomeModule,
-    AgGridModule.withNg2ComponentSupport()
+    AgGridModule.withComponents([
+      ChooseStatusComponent,
+      ButtonBarComponent
+    ])
   ],
   providers: [
     NgbActiveModal

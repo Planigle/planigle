@@ -1,8 +1,20 @@
 .planigle-site {
-	padding-top: 5px;
-	padding-bottom: 5px;
+	padding-top: 2px;
+	padding-bottom: 2px;
 }
 
 .planigle-site img {
 	height: 30px;
+}
+
+nav {
+	padding: 0px;
+}
+
+.nav-item a {
+	color: #888888;
+}
+
+.nav-item a:hover, .nav-item.active a {
+	color: #0275d8;
 }

@@ -43,7 +43,7 @@
 			// The user has selected a file.
 			private function selectComplete(event:Event):void
 			{
-				fileRef.upload(new URLRequest("stories/import?_planigle_session_id=" + FileUtils.getSession()));
+				fileRef.upload(new URLRequest("stories/import?_planigle2_session_id=" + FileUtils.getSession()));
 				CursorManager.setBusyCursor();
 			}
 

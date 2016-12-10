@@ -1,39 +1,56 @@
 <div class="container-fluid" >
 	<app-header></app-header>
-	<div class="action-bar">
-	    <select name="release" [(ngModel)]="release" *ngIf="releases.length>3" (change)="fetchStories()">
-	        <option *ngFor="let release of releases" [value]="release.id">  
-	        {{release.name}}
-	        </option>
-	    </select>
-	    <select name="iteration" [(ngModel)]="iteration" *ngIf="iterations.length>3" (change)="fetchStories()">
-	        <option *ngFor="let iteration of iterations" [value]="iteration.id">
-	        {{iteration.name}}
-	        </option>
-	    </select>
-	    <select name="team" [(ngModel)]="team" *ngIf="teams.length>3" (change)="fetchStories()">
-	        <option *ngFor="let team of teams" [value]="team.id">
-	        {{team.name}}
-	        </option>
-	    </select>
-	    <select name="owner" [(ngModel)]="individual" *ngIf="individuals.length>3" (change)="fetchStories()">
-	        <option *ngFor="let individual of enabledIndividuals" [value]="individual.id">  
-	        {{individual.getName()}}
-	        </option>
-	    </select>
-	    <select name="status" [(ngModel)]="status" (change)="fetchStories()">
-	        <option *ngFor="let status of statuses" [value]="status.id">
-	        {{status.name}}
-	        </option>
-	    </select>
+	<div *ngIf="selection == null">
+		<div class="action-bar">
+		    <select name="release" [(ngModel)]="release" *ngIf="releases.length>3" (change)="fetchStories()">
+		        <option *ngFor="let release of releases" [value]="release.id">  
+		        {{release.name}}
+		        </option>
+		    </select>
+		    <select name="iteration" [(ngModel)]="iteration" *ngIf="iterations.length>3" (change)="fetchStories()">
+		        <option *ngFor="let iteration of iterations" [value]="iteration.id">
+		        {{iteration.name}}
+		        </option>
+		    </select>
+		    <select name="team" [(ngModel)]="team" *ngIf="teams.length>3" (change)="fetchStories()">
+		        <option *ngFor="let team of teams" [value]="team.id">
+		        {{team.name}}
+		        </option>
+		    </select>
+		    <select name="owner" [(ngModel)]="individual" *ngIf="individuals.length>3" (change)="fetchStories()">
+		        <option *ngFor="let individual of enabledIndividuals" [value]="individual.id">  
+		        {{individual.name}}
+		        </option>
+		    </select>
+		    <select name="status" [(ngModel)]="status" (change)="fetchStories()">
+		        <option *ngFor="let status of statuses" [value]="status.id">
+		        {{status.name}}
+		        </option>
+		    </select>
+		</div>
+		<div class="btn-group" role="group" aria-label="Actions">
+			<button type="button" class="btn btn-secondary" title="Select columns" (click)="selectColumns()"><fa [name]="'columns'"></fa></button>
+		</div>
 	</div>
-	<div class="btn-group" role="group" aria-label="Actions">
-		<button type="button" class="btn btn-secondary" title="Select columns" (click)="selectColumns()"><fa [name]="'columns'"></fa></button>
-	</div>
+	<app-edit-story
+		*ngIf="selection && selection.isStory()"
+		[(story)]="selection"
+		[projects]="projects"
+		[releases]="choosableReleases"
+		[iterations]="choosableIterations"
+		[teams]="choosableTeams"
+		[individuals]="choosableIndividuals"
+		[me]="user"
+		(closed)="clearSelection()"></app-edit-story>
+	<app-edit-task *ngIf="selection && !selection.isStory()" [(task)]="selection" [individuals]="choosableIndividuals" [me]="user" (closed)="clearSelection()"></app-edit-task>
 	<ag-grid-ng2 #agGrid class="ag-fresh"
+		[gridOptions]="gridOptions"
 	    [columnDefs]="columnDefs"
 	    [rowData]="stories"
+	    [context]="context"
 	    [getNodeChildDetails]="getChildren"
+	    (rowDoubleClicked)="selectRow($event)"
+	    (rowGroupOpened)="rowGroupOpened($event)"
 	    enableColResize
 	    enableSorting
 	    rowHeight="22"

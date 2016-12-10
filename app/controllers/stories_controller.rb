@@ -9,7 +9,6 @@ class StoriesController < ResourceController
   end
   
   # POST /stories/import               Imports new/existing stories.
-  # POST /stories/import.xml
   def import
     errors = nil
     Story.transaction do
@@ -17,48 +16,40 @@ class StoriesController < ResourceController
       if errors.detect {|error| !error.empty?}
         raise "Errors importing data"
       end
-      render :xml => xml_result("Data was successfully imported")
+      render :json => {result: "Data was successfully imported"}
     end
   rescue
+    result = {}
     if errors
-      builder = Builder::XmlMarkup.new
-      builder.instruct!
-      result = builder.errors do
-        row = 2 # includes header row
-        errors.each do |error|
-          if error.full_messages.length>0
-            error.full_messages.each {|message| builder.error('Row ' + row.to_s + ': ' + message)}
-          end
-          row += 1
+      result.errors = []
+      row = 2 # includes header row
+      errors.each do |error|
+        if error.full_messages.length>0
+          error.full_messages.each {|message| errors << ('Row ' + row.to_s + ': ' + message)}
         end
+        row += 1
       end
     else
-      result = xml_error("File format is invalid (must be CSV / comma separated values)")
+      result = result.error = "File format is invalid (must be CSV / comma separated values)"
     end
-    render :xml => result, :status => :unprocessable_entity
+    render :json => result, :status => :unprocessable_entity
   end
   
   # POST /stories/export               Exports stories.
-  # POST /stories/export.xml
   def export
     render :text => Story.export(current_individual, conditions)
   end
   
   # Split the story (tasks which have not been accepted will automatically be put in the new story).
   # GET /stories/1/split                Returns a template for the new story.
-  # GET /stories/1/split.xml
   # POST /stories/1/split               Creates the new story and moves the unaccepted tasks to it.
-  # POST /stories/1/split.xml
   def split
     @old = Story.find(params[:id])
     
     if request.get?
       @record = @old.split
       if @record.authorized_for_read?(current_individual)
-        respond_to do |format|
-          format.xml {render :xml => @record }
-          format.amf {render :amf => @record }
-        end
+        render :json => @record
       else
         unauthorized
       end
@@ -140,7 +131,7 @@ protected
 
   # Answer the current record based on the current individual.
   def get_record
-    story = Story.find(is_amf ? params[0] : params[:id])
+    story = Story.find(params[:id])
     if story
       story.current_conditions = session[:conditions]
     end
@@ -152,7 +143,7 @@ protected
     if (!params[:record][:project_id])
       params[:record][:project_id] = current_individual.project_id
     end
-    story = is_amf ? params[0] : Story.new(params[:record])
+    story = Story.new(params[:record])
     if @tasks
       @tasks.each do |task|
         story.tasks << task
@@ -169,7 +160,7 @@ protected
 
   # Answer if this request is authorized for update.
   def authorized_for_update?(record)
-    new_project_id = is_amf ? params[0].project_id : params[:record] && params[:record][:project_id]
+    new_project_id = params[:record] && params[:record][:project_id]
     if (new_project_id && record.project_id != new_project_id.to_i && (current_individual.role > Individual::ProjectAdmin || (current_individual.role == Individual::ProjectAdmin && record.project.company_id != current_individual.company_id)))
       false # Must be project admin to change project
     else
@@ -179,26 +170,7 @@ protected
   
   # Update the record given the params.
   def update_record
-    if is_amf
-      @record.story_id = params[0].story_id
-      @record.team_id = params[0].team_id
-      @record.name = params[0].name
-      @record.description = params[0].description
-      @record.reason_blocked = params[0].reason_blocked
-      @record.acceptance_criteria = params[0].acceptance_criteria
-      @record.project_id = params[0].project_id
-      @record.release_id = params[0].release_id
-      @record.iteration_id = params[0].iteration_id
-      @record.individual_id = params[0].individual_id
-      @record.effort = params[0].effort
-      @record.status_code = params[0].status_code
-      @record.priority = params[0].priority
-      @record.is_public = params[0].is_public
-      @record.phone_number = params[0].phone_number
-      @record.notification_type = params[0].notification_type
-    else
-      @record.attributes = params[:record] ? params[:record] : {}
-    end
+    @record.attributes = record_params
   end
   
 private

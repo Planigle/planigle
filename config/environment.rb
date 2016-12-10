@@ -51,7 +51,7 @@ class CGI::Session::CookieStore
       ru[(ru.index("?") + 1)..-1]
     end
     query_string = query_string ? CGI.unescape(query_string).sub('%25', '%') : query_string # need to un url encode; for some reason it is not catching %25 -> %
-    if query_string and query_string.include?("_planigle_session_id")
+    if query_string and query_string.include?("_planigle_session2_id")
       @session.session_id
     else
       @session.cgi.cookies[@cookie_options['name']].first

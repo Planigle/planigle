@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
+import { Http, Headers, RequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { Story } from './story';
 
@@ -12,16 +12,16 @@ export class StoriesService {
   getStories(release, iteration, team, individual, status): Observable<Story[]> {
     let queryString = '?';
     if (release !== 'All') {
-      queryString += 'release_id=' + release + '&';
+      queryString += 'release_id=' + (release ? release : '') + '&';
     }
     if (iteration !== 'All') {
-      queryString += 'iteration_id=' + iteration + '&';
+      queryString += 'iteration_id=' + (iteration ? iteration : '') + '&';
     }
     if (team !== 'All') {
-      queryString += 'team_id=' + team + '&';
+      queryString += 'team_id=' + (team ? team : '') + '&';
     }
     if (individual !== 'All') {
-      queryString += 'individual_id=' + individual + '&';
+      queryString += 'individual_id=' + (individual ? individual : '') + '&';
     }
     if (status !== 'All') {
       queryString += 'status_code=' + status + '&';
@@ -38,10 +38,36 @@ export class StoriesService {
             );
           });
         }
-        this.setRank(result, 'rank', 'priority');
-        this.setRank(result, 'user_rank', 'user_priority');
+        this.setRanks(result);
         return result;
       });
+  }
+
+  update(story: Story): Observable<Story> {
+    let headers = new Headers({ 'Content-Type': 'application/json' });
+    let options = new RequestOptions({ headers: headers });
+    let record = {
+      name: story.name,
+      description: story.description,
+      status_code: story.status_code,
+      reason_blocked: story.reason_blocked,
+      project_id: story.project_id,
+      release_id: story.release_id,
+      iteration_id: story.iteration_id,
+      team_id: story.team_id,
+      individual_id: story.individual_id,
+      effort: story.effort == null ? '' : ('' + story.effort)
+    };
+    return this.http.put(baseUrl + '/' + story.id, {record: record}, options)
+      .map(res => res.json())
+      .map((response: any) => {
+        return new Story(response.record);
+      });
+  }
+
+  setRanks(stories: Array<Story>) {
+    this.setRank(stories, 'rank', 'priority');
+    this.setRank(stories, 'user_rank', 'user_priority');
   }
 
   private setRank(stories: Array<Story>, rankAttribute: string, priorityAttribute: string) {

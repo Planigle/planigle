@@ -1,10 +1,4 @@
 .action-bar {
-	border-style: solid;
-	border-color: #ddd #ddd transparent;
-	border-top-width: 0px;
-	border-left-width: 1px;
-	border-right-width: 1px;
-	border-bottom-width: 0px;
 	padding: 3px;
 	float: left;
 }
@@ -24,7 +18,7 @@
 }
 
 select {
-	font-size: 14px;
+	font-size: 1rem;
 }
 
 ag-grid-ng2 {
@@ -33,7 +27,7 @@ ag-grid-ng2 {
 }
 
 .ag-fresh {
-	font-size: 12px;
+	font-size: 0.85rem;
 }
 
 :host /deep/ .ag-fresh .ag-group-cell {
@@ -46,4 +40,10 @@ ag-grid-ng2 {
 
 :host /deep/ .ag-row-level-1 .ag-cell:first-child span {
 	display: none;
+}
+
+:host /deep/ .ag-cell select {
+	padding: 0px;
+	height: 1.2rem !important;
+	font-size: 0.9rem;
 }

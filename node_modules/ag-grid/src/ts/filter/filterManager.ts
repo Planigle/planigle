@@ -12,6 +12,7 @@ import {IRowModel} from "../interfaces/iRowModel";
 import {EventService} from "../eventService";
 import {Events} from "../events";
 import {IFilter, IFilterParams, IDoesFilterPassParams} from "../interfaces/iFilter";
+import {GetQuickFilterTextParams} from "../entities/colDef";
 
 @Bean('filterManager')
 export class FilterManager {
@@ -111,18 +112,19 @@ export class FilterManager {
         var atLeastOneActive = false;
 
         _.iterateObject(this.allFilters, function (key, filterWrapper) {
-            if (!filterWrapper.filter.isFilterActive) { // because users can do custom filters, give nice error message
-                console.error('Filter is missing method isFilterActive');
-            }
             if (filterWrapper.filter.isFilterActive()) {
                 atLeastOneActive = true;
-                filterWrapper.column.setFilterActive(true);
-            } else {
-                filterWrapper.column.setFilterActive(false);
             }
         });
 
         return atLeastOneActive;
+    }
+
+    private updateFilterFlagInColumns(): void {
+        _.iterateObject(this.allFilters, function (key, filterWrapper) {
+            var filterActive = filterWrapper.filter.isFilterActive();
+            filterWrapper.column.setFilterActive(filterActive);
+        });
     }
 
     // returns true if quickFilter or advancedFilter
@@ -196,6 +198,7 @@ export class FilterManager {
         this.eventService.dispatchEvent(Events.EVENT_BEFORE_FILTER_CHANGED);
 
         this.advancedFilterPresent = this.isAdvancedFilterPresent();
+        this.updateFilterFlagInColumns();
         this.checkExternalFilter();
 
         _.iterateObject(this.allFilters, function (key, filterWrapper) {
@@ -248,25 +251,40 @@ export class FilterManager {
     }
 
     private aggregateRowForQuickFilter(node: RowNode) {
-        var aggregatedText = '';
-        var that = this;
-        this.columnController.getAllPrimaryColumns().forEach(function (column: Column) {
-            var value = that.valueService.getValue(column, node);
-            if (value && value !== '') {
-                aggregatedText = aggregatedText + value.toString().toUpperCase() + "_";
+        var stringParts: string[] = [];
+        var columns = this.columnController.getAllPrimaryColumns();
+        columns.forEach( column => {
+            var value = this.valueService.getValue(column, node);
+
+            var valueAfterCallback: any;
+            var colDef = column.getColDef();
+            if (column.getColDef().getQuickFilterText) {
+                var params: GetQuickFilterTextParams = {
+                    value: value,
+                    node: node,
+                    data: node.data,
+                    column: column,
+                    colDef: colDef
+                };
+                valueAfterCallback = column.getColDef().getQuickFilterText(params);
+            } else {
+                valueAfterCallback = value;
+            }
+
+            if (valueAfterCallback && valueAfterCallback !== '') {
+                stringParts.push(valueAfterCallback.toString().toUpperCase());
             }
         });
-        node.quickFilterAggregateText = aggregatedText;
+        node.quickFilterAggregateText = stringParts.join('_');
     }
 
     private onNewRowsLoaded() {
-        var that = this;
-        Object.keys(this.allFilters).forEach(function (field) {
-            var filter = that.allFilters[field].filter;
-            if (filter.onNewRowsLoaded) {
-                filter.onNewRowsLoaded();
+        _.iterateObject(this.allFilters, function (key, filterWrapper) {
+            if (filterWrapper.filter.onNewRowsLoaded) {
+                filterWrapper.filter.onNewRowsLoaded();
             }
         });
+        this.updateFilterFlagInColumns();
     }
 
     private createValueGetter(column: Column) {
@@ -311,8 +329,13 @@ export class FilterManager {
         }
 
         var filterInstance = new FilterClass();
+        this.checkFilterHasAllMandatoryMethods(filterInstance, column);
         this.context.wireBean(filterInstance);
 
+        return filterInstance;
+    }
+
+    private checkFilterHasAllMandatoryMethods(filterInstance: IFilter, column: Column): void {
         // help the user, check the mandatory methods exist
         ['getGui','isFilterActive','doesFilterPass','getModel','setModel'].forEach( methodName => {
             var methodIsMissing = !(<any>filterInstance)[methodName];
@@ -320,8 +343,6 @@ export class FilterManager {
                 throw `Filter for column ${column.getColId()} is missing method ${methodName}`;
             }
         });
-
-        return filterInstance;
     }
 
     private createParams(filterWrapper: FilterWrapper): IFilterParams {

@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Http, Response } from '@angular/http';
+import { Http } from '@angular/http';
 import { Router } from '@angular/router';
 import { Headers, RequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
+import { ErrorService } from './error.service';
 import { ApiResponse } from './api_response';
 import { Credentials } from './credentials';
 import { Individual } from './individual';
@@ -14,16 +15,7 @@ const baseUrl = 'api/session';
 export class SessionsService {
   private current_user: Individual;
 
-  constructor(private router: Router, private http: Http) { }
-
-  private getError(error: any): string {
-    if (error instanceof Response) {
-      const body = error.json() || '';
-      return body.error || JSON.stringify(body);
-    } else {
-      return error.message ? error.message : error.toString();
-    }
-  }
+  constructor(private router: Router, private http: Http, private errorService: ErrorService) { }
 
   login(user: Credentials, response: ApiResponse, acceptAgreement: boolean): Observable<Individual> {
     let headers = new Headers({ 'Content-Type': 'application/json' });
@@ -39,7 +31,7 @@ export class SessionsService {
           this.router.navigate(['/stories']);
         },
         (err) => {
-          let error = this.getError(err);
+          let error = this.errorService.getError(err);
           if (error === 'You must accept the license agreement to proceed') {
             let agreement = err.json().agreement;
             $('#agreementDialog').one('show.bs.modal', function (event) {

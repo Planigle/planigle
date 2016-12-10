@@ -75,8 +75,8 @@ Rails.application.configure do
   config.action_mailer.delivery_method = :smtp
 
   # Set notification
-  PLANIGLE_EMAIL_NOTIFIER = Notification::EmailNotifier.new
-  PLANIGLE_SMS_NOTIFIER = Notification::Notifier.new
+  PLANIGLE_EMAIL_NOTIFIER = ::Notification::EmailNotifier.new
+  PLANIGLE_SMS_NOTIFIER = ::Notification::Notifier.new
 
   # Whether LDAP should be used for authentication; if true you must set the next few values
   config.use_ldap = false

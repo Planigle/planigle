@@ -1,3 +1,5 @@
+import { Story } from './story';
+
 export class Task {
   public id: number;
   public name: string;
@@ -13,6 +15,7 @@ export class Task {
   public actual: number;
   public lead_time: number;
   public cycle_time: number;
+  public story: Story;
 
   constructor(values: any) {
     this.id = values.id;
@@ -29,6 +32,7 @@ export class Task {
     this.actual = values.actual ? parseFloat(values.actual) : null;
     this.lead_time = values.lead_time ? parseFloat(values.lead_time) : null;
     this.cycle_time = values.cycle_time ? parseFloat(values.cycle_time) : null;
+    this.story = values.story;
   }
 
   get size(): number {
@@ -37,5 +41,9 @@ export class Task {
 
   get toDo(): number {
       return this.effort;
+  }
+
+  isStory(): boolean {
+    return false;
   }
 }

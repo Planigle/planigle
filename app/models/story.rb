@@ -15,7 +15,7 @@ class Story < ActiveRecord::Base
   has_many :criteria, -> {order('criteria.priority')}, dependent: :destroy
   has_many :tasks, -> {where(deleted_at: nil).order('tasks.priority')}, dependent: :destroy
   has_many :survey_mappings, :dependent => :destroy
-  audited :except => [:user_priority, :in_progress_at, :done_at]
+#  audited :except => [:user_priority, :in_progress_at, :done_at]
   
   validates_presence_of     :project_id, :name
   validates_length_of       :name,                   :maximum => 250, :allow_nil => true # Allow nil to workaround bug
@@ -618,6 +618,8 @@ protected
     if story_id && !Story.find_by_id(story_id)
       errors.add(:epic, 'is invalid')
     elsif epic && project_id != epic.project_id
+      puts "epic:"
+      puts epic.id
       errors.add(:epic, 'is not from a valid project')
     elsif story_id != nil && story_id == id
       errors.add(:epic, 'cannot be its own epic')

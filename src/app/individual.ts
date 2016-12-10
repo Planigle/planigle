@@ -35,7 +35,15 @@ export class Individual {
     this.project_ids = values.project_ids;
   }
 
-  getName(): string {
+  get name(): string {
     return this.first_name + (this.last_name ? (' ' + this.last_name) : '');
+  }
+
+  canChangeBacklog(): boolean {
+    return this.role <= 2;
+  }
+
+  canChangeRelease(): boolean {
+    return this.role <= 1;
   }
 }

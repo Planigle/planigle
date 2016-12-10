@@ -1,0 +1,98 @@
+<div class="edit-component">
+	<form (ngsubmit)="ok()" #form="ngForm">
+		<div class="panel">
+		    <div [hidden]="!error" class="alert alert-danger">
+	          {{error}}
+	        </div>
+			<div class="form-group row">
+			  <label for="name" class="col-xs-2 col-form-label">Story Name</label>
+			  <div class="col-xs-10">
+			    <input class="form-control" type="text" [(ngModel)]="model.name" name="name" #name="ngModel" maxlength="250" [disabled]="!me.canChangeBacklog()" required autofocus>
+			    <div [hidden]="name.valid || name.pristine" class="alert alert-danger">
+		          Name is required
+		        </div>
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <label for="description" class="col-xs-2 col-form-label">Description</label>
+			  <div class="col-xs-10">
+				<textarea class="form-control" name="description" rows="5" [(ngModel)]="model.description" maxlength="20480" [disabled]="!me.canChangeBacklog()"></textarea>
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <label for="status" class="col-xs-2 col-form-label">Status</label>
+			  <div class="col-xs-10">
+			  	<app-choose-status [(model)]="model" [me]="me"></app-choose-status>
+			  </div>
+			</div>
+			<div class="form-group row" *ngIf="model.status_code==2">
+			  <label for="reason_blocked" class="col-xs-2 col-form-label">Reason Blocked</label>
+			  <div class="col-xs-10">
+				<textarea class="form-control" name="reason_blocked" rows="3" [(ngModel)]="model.reason_blocked" maxlength="4096" [disabled]="!me.canChangeBacklog()"></textarea>
+			  </div>
+			</div>
+		</div>
+		<div class="panel">
+			<div class="form-group row">
+			  <label for="id" class="col-xs-2 col-form-label">ID</label>
+			  <div class="col-xs-10">
+			  	<p class="form-control-static">{{model.id}}</p>
+			  </div>
+			</div>
+			<div class="form-group row" *ngIf="false">
+			  <label for="project" class="col-xs-2 col-form-label">Project</label>
+			  <div class="col-xs-10">
+			      <select name="project" class="form-control" [(ngModel)]="model.project_id" (ngModelChange)="updateProject()" [disabled]="!me.canChangeBacklog()">
+			      	<option *ngFor="let project of projects" [ngValue]="project.id">{{project.name}}</option>
+			      </select>
+			  </div>
+			</div>
+			<div class="form-group row" *ngIf="releases.length>1">
+			  <label for="release" class="col-xs-2 col-form-label">Release</label>
+			  <div class="col-xs-10">
+			      <select name="release" class="form-control" [(ngModel)]="model.release_id" (ngModelChange)="updateRelease()" [disabled]="!me.canChangeBacklog()">
+			      	<option *ngFor="let release of releases" [ngValue]="release.id">{{release.name}}</option>
+			      	<option [ngValue]="null">No Release</option>
+			      </select>
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <label for="iteration" class="col-xs-2 col-form-label">Iteration</label>
+			  <div class="col-xs-10">
+			      <select name="iteration" class="form-control" [(ngModel)]="model.iteration_id" (ngModelChange)="updateIteration()" [disabled]="!me.canChangeBacklog()">
+			      	<option *ngFor="let iteration of iterations" [ngValue]="iteration.id">{{iteration.name}}</option>
+			      	<option [ngValue]="null">Backlog</option>
+			      </select>
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <label for="team" class="col-xs-2 col-form-label">Team</label>
+			  <div class="col-xs-10">
+			      <select name="team" class="form-control" [(ngModel)]="model.team_id" (ngModelChange)="updateTeam()" [disabled]="!me.canChangeBacklog()">
+			      	<option *ngFor="let team of teams" [ngValue]="team.id">{{team.name}}</option>
+			      	<option [ngValue]="null">No Team</option>
+			      </select>
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <label for="owner" class="col-xs-2 col-form-label">Owner</label>
+			  <div class="col-xs-10">
+			      <select name="owner" class="form-control" [(ngModel)]="model.individual_id" (ngModelChange)="updateOwner()" [disabled]="!me.canChangeBacklog()">
+			      	<option *ngFor="let individual of individuals" [ngValue]="individual.id">{{individual.name}}</option>
+			      	<option [ngValue]="null">No Owner</option>
+			      </select>
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <label for="toDo" class="col-xs-2 col-form-label">Size</label>
+			  <div class="col-xs-10">
+			    <input class="form-control" type="number" step="any" [(ngModel)]="model.effort" name="toDo" [disabled]="!me.canChangeBacklog()">
+			  </div>
+			</div>
+		</div>
+		<div class="buttons">
+			<button type="submit" class="btn btn-secondary" (click)="ok()" [disabled]="!form.form.valid || !me.canChangeBacklog()">{{isNew() ? 'Create' : 'Update'}}</button>
+			<button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+		</div>
+	</form>
+</div>

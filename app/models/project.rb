@@ -100,8 +100,8 @@ class Project < ActiveRecord::Base
     if !options[:include]
       options[:include] = [:teams]
     end
-    if !options[:methods]
-      options[:methods] = [:filtered_attributes]
+    if !options[:except]
+      options[:except] = [:last_notified_of_inactivity, :created_at, :updated_at, :deleted_at]
     end
     super(options)
   end

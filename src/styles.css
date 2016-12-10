@@ -4,3 +4,48 @@
 	padding-left: 5px;
 	padding-right: 5px;
 }
+
+.edit-component .panel {
+	float: left;
+	margin-top: 10px;
+	margin-left: 10px;
+}
+
+.edit-component .panel:nth-child(1) {
+	width: 610px;
+}
+
+.edit-component .panel:nth-child(2) {
+	width: 400px;
+}
+
+.edit-component .buttons {
+	margin-left: 10px;
+	margin-bottom: 10px;
+	clear: both;
+}
+
+select.form-control:not([size]):not([multiple]) {
+	height: calc(2.5rem);
+}
+
+p.form-control-static {
+	margin-bottom: 0px;
+}
+
+html {
+	font-size: 14px;
+}
+
+@media (max-width: 543px) {
+	.edit-component .panel {
+		margin-top: 0px;
+		margin-left: 0px;
+		width: 100% !important;
+	}
+	
+	.edit-component .col-xs-2, .col-xs-10 {
+		float: none;
+		width: 100%;
+	}
+}

@@ -8,7 +8,7 @@ package org.planigle.planigle.model
 		public static function getSession():String
 		{
 			if (ExternalInterface.available)
-				return getCookie("_planigle_session_id");
+				return getCookie("_planigle2_session_id");
 			else
 				return null;
 		}

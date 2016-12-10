@@ -1,5 +1,6 @@
 import { StoryAttributeValue } from './story-attribute-value';
 import { StoryValue } from './story-value';
+import { ChooseStatusComponent } from './choose-status/choose-status.component';
 
 export class StoryAttribute {
   public id: number;
@@ -108,6 +109,15 @@ export class StoryAttribute {
         return 'description';
       case 'Acceptance Criteria':
         return 'acceptance_criteria';
+      default:
+        return null;
+    }
+  }
+
+  getCellRenderer(): any {
+    switch (this.name) {
+      case 'Status':
+        return ChooseStatusComponent;
       default:
         return null;
     }

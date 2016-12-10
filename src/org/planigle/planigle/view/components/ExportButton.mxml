@@ -28,7 +28,7 @@
 			{
 				try
 				{
-					fileRef.download(new URLRequest("stories/export?_planigle_session_id=" + FileUtils.getSession() + queryStringFunction.call(queryStringObject)), "stories.csv");
+					fileRef.download(new URLRequest("stories/export?_planigle2_session_id=" + FileUtils.getSession() + queryStringFunction.call(queryStringObject)), "stories.csv");
 				}
 				catch (error:Error)
 				{

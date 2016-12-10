@@ -27,6 +27,7 @@ export class Story {
   public rank: number;
   public user_rank: number;
   public acceptance_criteria: string;
+  public expanded: boolean = false;
   public tasks: Task[]= [];
   public storyValues: StoryValue[] = [];
 
@@ -54,12 +55,18 @@ export class Story {
     this.lead_time = values.lead_time ? parseFloat(values.lead_time) : null;
     this.cycle_time = values.cycle_time ? parseFloat(values.cycle_time) : null;
     this.acceptance_criteria = values.acceptance_criteria;
-    values.filtered_tasks.forEach((task) => {
-      this.tasks.push(new Task(task));
-    });
-    values.story_values.forEach((storyValue) => {
-      this.storyValues.push(new StoryValue(storyValue));
-    });
+    let story = this;
+    if (values.filtered_tasks) {
+      values.filtered_tasks.forEach((task) => {
+        task.story = story;
+        this.tasks.push(new Task(task));
+      });
+    }
+    if (values.story_values) {
+      values.story_values.forEach((storyValue) => {
+        this.storyValues.push(new StoryValue(storyValue));
+      });
+    }
   }
 
   get size(): number {
@@ -76,6 +83,10 @@ export class Story {
 
   get actual(): number {
     return this.getTotal('actual');
+  }
+
+  isStory(): boolean {
+    return true;
   }
 
   private getTotal(field: string): number {

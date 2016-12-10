@@ -17,7 +17,6 @@ protected
   
   # Some records make read only changes so need to be able to differentiate based on intention.
   def get_record_for_change
-    params.permit(:width, :ordering, :show)
     StoryAttribute.find_by(id: params[:id])
   end
   
@@ -42,8 +41,7 @@ protected
   
   # Update the record given the params.
   def update_record
-    params[:record].delete(:is_custom)
-    attributes = params[:record]
+    attributes = record_params
     @record.update_for(current_individual, attributes)
   end
   
