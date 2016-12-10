@@ -9,7 +9,7 @@ development:
   <<: *default
   database: planigle_development
   username: root
-  password: ospace1
+  password: 
 
 test:
   <<: *default
