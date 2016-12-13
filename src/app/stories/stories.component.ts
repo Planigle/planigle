@@ -22,7 +22,6 @@ import { Release } from '../release';
 import { Iteration } from '../iteration';
 import { Team } from '../team';
 import { Individual } from '../individual';
-import { ApiResponse } from '../api_response';
 declare var $: any;
 
 @Component({
@@ -30,8 +29,8 @@ declare var $: any;
   templateUrl: './stories.component.html',
   styleUrls: ['./stories.component.css'],
   providers: [
-    SelectColumnsComponent, NgbModal, SessionsService, StoriesService, TasksService, StoryAttributesService,
-    ProjectsService, ReleasesService, IterationsService, TeamsService, IndividualsService, ErrorService]
+    SelectColumnsComponent, NgbModal, StoriesService, TasksService, StoryAttributesService,
+    ProjectsService, ReleasesService, IterationsService, TeamsService, IndividualsService]
 })
 export class StoriesComponent implements OnInit {
   public gridOptions: GridOptions = <GridOptions>{};
@@ -75,22 +74,9 @@ export class StoriesComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    let user = this.sessionsService.getCurrentUser();
-    if (user) {
-      this.user = new Individual(this.user);
-      this.addDefaultOptions();
-      this.fetchAll();
-    } else {
-      this.sessionsService.login(null, new ApiResponse(''), false)
-        .subscribe(
-          (loggedInUser) => {
-            this.user = new Individual(loggedInUser);
-            this.addDefaultOptions();
-            this.fetchAll();
-          },
-          (err) => this.sessionsService.forceLogin());
-
-    }
+    this.user = new Individual(this.sessionsService.getCurrentUser());
+    this.addDefaultOptions();
+    this.fetchAll();
     this.setGridHeight();
     $(window).resize(this.setGridHeight);
   }

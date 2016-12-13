@@ -8,6 +8,9 @@ import { Angular2FontawesomeModule } from 'angular2-fontawesome/angular2-fontawe
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
+import { AuthGuardService } from './auth-guard.service';
+import { ErrorService } from './error.service';
+import { SessionsService } from './sessions.service';
 import { AppComponent } from './app.component';
 import { LoginComponent } from './login/login.component';
 import { StoriesComponent } from './stories/stories.component';
@@ -20,9 +23,9 @@ import { ButtonBarComponent } from './button-bar/button-bar.component';
 import { ReasonBlockedComponent } from './reason-blocked/reason-blocked.component';
 
 const appRoutes: Routes = [
+  { path: '', redirectTo: 'stories', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
-  { path: 'stories', component: StoriesComponent },
-  { path: '', component: StoriesComponent }
+  { path: 'stories', component: StoriesComponent, canActivate: [AuthGuardService] }
 ];
 
 @NgModule({
@@ -55,7 +58,10 @@ const appRoutes: Routes = [
     ])
   ],
   providers: [
-    NgbActiveModal
+    NgbActiveModal,
+    ErrorService,
+    SessionsService,
+    AuthGuardService
   ],
   bootstrap: [AppComponent]
 })

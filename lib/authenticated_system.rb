@@ -18,6 +18,10 @@ module AuthenticatedSystem
     @current_individual = new_individual
     Thread.current[:user] = @current_individual
   end
+  
+  def log_out
+    session[:individual_id] = nil
+  end
 
   # Check if the individual is authorized
   #

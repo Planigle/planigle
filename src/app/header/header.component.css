@@ -13,6 +13,7 @@ nav {
 
 .nav-item a {
 	color: #888888;
+	cursor: pointer;
 }
 
 .nav-item a:hover, .nav-item.active a {

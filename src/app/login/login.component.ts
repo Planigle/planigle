@@ -6,17 +6,17 @@ import { Credentials } from '../credentials';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css'],
-  providers: [SessionsService]
+  styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
   public user: Credentials = new Credentials('', '');
   public response: ApiResponse = new ApiResponse('');
 
-  constructor(private sessionsService: SessionsService) {}
+  constructor(private sessionsService: SessionsService) {
+  }
 
   login(acceptAgreement) {
-      this.sessionsService.login(this.user, this.response, acceptAgreement);
+      this.sessionsService.login(this.user, this.response, acceptAgreement, null);
   }
 
   acceptAgreement() {
