@@ -2,7 +2,7 @@ class IndividualStoryAttribute < ActiveRecord::Base
   belongs_to :individual
   belongs_to :story_attribute
   # attr_accessible :individual_id, :story_attribute_id, :ordering, :show, :width
-#  audited :except => [:individual_id, :story_attribute_id]
+  audited :except => [:individual_id, :story_attribute_id]
 
   validates_numericality_of :ordering, :allow_nil => true, :greater_than_or_equal_to => 0
   validates_numericality_of :width, :allow_nil => true, :greater_than_or_equal_to => 0

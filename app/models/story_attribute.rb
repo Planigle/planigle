@@ -3,7 +3,7 @@ class StoryAttribute < ActiveRecord::Base
   has_many :individual_story_attributes, :dependent => :destroy
   has_many :story_attribute_values, :dependent => :destroy
   has_many :story_values, :dependent => :destroy
-#  audited :except => [:project_id]
+  audited :except => [:project_id]
 
   validates_presence_of     :name, :value_type
   validates_length_of       :name, :maximum => 40, :allow_nil => true # Allow nil to workaround bug

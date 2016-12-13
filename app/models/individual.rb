@@ -84,9 +84,9 @@ class Individual < ActiveRecord::Base
     activated_at != nil
   end
 
-  # Remember this individual on the browser for two weeks so that they don't have to log in.
+  # Remember this individual on the browser for one day so that they don't have to log in.
   def remember_me
-    remember_me_for 2.weeks
+    remember_me_for 1.day
   end
 
   # Forget this individual on the browser, forcing log in.

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 62) do
+ActiveRecord::Schema.define(version: 20161213162512) do
 
   create_table "audits", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.integer  "auditable_id"
@@ -21,12 +21,18 @@ ActiveRecord::Schema.define(version: 62) do
     t.string   "user_type"
     t.string   "username"
     t.string   "action"
-    t.text     "changes",        limit: 65535
-    t.integer  "version",                      default: 0
+    t.text     "audited_changes",  limit: 65535
+    t.integer  "version",                        default: 0
     t.datetime "created_at"
+    t.string   "comment"
+    t.string   "remote_address"
+    t.string   "request_uuid"
+    t.integer  "association_id"
+    t.string   "association_type"
     t.index ["auditable_id", "auditable_type"], name: "auditable_index", using: :btree
     t.index ["created_at"], name: "index_audits_on_created_at", using: :btree
     t.index ["project_id"], name: "project_index", using: :btree
+    t.index ["request_uuid"], name: "index_audits_on_request_uuid", using: :btree
     t.index ["user_id", "user_type"], name: "user_index", using: :btree
   end
 

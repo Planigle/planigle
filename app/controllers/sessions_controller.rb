@@ -14,6 +14,8 @@ class SessionsController < ApplicationController
       end
       if self.current_individual.accepted_agreement || System.first.license_agreement == ""
         self.current_individual.last_login = Time.now
+        self.current_individual.remember_me
+        cookies[:auth_token] = { :value => self.current_individual.remember_token , :expires => self.current_individual.remember_token_expires_at }
         self.current_individual.save( :validate=> false )
         render :json => self.current_individual, :status => :created
       else
@@ -33,6 +35,8 @@ class SessionsController < ApplicationController
   # Log out
   # DELETE /session
   def destroy
+    self.current_individual.forget_me if logged_in?
+    cookies.delete :auth_token
     log_out
     render :json => {}, :status => :ok
   end

@@ -29,7 +29,8 @@ export class SessionsService {
     .subscribe(
       (loggedInUser) => {
         self.current_user = new Individual(loggedInUser);
-        self.router.navigateByUrl(self.path);
+        self.forceLogin(); // Otherwise it won't retry current page
+        self.router.navigate([self.path]);
       },
       (err) => {
         if (url) {
