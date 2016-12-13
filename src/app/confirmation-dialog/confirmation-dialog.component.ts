@@ -2,11 +2,11 @@ import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: 'app-reason-blocked',
-  templateUrl: './reason-blocked.component.html',
-  styleUrls: ['./reason-blocked.component.css']
+  selector: 'app-confirmation-dialog',
+  templateUrl: './confirmation-dialog.component.html',
+  styleUrls: ['./confirmation-dialog.component.css']
 })
-export class ReasonBlockedComponent {
+export class ConfirmationDialogComponent {
   model: any;
 
   constructor(
@@ -14,11 +14,12 @@ export class ReasonBlockedComponent {
   ) { }
 
   ok() {
+    this.model.confirmed = true;
     this.activeModal.close('OK');
   }
 
   cancel() {
-    this.model.reason_blocked = null;
+    this.model.confirmed = false;
     this.activeModal.close('Cancel');
   }
 }

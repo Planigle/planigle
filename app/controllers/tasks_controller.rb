@@ -42,7 +42,7 @@ protected
   
   # Create a new record given the params.
   def create_record
-    task = Task.new(params[:record])
+    task = Task.new(record_params)
     task.story_id = params[:story_id]
     task
   end

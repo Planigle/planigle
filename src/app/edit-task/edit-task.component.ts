@@ -52,8 +52,13 @@ export class EditTaskComponent implements OnChanges {
   }
 
   ok() {
-    this.tasksService.update(this.model).subscribe(
+    let method = this.model.id ? this.tasksService.update : this.tasksService.create;
+    method.call(this.tasksService, this.model).subscribe(
       (task: Task) => {
+        if (!this.task.id) {
+          this.task.added = true;
+        }
+        this.task.id = task.id;
         this.task.name = this.model.name;
         this.task.description = this.model.description;
         this.task.status_code = this.model.status_code;
@@ -62,6 +67,7 @@ export class EditTaskComponent implements OnChanges {
         this.task.individual_name = this.model.individual_name;
         this.task.estimate = this.model.estimate;
         this.task.effort = this.model.effort;
+        this.task.priority = task.priority;
         this.closed.next();
       },
       (err) => {

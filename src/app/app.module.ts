@@ -21,6 +21,7 @@ import { EditTaskComponent } from './edit-task/edit-task.component';
 import { ChooseStatusComponent } from './choose-status/choose-status.component';
 import { ButtonBarComponent } from './button-bar/button-bar.component';
 import { ReasonBlockedComponent } from './reason-blocked/reason-blocked.component';
+import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'stories', pathMatch: 'full' },
@@ -39,10 +40,12 @@ const appRoutes: Routes = [
     EditTaskComponent,
     ChooseStatusComponent,
     ButtonBarComponent,
-    ReasonBlockedComponent
+    ReasonBlockedComponent,
+    ConfirmationDialogComponent
   ],
   entryComponents: [
     SelectColumnsComponent,
+    ConfirmationDialogComponent,
     ReasonBlockedComponent
   ],
   imports: [

@@ -106,8 +106,13 @@ export class EditStoryComponent implements OnChanges {
   }
 
   ok() {
-    this.storiesService.update(this.model).subscribe(
+    let method = this.model.id ? this.storiesService.update : this.storiesService.create;
+    method.call(this.storiesService, this.model).subscribe(
       (story: Story) => {
+        if (!this.story.id) {
+          this.story.added = true;
+        }
+        this.story.id = story.id;
         this.story.name = this.model.name;
         this.story.description = this.model.description;
         this.story.status_code = this.model.status_code;
@@ -122,6 +127,8 @@ export class EditStoryComponent implements OnChanges {
         this.story.individual_id = this.model.individual_id;
         this.story.individual_name = this.model.individual_name;
         this.story.effort = this.model.effort;
+        this.story.priority = story.priority;
+        this.story.user_priority = story.user_priority;
         this.closed.next();
       },
       (err) => {

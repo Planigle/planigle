@@ -43,7 +43,24 @@ export class StoriesService {
       });
   }
 
+  create(story: Story): Observable<Story> {
+    return this.createOrUpdate(story, this.http.post, '');
+  }
+
   update(story: Story): Observable<Story> {
+    return this.createOrUpdate(story, this.http.put, '/' + story.id);
+  }
+
+  delete(story: Story) {
+    return this.http.delete(baseUrl + '/' + story.id);
+  }
+
+  setRanks(stories: Array<Story>) {
+    this.setRank(stories, 'rank', 'priority');
+    this.setRank(stories, 'user_rank', 'user_priority');
+  }
+
+  private createOrUpdate(story: Story, method, idString): Observable<Story> {
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
     let record = {
@@ -58,16 +75,11 @@ export class StoriesService {
       individual_id: story.individual_id,
       effort: story.effort == null ? '' : ('' + story.effort)
     };
-    return this.http.put(baseUrl + '/' + story.id, {record: record}, options)
+    return method.call(this.http, baseUrl + idString, {record: record}, options)
       .map(res => res.json())
       .map((response: any) => {
         return new Story(response.record);
       });
-  }
-
-  setRanks(stories: Array<Story>) {
-    this.setRank(stories, 'rank', 'priority');
-    this.setRank(stories, 'user_rank', 'user_priority');
   }
 
   private setRank(stories: Array<Story>, rankAttribute: string, priorityAttribute: string) {

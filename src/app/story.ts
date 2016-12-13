@@ -30,6 +30,8 @@ export class Story {
   public expanded: boolean = false;
   public tasks: Task[]= [];
   public storyValues: StoryValue[] = [];
+  public added: boolean = false;
+  public deleted: boolean = false;
 
   constructor(values: any) {
     this.id = values.id;

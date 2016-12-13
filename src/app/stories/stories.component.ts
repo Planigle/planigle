@@ -103,21 +103,66 @@ export class StoriesComponent implements OnInit {
     modalRef.result.then((data) => this.setAttributes(this.storyAttributes));
   }
 
+  addStory() {
+    let release_id: number = null;
+    if (this.release !== 'All' && this.release !== '') {
+      release_id = this.release === 'Current' ? this.getCurrentRelease(this.releases).id : parseInt(this.release, 10);
+    }
+    let iteration_id: number = null;
+    if (this.iteration !== 'All' && this.iteration !== '') {
+      iteration_id = this.iteration === 'Current' ? this.getCurrentIteration(this.iterations).id : parseInt(this.iteration, 10);
+    }
+    let team_id: number = null;
+    if (this.team !== 'All' && this.team !== '') {
+      team_id = this.team === 'MyTeam' ? this.user.team_id : parseInt(this.team, 10);
+    }
+    let story: Story = new Story({
+      status_code: 0,
+      release_id: release_id,
+      iteration_id: iteration_id,
+      team_id: team_id,
+      individual_id: null
+    });
+    this.selection = story;
+  }
+
   selectRow(event) {
     this.selection = event.data;
   }
 
   clearSelection() {
     if (this.selection) {
-      this.checkRemoveRow(this.selection);
+      if (this.selection.added) {
+        this.selection.added = false;
+        this.addRow(this.selection);
+        this.gridOptions.api.setRowData(this.stories);
+      } else {
+        this.checkRemoveRow(this.selection);
+        this.gridOptions.api.refreshView();
+      }
     }
     this.selection = null;
-    this.gridOptions.api.refreshView();
+  }
+
+  private addRow(row) {
+    if (row.isStory()) {
+      this.stories.push(row);
+      this.storiesService.setRanks(this.stories);
+    } else {
+      this.stories.forEach((story) => {
+        if (story.id === row.story_id) {
+          story.expanded = true;
+          story.tasks.push(row);
+        }
+      });
+    }
   }
 
   private checkRemoveRow(row) {
     let filtered = false;
-    if (row.isStory()) {
+    if ( row.deleted ) {
+      filtered = true;
+    } else if (row.isStory()) {
       if (this.release !== 'All') {
         if (this.release === '') {
           filtered = filtered || row.release_id;
@@ -280,7 +325,7 @@ export class StoriesComponent implements OnInit {
       suppressSorting: true
     }, {
       headerName: '',
-      width: 18,
+      width: 54,
       field: 'blank',
       cellRendererFramework: ButtonBarComponent,
       suppressMovable: true,

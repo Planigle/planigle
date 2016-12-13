@@ -16,6 +16,8 @@ export class Task {
   public lead_time: number;
   public cycle_time: number;
   public story: Story;
+  public added: boolean = false;
+  public deleted: boolean = false;
 
   constructor(values: any) {
     this.id = values.id;

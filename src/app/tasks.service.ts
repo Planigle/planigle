@@ -9,7 +9,23 @@ const baseUrl = 'api/stories/{story_id}/tasks';
 export class TasksService {
   constructor(private http: Http) { }
 
+  create(task: Task): Observable<Task> {
+    return this.createOrUpdate(task, this.http.post, '');
+  }
+
   update(task: Task): Observable<Task> {
+    return this.createOrUpdate(task, this.http.put, '/' + task.id);
+  }
+
+  delete(task: Task): Observable<Task> {
+    return this.http.delete(baseUrl.replace(new RegExp('{story_id}'), '' + task.story_id) + '/' + task.id)
+      .map(res => res.json())
+      .map((updatedTask: any) => {
+        return new Task(updatedTask);
+      });
+  }
+
+  private createOrUpdate(task: Task, method, idString): Observable<Task> {
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
     let record = {
@@ -21,7 +37,7 @@ export class TasksService {
       estimate: task.estimate == null ? '' : ('' + task.estimate),
       effort: task.effort == null ? '' : ('' + task.effort)
     };
-    return this.http.put(baseUrl.replace(new RegExp('{story_id}'), '' + task.story_id) + '/' + task.id, {record: record}, options)
+    return method.call(this.http, baseUrl.replace(new RegExp('{story_id}'), '' + task.story_id) + idString, {record: record}, options)
       .map(res => res.json())
       .map((updatedTask: any) => {
         return new Task(updatedTask);
