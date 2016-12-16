@@ -52,10 +52,13 @@
 	    [getNodeChildDetails]="getChildren"
 	    (rowDoubleClicked)="selectRow($event)"
 	    (rowGroupOpened)="rowGroupOpened($event)"
+	    (columnResized)="resizeColumn($event)"
+	    (columnMoved)="moveColumn($event)"
 	    enableColResize
 	    enableSorting
 	    rowHeight="22"
-	    suppressCellSelection>
+	    suppressCellSelection
+	    suppressDragLeaveHidesColumns>
 	</ag-grid-ng2>
 </div>
 <template ngbModalContainer></template>

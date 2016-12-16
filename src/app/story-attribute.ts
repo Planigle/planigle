@@ -9,7 +9,7 @@ export class StoryAttribute {
   public value_type: number;
   public is_custom: boolean;
   public width: number;
-  public ordering: string;
+  public ordering: number;
   public show: boolean;
   public storyAttributeValues: StoryAttributeValue[] = [];
 
@@ -42,7 +42,7 @@ export class StoryAttribute {
     this.value_type = values.value_type;
     this.is_custom = values.is_custom;
     this.width = values.width;
-    this.ordering = values.ordering;
+    this.ordering = parseFloat(values.ordering);
     this.show = values.show;
     values.story_attribute_values.forEach((storyAttributeValue) => {
       this.storyAttributeValues.push(new StoryAttributeValue(storyAttributeValue));

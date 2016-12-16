@@ -56,6 +56,7 @@ export class StoriesComponent implements OnInit {
   ];
   public selection: any = null;
   private storyAttributes: StoryAttribute[] = [];
+  private filteredAttributes: StoryAttribute[] = [];
   private user: Individual;
   private menusLoaded: boolean = false;
 
@@ -142,6 +143,40 @@ export class StoriesComponent implements OnInit {
       }
     }
     this.selection = null;
+  }
+
+  moveColumn(event) {
+    let storyAttribute = event.column.colDef.storyAttribute;
+    if (storyAttribute) {
+      let oldIndex = this.getIndex(this.filteredAttributes, storyAttribute.id);
+      let newIndex = event.toIndex - 2; // ignore first columns;
+      newIndex = newIndex < 0 ? 0 : newIndex;
+      if (oldIndex !== newIndex) {
+        console.log('index: ' + oldIndex + ' to ' + newIndex);
+        let min = newIndex < oldIndex ?
+          (newIndex === 0 ?
+            this.filteredAttributes[0].ordering - 10 :
+            this.filteredAttributes[newIndex - 1].ordering) :
+          this.filteredAttributes[newIndex].ordering;
+        let max = newIndex > oldIndex ?
+          (newIndex === this.filteredAttributes.length - 1 ?
+            this.filteredAttributes[newIndex].ordering + 10 :
+            this.filteredAttributes[newIndex + 1].ordering) :
+          this.filteredAttributes[newIndex].ordering;
+        storyAttribute.ordering = min + ((max - min) / 2);
+        this.storyAttributesService.update(storyAttribute)
+          .subscribe((result) => {});
+      }
+    }
+  }
+
+  resizeColumn(event) {
+    let storyAttribute = event.column.colDef.storyAttribute;
+    if (storyAttribute) {
+      storyAttribute.width = event.column.actualWidth;
+      this.storyAttributesService.update(storyAttribute)
+        .subscribe((result) => {});
+    }
   }
 
   private addRow(row) {
@@ -332,6 +367,7 @@ export class StoriesComponent implements OnInit {
       suppressResize: true,
       suppressSorting: true
     }];
+    this.filteredAttributes = [];
     storyAttributes.forEach((storyAttribute: StoryAttribute) => {
       if (storyAttribute.show &&
         (this.release === 'All' || storyAttribute.name !== 'Release') &&
@@ -342,6 +378,7 @@ export class StoriesComponent implements OnInit {
           width: storyAttribute.width,
           storyAttribute: storyAttribute
         };
+        this.filteredAttributes.push(storyAttribute);
         if (storyAttribute.getter()) {
           columnDef.valueGetter = storyAttribute.getter();
         } else {
