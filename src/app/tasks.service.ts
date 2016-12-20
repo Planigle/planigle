@@ -29,6 +29,7 @@ export class TasksService {
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
     let record = {
+      story_id: task.story_id,
       name: task.name,
       description: task.description,
       status_code: task.status_code,
@@ -37,7 +38,11 @@ export class TasksService {
       estimate: task.estimate == null ? '' : ('' + task.estimate),
       effort: task.effort == null ? '' : ('' + task.effort)
     };
-    return method.call(this.http, baseUrl.replace(new RegExp('{story_id}'), '' + task.story_id) + idString, {record: record}, options)
+    if (task.priority) {
+      record['priority'] = task.priority;
+    }
+    let story_id = task.previous_story_id ? task.previous_story_id : task.story_id;
+    return method.call(this.http, baseUrl.replace(new RegExp('{story_id}'), '' + story_id) + idString, {record: record}, options)
       .map(res => res.json())
       .map((updatedTask: any) => {
         return new Task(updatedTask);

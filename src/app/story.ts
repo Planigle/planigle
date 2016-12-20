@@ -71,6 +71,10 @@ export class Story {
     }
   }
 
+  get uniqueId(): string {
+    return 'S' + this.id;
+  }
+
   get size(): number {
     return this.effort;
   }

@@ -48,3 +48,36 @@ ag-grid-ng2 {
 	height: 1.2rem !important;
 	font-size: 0.9rem;
 }
+
+:host /deep/ .ui-droppable-hover {
+	border-top: 1px solid black;
+}
+
+:host /deep/ .ui-draggable-dragging {
+	background: lightgrey;
+	opacity: 0.5;
+}
+
+:host /deep/ .task [colid=name] {
+	padding-left: 15px;
+}
+
+.scroll-up, .scroll-down {
+	height: 16px;
+	width: 100%;
+	position: fixed;
+	z-index: 10;
+}
+
+.scroll-up {
+	top: 77px;
+}
+
+.scroll-up.ui-droppable-hover {
+	border-top: 0px solid black;
+	border-bottom: 1px solid black;
+}
+
+.scroll-down {
+	bottom: 1px;
+}

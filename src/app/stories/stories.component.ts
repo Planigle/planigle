@@ -33,6 +33,7 @@ declare var $: any;
     ProjectsService, ReleasesService, IterationsService, TeamsService, IndividualsService]
 })
 export class StoriesComponent implements OnInit {
+  static instance: StoriesComponent;
   public gridOptions: GridOptions = <GridOptions>{};
   public columnDefs: any[] = [];
   public stories: Story[] = [];
@@ -59,6 +60,7 @@ export class StoriesComponent implements OnInit {
   private filteredAttributes: StoryAttribute[] = [];
   private user: Individual;
   private menusLoaded: boolean = false;
+  private id_map: any = {};
 
   constructor(
     private modalService: NgbModal,
@@ -72,7 +74,9 @@ export class StoriesComponent implements OnInit {
     private storiesService: StoriesService,
     private tasksService: TasksService,
     private errorService: ErrorService
-  ) { }
+  ) {
+    StoriesComponent.instance = this;
+  }
 
   ngOnInit() {
     this.user = new Individual(this.sessionsService.getCurrentUser());
@@ -80,6 +84,59 @@ export class StoriesComponent implements OnInit {
     this.fetchAll();
     this.setGridHeight();
     $(window).resize(this.setGridHeight);
+  }
+
+  gridReady() {
+    let self = this;
+    let interval = null;
+    const scrollAmount = 150;
+    $('.ag-row').draggable({
+      appendTo: '.ag-body-viewport',
+      zIndex: 100,
+      axis: 'y',
+      helper: 'clone',
+      revert: 'invalid',
+    }).droppable({
+      drop: self.dropRow,
+      tolerance: 'pointer'
+    });
+    $('.scroll-up').droppable({
+      over: function(event, ui){
+        interval = setInterval(function() {
+          let scroll = $('.ag-body-viewport').scrollTop();
+          let diff = scroll < scrollAmount ? -scroll : -scrollAmount;
+          if (diff < 0) {
+            $('.ag-body-viewport').scrollTop(scroll + diff);
+          }
+        }, 200);
+      },
+      out: function(event, ui){
+        if (interval !== null) {
+          clearInterval(interval);
+          interval = null;
+        }
+      }
+    });
+
+    $('.scroll-down').droppable({
+      drop: self.dropRow,
+      over: function(event, ui){
+        interval = setInterval(function() {
+          let scroll = $('.ag-body-viewport').scrollTop();
+          let maxScroll = $('.ag-body-viewport').prop('scrollHeight') - $('.ag-body-viewport').innerHeight();
+          let diff = scroll + scrollAmount > maxScroll ? (maxScroll - scrollAmount) : scrollAmount;
+          if (diff > 0) {
+            $('.ag-body-viewport').scrollTop(scroll + diff);
+          }
+        }, 200);
+      },
+      out: function(event, ui){
+        if (interval !== null) {
+          clearInterval(interval);
+          interval = null;
+        }
+      }
+    });
   }
 
   getChildren(rowItem) {
@@ -152,15 +209,14 @@ export class StoriesComponent implements OnInit {
       let newIndex = event.toIndex - 2; // ignore first columns;
       newIndex = newIndex < 0 ? 0 : newIndex;
       if (oldIndex !== newIndex) {
-        console.log('index: ' + oldIndex + ' to ' + newIndex);
         let min = newIndex < oldIndex ?
           (newIndex === 0 ?
-            this.filteredAttributes[0].ordering - 10 :
+            this.filteredAttributes[0].ordering - 20 :
             this.filteredAttributes[newIndex - 1].ordering) :
           this.filteredAttributes[newIndex].ordering;
         let max = newIndex > oldIndex ?
           (newIndex === this.filteredAttributes.length - 1 ?
-            this.filteredAttributes[newIndex].ordering + 10 :
+            this.filteredAttributes[newIndex].ordering + 20 :
             this.filteredAttributes[newIndex + 1].ordering) :
           this.filteredAttributes[newIndex].ordering;
         storyAttribute.ordering = min + ((max - min) / 2);
@@ -179,7 +235,89 @@ export class StoriesComponent implements OnInit {
     }
   }
 
+  public getRowClass(rowItem) {
+    return (rowItem.data.isStory() ? 'story' : 'task') + ' id-' + rowItem.data.uniqueId;
+  }
+
+  public getRowNodeId(rowItem) {
+    return rowItem.uniqueId;
+  }
+
+  public dropRow(event, ui) {
+    let self = StoriesComponent.instance;
+    function getRow(jQueryObject) {
+      let result = null;
+      $.each($(jQueryObject).attr('class').toString().split(' '), function (i, className) {
+        if (className.indexOf('id-') === 0) {
+          result = className.substring(3);
+        }
+      });
+      return self.id_map[result];
+    }
+
+    let movedRow = getRow(ui.draggable[0]);
+    let targetRow = getRow(this);
+    if (movedRow.isStory()) {
+      // Move story
+      if (targetRow && !targetRow.isStory()) {
+        // If moving story to task, move after story for task
+        let index = self.stories.indexOf(targetRow.story) + 1;
+        if (index >= self.stories.length) {
+          targetRow = null;
+        } else {
+          targetRow = self.stories[index];
+        }
+      }
+      self.stories.splice(self.stories.indexOf(movedRow), 1);
+      if (targetRow) {
+        self.stories.splice(self.stories.indexOf(targetRow), 0, movedRow);
+      } else {
+        self.stories.push(movedRow);
+      }
+      movedRow.priority = self.determinePriority(self.stories, movedRow);
+      self.storiesService.update(movedRow).subscribe((story) => {}, (error) => self.processRemoteError(self, error));
+    } else {
+      // Move task
+      let oldStory = movedRow.story;
+      oldStory.tasks.splice(oldStory.tasks.indexOf(movedRow), 1);
+      let index = targetRow ? self.stories.indexOf(targetRow) : -1;
+      let newStory = targetRow ?
+        (targetRow.isStory() ? (self.stories[index === 0 ? 0 : index - 1]) : targetRow.story) :
+        self.stories[self.stories.length - 1];
+      if (oldStory.id !== newStory.id) {
+        movedRow.story = newStory;
+        movedRow.previous_story_id = oldStory.id;
+        movedRow.story_id = newStory.id;
+      }
+      if (targetRow && !targetRow.isStory()) {
+        // Moving to within tasks
+        newStory.tasks.splice(newStory.tasks.indexOf(targetRow), 0, movedRow);
+      } else {
+        // Moving to end of tasks
+        newStory.tasks.push(movedRow);
+      }
+      movedRow.priority = self.determinePriority(newStory.tasks, movedRow);
+      self.tasksService.update(movedRow)
+        .subscribe((task) => movedRow.previous_story_id = null, (error) => self.processRemoteError(self, error));
+      newStory.expanded = true;
+    }
+    self.gridOptions.api.setRowData(self.stories);
+  }
+
+  private determinePriority(objects, object): number {
+    //  Return a number between the priorities of the surrounding elements
+    if (objects.length === 1) {
+      return 10;
+    } else {
+      let index = objects.indexOf(object);
+      let min = index === 0 ? objects[index + 1].priority - 20 : objects[index - 1].priority;
+      let max = index === objects.length - 1 ? objects[objects.length - 2].priority + 20 : objects[index + 1].priority;
+      return min + ((max - min) / 2);
+    }
+  }
+
   private addRow(row) {
+    this.id_map[row.uniqueId] = row;
     if (row.isStory()) {
       this.stories.push(row);
       this.storiesService.setRanks(this.stories);
@@ -416,7 +554,7 @@ export class StoriesComponent implements OnInit {
 
   private getCurrentRelease(releases: Release[]): Release {
     releases.forEach((release: Release) => {
-      if (release.isCurrent()) {
+      if (release.start && release.finish && release.isCurrent()) {
         return release;
       }
     });
@@ -458,7 +596,7 @@ export class StoriesComponent implements OnInit {
 
   private getCurrentIteration(iterations: Iteration[]): Iteration {
     iterations.forEach((iteration: Iteration) => {
-      if (iteration.isCurrent()) {
+      if (iteration.start && iteration.finish && iteration.isCurrent()) {
         return iteration;
       }
     });
@@ -556,6 +694,12 @@ export class StoriesComponent implements OnInit {
     this.storiesService.getStories(this.release, this.iteration, this.team, this.individual, this.status)
       .subscribe(
         (stories) => {
+          stories.forEach((story) => {
+            this.id_map[story.uniqueId] = story;
+            story.tasks.forEach((task) => {
+              this.id_map[task.uniqueId] = task;
+            });
+          });
           this.stories = stories;
           if (!this.menusLoaded) {
             this.menusLoaded = true;

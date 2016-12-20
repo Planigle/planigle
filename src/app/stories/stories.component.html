@@ -44,12 +44,16 @@
 		[me]="user"
 		(closed)="clearSelection()"></app-edit-story>
 	<app-edit-task *ngIf="selection && !selection.isStory()" [(task)]="selection" [individuals]="choosableIndividuals" [me]="user" (closed)="clearSelection()"></app-edit-task>
+	<div class="scroll-up"></div>
 	<ag-grid-ng2 #agGrid class="ag-fresh"
 		[gridOptions]="gridOptions"
 	    [columnDefs]="columnDefs"
 	    [rowData]="stories"
 	    [context]="context"
 	    [getNodeChildDetails]="getChildren"
+	    [getRowClass]="getRowClass"
+	    [getRowNodeId]="getRowNodeId"
+	    (modelUpdated)="gridReady()"
 	    (rowDoubleClicked)="selectRow($event)"
 	    (rowGroupOpened)="rowGroupOpened($event)"
 	    (columnResized)="resizeColumn($event)"
@@ -57,8 +61,10 @@
 	    enableColResize
 	    enableSorting
 	    rowHeight="22"
+	    rowBuffer="1000"
 	    suppressCellSelection
-	    suppressDragLeaveHidesColumns>
+	    suppressDragLeaveHidesColumns>  <!-- rowBuffer high to better handle drag and drop  -->
 	</ag-grid-ng2>
+	<div class="scroll-down"></div>
 </div>
 <template ngbModalContainer></template>

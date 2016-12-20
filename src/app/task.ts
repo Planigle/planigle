@@ -18,6 +18,7 @@ export class Task {
   public story: Story;
   public added: boolean = false;
   public deleted: boolean = false;
+  public previous_story_id: number;
 
   constructor(values: any) {
     this.id = values.id;
@@ -35,6 +36,10 @@ export class Task {
     this.lead_time = values.lead_time ? parseFloat(values.lead_time) : null;
     this.cycle_time = values.cycle_time ? parseFloat(values.cycle_time) : null;
     this.story = values.story;
+  }
+
+  get uniqueId(): string {
+    return 'T' + this.id;
   }
 
   get size(): number {

@@ -75,6 +75,9 @@ export class StoriesService {
       individual_id: story.individual_id,
       effort: story.effort == null ? '' : ('' + story.effort)
     };
+    if (story.priority) {
+      record['priority'] = story.priority;
+    }
     return method.call(this.http, baseUrl + idString, {record: record}, options)
       .map(res => res.json())
       .map((response: any) => {
