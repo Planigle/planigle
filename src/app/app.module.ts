@@ -22,6 +22,7 @@ import { ChooseStatusComponent } from './choose-status/choose-status.component';
 import { ButtonBarComponent } from './button-bar/button-bar.component';
 import { ReasonBlockedComponent } from './reason-blocked/reason-blocked.component';
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
+import { AcceptanceCriteriaComponent } from './acceptance-criteria/acceptance-criteria.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'stories', pathMatch: 'full' },
@@ -41,7 +42,8 @@ const appRoutes: Routes = [
     ChooseStatusComponent,
     ButtonBarComponent,
     ReasonBlockedComponent,
-    ConfirmationDialogComponent
+    ConfirmationDialogComponent,
+    AcceptanceCriteriaComponent
   ],
   entryComponents: [
     SelectColumnsComponent,

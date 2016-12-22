@@ -18,7 +18,7 @@ export class StoryAttribute {
     'Epic': 'story_id',
     'Name': 'name',
     'Description': 'description',
-    'Acceptance Criteria': 'acceptance_criteria',
+    'Acceptance Criteria': 'acceptance_criteria_string',
     'Release': 'release_name',
     'Iteration': 'iteration_name',
     'Team': 'team_name',
@@ -108,7 +108,7 @@ export class StoryAttribute {
       case 'Description':
         return 'description';
       case 'Acceptance Criteria':
-        return 'acceptance_criteria';
+        return 'acceptance_criteria_string';
       default:
         return null;
     }

@@ -56,9 +56,9 @@ export class StoriesComponent implements OnInit {
     {id: 'All', name: 'All Statuses'}
   ];
   public selection: any = null;
+  public user: Individual;
   private storyAttributes: StoryAttribute[] = [];
   private filteredAttributes: StoryAttribute[] = [];
-  private user: Individual;
   private menusLoaded: boolean = false;
   private id_map: any = {};
 

@@ -73,7 +73,8 @@ export class StoriesService {
       iteration_id: story.iteration_id,
       team_id: story.team_id,
       individual_id: story.individual_id,
-      effort: story.effort == null ? '' : ('' + story.effort)
+      effort: story.effort == null ? '' : ('' + story.effort),
+      acceptance_criteria: story.acceptance_criteria_string
     };
     if (story.priority) {
       record['priority'] = story.priority;

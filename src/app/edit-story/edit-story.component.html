@@ -20,6 +20,12 @@
 			  </div>
 			</div>
 			<div class="form-group row">
+			  <label for="acceptance-criteria" class="col-xs-2 col-form-label">Acceptance Criteria</label>
+			  <div class="col-xs-10">
+			  	<app-acceptance-criteria [(model)]="model"></app-acceptance-criteria>
+			  </div>
+			</div>
+			<div class="form-group row">
 			  <label for="status" class="col-xs-2 col-form-label">Status</label>
 			  <div class="col-xs-10">
 			  	<app-choose-status [(model)]="model" [me]="me"></app-choose-status>

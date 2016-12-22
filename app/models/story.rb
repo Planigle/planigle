@@ -194,19 +194,20 @@ class Story < ActiveRecord::Base
     i = 0
     if new_criteria
       new_criteria.split("\n").each do |criterium|
+        criterium = criterium.match(/^\*.*$/) ? criterium[1,criterium.length-1] : criterium
+        code = status_code == @@Done ? Criterium.Done : Criterium.Created
+        if (match=criterium.match(/^(.*) \(Done\)$/))
+          criterium = match[1]
+          code = Criterium.Done
+        end
         if criterium.strip != ""
-          criterium = criterium.match(/^\*.*$/) ? criterium[1,criterium.length-1] : criterium
-          code = status_code == @@Done ? Criterium.Done : Criterium.Created
-          if (match=criterium.match(/^(.*) \(Done\)$/))
-            criterium = match[1]
-            code = Criterium.Done
-          end
           criteria << Criterium.new(:description => criterium, :priority => i, :status_code => code)
           i += 1
         end
       end
     end
     if new_criteria != old_criteria
+      if(!@changed_attributes); @changed_attributes = {}; end
       @changed_attributes['acceptance_criteria'] = [old_criteria, new_criteria]
     end
   end
@@ -266,7 +267,7 @@ class Story < ActiveRecord::Base
       options[:include] = [:story_values, :criteria]
     end
     if !options[:methods]
-      options[:methods] = [:acceptance_criteria, :epic_name, :lead_time, :cycle_time, :filtered_tasks, :release_name, :iteration_name, :team_name, :individual_name] #:filtered_stories, 
+      options[:methods] = [:epic_name, :lead_time, :cycle_time, :filtered_tasks, :release_name, :iteration_name, :team_name, :individual_name] #:filtered_stories, 
     end
     super(options)
   end

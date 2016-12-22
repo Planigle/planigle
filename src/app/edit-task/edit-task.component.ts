@@ -59,14 +59,14 @@ export class EditTaskComponent implements OnChanges {
           this.task.added = true;
         }
         this.task.id = task.id;
-        this.task.name = this.model.name;
-        this.task.description = this.model.description;
-        this.task.status_code = this.model.status_code;
-        this.task.reason_blocked = this.model.reason_blocked;
-        this.task.individual_id = this.model.individual_id;
-        this.task.individual_name = this.model.individual_name;
-        this.task.estimate = this.model.estimate;
-        this.task.effort = this.model.effort;
+        this.task.name = task.name;
+        this.task.description = task.description;
+        this.task.status_code = task.status_code;
+        this.task.reason_blocked = task.reason_blocked;
+        this.task.individual_id = task.individual_id;
+        this.task.individual_name = task.individual_name;
+        this.task.estimate = task.estimate;
+        this.task.effort = task.effort;
         this.task.priority = task.priority;
         this.closed.next();
       },

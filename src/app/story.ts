@@ -1,3 +1,4 @@
+import { AcceptanceCriterium } from './acceptance-criterium';
 import { Task } from './task';
 import { StoryValue } from './story-value';
 
@@ -26,8 +27,8 @@ export class Story {
   public cycle_time: number;
   public rank: number;
   public user_rank: number;
-  public acceptance_criteria: string;
   public expanded: boolean = false;
+  public acceptance_criteria: AcceptanceCriterium[] = [];
   public tasks: Task[]= [];
   public storyValues: StoryValue[] = [];
   public added: boolean = false;
@@ -56,8 +57,13 @@ export class Story {
     this.done_at = values.done_at;
     this.lead_time = values.lead_time ? parseFloat(values.lead_time) : null;
     this.cycle_time = values.cycle_time ? parseFloat(values.cycle_time) : null;
-    this.acceptance_criteria = values.acceptance_criteria;
     let story = this;
+    let criteria = values.criteria ? values.criteria : values.acceptance_criteria;
+    if (criteria) {
+      criteria.forEach((criterium) => {
+        this.acceptance_criteria.push(new AcceptanceCriterium(criterium));
+      });
+    }
     if (values.filtered_tasks) {
       values.filtered_tasks.forEach((task) => {
         task.story = story;
@@ -89,6 +95,26 @@ export class Story {
 
   get actual(): number {
     return this.getTotal('actual');
+  }
+
+  get acceptance_criteria_string(): string {
+    let result = '';
+    let first = true;
+    this.acceptance_criteria.forEach((criterium: AcceptanceCriterium) => {
+      if (first) {
+        first = false;
+      } else {
+        result += '\n';
+      }
+      if (this.acceptance_criteria.length > 1) {
+        result += '*';
+      }
+      result += criterium.description;
+      if (criterium.isDone()) {
+        result += ' (Done)';
+      }
+    });
+    return result;
   }
 
   isStory(): boolean {
