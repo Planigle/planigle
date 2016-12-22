@@ -96,6 +96,12 @@ export class StoriesComponent implements OnInit {
       axis: 'y',
       helper: 'clone',
       revert: 'invalid',
+      start: function(event, ui) {
+        $('.scroll-up, .scroll-down').css('z-index', 10);
+      },
+      stop: function(event, ui) {
+        $('.scroll-up, .scroll-down').css('z-index', -10);
+      }
     }).droppable({
       drop: self.dropRow,
       tolerance: 'pointer'

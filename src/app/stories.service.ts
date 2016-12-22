@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Http, Headers, RequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { Story } from './story';
+import { StoryValue } from './story-value';
 
 const baseUrl = 'api/stories';
 
@@ -79,6 +80,9 @@ export class StoriesService {
     if (story.priority) {
       record['priority'] = story.priority;
     }
+    story.story_values.forEach((storyValue: StoryValue) => {
+      record['custom_' + storyValue.story_attribute_id] = storyValue.value;
+    });
     return method.call(this.http, baseUrl + idString, {record: record}, options)
       .map(res => res.json())
       .map((response: any) => {

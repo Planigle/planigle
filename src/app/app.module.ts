@@ -7,6 +7,7 @@ import { AgGridModule } from 'ag-grid-ng2/main';
 import { Angular2FontawesomeModule } from 'angular2-fontawesome/angular2-fontawesome';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { MyDatePicker } from 'mydatepicker/src/my-date-picker/my-date-picker.component';
 
 import { AuthGuardService } from './auth-guard.service';
 import { ErrorService } from './error.service';
@@ -43,7 +44,8 @@ const appRoutes: Routes = [
     ButtonBarComponent,
     ReasonBlockedComponent,
     ConfirmationDialogComponent,
-    AcceptanceCriteriaComponent
+    AcceptanceCriteriaComponent,
+    MyDatePicker
   ],
   entryComponents: [
     SelectColumnsComponent,

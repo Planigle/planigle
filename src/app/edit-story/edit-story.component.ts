@@ -2,6 +2,8 @@ import { Component, OnChanges, Input, Output, EventEmitter } from '@angular/core
 import { StoriesService } from '../stories.service';
 import { ErrorService } from '../error.service';
 import { Story } from '../story';
+import { StoryAttribute } from '../story-attribute';
+import { StoryValue } from '../story-value';
 import { Project } from '../project';
 import { Release } from '../release';
 import { Iteration } from '../iteration';
@@ -16,6 +18,7 @@ import { Individual } from '../individual';
 })
 export class EditStoryComponent implements OnChanges {
   @Input() story: Story;
+  @Input() storyAttributes: StoryAttribute[];
   @Input() projects: Project[];
   @Input() releases: Release[];
   @Input() iterations: Iteration[];
@@ -25,6 +28,8 @@ export class EditStoryComponent implements OnChanges {
   @Output() closed: EventEmitter<any> = new EventEmitter();
 
   public model: Story;
+  public customStoryAttributes: StoryAttribute[];
+  public customValues: any = {};
   public error: String;
 
   constructor(private storiesService: StoriesService, private errorService: ErrorService) {
@@ -33,6 +38,21 @@ export class EditStoryComponent implements OnChanges {
   ngOnChanges(changes) {
     if (changes.story) {
       this.model = new Story(this.story);
+      this.model.story_values.forEach((storyValue) => {
+        this.customValues[storyValue.story_attribute_id] = storyValue.value;
+      });
+    }
+    if (changes.storyAttributes) {
+      let custom: StoryAttribute[] = [];
+      this.storyAttributes.forEach((storyAttribute) => {
+        if (storyAttribute.is_custom) {
+          custom.push(storyAttribute);
+          if (!this.customValues[storyAttribute.id]) {
+            this.customValues[storyAttribute.id] = null;
+          }
+        }
+      });
+      this.customStoryAttributes = custom;
     }
   }
 
@@ -105,7 +125,19 @@ export class EditStoryComponent implements OnChanges {
     }
   }
 
+  updateDate(storyAttributeId, event) {
+    debugger
+  }
+
   ok() {
+    this.model.story_values = [];
+    Object.keys(this.customValues).forEach((key) => {
+      let value = this.customValues[key];
+      this.model.story_values.push(new StoryValue({
+        story_attribute_id: key,
+        value: value === 'null' ? '' : value
+      }));
+    });
     let method = this.model.id ? this.storiesService.update : this.storiesService.create;
     method.call(this.storiesService, this.model).subscribe(
       (story: Story) => {
@@ -130,6 +162,7 @@ export class EditStoryComponent implements OnChanges {
         this.story.effort = story.effort;
         this.story.priority = story.priority;
         this.story.user_priority = story.user_priority;
+        this.story.story_values = story.story_values;
         this.closed.next();
       },
       (err) => {

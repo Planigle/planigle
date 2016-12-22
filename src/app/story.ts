@@ -30,7 +30,7 @@ export class Story {
   public expanded: boolean = false;
   public acceptance_criteria: AcceptanceCriterium[] = [];
   public tasks: Task[]= [];
-  public storyValues: StoryValue[] = [];
+  public story_values: StoryValue[] = [];
   public added: boolean = false;
   public deleted: boolean = false;
 
@@ -72,7 +72,7 @@ export class Story {
     }
     if (values.story_values) {
       values.story_values.forEach((storyValue) => {
-        this.storyValues.push(new StoryValue(storyValue));
+        this.story_values.push(new StoryValue(storyValue));
       });
     }
   }

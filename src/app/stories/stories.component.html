@@ -36,6 +36,7 @@
 	<app-edit-story
 		*ngIf="selection && selection.isStory()"
 		[(story)]="selection"
+		[storyAttributes]="storyAttributes"
 		[projects]="projects"
 		[releases]="choosableReleases"
 		[iterations]="choosableIterations"

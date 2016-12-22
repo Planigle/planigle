@@ -1,0 +1,8 @@
+:host /deep/ my-date-picker input {
+	font-size: 1rem  !important;
+	text-align: left  !important;
+	font-weight: normal  !important;
+	padding: 0.5rem 0.75rem;
+	font-family:  -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	color: #55595c  !important;
+}

@@ -37,6 +37,56 @@
 				<textarea class="form-control" name="reason_blocked" rows="3" [(ngModel)]="model.reason_blocked" maxlength="4096" [disabled]="!me.canChangeBacklog()"></textarea>
 			  </div>
 			</div>
+			<div class="form-group row" *ngFor="let customStoryAttribute of customStoryAttributes">
+			  <label for="custom_{{customStoryAttribute.id}}" class="col-xs-2 col-form-label">{{customStoryAttribute.name}}</label>
+			  <div class="col-xs-10">
+				<input
+					class="form-control"
+					type="text"
+					name="custom_{{customStoryAttribute.id}}"
+					[(ngModel)]="customValues[customStoryAttribute.id]"
+					[disabled]="!me.canChangeBacklog()"
+					[hidden]="customStoryAttribute.value_type!=0">
+				<textarea
+					class="form-control"
+					name="custom_{{customStoryAttribute.id}}"
+					rows="3"
+					[(ngModel)]="customValues[customStoryAttribute.id]"
+					[disabled]="!me.canChangeBacklog()"
+					[hidden]="customStoryAttribute.value_type!=1"></textarea>
+				<input
+					class="form-control"
+					type="number" step="any"
+					name="custom_{{customStoryAttribute.id}}"
+					[(ngModel)]="customValues[customStoryAttribute.id]"
+					[disabled]="!me.canChangeBacklog()"
+					[hidden]="customStoryAttribute.value_type!=2">
+			    <select
+			    	class="form-control"
+			    	name="custom_{{customStoryAttribute.id}}"
+					[(ngModel)]="customValues[customStoryAttribute.id]"
+			    	[disabled]="!me.canChangeBacklog()"
+					[hidden]="customStoryAttribute.value_type!=3">
+			      	<option *ngFor="let value of customStoryAttribute.storyAttributeValues" [ngValue]="'' + value.id">{{value.value}}</option>
+			      	<option [ngValue]="null">None</option>
+			    </select>
+			    <select
+			    	class="form-control"
+			    	name="custom_{{customStoryAttribute.id}}"
+					[(ngModel)]="customValues[customStoryAttribute.id]"
+			    	[disabled]="!me.canChangeBacklog()"
+					[hidden]="customStoryAttribute.value_type!=4">
+			      	<option *ngFor="let value of customStoryAttribute.getValuesForRelease(model.release_id)" [ngValue]="'' + value.id">{{value.value}}</option>
+			      	<option [ngValue]="null">None</option>
+			    </select>
+				<my-date-picker
+					[options]="{dateFormat: 'mm-dd-yyyy'}"
+					[selDate]="customValues[customStoryAttribute.id]"
+					[hidden]="!me.canChangeBacklog() || customStoryAttribute.value_type!=5"
+					(dateChanged)="customValues[customStoryAttribute.id] = $event.formatted"></my-date-picker>
+			  	<p class="form-control-static" [hidden]="me.canChangeBacklog() || customStoryAttribute.value_type!=5">{{customValues[customStoryAttribute.id]}}</p>
+			  </div>
+			</div>
 		</div>
 		<div class="panel">
 			<div class="form-group row">

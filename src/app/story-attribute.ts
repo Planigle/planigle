@@ -47,6 +47,15 @@ export class StoryAttribute {
     values.story_attribute_values.forEach((storyAttributeValue) => {
       this.storyAttributeValues.push(new StoryAttributeValue(storyAttributeValue));
     });
+    this.storyAttributeValues.sort((v1: StoryAttributeValue, v2: StoryAttributeValue) => {
+      if (v1.value < v2.value) {
+        return -1;
+      }
+      if (v2.value < v1.value) {
+        return 1;
+      }
+      return 0;
+    });
   }
 
   getFieldName(): string {
@@ -121,5 +130,15 @@ export class StoryAttribute {
       default:
         return null;
     }
+  }
+
+  getValuesForRelease(release_id: number): StoryAttributeValue[] {
+    let values: StoryAttributeValue[] = [];
+    this.storyAttributeValues.forEach((storyAttributeValue: StoryAttributeValue) => {
+      if (storyAttributeValue.release_id === release_id) {
+        values.push(storyAttributeValue);
+      }
+    });
+    return values;
   }
 }

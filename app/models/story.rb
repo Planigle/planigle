@@ -187,26 +187,26 @@ class Story < ActiveRecord::Base
   # Set my acceptance criteria based on a string (criteria separated by \r).
   def acceptance_criteria=(new_criteria)
     old_criteria = acceptance_criteria
-    criteria.each do |criterium|
-      criterium.destroy
-    end
-    criteria.clear
-    i = 0
-    if new_criteria
-      new_criteria.split("\n").each do |criterium|
-        criterium = criterium.match(/^\*.*$/) ? criterium[1,criterium.length-1] : criterium
-        code = status_code == @@Done ? Criterium.Done : Criterium.Created
-        if (match=criterium.match(/^(.*) \(Done\)$/))
-          criterium = match[1]
-          code = Criterium.Done
-        end
-        if criterium.strip != ""
-          criteria << Criterium.new(:description => criterium, :priority => i, :status_code => code)
-          i += 1
+    if new_criteria != old_criteria
+      criteria.each do |criterium|
+        criterium.destroy
+      end
+      criteria.clear
+      i = 0
+      if new_criteria
+        new_criteria.split("\n").each do |criterium|
+          criterium = criterium.match(/^\*.*$/) ? criterium[1,criterium.length-1] : criterium
+          code = status_code == @@Done ? Criterium.Done : Criterium.Created
+          if (match=criterium.match(/^(.*) \(Done\)$/))
+            criterium = match[1]
+            code = Criterium.Done
+          end
+          if criterium.strip != ""
+            criteria << Criterium.new(:description => criterium, :priority => i, :status_code => code)
+            i += 1
+          end
         end
       end
-    end
-    if new_criteria != old_criteria
       if(!@changed_attributes); @changed_attributes = {}; end
       @changed_attributes['acceptance_criteria'] = [old_criteria, new_criteria]
     end
