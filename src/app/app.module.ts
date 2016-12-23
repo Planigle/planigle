@@ -9,21 +9,21 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { MyDatePicker } from 'mydatepicker/src/my-date-picker/my-date-picker.component';
 
-import { AuthGuardService } from './auth-guard.service';
-import { ErrorService } from './error.service';
-import { SessionsService } from './sessions.service';
+import { AuthGuardService } from './services/auth-guard.service';
+import { ErrorService } from './services/error.service';
+import { SessionsService } from './services/sessions.service';
 import { AppComponent } from './app.component';
-import { LoginComponent } from './login/login.component';
-import { StoriesComponent } from './stories/stories.component';
-import { HeaderComponent } from './header/header.component';
-import { SelectColumnsComponent } from './select-columns/select-columns.component';
-import { EditStoryComponent } from './edit-story/edit-story.component';
-import { EditTaskComponent } from './edit-task/edit-task.component';
-import { ChooseStatusComponent } from './choose-status/choose-status.component';
-import { ButtonBarComponent } from './button-bar/button-bar.component';
-import { ReasonBlockedComponent } from './reason-blocked/reason-blocked.component';
-import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
-import { AcceptanceCriteriaComponent } from './acceptance-criteria/acceptance-criteria.component';
+import { LoginComponent } from './components/login/login.component';
+import { StoriesComponent } from './components/stories/stories.component';
+import { HeaderComponent } from './components/header/header.component';
+import { SelectColumnsComponent } from './components/select-columns/select-columns.component';
+import { EditStoryComponent } from './components/edit-story/edit-story.component';
+import { EditTaskComponent } from './components/edit-task/edit-task.component';
+import { ChooseStatusComponent } from './components/choose-status/choose-status.component';
+import { ButtonBarComponent } from './components/button-bar/button-bar.component';
+import { ReasonBlockedComponent } from './components/reason-blocked/reason-blocked.component';
+import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
+import { AcceptanceCriteriaComponent } from './components/acceptance-criteria/acceptance-criteria.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'stories', pathMatch: 'full' },

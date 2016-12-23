@@ -1,0 +1,25 @@
+import { Component } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+
+@Component({
+  selector: 'app-confirmation-dialog',
+  templateUrl: './confirmation-dialog.component.html',
+  styleUrls: ['./confirmation-dialog.component.css']
+})
+export class ConfirmationDialogComponent {
+  model: any;
+
+  constructor(
+    private activeModal: NgbActiveModal,
+  ) { }
+
+  ok(): void {
+    this.model.confirmed = true;
+    this.activeModal.close('OK');
+  }
+
+  cancel(): void {
+    this.model.confirmed = false;
+    this.activeModal.close('Cancel');
+  }
+}
