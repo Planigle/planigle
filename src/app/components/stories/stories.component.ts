@@ -80,25 +80,30 @@ export class StoriesComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    let self = this;
     this.user = new Individual(this.sessionsService.getCurrentUser());
     this.addDefaultOptions();
     this.fetchAll();
     this.setGridHeight();
     $(window).resize(this.setGridHeight);
-    $('#import').fileupload({
+    $('#import').fileupload(this.getFileUploadOptions());
+  }
+
+  private getFileUploadOptions(): any {
+    let self = this;
+    return {
       add: function(e, data) {
         self.waiting = true;
         data.submit();
       },
       done: function(e, data) {
+        self.fetchStories();
         self.waiting = false;
       },
       fail: function (e, data) {
         self.waiting = false;
         self.errorService.showError(data.jqXHR.responseJSON.error);
       }
-    });
+    };
   }
 
   gridReady(): void {
