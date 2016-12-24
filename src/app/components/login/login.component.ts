@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { SessionsService } from '../../services/sessions.service';
+import { ErrorService } from '../../services/error.service';
 import { ApiResponse } from '../../models/api_response';
 import { Credentials } from '../../models/credentials';
 
@@ -12,7 +13,7 @@ export class LoginComponent {
   public user: Credentials = new Credentials('', '');
   public response: ApiResponse = new ApiResponse('');
 
-  constructor(private sessionsService: SessionsService) {
+  constructor(private sessionsService: SessionsService, private errorService: ErrorService) {
   }
 
   login(acceptAgreement): void {
@@ -24,6 +25,6 @@ export class LoginComponent {
   }
 
   declineAgreement(): void {
-    alert('You must Accept in order to use the application');
+    this.errorService.showError('You must Accept in order to use the application');
   }
 }

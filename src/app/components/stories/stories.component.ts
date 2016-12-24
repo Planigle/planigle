@@ -57,6 +57,7 @@ export class StoriesComponent implements OnInit {
   ];
   public selection: any = null;
   public user: Individual;
+  public waiting: boolean = false;
   private storyAttributes: StoryAttribute[] = [];
   private filteredAttributes: StoryAttribute[] = [];
   private menusLoaded: boolean = false;
@@ -79,11 +80,25 @@ export class StoriesComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    let self = this;
     this.user = new Individual(this.sessionsService.getCurrentUser());
     this.addDefaultOptions();
     this.fetchAll();
     this.setGridHeight();
     $(window).resize(this.setGridHeight);
+    $('#import').fileupload({
+      add: function(e, data) {
+        self.waiting = true;
+        data.submit();
+      },
+      done: function(e, data) {
+        self.waiting = false;
+      },
+      fail: function (e, data) {
+        self.waiting = false;
+        self.errorService.showError(data.jqXHR.responseJSON.error);
+      }
+    });
   }
 
   gridReady(): void {
@@ -728,17 +743,19 @@ export class StoriesComponent implements OnInit {
     this.fetchProjects();
   }
 
-  public showError(error: string): void {
-    $('#errorDialog').one('show.bs.modal', function (event) {
-      $(this).find('.modal-body').text(error);
-    }).modal();
-  }
-
   private processError(error: any): void {
     if (error instanceof Response && error.status === 401 || error.status === 422) {
       this.sessionsService.forceLogin();
     } else {
-      this.showError(this.errorService.getError(error));
+      this.errorService.showError(this.errorService.getError(error));
     }
+  }
+
+  public export() {
+    this.storiesService.exportStories(this.release, this.iteration, this.team, this.individual, this.status);
+  }
+
+  public import() {
+    $('#import').click();
   }
 }

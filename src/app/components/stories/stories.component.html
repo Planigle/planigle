@@ -1,9 +1,14 @@
+<div class="wait-cursor" [hidden]="!waiting">
+	<img src="images/ajax-loader.gif"> 
+</div>
 <div class="container-fluid" >
 	<app-header></app-header>
 	<div *ngIf="selection == null">
 		<div class="btn-group" role="group" aria-label="Actions">
 			<button type="button" class="btn btn-secondary" title="Add story" (click)="addStory()"><fa [name]="'plus'"></fa></button>
 			<button type="button" class="btn btn-secondary" title="Select columns" (click)="selectColumns()"><fa [name]="'columns'"></fa></button>
+			<button type="button" class="btn btn-secondary" title="Export CSV" (click)="export()"><fa [name]="'download'"></fa></button>
+			<button type="button" class="btn btn-secondary" title="Import CSV" (click)="import()"><fa [name]="'upload'"></fa></button>
 		</div>
 		<div class="action-bar">
 		    <select name="release" [(ngModel)]="release" *ngIf="releases.length>3" (change)="fetchStories()">
@@ -69,3 +74,4 @@
 	<div class="scroll-down"></div>
 </div>
 <template ngbModalContainer></template>
+<input id="import" class="hidden" type="file" name="Filedata" data-url="api/stories/import">

@@ -806,6 +806,8 @@ private
   def self.update_story(current_user, values)
     story = Story.where(id: values[:id]).first
     if story && story.authorized_for_update?(current_user)
+      values.delete(:estimate) # export only
+      values.delete(:release_id) # export only
       story.update_attributes(values)
     elsif story
       story.errors.add(:id, "is invalid")
@@ -816,7 +818,18 @@ private
   def self.update_task(current_user, values)
     task = Task.where(id: values[:id]).first
     if task && task.story.authorized_for_update?(current_user)
-      task.update_attributes(values)
+      values.delete(:acceptance_criteria) # story only
+      values.delete(:release_id) # story only
+      values.delete(:iteration_id) # story only
+      values.delete(:team_id) # story only
+      values.delete(:is_public) # story only
+      new_values = values.clone
+      values.each_pair do |key,value|
+        if key.to_s[0..6] == "custom_"
+          new_values.delete(key)
+        end
+      end
+      task.update_attributes(new_values)
     elsif task
       task.errors.add(:id, "is invalid")
     end

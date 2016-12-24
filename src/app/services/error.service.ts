@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Response } from '@angular/http';
+declare var $: any;
 
 @Injectable()
 export class ErrorService {
@@ -16,5 +17,11 @@ export class ErrorService {
     } else {
       return error.message ? error.message : error.toString();
     }
+  }
+
+  showError(error: string): void {
+    $('#errorDialog').one('show.bs.modal', function (event) {
+      $(this).find('.modal-body').text(error);
+    }).modal();
   }
 }

@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Http, Headers, RequestOptions } from '@angular/http';
+declare var $: any;
+
 import { Observable } from 'rxjs/Observable';
 import { Story } from '../models/story';
 import { StoryValue } from '../models/story-value';
@@ -10,7 +12,28 @@ const baseUrl = 'api/stories';
 export class StoriesService {
   constructor(private http: Http) { }
 
-  getStories(release, iteration, team, individual, status): Observable<Story[]> {
+  getStories(release: any, iteration: any, team: any, individual: any, status: any): Observable<Story[]> {
+    return this.http.get(baseUrl + this.buildQueryString(release, iteration, team, individual, status))
+      .map((res: any) => res.json())
+      .map((stories: Array<any>) => {
+        let result: Array<Story> = [];
+        if (stories) {
+          stories.forEach((story: any) => {
+            result.push(
+              new Story(story)
+            );
+          });
+        }
+        this.setRanks(result);
+        return result;
+      });
+  }
+
+  exportStories(release: any, iteration: any, team: any, individual: any, status: any): void {
+    $.fileDownload(baseUrl + '/export' + this.buildQueryString(release, iteration, team, individual, status));
+  }
+
+  private buildQueryString(release: any, iteration: any, team: any, individual: any, status: any): string {
     let queryString = '?';
     if (release !== 'All') {
       queryString += 'release_id=' + (release ? release : '') + '&';
@@ -27,21 +50,7 @@ export class StoriesService {
     if (status !== 'All') {
       queryString += 'status_code=' + status + '&';
     }
-    queryString = queryString.substring(0, queryString.length - 1);
-    return this.http.get(baseUrl + queryString)
-      .map((res: any) => res.json())
-      .map((stories: Array<any>) => {
-        let result: Array<Story> = [];
-        if (stories) {
-          stories.forEach((story: any) => {
-            result.push(
-              new Story(story)
-            );
-          });
-        }
-        this.setRanks(result);
-        return result;
-      });
+    return queryString.substring(0, queryString.length - 1);
   }
 
   create(story: Story): Observable<Story> {

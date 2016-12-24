@@ -10,6 +10,7 @@ class StoriesController < ResourceController
   
   # POST /stories/import               Imports new/existing stories.
   def import
+    puts params
     errors = nil
     Story.transaction do
       errors = Story.import(current_individual, params['Filedata'].read)
@@ -18,10 +19,12 @@ class StoriesController < ResourceController
       end
       render :json => {result: "Data was successfully imported"}
     end
-  rescue
+  rescue Exception => e
+    puts e.message  
+    puts e.backtrace  
     result = {}
     if errors
-      result.errors = []
+      result[:errors] = []
       row = 2 # includes header row
       errors.each do |error|
         if error.full_messages.length>0
@@ -30,14 +33,16 @@ class StoriesController < ResourceController
         row += 1
       end
     else
-      result = result.error = "File format is invalid (must be CSV / comma separated values)"
+      result[:error] = "File format is invalid (must be CSV / comma separated values)"
     end
     render :json => result, :status => :unprocessable_entity
   end
   
   # POST /stories/export               Exports stories.
   def export
-    render :text => Story.export(current_individual, conditions)
+    response.headers["Content-Disposition"] = 'attachment; filename=stories.csv'
+    cookies[:fileDownload] = { :value => true , :path => '/' }
+    render :plain => Story.export(current_individual, conditions)
   end
   
   # Split the story (tasks which have not been accepted will automatically be put in the new story).
