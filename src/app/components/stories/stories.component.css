@@ -62,6 +62,13 @@ ag-grid-ng2 {
 	padding-left: 15px;
 }
 
+:host /deep/ .ag-header-container i.fa {
+	font-size: 14px;
+	padding-top: 6px;
+	margin-left: -1px;
+	cursor: pointer;
+}
+
 .scroll-up, .scroll-down {
 	height: 16px;
 	width: 100%;

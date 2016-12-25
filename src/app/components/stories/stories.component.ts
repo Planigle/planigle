@@ -163,6 +163,10 @@ export class StoriesComponent implements OnInit {
         }
       }
     });
+
+    $('.ag-header-container i.fa').off('click').click(function() {
+      self.expandContractAll();
+    });
   }
 
   getChildren(rowItem: any): any {
@@ -518,6 +522,7 @@ export class StoriesComponent implements OnInit {
       headerName: '',
       width: 20,
       field: 'blank',
+      headerCellTemplate: this.getGroupHeader,
       cellRenderer: 'group',
       suppressMovable: true,
       suppressResize: true,
@@ -558,6 +563,39 @@ export class StoriesComponent implements OnInit {
       }
     });
     this.columnDefs = newColumnDefs;
+  }
+
+  private getGroupHeader(): string {
+    return '<i class="fa ' +
+      (StoriesComponent.instance.storiesToExpand() ? 'fa-plus-square-o' : 'fa-minus-square-o') +
+      '" aria-hidden="true"></i>';
+  }
+
+  private storiesToExpand(): boolean {
+    let storiesToExpand = false;
+    this.stories.forEach((story: Story) => {
+      if (!story.expanded) {
+        storiesToExpand = true;
+      }
+    });
+    return storiesToExpand;
+  }
+
+  private expandContractAll(): void {
+    let shouldExpand = this.storiesToExpand();
+    this.stories.forEach((story: Story) => {
+      story.expanded = shouldExpand;
+    });
+    this.gridOptions.api.setRowData(this.stories);
+    this.updateExpandContractAll();
+  }
+
+  updateExpandContractAll(): void {
+    if (StoriesComponent.instance.storiesToExpand()) {
+      $('.ag-header-container i.fa').removeClass('fa-minus-square-o').addClass('fa-plus-square-o');
+    } else {
+      $('.ag-header-container i.fa').removeClass('fa-plus-square-o').addClass('fa-minus-square-o');
+    }
   }
 
   private fetchStoryAttributes(): void {
