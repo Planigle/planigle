@@ -223,7 +223,7 @@ export class StoriesComponent implements OnInit {
       if (this.selection.added) {
         this.selection.added = false;
         this.addRow(this.selection);
-        this.gridOptions.api.setRowData(this.stories);
+        this.updateRows();
       } else {
         this.checkRemoveRow(this.selection);
         this.gridOptions.api.refreshView();
@@ -331,7 +331,7 @@ export class StoriesComponent implements OnInit {
         .subscribe((task) => movedRow.previous_story_id = null, (error) => self.processError.call(self, error));
       newStory.expanded = true;
     }
-    self.gridOptions.api.setRowData(self.stories);
+    self.updateRows();
   }
 
   private determinePriority(objects, object): number {
@@ -419,6 +419,7 @@ export class StoriesComponent implements OnInit {
         });
       }
       this.stories = this.stories.slice(0); // Force ag-grid to deal with change in rows
+      this.updateExpandContractAll();
     }
     this.storiesService.setRanks(this.stories);
   }
@@ -566,9 +567,7 @@ export class StoriesComponent implements OnInit {
   }
 
   private getGroupHeader(): string {
-    return '<i class="fa ' +
-      (StoriesComponent.instance.storiesToExpand() ? 'fa-plus-square-o' : 'fa-minus-square-o') +
-      '" aria-hidden="true"></i>';
+    return '<i class="fa fa-plus-square-o" aria-hidden="true"></i>';
   }
 
   private storiesToExpand(): boolean {
@@ -586,6 +585,10 @@ export class StoriesComponent implements OnInit {
     this.stories.forEach((story: Story) => {
       story.expanded = shouldExpand;
     });
+    this.updateRows();
+  }
+
+  updateRows() {
     this.gridOptions.api.setRowData(this.stories);
     this.updateExpandContractAll();
   }
@@ -765,6 +768,7 @@ export class StoriesComponent implements OnInit {
             });
           });
           this.stories = stories;
+          this.updateExpandContractAll();
           if (!this.menusLoaded) {
             this.menusLoaded = true;
             this.fetchMenus();
