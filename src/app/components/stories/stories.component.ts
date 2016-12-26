@@ -63,6 +63,7 @@ export class StoriesComponent implements OnInit {
   private filteredAttributes: StoryAttribute[] = [];
   private menusLoaded: boolean = false;
   private id_map: any = {};
+  private refresh_interval = null;
 
   constructor(
     private modalService: NgbModal,
@@ -81,12 +82,16 @@ export class StoriesComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    let self = this;
     this.user = new Individual(this.sessionsService.getCurrentUser());
     this.addDefaultOptions();
     this.fetchAll();
     this.setGridHeight();
     $(window).resize(this.setGridHeight);
     $('#import').fileupload(this.getFileUploadOptions());
+    this.refresh_interval = setInterval(() => {
+      self.refresh();
+    }, this.user.refresh_interval);
   }
 
   private getFileUploadOptions(): any {
@@ -507,7 +512,7 @@ export class StoriesComponent implements OnInit {
     let index: number = -1;
     let i = 0;
     objects.forEach((object: any) => {
-      if (object.id === id) {
+      if (('' + object.id) === ('' + id)) {
         index = i;
       }
       i++;
@@ -724,7 +729,13 @@ export class StoriesComponent implements OnInit {
       }));
     }
     this.releases = releases;
-    this.release = this.releases[this.releases.length - 1].id;
+    if (this.release) {
+      let index = this.getIndex(this.releases, this.release);
+      this.release = index !== -1 ? this.releases[index].id : null;
+    }
+    if (!this.release) {
+      this.release = this.releases[this.releases.length - 1].id;
+    }
   }
 
   private fetchReleases(): void {
@@ -766,7 +777,13 @@ export class StoriesComponent implements OnInit {
       }));
     }
     this.iterations = iterations;
-    this.iteration = this.iterations[this.iterations.length - 1].id;
+    if (this.iteration) {
+      let index = this.getIndex(this.iterations, this.iteration);
+      this.iteration = index !== -1 ? this.iterations[index].id : null;
+    }
+    if (!this.iteration) {
+      this.iteration = this.iterations[this.iterations.length - 1].id;
+    }
   }
 
   private fetchIterations(): void {
@@ -792,7 +809,13 @@ export class StoriesComponent implements OnInit {
       name: 'My Team'
     }));
     this.teams = teams;
-    this.team = this.teams[this.teams.length - 1].id;
+    if (this.team) {
+      let index = this.getIndex(this.teams, this.team);
+      this.team = index !== -1 ? this.teams[index].id : null;
+    }
+    if (!this.team) {
+      this.team = this.teams[this.teams.length - 1].id;
+    }
   }
 
   private fetchTeams(): void {
@@ -824,7 +847,13 @@ export class StoriesComponent implements OnInit {
       enabled: true
     }));
     this.individuals = individuals;
-    this.individual = this.individuals[this.individuals.length - 2].id;
+    if (this.individual) {
+      let index = this.getIndex(this.individuals, this.individual);
+      this.individual = index !== -1 ? this.individuals[index].id : null;
+    }
+    if (!this.individual) {
+      this.individual = this.individuals[this.individuals.length - 2].id;
+    }
   }
 
   private fetchIndividuals(): void {
@@ -854,6 +883,13 @@ export class StoriesComponent implements OnInit {
           }
         },
         (err: any) => this.processError(err));
+  }
+
+  refresh(): void {
+    if (!this.selection) { // Don't blow away current edits
+      this.menusLoaded = false; // Force reload
+      this.fetchAll();
+    }
   }
 
   private fetchAll(): void {
