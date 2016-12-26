@@ -22,6 +22,7 @@ import { Release } from '../../models/release';
 import { Iteration } from '../../models/iteration';
 import { Team } from '../../models/team';
 import { Individual } from '../../models/individual';
+import { FinishedEditing } from '../../models/finished-editing';
 declare var $: any;
 
 @Component({
@@ -214,11 +215,21 @@ export class StoriesComponent implements OnInit {
     this.selection = story;
   }
 
+  addTask(story: Story): void {
+    let task: Task = new Task({
+      story: story,
+      story_id: story.id,
+      status_code: 0,
+      individual_id: null
+    });
+    this.selection = task;
+  }
+
   selectRow(event): void {
     this.selection = event.data;
   }
 
-  clearSelection(): void {
+  finishedEditing(result: FinishedEditing): void {
     if (this.selection) {
       if (this.selection.added) {
         this.selection.added = false;
@@ -229,7 +240,75 @@ export class StoriesComponent implements OnInit {
         this.gridOptions.api.refreshView();
       }
     }
-    this.selection = null;
+    switch (result) {
+      case FinishedEditing.Next:
+        this.selection = this.next();
+        break;
+      case FinishedEditing.Previous:
+        this.selection = this.previous();
+        break;
+      case FinishedEditing.AddAnother:
+        if (this.selection.isStory()) {
+          this.addStory();
+        } else {
+          this.addTask(this.selection.story);
+        }
+        break;
+      case FinishedEditing.Save:
+      case FinishedEditing.Cancel:
+        this.selection = null;
+        break;
+    }
+  }
+
+  previous(): any {
+    if (this.selection) {
+      if (this.selection.isStory()) {
+        let index: number = this.stories.indexOf(this.selection);
+        if (index > 0) {
+          let story: Story = this.stories[index - 1];
+          if (story.expanded && story.tasks.length > 0) {
+            return story.tasks[story.tasks.length - 1];
+          } else {
+            return story;
+          }
+        }
+      } else {
+        let index: number = this.selection.story.tasks.indexOf(this.selection);
+        if (index > 0) {
+          return this.selection.story.tasks[index - 1];
+        } else {
+          return this.selection.story;
+        }
+      }
+    }
+    return null;
+  }
+
+  next(): any {
+    if (this.selection) {
+      if (this.selection.isStory()) {
+        if (this.selection.expanded && this.selection.tasks.length > 0) {
+          return this.selection.tasks[0];
+        } else {
+          let index: number = this.stories.indexOf(this.selection);
+          if (index < this.stories.length - 1) {
+            return this.stories[index + 1];
+          }
+        }
+      } else {
+        let index: number = this.selection.story.tasks.indexOf(this.selection);
+        if (index < this.selection.story.tasks.length - 1) {
+          return this.selection.story.tasks[index + 1];
+        } else {
+          index = this.stories.indexOf(this.selection.story);
+          if (index < this.stories.length - 1) {
+            return this.stories[index + 1];
+          }
+        }
+      }
+    }
+    return null;
   }
 
   moveColumn(event): void {

@@ -5,6 +5,7 @@ import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation
 import { StoriesService } from '../../services/stories.service';
 import { TasksService } from '../../services/tasks.service';
 import { Task } from '../../models/task';
+import { FinishedEditing } from '../../models/finished-editing';
 
 @Component({
   selector: 'app-button-bar',
@@ -48,7 +49,7 @@ export class ButtonBarComponent implements AgRendererComponent {
             (task: any) => {
               self.gridHolder.selection = self.model;
               self.gridHolder.selection.deleted = true;
-              self.gridHolder.clearSelection();
+              self.gridHolder.finishedEditing(FinishedEditing.Cancel);
             }
           );
         }
@@ -58,6 +59,7 @@ export class ButtonBarComponent implements AgRendererComponent {
 
   addTask(): void {
     let task: Task = new Task({
+      story: this.model,
       story_id: this.model.id,
       status_code: 0,
       individual_id: null

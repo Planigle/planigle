@@ -9,6 +9,8 @@ import { Release } from '../../models/release';
 import { Iteration } from '../../models/iteration';
 import { Team } from '../../models/team';
 import { Individual } from '../../models/individual';
+import { FinishedEditing } from '../../models/finished-editing';
+declare var $: any;
 
 @Component({
   selector: 'app-edit-story',
@@ -25,6 +27,8 @@ export class EditStoryComponent implements OnChanges {
   @Input() teams: Team[];
   @Input() individuals: Individual[];
   @Input() me: Individual;
+  @Input() hasPrevious: boolean;
+  @Input() hasNext: boolean;
   @Output() closed: EventEmitter<any> = new EventEmitter();
 
   public model: Story;
@@ -125,7 +129,31 @@ export class EditStoryComponent implements OnChanges {
     }
   }
 
+  canSave(form: any): boolean {
+    return form.form.valid && this.me.canChangeBacklog();
+  }
+
   ok(): void {
+    this.saveModel(FinishedEditing.Save, null);
+  }
+
+  next(): void {
+    this.saveModel(FinishedEditing.Next, null);
+  }
+
+  previous(): void {
+    this.saveModel(FinishedEditing.Previous, null);
+  }
+
+  addAnother(form: any): void {
+    this.saveModel(FinishedEditing.AddAnother, form);
+  }
+
+  cancel(): void {
+    this.closed.emit({value: FinishedEditing.Cancel});
+  }
+
+  private saveModel(result: FinishedEditing, form: any): void {
     this.model.story_values = [];
     Object.keys(this.customValues).forEach((key) => {
       let value: string = this.customValues[key];
@@ -159,15 +187,15 @@ export class EditStoryComponent implements OnChanges {
         this.story.priority = story.priority;
         this.story.user_priority = story.user_priority;
         this.story.story_values = story.story_values;
-        this.closed.next();
+        if (form) {
+          form.reset();
+          $('input[name="name"]').focus();
+        }
+        this.closed.emit({value: result});
       },
       (err: any) => {
         this.error = this.errorService.getError(err);
       }
     );
-  }
-
-  cancel(): void {
-    this.closed.next();
   }
 }

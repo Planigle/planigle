@@ -3,6 +3,8 @@ import { TasksService } from '../../services/tasks.service';
 import { ErrorService } from '../../services/error.service';
 import { Task } from '../../models/task';
 import { Individual } from '../../models/individual';
+import { FinishedEditing } from '../../models/finished-editing';
+declare var $: any;
 
 @Component({
   selector: 'app-edit-task',
@@ -14,6 +16,8 @@ export class EditTaskComponent implements OnChanges {
   @Input() task: Task;
   @Input() individuals: Individual[];
   @Input() me: Individual;
+  @Input() hasPrevious: boolean;
+  @Input() hasNext: boolean;
   @Output() closed: EventEmitter<any> = new EventEmitter();
 
   public model: Task;
@@ -51,7 +55,31 @@ export class EditTaskComponent implements OnChanges {
     this.model.effort = this.model.estimate;
   }
 
+  canSave(form: any): boolean {
+    return form.form.valid && this.me.canChangeBacklog();
+  }
+
   ok(): void {
+    this.saveModel(FinishedEditing.Save, null);
+  }
+
+  next(): void {
+    this.saveModel(FinishedEditing.Next, null);
+  }
+
+  previous(): void {
+    this.saveModel(FinishedEditing.Previous, null);
+  }
+
+  addAnother(form: any): void {
+    this.saveModel(FinishedEditing.AddAnother, form);
+  }
+
+  cancel(): void {
+    this.closed.emit({value: FinishedEditing.Cancel});
+  }
+
+  private saveModel(result: FinishedEditing, form: any): void {
     let method: any = this.model.id ? this.tasksService.update : this.tasksService.create;
     method.call(this.tasksService, this.model).subscribe(
       (task: Task) => {
@@ -68,15 +96,15 @@ export class EditTaskComponent implements OnChanges {
         this.task.estimate = task.estimate;
         this.task.effort = task.effort;
         this.task.priority = task.priority;
-        this.closed.next();
+        if (form) {
+          form.reset();
+          $('input[name="name"]').focus();
+        }
+        this.closed.emit({value: result});
       },
       (err: any) => {
         this.error = this.errorService.getError(err);
       }
     );
-  }
-
-  cancel(): void {
-    this.closed.next();
   }
 }
