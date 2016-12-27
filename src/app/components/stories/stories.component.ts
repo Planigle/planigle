@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Response } from '@angular/http';
+import { Router, ActivatedRoute, Params } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { GridOptions } from 'ag-grid/main';
 import { SelectColumnsComponent } from '../select-columns/select-columns.component';
@@ -35,19 +36,24 @@ declare var $: any;
 })
 export class StoriesComponent implements OnInit {
   static instance: StoriesComponent;
+  private static defaultRelease = 'Current';
+  private static defaultIteration = 'Current';
+  private static defaultTeam = 'MyTeam';
+  private static defaultIndividual = 'All';
+  private static defaultStatus = 'NotDone';
   public gridOptions: GridOptions = <GridOptions>{};
   public columnDefs: any[] = [];
   public stories: Story[] = [];
   public projects: Project[] = [];
-  public release: any = 'Current';
+  public release: any;
   public releases: Release[] = [];
-  public iteration: any = 'Current';
+  public iteration: any;
   public iterations: Iteration[] = [];
-  public team: any = 'MyTeam';
+  public team: any;
   public teams: Team[] = [];
   public individual: any;
   public individuals: Individual[] = [];
-  public status: any = 'NotDone';
+  public status: any;
   public statuses: any[] = [
     {id: 0, name: 'Not Started'},
     {id: 1, name: 'In Progress'},
@@ -66,6 +72,8 @@ export class StoriesComponent implements OnInit {
   private refresh_interval = null;
 
   constructor(
+    private router: Router,
+    private route: ActivatedRoute,
     private modalService: NgbModal,
     private sessionsService: SessionsService,
     private storyAttributesService: StoryAttributesService,
@@ -85,15 +93,80 @@ export class StoriesComponent implements OnInit {
     let self = this;
     this.user = new Individual(this.sessionsService.getCurrentUser());
     this.addDefaultOptions();
-    this.fetchAll();
     this.setGridHeight();
     $(window).resize(this.setGridHeight);
     $('#import').fileupload(this.getFileUploadOptions());
     this.refresh_interval = setInterval(() => {
       self.refresh();
     }, this.user.refresh_interval);
+    this.route.params.subscribe((params:any) => this.applyNavigation(params));
   }
-
+  
+  private applyNavigation(params: any) {
+    let oldRelease = this.release;
+    let oldIteration = this.iteration;
+    let oldTeam = this.team;
+    let oldIndividual = this.individual;
+    let oldStatus = this.status;
+    this.release = params['release'] == null ? StoriesComponent.defaultRelease : params['release'];
+    this.iteration = params['iteration'] == null ? StoriesComponent.defaultIteration : params['iteration'];
+    this.team = params['team'] == null ? StoriesComponent.defaultTeam : params['team'];
+    this.individual = params['individual'] == null ? StoriesComponent.defaultIndividual : params['individual'];
+    this.status = params['status'] == null ? StoriesComponent.defaultStatus : params['status'];
+    if (oldRelease !== this.release || oldIteration !== this.iteration || oldTeam != this.team ||
+      oldIndividual != this.individual || oldStatus != this.status) {
+      this.fetchAll(params['selection']);
+    } else {
+      this.applySelection(params['selection']);
+    }
+  }
+    
+  private applySelection(selectionValue) {
+    let selection: any = null;
+    if(selectionValue == 'NewStory') {
+      selection = this.createNewStory();
+    } else if(('' + selectionValue).search(/NewTask\{S\d+\}/i) == 0) {
+      let story:Story = this.id_map[selectionValue.substring(8, selectionValue.length - 1)];
+      if(story) {
+        selection = this.createNewTask(story);
+      }
+    } else {
+      selection = this.id_map[selectionValue];
+    }
+    this.selection = selection ? selection : null;
+  }
+    
+  private createNewStory(): Story {
+    let release_id: number = null;
+    if (this.release !== 'All' && this.release !== '') {
+      release_id = this.release === 'Current' ? this.getCurrentRelease(this.releases).id : parseInt(this.release, 10);
+    }
+    let iteration_id: number = null;
+    if (this.iteration !== 'All' && this.iteration !== '') {
+      iteration_id = this.iteration === 'Current' ? this.getCurrentIteration(this.iterations).id : parseInt(this.iteration, 10);
+    }
+    let team_id: number = null;
+    if (this.team !== 'All' && this.team !== '') {
+      team_id = this.team === 'MyTeam' ? this.user.team_id : parseInt(this.team, 10);
+    }
+    return new Story({
+      status_code: 0,
+      release_id: release_id,
+      iteration_id: iteration_id,
+      team_id: team_id,
+      individual_id: null
+    });
+  }
+  
+  private createNewTask(story: Story): Task {
+    return new Task({
+      story: story,
+      story_id: story.id,
+      status_code: 0,
+      individual_id: null
+    });
+  }
+  
   private getFileUploadOptions(): any {
     let self = this;
     return {
@@ -198,40 +271,15 @@ export class StoriesComponent implements OnInit {
   }
 
   addStory(): void {
-    let release_id: number = null;
-    if (this.release !== 'All' && this.release !== '') {
-      release_id = this.release === 'Current' ? this.getCurrentRelease(this.releases).id : parseInt(this.release, 10);
-    }
-    let iteration_id: number = null;
-    if (this.iteration !== 'All' && this.iteration !== '') {
-      iteration_id = this.iteration === 'Current' ? this.getCurrentIteration(this.iterations).id : parseInt(this.iteration, 10);
-    }
-    let team_id: number = null;
-    if (this.team !== 'All' && this.team !== '') {
-      team_id = this.team === 'MyTeam' ? this.user.team_id : parseInt(this.team, 10);
-    }
-    let story: Story = new Story({
-      status_code: 0,
-      release_id: release_id,
-      iteration_id: iteration_id,
-      team_id: team_id,
-      individual_id: null
-    });
-    this.selection = story;
+    this.updateNavigation('NewStory');
   }
 
   addTask(story: Story): void {
-    let task: Task = new Task({
-      story: story,
-      story_id: story.id,
-      status_code: 0,
-      individual_id: null
-    });
-    this.selection = task;
+    this.updateNavigation('NewTask{' + story.uniqueId + '}');
   }
 
   selectRow(event): void {
-    this.selection = event.data;
+    this.updateNavigation(event.data.uniqueId);
   }
 
   finishedEditing(result: FinishedEditing): void {
@@ -247,10 +295,10 @@ export class StoriesComponent implements OnInit {
     }
     switch (result) {
       case FinishedEditing.Next:
-        this.selection = this.next();
+        this.updateNavigation(this.next() ? this.next().uniqueId : null);
         break;
       case FinishedEditing.Previous:
-        this.selection = this.previous();
+        this.updateNavigation(this.previous() ? this.previous().uniqueId : null);
         break;
       case FinishedEditing.AddAnother:
         if (this.selection.isStory()) {
@@ -261,7 +309,7 @@ export class StoriesComponent implements OnInit {
         break;
       case FinishedEditing.Save:
       case FinishedEditing.Cancel:
-        this.selection = null;
+        this.updateNavigation();
         break;
     }
   }
@@ -729,11 +777,11 @@ export class StoriesComponent implements OnInit {
       }));
     }
     this.releases = releases;
-    if (this.release) {
+    if (this.release != null) {
       let index = this.getIndex(this.releases, this.release);
       this.release = index !== -1 ? this.releases[index].id : null;
     }
-    if (!this.release) {
+    if (this.release == null) {
       this.release = this.releases[this.releases.length - 1].id;
     }
   }
@@ -777,11 +825,11 @@ export class StoriesComponent implements OnInit {
       }));
     }
     this.iterations = iterations;
-    if (this.iteration) {
+    if (this.iteration != null) {
       let index = this.getIndex(this.iterations, this.iteration);
       this.iteration = index !== -1 ? this.iterations[index].id : null;
     }
-    if (!this.iteration) {
+    if (this.iteration == null) {
       this.iteration = this.iterations[this.iterations.length - 1].id;
     }
   }
@@ -809,11 +857,11 @@ export class StoriesComponent implements OnInit {
       name: 'My Team'
     }));
     this.teams = teams;
-    if (this.team) {
+    if (this.team != null) {
       let index = this.getIndex(this.teams, this.team);
       this.team = index !== -1 ? this.teams[index].id : null;
     }
-    if (!this.team) {
+    if (this.team == null) {
       this.team = this.teams[this.teams.length - 1].id;
     }
   }
@@ -847,11 +895,11 @@ export class StoriesComponent implements OnInit {
       enabled: true
     }));
     this.individuals = individuals;
-    if (this.individual) {
+    if (this.individual != null) {
       let index = this.getIndex(this.individuals, this.individual);
       this.individual = index !== -1 ? this.individuals[index].id : null;
     }
-    if (!this.individual) {
+    if (this.individual == null) {
       this.individual = this.individuals[this.individuals.length - 2].id;
     }
   }
@@ -865,7 +913,31 @@ export class StoriesComponent implements OnInit {
         (err: any) => this.processError(err));
   }
 
-  private fetchStories(): void {
+  updateNavigation(selection?: any): void {
+    let params = {};
+    if (this.release !== StoriesComponent.defaultRelease) {
+      params['release'] = this.release;
+    }
+    if (this.iteration !== StoriesComponent.defaultIteration) {
+      params['iteration'] = this.iteration;
+    }
+    if (this.team !== StoriesComponent.defaultTeam) {
+      params['team'] = this.team;
+    }
+    if (this.individual !== StoriesComponent.defaultIndividual) {
+      params['individual'] = this.individual;
+    }
+    if (this.status !== StoriesComponent.defaultStatus) {
+      params['status'] = this.status;
+    }
+    if (selection) {
+      params['selection'] = selection;
+    }
+    this.router.navigate(['stories', params]);
+  }
+
+  private fetchStories(selection?: any): void {
+    this.waiting = true;
     this.storiesService.getStories(this.release, this.iteration, this.team, this.individual, this.status)
       .subscribe(
         (stories: Story[]) => {
@@ -877,6 +949,10 @@ export class StoriesComponent implements OnInit {
           });
           this.stories = stories;
           this.updateExpandContractAll();
+          if(selection) {
+            this.applySelection(selection);
+          }
+          this.waiting = false;
           if (!this.menusLoaded) {
             this.menusLoaded = true;
             this.fetchMenus();
@@ -892,8 +968,8 @@ export class StoriesComponent implements OnInit {
     }
   }
 
-  private fetchAll(): void {
-    this.fetchStories();
+  private fetchAll(selection?: any): void {
+    this.fetchStories(selection);
     this.fetchStoryAttributes();
   }
 

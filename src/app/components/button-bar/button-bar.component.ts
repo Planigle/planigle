@@ -28,7 +28,7 @@ export class ButtonBarComponent implements AgRendererComponent {
   }
 
   edit(): void {
-    this.gridHolder.selection = this.model;
+    this.gridHolder.updateNavigation(this.model.uniqueId);
   }
 
   deleteItem(): void {
@@ -50,6 +50,7 @@ export class ButtonBarComponent implements AgRendererComponent {
               self.gridHolder.selection = self.model;
               self.gridHolder.selection.deleted = true;
               self.gridHolder.finishedEditing(FinishedEditing.Cancel);
+              self.gridHolder.selection = null;
             }
           );
         }
@@ -58,12 +59,6 @@ export class ButtonBarComponent implements AgRendererComponent {
   }
 
   addTask(): void {
-    let task: Task = new Task({
-      story: this.model,
-      story_id: this.model.id,
-      status_code: 0,
-      individual_id: null
-    });
-    this.gridHolder.selection = task;
+    this.gridHolder.addTask(this.model);
   }
 }

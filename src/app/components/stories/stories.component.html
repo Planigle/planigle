@@ -12,27 +12,27 @@
 			<button type="button" class="btn btn-secondary" title="Get the latest data" (click)="refresh()"><fa [name]="'refresh'"></fa></button>
 		</div>
 		<div class="action-bar">
-		    <select name="release" [(ngModel)]="release" *ngIf="releases.length>3" (change)="fetchStories()">
+		    <select name="release" [(ngModel)]="release" *ngIf="releases.length>3" (change)="updateNavigation()">
 		        <option *ngFor="let release of releases" [value]="release.id">  
 		        {{release.name}}
 		        </option>
 		    </select>
-		    <select name="iteration" [(ngModel)]="iteration" *ngIf="iterations.length>3" (change)="fetchStories()">
+		    <select name="iteration" [(ngModel)]="iteration" *ngIf="iterations.length>3" (change)="updateNavigation()">
 		        <option *ngFor="let iteration of iterations" [value]="iteration.id">
 		        {{iteration.name}}
 		        </option>
 		    </select>
-		    <select name="team" [(ngModel)]="team" *ngIf="teams.length>3" (change)="fetchStories()">
+		    <select name="team" [(ngModel)]="team" *ngIf="teams.length>3" (change)="updateNavigation()">
 		        <option *ngFor="let team of teams" [value]="team.id">
 		        {{team.name}}
 		        </option>
 		    </select>
-		    <select name="owner" [(ngModel)]="individual" *ngIf="individuals.length>3" (change)="fetchStories()">
+		    <select name="owner" [(ngModel)]="individual" *ngIf="individuals.length>3" (change)="updateNavigation()">
 		        <option *ngFor="let individual of enabledIndividuals" [value]="individual.id">  
 		        {{individual.name}}
 		        </option>
 		    </select>
-		    <select name="status" [(ngModel)]="status" (change)="fetchStories()">
+		    <select name="status" [(ngModel)]="status" (change)="updateNavigation()">
 		        <option *ngFor="let status of statuses" [value]="status.id">
 		        {{status.name}}
 		        </option>
