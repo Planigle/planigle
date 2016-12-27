@@ -64,7 +64,7 @@ export class StoryAttribute {
   }
 
   getter(): any {
-    if (this.storyAttributeValues.length > 0) {
+    if (this.is_custom || this.storyAttributeValues.length > 0) {
       return this.getValue;
     }
     switch (this.name) {
@@ -98,14 +98,22 @@ export class StoryAttribute {
     let object: any = params.data;
     let storyAttribute = params.colDef.storyAttribute;
     let result = null;
-    if (object.storyValues) {
-      storyAttribute.storyAttributeValues.forEach((value: StoryAttributeValue) => {
-        object.storyValues.forEach((storyValue: StoryValue) => {
-          if (storyValue.story_attribute_id === storyAttribute.id && parseFloat(storyValue.value) === value.id) {
-            result = value.value;
+    if (object.story_values) {
+      if(storyAttribute.storyAttributeValues.length > 0) {
+        storyAttribute.storyAttributeValues.forEach((value: StoryAttributeValue) => {
+          object.story_values.forEach((storyValue: StoryValue) => {
+            if (storyValue.story_attribute_id === storyAttribute.id && parseFloat(storyValue.value) === value.id) {
+              result = value.value;
+            }
+          });
+        });
+      } else {
+        object.story_values.forEach((storyValue: StoryValue) => {
+          if (storyValue.story_attribute_id === storyAttribute.id) {
+            result = storyValue.value;
           }
         });
-      });
+      }
     }
     return result;
   }
