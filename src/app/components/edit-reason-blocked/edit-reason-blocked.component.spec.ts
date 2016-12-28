@@ -3,21 +3,21 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
-import { ReasonBlockedComponent } from './reason-blocked.component';
+import { EditReasonBlockedComponent } from './edit-reason-blocked.component';
 
-describe('ReasonBlockedComponent', () => {
-  let component: ReasonBlockedComponent;
-  let fixture: ComponentFixture<ReasonBlockedComponent>;
+describe('EditReasonBlockedComponent', () => {
+  let component: EditReasonBlockedComponent;
+  let fixture: ComponentFixture<EditReasonBlockedComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ReasonBlockedComponent ]
+      declarations: [ EditReasonBlockedComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ReasonBlockedComponent);
+    fixture = TestBed.createComponent(EditReasonBlockedComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

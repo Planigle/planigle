@@ -20,10 +20,12 @@ import { SelectColumnsComponent } from './components/select-columns/select-colum
 import { EditStoryComponent } from './components/edit-story/edit-story.component';
 import { EditTaskComponent } from './components/edit-task/edit-task.component';
 import { ChooseStatusComponent } from './components/choose-status/choose-status.component';
-import { ButtonBarComponent } from './components/button-bar/button-bar.component';
-import { ReasonBlockedComponent } from './components/reason-blocked/reason-blocked.component';
+import { StoryActionsComponent } from './components/story-actions/story-actions.component';
+import { EditReasonBlockedComponent } from './components/edit-reason-blocked/edit-reason-blocked.component';
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 import { AcceptanceCriteriaComponent } from './components/acceptance-criteria/acceptance-criteria.component';
+import { StoryFiltersComponent } from './components/story-filters/story-filters.component';
+import { StoryOverallActionsComponent } from './components/story-overall-actions/story-overall-actions.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'stories', pathMatch: 'full' },
@@ -41,16 +43,18 @@ const appRoutes: Routes = [
     EditStoryComponent,
     EditTaskComponent,
     ChooseStatusComponent,
-    ButtonBarComponent,
-    ReasonBlockedComponent,
+    StoryActionsComponent,
+    EditReasonBlockedComponent,
     ConfirmationDialogComponent,
     AcceptanceCriteriaComponent,
-    MyDatePicker
+    MyDatePicker,
+    StoryFiltersComponent,
+    StoryOverallActionsComponent
   ],
   entryComponents: [
     SelectColumnsComponent,
     ConfirmationDialogComponent,
-    ReasonBlockedComponent
+    EditReasonBlockedComponent
   ],
   imports: [
     BrowserModule,
@@ -61,7 +65,7 @@ const appRoutes: Routes = [
     Angular2FontawesomeModule,
     AgGridModule.withComponents([
       ChooseStatusComponent,
-      ButtonBarComponent
+      StoryActionsComponent
     ])
   ],
   providers: [

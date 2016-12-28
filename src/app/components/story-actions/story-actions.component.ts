@@ -8,12 +8,12 @@ import { Task } from '../../models/task';
 import { FinishedEditing } from '../../models/finished-editing';
 
 @Component({
-  selector: 'app-button-bar',
-  templateUrl: './button-bar.component.html',
-  styleUrls: ['./button-bar.component.css'],
+  selector: 'app-story-actions',
+  templateUrl: './story-actions.component.html',
+  styleUrls: ['./story-actions.component.css'],
   providers: [StoriesService, TasksService]
 })
-export class ButtonBarComponent implements AgRendererComponent {
+export class StoryActionsComponent implements AgRendererComponent {
   private model: any;
   private gridHolder: any;
 
@@ -32,7 +32,7 @@ export class ButtonBarComponent implements AgRendererComponent {
   }
 
   deleteItem(): void {
-    let self: ButtonBarComponent = this;
+    let self: StoryActionsComponent = this;
     const modalRef: NgbModalRef = this.modalService.open(ConfirmationDialogComponent, {size: 'sm'});
     let typeOfObject: string = this.model.isStory() ? 'Story' : 'Task';
     let model: any = {

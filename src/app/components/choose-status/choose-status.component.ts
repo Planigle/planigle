@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { AgRendererComponent } from 'ag-grid-ng2/main';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { ReasonBlockedComponent } from '../reason-blocked/reason-blocked.component';
+import { EditReasonBlockedComponent } from '../edit-reason-blocked/edit-reason-blocked.component';
 import { Individual } from '../../models/individual';
 
 @Component({
@@ -30,7 +30,7 @@ export class ChooseStatusComponent implements AgRendererComponent {
   updateStatus(newStatus): void {
     let newValue: number = parseInt(String(newStatus.currentTarget.value), 10); // Angular is converting this to a string
     if (newValue === 2 && this.gridHolder) {
-      const modalRef: NgbModalRef = this.modalService.open(ReasonBlockedComponent);
+      const modalRef: NgbModalRef = this.modalService.open(EditReasonBlockedComponent);
       let model: any = {
         reason_blocked: ''
       };

@@ -3,51 +3,19 @@
 </div>
 <div class="container-fluid" >
 	<app-header></app-header>
-	<div *ngIf="selection == null">
-		<div class="btn-group" role="group" aria-label="Actions">
-			<button type="button" class="btn btn-secondary" title="Add story" (click)="addStory()"><fa [name]="'plus'"></fa></button>
-			<button type="button" class="btn btn-secondary" title="Select columns" (click)="selectColumns()"><fa [name]="'columns'"></fa></button>
-			<button type="button" class="btn btn-secondary" title="Export CSV" (click)="export()"><fa [name]="'download'"></fa></button>
-			<button type="button" class="btn btn-secondary" title="Import CSV" (click)="import()"><fa [name]="'upload'"></fa></button>
-			<button type="button" class="btn btn-secondary" title="Get the latest data" (click)="refresh()"><fa [name]="'refresh'"></fa></button>
-		</div>
-		<div class="action-bar">
-		    <select name="release" [(ngModel)]="release" *ngIf="releases.length>3" (change)="updateNavigation()">
-		        <option *ngFor="let release of releases" [value]="release.id">  
-		        {{release.name}}
-		        </option>
-		    </select>
-		    <select name="iteration" [(ngModel)]="iteration" *ngIf="iterations.length>3" (change)="updateNavigation()">
-		        <option *ngFor="let iteration of iterations" [value]="iteration.id">
-		        {{iteration.name}}
-		        </option>
-		    </select>
-		    <select name="team" [(ngModel)]="team" *ngIf="teams.length>3" (change)="updateNavigation()">
-		        <option *ngFor="let team of teams" [value]="team.id">
-		        {{team.name}}
-		        </option>
-		    </select>
-		    <select name="owner" [(ngModel)]="individual" *ngIf="individuals.length>3" (change)="updateNavigation()">
-		        <option *ngFor="let individual of enabledIndividuals" [value]="individual.id">  
-		        {{individual.name}}
-		        </option>
-		    </select>
-		    <select name="status" [(ngModel)]="status" (change)="updateNavigation()">
-		        <option *ngFor="let status of statuses" [value]="status.id">
-		        {{status.name}}
-		        </option>
-		    </select>
-		</div>
+	<div [hidden]="selection != null">
+		<app-story-overall-actions [grid]="this"></app-story-overall-actions>
+		<app-story-filters [grid]="this"></app-story-filters>
 	</div>
 	<app-edit-story
 		*ngIf="selection && selection.isStory()"
 		[(story)]="selection"
 		[storyAttributes]="storyAttributes"
 		[projects]="projects"
-		[releases]="choosableReleases"
-		[iterations]="choosableIterations"
-		[teams]="choosableTeams"
-		[individuals]="choosableIndividuals"
+		[releases]="filters.choosableReleases"
+		[iterations]="filters.choosableIterations"
+		[teams]="filters.choosableTeams"
+		[individuals]="filters.choosableIndividuals"
 		[me]="user"
 		[hasPrevious]="previous() != null"
 		[hasNext]="next() != null"
@@ -55,7 +23,7 @@
 	<app-edit-task
 		*ngIf="selection && !selection.isStory()"
 		[(task)]="selection"
-		[individuals]="choosableIndividuals"
+		[individuals]="filters.choosableIndividuals"
 		[me]="user"
 		[hasPrevious]="previous() != null"
 		[hasNext]="next() != null"
@@ -84,5 +52,3 @@
 	</ag-grid-ng2>
 	<div class="scroll-down"></div>
 </div>
-<template ngbModalContainer></template>
-<input id="import" class="hidden" type="file" name="Filedata" data-url="api/stories/import">

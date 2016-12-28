@@ -24,14 +24,15 @@ class StoriesController < ResourceController
     puts e.backtrace  
     result = {}
     if errors
-      result[:errors] = []
+      errorStrings = []
       row = 2 # includes header row
       errors.each do |error|
         if error.full_messages.length>0
-          error.full_messages.each {|message| errors << ('Row ' + row.to_s + ': ' + message)}
+          error.full_messages.each {|message| errorStrings << ('Row ' + row.to_s + ': ' + message)}
         end
         row += 1
       end
+      result[:error] = errorStrings.join("<br>")
     else
       result[:error] = "File format is invalid (must be CSV / comma separated values)"
     end

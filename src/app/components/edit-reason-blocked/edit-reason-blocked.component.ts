@@ -2,11 +2,11 @@ import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-  selector: 'app-reason-blocked',
-  templateUrl: './reason-blocked.component.html',
-  styleUrls: ['./reason-blocked.component.css']
+  selector: 'app-edit-reason-blocked',
+  templateUrl: './edit-reason-blocked.component.html',
+  styleUrls: ['./edit-reason-blocked.component.css']
 })
-export class ReasonBlockedComponent {
+export class EditReasonBlockedComponent {
   model: any;
 
   constructor(

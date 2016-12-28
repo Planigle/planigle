@@ -29,6 +29,7 @@
         "../node_modules/jquery-ui-dist/jquery-ui.js",
         "../node_modules/tether/dist/js/tether.js",
         "../node_modules/bootstrap/dist/js/bootstrap.js",
+        "../node_modules/jquery-file-download/src/Scripts/jquery.fileDownload.js",
         "../node_modules/blueimp-file-upload/js/jquery.iframe-transport.js",
         "../node_modules/blueimp-file-upload/js/jquery.fileupload.js"
       ],

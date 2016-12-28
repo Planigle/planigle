@@ -21,7 +21,7 @@ export class ErrorService {
 
   showError(error: string): void {
     $('#errorDialog').one('show.bs.modal', function (event) {
-      $(this).find('.modal-body').text(error);
+      $(this).find('.modal-body').html(error);
     }).modal();
   }
 }

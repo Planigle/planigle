@@ -3,21 +3,21 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement } from '@angular/core';
 
-import { ButtonBarComponent } from './button-bar.component';
+import { StoryOverallActionsComponent } from './story-overall-actions.component';
 
-describe('ButtonBarComponent', () => {
-  let component: ButtonBarComponent;
-  let fixture: ComponentFixture<ButtonBarComponent>;
+describe('StoryOverallActionsComponent', () => {
+  let component: StoryOverallActionsComponent;
+  let fixture: ComponentFixture<StoryOverallActionsComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ButtonBarComponent ]
+      declarations: [ StoryOverallActionsComponent ]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ButtonBarComponent);
+    fixture = TestBed.createComponent(StoryOverallActionsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
