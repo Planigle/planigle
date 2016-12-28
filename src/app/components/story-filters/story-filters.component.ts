@@ -162,19 +162,19 @@ export class StoryFiltersComponent {
     }
   }
 
-  getCurrentRelease(releases: Release[]): Release {
+  getCurrentReleaseId(releases: Release[]): number {
     releases.forEach((release: Release) => {
       if (release.start && release.finish && release.isCurrent()) {
-        return release;
+        return release.id;
       }
     });
     return null;
   }
 
-  getCurrentIteration(iterations: Iteration[]): Iteration {
+  getCurrentIterationId(iterations: Iteration[]): number {
     iterations.forEach((iteration: Iteration) => {
       if (iteration.start && iteration.finish && iteration.isCurrent()) {
-        return iteration;
+        return iteration.id;
       }
     });
     return null;
@@ -245,10 +245,10 @@ export class StoryFiltersComponent {
   }
   
   private hasCurrentRelease(releases: Release[]): boolean {
-    return this.getCurrentRelease(releases) !== null;
+    return this.getCurrentReleaseId(releases) !== null;
   }
 
   private hasCurrentIteration(iterations: Iteration[]): boolean {
-    return this.getCurrentIteration(iterations) !== null;
+    return this.getCurrentIterationId(iterations) !== null;
   }
 }

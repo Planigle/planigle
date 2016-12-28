@@ -261,7 +261,7 @@ class Story < ActiveRecord::Base
   # Override as_json to include tasks.
   def as_json(options = {})
     if !options[:except]
-      options[:except] = [:created_at, :updated_at, :deleted_at, :in_progress_at]
+      options[:except] = [:created_at, :updated_at, :deleted_at, :in_progress_at, :done_at]
     end
     if !options[:include]
       options[:include] = [:story_values, :criteria]

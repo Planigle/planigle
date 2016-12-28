@@ -11,6 +11,7 @@ import { ProjectsService } from '../../services/projects.service';
 import { StoriesService } from '../../services/stories.service';
 import { TasksService } from '../../services/tasks.service';
 import { StoryAttribute } from '../../models/story-attribute';
+import { Work } from '../../models/work';
 import { Story } from '../../models/story';
 import { Task } from '../../models/task';
 import { Project } from '../../models/project';
@@ -40,7 +41,7 @@ export class StoriesComponent implements AfterViewInit {
   public columnDefs: any[] = [];
   public stories: Story[] = [];
   public projects: Project[] = [];
-  public selection: any = null;
+  public selection: Work = null;
   public user: Individual;
   public waiting: boolean = false;
   public storyAttributes: StoryAttribute[] = [];
@@ -50,7 +51,7 @@ export class StoriesComponent implements AfterViewInit {
   
   private filteredAttributes: StoryAttribute[] = [];
   private menusLoaded: boolean = false;
-  private id_map: any = {};
+  private id_map: Map<string,Work> = new Map();
   private refresh_interval = null;
   private selectionChanged: boolean = false;
 
@@ -73,7 +74,7 @@ export class StoriesComponent implements AfterViewInit {
     this.filters.addDefaultOptions(this.user);
     this.setGridHeight();
     $(window).resize(this.setGridHeight);
-    this.route.params.subscribe((params:any) => this.applyNavigation(params));
+    this.route.params.subscribe((params:Map<string,string>) => this.applyNavigation(params));
     if(this.user.refresh_interval) {
       this.refresh_interval = setInterval(() => {
         self.refresh();
@@ -81,7 +82,7 @@ export class StoriesComponent implements AfterViewInit {
     }
   }
   
-  private applyNavigation(params: any) {
+  private applyNavigation(params: Map<string,string>) {
     this.filters.release = params['release'] == null ? StoriesComponent.defaultRelease : params['release'];
     this.filters.iteration = params['iteration'] == null ? StoriesComponent.defaultIteration : params['iteration'];
     this.filters.team = params['team'] == null ? StoriesComponent.defaultTeam : params['team'];
@@ -96,7 +97,7 @@ export class StoriesComponent implements AfterViewInit {
   }
     
   private applySelection(selectionValue) {
-    let selection: any = null;
+    let selection: Work = null;
     if(selectionValue == 'NewStory') {
       selection = this.createNewStory();
     } else if(('' + selectionValue).search(/NewTask\{S\d+\}/i) == 0) {
@@ -113,11 +114,11 @@ export class StoriesComponent implements AfterViewInit {
   private createNewStory(): Story {
     let release_id: number = null;
     if (this.filters.release !== 'All' && this.filters.release !== '') {
-      release_id = this.filters.release === 'Current' ? this.filters.getCurrentRelease(this.filters.releases).id : parseInt(this.filters.release, 10);
+      release_id = this.filters.release === 'Current' ? this.filters.getCurrentReleaseId(this.filters.releases) : parseInt(this.filters.release, 10);
     }
     let iteration_id: number = null;
     if (this.filters.iteration !== 'All' && this.filters.iteration !== '') {
-      iteration_id = this.filters.iteration === 'Current' ? this.filters.getCurrentIteration(this.filters.iterations).id : parseInt(this.filters.iteration, 10);
+      iteration_id = this.filters.iteration === 'Current' ? this.filters.getCurrentIterationId(this.filters.iterations) : parseInt(this.filters.iteration, 10);
     }
     let team_id: number = null;
     if (this.filters.team !== 'All' && this.filters.team !== '') {
@@ -204,7 +205,7 @@ export class StoriesComponent implements AfterViewInit {
     });
   }
 
-  getChildren(rowItem: any): any {
+  getChildren(rowItem: Story): any {
     if (rowItem.tasks && rowItem.tasks.length > 0) {
       return {
         group: true,
@@ -254,7 +255,8 @@ export class StoriesComponent implements AfterViewInit {
         if (this.selection.isStory()) {
           this.addStory();
         } else {
-          this.addTask(this.selection.story);
+          let task: Task = <Task> this.selection;
+          this.addTask(task.story);
         }
         break;
       case FinishedEditing.Save:
@@ -264,10 +266,10 @@ export class StoriesComponent implements AfterViewInit {
     }
   }
 
-  previous(): any {
+  previous(): Work {
     if (this.selection) {
       if (this.selection.isStory()) {
-        let index: number = this.stories.indexOf(this.selection);
+        let index: number = this.stories.indexOf(<Story> this.selection);
         if (index > 0) {
           let story: Story = this.stories[index - 1];
           if (story.expanded && story.tasks.length > 0) {
@@ -277,34 +279,37 @@ export class StoriesComponent implements AfterViewInit {
           }
         }
       } else {
-        let index: number = this.selection.story.tasks.indexOf(this.selection);
+        let task: Task = <Task> this.selection;
+        let index: number = task.story.tasks.indexOf(task);
         if (index > 0) {
-          return this.selection.story.tasks[index - 1];
+          return task.story.tasks[index - 1];
         } else {
-          return this.selection.story;
+          return task.story;
         }
       }
     }
     return null;
   }
 
-  next(): any {
+  next(): Work {
     if (this.selection) {
       if (this.selection.isStory()) {
-        if (this.selection.expanded && this.selection.tasks.length > 0) {
-          return this.selection.tasks[0];
+        let story: Story = <Story> this.selection;
+        if (story.expanded && story.tasks.length > 0) {
+          return story.tasks[0];
         } else {
-          let index: number = this.stories.indexOf(this.selection);
+          let index: number = this.stories.indexOf(story);
           if (index < this.stories.length - 1) {
             return this.stories[index + 1];
           }
         }
       } else {
-        let index: number = this.selection.story.tasks.indexOf(this.selection);
-        if (index < this.selection.story.tasks.length - 1) {
-          return this.selection.story.tasks[index + 1];
+        let task: Task = <Task> this.selection;
+        let index: number = task.story.tasks.indexOf(task);
+        if (index < task.story.tasks.length - 1) {
+          return task.story.tasks[index + 1];
         } else {
-          index = this.stories.indexOf(this.selection.story);
+          index = this.stories.indexOf(task.story);
           if (index < this.stories.length - 1) {
             return this.stories[index + 1];
           }
@@ -357,7 +362,7 @@ export class StoriesComponent implements AfterViewInit {
 
   dropRow(event, ui): void {
     let self: StoriesComponent = StoriesComponent.instance;
-    function getRow(jQueryObject: any) {
+    function getRow(jQueryObject: any): Work {
       let result: string = null;
       $.each($(jQueryObject).attr('class').toString().split(' '), function (i: number, className: string) {
         if (className.indexOf('id-') === 0) {
@@ -367,50 +372,56 @@ export class StoriesComponent implements AfterViewInit {
       return self.id_map[result];
     }
 
-    let movedRow: any = getRow(ui.draggable[0]);
-    let targetRow: any = getRow(this);
+    let movedRow: Work = getRow(ui.draggable[0]);
+    let targetRow: Work = getRow(this);
     if (movedRow.isStory()) {
       // Move story
+      let story: Story = <Story> movedRow;
+      let targetStory: Story = null;
       if (targetRow && !targetRow.isStory()) {
         // If moving story to task, move after story for task
-        let index = self.stories.indexOf(targetRow.story) + 1;
+        let task: Task = <Task> targetRow;
+        let index = self.stories.indexOf(task.story) + 1;
         if (index >= self.stories.length) {
-          targetRow = null;
+          targetStory = null;
         } else {
-          targetRow = self.stories[index];
+          targetStory = self.stories[index];
         }
-      }
-      self.stories.splice(self.stories.indexOf(movedRow), 1);
-      if (targetRow) {
-        self.stories.splice(self.stories.indexOf(targetRow), 0, movedRow);
       } else {
-        self.stories.push(movedRow);
+        targetStory = <Story> targetRow;
       }
-      movedRow.priority = self.determinePriority(self.stories, movedRow);
-      self.storiesService.update(movedRow).subscribe((story) => {}, (error) => self.processError.call(self, error));
+      self.stories.splice(self.stories.indexOf(story), 1);
+      if (targetStory) {
+        self.stories.splice(self.stories.indexOf(targetStory), 0, story);
+      } else {
+        self.stories.push(story);
+      }
+      story.priority = self.determinePriority(self.stories, story);
+      self.storiesService.update(story).subscribe((story) => {}, (error) => self.processError.call(self, error));
     } else {
       // Move task
-      let oldStory: Story = movedRow.story;
-      oldStory.tasks.splice(oldStory.tasks.indexOf(movedRow), 1);
-      let index: number = targetRow ? self.stories.indexOf(targetRow) : -1;
+      let task: Task = <Task> movedRow;
+      let oldStory: Story = task.story;
+      oldStory.tasks.splice(oldStory.tasks.indexOf(task), 1);
+      let index: number = targetRow && targetRow.isStory() ? self.stories.indexOf(<Story> targetRow) : -1;
       let newStory: Story = targetRow ?
-        (targetRow.isStory() ? (self.stories[index === 0 ? 0 : index - 1]) : targetRow.story) :
+        (targetRow.isStory() ? (self.stories[index === 0 ? 0 : index - 1]) : (<Task> targetRow).story) :
         self.stories[self.stories.length - 1];
       if (oldStory.id !== newStory.id) {
-        movedRow.story = newStory;
-        movedRow.previous_story_id = oldStory.id;
-        movedRow.story_id = newStory.id;
+        task.story = newStory;
+        task.previous_story_id = oldStory.id;
+        task.story_id = newStory.id;
       }
       if (targetRow && !targetRow.isStory()) {
         // Moving to within tasks
-        newStory.tasks.splice(newStory.tasks.indexOf(targetRow), 0, movedRow);
+        newStory.tasks.splice(newStory.tasks.indexOf(<Task> targetRow), 0, task);
       } else {
         // Moving to end of tasks
-        newStory.tasks.push(movedRow);
+        newStory.tasks.push(task);
       }
-      movedRow.priority = self.determinePriority(newStory.tasks, movedRow);
-      self.tasksService.update(movedRow)
-        .subscribe((task) => movedRow.previous_story_id = null, (error) => self.processError.call(self, error));
+      task.priority = self.determinePriority(newStory.tasks, task);
+      self.tasksService.update(task)
+        .subscribe((task) => task.previous_story_id = null, (error) => self.processError.call(self, error));
       newStory.expanded = true;
     }
     self.updateRows();
@@ -428,58 +439,59 @@ export class StoriesComponent implements AfterViewInit {
     }
   }
 
-  private addRow(row): void {
+  private addRow(row: Work): void {
     this.id_map[row.uniqueId] = row;
     if (row.isStory()) {
-      this.stories.push(row);
+      this.stories.push(<Story> row);
       this.storiesService.setRanks(this.stories);
     } else {
-      this.stories.forEach((story: any) => {
+      this.stories.forEach((story: Story) => {
         if (story.id === row.story_id) {
           story.expanded = true;
-          story.tasks.push(row);
+          story.tasks.push(<Task> row);
         }
       });
     }
   }
 
-  private checkRemoveRow(row: any) {
+  private checkRemoveRow(row: Work) {
     let filtered = false;
     if ( row.deleted ) {
       filtered = true;
     } else if (row.isStory()) {
+      let story: Story = <Story> row;
       if (this.filters.release !== 'All') {
         if (this.filters.release === '') {
-          filtered = filtered || row.release_id;
+          filtered = filtered || (story.release_id != null);
         } else if (this.filters.release === 'Current') {
-          filtered = filtered || (row.release_id !== this.filters.getCurrentRelease(this.filters.releases));
+          filtered = filtered || (story.release_id !== this.filters.getCurrentReleaseId(this.filters.releases));
         } else {
-          filtered = filtered || (row.release_id !== this.filters.release);
+          filtered = filtered || (story.release_id !== this.filters.release);
         }
       }
       if (this.filters.iteration !== 'All') {
         if (this.filters.iteration === '') {
-          filtered = filtered || row.iteration_id;
+          filtered = filtered || (story.iteration_id != null);
         } else if (this.filters.iteration === 'Current') {
-          filtered = filtered || (row.iteration_id !== this.filters.getCurrentIteration(this.filters.iterations));
+          filtered = filtered || (story.iteration_id !== this.filters.getCurrentIterationId(this.filters.iterations));
         } else {
-          filtered = filtered || (row.iteration_id !== this.filters.iteration);
+          filtered = filtered || (story.iteration_id !== this.filters.iteration);
         }
       }
       if (this.filters.team !== 'All') {
         if (this.filters.team === '') {
-          filtered = filtered || row.team_id;
+          filtered = filtered || (story.team_id != null);
         } else if (this.filters.team === 'MyTeam') {
-          filtered = filtered || (row.team_id !== this.user.team_id);
+          filtered = filtered || (story.team_id !== this.user.team_id);
         } else {
-          filtered = filtered || (row.team_id !== this.filters.team);
+          filtered = filtered || (story.team_id !== this.filters.team);
         }
       }
       if (this.filters.individual !== 'All') {
         if (this.filters.individual === '') {
-          filtered = filtered || row.individual_id;
+          filtered = filtered || (story.individual_id != null);
         } else {
-          filtered = filtered || (row.individual_id !== this.filters.individual);
+          filtered = filtered || (story.individual_id !== this.filters.individual);
         }
       }
     }
@@ -526,26 +538,27 @@ export class StoriesComponent implements AfterViewInit {
     };
   }
 
-  private statusChanged(gridHolder: StoriesComponent, row: any): void {
+  private statusChanged(gridHolder: StoriesComponent, row: Work): void {
     if (row.isStory()) {
-      gridHolder.storiesService.update(row).subscribe(
+      gridHolder.storiesService.update(<Story> row).subscribe(
         (story: Story) => gridHolder.updateGridForStatusChange(gridHolder, story),
         (err: any) => gridHolder.processError.call(gridHolder, err));
     } else {
-      gridHolder.tasksService.update(row).subscribe(
+      let changedTask: Task = <Task> row;
+      gridHolder.tasksService.update(changedTask).subscribe(
         (task: Task) => {
           gridHolder.updateGridForStatusChange(gridHolder, task);
           let statusChanged = false;
-          if (row.status_code === 2 && row.story.status_code !== 2) {
-            row.story.status_code = 2;
+          if (changedTask.status_code === 2 && changedTask.story.status_code !== 2) {
+            changedTask.story.status_code = 2;
             statusChanged = true;
-          } else if (row.status_code > 0 && row.story.status_code === 0) {
-            row.story.status_code = 1;
+          } else if (changedTask.status_code > 0 && changedTask.story.status_code === 0) {
+            changedTask.story.status_code = 1;
             statusChanged = true;
           }
           if (statusChanged) {
-            gridHolder.storiesService.update(row.story).subscribe(
-              (story: Story) => gridHolder.updateGridForStatusChange(gridHolder, row.story),
+            gridHolder.storiesService.update(changedTask.story).subscribe(
+              (story: Story) => gridHolder.updateGridForStatusChange(gridHolder, changedTask.story),
               (err) => gridHolder.processError.call(gridHolder, err));
           }
         },
@@ -553,7 +566,7 @@ export class StoriesComponent implements AfterViewInit {
     }
   }
 
-  updateGridForStatusChange(gridHolder: StoriesComponent, row: any): void {
+  updateGridForStatusChange(gridHolder: StoriesComponent, row: Work): void {
     gridHolder.checkRemoveRow(row);
     gridHolder.gridOptions.api.refreshView();
   }
@@ -660,7 +673,7 @@ export class StoriesComponent implements AfterViewInit {
         (err: any) => this.processError(err));
   }
 
-  updateNavigation(selection?: any): void {
+  updateNavigation(selection?: String): void {
     let params = {};
     if (this.filters.release !== StoriesComponent.defaultRelease) {
       params['release'] = this.filters.release;
@@ -686,7 +699,7 @@ export class StoriesComponent implements AfterViewInit {
     this.router.navigate(['stories', params]);
   }
 
-  fetchStories(selection?: any): void {
+  fetchStories(selection?: Work): void {
     this.waiting = true;
     this.storiesService.getStories(this.filters.release, this.filters.iteration, this.filters.team, this.filters.individual, this.filters.status)
       .subscribe(
@@ -718,7 +731,7 @@ export class StoriesComponent implements AfterViewInit {
     }
   }
 
-  private fetchAll(selection?: any): void {
+  private fetchAll(selection?: Work): void {
     this.fetchStories(selection);
     this.fetchStoryAttributes();
   }

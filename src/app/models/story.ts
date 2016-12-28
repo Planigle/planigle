@@ -1,18 +1,11 @@
 import { AcceptanceCriterium } from './acceptance-criterium';
+import { Work } from './work';
 import { Task } from './task';
 import { StoryValue } from './story-value';
 
-export class Story {
-  public id: number;
-  public name: string;
-  public description: string;
-  public effort: number;
-  public status_code: number;
-  public priority: number;
+export class Story extends Work {
   public iteration_id: number;
   public iteration_name: string;
-  public individual_id: number;
-  public individual_name: string;
   public project_id; number;
   public is_public; boolean;
   public user_priority: number;
@@ -20,31 +13,17 @@ export class Story {
   public release_name: string;
   public team_id: number;
   public team_name: string;
-  public reason_blocked: string;
-  public story_id: number;
-  public done_at: string;
-  public lead_time: number;
-  public cycle_time: number;
   public rank: number;
   public user_rank: number;
   public expanded: boolean = false;
   public acceptance_criteria: AcceptanceCriterium[] = [];
   public tasks: Task[]= [];
   public story_values: StoryValue[] = [];
-  public added: boolean = false;
-  public deleted: boolean = false;
 
   constructor(values: any) {
-    this.id = values.id;
-    this.name = values.name;
-    this.description = values.description;
-    this.effort = values.effort ? parseFloat(values.effort) : null;
-    this.status_code = values.status_code;
-    this.priority = parseFloat(values.priority);
+    super(values);
     this.iteration_id = values.iteration_id;
     this.iteration_name = values.iteration_name;
-    this.individual_id = values.individual_id;
-    this.individual_name = values.individual_name;
     this.project_id = values.project_id;
     this.is_public = values.is_public;
     this.user_priority = parseFloat(values.user_priority);
@@ -52,11 +31,6 @@ export class Story {
     this.release_name = values.release_name;
     this.team_id = values.team_id;
     this.team_name = values.team_name;
-    this.reason_blocked = values.reason_blocked;
-    this.story_id = values.story_id;
-    this.done_at = values.done_at;
-    this.lead_time = values.lead_time ? parseFloat(values.lead_time) : null;
-    this.cycle_time = values.cycle_time ? parseFloat(values.cycle_time) : null;
     let story = this;
     let criteria = values.criteria ? values.criteria : values.acceptance_criteria;
     if (criteria) {
