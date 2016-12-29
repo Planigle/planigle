@@ -31,11 +31,6 @@ declare var $: any;
 })
 export class StoriesComponent implements AfterViewInit {
   static instance: StoriesComponent;
-  private static defaultRelease = 'Current';
-  private static defaultIteration = 'Current';
-  private static defaultTeam = 'MyTeam';
-  private static defaultIndividual = 'All';
-  private static defaultStatus = 'NotDone';
   private static noSelection = 'None';
   public gridOptions: GridOptions = <GridOptions>{};
   public columnDefs: any[] = [];
@@ -45,6 +40,7 @@ export class StoriesComponent implements AfterViewInit {
   public user: Individual;
   public waiting: boolean = false;
   public storyAttributes: StoryAttribute[] = [];
+  public customStoryAttributes: StoryAttribute[] = [];
   
   @ViewChild(StoryFiltersComponent)
   public filters: StoryFiltersComponent;
@@ -74,6 +70,7 @@ export class StoriesComponent implements AfterViewInit {
     this.filters.addDefaultOptions(this.user);
     this.setGridHeight();
     $(window).resize(this.setGridHeight);
+    this.fetchStoryAttributes();
     this.route.params.subscribe((params:Map<string,string>) => this.applyNavigation(params));
     if(this.user.refresh_interval) {
       this.refresh_interval = setInterval(() => {
@@ -83,13 +80,9 @@ export class StoriesComponent implements AfterViewInit {
   }
   
   private applyNavigation(params: Map<string,string>) {
-    this.filters.release = params['release'] == null ? StoriesComponent.defaultRelease : params['release'];
-    this.filters.iteration = params['iteration'] == null ? StoriesComponent.defaultIteration : params['iteration'];
-    this.filters.team = params['team'] == null ? StoriesComponent.defaultTeam : params['team'];
-    this.filters.individual = params['individual'] == null ? StoriesComponent.defaultIndividual : params['individual'];
-    this.filters.status = params['status'] == null ? StoriesComponent.defaultStatus : params['status'];
+    this.filters.applyNavigation(params);
     if (!this.selectionChanged) {
-      this.fetchAll(params['selection']);
+      this.fetchStories(params['selection']);
     } else {
       this.selectionChanged = false;
       this.applySelection(params['selection']);
@@ -338,9 +331,21 @@ export class StoriesComponent implements AfterViewInit {
           this.filteredAttributes[newIndex].ordering;
         storyAttribute.ordering = min + ((max - min) / 2);
         this.storyAttributesService.update(storyAttribute)
-          .subscribe((result) => {});
+          .subscribe((result) => this.sortCustomStoryAttributes());
       }
     }
+  }
+  
+  private sortCustomStoryAttributes(): void {
+    this.customStoryAttributes.sort((v1: StoryAttribute, v2: StoryAttribute) => {
+      if (v1.ordering < v2.ordering) {
+        return -1;
+      }
+      if (v2.ordering < v1.ordering) {
+        return 1;
+      }
+      return 0;
+    });
   }
 
   resizeColumn(event: any): void {
@@ -621,7 +626,18 @@ export class StoriesComponent implements AfterViewInit {
         newColumnDefs.push(columnDef);
       }
     });
+    this.updateCustomStoryAttributes();
     this.columnDefs = newColumnDefs;
+  }
+  
+  private updateCustomStoryAttributes(): void {
+    let filtered: StoryAttribute[] = [];
+    this.storyAttributes.forEach((storyAttribute: StoryAttribute) => {
+      if (storyAttribute.is_custom) {
+        filtered.push(storyAttribute);
+      }
+    });
+    this.customStoryAttributes = filtered;
   }
 
   private getGroupHeader(): string {
@@ -674,22 +690,8 @@ export class StoriesComponent implements AfterViewInit {
   }
 
   updateNavigation(selection?: String): void {
-    let params = {};
-    if (this.filters.release !== StoriesComponent.defaultRelease) {
-      params['release'] = this.filters.release;
-    }
-    if (this.filters.iteration !== StoriesComponent.defaultIteration) {
-      params['iteration'] = this.filters.iteration;
-    }
-    if (this.filters.team !== StoriesComponent.defaultTeam) {
-      params['team'] = this.filters.team;
-    }
-    if (this.filters.individual !== StoriesComponent.defaultIndividual) {
-      params['individual'] = this.filters.individual;
-    }
-    if (this.filters.status !== StoriesComponent.defaultStatus) {
-      params['status'] = this.filters.status;
-    }
+    let params: Map<string,string> = new Map();
+    this.filters.updateNavigationParams(params);
     if (selection) {
       this.selectionChanged = true;
       if(selection !== StoriesComponent.noSelection) {
@@ -701,7 +703,7 @@ export class StoriesComponent implements AfterViewInit {
 
   fetchStories(selection?: Work): void {
     this.waiting = true;
-    this.storiesService.getStories(this.filters.release, this.filters.iteration, this.filters.team, this.filters.individual, this.filters.status)
+    this.storiesService.getStories(this.filters.queryString)
       .subscribe(
         (stories: Story[]) => {
           stories.forEach((story: Story) => {
@@ -731,8 +733,8 @@ export class StoriesComponent implements AfterViewInit {
     }
   }
 
-  private fetchAll(selection?: Work): void {
-    this.fetchStories(selection);
+  private fetchAll(): void {
+    this.fetchStories();
     this.fetchStoryAttributes();
   }
 

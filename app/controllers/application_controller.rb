@@ -59,6 +59,10 @@ protected
     if get_params[:team_id]; cond[:team_id] = get_params[:team_id]; end
     if get_params[:individual_id]; cond[:individual_id] = get_params[:individual_id]; end
     if get_params[:status_code]; cond[:status_code] = get_params[:status_code]; end
+    if get_params[:text]; cond[:text] = get_params[:text]; end
+    get_params.each do |key, value|
+      if key.start_with? 'custom_'; cond[key] = get_params[key]; end
+    end
       
     if cond[:release_id] == ""; cond[:release_id] = nil; end
     if cond[:iteration_id] == ""; cond[:iteration_id] = nil; end

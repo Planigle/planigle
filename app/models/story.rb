@@ -377,7 +377,8 @@ class Story < ActiveRecord::Base
     new_conditions = conditions.clone
     conditions.each_pair do |key,value|
       if key.to_s[0..6] == "custom_"
-        new_conditions[key.to_s + ".value"] = new_conditions.delete(key)
+        val = new_conditions.delete(key)
+        new_conditions[key.to_s + ".value"] = (val == '' ? nil : val)
       end
     end
     new_conditions
@@ -420,15 +421,15 @@ class Story < ActiveRecord::Base
 
   # Answer whether I match the specified text.
   def matches_text(text)
-      text = text.downcase
-      id_text = text.length > 1 && text[0].chr == 's' && text[1, text.length-1].to_i > 0 ? text[1, text.length-1].to_i : nil
-      name.downcase.index(text) ||
-      (description && description.downcase.index(text)) ||
-      (reason_blocked && reason_blocked.downcase.index(text)) ||
-      tasks.detect {|task| task.matches_text(text)} ||
-      criteria.detect {|ac| ac.description.downcase.index(text)} ||
-      story_values.detect {|sv| sv.story_attribute.value_type<=StoryAttribute::Text && sv.value.downcase.index(text)} ||
-      (id_text && id==id_text)
+    text = text.downcase
+    id_text = text.length > 1 && text[0].chr == 's' && text[1, text.length-1].to_i > 0 ? text[1, text.length-1].to_i : nil
+    name.downcase.index(text) ||
+    (description && description.downcase.index(text)) ||
+    (reason_blocked && reason_blocked.downcase.index(text)) ||
+    tasks.detect {|task| task.matches_text(text)} ||
+    criteria.detect {|ac| ac.description.downcase.index(text)} ||
+    story_values.detect {|sv| sv.story_attribute.value_type<=StoryAttribute::Text && sv.value.downcase.index(text)} ||
+    (id_text && id==id_text)
   end
   
   # Only project users or higher can create stories.
@@ -619,8 +620,6 @@ protected
     if story_id && !Story.find_by_id(story_id)
       errors.add(:epic, 'is invalid')
     elsif epic && project_id != epic.project_id
-      puts "epic:"
-      puts epic.id
       errors.add(:epic, 'is not from a valid project')
     elsif story_id != nil && story_id == id
       errors.add(:epic, 'cannot be its own epic')

@@ -20,7 +20,7 @@ declare var $: any;
 })
 export class EditStoryComponent implements OnChanges {
   @Input() story: Story;
-  @Input() storyAttributes: StoryAttribute[];
+  @Input() customStoryAttributes: StoryAttribute[];
   @Input() projects: Project[];
   @Input() releases: Release[];
   @Input() iterations: Iteration[];
@@ -32,8 +32,7 @@ export class EditStoryComponent implements OnChanges {
   @Output() closed: EventEmitter<any> = new EventEmitter();
 
   public model: Story;
-  public customStoryAttributes: StoryAttribute[];
-  public customValues: any = {};
+  public customValues: Map<string,any> = new Map();
   public error: String;
 
   constructor(private storiesService: StoriesService, private errorService: ErrorService) {
@@ -46,17 +45,12 @@ export class EditStoryComponent implements OnChanges {
         this.customValues[storyValue.story_attribute_id] = storyValue.value;
       });
     }
-    if (changes.storyAttributes) {
-      let custom: StoryAttribute[] = [];
-      this.storyAttributes.forEach((storyAttribute) => {
-        if (storyAttribute.is_custom) {
-          custom.push(storyAttribute);
-          if (!this.customValues[storyAttribute.id]) {
-            this.customValues[storyAttribute.id] = null;
-          }
+    if (changes.customStoryAttributes) {
+      this.customStoryAttributes.forEach((storyAttribute) => {
+        if (!this.customValues[storyAttribute.id]) {
+          this.customValues[storyAttribute.id] = null;
         }
       });
-      this.customStoryAttributes = custom;
     }
   }
 

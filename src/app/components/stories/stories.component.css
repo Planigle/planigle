@@ -53,6 +53,7 @@ ag-grid-ng2 {
 	height: 16px;
 	width: 100%;
 	position: fixed;
+	z-index: -10;
 }
 
 .scroll-up {

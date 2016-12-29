@@ -26,6 +26,7 @@ import { ConfirmationDialogComponent } from './components/confirmation-dialog/co
 import { AcceptanceCriteriaComponent } from './components/acceptance-criteria/acceptance-criteria.component';
 import { StoryFiltersComponent } from './components/story-filters/story-filters.component';
 import { StoryOverallActionsComponent } from './components/story-overall-actions/story-overall-actions.component';
+import { CustomAttributesComponent } from './components/custom-attributes/custom-attributes.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'stories', pathMatch: 'full' },
@@ -49,7 +50,8 @@ const appRoutes: Routes = [
     AcceptanceCriteriaComponent,
     MyDatePicker,
     StoryFiltersComponent,
-    StoryOverallActionsComponent
+    StoryOverallActionsComponent,
+    CustomAttributesComponent
   ],
   entryComponents: [
     SelectColumnsComponent,

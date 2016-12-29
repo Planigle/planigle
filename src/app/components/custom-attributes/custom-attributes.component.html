@@ -1,0 +1,54 @@
+<div class="form-group row" *ngFor="let customStoryAttribute of customStoryAttributes" [hidden]="filter && customStoryAttribute.value_type != 3 && customStoryAttribute.value_type != 4">
+  <label for="custom_{{customStoryAttribute.id}}" class="col-xs-2 col-form-label">{{customStoryAttribute.name}}</label>
+  <div class="col-xs-10">
+	<input
+		class="form-control"
+		type="text"
+		name="custom_{{customStoryAttribute.id}}"
+		[(ngModel)]="customValues[customStoryAttribute.id]"
+		[disabled]="me && !me.canChangeBacklog()"
+		[hidden]="customStoryAttribute.value_type!=0">
+	<textarea
+		class="form-control"
+		name="custom_{{customStoryAttribute.id}}"
+		rows="3"
+		[(ngModel)]="customValues[customStoryAttribute.id]"
+		[disabled]="me && !me.canChangeBacklog()"
+		[hidden]="customStoryAttribute.value_type!=1"></textarea>
+	<input
+		class="form-control"
+		type="number" step="any"
+		name="custom_{{customStoryAttribute.id}}"
+		[(ngModel)]="customValues[customStoryAttribute.id]"
+		[disabled]="me && !me.canChangeBacklog()"
+		[hidden]="customStoryAttribute.value_type!=2">
+    <select
+    	class="form-control"
+    	name="custom_{{customStoryAttribute.id}}"
+		[(ngModel)]="customValues[customStoryAttribute.id]"
+    	[disabled]="me && !me.canChangeBacklog()"
+		[hidden]="customStoryAttribute.value_type!=3"
+		(ngModelChange)="valueChanged()">
+      	<option *ngFor="let value of customStoryAttribute.storyAttributeValues" [ngValue]="'' + value.id">{{value.value}}</option>
+      	<option value="null">None</option>
+      	<option value="-1" [hidden]="!filter">All</option>
+    </select>
+    <select
+    	class="form-control"
+    	name="custom_{{customStoryAttribute.id}}"
+		[(ngModel)]="customValues[customStoryAttribute.id]"
+    	[disabled]="me && !me.canChangeBacklog()"
+		[hidden]="customStoryAttribute.value_type!=4"
+		(ngModelChange)="valueChanged()">
+      	<option *ngFor="let value of customStoryAttribute.getValuesForRelease(releaseId)" [ngValue]="'' + value.id">{{value.value}}</option>
+      	<option value="null">None</option>
+      	<option value="-1" [hidden]="!filter">All</option>
+    </select>
+	<my-date-picker
+		[options]="{dateFormat: 'mm-dd-yyyy'}"
+		[selDate]="customValues[customStoryAttribute.id]"
+		[hidden]="(me && !me.canChangeBacklog()) || customStoryAttribute.value_type!=5"
+		(dateChanged)="customValues[customStoryAttribute.id] = $event.formatted"></my-date-picker>
+  	<p class="form-control-static" [hidden]="!me || me.canChangeBacklog() || customStoryAttribute.value_type!=5">{{customValues[customStoryAttribute.id]}}</p>
+  </div>
+</div>

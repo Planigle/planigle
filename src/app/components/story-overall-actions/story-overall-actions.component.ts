@@ -27,7 +27,7 @@ export class StoryOverallActionsComponent implements OnInit {
   
   export() {
     let filters: StoryFiltersComponent = this.grid.filters;
-    this.storiesService.exportStories(filters.release, filters.iteration, filters.team, filters.individual, filters.status);
+    this.storiesService.exportStories(filters.queryString);
   }
 
   import() {

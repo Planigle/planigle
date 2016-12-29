@@ -10,7 +10,6 @@ class StoriesController < ResourceController
   
   # POST /stories/import               Imports new/existing stories.
   def import
-    puts params
     errors = nil
     Story.transaction do
       errors = Story.import(current_individual, params['Filedata'].read)
@@ -20,8 +19,6 @@ class StoriesController < ResourceController
       render :json => {result: "Data was successfully imported"}
     end
   rescue Exception => e
-    puts e.message  
-    puts e.backtrace  
     result = {}
     if errors
       errorStrings = []
@@ -182,8 +179,6 @@ protected
         allowed_params.push(key)
       end
     end
-    puts 'allowed parameters: '
-    puts allowed_params
     @record.attributes = params.require(:record).permit(allowed_params)
   end
 end

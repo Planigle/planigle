@@ -12,8 +12,8 @@ const baseUrl = 'api/stories';
 export class StoriesService {
   constructor(private http: Http) { }
 
-  getStories(release: any, iteration: any, team: any, individual: any, status: any): Observable<Story[]> {
-    return this.http.get(baseUrl + this.buildQueryString(release, iteration, team, individual, status))
+  getStories(queryString: string): Observable<Story[]> {
+    return this.http.get(baseUrl + queryString)
       .map((res: any) => res.json())
       .map((stories: Array<any>) => {
         let result: Array<Story> = [];
@@ -29,28 +29,8 @@ export class StoriesService {
       });
   }
 
-  exportStories(release: any, iteration: any, team: any, individual: any, status: any): void {
-    $.fileDownload(baseUrl + '/export' + this.buildQueryString(release, iteration, team, individual, status));
-  }
-
-  private buildQueryString(release: any, iteration: any, team: any, individual: any, status: any): string {
-    let queryString = '?';
-    if (release !== 'All') {
-      queryString += 'release_id=' + (release ? release : '') + '&';
-    }
-    if (iteration !== 'All') {
-      queryString += 'iteration_id=' + (iteration ? iteration : '') + '&';
-    }
-    if (team !== 'All') {
-      queryString += 'team_id=' + (team ? team : '') + '&';
-    }
-    if (individual !== 'All') {
-      queryString += 'individual_id=' + (individual ? individual : '') + '&';
-    }
-    if (status !== 'All') {
-      queryString += 'status_code=' + status + '&';
-    }
-    return queryString.substring(0, queryString.length - 1);
+  exportStories(queryString: string): void {
+    $.fileDownload(baseUrl + '/export' + queryString);
   }
 
   create(story: Story): Observable<Story> {

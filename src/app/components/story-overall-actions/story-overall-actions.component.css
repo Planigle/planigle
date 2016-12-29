@@ -1,18 +1,3 @@
-.btn-group {
-	float: left;
-	padding-right: 5px;
-    padding-top: 2px;
-    padding-bottom: 2px;
-}
-
-.btn-group button {
-	padding-top: 2px;
-    padding-bottom: 2px;
-    padding-left: 8px;
-    padding-right: 8px;
-    color: #0275d8;
-}
-
 .hidden {
 	position: absolute;
 	top: -1000px;

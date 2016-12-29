@@ -25,3 +25,22 @@
         </option>
     </select>
 </div>
+<div class="btn-group" role="group" aria-label="Actions">
+	<button type="button" class="btn btn-secondary" title="Show additional search options"
+		[hidden]="showMoreOptions"
+		(click)="toggleMoreOptions()">
+		<fa [name]="'angle-double-down'"></fa></button>
+	<button type="button" class="btn btn-secondary" title="Hide additional search options"
+		[hidden]="!showMoreOptions"
+		(click)="toggleMoreOptions()">
+		<fa [name]="'angle-double-up'"></fa></button>
+</div>
+<div class="more-options" [hidden]="!showMoreOptions">
+	<app-custom-attributes [(customStoryAttributes)]="customStoryAttributes" [(customValues)]="customValues" [releaseId]="release" [filter]="true" (changed)="updateNavigation()"></app-custom-attributes>
+	<div class="form-group row">
+	  <label for="searchText" class="col-xs-2 col-form-label">Search Text</label>
+	  <div class="col-xs-10">
+		<input #searchTextInput class="form-control" type="text" name="searchText" [(ngModel)]="searchText">
+	  </div>
+	</div>
+</div>

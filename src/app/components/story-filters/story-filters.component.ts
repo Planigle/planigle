@@ -1,4 +1,5 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, NgZone, ViewChild, ElementRef } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
 import { StoriesComponent } from '../../components/stories/stories.component';
 import { ReleasesService } from '../../services/releases.service';
 import { IterationsService } from '../../services/iterations.service';
@@ -8,6 +9,7 @@ import { Release } from '../../models/release';
 import { Iteration } from '../../models/iteration';
 import { Team } from '../../models/team';
 import { Individual } from '../../models/individual';
+import { StoryAttribute } from '../../models/story-attribute';
 
 @Component({
   selector: 'app-story-filters',
@@ -15,8 +17,16 @@ import { Individual } from '../../models/individual';
   styleUrls: ['./story-filters.component.css'],
   providers: [ ReleasesService, IterationsService, TeamsService, IndividualsService ]
 })
-export class StoryFiltersComponent {
+export class StoryFiltersComponent implements OnChanges {
+  private static defaultRelease = 'Current';
+  private static defaultIteration = 'Current';
+  private static defaultTeam = 'MyTeam';
+  private static defaultIndividual = 'All';
+  private static defaultStatus = 'NotDone';
+  private static all: string = '-1';
   @Input() grid: StoriesComponent;
+  @Input() customStoryAttributes: StoryAttribute[];
+  @ViewChild('searchTextInput') searchTextInput: ElementRef;
   public release: any;
   public releases: Release[] = [];
   public iteration: any;
@@ -26,6 +36,10 @@ export class StoryFiltersComponent {
   public individual: any;
   public individuals: Individual[] = [];
   public status: any;
+  public showMoreOptions: boolean = false;
+  public customValues: Map<string,any> = new Map();
+  private searchText: string = '';
+  
   statuses: any[] = [
     {id: 0, name: 'Not Started'},
     {id: 1, name: 'In Progress'},
@@ -36,20 +50,119 @@ export class StoryFiltersComponent {
   ];
   
   constructor(
+    private ngzone: NgZone,
     private releasesService: ReleasesService,
     private iterationsService: IterationsService,
     private teamsService: TeamsService,
     private individualsService: IndividualsService
   ) { }
   
+  ngOnChanges(changes: any): void {
+    if (changes.customStoryAttributes) {
+      this.customStoryAttributes.forEach((storyAttribute) => {
+        if (!this.customValues[storyAttribute.id]) {
+          this.customValues[storyAttribute.id] = StoryFiltersComponent.all;
+        }
+      });
+    }
+  }
+  
+  ngAfterViewInit(): void {
+    this.ngzone.runOutsideAngular(() => {
+      Observable.fromEvent(this.searchTextInput.nativeElement, 'keyup')
+        .debounceTime(1000)
+        .subscribe(keyboardEvent => {
+          this.updateNavigation();
+        });
+    });
+  }
+  
   get enabledIndividuals(): Individual[] {
     return this.individuals.filter((individual: Individual) => {
       return individual.enabled;
     });
   }
-
+  
+  get queryString(): string {
+    let queryString = '?';
+    if (this.release !== 'All') {
+      queryString += 'release_id=' + (this.release ? this.release : '') + '&';
+    }
+    if (this.iteration !== 'All') {
+      queryString += 'iteration_id=' + (this.iteration ? this.iteration : '') + '&';
+    }
+    if (this.team !== 'All') {
+      queryString += 'team_id=' + (this.team ? this.team : '') + '&';
+    }
+    if (this.individual !== 'All') {
+      queryString += 'individual_id=' + (this.individual ? this.individual : '') + '&';
+    }
+    if (this.status !== 'All') {
+      queryString += 'status_code=' + this.status + '&';
+    }
+    if (this.searchText !== '') {
+      queryString += 'text=' + this.searchText + '&';
+    }
+    for(let key in this.customValues) {
+      let value = this.customValues[key];
+      if(value != StoryFiltersComponent.all) {
+        queryString += 'custom_' + key + '=' + (value === 'null' ? '' : value) + '&';
+      }
+    };
+    return queryString.substring(0, queryString.length - 1);
+  }
+  
   updateNavigation(): void {
     this.grid.updateNavigation();
+  }
+  
+  applyNavigation(params: Map<string,string>): void {
+    this.release = params['release'] == null ? StoryFiltersComponent.defaultRelease : params['release'];
+    this.iteration = params['iteration'] == null ? StoryFiltersComponent.defaultIteration : params['iteration'];
+    this.team = params['team'] == null ? StoryFiltersComponent.defaultTeam : params['team'];
+    this.individual = params['individual'] == null ? StoryFiltersComponent.defaultIndividual : params['individual'];
+    this.status = params['status'] == null ? StoryFiltersComponent.defaultStatus : params['status'];
+    this.searchText = params['text'] == null ? '' : params['text'];
+    if(this.customValues.size == 0) { // not set yet
+      for(let key in params) {
+        if(key.length > 7 && key.substring(0,7) === 'custom_') {
+          let value = params[key];
+          this.customValues[key.substring(7)] = value == null ? StoryFiltersComponent.all : (value === '' ? 'null' : value);
+        }
+      };
+    } else {
+      for(let key in this.customValues) {
+        let value = params['custom_' + key];
+        this.customValues[key] = value == null ? StoryFiltersComponent.all : (value === '' ? 'null' : value);
+      };
+    }
+  }
+  
+  updateNavigationParams(params: Map<string,string>): void {
+    if (this.release !== StoryFiltersComponent.defaultRelease) {
+      params['release'] = this.release;
+    }
+    if (this.iteration !== StoryFiltersComponent.defaultIteration) {
+      params['iteration'] = this.iteration;
+    }
+    if (this.team !== StoryFiltersComponent.defaultTeam) {
+      params['team'] = this.team;
+    }
+    if (this.individual !== StoryFiltersComponent.defaultIndividual) {
+      params['individual'] = this.individual;
+    }
+    if (this.status !== StoryFiltersComponent.defaultStatus) {
+      params['status'] = this.status;
+    }
+    if (this.searchText !== '') {
+      params['text'] = this.searchText;
+    }
+    for(let key in this.customValues) {
+      let value = this.customValues[key];
+      if(value != StoryFiltersComponent.all) {
+        params['custom_' + key] = (value === 'null' ? '' : value);
+      }
+    }
   }
 
   addDefaultOptions(user: Individual): void {
@@ -204,6 +317,10 @@ export class StoryFiltersComponent {
     });
   }
   
+  toggleMoreOptions(): void {
+    this.showMoreOptions = !this.showMoreOptions;
+  }
+
   fetchMenus(user: Individual) {
     this.fetchReleases();
     this.fetchIterations();

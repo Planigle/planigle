@@ -6,3 +6,9 @@
 select {
 	font-size: 1rem;
 }
+
+.more-options {
+	clear: both;
+	padding-top: 10px;
+	width: 610px;
+}
