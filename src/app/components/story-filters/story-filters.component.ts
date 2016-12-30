@@ -39,6 +39,7 @@ export class StoryFiltersComponent implements OnChanges {
   public showMoreOptions: boolean = false;
   public customValues: Map<string,any> = new Map();
   private searchText: string = '';
+  private hasAdditionalFilters: boolean =  false;
   
   statuses: any[] = [
     {id: 0, name: 'Not Started'},
@@ -117,23 +118,33 @@ export class StoryFiltersComponent implements OnChanges {
   }
   
   applyNavigation(params: Map<string,string>): void {
+    this.hasAdditionalFilters = false;
     this.release = params['release'] == null ? StoryFiltersComponent.defaultRelease : params['release'];
     this.iteration = params['iteration'] == null ? StoryFiltersComponent.defaultIteration : params['iteration'];
     this.team = params['team'] == null ? StoryFiltersComponent.defaultTeam : params['team'];
     this.individual = params['individual'] == null ? StoryFiltersComponent.defaultIndividual : params['individual'];
     this.status = params['status'] == null ? StoryFiltersComponent.defaultStatus : params['status'];
     this.searchText = params['text'] == null ? '' : params['text'];
+    if(this.searchText !== '') {
+      this.hasAdditionalFilters = true;
+    }
     if(this.customValues.size == 0) { // not set yet
       for(let key in params) {
         if(key.length > 7 && key.substring(0,7) === 'custom_') {
           let value = params[key];
           this.customValues[key.substring(7)] = value == null ? StoryFiltersComponent.all : (value === '' ? 'null' : value);
+          if(value != null) {
+            this.hasAdditionalFilters = true
+          }
         }
       };
     } else {
       for(let key in this.customValues) {
         let value = params['custom_' + key];
         this.customValues[key] = value == null ? StoryFiltersComponent.all : (value === '' ? 'null' : value);
+        if(value != null) {
+          this.hasAdditionalFilters = true
+        }
       };
     }
   }

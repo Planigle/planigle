@@ -1,12 +1,15 @@
-<div class="grid">
-	<div class="row" *ngFor="let criterium of model.acceptance_criteria">
-		<div class="cell status">
-			<fa title="Mark Done" (click)="criterium.markDone()" [name]="'square-o'" [hidden]="criterium.isDone()"></fa>
-			<fa title="Mark Not Done" (click)="criterium.markNotDone()" [name]="'check-square-o'" [hidden]="!criterium.isDone()"></fa></div>
-		<div class="cell description">
-			<div class="content" [hidden]="criteriumToEdit == criterium" (click)="editCriterium(criterium)" >{{criterium.description}}</div>
-			<textarea id="edit-{{criterium.id}}" [(ngModel)]="criterium.description" [hidden]="criteriumToEdit != criterium" (blur)="stopEditingCriterium()" (keydown)="handleKeyStroke($event)"></textarea>
+<div class="grid-wrapper">
+	<div class="grid">
+		<div class="row" *ngFor="let criterium of model.acceptance_criteria">
+			<div class="cell status">
+				<fa *ngIf="!criterium.isDone()" title="Mark Done" (click)="criterium.markDone()" [name]="'square-o'"></fa>
+				<fa *ngIf="criterium.isDone()" title="Mark Not Done" (click)="criterium.markNotDone()" [name]="'check-square-o'"></fa></div>
+			<div class="cell description">
+				<div [attr.criterium]="criterium.id" class="content" [hidden]="criteriumToEdit == criterium">{{criterium.description}}</div>
+				<textarea *ngIf="criteriumToEdit == criterium" id="edit-{{criterium.id}}" [(ngModel)]="criterium.description" (blur)="stopEditingCriterium()" (keydown)="handleKeyStroke($event)"></textarea>
+			</div>
+			<div class="cell delete"><fa title="Delete" (click)="deleteCriterium(criterium)" [name]="'remove'"></fa></div>
 		</div>
-		<div class="cell delete"><fa title="Delete" (click)="deleteCriterium(criterium)" [name]="'remove'"></fa></div>
 	</div>
 </div>
+<textarea id="pasteArea"></textarea>

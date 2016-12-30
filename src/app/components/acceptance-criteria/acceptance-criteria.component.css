@@ -1,4 +1,4 @@
-.grid {
+.grid-wrapper {
 	width: 100%;
 	height: 150px;
 	overflow: auto;
@@ -35,4 +35,19 @@
 
 textarea {
 	width: 100%;
+}
+
+.grid .ui-selecting.content {
+	background: #0080ff;
+	color: white;
+}
+
+.grid .ui-selected.content {
+	background: #0275d8;
+	color: white;
+}
+
+#pasteArea {
+	position: absolute;
+	top: -1000px;
 }

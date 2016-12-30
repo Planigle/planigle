@@ -25,7 +25,7 @@
         </option>
     </select>
 </div>
-<div class="btn-group" role="group" aria-label="Actions">
+<div class="btn-group" [ngClass]="{active: hasAdditionalFilters}" role="group" aria-label="Actions">
 	<button type="button" class="btn btn-secondary" title="Show additional search options"
 		[hidden]="showMoreOptions"
 		(click)="toggleMoreOptions()">

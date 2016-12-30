@@ -12,3 +12,8 @@ select {
 	padding-top: 10px;
 	width: 610px;
 }
+
+.btn-group.active button {
+	color: white;
+	background: #0275d8;
+}
