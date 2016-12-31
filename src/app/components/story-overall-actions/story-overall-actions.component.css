@@ -2,3 +2,7 @@
 	position: absolute;
 	top: -1000px;
 }
+
+.disabled {
+	color: lightgrey;	
+}

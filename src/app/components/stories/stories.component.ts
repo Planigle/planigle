@@ -30,7 +30,6 @@ declare var $: any;
     StoriesService, TasksService, StoryAttributesService, ProjectsService]
 })
 export class StoriesComponent implements AfterViewInit {
-  static instance: StoriesComponent;
   private static noSelection = 'None';
   public gridOptions: GridOptions = <GridOptions>{};
   public columnDefs: any[] = [];
@@ -41,6 +40,7 @@ export class StoriesComponent implements AfterViewInit {
   public waiting: boolean = false;
   public storyAttributes: StoryAttribute[] = [];
   public customStoryAttributes: StoryAttribute[] = [];
+  public selectedWork: Work[] = [];
   
   @ViewChild(StoryFiltersComponent)
   public filters: StoryFiltersComponent;
@@ -50,6 +50,7 @@ export class StoriesComponent implements AfterViewInit {
   private id_map: Map<string,Work> = new Map();
   private refresh_interval = null;
   private selectionChanged: boolean = false;
+  private lastSelected: Work = null;
 
   constructor(
     private router: Router,
@@ -60,9 +61,7 @@ export class StoriesComponent implements AfterViewInit {
     private storiesService: StoriesService,
     private tasksService: TasksService,
     private errorService: ErrorService
-  ) {
-    StoriesComponent.instance = this;
-  }
+  ) {}
 
   ngAfterViewInit(): void {
     let self = this;
@@ -152,7 +151,9 @@ export class StoriesComponent implements AfterViewInit {
         $('.scroll-up, .scroll-down').css('z-index', -10);
       }
     }).droppable({
-      drop: self.dropRow,
+      drop: function(event, ui) {
+        self.dropRow(event, ui);
+      },
       tolerance: 'pointer'
     });
     $('.scroll-up').droppable({
@@ -174,7 +175,9 @@ export class StoriesComponent implements AfterViewInit {
     });
 
     $('.scroll-down').droppable({
-      drop: self.dropRow,
+      drop: function(event, ui) {
+        self.dropRow(event, ui);
+      },
       over: function(event: any, ui: any){
         interval = setInterval(function() {
           let scroll: number = $('.ag-body-viewport').scrollTop();
@@ -221,8 +224,97 @@ export class StoriesComponent implements AfterViewInit {
   addTask(story: Story): void {
     this.updateNavigation('NewTask{' + story.uniqueId + '}');
   }
+  
+  deleteWork(work: Work): void {
+    let service: any = work.isStory() ? this.storiesService : this.tasksService;
+    service.delete.call(service, work).subscribe(
+      (task: any) => {
+        this.selection = work;
+        this.selection.deleted = true;
+        this.finishedEditing(FinishedEditing.Cancel);
+        this.selection = null;
+      }
+    );
+  }
+  
+  private selectRow(event: any): void {
+    if(event.colDef.headerName === '') {
+      return;
+    }
+    let mouseEvent = event.event;
+    let work: Work = event.data;
+    if(mouseEvent.ctrlKey || mouseEvent.metaKey) {
+      this.flipSelection(work);
+    } else if(this.lastSelected !== null && mouseEvent.shiftKey) {
+      let visibleWork: Work[] = this.getVisibleWork();
+      let startIndex: number = visibleWork.indexOf(this.lastSelected);
+      let endIndex: number = visibleWork.indexOf(work);
+      if(endIndex < startIndex) {
+        let temp: number = startIndex;
+        startIndex = endIndex;
+        endIndex = temp - 1;
+      } else {
+        startIndex += 1;
+      }
+      for(let i=startIndex;i<=endIndex;i++) {
+        this.flipSelection(visibleWork[i]);
+      }
+    } else {
+      let previousSelected: boolean = this.isSelected(work);
+      this.selectedWork.forEach((previousWork: Work) => {
+        let row = $('.ag-row.id-' + previousWork.uniqueId);
+        row.removeClass('selected');
+      });
+      this.selectedWork = []
+      if(!previousSelected) {
+        let row = $('.ag-row.id-' + work.uniqueId);
+        row.addClass('selected');
+        this.selectedWork.push(work);
+      }
+    }
+    this.lastSelected = work;
+  }
 
-  selectRow(event): void {
+  private getVisibleWork(): Work[] {
+    let self: StoriesComponent = this;
+    let sortedRows: any[] = [];
+    $('.ag-row').each(function() {
+      sortedRows.push($(this));
+    });
+    sortedRows.sort((a: any, b: any) => {
+      let aPos = a.offsetTop;
+      let bPos = b.offsetTop;
+      if (aPos < bPos) {
+        return -1;
+      } else if (bPos < aPos) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+    let visibleWork: Work[] = [];
+    sortedRows.forEach((row: any) => {
+      visibleWork.push(self.getRowWork(row));
+    });
+    return visibleWork;
+  }
+
+  private flipSelection(work:Work): void {
+    let row = $('.ag-row.id-' + work.uniqueId);
+    if(this.isSelected(work)) {
+      row.removeClass('selected');
+      this.selectedWork.splice(this.selectedWork.indexOf(work),1);
+    } else {
+      row.addClass('selected');
+      this.selectedWork.push(work);
+    }
+  }
+
+  isSelected(work: Work): boolean {
+    return this.selectedWork.indexOf(work) !== -1;
+  }
+
+  editRow(event): void {
     this.updateNavigation(event.data.uniqueId);
   }
 
@@ -365,20 +457,19 @@ export class StoriesComponent implements AfterViewInit {
     return rowItem.uniqueId;
   }
 
+  private getRowWork(jQueryObject: any): Work {
+    let result: string = null;
+    $.each(jQueryObject.attr('class').toString().split(' '), function (i: number, className: string) {
+      if (className.indexOf('id-') === 0) {
+        result = className.substring(3);
+      }
+    });
+    return this.id_map[result];
+  }
+  
   dropRow(event, ui): void {
-    let self: StoriesComponent = StoriesComponent.instance;
-    function getRow(jQueryObject: any): Work {
-      let result: string = null;
-      $.each($(jQueryObject).attr('class').toString().split(' '), function (i: number, className: string) {
-        if (className.indexOf('id-') === 0) {
-          result = className.substring(3);
-        }
-      });
-      return self.id_map[result];
-    }
-
-    let movedRow: Work = getRow(ui.draggable[0]);
-    let targetRow: Work = getRow(this);
+    let movedRow: Work = this.getRowWork($(ui.draggable[0]));
+    let targetRow: Work = this.getRowWork($(this));
     if (movedRow.isStory()) {
       // Move story
       let story: Story = <Story> movedRow;
@@ -386,32 +477,32 @@ export class StoriesComponent implements AfterViewInit {
       if (targetRow && !targetRow.isStory()) {
         // If moving story to task, move after story for task
         let task: Task = <Task> targetRow;
-        let index = self.stories.indexOf(task.story) + 1;
-        if (index >= self.stories.length) {
+        let index = this.stories.indexOf(task.story) + 1;
+        if (index >= this.stories.length) {
           targetStory = null;
         } else {
-          targetStory = self.stories[index];
+          targetStory = this.stories[index];
         }
       } else {
         targetStory = <Story> targetRow;
       }
-      self.stories.splice(self.stories.indexOf(story), 1);
+      this.stories.splice(this.stories.indexOf(story), 1);
       if (targetStory) {
-        self.stories.splice(self.stories.indexOf(targetStory), 0, story);
+        this.stories.splice(this.stories.indexOf(targetStory), 0, story);
       } else {
-        self.stories.push(story);
+        this.stories.push(story);
       }
-      story.priority = self.determinePriority(self.stories, story);
-      self.storiesService.update(story).subscribe((story) => {}, (error) => self.processError.call(self, error));
+      story.priority = this.determinePriority(this.stories, story);
+      this.storiesService.update(story).subscribe((story) => {}, (error) => this.processError.call(this, error));
     } else {
       // Move task
       let task: Task = <Task> movedRow;
       let oldStory: Story = task.story;
       oldStory.tasks.splice(oldStory.tasks.indexOf(task), 1);
-      let index: number = targetRow && targetRow.isStory() ? self.stories.indexOf(<Story> targetRow) : -1;
+      let index: number = targetRow && targetRow.isStory() ? this.stories.indexOf(<Story> targetRow) : -1;
       let newStory: Story = targetRow ?
-        (targetRow.isStory() ? (self.stories[index === 0 ? 0 : index - 1]) : (<Task> targetRow).story) :
-        self.stories[self.stories.length - 1];
+        (targetRow.isStory() ? (this.stories[index === 0 ? 0 : index - 1]) : (<Task> targetRow).story) :
+        this.stories[this.stories.length - 1];
       if (oldStory.id !== newStory.id) {
         task.story = newStory;
         task.previous_story_id = oldStory.id;
@@ -424,12 +515,12 @@ export class StoriesComponent implements AfterViewInit {
         // Moving to end of tasks
         newStory.tasks.push(task);
       }
-      task.priority = self.determinePriority(newStory.tasks, task);
-      self.tasksService.update(task)
-        .subscribe((task) => task.previous_story_id = null, (error) => self.processError.call(self, error));
+      task.priority = this.determinePriority(newStory.tasks, task);
+      this.tasksService.update(task)
+        .subscribe((task) => task.previous_story_id = null, (error) => this.processError.call(this, error));
       newStory.expanded = true;
     }
-    self.updateRows();
+    this.updateRows();
   }
 
   private determinePriority(objects, object): number {
@@ -668,7 +759,7 @@ export class StoriesComponent implements AfterViewInit {
   }
 
   updateExpandContractAll(): void {
-    if (StoriesComponent.instance.storiesToExpand()) {
+    if (this.storiesToExpand()) {
       $('.ag-header-container i.fa').removeClass('fa-minus-square-o').addClass('fa-plus-square-o');
     } else {
       $('.ag-header-container i.fa').removeClass('fa-plus-square-o').addClass('fa-minus-square-o');

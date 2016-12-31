@@ -2,33 +2,28 @@ import { Component } from '@angular/core';
 import { AgRendererComponent } from 'ag-grid-ng2/main';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
-import { StoriesService } from '../../services/stories.service';
-import { TasksService } from '../../services/tasks.service';
 import { Task } from '../../models/task';
 import { FinishedEditing } from '../../models/finished-editing';
 
 @Component({
   selector: 'app-story-actions',
   templateUrl: './story-actions.component.html',
-  styleUrls: ['./story-actions.component.css'],
-  providers: [StoriesService, TasksService]
+  styleUrls: ['./story-actions.component.css']
 })
 export class StoryActionsComponent implements AgRendererComponent {
   private model: any;
-  private gridHolder: any;
+  private grid: any;
 
   constructor(
-    private modalService: NgbModal,
-    private storiesService: StoriesService,
-    private tasksService: TasksService) { }
+    private modalService: NgbModal) { }
 
   agInit(params: any): void {
     this.model = params.data;
-    this.gridHolder = params.context.gridHolder;
+    this.grid = params.context.gridHolder;
   }
 
   edit(): void {
-    this.gridHolder.updateNavigation(this.model.uniqueId);
+    this.grid.updateNavigation(this.model.uniqueId);
   }
 
   deleteItem(): void {
@@ -44,21 +39,13 @@ export class StoryActionsComponent implements AgRendererComponent {
     modalRef.result.then(
       (result: any) => {
         if (model.confirmed) {
-          let service: any = self.model.isStory() ? self.storiesService : self.tasksService;
-          service.delete.call(service, self.model).subscribe(
-            (task: any) => {
-              self.gridHolder.selection = self.model;
-              self.gridHolder.selection.deleted = true;
-              self.gridHolder.finishedEditing(FinishedEditing.Cancel);
-              self.gridHolder.selection = null;
-            }
-          );
+          self.grid.deleteWork(self.model);
         }
       }
     );
   }
 
   addTask(): void {
-    this.gridHolder.addTask(this.model);
+    this.grid.addTask(this.model);
   }
 }

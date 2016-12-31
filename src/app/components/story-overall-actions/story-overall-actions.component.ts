@@ -1,10 +1,14 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { StoriesComponent } from '../stories/stories.component';
 import { StoryFiltersComponent } from '../story-filters/story-filters.component';
 import { SelectColumnsComponent } from '../select-columns/select-columns.component';
 import { StoriesService } from '../../services/stories.service';
 import { ErrorService } from '../../services/error.service';
+import { Work } from '../../models/work';
+import { Story } from '../../models/story';
+import { Task } from '../../models/task';
 declare var $: any;
 
 @Component({
@@ -25,12 +29,12 @@ export class StoryOverallActionsComponent implements OnInit {
     $('#import').fileupload(this.getFileUploadOptions());
   }
   
-  export() {
+  export(): void {
     let filters: StoryFiltersComponent = this.grid.filters;
     this.storiesService.exportStories(filters.queryString);
   }
 
-  import() {
+  import(): void {
     $('#import').click();
   }
   
@@ -40,12 +44,51 @@ export class StoryOverallActionsComponent implements OnInit {
     modalRef.result.then((data) => this.grid.setAttributes(this.grid.storyAttributes));
   }
 
-  refresh() {
+  refresh(): void {
     this.grid.refresh();
   }
   
-  addStory() {
+  addStory(): void {
     this.grid.addStory();
+  }
+  
+  deleteItems(): void {
+    let self: StoryOverallActionsComponent = this;
+    const modalRef: NgbModalRef = this.modalService.open(ConfirmationDialogComponent, {size: 'sm'});
+    let typeOfObject: string = this.grid.selectedWork.length == 1 ?
+      (this.grid.selectedWork[0].isStory() ? 'Story' : 'Task') :
+      'Items';
+    let model: any = {
+      title: 'Delete ' + typeOfObject,
+      body: 'Are you sure you want to delete ' + (this.grid.selectedWork.length == 1 ? 'this ' : 'these ') + typeOfObject + '?',
+      confirmed: false
+    };
+    modalRef.componentInstance.model = model;
+    modalRef.result.then(
+      (result: any) => {
+        if (model.confirmed) {
+          let stories: Story[] = [];
+          let tasks: Task[] = [];
+          this.grid.selectedWork.forEach((work: Work) => {
+            if (work.isStory()) {
+              stories.push(<Story>work);
+              self.grid.deleteWork(work);
+            } else {
+              tasks.push(<Task>work);
+            }
+          });
+          tasks.forEach((task:Task) => {
+            if (stories.indexOf(task.story) == -1) {
+              self.grid.deleteWork(task);
+            }
+          });
+        }
+      }
+    );
+  }
+  
+  hasItemsSelected(): boolean {
+    return this.grid.selectedWork.length > 0;
   }
   
   private getFileUploadOptions(): any {

@@ -83,3 +83,12 @@ ag-grid-ng2 {
 	width: 32px;
 	z-index: 10;
 }
+
+:host /deep/ .selected {
+	background: #0275d8;
+	color: white;
+}
+
+:host /deep/ .selected i {
+	color: white;
+}
