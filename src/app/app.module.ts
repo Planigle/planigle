@@ -27,6 +27,7 @@ import { AcceptanceCriteriaComponent } from './components/acceptance-criteria/ac
 import { StoryFiltersComponent } from './components/story-filters/story-filters.component';
 import { StoryOverallActionsComponent } from './components/story-overall-actions/story-overall-actions.component';
 import { CustomAttributesComponent } from './components/custom-attributes/custom-attributes.component';
+import { EditMultipleComponent } from './components/edit-multiple/edit-multiple.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'stories', pathMatch: 'full' },
@@ -51,12 +52,14 @@ const appRoutes: Routes = [
     MyDatePicker,
     StoryFiltersComponent,
     StoryOverallActionsComponent,
-    CustomAttributesComponent
+    CustomAttributesComponent,
+    EditMultipleComponent
   ],
   entryComponents: [
     SelectColumnsComponent,
     ConfirmationDialogComponent,
-    EditReasonBlockedComponent
+    EditReasonBlockedComponent,
+    EditMultipleComponent
   ],
   imports: [
     BrowserModule,

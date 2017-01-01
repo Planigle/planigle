@@ -29,6 +29,7 @@ export class EditTaskComponent implements OnChanges {
   ngOnChanges(changes): void {
     if (changes.task) {
       this.model = new Task(this.task);
+      setTimeout(() => $('input[autofocus=""]').focus(), 0);
     }
   }
 

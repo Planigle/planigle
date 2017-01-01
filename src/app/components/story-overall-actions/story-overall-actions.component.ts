@@ -4,6 +4,7 @@ import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation
 import { StoriesComponent } from '../stories/stories.component';
 import { StoryFiltersComponent } from '../story-filters/story-filters.component';
 import { SelectColumnsComponent } from '../select-columns/select-columns.component';
+import { EditMultipleComponent } from '../edit-multiple/edit-multiple.component';
 import { StoriesService } from '../../services/stories.service';
 import { ErrorService } from '../../services/error.service';
 import { Work } from '../../models/work';
@@ -50,6 +51,22 @@ export class StoryOverallActionsComponent implements OnInit {
   
   addStory(): void {
     this.grid.addStory();
+  }
+  
+  editItems(): void {
+    if (this.grid.selectedWork.length == 1) {
+      this.grid.updateNavigation(this.grid.selectedWork[0].uniqueId);
+    } else {
+      const modalRef: NgbModalRef = this.modalService.open(EditMultipleComponent);
+      let component: EditMultipleComponent = modalRef.componentInstance;
+      component.grid = this.grid;
+      component.setCustomStoryAttributes(this.grid.customStoryAttributes);
+      component.selectedWork = this.grid.selectedWork;
+      component.releases = this.grid.filters.choosableReleases;
+      component.iterations = this.grid.filters.choosableIterations;
+      component.teams = this.grid.filters.choosableTeams;
+      component.individuals = this.grid.filters.choosableIndividuals;
+    }
   }
   
   deleteItems(): void {

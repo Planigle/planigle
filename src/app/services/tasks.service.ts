@@ -13,31 +13,49 @@ export class TasksService {
     return this.createOrUpdate(task, this.http.post, '');
   }
 
-  update(task: Task): Observable<Task> {
+  update(task: any): Observable<Task> {
     return this.createOrUpdate(task, this.http.put, '/' + task.id);
   }
 
   delete(task: Task): Observable<Task> {
     return this.http.delete(baseUrl.replace(new RegExp('{story_id}'), '' + task.story_id) + '/' + task.id)
       .map((res: any) => res.json())
-      .map((updatedTask: any) => {
-        return new Task(updatedTask);
+      .map((response: any) => {
+        if (response.hasOwnProperty('record')) {
+          return new Task(response.record);
+        } else {
+          return new Task(response);
+        }
       });
   }
 
-  private createOrUpdate(task: Task, method, idString): Observable<Task> {
+  private createOrUpdate(task: any, method, idString): Observable<Task> {
     let headers: Headers = new Headers({ 'Content-Type': 'application/json' });
     let options: RequestOptions = new RequestOptions({ headers: headers });
     let record: any = {
       story_id: task.story_id,
-      name: task.name,
-      description: task.description,
-      status_code: task.status_code,
-      reason_blocked: task.reason_blocked,
-      individual_id: task.individual_id,
-      estimate: task.estimate == null ? '' : ('' + task.estimate),
-      effort: task.effort == null ? '' : ('' + task.effort)
     };
+    if('name' in task) {
+      record['name'] = task.name;
+    }
+    if('description' in task) {
+      record['description'] = task.description;
+    }
+    if('status_code' in task) {
+      record['status_code'] = task.status_code;
+    }
+    if('reason_blocked' in task) {
+      record['reason_blocked'] = task.reason_blocked;
+    }
+    if('individual_id' in task) {
+      record['individual_id'] = task.individual_id;
+    }
+    if('estimate' in task) {
+      record['estimate'] = task.estimate == null ? '' : ('' + task.estimate);
+    }
+    if('effort' in task) {
+      record['effort'] = task.effort == null ? '' : ('' + task.effort);
+    }
     if (task.priority) {
       record['priority'] = task.priority;
     }

@@ -1,9 +1,10 @@
 <div class="btn-group" role="group" aria-label="Actions">
-	<button type="button" class="btn btn-secondary" title="Add story" (click)="addStory()"><fa [name]="'plus'"></fa></button>
-	<button type="button" class="btn btn-secondary" [ngClass]="{disabled: !hasItemsSelected()}" title="Delete selected stories and tasks" (click)="deleteItems()"><fa [name]="'remove'"></fa></button>
+	<button type="button" class="btn btn-secondary" *ngIf="grid.user && grid.user.canChangeBacklog()" title="Add story" (click)="addStory()"><fa [name]="'plus'"></fa></button>
+	<button type="button" class="btn btn-secondary" *ngIf="grid.user && grid.user.canChangeBacklog()" [ngClass]="{disabled: !hasItemsSelected()}" title="Edit selected stories and tasks" (click)="editItems()"><fa [name]="'edit'"></fa></button>
+	<button type="button" class="btn btn-secondary" *ngIf="grid.user && grid.user.canChangeBacklog()" [ngClass]="{disabled: !hasItemsSelected()}" title="Delete selected stories and tasks" (click)="deleteItems()"><fa [name]="'remove'"></fa></button>
 	<button type="button" class="btn btn-secondary" title="Select columns" (click)="selectColumns()"><fa [name]="'columns'"></fa></button>
 	<button type="button" class="btn btn-secondary" title="Export CSV" (click)="export()"><fa [name]="'download'"></fa></button>
-	<button type="button" class="btn btn-secondary" title="Import CSV" (click)="import()"><fa [name]="'upload'"></fa></button>
+	<button type="button" class="btn btn-secondary" *ngIf="grid.user && grid.user.canChangeBacklog()" title="Import CSV" (click)="import()"><fa [name]="'upload'"></fa></button>
 	<button type="button" class="btn btn-secondary" title="Get the latest data" (click)="refresh()"><fa [name]="'refresh'"></fa></button>
 </div>
 <template ngbModalContainer></template>

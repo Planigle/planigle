@@ -1,4 +1,4 @@
-<div class="form-group row" *ngFor="let customStoryAttribute of customStoryAttributes" [hidden]="filter && customStoryAttribute.value_type != 3 && customStoryAttribute.value_type != 4">
+<div class="form-group row" *ngFor="let customStoryAttribute of customStoryAttributes" [hidden]="(filter || multiple) && customStoryAttribute.value_type != 3 && customStoryAttribute.value_type != 4">
   <label for="custom_{{customStoryAttribute.id}}" class="col-xs-2 col-form-label">{{customStoryAttribute.name}}</label>
   <div class="col-xs-10">
 	<input
@@ -31,7 +31,8 @@
 		(ngModelChange)="valueChanged()">
       	<option *ngFor="let value of customStoryAttribute.storyAttributeValues" [ngValue]="'' + value.id">{{value.value}}</option>
       	<option value="null">None</option>
-      	<option value="-1" [hidden]="!filter">All</option>
+      	<option *ngIf="filter" value="-1">All</option>
+      	<option *ngIf="multiple" value="-1">No Change</option>
     </select>
     <select
     	class="form-control"
@@ -42,7 +43,8 @@
 		(ngModelChange)="valueChanged()">
       	<option *ngFor="let value of customStoryAttribute.getValuesForRelease(releaseId)" [ngValue]="'' + value.id">{{value.value}}</option>
       	<option value="null">None</option>
-      	<option value="-1" [hidden]="!filter">All</option>
+      	<option *ngIf="filter" value="-1">All</option>
+      	<option *ngIf="multiple" value="-1">No Change</option>
     </select>
 	<my-date-picker
 		[options]="{dateFormat: 'mm-dd-yyyy'}"

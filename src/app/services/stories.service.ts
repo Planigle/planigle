@@ -37,7 +37,7 @@ export class StoriesService {
     return this.createOrUpdate(story, this.http.post, '');
   }
 
-  update(story: Story): Observable<Story> {
+  update(story: any): Observable<Story> {
     return this.createOrUpdate(story, this.http.put, '/' + story.id);
   }
 
@@ -50,32 +50,59 @@ export class StoriesService {
     this.setRank(stories, 'user_rank', 'user_priority');
   }
 
-  private createOrUpdate(story: Story, method, idString: string): Observable<Story> {
+  private createOrUpdate(story: any, method, idString: string): Observable<Story> {
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
-    let record = {
-      name: story.name,
-      description: story.description,
-      status_code: story.status_code,
-      reason_blocked: story.reason_blocked,
-      project_id: story.project_id,
-      release_id: story.release_id,
-      iteration_id: story.iteration_id,
-      team_id: story.team_id,
-      individual_id: story.individual_id,
-      effort: story.effort == null ? '' : ('' + story.effort),
-      acceptance_criteria: story.acceptance_criteria_string
-    };
+    let record = {};
+    if('name' in story) {
+      record['name'] = story.name;
+    }
+    if('description' in story) {
+      record['description'] = story.description;
+    }
+    if('status_code' in story) {
+      record['status_code'] = story.status_code;
+    }
+    if('reason_blocked' in story) {
+      record['reason_blocked'] = story.reason_blocked;
+    }
+    if('project_id' in story) {
+      record['project_id'] = story.project_id;
+    }
+    if('release_id' in story) {
+      record['release_id'] = story.release_id;
+    }
+    if('iteration_id' in story) {
+      record['iteration_id'] = story.iteration_id;
+    }
+    if('team_id' in story) {
+      record['team_id'] = story.team_id;
+    }
+    if('individual_id' in story) {
+      record['individual_id'] = story.individual_id;
+    }
+    if('effort' in story) {
+      record['effort'] = story.effort == null ? '' : ('' + story.effort);
+    }
+    if('acceptance_criteria_string' in story) {
+      record['acceptance_criteria'] = story.acceptance_criteria_string;
+    }
     if (story.priority) {
       record['priority'] = story.priority;
     }
-    story.story_values.forEach((storyValue: StoryValue) => {
-      record['custom_' + storyValue.story_attribute_id] = storyValue.value;
-    });
+    if (story.story_values) {
+      story.story_values.forEach((storyValue: StoryValue) => {
+        record['custom_' + storyValue.story_attribute_id] = storyValue.value;
+      });
+    }
     return method.call(this.http, baseUrl + idString, {record: record}, options)
       .map((res: any) => res.json())
       .map((response: any) => {
-        return new Story(response.record);
+        if (response.hasOwnProperty('record')) {
+          return new Story(response.record);
+        } else {
+          return new Story(response);
+        }
       });
   }
 

@@ -1,4 +1,5 @@
 import { Component, OnChanges, Input, Output, EventEmitter } from '@angular/core';
+import { AcceptanceCriteriaComponent } from '../acceptance-criteria/acceptance-criteria.component';
 import { StoriesService } from '../../services/stories.service';
 import { ErrorService } from '../../services/error.service';
 import { Story } from '../../models/story';
@@ -44,9 +45,10 @@ export class EditStoryComponent implements OnChanges {
       this.model.story_values.forEach((storyValue) => {
         this.customValues[storyValue.story_attribute_id] = storyValue.value;
       });
+      setTimeout(() => $('input[autofocus=""]').focus(), 0);
     }
     if (changes.customStoryAttributes) {
-      this.customStoryAttributes.forEach((storyAttribute) => {
+      this.customStoryAttributes.forEach((storyAttribute: StoryAttribute) => {
         if (!this.customValues[storyAttribute.id]) {
           this.customValues[storyAttribute.id] = null;
         }
@@ -156,6 +158,9 @@ export class EditStoryComponent implements OnChanges {
         value: value === 'null' ? '' : value
       }));
     });
+    if(this.model.acceptance_criteria.length === 1 && this.model.acceptance_criteria[0].description === AcceptanceCriteriaComponent.instructions) {
+      this.model.acceptance_criteria = [];
+    }
     let method: any = this.model.id ? this.storiesService.update : this.storiesService.create;
     method.call(this.storiesService, this.model).subscribe(
       (story: Story) => {

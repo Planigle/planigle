@@ -276,26 +276,11 @@ export class StoriesComponent implements AfterViewInit {
   }
 
   private getVisibleWork(): Work[] {
-    let self: StoriesComponent = this;
-    let sortedRows: any[] = [];
-    $('.ag-row').each(function() {
-      sortedRows.push($(this));
-    });
-    sortedRows.sort((a: any, b: any) => {
-      let aPos = a.offsetTop;
-      let bPos = b.offsetTop;
-      if (aPos < bPos) {
-        return -1;
-      } else if (bPos < aPos) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
     let visibleWork: Work[] = [];
-    sortedRows.forEach((row: any) => {
-      visibleWork.push(self.getRowWork(row));
-    });
+    let rows: any[] = this.gridOptions.api.getRenderedNodes();
+    for(let i=0;i<rows.length;i++) {
+      visibleWork.push(rows[i].data);
+    }
     return visibleWork;
   }
 
@@ -326,7 +311,7 @@ export class StoriesComponent implements AfterViewInit {
         this.updateRows();
       } else {
         this.checkRemoveRow(this.selection);
-        this.gridOptions.api.refreshView();
+        this.refreshView();
       }
     }
     switch (result) {
@@ -550,7 +535,7 @@ export class StoriesComponent implements AfterViewInit {
     }
   }
 
-  private checkRemoveRow(row: Work) {
+  checkRemoveRow(row: Work): void {
     let filtered = false;
     if ( row.deleted ) {
       filtered = true;
@@ -637,13 +622,13 @@ export class StoriesComponent implements AfterViewInit {
   private statusChanged(gridHolder: StoriesComponent, row: Work): void {
     if (row.isStory()) {
       gridHolder.storiesService.update(<Story> row).subscribe(
-        (story: Story) => gridHolder.updateGridForStatusChange(gridHolder, story),
+        (story: Story) => gridHolder.updateGridForStatusChange(story),
         (err: any) => gridHolder.processError.call(gridHolder, err));
     } else {
       let changedTask: Task = <Task> row;
       gridHolder.tasksService.update(changedTask).subscribe(
         (task: Task) => {
-          gridHolder.updateGridForStatusChange(gridHolder, task);
+          gridHolder.updateGridForStatusChange(task);
           let statusChanged = false;
           if (changedTask.status_code === 2 && changedTask.story.status_code !== 2) {
             changedTask.story.status_code = 2;
@@ -654,7 +639,7 @@ export class StoriesComponent implements AfterViewInit {
           }
           if (statusChanged) {
             gridHolder.storiesService.update(changedTask.story).subscribe(
-              (story: Story) => gridHolder.updateGridForStatusChange(gridHolder, changedTask.story),
+              (story: Story) => gridHolder.updateGridForStatusChange(changedTask.story),
               (err) => gridHolder.processError.call(gridHolder, err));
           }
         },
@@ -662,9 +647,13 @@ export class StoriesComponent implements AfterViewInit {
     }
   }
 
-  updateGridForStatusChange(gridHolder: StoriesComponent, row: Work): void {
-    gridHolder.checkRemoveRow(row);
-    gridHolder.gridOptions.api.refreshView();
+  updateGridForStatusChange(row: Work): void {
+    this.checkRemoveRow(row);
+    this.refreshView();
+  }
+  
+  refreshView(): void {
+    this.gridOptions.api.refreshView();
   }
 
   private setGridHeight(): void {
@@ -682,15 +671,18 @@ export class StoriesComponent implements AfterViewInit {
       suppressMovable: true,
       suppressResize: true,
       suppressSorting: true
-    }, {
-      headerName: '',
-      width: 54,
-      field: 'blank',
-      cellRendererFramework: StoryActionsComponent,
-      suppressMovable: true,
-      suppressResize: true,
-      suppressSorting: true
     }];
+    if (this.user.canChangeBacklog()) {
+      newColumnDefs.push({
+        headerName: '',
+        width: 54,
+        field: 'blank',
+        cellRendererFramework: StoryActionsComponent,
+        suppressMovable: true,
+        suppressResize: true,
+        suppressSorting: true
+      });
+    }
     this.filteredAttributes = [];
     storyAttributes.forEach((storyAttribute: StoryAttribute) => {
       if (storyAttribute.show &&

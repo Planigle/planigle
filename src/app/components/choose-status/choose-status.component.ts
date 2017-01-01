@@ -11,7 +11,8 @@ import { Individual } from '../../models/individual';
 })
 export class ChooseStatusComponent implements AgRendererComponent {
   @Input() model: any;
-  @Input() me: Individual;
+  @Input() me: Individual = null;
+  @Input() includeNoChange: boolean = false;
 
   private updateFunction: any;
   private gridHolder: any;
@@ -54,7 +55,7 @@ export class ChooseStatusComponent implements AgRendererComponent {
       this.model.reason_blocked = reason_blocked;
     }
     let changeOwner: boolean =
-      !this.model.isStory() &&
+      ('isStory' in this.model) && !this.model.isStory() &&
       (this.model.status_code === 1 || this.model.status_code === 3) &&
       this.model.individual_id === null;
     if (changeOwner) {

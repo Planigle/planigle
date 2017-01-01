@@ -9,6 +9,7 @@ declare var $: any;
   styleUrls: ['./acceptance-criteria.component.css']
 })
 export class AcceptanceCriteriaComponent implements OnChanges, AfterViewInit {
+  public static instructions: String = '<Enter criteria here; Press Enter or down arrow to add additional>';
   @Input() model: Story;
   criteriumToEdit: AcceptanceCriterium;
   addedId: number = -1;
@@ -25,7 +26,7 @@ export class AcceptanceCriteriaComponent implements OnChanges, AfterViewInit {
     let self: AcceptanceCriteriaComponent = this;
     $('.grid').selectable({
       filter: '.content',
-      cancel: '.status, .delete',
+      cancel: '.status, .delete, textarea',
       start: function(event, ui) {
         self.stopEditingCriterium();
       },
@@ -36,7 +37,7 @@ export class AcceptanceCriteriaComponent implements OnChanges, AfterViewInit {
           self.editCriterium(criterium);
           setTimeout(() => {
             $('.description textarea').focus().select();
-            $('.ui-selected').removeClass('ui-selected');
+            self.unselectCriteria();
           },750);
         } else {
           self.pasteArea().focus();
@@ -46,6 +47,10 @@ export class AcceptanceCriteriaComponent implements OnChanges, AfterViewInit {
     $('body').keydown(function(event) {
       self.cutPaste.call(self, event);
     });
+  }
+  
+  unselectCriteria(): void {
+    $('.ui-selected').removeClass('ui-selected');
   }
   
   private getCriterium(selection: any): AcceptanceCriterium {
@@ -159,7 +164,7 @@ export class AcceptanceCriteriaComponent implements OnChanges, AfterViewInit {
 
   private ensureAtLeastOneCriterium(): void {
     if (this.model.acceptance_criteria.length === 0) {
-      this.addAcceptanceCriterium('<Enter criteria here; Press Enter or down arrow to add additional>');
+      this.addAcceptanceCriterium(AcceptanceCriteriaComponent.instructions);
     }
   }
 

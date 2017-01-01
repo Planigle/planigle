@@ -13,6 +13,7 @@ export class CustomAttributesComponent {
   @Input() releaseId: number;
   @Input() me: Individual;
   @Input() filter: boolean = false;
+  @Input() multiple: boolean = false;
   @Output() changed: EventEmitter<any> = new EventEmitter();
   
   constructor() { }
