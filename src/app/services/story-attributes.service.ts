@@ -24,16 +24,41 @@ export class StoryAttributesService {
         return result;
       });
   }
+  
+  create(storyAttribute: StoryAttribute): Observable<StoryAttribute> {
+    return this.createOrUpdate(storyAttribute, this.http.post, '');
+  }
 
-  update(storyAttribute: StoryAttribute): Observable<StoryAttribute> {
+  update(storyAttribute: any): Observable<StoryAttribute> {
+    return this.createOrUpdate(storyAttribute, this.http.put, '/' + storyAttribute.id);
+  }
+
+  delete(storyAttribute: StoryAttribute): Observable<StoryAttribute> {
+    return this.http.delete(baseUrl + '/' + storyAttribute.id)
+      .map((res: any) => res.json())
+      .map((response: any) => {
+        if (response.hasOwnProperty('record')) {
+          return new StoryAttribute(response.record);
+        } else {
+          return new StoryAttribute(response);
+        }
+      });
+  }
+
+  private createOrUpdate(storyAttribute: StoryAttribute, method, idString): Observable<StoryAttribute> {
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
     let record = {
+      name: storyAttribute.name,
+      value_type: storyAttribute.value_type,
       width: storyAttribute.width,
-      ordering: storyAttribute.ordering,
-      show: storyAttribute.show
+      show: storyAttribute.show,
+      values: storyAttribute.values()
     };
-    return this.http.put(baseUrl + '/' + storyAttribute.id, {record: record}, options)
+    if(storyAttribute.ordering) {
+      record['ordering'] = storyAttribute.ordering
+    }
+    return method.call(this.http,baseUrl + idString, {record: record}, options)
       .map((res: any) => res.json())
       .map((updatedAttribute: any) => {
         return new StoryAttribute(updatedAttribute);

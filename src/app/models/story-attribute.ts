@@ -44,18 +44,21 @@ export class StoryAttribute {
     this.width = values.width;
     this.ordering = parseFloat(values.ordering);
     this.show = values.show;
-    values.story_attribute_values.forEach((storyAttributeValue) => {
-      this.storyAttributeValues.push(new StoryAttributeValue(storyAttributeValue));
-    });
-    this.storyAttributeValues.sort((v1: StoryAttributeValue, v2: StoryAttributeValue) => {
-      if (v1.value < v2.value) {
-        return -1;
-      }
-      if (v2.value < v1.value) {
-        return 1;
-      }
-      return 0;
-    });
+    let attributeValues = values.story_attribute_values ? values.story_attribute_values : values.storyAttributeValues;
+    if(attributeValues) {
+      attributeValues.forEach((storyAttributeValue) => {
+        this.storyAttributeValues.push(new StoryAttributeValue(storyAttributeValue));
+      });
+      this.storyAttributeValues.sort((v1: StoryAttributeValue, v2: StoryAttributeValue) => {
+        if (v1.value < v2.value) {
+          return -1;
+        }
+        if (v2.value < v1.value) {
+          return 1;
+        }
+        return 0;
+      });
+    }
   }
 
   getFieldName(): string {
@@ -148,5 +151,27 @@ export class StoryAttribute {
       }
     });
     return values;
+  }
+  
+  values(): string {
+    let values: string[] = [];
+    this.storyAttributeValues.forEach((value: StoryAttributeValue) => {
+      if(value.release_id) {
+        values.push(value.release_id + '@' + value.value);
+      } else if(value.id) {
+        values.push('@' + value.id + '@' + value.value);
+      } else {
+        values.push(value.value);
+      }
+    });
+    return values.join(',');
+  }
+
+  hasReleaseList(): boolean {
+    return this.value_type === 4;
+  }
+  
+  hasList(): boolean {
+    return this.value_type === 3 || this.value_type === 4;
   }
 }

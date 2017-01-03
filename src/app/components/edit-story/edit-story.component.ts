@@ -1,4 +1,6 @@
 import { Component, OnChanges, Input, Output, EventEmitter } from '@angular/core';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { EditAttributesComponent } from '../edit-attributes/edit-attributes.component';
 import { AcceptanceCriteriaComponent } from '../acceptance-criteria/acceptance-criteria.component';
 import { StoriesService } from '../../services/stories.service';
 import { ErrorService } from '../../services/error.service';
@@ -17,7 +19,7 @@ declare var $: any;
   selector: 'app-edit-story',
   templateUrl: './edit-story.component.html',
   styleUrls: ['./edit-story.component.css'],
-  providers: [StoriesService, ErrorService]
+  providers: [NgbModal, StoriesService, ErrorService]
 })
 export class EditStoryComponent implements OnChanges {
   @Input() story: Story;
@@ -30,13 +32,17 @@ export class EditStoryComponent implements OnChanges {
   @Input() me: Individual;
   @Input() hasPrevious: boolean;
   @Input() hasNext: boolean;
+  @Output() updatedAttributes: EventEmitter<any> = new EventEmitter();
   @Output() closed: EventEmitter<any> = new EventEmitter();
 
   public model: Story;
   public customValues: Map<string,any> = new Map();
   public error: String;
 
-  constructor(private storiesService: StoriesService, private errorService: ErrorService) {
+  constructor(
+    private modalService: NgbModal,
+    private storiesService: StoriesService,
+    private errorService: ErrorService) {
   }
 
   ngOnChanges(changes: any) {
@@ -196,5 +202,18 @@ export class EditStoryComponent implements OnChanges {
         this.error = this.errorService.getError(err);
       }
     );
+  }
+  
+  editAttributes(): void {
+    const modalRef: NgbModalRef = this.modalService.open(EditAttributesComponent);
+    let component: EditAttributesComponent = modalRef.componentInstance;
+    component.setReleases(this.releases);
+    component.setCustomStoryAttributes(this.customStoryAttributes);
+    modalRef.result.then(
+      (data) => {
+        if(component.hasChanges) {
+          this.updatedAttributes.next();
+        }
+      });
   }
 }

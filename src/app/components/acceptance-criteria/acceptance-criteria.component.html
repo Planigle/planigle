@@ -6,7 +6,7 @@
 				<fa *ngIf="criterium.isDone()" title="Mark Not Done" (click)="criterium.markNotDone()" [name]="'check-square-o'"></fa></div>
 			<div class="cell description">
 				<div [attr.criterium]="criterium.id" class="content" [hidden]="criteriumToEdit == criterium">{{criterium.description}}</div>
-				<textarea *ngIf="criteriumToEdit == criterium" id="edit-{{criterium.id}}" [(ngModel)]="criterium.description" (blur)="stopEditingCriterium()" (keydown)="handleKeyStroke($event)"></textarea>
+				<textarea auto-select *ngIf="criteriumToEdit == criterium" id="edit-{{criterium.id}}" [(ngModel)]="criterium.description" (blur)="stopEditingCriterium()" (keydown)="handleKeyStroke($event)"></textarea>
 			</div>
 			<div class="cell delete"><fa title="Delete" (click)="deleteCriterium(criterium)" [name]="'remove'"></fa></div>
 		</div>

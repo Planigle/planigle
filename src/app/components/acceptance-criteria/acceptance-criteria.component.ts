@@ -34,11 +34,8 @@ export class AcceptanceCriteriaComponent implements OnChanges, AfterViewInit {
         let selection = self.selection();
         if (selection.length == 1) {
           let criterium: AcceptanceCriterium = self.getCriterium.call(self, selection);
+          self.unselectCriteria();
           self.editCriterium(criterium);
-          setTimeout(() => {
-            $('.description textarea').focus().select();
-            self.unselectCriteria();
-          },750);
         } else {
           self.pasteArea().focus();
         }
@@ -68,9 +65,6 @@ export class AcceptanceCriteriaComponent implements OnChanges, AfterViewInit {
     this.criteriumToEdit = null;
     setTimeout(() => {
       this.criteriumToEdit = criterium;
-      setTimeout(() => {
-          $('#edit-' + criterium.id).focus();
-      }, 100);
     }, 100);
   }
 
@@ -155,6 +149,25 @@ export class AcceptanceCriteriaComponent implements OnChanges, AfterViewInit {
         this.editCriterium(this.model.acceptance_criteria[index - 1]);
       }
       event.preventDefault();
+    } else if((event.ctrlKey || event.metaKey) && key === 'v') {
+      setTimeout(() => {
+        let rows: string[] = this.criteriumToEdit.description.split('\n');
+        if(rows.length > 1) {
+          let objects: any[] = this.model.acceptance_criteria.slice(0);
+          objects.splice(0,objects.indexOf(this.criteriumToEdit));
+          if (rows.length > objects.length) {
+            let length: number = objects.length;
+            for(let i=0; i<rows.length - length; i++) {
+              let object: any = this.createNewAcceptanceCriterium();
+              this.model.acceptance_criteria.push(object);
+              objects.push(object);
+            }
+          }
+          for(let i=0; i<rows.length; i++) {
+            objects[i].description = rows[i];
+          }
+        }
+      }, 500);
     }
   }
   

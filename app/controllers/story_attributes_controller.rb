@@ -26,7 +26,7 @@ protected
       params[:record][:project_id] = current_individual.project_id
     end
     params[:record].delete(:is_custom)
-    StoryAttribute.new(params[:record])
+    StoryAttribute.new(record_params)
   end
 
   # Answer if this request is authorized for update.
@@ -52,6 +52,6 @@ protected
   
 private
   def record_params
-    params.require(:record).permit(:project_id, :name, :value_type, :ordering, :is_custom, :show, :width)
+    params.require(:record).permit(:project_id, :name, :value_type, :ordering, :is_custom, :show, :width, :values)
   end
 end

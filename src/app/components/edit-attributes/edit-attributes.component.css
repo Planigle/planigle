@@ -1,0 +1,72 @@
+.panel {
+	float: left;
+}
+
+.panel:nth-child(1) {
+	padding-right: 5px;
+	width: 40%;
+}
+
+.panel:nth-child(1) button {
+	margin-top: 15px;
+	margin-left: 90px;
+}
+
+.panel:nth-child(2) {
+	padding-left: 5px;
+	width: 60%;
+}
+
+.panel:nth-child(2) button {
+	margin-left: 180px;
+}
+
+.list {
+	border: 1px solid rgba(0, 0, 0, 0.15);
+	max-height: 429px;
+	overflow: auto;
+}
+
+.item:nth-child(even) {
+    background-color: #f6f6f6;
+}
+
+.item {
+	clear: both;
+	border: 0px solid black;
+	min-height: 27px;
+}
+
+.item span, .item textarea, .item div {
+	float: left;
+}
+
+.item span {
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-top: 3px;
+}
+
+.item textarea {
+	resize: none;
+}
+
+.attributes .item span, .attributes .item textarea {
+	width: 180px;
+}
+
+.values .item span, .values .item textarea {
+	width: 235px;
+}
+
+.item textarea {
+	padding-left: 3px;
+}
+
+.clear {
+	clear: both;
+}
+
+.delete {
+	padding-left: 5px;
+}

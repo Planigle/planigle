@@ -96,6 +96,7 @@
 			    <input class="form-control" type="number" step="any" [(ngModel)]="model.effort" name="toDo" [disabled]="!me.canChangeBacklog()">
 			  </div>
 			</div>
+			<button type="button" class="btn btn-secondary" (click)="editAttributes()" [hidden]="!me.canChangeBacklog()">Edit Attributes</button>
 		</div>
 		<div class="buttons">
 			<button type="submit" class="btn btn-secondary" (click)="isNew() ? addAnother(form) : ok()" [disabled]="!canSave(form)">{{isNew() ? 'Create' : 'Update'}}</button>

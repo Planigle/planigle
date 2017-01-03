@@ -28,6 +28,8 @@ import { StoryFiltersComponent } from './components/story-filters/story-filters.
 import { StoryOverallActionsComponent } from './components/story-overall-actions/story-overall-actions.component';
 import { CustomAttributesComponent } from './components/custom-attributes/custom-attributes.component';
 import { EditMultipleComponent } from './components/edit-multiple/edit-multiple.component';
+import { EditAttributesComponent } from './components/edit-attributes/edit-attributes.component';
+import { AutoSelectDirective } from './directives/auto-select.directive';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'stories', pathMatch: 'full' },
@@ -53,13 +55,16 @@ const appRoutes: Routes = [
     StoryFiltersComponent,
     StoryOverallActionsComponent,
     CustomAttributesComponent,
-    EditMultipleComponent
+    EditMultipleComponent,
+    EditAttributesComponent,
+    AutoSelectDirective
   ],
   entryComponents: [
     SelectColumnsComponent,
     ConfirmationDialogComponent,
     EditReasonBlockedComponent,
-    EditMultipleComponent
+    EditMultipleComponent,
+    EditAttributesComponent
   ],
   imports: [
     BrowserModule,

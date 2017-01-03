@@ -19,6 +19,7 @@
 		[me]="user"
 		[hasPrevious]="previous() != null"
 		[hasNext]="next() != null"
+		(updatedAttributes)="fetchStoryAttributes()"
 		(closed)="finishedEditing($event.value)"></app-edit-story>
 	<app-edit-task
 		*ngIf="selection && !selection.isStory()"
