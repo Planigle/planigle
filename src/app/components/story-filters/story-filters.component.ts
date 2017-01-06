@@ -184,7 +184,6 @@ export class StoryFiltersComponent implements OnChanges {
   }
 
   addReleaseOptions(releases: Release[]): void {
-    let hasCurrentRelease: boolean = this.hasCurrentRelease(releases);
     releases.push(new Release({
       id: '',
       name: 'No Release'
@@ -193,12 +192,10 @@ export class StoryFiltersComponent implements OnChanges {
       id: 'All',
       name: 'All Releases'
     }));
-    if (hasCurrentRelease) {
-      releases.push(new Release({
-        id: 'Current',
-        name: 'Current Release'
-      }));
-    }
+    releases.push(new Release({
+      id: 'Current',
+      name: 'Current Release'
+    }));
     this.releases = releases;
     if (this.release != null) {
       let index = this.grid.getIndex(this.releases, this.release);
@@ -210,7 +207,6 @@ export class StoryFiltersComponent implements OnChanges {
   }
 
   addIterationOptions(iterations: Iteration[]): void {
-    let hasCurrentIteration: boolean = this.hasCurrentIteration(iterations);
     iterations.push(new Iteration({
       id: '',
       name: 'Backlog'
@@ -219,12 +215,10 @@ export class StoryFiltersComponent implements OnChanges {
       id: 'All',
       name: 'All Iterations'
     }));
-    if (hasCurrentIteration) {
-      iterations.push(new Iteration({
-        id: 'Current',
-        name: 'Current Iteration'
-      }));
-    }
+    iterations.push(new Iteration({
+      id: 'Current',
+      name: 'Current Iteration'
+    }));
     this.iterations = iterations;
     if (this.iteration != null) {
       let index = this.grid.getIndex(this.iterations, this.iteration);
@@ -287,21 +281,23 @@ export class StoryFiltersComponent implements OnChanges {
   }
 
   getCurrentReleaseId(releases: Release[]): number {
+    let result: number = null;
     releases.forEach((release: Release) => {
       if (release.start && release.finish && release.isCurrent()) {
-        return release.id;
+        result = release.id;
       }
     });
-    return null;
+    return result;
   }
 
   getCurrentIterationId(iterations: Iteration[]): number {
+    let result: number = null;
     iterations.forEach((iteration: Iteration) => {
       if (iteration.start && iteration.finish && iteration.isCurrent()) {
-        return iteration.id;
+        result = iteration.id;
       }
     });
-    return null;
+    return result;
   }
   
   get choosableReleases(): Release[] {
@@ -370,13 +366,5 @@ export class StoryFiltersComponent implements OnChanges {
         (individuals: Individual[]) => {
           this.addIndividualOptions(individuals, user);
         });
-  }
-  
-  private hasCurrentRelease(releases: Release[]): boolean {
-    return this.getCurrentReleaseId(releases) !== null;
-  }
-
-  private hasCurrentIteration(iterations: Iteration[]): boolean {
-    return this.getCurrentIterationId(iterations) !== null;
   }
 }

@@ -1,0 +1,21 @@
+<div *ngIf="selection === null">
+	<app-release-overall-actions [grid]="this"></app-release-overall-actions>
+	<span class="title">Releases</span>
+</div>
+<app-edit-release
+	*ngIf="selection"
+	[(release)]="selection"
+	[(me)]="user"
+	(closed)="finishedEditing($event.value)"></app-edit-release>
+<ag-grid-ng2 #agGrid class="ag-fresh"
+	[gridOptions]="gridOptions"
+    [columnDefs]="columnDefs"
+    [rowData]="releases"
+    [context]="context"
+    (rowDoubleClicked)="editRow($event)"
+    enableColResize
+    enableSorting
+    rowHeight="22"
+    suppressCellSelection
+    suppressDragLeaveHidesColumns>
+</ag-grid-ng2>

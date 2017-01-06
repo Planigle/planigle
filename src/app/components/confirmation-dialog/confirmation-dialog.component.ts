@@ -12,6 +12,14 @@ export class ConfirmationDialogComponent {
   constructor(
     private activeModal: NgbActiveModal,
   ) { }
+  
+  confirmDelete(objectType: string, objectName: string) {
+    this.model = {
+      title: 'Delete ' + objectType,
+      body: 'Are you sure you want to delete "' + objectName + '"?',
+      confirmed: false
+    };
+  }
 
   ok(): void {
     this.model.confirmed = true;

@@ -26,8 +26,7 @@ declare var $: any;
   selector: 'app-stories',
   templateUrl: './stories.component.html',
   styleUrls: ['./stories.component.css'],
-  providers: [
-    StoriesService, TasksService, StoryAttributesService, ProjectsService]
+  providers: [StoriesService, TasksService, StoryAttributesService, ProjectsService]
 })
 export class StoriesComponent implements AfterViewInit {
   private static noSelection = 'None';
@@ -76,6 +75,13 @@ export class StoriesComponent implements AfterViewInit {
         self.refresh();
       }, this.user.refresh_interval);
     }
+  }
+  
+  ngOnDestroy(): void {
+    if(this.refresh_interval) {
+      clearInterval(this.refresh_interval);
+    }
+    $(window).off('resize');
   }
   
   private applyNavigation(params: Map<string,string>) {
@@ -758,11 +764,15 @@ export class StoriesComponent implements AfterViewInit {
     }
   }
 
-  private fetchStoryAttributes(): void {
+  private fetchStoryAttributes(ignoreErrors?: boolean): void {
     this.storyAttributesService.getStoryAttributes()
       .subscribe(
         (storyAttributes: StoryAttribute[]) => this.setAttributes(storyAttributes),
-        (err: any) => this.processError(err));
+        (err: any) => {
+          if(!ignoreErrors) {
+            this.processError(err);
+          }
+        });
   }
 
   private fetchProjects(): void {
@@ -784,7 +794,7 @@ export class StoriesComponent implements AfterViewInit {
     this.router.navigate(['stories', params]);
   }
 
-  fetchStories(selection?: Work): void {
+  fetchStories(selection?: Work, ignoreErrors?: boolean): void {
     this.waiting = true;
     this.storiesService.getStories(this.filters.queryString)
       .subscribe(
@@ -806,19 +816,23 @@ export class StoriesComponent implements AfterViewInit {
             this.fetchMenus();
           }
         },
-        (err: any) => this.processError(err));
+        (err: any) => {
+          if(!ignoreErrors) {
+            this.processError(err)
+          }
+        });
   }
 
   refresh(): void {
     if (!this.selection) { // Don't blow away current edits
       this.menusLoaded = false; // Force reload
-      this.fetchAll();
+      this.fetchAll(true);
     }
   }
 
-  private fetchAll(): void {
-    this.fetchStories();
-    this.fetchStoryAttributes();
+  private fetchAll(ignoreErrors?: boolean): void {
+    this.fetchStories(null, ignoreErrors);
+    this.fetchStoryAttributes(ignoreErrors);
   }
 
   private fetchMenus(): void {

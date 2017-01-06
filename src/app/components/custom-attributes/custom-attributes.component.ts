@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 import { StoryAttribute } from '../../models/story-attribute'
 import { Individual } from '../../models/individual'
 
@@ -7,7 +7,7 @@ import { Individual } from '../../models/individual'
   templateUrl: './custom-attributes.component.html',
   styleUrls: ['./custom-attributes.component.css']
 })
-export class CustomAttributesComponent {
+export class CustomAttributesComponent implements OnChanges {
   @Input() customStoryAttributes: StoryAttribute[] = [];
   @Input() customValues: Map<string,any> = new Map();
   @Input() releaseId: number;
@@ -17,6 +17,18 @@ export class CustomAttributesComponent {
   @Output() changed: EventEmitter<any> = new EventEmitter();
   
   constructor() { }
+  
+  ngOnChanges(changes): void {
+    if (changes.releaseId) {
+      this.customStoryAttributes.forEach((attribute: StoryAttribute) => {
+        if(attribute.hasReleaseList()) {
+          if(attribute.getValuesForRelease(this.releaseId).indexOf(this.customValues[attribute.id]) == -1) {
+            this.customValues[attribute.id] = 'null';
+          }
+        }
+      });
+    }
+  }
   
   valueChanged(): void {
     this.changed.next();

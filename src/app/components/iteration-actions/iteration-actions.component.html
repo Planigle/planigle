@@ -1,0 +1,5 @@
+<div class="actions">
+	<fa title="Edit" (click)="edit()" [name]="'edit'"></fa>
+	<fa title="Delete" *ngIf="grid.user && grid.user.canChangeRelease()" (click)="deleteItem()" [name]="'remove'"></fa>
+	<fa title="Plan" (click)="plan()" [name]="'search'"></fa>
+</div>

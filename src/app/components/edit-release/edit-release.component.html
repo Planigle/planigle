@@ -1,0 +1,45 @@
+<div class="edit-component">
+	<form (ngsubmit)="ok()" #form="ngForm">
+		<div class="panel">
+		    <div [hidden]="!error" class="alert alert-danger">
+	          {{error}}
+	        </div>
+			<div class="form-group row">
+			  <label for="name" class="col-xs-2 col-form-label">Release Name</label>
+			  <div class="col-xs-10">
+			    <input class="form-control" type="text" [(ngModel)]="model.name" name="name" #name="ngModel" maxlength="250" [disabled]="!me.canChangeRelease()" required autofocus>
+			    <div [hidden]="name.valid || name.pristine" class="alert alert-danger">
+		          Name is required
+		        </div>
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <label for="start" class="col-xs-2 col-form-label">Start</label>
+			  <div class="col-xs-10">
+				<my-date-picker
+					[options]="{dateFormat: 'mm-dd-yyyy', showClearDateBtn: false}"
+					[selDate]="model.startStringTwoDigit"
+					[hidden]="!me.canChangeRelease()"
+					(dateChanged)="model.start = $event.jsdate"></my-date-picker>
+			  	<p class="form-control-static" [hidden]="me.canChangeRelease()">{{model.startString}}</p>
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <label for="finish" class="col-xs-2 col-form-label">Finish</label>
+			  <div class="col-xs-10">
+				<my-date-picker
+					[options]="{dateFormat: 'mm-dd-yyyy', showClearDateBtn: false}"
+					[selDate]="model.finishStringTwoDigit"
+					[hidden]="!me.canChangeRelease()"
+					(dateChanged)="model.finish = $event.jsdate"></my-date-picker>
+			  	<p class="form-control-static" [hidden]="me.canChangeRelease()">{{model.finishString}}</p>
+			  </div>
+			</div>
+		</div>
+		<div class="buttons">
+			<button type="submit" class="btn btn-secondary" (click)="isNew() ? addAnother(form) : ok()" [disabled]="!canSave(form)">{{isNew() ? 'Create' : 'Update'}}</button>
+			<button type="submit" class="btn btn-secondary" (click)="ok()" [disabled]="!canSave(form)" [hidden]="!isNew()">Create & Close</button>
+			<button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+		</div>
+	</form>
+</div>

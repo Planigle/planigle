@@ -1,7 +1,10 @@
 import { Component } from '@angular/core';
 import { AgRendererComponent } from 'ag-grid-ng2/main';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { StoriesComponent } from '../stories/stories.component';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
+import { Work } from '../../models/work';
+import { Story } from '../../models/story';
 import { Task } from '../../models/task';
 import { FinishedEditing } from '../../models/finished-editing';
 
@@ -11,8 +14,8 @@ import { FinishedEditing } from '../../models/finished-editing';
   styleUrls: ['./story-actions.component.css']
 })
 export class StoryActionsComponent implements AgRendererComponent {
-  private model: any;
-  private grid: any;
+  private model: Work;
+  private grid: StoriesComponent;
 
   constructor(
     private modalService: NgbModal) { }
@@ -28,17 +31,13 @@ export class StoryActionsComponent implements AgRendererComponent {
 
   deleteItem(): void {
     let self: StoryActionsComponent = this;
-    const modalRef: NgbModalRef = this.modalService.open(ConfirmationDialogComponent, {size: 'sm'});
+    const modalRef: NgbModalRef = this.modalService.open(ConfirmationDialogComponent);
     let typeOfObject: string = this.model.isStory() ? 'Story' : 'Task';
-    let model: any = {
-      title: 'Delete ' + typeOfObject,
-      body: 'Are you sure you want to delete this ' + typeOfObject + '?',
-      confirmed: false
-    };
-    modalRef.componentInstance.model = model;
+    let component: ConfirmationDialogComponent = modalRef.componentInstance;
+    component.confirmDelete(typeOfObject, this.model.name);
     modalRef.result.then(
       (result: any) => {
-        if (model.confirmed) {
+        if (component.model.confirmed) {
           self.grid.deleteWork(self.model);
         }
       }
@@ -46,6 +45,6 @@ export class StoryActionsComponent implements AgRendererComponent {
   }
 
   addTask(): void {
-    this.grid.addTask(this.model);
+    this.grid.addTask(<Story> this.model);
   }
 }

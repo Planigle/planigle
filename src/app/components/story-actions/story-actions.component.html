@@ -1,3 +1,5 @@
-<fa title="Edit" (click)="edit()" [name]="'edit'"></fa>
-<fa title="Delete" (click)="deleteItem()" [name]="'remove'"></fa>
-<fa title="Add Task" (click)="addTask()" [name]="'plus'" *ngIf="model.isStory()"></fa>
+<div class="actions">
+	<fa title="Edit" (click)="edit()" [name]="'edit'"></fa>
+	<fa title="Delete" (click)="deleteItem()" [name]="'remove'"></fa>
+	<fa title="Add Task" (click)="addTask()" [name]="'plus'" *ngIf="model.isStory()"></fa>
+</div>

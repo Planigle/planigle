@@ -30,11 +30,21 @@ import { CustomAttributesComponent } from './components/custom-attributes/custom
 import { EditMultipleComponent } from './components/edit-multiple/edit-multiple.component';
 import { EditAttributesComponent } from './components/edit-attributes/edit-attributes.component';
 import { AutoSelectDirective } from './directives/auto-select.directive';
+import { IterationsComponent } from './components/iterations/iterations.component';
+import { ReleasesComponent } from './components/releases/releases.component';
+import { ScheduleComponent } from './components/schedule/schedule.component';
+import { EditIterationComponent } from './components/edit-iteration/edit-iteration.component';
+import { EditReleaseComponent } from './components/edit-release/edit-release.component';
+import { IterationActionsComponent } from './components/iteration-actions/iteration-actions.component';
+import { ReleaseActionsComponent } from './components/release-actions/release-actions.component';
+import { IterationOverallActionsComponent } from './components/iteration-overall-actions/iteration-overall-actions.component';
+import { ReleaseOverallActionsComponent } from './components/release-overall-actions/release-overall-actions.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'stories', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
-  { path: 'stories', component: StoriesComponent, canActivate: [AuthGuardService] }
+  { path: 'stories', component: StoriesComponent, canActivate: [AuthGuardService] },
+  { path: 'schedule', component: ScheduleComponent, canActivate: [AuthGuardService] }
 ];
 
 @NgModule({
@@ -57,7 +67,16 @@ const appRoutes: Routes = [
     CustomAttributesComponent,
     EditMultipleComponent,
     EditAttributesComponent,
-    AutoSelectDirective
+    AutoSelectDirective,
+    IterationsComponent,
+    ReleasesComponent,
+    ScheduleComponent,
+    EditIterationComponent,
+    EditReleaseComponent,
+    IterationActionsComponent,
+    ReleaseActionsComponent,
+    IterationOverallActionsComponent,
+    ReleaseOverallActionsComponent
   ],
   entryComponents: [
     SelectColumnsComponent,
@@ -75,7 +94,9 @@ const appRoutes: Routes = [
     Angular2FontawesomeModule,
     AgGridModule.withComponents([
       ChooseStatusComponent,
-      StoryActionsComponent
+      StoryActionsComponent,
+      IterationActionsComponent,
+      ReleaseActionsComponent
     ])
   ],
   providers: [

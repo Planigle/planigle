@@ -3,8 +3,11 @@
 		<li class="nav-item">
 			<a class="nav-link planigle-site" href="http://www.planigle.org" target="_blank"><img src="images/logo.png"></a>
 		</li>
-		<li class="nav-item active">
+		<li class="nav-item active" [routerLink]="['/stories']" routerLinkActive="active">
 			<a class="nav-link" [routerLink]="['/stories']">Stories</a>
+		</li>
+		<li class="nav-item active" [routerLink]="['/schedule']" routerLinkActive="active">
+			<a class="nav-link" [routerLink]="['/schedule']">Schedule</a>
 		</li>
 		<li class="nav-item float-xs-right">
 			<a class="nav-link" (click)="logout()">Log out</a>

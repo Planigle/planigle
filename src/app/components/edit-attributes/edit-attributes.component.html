@@ -20,7 +20,7 @@
 			<div class="form-group row">
 			  <label for="type" class="col-xs-2 col-form-label">Type</label>
 			  <div class="col-xs-10">
-			      <select name="type" class="form-control" [(ngModel)]="selectedAttribute.value_type" (ngModelChange)="updateAttributeType(selectedAttribute)">
+			      <select name="type" class="form-control" [(ngModel)]="selectedAttribute.value_type" (ngModelChange)="addValueIfNeeded(selectedAttribute, null)">
 			      	<option [ngValue]="0">String</option>
 			      	<option [ngValue]="1">Text</option>
 			      	<option [ngValue]="2">Number</option>
@@ -33,7 +33,7 @@
 			<div class="form-group row" *ngIf="selectedAttribute.hasReleaseList()">
 			  <label for="release" class="col-xs-2 col-form-label">Release</label>
 			  <div class="col-xs-10">
-			      <select name="release" class="form-control" [(ngModel)]="selectedRelease.id">
+			      <select name="release" class="form-control" [(ngModel)]="selectedRelease.id" (ngModelChange)="addValueIfNeeded(selectedAttribute, selectedRelease.id)">
 			      	<option *ngFor="let release of releases" [ngValue]="release.id">{{release.name}}</option>
 			      </select>
 			  </div>

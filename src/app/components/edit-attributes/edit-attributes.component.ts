@@ -73,9 +73,17 @@ export class EditAttributesComponent {
     return this.selectedAttribute == attribute;
   }
   
-  updateAttributeType(attribute: StoryAttribute): void {
-    if(attribute.hasList() && attribute.storyAttributeValues.length == 0) {
-      this.addValue();
+  addValueIfNeeded(attribute: StoryAttribute, releaseId: number): void {
+    if(attribute.hasList()) {
+      let hasValue = false;
+      attribute.storyAttributeValues.forEach((value: StoryAttributeValue) => {
+        if(value.release_id == releaseId) {
+          hasValue = true;
+        }
+      });
+      if(!hasValue) {
+        this.addValue();
+      }
     }
   }
   
