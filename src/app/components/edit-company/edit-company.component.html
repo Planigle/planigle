@@ -1,0 +1,32 @@
+<div class="edit-component">
+	<form (ngsubmit)="ok()" #form="ngForm">
+		<div class="panel">
+		    <div [hidden]="!error" class="alert alert-danger" [innerHtml]="error"></div>
+			<div class="form-group row">
+			  <label for="name" class="col-xs-2 col-form-label">Company Name</label>
+			  <div class="col-xs-10">
+			    <input class="form-control" type="text" [(ngModel)]="model.name" name="name" #name="ngModel" maxlength="250" [disabled]="!me.canChangeRelease()" required autofocus>
+			    <div [hidden]="name.valid || name.pristine" class="alert alert-danger">
+		          Name is required
+		        </div>
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <label for="premium_expiry" class="col-xs-2 col-form-label">Premium Expiry</label>
+			  <div class="col-xs-10">
+			  	<p class="form-control-static">{{model.premium_expiry_string}}</p>
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <label for="premium_limit" class="col-xs-2 col-form-label">Premium Limit (# Users)</label>
+			  <div class="col-xs-10">
+			  	<p class="form-control-static">{{model.premium_limit}}</p>
+			  </div>
+			</div>
+		</div>
+		<div class="buttons">
+			<button type="submit" class="btn btn-secondary" (click)="ok()" [disabled]="!canSave(form)">{{'Update'}}</button>
+			<button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+		</div>
+	</form>
+</div>

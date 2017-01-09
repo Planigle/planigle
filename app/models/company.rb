@@ -104,6 +104,9 @@ class Company < ActiveRecord::Base
   
   # Override as_json to include projects.
   def as_json(options = {})
+    if !options[:except]
+      options[:except] = [:created_at, :updated_at, :deleted_at, :last_notified_of_expiration]
+    end
     if !options[:methods]
       options[:methods] = [:filtered_projects]
     end

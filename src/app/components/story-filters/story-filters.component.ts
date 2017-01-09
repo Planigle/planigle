@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, NgZone, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, Output, OnChanges, NgZone, ViewChild, ElementRef, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { StoriesComponent } from '../../components/stories/stories.component';
 import { ReleasesService } from '../../services/releases.service';
@@ -26,6 +26,8 @@ export class StoryFiltersComponent implements OnChanges {
   private static all: string = '-1';
   @Input() grid: StoriesComponent;
   @Input() customStoryAttributes: StoryAttribute[];
+  @Output() currentReleaseChanged: EventEmitter<any> = new EventEmitter();
+  @Output() currentIterationChanged: EventEmitter<any> = new EventEmitter();
   @ViewChild('searchTextInput') searchTextInput: ElementRef;
   public release: any;
   public releases: Release[] = [];
@@ -196,6 +198,7 @@ export class StoryFiltersComponent implements OnChanges {
       id: 'Current',
       name: 'Current Release'
     }));
+    let prevCurrentRelease: number = this.getCurrentReleaseId(this.releases);
     this.releases = releases;
     if (this.release != null) {
       let index = this.grid.getIndex(this.releases, this.release);
@@ -203,6 +206,12 @@ export class StoryFiltersComponent implements OnChanges {
     }
     if (this.release == null) {
       this.release = this.releases[this.releases.length - 1].id;
+    }
+    if(this.release === 'Current') {
+      let currentRelease: number = this.getCurrentReleaseId(this.releases);
+      if(prevCurrentRelease !== currentRelease) {
+        this.currentReleaseChanged.emit({value: currentRelease});
+      }
     }
   }
 
@@ -219,6 +228,7 @@ export class StoryFiltersComponent implements OnChanges {
       id: 'Current',
       name: 'Current Iteration'
     }));
+    let prevCurrentIteration: number = this.getCurrentIterationId(this.iterations);
     this.iterations = iterations;
     if (this.iteration != null) {
       let index = this.grid.getIndex(this.iterations, this.iteration);
@@ -226,6 +236,12 @@ export class StoryFiltersComponent implements OnChanges {
     }
     if (this.iteration == null) {
       this.iteration = this.iterations[this.iterations.length - 1].id;
+    }
+    if(this.iteration === 'Current') {
+      let currentIteration: number = this.getCurrentIterationId(this.iterations);
+      if(prevCurrentIteration !== currentIteration) {
+        this.currentIterationChanged.emit({value: currentIteration});
+      }
     }
   }
 

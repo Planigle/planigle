@@ -131,6 +131,20 @@ export class StoriesComponent implements AfterViewInit {
     });
   }
   
+  updateNewStoryReleaseId(currentReleaseId: number) {
+    // Needed to handle case where initially loading new story with current release
+    if(this.selection && this.selection.isStory() && !this.selection.id) {
+      this.selection = this.createNewStory();
+    }
+  }
+      
+  updateNewStoryIterationId(currentIterationId: number) {
+    // Needed to handle case where initially loading new story with current iteration
+    if(this.selection && this.selection.isStory() && !this.selection.id) {
+      this.selection = this.createNewStory();
+    }
+  }
+  
   private createNewTask(story: Story): Task {
     return new Task({
       story: story,

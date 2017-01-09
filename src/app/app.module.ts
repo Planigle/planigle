@@ -39,12 +39,23 @@ import { IterationActionsComponent } from './components/iteration-actions/iterat
 import { ReleaseActionsComponent } from './components/release-actions/release-actions.component';
 import { IterationOverallActionsComponent } from './components/iteration-overall-actions/iteration-overall-actions.component';
 import { ReleaseOverallActionsComponent } from './components/release-overall-actions/release-overall-actions.component';
+import { PeopleComponent } from './components/people/people.component';
+import { TeamsComponent } from './components/teams/teams.component';
+import { IndividualsComponent } from './components/individuals/individuals.component';
+import { EditCompanyComponent } from './components/edit-company/edit-company.component';
+import { EditTeamComponent } from './components/edit-team/edit-team.component';
+import { EditIndividualComponent } from './components/edit-individual/edit-individual.component';
+import { TeamActionsComponent } from './components/team-actions/team-actions.component';
+import { IndividualActionsComponent } from './components/individual-actions/individual-actions.component';
+import { IndividualOverallActionsComponent } from './components/individual-overall-actions/individual-overall-actions.component';
+import { EditProjectComponent } from './components/edit-project/edit-project.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'stories', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'stories', component: StoriesComponent, canActivate: [AuthGuardService] },
-  { path: 'schedule', component: ScheduleComponent, canActivate: [AuthGuardService] }
+  { path: 'schedule', component: ScheduleComponent, canActivate: [AuthGuardService] },
+  { path: 'people', component: PeopleComponent, canActivate: [AuthGuardService] }
 ];
 
 @NgModule({
@@ -76,7 +87,17 @@ const appRoutes: Routes = [
     IterationActionsComponent,
     ReleaseActionsComponent,
     IterationOverallActionsComponent,
-    ReleaseOverallActionsComponent
+    ReleaseOverallActionsComponent,
+    PeopleComponent,
+    TeamsComponent,
+    IndividualsComponent,
+    EditCompanyComponent,
+    EditTeamComponent,
+    EditIndividualComponent,
+    TeamActionsComponent,
+    IndividualActionsComponent,
+    IndividualOverallActionsComponent,
+    EditProjectComponent
   ],
   entryComponents: [
     SelectColumnsComponent,
@@ -96,7 +117,9 @@ const appRoutes: Routes = [
       ChooseStatusComponent,
       StoryActionsComponent,
       IterationActionsComponent,
-      ReleaseActionsComponent
+      ReleaseActionsComponent,
+      TeamActionsComponent,
+      IndividualActionsComponent
     ])
   ],
   providers: [

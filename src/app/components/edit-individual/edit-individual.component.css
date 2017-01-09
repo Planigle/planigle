@@ -1,0 +1,19 @@
+.edit-component .panel:nth-child(1) {
+	width: 500px;
+}
+
+.edit-component .panel:nth-child(2) {
+	width: 500px;
+}
+
+.notification input {
+	width: auto;
+	display: inline;
+	margin-top: 7px;
+}
+
+.refresh-interval input {
+	width: 80px;
+	display: inline;
+	text-align: right;
+}

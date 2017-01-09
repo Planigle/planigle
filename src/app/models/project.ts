@@ -1,18 +1,18 @@
+import { Organization } from './organization';
+import { Company } from './company';
 import { Team } from './team';
 
-export class Project {
-  public id: number;
-  public name: string;
+export class Project extends Organization {
   public description: string;
   public survey_key: string;
   public survey_mode: number;
   public company_id: number;
+  public company: Company;
   public track_actuals: boolean;
   public teams: Team[] = [];
 
   constructor(values: any) {
-    this.id = values.id;
-    this.name = values.name;
+    super(values);
     this.description = values.description;
     this.survey_key = values.survey_key;
     this.survey_mode = values.survey_mode;
@@ -21,8 +21,18 @@ export class Project {
 
     if (values.teams) {
       values.teams.forEach((team) => {
-        this.teams.push(new Team(team));
+        let newTeam: Team = new Team(team);
+        newTeam.project = this;
+        this.teams.push(newTeam);
       });
     }
+  }
+  
+  get uniqueId(): string {
+    return 'P' + this.id;
+  }
+  
+  isProject(): boolean {
+    return true;
   }
 }

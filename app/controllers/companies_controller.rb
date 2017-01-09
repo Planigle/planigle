@@ -10,9 +10,9 @@ class CompaniesController < ResourceController
         begin
           Company.transaction do
             @record = create_record
-            @project = is_amf ? params[1] : Project.new(params[:project])
+            @project = Project.new(params[:project])
             @project.company_id = @record.id ? @record.id : 0 # To prevent company must be set error
-            @individual = is_amf ? params[2] : Individual.new(params[:individual])
+            @individual = Individual.new(params[:individual])
             @individual.company_id = @record.id ? @record.id : 0 # To prevent company must be set error
             @individual.projects << @project # To prevent project must be set error
             @individual.role = Individual::ProjectAdmin
@@ -34,7 +34,7 @@ class CompaniesController < ResourceController
         begin
           Company.transaction do
             @record = create_record
-            @project = is_amf ? params[1] : Project.new(params[:project])          
+            @project = Project.new(params[:project])          
             @project.company_id = @record.id ? @record.id : 0 # To prevent company must be set error
             if @record.valid? and @project.valid? and @record.projects << @project and @record.save
               format.xml { render :xml => @record, :status => :created }
@@ -86,40 +86,28 @@ protected
 
   # Answer the current record based on the current individual.
   def get_record
-    Company.find(is_amf ? params[0] : params[:id])
+    Company.find(params[:id])
   end
   
   # Create a new record given the params.
   def create_record
-    is_amf ? params[0] : Company.new(params[:record])
+    Company.new(params[:record])
   end
   
   # Update the record given the params.
   def update_record
-    if is_amf
-      @record.name = params[0].name
-      @record.premium_limit = params[0].premium_limit
-      @record.premium_expiry = params[0].premium_expiry
-    else
-      @record.attributes = params[:record]
-    end
+    @record.attributes = record_params
   end
   
   # Update the project given the params.
   def update_project
-    if is_amf
-      @project.name = params[1].name
-      @project.description = params[1].description
-      @project.survey_mode = params[1].survey_mode
-    else
-      @project.attributes = params[:project]
-    end
+    @project.attributes = params[:project]
   end
 
   # Answer if this request is authorized for update.
   def authorized_for_update?(record)
-    new_premium_expiry = is_amf ? params[0].premium_expiry : params[:record][:premium_expiry]
-    new_premium_limit = is_amf ? params[0].premium_limit : params[:record][:premium_limit]
+    new_premium_expiry = params[:record][:premium_expiry]
+    new_premium_limit = params[:record][:premium_limit]
     if (current_individual.role > Individual::Admin && new_premium_expiry && record.premium_expiry != (new_premium_expiry.class == Date ? new_premium_expiry : Date.parse(new_premium_expiry)))
       false # Must be admin to change premium_expiry
     elsif (current_individual.role > Individual::Admin && new_premium_limit && record.premium_limit != new_premium_limit.to_i)

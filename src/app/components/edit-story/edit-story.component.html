@@ -1,9 +1,7 @@
 <div class="edit-component">
 	<form (ngsubmit)="ok()" #form="ngForm">
 		<div class="panel">
-		    <div [hidden]="!error" class="alert alert-danger">
-	          {{error}}
-	        </div>
+		    <div [hidden]="!error" class="alert alert-danger" [innerHtml]="error"></div>
 			<div class="form-group row">
 			  <label for="name" class="col-xs-2 col-form-label">Story Name</label>
 			  <div class="col-xs-10">

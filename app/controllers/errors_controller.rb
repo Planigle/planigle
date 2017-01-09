@@ -5,15 +5,9 @@ protected
 
   # Create a new record given the params.
   def create_record
-    if is_amf
-      params[0].individual_id = current_individual.id
-      params[0].time = Time.new
-      params[0]
-    else
-      params[:record][:individual_id] = current_individual.id
-      params[:record][:time] = Time.new
-      Error.new(params[:record])
-    end
+    params[:record][:individual_id] = current_individual.id
+    params[:record][:time] = Time.new
+    Error.new(params[:record])
   end
   
 

@@ -1,0 +1,7 @@
+<div class="actions">
+	<fa title="Edit" (click)="edit()" [name]="'edit'"></fa>
+	<fa title="Delete" *ngIf="grid.user && grid.user.canChangeRelease() && !model.isCompany()" (click)="deleteItem()" [name]="'remove'"></fa>
+	<span class="padding" *ngIf="!grid.user || !grid.user.canChangeRelease() || model.isCompany()"></span>
+	<fa title="Add Project" (click)="addProject()" [name]="'plus'" *ngIf="model.isCompany()"></fa>
+	<fa title="Add Team" (click)="addTeam()" [name]="'plus'" *ngIf="model.isProject()"></fa>
+</div>

@@ -1,0 +1,19 @@
+:host /deep/ .ag-cell:first-child {
+	text-overflow: clip;
+}
+
+:host /deep/ .ag-cell:first-child span {
+	padding-left: 0px !important;
+}
+
+:host /deep/ .project [colid=name] {
+	padding-left: 15px;
+}
+
+:host /deep/ .team [colid=name] {
+	padding-left: 30px;
+}
+
+:host /deep/ .ag-fresh .ag-group-cell {
+	font-style: normal;
+}

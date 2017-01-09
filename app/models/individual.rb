@@ -147,10 +147,14 @@ class Individual < ActiveRecord::Base
       options[:except] = [:crypted_password, :salt, :remember_token, :remember_token_expires_at, :activation_code, :accepted_agreement, :created_at, :updated_at, :deleted_at]
     end
     if !options[:methods]
-      options[:methods] = [:project_ids]
+      options[:methods] = [:project_ids, :team_name]
     end
     super(options)
   end  
+  
+  def team_name
+    team ? team.name : nil
+  end
 
   # Prettier method name for json.
   def activated

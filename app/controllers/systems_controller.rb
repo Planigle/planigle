@@ -54,13 +54,8 @@ protected
   
   # Update the record given the params.
   def update_record
-    if is_amf
-      @license_changed = @record.license_agreement != params[0].license_agreement
-      @record.license_agreement = params[0].license_agreement
-    else
-      @license_changed = params[:record] && @record.license_agreement != params[:record][:license_agreement]
-      @record.attributes = params[:record]
-    end
+    @license_changed = params[:record] && @record.license_agreement != params[:record][:license_agreement]
+    @record.attributes = params[:record]
   end
 
   # Save the record (answering whether it was successful
@@ -102,7 +97,7 @@ protected
   # Answer the reporting data for the specified release.
   def data_release
     report_data = {}
-    release_id = is_amf ? params[0][:release_id] : params[:release_id]
+    release_id = params[:release_id]
     release = Release.find(release_id)
     if (release != nil && release.project_id == project_id)
       report_data['release_totals'] = ReleaseTotal.find(:all, :conditions => ['release_id = ?', release_id])
@@ -114,7 +109,7 @@ protected
   # Answer the reporting data for the specified iteration.
   def data_iteration
     report_data = {}
-    iteration_id = is_amf ? params[0][:iteration_id] : params[:iteration_id]
+    iteration_id = params[:iteration_id]
     iteration = Iteration.find(iteration_id)
     if (iteration != nil && iteration.project_id == project_id)
       report_data['iteration_totals'] = IterationTotal.find(:all, :conditions => ['iteration_id = ?', iteration_id])

@@ -1,0 +1,33 @@
+<div *ngIf="selection === null">
+	<span class="title">Teams</span>
+</div>
+<app-edit-company
+	*ngIf="selection && selection.isCompany()"
+	[(company)]="selection"
+	[(me)]="user"
+	(closed)="finishedEditing($event.value)"></app-edit-company>
+<app-edit-project
+	*ngIf="selection && selection.isProject()"
+	[(project)]="selection"
+	[(me)]="user"
+	(closed)="finishedEditing($event.value)"></app-edit-project>
+<app-edit-team
+	*ngIf="selection && selection.isTeam()"
+	[(team)]="selection"
+	[(me)]="user"
+	(closed)="finishedEditing($event.value)"></app-edit-team>
+<ag-grid-ng2 #agGrid class="ag-fresh"
+	[gridOptions]="gridOptions"
+    [columnDefs]="columnDefs"
+    [rowData]="companies"
+    [context]="context"
+    [getNodeChildDetails]="getChildren"
+    [getRowClass]="getRowClass"
+    (rowDoubleClicked)="editRow($event)"
+    (rowGroupOpened)="rowGroupOpened($event)"
+    enableColResize
+    enableSorting
+    rowHeight="22"
+    suppressCellSelection
+    suppressDragLeaveHidesColumns>
+</ag-grid-ng2>

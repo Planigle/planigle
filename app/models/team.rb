@@ -12,6 +12,14 @@ class Team < ActiveRecord::Base
   validates_length_of       :name,                   :maximum => 40, :allow_nil => true # Allow nil to workaround bug
   validates_length_of       :description,            :maximum => 4096, :allow_nil => true
 
+  # Override as_json to exclude private attributes.
+  def serializable_hash(options = {})
+    if !options[:except]
+      options[:except] = [:created_at, :updated_at, :deleted_at]
+    end
+    super(options)
+  end  
+
   # Only admins can create projects.
   def authorized_for_create?(current_user)
     case current_user.role
@@ -50,12 +58,4 @@ class Team < ActiveRecord::Base
   def updated_at_string
     updated_at ? updated_at.to_s : updated_at
   end
-
-  # Override as_json to exclude private attributes.
-  def as_json(options = {})
-    if !options[:except]
-      options[:except] = [:created_at, :updated_at, :deleted_at]
-    end
-    super(options)
-  end  
 end

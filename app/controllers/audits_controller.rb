@@ -9,7 +9,7 @@ class AuditsController < ApplicationController
     else
       query = ['project_id = project_id']
     end
-    query_params = is_amf ? params[0] : params
+    query_params = params
     if query_params
       if query_params[:object_id]; query[0] += ' and auditable_id = ?'; query << query_params[:object_id]; end
       if query_params[:user_id]; query[0] += ' and user_id = ?'; query << query_params[:user_id]; end
@@ -27,7 +27,7 @@ class AuditsController < ApplicationController
   # GET /records/1
   # GET /records/1.xml
   def show
-    @record = Audit.find(is_amf ? params[0] : params[:id])
+    @record = Audit.find(params[:id])
     if (authorized_for_read?(@record))
       respond_to do |format|
         format.xml { render :xml => @record }

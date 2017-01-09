@@ -5,7 +5,11 @@
 	<app-header></app-header>
 	<div [hidden]="selection != null">
 		<app-story-overall-actions [grid]="this"></app-story-overall-actions>
-		<app-story-filters [grid]="this" [customStoryAttributes]="customStoryAttributes"></app-story-filters>
+		<app-story-filters
+			[grid]="this"
+			[customStoryAttributes]="customStoryAttributes"
+			(currentReleaseChanged)="updateNewStoryReleaseId($event.value)"
+			(currentIterationChanged)="updateNewStoryIterationId($event.value)"></app-story-filters>
 	</div>
 	<app-edit-story
 		*ngIf="selection && selection.isStory()"

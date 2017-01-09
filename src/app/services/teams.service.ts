@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
+import { Http, Headers, RequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { Team } from '../models/team';
 
@@ -22,6 +22,41 @@ export class TeamsService {
           });
         }
         return result;
+      });
+  }
+  
+  create(team: Team): Observable<Team> {
+    return this.createOrUpdate(team, this.http.post, '');
+  }
+
+  update(team: Team): Observable<Team> {
+    return this.createOrUpdate(team, this.http.put, '/' + team.id);
+  }
+
+  delete(team: Team): Observable<Team> {
+    return this.http.delete(baseUrl + '/' + team.id)
+      .map((res: any) => res.json())
+      .map((response: any) => {
+        if (response.hasOwnProperty('record')) {
+          return new Team(response.record);
+        } else {
+          return new Team(response);
+        }
+      });
+  }
+
+  private createOrUpdate(team: Team, method, idString): Observable<Team> {
+    let headers: Headers = new Headers({ 'Content-Type': 'application/json' });
+    let options: RequestOptions = new RequestOptions({ headers: headers });
+    let record: any = {
+      name: team.name,
+      description: team.description,
+      project_id: team.project_id
+    };
+    return method.call(this.http, baseUrl.replace(new RegExp('{project_id}'), '' + team.project_id) + idString, {record: record}, options)
+      .map((res: any) => res.json())
+      .map((updatedTeam: any) => {
+        return new Team(updatedTeam);
       });
   }
 }

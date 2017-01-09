@@ -1,13 +1,22 @@
-export class Team {
-  public id: number;
-  public name: string;
+import { Organization } from './organization';
+import { Project } from './project';
+
+export class Team extends Organization {
   public description: string;
   public project_id: number;
+  public project: Project;
 
   constructor(values: any) {
-    this.id = values.id;
-    this.name = values.name;
+    super(values);
     this.description = values.description;
     this.project_id = values.project_id;
+  }
+  
+  get uniqueId(): string {
+    return 'T' + this.id;
+  }
+  
+  isTeam(): boolean {
+    return true;
   }
 }

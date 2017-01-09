@@ -1,0 +1,22 @@
+<div *ngIf="selection === null">
+	<app-individual-overall-actions [grid]="this"></app-individual-overall-actions>
+	<span class="title">Individuals</span>
+</div>
+<app-edit-individual
+	*ngIf="selection"
+	[(individual)]="selection"
+	[(me)]="user"
+	[(teams)]="teams"
+	(closed)="finishedEditing($event.value)"></app-edit-individual>
+<ag-grid-ng2 #agGrid class="ag-fresh"
+	[gridOptions]="gridOptions"
+    [columnDefs]="columnDefs"
+    [rowData]="individuals"
+    [context]="context"
+    (rowDoubleClicked)="editRow($event)"
+    enableColResize
+    enableSorting
+    rowHeight="22"
+    suppressCellSelection
+    suppressDragLeaveHidesColumns>
+</ag-grid-ng2>
