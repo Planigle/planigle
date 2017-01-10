@@ -12,6 +12,8 @@ export class ErrorService {
         const body = error.json() || '';
         if(body.error) {
           return body.error;
+        } else if(body.errors) {
+          return '<ul><li>' + body.errors.join('</li><li>') +  '</li></ul>';
         } else {
           let errors = [];
           for(let key in body) {

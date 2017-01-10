@@ -40,8 +40,8 @@ export class SessionsService {
           if (error === 'You must accept the license agreement to proceed') {
             let agreement = err.json().agreement;
             $('#agreementDialog').one('show.bs.modal', function (event) {
-              $(self).find('.modal-title').text('License Agreement');
-              $(self).find('.modal-body').html(agreement.replace(/\r/g, '<br>'));
+              $('.modal-title').text('License Agreement');
+              $('.modal-body').html(agreement.replace(/\r/g, '<br>'));
             }).modal();
           } else {
             response.error = error;

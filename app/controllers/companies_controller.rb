@@ -6,47 +6,42 @@ class CompaniesController < ResourceController
   # POST /companies.xml
   def create
     if params[:individual]
-      respond_to do |format|
-        begin
-          Company.transaction do
-            @record = create_record
-            @project = Project.new(params[:project])
-            @project.company_id = @record.id ? @record.id : 0 # To prevent company must be set error
-            @individual = Individual.new(params[:individual])
-            @individual.company_id = @record.id ? @record.id : 0 # To prevent company must be set error
-            @individual.projects << @project # To prevent project must be set error
-            @individual.role = Individual::ProjectAdmin
-            if @record.valid? and @project.valid? and @individual.valid? and @record.projects << @project and @record.individuals << @individual and @record.save
-              format.xml { render :xml => '<?xml version="1.0" encoding="UTF-8"?><records>' + @record.to_xml(:skip_instruct => true) + @individual.to_xml(:skip_instruct => true) + "</records>", :status => :created }
-              format.amf { render :amf => [@record, @individual] }
-            else
-              raise ActiveRecord::RecordNotSaved
-            end
-            CompanyMailer.signup_notification( @record, @project, @individual ).deliver_now
+      begin
+        Company.transaction do
+          @record = create_record
+          @project = Project.new(project_params)
+          @project.company_id = @record.id ? @record.id : 0 # To prevent company must be set error
+          @individual = Individual.new(individual_params)
+          @individual.company_id = @record.id ? @record.id : 0 # To prevent company must be set error
+          @individual.projects << @project # To prevent project must be set error
+          @individual.role = Individual::ProjectAdmin
+          if @record.valid? and @project.valid? and @individual.valid? and @record.projects << @project and @record.individuals << @individual and @record.save
+            render :json => {
+              company: @record,
+              individual: @individual
+            }, :status => :created
+          else
+            raise ActiveRecord::RecordNotSaved
           end
-        rescue Exception => e
-          format.xml { render :xml => merge_errors(@record, @project, @individual), :status => :unprocessable_entity }
-          format.amf { render :amf => @record.errors.full_messages.concat(@project.errors.full_messages.concat(@individual.errors.full_messages)) }
+          CompanyMailer.signup_notification( @record, @project, @individual ).deliver_now
         end
+      rescue Exception => e
+        render :json => merge_errors(@record, @project, @individual), :status => :unprocessable_entity
       end
     elsif params[:project]
-      respond_to do |format|
-        begin
-          Company.transaction do
-            @record = create_record
-            @project = Project.new(params[:project])          
-            @project.company_id = @record.id ? @record.id : 0 # To prevent company must be set error
-            if @record.valid? and @project.valid? and @record.projects << @project and @record.save
-              format.xml { render :xml => @record, :status => :created }
-              format.amf { render :amf => @record }
-            else
-              raise ActiveRecord::RecordNotSaved
-            end
+      begin
+        Company.transaction do
+          @record = create_record
+          @project = Project.new(project_params)          
+          @project.company_id = @record.id ? @record.id : 0 # To prevent company must be set error
+          if @record.valid? and @project.valid? and @record.projects << @project and @record.save
+            render :json => @record, :status => :created
+          else
+            raise ActiveRecord::RecordNotSaved
           end
-        rescue Exception => e
-          format.xml { render :xml => merge_errors(@record, @project), :status => :unprocessable_entity }
-          format.amf { render :amf => @record.errors.full_messages.concat(@project.errors.full_messages) }
         end
+      rescue Exception => e
+        format.xml { render :xml => merge_errors(@record, @project), :status => :unprocessable_entity }
       end
     else
       super
@@ -57,16 +52,20 @@ protected
 
   # Merge the errors from the company, project and individal on signup.
   def merge_errors(company, project, individual = nil)
-    errors = company.errors.full_messages.concat(project.errors.full_messages)
+    errors = company.errors.full_messages
+    if project
+      errors = errors.concat(project.errors.full_messages)
+    end
     if individual
       errors = errors.concat(individual.errors.full_messages)
     end
     if errors.empty?
       errors.push("There was an error processing your request.  Please contact support.")
     end
-    builder = Builder::XmlMarkup.new(:indent => 2)
-    builder.instruct!
-    builder.errors {|e| errors.each { |msg| e.error(msg)}}
+    errors
+    {
+      errors: errors
+    }
   end
 
   # For creating companies, you either need to be logged in or it needs to be a signup.
@@ -91,7 +90,7 @@ protected
   
   # Create a new record given the params.
   def create_record
-    Company.new(params[:record])
+    Company.new(record_params)
   end
   
   # Update the record given the params.
@@ -121,5 +120,13 @@ private
 
   def record_params
     params.require(:record).permit(:name, :premium_limit, :premium_expiry, :last_notified_of_expiration)
+  end
+  
+  def project_params
+    params.require(:project).permit(:name, :description)
+  end
+  
+  def individual_params
+    params.require(:individual).permit(:login, :password, :password_confirmation, :email, :phone_number, :first_name, :last_name)
   end
 end

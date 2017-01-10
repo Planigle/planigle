@@ -49,10 +49,12 @@ import { TeamActionsComponent } from './components/team-actions/team-actions.com
 import { IndividualActionsComponent } from './components/individual-actions/individual-actions.component';
 import { IndividualOverallActionsComponent } from './components/individual-overall-actions/individual-overall-actions.component';
 import { EditProjectComponent } from './components/edit-project/edit-project.component';
+import { SignupComponent } from './components/signup/signup.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'stories', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
+  { path: 'signup', component: SignupComponent },
   { path: 'stories', component: StoriesComponent, canActivate: [AuthGuardService] },
   { path: 'schedule', component: ScheduleComponent, canActivate: [AuthGuardService] },
   { path: 'people', component: PeopleComponent, canActivate: [AuthGuardService] }
@@ -97,7 +99,8 @@ const appRoutes: Routes = [
     TeamActionsComponent,
     IndividualActionsComponent,
     IndividualOverallActionsComponent,
-    EditProjectComponent
+    EditProjectComponent,
+    SignupComponent
   ],
   entryComponents: [
     SelectColumnsComponent,

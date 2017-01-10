@@ -36,3 +36,9 @@ button, .error {
 	height: 400px;
 	overflow-y: auto;
 }
+
+a {
+	width: 100%;
+    text-align: center;
+    margin-top: 10px;
+}

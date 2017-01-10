@@ -2,12 +2,13 @@
     <div class="row">
         <div class="account-wall mx-auto">
         	<img class="profile-img" src="images/logo.png" alt="Planigle logo">
-        	<div class="text-xs-center">Version 2017.3</div>
+        	<div class="text-xs-center">Version 2017.4</div>
         	<form class="form-signin">
         		<input [(ngModel)]="user.login" name="login" type="text" class="form-control" placeholder="User Name" required autofocus autocomplete="off">
         		<input [(ngModel)]="user.password" name="password" type="password" class="form-control" placeholder="Password" required autocomplete="off">
 		        <div class="error">{{response.error}}</div>
         		<button (click)="login()" class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+        		<a class="nav-link" [routerLink]="['/signup']">Click here to get a free account</a>
         	</form>
         </div>
 	</div>

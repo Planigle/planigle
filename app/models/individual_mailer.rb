@@ -19,7 +19,7 @@ class IndividualMailer < ActionMailer::Base
 
   # Set up common email properties.
   def setup_email(individual)
-    @url = "#{Rails.configuration.site_url ? Rails.configuration.site_url : site}/activate/#{individual.activation_code}"
+    @url = "#{Rails.configuration.site_url ? Rails.configuration.site_url : site}/api/activate/#{individual.activation_code}"
     @logo = Rails.configuration.site_logo ? Rails.configuration.site_logo : logo
     @support = Rails.configuration.support_email ? Rails.configuration.support_email : support
     @backlog = Rails.configuration.backlog_url ? Rails.configuration.backlog_url : backlog

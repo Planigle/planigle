@@ -1,0 +1,96 @@
+<div class="edit-component">
+	<div class="instructions">To sign up for a free Planigle account, please fill out the information below.  If you'd like to join an existing account, ask the admin for that account to add you.</div>
+	<form (ngsubmit)="ok()" #form="ngForm">
+		<div class="panel">
+		    <div [hidden]="!error" class="alert alert-danger" [innerHtml]="error"></div>
+			<div class="form-group row">
+			  <label for="company_name" class="col-xs-3 col-form-label">Company Name</label>
+			  <div class="col-xs-9">
+			    <input class="form-control" type="text" [(ngModel)]="model.company_name" name="company_name" #company_name="ngModel" maxlength="40" required autofocus>
+			    <div [hidden]="company_name || company_name" class="alert alert-danger">
+		          Company Name is required
+		        </div>
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <label for="project_name" class="col-xs-3 col-form-label">Project Name</label>
+			  <div class="col-xs-9">
+			    <input class="form-control" type="text" [(ngModel)]="model.project_name" name="project_name" #project_name="ngModel" maxlength="40" required>
+			    <div [hidden]="project_name.valid || project_name.pristine" class="alert alert-danger">
+		          Project Name is required
+		        </div>
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <label for="project_description" class="col-xs-3 col-form-label">Project Description</label>
+			  <div class="col-xs-9">
+				<textarea class="form-control" name="project_description" rows="3" [(ngModel)]="model.project_description"></textarea>
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <label for="login" class="col-xs-3 col-form-label">Login</label>
+			  <div class="col-xs-9">
+			    <input class="form-control" type="text" [(ngModel)]="model.login" name="login" #login="ngModel" maxlength="40" required>
+			    <div [hidden]="login.valid || login.pristine" class="alert alert-danger">
+		          Login is required
+		        </div>
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <label for="password" class="col-xs-3 col-form-label">Password</label>
+			  <div class="col-xs-9">
+			    <input class="form-control" type="password" [(ngModel)]="model.password" name="password" #password="ngModel" maxlength="40" required>
+			    <div [hidden]="password.valid || password.pristine" class="alert alert-danger">
+		          Password is required
+		        </div>
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <label for="password_confirmation" class="col-xs-3 col-form-label">Password Confirmation</label>
+			  <div class="col-xs-9">
+			    <input class="form-control" type="password" [(ngModel)]="model.password_confirmation" name="password_confirmation" #password_confirmation="ngModel" maxlength="40" required>
+			    <div [hidden]="password_confirmation.valid || password_confirmation.pristine" class="alert alert-danger">
+		          Password Confirmation is required
+		        </div>
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <label for="email" class="col-xs-3 col-form-label">Email</label>
+			  <div class="col-xs-9">
+			    <input class="form-control" type="text" [(ngModel)]="model.email" name="email" #email="ngModel" maxlength="100" required>
+			    <div [hidden]="email.valid || email.pristine" class="alert alert-danger">
+		          Email is required
+		        </div>
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <label for="phone_number" class="col-xs-3 col-form-label">Phone Number</label>
+			  <div class="col-xs-9">
+			    <input class="form-control" type="text" [(ngModel)]="model.phone_number" name="phone_number" #phone_number="ngModel" maxlength="20">
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <label for="first_name" class="col-xs-3 col-form-label">First Name</label>
+			  <div class="col-xs-9">
+			    <input class="form-control" type="text" [(ngModel)]="model.first_name" name="first_name" #first_name="ngModel" maxlength="40" required>
+			    <div [hidden]="first_name.valid || first_name.pristine" class="alert alert-danger">
+		          First Name is required
+		        </div>
+			  </div>
+			</div>
+			<div class="form-group row">
+			  <label for="last_name" class="col-xs-3 col-form-label">Last Name</label>
+			  <div class="col-xs-9">
+			    <input class="form-control" type="text" [(ngModel)]="model.last_name" name="last_name" #last_name="ngModel" maxlength="40" required>
+			    <div [hidden]="last_name.valid || last_name.pristine" class="alert alert-danger">
+		          Last Name is required
+		        </div>
+			  </div>
+			</div>
+		</div>
+		<div class="buttons">
+			<button type="submit" class="btn btn-secondary" (click)="ok()" [disabled]="!form.valid">OK</button>
+			<button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+		</div>
+	</form>
+</div>
