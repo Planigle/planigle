@@ -26,7 +26,7 @@ export class CompaniesService {
         return result;
       });
   }
-  
+
   register(registration: Registration): Observable<any> {
     let headers: Headers = new Headers({ 'Content-Type': 'application/json' });
     let options: RequestOptions = new RequestOptions({ headers: headers });
@@ -45,18 +45,17 @@ export class CompaniesService {
       phone_number: registration.phone_number,
       first_name: registration.first_name,
       last_name: registration.last_name
-    }
+    };
     return this.http.post(baseUrl, {record: record, project: project, individual: individual}, options)
       .map((res: any) => res.json())
       .map((info: any) => {
-        debugger
         return {
           company: new Company(info.company),
           individual: new Individual(info.individual)
         };
       });
   }
-  
+
   create(company: Company): Observable<Company> {
     return this.createOrUpdate(company, this.http.post, '');
   }

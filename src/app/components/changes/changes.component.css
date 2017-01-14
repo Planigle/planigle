@@ -1,0 +1,42 @@
+.search-bar {
+	padding-top: 2px;
+	padding-bottom: 2px;	
+	margin-top: -6px;
+}
+
+my-date-picker {
+	display: inline-block;
+	width: 122px;
+	position: relative;
+	top: 6px;
+}
+
+:host /deep/ .mydp {
+	border-color: rgb(169, 169, 169);
+}
+
+:host /deep/ .icon {
+	font-size: 0.75rem !important;
+	line-height: 21px !important;
+}
+
+:host /deep/ input {
+	padding: 2px !important;
+	font-size: 1rem !important;
+	height: 21px !important;
+	line-height: 21px !important;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+	color: black !important;
+}
+
+:host /deep/ .selbtngroup {
+	height: 21px !important;
+}
+
+:host /deep/ button {
+	width: 20px !important;
+}
+
+.to {
+	padding: 5px;
+}

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { StoryAttributesService } from '../../services/story-attributes.service';
 import { ErrorService } from '../../services/error.service';
@@ -26,7 +26,7 @@ export class EditAttributesComponent {
     private storyAttributesService: StoryAttributesService,
     private errorService: ErrorService
   ) { }
-  
+
   setCustomStoryAttributes(storyAttributes: StoryAttribute[]): void {
     this.hasChanges = false;
     this.originalAttributes = storyAttributes;
@@ -34,7 +34,7 @@ export class EditAttributesComponent {
       this.customStoryAttributes.push(new StoryAttribute(storyAttribute));
     });
   }
-  
+
   setReleases(releases: Release[]): void {
     this.releases = releases.slice(0);
     let none = new Release({
@@ -43,18 +43,18 @@ export class EditAttributesComponent {
     this.releases.push(none);
     this.selectedRelease = none;
   }
-  
+
   selectAttribute(attribute: StoryAttribute): void {
     this.selectedAttribute = attribute;
     this.selectedValue = null;
   }
-  
+
   addAttribute(): void {
     let attribute: StoryAttribute = this.newAttribute();
     this.customStoryAttributes.push(attribute);
     this.selectedAttribute = attribute;
   }
-  
+
   private newAttribute(): StoryAttribute {
     return new StoryAttribute({
       name: 'New Attribute',
@@ -64,62 +64,62 @@ export class EditAttributesComponent {
       width: 100
     });
   }
-  
+
   deleteAttribute(attribute: StoryAttribute): void {
     this.customStoryAttributes.splice(this.customStoryAttributes.indexOf(attribute), 1);
   }
-  
+
   isSelected(attribute: StoryAttribute): boolean {
-    return this.selectedAttribute == attribute;
+    return this.selectedAttribute === attribute;
   }
-  
+
   addValueIfNeeded(attribute: StoryAttribute, releaseId: number): void {
-    if(attribute.hasList()) {
+    if (attribute.hasList()) {
       let hasValue = false;
       attribute.storyAttributeValues.forEach((value: StoryAttributeValue) => {
-        if(value.release_id == releaseId) {
+        if (value.release_id === releaseId) {
           hasValue = true;
         }
       });
-      if(!hasValue) {
+      if (!hasValue) {
         this.addValue();
       }
     }
   }
-  
+
   selectValue(value: StoryAttributeValue): void {
     this.selectedValue = value;
   }
-      
+
   addValue(): void {
     let value: StoryAttributeValue = this.newValue();
     this.selectedAttribute.storyAttributeValues.push(value);
     this.selectedValue = value;
   }
-  
+
   private newValue(): StoryAttributeValue {
     let value: StoryAttributeValue = new StoryAttributeValue({
       story_attribute_id: this.selectedAttribute.id,
       value: 'New Value'
     });
-    if (this.selectedAttribute.value_type == 4 && this.selectedRelease != null && String(this.selectedRelease.id) != 'null') {
+    if (this.selectedAttribute.value_type === 4 && this.selectedRelease != null && String(this.selectedRelease.id) !== 'null') {
       value.release_id = this.selectedRelease.id;
     }
-    return value
+    return value;
   }
-    
+
   deleteValue(value: StoryAttributeValue): void {
     this.selectedAttribute.storyAttributeValues.splice(this.selectedAttribute.storyAttributeValues.indexOf(value), 1);
   }
-  
+
   isSelectedValue(value: StoryAttributeValue): boolean {
-    return this.selectedValue == value;
+    return this.selectedValue === value;
   }
-  
+
   ok(): void {
     this.processChanges(this.determineChanges());
   }
-  
+
   private processChanges(changes: any[]): void {
     if (changes.length > 0) {
       this.hasChanges = true;
@@ -128,7 +128,7 @@ export class EditAttributesComponent {
       this.activeModal.close('OK');
     }
   }
-  
+
   private processChange(changes: any[]): void {
     let change: any = changes[0];
     changes = changes.slice(1);
@@ -137,7 +137,7 @@ export class EditAttributesComponent {
       (attribute: StoryAttribute) => this.processChanges(changes),
       (err: any) => this.errorService.showError(err));
   }
-  
+
   private determineChanges(): any[] {
     let self: EditAttributesComponent = this;
     let changes: any[] = [];
@@ -157,7 +157,7 @@ export class EditAttributesComponent {
           parameter: attribute
         });
       } else {
-        if(original.name !== attribute.name || original.value_type !== attribute.value_type ||
+        if (original.name !== attribute.name || original.value_type !== attribute.value_type ||
           original.values() !== attribute.values()) {
           changes.push({
             method: self.storyAttributesService.update,
@@ -168,11 +168,11 @@ export class EditAttributesComponent {
     });
     return changes;
   }
-  
+
   private find(attributes: any[], attribute: any): any {
     let found: any = null;
     attributes.forEach((candidate: any) => {
-      if(candidate.id === attribute.id) {
+      if (candidate.id === attribute.id) {
         found = candidate;
       }
     });
@@ -182,15 +182,17 @@ export class EditAttributesComponent {
   cancel(): void {
     this.activeModal.close('Cancel');
   }
-  
+
   handleAttributeKeyStroke(event): void {
-    this.handleKeyStroke(event, this.customStoryAttributes, this.selectedAttribute, this.selectAttribute, this.addAttribute, this.newAttribute, 'name');
+    this.handleKeyStroke(event, this.customStoryAttributes, this.selectedAttribute, this.selectAttribute,
+      this.addAttribute, this.newAttribute, 'name');
   }
-    
+
   handleValueKeyStroke(event): void {
-    this.handleKeyStroke(event, this.selectedAttribute.storyAttributeValues, this.selectedValue, this.selectValue, this.addValue, this.newValue, 'value');
+    this.handleKeyStroke(event, this.selectedAttribute.storyAttributeValues, this.selectedValue, this.selectValue,
+      this.addValue, this.newValue, 'value');
   }
-  
+
   private handleKeyStroke(event, values: any[], selection, select, add, create, property): void {
     let key: string = event.key;
     let index: number = values === null ? null : values.indexOf(selection);
@@ -206,21 +208,21 @@ export class EditAttributesComponent {
         select.call(this, values[index - 1]);
       }
       event.preventDefault();
-    } else if((event.ctrlKey || event.metaKey) && key === 'v') {
+    } else if ((event.ctrlKey || event.metaKey) && key === 'v') {
       setTimeout(() => {
         let rows: string[] = selection[property].split('\n');
-        if(rows.length > 1) {
+        if (rows.length > 1) {
           let objects: any[] = values.slice(0);
-          objects.splice(0,objects.indexOf(selection));
+          objects.splice(0, objects.indexOf(selection));
           if (rows.length > objects.length) {
             let length: number = objects.length;
-            for(let i=0; i<rows.length - length; i++) {
+            for (let i = 0; i < rows.length - length; i++) {
               let object: any = create.call(this);
               values.push(object);
               objects.push(object);
             }
           }
-          for(let i=0; i<rows.length; i++) {
+          for (let i = 0; i < rows.length; i++) {
             objects[i][property] = rows[i];
           }
         }

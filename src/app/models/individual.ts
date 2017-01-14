@@ -1,3 +1,6 @@
+import { ReflectiveInjector } from '@angular/core';
+import { DatesService } from '../services/dates.service';
+
 export class Individual {
   public id: number;
   public login: string;
@@ -30,19 +33,10 @@ export class Individual {
     this.enabled = values.enabled;
     this.role = values.role;
     if (values.last_login) {
-      if(values.last_login instanceof Date) {
+      if (values.last_login instanceof Date) {
         this.last_login = values.last_login;
       } else {
-        let lastLoginString: string[] = values.last_login.split('-');
-        this.last_login = new Date(
-          parseInt(lastLoginString[0], 10),
-          parseInt(lastLoginString[1], 10)-1,
-          parseInt(lastLoginString[2], 10),
-          parseInt(lastLoginString[2].substring(3,5)),
-          parseInt(lastLoginString[2].substring(6,8)),
-          parseInt(lastLoginString[2].substring(9,11)),
-          parseInt(lastLoginString[2].substring(12,15)),
-        );
+        this.last_login = this.getDatesService().parseDateTime(values.last_login);
       }
     }
     this.team_id = values.team_id;
@@ -58,64 +52,57 @@ export class Individual {
   get name(): string {
     return this.first_name + (this.last_name ? (' ' + this.last_name) : '');
   }
-  
+
   get role_name(): string {
-    switch(this.role) {
+    switch (this.role) {
       case 0:
-        return 'Admin'; 
+        return 'Admin';
       case 1:
-        return 'Project Admin'; 
+        return 'Project Admin';
       case 2:
-        return 'Project User'; 
+        return 'Project User';
       case 3:
-        return 'Read Only User'; 
+        return 'Read Only User';
     }
   }
-  
+
   get is_activated(): boolean {
     return this.activated_at != null;
   }
-  
+
   get notify(): boolean {
-    return this.notification_type !=- 0;
+    return this.notification_type !== 0;
   }
-  
+
   set notify(notify: boolean) {
     this.notification_type = notify ? 1 : 0;
   }
-  
+
   get refresh_interval_minutes(): number {
     return this.refresh_interval ? this.refresh_interval / (1000 * 60 * 5) : this.refresh_interval;
   }
-  
+
   set refresh_interval_minutes(interval: number) {
-    if(interval) {
+    if (interval) {
       this.refresh_interval = interval * 1000 * 60 * 5;
     } else {
       this.refresh_interval = interval;
     }
   }
-  
+
   get last_login_string() {
-    if(this.last_login) {
-      let hour: number = this.last_login.getHours() > 12 ? this.last_login.getHours() - 12 : this.last_login.getHours();
-      if(hour == 0) {
-        hour = 12;
-      }
-      let minute: any = this.last_login.getMinutes() < 10 ? '0' + this.last_login.getMinutes() : this.last_login.getMinutes();
-      let ampm: string = this.last_login.getHours() > 11 ? 'pm' : 'am';
-      return (this.last_login.getMonth()+1) + '-' + this.last_login.getDate() + '-' + this.last_login.getFullYear() + ' ' +
-        hour + ':' + minute + ' ' + ampm;
-    } else {
-      return null;
-    }
+    return this.getDatesService().getDateTimeString(this.last_login);
   }
-  
+
   canChangeBacklog(): boolean {
     return this.role <= 2;
   }
 
   canChangeRelease(): boolean {
     return this.role <= 1;
+  }
+
+  private getDatesService(): DatesService {
+    return ReflectiveInjector.resolveAndCreate([DatesService]).get(DatesService);
   }
 }

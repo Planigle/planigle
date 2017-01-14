@@ -24,7 +24,7 @@ export class TeamsService {
         return result;
       });
   }
-  
+
   create(team: Team): Observable<Team> {
     return this.createOrUpdate(team, this.http.post, '');
   }

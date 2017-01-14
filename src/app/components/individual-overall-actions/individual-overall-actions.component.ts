@@ -8,9 +8,9 @@ import { IndividualsComponent } from '../individuals/individuals.component';
 })
 export class IndividualOverallActionsComponent {
   @Input() grid: IndividualsComponent;
-  
+
   constructor() { }
-  
+
   addIndividual(): void {
     this.grid.addIndividual();
   }

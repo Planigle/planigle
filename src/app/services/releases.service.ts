@@ -24,7 +24,7 @@ export class ReleasesService {
         return result;
       });
   }
-  
+
   create(release: Release): Observable<Release> {
     return this.createOrUpdate(release, this.http.post, '');
   }

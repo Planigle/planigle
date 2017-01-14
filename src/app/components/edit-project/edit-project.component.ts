@@ -3,7 +3,7 @@ import { ProjectsService } from '../../services/projects.service';
 import { ErrorService } from '../../services/error.service';
 import { Project } from '../../models/project';
 import { Individual } from '../../models/individual';
-import { FinishedEditing } from '../../models/finished-editing'
+import { FinishedEditing } from '../../models/finished-editing';
 declare var $: any;
 
 @Component({
@@ -12,7 +12,7 @@ declare var $: any;
   styleUrls: ['./edit-project.component.css'],
   providers: [ProjectsService]
 })
-export class EditProjectComponent {
+export class EditProjectComponent implements OnChanges {
   @Input() project: Project;
   @Input() me: Individual;
   @Output() closed: EventEmitter<any> = new EventEmitter();
@@ -21,7 +21,7 @@ export class EditProjectComponent {
   public error: String;
 
   constructor(
-    private projectsService: ProjectsService, 
+    private projectsService: ProjectsService,
     private errorService: ErrorService) {
   }
 
@@ -35,23 +35,23 @@ export class EditProjectComponent {
   isNew(): boolean {
     return this.model.id == null;
   }
-  
+
   canSave(form: any): boolean {
     return form.form.valid && this.me.canChangeRelease();
   }
-  
+
   ok(): void {
     this.saveModel(FinishedEditing.Save, null);
   }
-  
+
   cancel(): void {
     this.closed.emit({value: FinishedEditing.Cancel});
   }
-  
+
   addAnother(form): void {
     this.saveModel(FinishedEditing.AddAnother, form);
   }
-  
+
   private saveModel(result: FinishedEditing, form: any): void {
     let method: any = this.model.id ? this.projectsService.update : this.projectsService.create;
     method.call(this.projectsService, this.model).subscribe(

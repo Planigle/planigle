@@ -35,25 +35,25 @@ export class TasksService {
     let record: any = {
       story_id: task.story_id,
     };
-    if('name' in task) {
+    if ('name' in task) {
       record['name'] = task.name;
     }
-    if('description' in task) {
+    if ('description' in task) {
       record['description'] = task.description;
     }
-    if('status_code' in task) {
+    if ('status_code' in task) {
       record['status_code'] = task.status_code;
     }
-    if('reason_blocked' in task) {
+    if ('reason_blocked' in task) {
       record['reason_blocked'] = task.reason_blocked;
     }
-    if('individual_id' in task) {
+    if ('individual_id' in task) {
       record['individual_id'] = task.individual_id;
     }
-    if('estimate' in task) {
+    if ('estimate' in task) {
       record['estimate'] = task.estimate == null ? '' : ('' + task.estimate);
     }
-    if('effort' in task) {
+    if ('effort' in task) {
       record['effort'] = task.effort == null ? '' : ('' + task.effort);
     }
     if (task.priority) {

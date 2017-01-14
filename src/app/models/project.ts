@@ -27,11 +27,11 @@ export class Project extends Organization {
       });
     }
   }
-  
+
   get uniqueId(): string {
     return 'P' + this.id;
   }
-  
+
   isProject(): boolean {
     return true;
   }

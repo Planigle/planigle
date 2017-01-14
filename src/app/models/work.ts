@@ -13,7 +13,7 @@ export abstract class Work {
   public cycle_time: number;
   public added: boolean = false;
   public deleted: boolean = false;
-  
+
   constructor(values: any) {
     this.id = values.id;
     this.name = values.name;
@@ -28,7 +28,7 @@ export abstract class Work {
     this.lead_time = values.lead_time ? parseFloat(values.lead_time) : null;
     this.cycle_time = values.cycle_time ? parseFloat(values.cycle_time) : null;
   }
-  
+
   abstract get uniqueId(): string;
   abstract get size(): number;
   abstract get toDo(): number;

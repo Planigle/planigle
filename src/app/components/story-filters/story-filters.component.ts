@@ -1,4 +1,4 @@
-import { Component, Input, Output, OnChanges, NgZone, ViewChild, ElementRef, EventEmitter } from '@angular/core';
+import { Component, Input, Output, AfterViewInit, OnChanges, NgZone, ViewChild, ElementRef, EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { StoriesComponent } from '../../components/stories/stories.component';
 import { ReleasesService } from '../../services/releases.service';
@@ -17,7 +17,7 @@ import { StoryAttribute } from '../../models/story-attribute';
   styleUrls: ['./story-filters.component.css'],
   providers: [ ReleasesService, IterationsService, TeamsService, IndividualsService ]
 })
-export class StoryFiltersComponent implements OnChanges {
+export class StoryFiltersComponent implements AfterViewInit, OnChanges {
   private static defaultRelease = 'Current';
   private static defaultIteration = 'Current';
   private static defaultTeam = 'MyTeam';
@@ -39,10 +39,10 @@ export class StoryFiltersComponent implements OnChanges {
   public individuals: Individual[] = [];
   public status: any;
   public showMoreOptions: boolean = false;
-  public customValues: Map<string,any> = new Map();
+  public customValues: Map<string, any> = new Map();
   private searchText: string = '';
   private hasAdditionalFilters: boolean =  false;
-  
+
   statuses: any[] = [
     {id: 0, name: 'Not Started'},
     {id: 1, name: 'In Progress'},
@@ -51,7 +51,7 @@ export class StoryFiltersComponent implements OnChanges {
     {id: 3, name: 'Done'},
     {id: 'All', name: 'All Statuses'}
   ];
-  
+
   constructor(
     private ngzone: NgZone,
     private releasesService: ReleasesService,
@@ -59,7 +59,7 @@ export class StoryFiltersComponent implements OnChanges {
     private teamsService: TeamsService,
     private individualsService: IndividualsService
   ) { }
-  
+
   ngOnChanges(changes: any): void {
     if (changes.customStoryAttributes) {
       this.customStoryAttributes.forEach((storyAttribute) => {
@@ -69,7 +69,7 @@ export class StoryFiltersComponent implements OnChanges {
       });
     }
   }
-  
+
   ngAfterViewInit(): void {
     this.ngzone.runOutsideAngular(() => {
       Observable.fromEvent(this.searchTextInput.nativeElement, 'keyup')
@@ -79,13 +79,13 @@ export class StoryFiltersComponent implements OnChanges {
         });
     });
   }
-  
+
   get enabledIndividuals(): Individual[] {
     return this.individuals.filter((individual: Individual) => {
       return individual.enabled;
     });
   }
-  
+
   get queryString(): string {
     let queryString = '?';
     if (this.release !== 'All') {
@@ -106,20 +106,22 @@ export class StoryFiltersComponent implements OnChanges {
     if (this.searchText !== '') {
       queryString += 'text=' + this.searchText + '&';
     }
-    for(let key in this.customValues) {
-      let value = this.customValues[key];
-      if(value != StoryFiltersComponent.all) {
-        queryString += 'custom_' + key + '=' + (value === 'null' ? '' : value) + '&';
+    for (let key in this.customValues) {
+      if (this.customValues.hasOwnProperty(key)) {
+        let value = this.customValues[key];
+        if (value !== StoryFiltersComponent.all) {
+          queryString += 'custom_' + key + '=' + (value === 'null' ? '' : value) + '&';
+        }
       }
     };
     return queryString.substring(0, queryString.length - 1);
   }
-  
+
   updateNavigation(): void {
     this.grid.updateNavigation();
   }
-  
-  applyNavigation(params: Map<string,string>): void {
+
+  applyNavigation(params: Map<string, string>): void {
     this.hasAdditionalFilters = false;
     this.release = params['release'] == null ? StoryFiltersComponent.defaultRelease : params['release'];
     this.iteration = params['iteration'] == null ? StoryFiltersComponent.defaultIteration : params['iteration'];
@@ -127,31 +129,33 @@ export class StoryFiltersComponent implements OnChanges {
     this.individual = params['individual'] == null ? StoryFiltersComponent.defaultIndividual : params['individual'];
     this.status = params['status'] == null ? StoryFiltersComponent.defaultStatus : params['status'];
     this.searchText = params['text'] == null ? '' : params['text'];
-    if(this.searchText !== '') {
+    if (this.searchText !== '') {
       this.hasAdditionalFilters = true;
     }
-    if(this.customValues.size == 0) { // not set yet
-      for(let key in params) {
-        if(key.length > 7 && key.substring(0,7) === 'custom_') {
+    if (this.customValues.size === 0) { // not set yet
+      for (let key in params) {
+        if (key.length > 7 && key.substring(0, 7) === 'custom_') {
           let value = params[key];
           this.customValues[key.substring(7)] = value == null ? StoryFiltersComponent.all : (value === '' ? 'null' : value);
-          if(value != null) {
-            this.hasAdditionalFilters = true
+          if (value !== null) {
+            this.hasAdditionalFilters = true;
           }
         }
       };
     } else {
-      for(let key in this.customValues) {
-        let value = params['custom_' + key];
-        this.customValues[key] = value == null ? StoryFiltersComponent.all : (value === '' ? 'null' : value);
-        if(value != null) {
-          this.hasAdditionalFilters = true
+      for (let key in this.customValues) {
+        if (this.customValues.hasOwnProperty(key)) {
+          let value = params['custom_' + key];
+          this.customValues[key] = value == null ? StoryFiltersComponent.all : (value === '' ? 'null' : value);
+          if (value != null) {
+            this.hasAdditionalFilters = true;
+          }
         }
       };
     }
   }
-  
-  updateNavigationParams(params: Map<string,string>): void {
+
+  updateNavigationParams(params: Map<string, string>): void {
     if (this.release !== StoryFiltersComponent.defaultRelease) {
       params['release'] = this.release;
     }
@@ -170,10 +174,12 @@ export class StoryFiltersComponent implements OnChanges {
     if (this.searchText !== '') {
       params['text'] = this.searchText;
     }
-    for(let key in this.customValues) {
-      let value = this.customValues[key];
-      if(value != StoryFiltersComponent.all) {
-        params['custom_' + key] = (value === 'null' ? '' : value);
+    for (let key in this.customValues) {
+      if (this.customValues.hasOwnProperty(key)) {
+        let value = this.customValues[key];
+        if (value !== StoryFiltersComponent.all) {
+          params['custom_' + key] = (value === 'null' ? '' : value);
+        }
       }
     }
   }
@@ -207,9 +213,9 @@ export class StoryFiltersComponent implements OnChanges {
     if (this.release == null) {
       this.release = this.releases[this.releases.length - 1].id;
     }
-    if(this.release === 'Current') {
+    if (this.release === 'Current') {
       let currentRelease: number = this.getCurrentReleaseId(this.releases);
-      if(prevCurrentRelease !== currentRelease) {
+      if (prevCurrentRelease !== currentRelease) {
         this.currentReleaseChanged.emit({value: currentRelease});
       }
     }
@@ -237,9 +243,9 @@ export class StoryFiltersComponent implements OnChanges {
     if (this.iteration == null) {
       this.iteration = this.iterations[this.iterations.length - 1].id;
     }
-    if(this.iteration === 'Current') {
+    if (this.iteration === 'Current') {
       let currentIteration: number = this.getCurrentIterationId(this.iterations);
-      if(prevCurrentIteration !== currentIteration) {
+      if (prevCurrentIteration !== currentIteration) {
         this.currentIterationChanged.emit({value: currentIteration});
       }
     }
@@ -315,7 +321,7 @@ export class StoryFiltersComponent implements OnChanges {
     });
     return result;
   }
-  
+
   get choosableReleases(): Release[] {
     return this.releases.filter((release: Release) => {
       return release.name !== 'All Releases' && release.name !== 'Current Release' && release.name !== 'No Release';
@@ -339,7 +345,7 @@ export class StoryFiltersComponent implements OnChanges {
       return individual.enabled && individual.name !== 'All Owners' && individual.name !== 'Me' && individual.name !== 'No Owner';
     });
   }
-  
+
   toggleMoreOptions(): void {
     this.showMoreOptions = !this.showMoreOptions;
   }

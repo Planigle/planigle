@@ -1,6 +1,6 @@
-import { Component, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, ViewChild } from '@angular/core';
 import { Response } from '@angular/http';
-import { Router, ActivatedRoute, Params } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { GridOptions } from 'ag-grid/main';
 import { StoryFiltersComponent } from '../story-filters/story-filters.component';
 import { StoryActionsComponent } from '../story-actions/story-actions.component';
@@ -15,9 +15,6 @@ import { Work } from '../../models/work';
 import { Story } from '../../models/story';
 import { Task } from '../../models/task';
 import { Project } from '../../models/project';
-import { Release } from '../../models/release';
-import { Iteration } from '../../models/iteration';
-import { Team } from '../../models/team';
 import { Individual } from '../../models/individual';
 import { FinishedEditing } from '../../models/finished-editing';
 declare var $: any;
@@ -28,7 +25,7 @@ declare var $: any;
   styleUrls: ['./stories.component.css'],
   providers: [StoriesService, TasksService, StoryAttributesService, ProjectsService]
 })
-export class StoriesComponent implements AfterViewInit {
+export class StoriesComponent implements AfterViewInit, OnDestroy {
   private static noSelection = 'None';
   public gridOptions: GridOptions = <GridOptions>{};
   public columnDefs: any[] = [];
@@ -40,13 +37,13 @@ export class StoriesComponent implements AfterViewInit {
   public storyAttributes: StoryAttribute[] = [];
   public customStoryAttributes: StoryAttribute[] = [];
   public selectedWork: Work[] = [];
-  
+
   @ViewChild(StoryFiltersComponent)
   public filters: StoryFiltersComponent;
-  
+
   private filteredAttributes: StoryAttribute[] = [];
   private menusLoaded: boolean = false;
-  private id_map: Map<string,Work> = new Map();
+  private id_map: Map<string, Work> = new Map();
   private refresh_interval = null;
   private selectionChanged: boolean = false;
   private lastSelected: Work = null;
@@ -69,22 +66,22 @@ export class StoriesComponent implements AfterViewInit {
     this.setGridHeight();
     $(window).resize(this.setGridHeight);
     this.fetchStoryAttributes();
-    this.route.params.subscribe((params:Map<string,string>) => this.applyNavigation(params));
-    if(this.user.refresh_interval) {
+    this.route.params.subscribe((params: Map<string, string>) => this.applyNavigation(params));
+    if (this.user.refresh_interval) {
       this.refresh_interval = setInterval(() => {
         self.refresh();
       }, this.user.refresh_interval);
     }
   }
-  
+
   ngOnDestroy(): void {
-    if(this.refresh_interval) {
+    if (this.refresh_interval) {
       clearInterval(this.refresh_interval);
     }
     $(window).off('resize');
   }
-  
-  private applyNavigation(params: Map<string,string>) {
+
+  private applyNavigation(params: Map<string, string>) {
     this.filters.applyNavigation(params);
     if (!this.selectionChanged) {
       this.fetchStories(params['selection']);
@@ -93,14 +90,14 @@ export class StoriesComponent implements AfterViewInit {
       this.applySelection(params['selection']);
     }
   }
-    
+
   private applySelection(selectionValue) {
     let selection: Work = null;
-    if(selectionValue == 'NewStory') {
+    if (selectionValue === 'NewStory') {
       selection = this.createNewStory();
-    } else if(('' + selectionValue).search(/NewTask\{S\d+\}/i) == 0) {
-      let story:Story = this.id_map[selectionValue.substring(8, selectionValue.length - 1)];
-      if(story) {
+    } else if (('' + selectionValue).search(/NewTask\{S\d+\}/i) === 0) {
+      let story: Story = this.id_map[selectionValue.substring(8, selectionValue.length - 1)];
+      if (story) {
         selection = this.createNewTask(story);
       }
     } else {
@@ -108,15 +105,17 @@ export class StoriesComponent implements AfterViewInit {
     }
     this.selection = selection ? selection : null;
   }
-    
+
   private createNewStory(): Story {
     let release_id: number = null;
     if (this.filters.release !== 'All' && this.filters.release !== '') {
-      release_id = this.filters.release === 'Current' ? this.filters.getCurrentReleaseId(this.filters.releases) : parseInt(this.filters.release, 10);
+      release_id = this.filters.release === 'Current' ? this.filters.getCurrentReleaseId(this.filters.releases) :
+        parseInt(this.filters.release, 10);
     }
     let iteration_id: number = null;
     if (this.filters.iteration !== 'All' && this.filters.iteration !== '') {
-      iteration_id = this.filters.iteration === 'Current' ? this.filters.getCurrentIterationId(this.filters.iterations) : parseInt(this.filters.iteration, 10);
+      iteration_id = this.filters.iteration === 'Current' ? this.filters.getCurrentIterationId(this.filters.iterations) :
+        parseInt(this.filters.iteration, 10);
     }
     let team_id: number = null;
     if (this.filters.team !== 'All' && this.filters.team !== '') {
@@ -130,21 +129,21 @@ export class StoriesComponent implements AfterViewInit {
       individual_id: null
     });
   }
-  
+
   updateNewStoryReleaseId(currentReleaseId: number) {
     // Needed to handle case where initially loading new story with current release
-    if(this.selection && this.selection.isStory() && !this.selection.id) {
+    if (this.selection && this.selection.isStory() && !this.selection.id) {
       this.selection = this.createNewStory();
     }
   }
-      
+
   updateNewStoryIterationId(currentIterationId: number) {
     // Needed to handle case where initially loading new story with current iteration
-    if(this.selection && this.selection.isStory() && !this.selection.id) {
+    if (this.selection && this.selection.isStory() && !this.selection.id) {
       this.selection = this.createNewStory();
     }
   }
-  
+
   private createNewTask(story: Story): Task {
     return new Task({
       story: story,
@@ -244,7 +243,7 @@ export class StoriesComponent implements AfterViewInit {
   addTask(story: Story): void {
     this.updateNavigation('NewTask{' + story.uniqueId + '}');
   }
-  
+
   deleteWork(work: Work): void {
     let service: any = work.isStory() ? this.storiesService : this.tasksService;
     service.delete.call(service, work).subscribe(
@@ -256,27 +255,27 @@ export class StoriesComponent implements AfterViewInit {
       }
     );
   }
-  
-  private selectRow(event: any): void {
-    if(event.colDef.headerName === '') {
+
+  selectRow(event: any): void {
+    if (event.colDef.headerName === '') {
       return;
     }
     let mouseEvent = event.event;
     let work: Work = event.data;
-    if(mouseEvent.ctrlKey || mouseEvent.metaKey) {
+    if (mouseEvent.ctrlKey || mouseEvent.metaKey) {
       this.flipSelection(work);
-    } else if(this.lastSelected !== null && mouseEvent.shiftKey) {
+    } else if (this.lastSelected !== null && mouseEvent.shiftKey) {
       let visibleWork: Work[] = this.getVisibleWork();
       let startIndex: number = visibleWork.indexOf(this.lastSelected);
       let endIndex: number = visibleWork.indexOf(work);
-      if(endIndex < startIndex) {
+      if (endIndex < startIndex) {
         let temp: number = startIndex;
         startIndex = endIndex;
         endIndex = temp - 1;
       } else {
         startIndex += 1;
       }
-      for(let i=startIndex;i<=endIndex;i++) {
+      for (let i = startIndex; i <= endIndex; i++) {
         this.flipSelection(visibleWork[i]);
       }
     } else {
@@ -285,8 +284,8 @@ export class StoriesComponent implements AfterViewInit {
         let row = $('.ag-row.id-' + previousWork.uniqueId);
         row.removeClass('selected');
       });
-      this.selectedWork = []
-      if(!previousSelected) {
+      this.selectedWork = [];
+      if (!previousSelected) {
         let row = $('.ag-row.id-' + work.uniqueId);
         row.addClass('selected');
         this.selectedWork.push(work);
@@ -298,17 +297,17 @@ export class StoriesComponent implements AfterViewInit {
   private getVisibleWork(): Work[] {
     let visibleWork: Work[] = [];
     let rows: any[] = this.gridOptions.api.getRenderedNodes();
-    for(let i=0;i<rows.length;i++) {
+    for (let i = 0; i < rows.length; i++) {
       visibleWork.push(rows[i].data);
     }
     return visibleWork;
   }
 
-  private flipSelection(work:Work): void {
+  private flipSelection(work: Work): void {
     let row = $('.ag-row.id-' + work.uniqueId);
-    if(this.isSelected(work)) {
+    if (this.isSelected(work)) {
       row.removeClass('selected');
-      this.selectedWork.splice(this.selectedWork.indexOf(work),1);
+      this.selectedWork.splice(this.selectedWork.indexOf(work), 1);
     } else {
       row.addClass('selected');
       this.selectedWork.push(work);
@@ -432,7 +431,7 @@ export class StoriesComponent implements AfterViewInit {
       }
     }
   }
-  
+
   private sortCustomStoryAttributes(): void {
     this.customStoryAttributes.sort((v1: StoryAttribute, v2: StoryAttribute) => {
       if (v1.ordering < v2.ordering) {
@@ -471,7 +470,7 @@ export class StoriesComponent implements AfterViewInit {
     });
     return this.id_map[result];
   }
-  
+
   dropRow(event, ui): void {
     let movedRow: Work = this.getRowWork($(ui.draggable[0]));
     let targetRow: Work = this.getRowWork($(this));
@@ -671,7 +670,7 @@ export class StoriesComponent implements AfterViewInit {
     this.checkRemoveRow(row);
     this.refreshView();
   }
-  
+
   refreshView(): void {
     this.gridOptions.api.refreshView();
   }
@@ -732,7 +731,7 @@ export class StoriesComponent implements AfterViewInit {
     this.updateCustomStoryAttributes();
     this.columnDefs = newColumnDefs;
   }
-  
+
   private updateCustomStoryAttributes(): void {
     let filtered: StoryAttribute[] = [];
     this.storyAttributes.forEach((storyAttribute: StoryAttribute) => {
@@ -783,7 +782,7 @@ export class StoriesComponent implements AfterViewInit {
       .subscribe(
         (storyAttributes: StoryAttribute[]) => this.setAttributes(storyAttributes),
         (err: any) => {
-          if(!ignoreErrors) {
+          if (!ignoreErrors) {
             this.processError(err);
           }
         });
@@ -797,11 +796,11 @@ export class StoriesComponent implements AfterViewInit {
   }
 
   updateNavigation(selection?: String): void {
-    let params: Map<string,string> = new Map();
+    let params: Map<string, string> = new Map();
     this.filters.updateNavigationParams(params);
     if (selection) {
       this.selectionChanged = true;
-      if(selection !== StoriesComponent.noSelection) {
+      if (selection !== StoriesComponent.noSelection) {
         params['selection'] = selection;
       }
     }
@@ -821,7 +820,7 @@ export class StoriesComponent implements AfterViewInit {
           });
           this.stories = stories;
           this.updateExpandContractAll();
-          if(selection) {
+          if (selection) {
             this.applySelection(selection);
           }
           this.waiting = false;
@@ -831,8 +830,8 @@ export class StoriesComponent implements AfterViewInit {
           }
         },
         (err: any) => {
-          if(!ignoreErrors) {
-            this.processError(err)
+          if (!ignoreErrors) {
+            this.processError(err);
           }
         });
   }

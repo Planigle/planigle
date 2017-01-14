@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AgRendererComponent } from 'ag-grid-ng2/main';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -14,21 +14,21 @@ import { Release } from '../../models/release';
 export class ReleaseActionsComponent implements AgRendererComponent {
   model: Release;
   grid: ReleasesComponent;
-  
+
   constructor(
     private modalService: NgbModal,
     private router: Router,
   ) { }
-  
+
   agInit(params: any): void {
     this.model = params.data;
     this.grid = params.context.gridHolder;
   }
-  
+
   edit(): void {
     this.grid.editRelease(this.model);
   }
-  
+
   deleteItem(): void {
     let self: ReleaseActionsComponent = this;
     const modalRef: NgbModalRef = this.modalService.open(ConfirmationDialogComponent);
@@ -42,7 +42,7 @@ export class ReleaseActionsComponent implements AgRendererComponent {
       }
     );
   }
-  
+
   plan(): void {
       this.router.navigate(['stories', {release: this.model.id}]);
   }

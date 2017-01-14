@@ -24,7 +24,7 @@ export class ProjectsService {
         return result;
       });
   }
-  
+
   create(project: Project): Observable<Project> {
     return this.createOrUpdate(project, this.http.post, '');
   }

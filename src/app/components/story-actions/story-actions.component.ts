@@ -5,8 +5,6 @@ import { StoriesComponent } from '../stories/stories.component';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { Work } from '../../models/work';
 import { Story } from '../../models/story';
-import { Task } from '../../models/task';
-import { FinishedEditing } from '../../models/finished-editing';
 
 @Component({
   selector: 'app-story-actions',

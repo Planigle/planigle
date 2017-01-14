@@ -1,4 +1,4 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { GridOptions } from 'ag-grid/main';
 import { IterationActionsComponent } from '../iteration-actions/iteration-actions.component';
@@ -15,14 +15,7 @@ declare var $: any;
   styleUrls: ['./iterations.component.css'],
   providers: [IterationsService]
 })
-export class IterationsComponent implements AfterViewInit {
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private sessionsService: SessionsService,
-    private iterationsService: IterationsService
-  ) {}
-
+export class IterationsComponent implements AfterViewInit, OnDestroy {
   public gridOptions: GridOptions = <GridOptions>{};
   public columnDefs: any[] = [{
     headerName: '',
@@ -48,51 +41,57 @@ export class IterationsComponent implements AfterViewInit {
   public iterations: Iteration[] = null;
   public selection: Iteration;
   public user: Individual;
-    
+
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private sessionsService: SessionsService,
+    private iterationsService: IterationsService
+  ) {}
+
   ngAfterViewInit(): void {
-    let self = this;
     this.setGridHeight();
     $(window).resize(this.setGridHeight);
     this.user = new Individual(this.sessionsService.getCurrentUser());
-    this.route.params.subscribe((params:Map<string,string>) => this.applyNavigation(params));
+    this.route.params.subscribe((params: Map<string, string>) => this.applyNavigation(params));
   }
-    
+
   ngOnDestroy(): void {
     $(window).off('resize');
   }
-  
+
   private setGridHeight(): void {
     $('app-iterations ag-grid-ng2').height(($(window).height() - $('app-header').height() - 70) * 0.6);
   }
-  
+
   private fetchIterations(afterAction, afterActionParams): void {
     this.iterationsService.getIterations()
       .subscribe(
         (iterations: Iteration[]) => {
           this.iterations = iterations;
-          if(afterAction) {
+          if (afterAction) {
             afterAction.call(this, afterActionParams);
           }
         });
   }
-    
-  private applyNavigation(params: Map<string,string>): void {
+
+  private applyNavigation(params: Map<string, string>): void {
     let iterationId: string = params['iteration'];
-    if(this.iterations) {
+    if (this.iterations) {
       this.setSelection(iterationId);
     } else {
       this.fetchIterations(this.setSelection, iterationId);
     }
   }
-  
+
   private setSelection(iterationId: string): void {
-    if(iterationId) {
-      if(iterationId === 'New') {
+    if (iterationId) {
+      if (iterationId === 'New') {
         let lastIteration = this.iterations.length > 0 ? this.iterations[this.iterations.length - 1] : null;
         this.selection = Iteration.getNext(lastIteration);
       } else {
         this.iterations.forEach((iteration: Iteration) => {
-          if(String(iteration.id) === iterationId) {
+          if (String(iteration.id) === iterationId) {
             this.selection = iteration;
           }
         });
@@ -101,19 +100,19 @@ export class IterationsComponent implements AfterViewInit {
       this.selection = null;
     }
   }
-  
+
   addIteration(): void {
     this.router.navigate(['schedule', {iteration: 'New'}]);
   }
-  
-  private editRow(event): void {
+
+  editRow(event): void {
     this.editIteration(event.data);
   }
-  
+
   editIteration(iteration: Iteration): void {
     this.router.navigate(['schedule', {iteration: iteration.id}]);
   }
-  
+
   deleteIteration(iteration: Iteration): void {
     this.iterationsService.delete(iteration).subscribe(
       (task: any) => {
@@ -122,14 +121,14 @@ export class IterationsComponent implements AfterViewInit {
       }
     );
   }
-      
+
   get context(): any {
     return {
       me: this.user,
       gridHolder: this
     };
   }
-  
+
   finishedEditing(result: FinishedEditing): void {
     if (this.selection) {
       if (this.selection.added) {

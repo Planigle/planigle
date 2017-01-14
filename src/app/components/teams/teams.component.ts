@@ -1,4 +1,4 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { GridOptions } from 'ag-grid/main';
 import { TeamActionsComponent } from '../team-actions/team-actions.component';
@@ -20,16 +20,7 @@ declare var $: any;
   styleUrls: ['./teams.component.css'],
   providers: [CompaniesService, ProjectsService, TeamsService]
 })
-export class TeamsComponent implements AfterViewInit {
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private sessionsService: SessionsService,
-    private companiesService: CompaniesService,
-    private projectsService: ProjectsService,
-    private teamsService: TeamsService
-  ) { }
-
+export class TeamsComponent implements AfterViewInit, OnDestroy {
   public gridOptions: GridOptions = <GridOptions>{};
   public columnDefs: any[] = [{
     headerName: '',
@@ -59,24 +50,32 @@ export class TeamsComponent implements AfterViewInit {
   public companies: Company[] = null;
   public selection: Organization;
   public user: Individual;
-  private id_map: Map<string,Organization> = new Map();
- 
+  private id_map: Map<string, Organization> = new Map();
+
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private sessionsService: SessionsService,
+    private companiesService: CompaniesService,
+    private projectsService: ProjectsService,
+    private teamsService: TeamsService
+  ) { }
+
   ngAfterViewInit(): void {
-    let self = this;
     this.setGridHeight();
     $(window).resize(this.setGridHeight);
     this.user = new Individual(this.sessionsService.getCurrentUser());
-    this.route.params.subscribe((params:Map<string,string>) => this.applyNavigation(params));
+    this.route.params.subscribe((params: Map<string, string>) => this.applyNavigation(params));
   }
-      
+
   ngOnDestroy(): void {
     $(window).off('resize');
   }
-  
+
   private setGridHeight(): void {
     $('app-teams ag-grid-ng2').height(($(window).height() - $('app-header').height() - 70) * 0.4);
   }
-  
+
   private fetchCompanies(afterAction, afterActionParams): void {
     let self: TeamsComponent = this;
     this.companiesService.getCompanies()
@@ -92,25 +91,25 @@ export class TeamsComponent implements AfterViewInit {
             });
           });
           this.companies = companies;
-          if(afterAction) {
+          if (afterAction) {
             afterAction.call(this, afterActionParams);
           }
         });
   }
-    
-  private applyNavigation(params: Map<string,string>): void {
-    if(this.companies) {
+
+  private applyNavigation(params: Map<string, string>): void {
+    if (this.companies) {
       this.setSelection(params['organization']);
     } else {
       this.fetchCompanies(this.setSelection, params['organization']);
     }
   }
-  
+
   private setSelection(selectionValue: string): void {
     let selection: Organization = null;
-    if(('' + selectionValue).search(/NewProject\{C\d+\}/i) == 0) {
+    if (('' + selectionValue).search(/NewProject\{C\d+\}/i) === 0) {
       let company: Company = this.id_map[selectionValue.substring(10, selectionValue.length - 1)];
-      if(company) {
+      if (company) {
         selection = new Project({
           company: company,
           company_id: company.id,
@@ -118,9 +117,9 @@ export class TeamsComponent implements AfterViewInit {
           survey_mode: 1
         });
       }
-    } else if(('' + selectionValue).search(/NewTeam\{P\d+\}/i) == 0) {
+    } else if (('' + selectionValue).search(/NewTeam\{P\d+\}/i) === 0) {
       let project: Project = this.id_map[selectionValue.substring(7, selectionValue.length - 1)];
-      if(project) {
+      if (project) {
         selection = new Team({
           project: project,
           project_id: project.id
@@ -131,27 +130,27 @@ export class TeamsComponent implements AfterViewInit {
     }
     this.selection = selection ? selection : null;
   }
-  
+
   rowGroupOpened(event: any): void {
     event.node.data.expanded = event.node.expanded;
   }
-  
+
   addProject(company: Company): void {
     this.router.navigate(['people', {organization: 'NewProject(' + company.id + ')'}]);
   }
-    
+
   addTeam(project: Project): void {
     this.router.navigate(['people', {organization: 'NewTeam(' + project.id + ')'}]);
   }
-  
-  private editRow(event): void {
+
+  editRow(event): void {
     this.editOrganization(event.data);
   }
-  
+
   editOrganization(organization: Organization): void {
     this.router.navigate(['people', {organization: organization.uniqueId}]);
   }
-      
+
   deleteProject(project: Project): void {
     this.projectsService.delete(project).subscribe(
       (deletedProject: any) => {
@@ -160,7 +159,7 @@ export class TeamsComponent implements AfterViewInit {
       }
     );
   }
-          
+
   deleteTeam(team: Team): void {
     this.teamsService.delete(team).subscribe(
       (deletedTeam: any) => {
@@ -169,18 +168,18 @@ export class TeamsComponent implements AfterViewInit {
       }
     );
   }
-    
+
   get context(): any {
     return {
       me: this.user,
       gridHolder: this
     };
   }
-  
+
   getChildren(rowItem: Organization): any {
-    if(rowItem.isCompany()) {
+    if (rowItem.isCompany()) {
       let company: Company = <Company> rowItem;
-      if(company.projects && company.projects.length > 0) {
+      if (company.projects && company.projects.length > 0) {
         return {
           group: true,
           children: company.projects,
@@ -189,9 +188,9 @@ export class TeamsComponent implements AfterViewInit {
       } else {
         return null;
       }
-    } else if(rowItem.isProject()) {
+    } else if (rowItem.isProject()) {
       let project: Project = <Project> rowItem;
-      if(project.teams && project.teams.length > 0) {
+      if (project.teams && project.teams.length > 0) {
         return {
           group: true,
           children: project.teams,
@@ -204,16 +203,16 @@ export class TeamsComponent implements AfterViewInit {
       return null;
     }
   }
-    
+
   getRowClass(rowItem: any): string {
     return rowItem.data.isCompany() ? 'company' : (rowItem.data.isProject() ? 'project' : 'team');
   }
-  
+
   finishedEditing(result: FinishedEditing): void {
     if (this.selection) {
       if (this.selection.added) {
         this.selection.added = false;
-        if(this.selection.isTeam()) {
+        if (this.selection.isTeam()) {
           let team: Team = <Team> this.selection;
           this.id_map[team.uniqueId] = team;
           team.project.teams.push(team);
@@ -229,7 +228,7 @@ export class TeamsComponent implements AfterViewInit {
     }
     switch (result) {
       case FinishedEditing.AddAnother:
-        if(this.selection.isTeam()) {
+        if (this.selection.isTeam()) {
           this.setSelection('NewTeam(' + (<Team>this.selection).project.id + ')');
         } else {
           this.setSelection('NewProject(');

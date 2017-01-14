@@ -1,4 +1,4 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { GridOptions } from 'ag-grid/main';
 import { ReleaseActionsComponent } from '../release-actions/release-actions.component';
@@ -15,14 +15,7 @@ declare var $: any;
   styleUrls: ['./releases.component.css'],
   providers: [ReleasesService]
 })
-export class ReleasesComponent implements AfterViewInit {
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private sessionsService: SessionsService,
-    private releasesService: ReleasesService
-  ) { }
-
+export class ReleasesComponent implements AfterViewInit, OnDestroy {
   public gridOptions: GridOptions = <GridOptions>{};
   public columnDefs: any[] = [{
     headerName: '',
@@ -48,51 +41,57 @@ export class ReleasesComponent implements AfterViewInit {
   public releases: Release[] = null;
   public selection: Release;
   public user: Individual;
- 
+
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private sessionsService: SessionsService,
+    private releasesService: ReleasesService
+  ) { }
+
   ngAfterViewInit(): void {
-    let self = this;
     this.setGridHeight();
     $(window).resize(this.setGridHeight);
     this.user = new Individual(this.sessionsService.getCurrentUser());
-    this.route.params.subscribe((params:Map<string,string>) => this.applyNavigation(params));
+    this.route.params.subscribe((params: Map<string, string>) => this.applyNavigation(params));
   }
-      
+
   ngOnDestroy(): void {
     $(window).off('resize');
   }
-  
+
   private setGridHeight(): void {
     $('app-releases ag-grid-ng2').height(($(window).height() - $('app-header').height() - 70) * 0.4);
   }
-  
+
   private fetchReleases(afterAction, afterActionParams): void {
     this.releasesService.getReleases()
       .subscribe(
         (releases: Release[]) => {
           this.releases = releases;
-          if(afterAction) {
+          if (afterAction) {
             afterAction.call(this, afterActionParams);
           }
         });
   }
-    
-  private applyNavigation(params: Map<string,string>): void {
+
+  private applyNavigation(params: Map<string, string>): void {
     let releaseId: string = params['release'];
-    if(this.releases) {
+    if (this.releases) {
       this.setSelection(releaseId);
     } else {
       this.fetchReleases(this.setSelection, releaseId);
     }
   }
-  
+
   private setSelection(releaseId: string): void {
-    if(releaseId) {
-      if(releaseId === 'New') {
+    if (releaseId) {
+      if (releaseId === 'New') {
         let lastRelease = this.releases.length > 0 ? this.releases[this.releases.length - 1] : null;
         this.selection = Release.getNext(lastRelease);
       } else {
         this.releases.forEach((release: Release) => {
-          if(String(release.id) === releaseId) {
+          if (String(release.id) === releaseId) {
             this.selection = release;
           }
         });
@@ -101,19 +100,19 @@ export class ReleasesComponent implements AfterViewInit {
       this.selection = null;
     }
   }
-  
+
   addRelease(): void {
     this.router.navigate(['schedule', {release: 'New'}]);
   }
-  
-  private editRow(event): void {
+
+  editRow(event): void {
     this.editRelease(event.data);
   }
-  
+
   editRelease(release: Release): void {
     this.router.navigate(['schedule', {release: release.id}]);
   }
-      
+
   deleteRelease(release: Release): void {
     this.releasesService.delete(release).subscribe(
       (task: any) => {
@@ -122,14 +121,14 @@ export class ReleasesComponent implements AfterViewInit {
       }
     );
   }
-    
+
   get context(): any {
     return {
       me: this.user,
       gridHolder: this
     };
   }
-  
+
   finishedEditing(result: FinishedEditing): void {
     if (this.selection) {
       if (this.selection.added) {

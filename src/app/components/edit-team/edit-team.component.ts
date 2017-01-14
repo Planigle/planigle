@@ -3,7 +3,7 @@ import { TeamsService } from '../../services/teams.service';
 import { ErrorService } from '../../services/error.service';
 import { Team } from '../../models/team';
 import { Individual } from '../../models/individual';
-import { FinishedEditing } from '../../models/finished-editing'
+import { FinishedEditing } from '../../models/finished-editing';
 declare var $: any;
 
 @Component({
@@ -12,7 +12,7 @@ declare var $: any;
   styleUrls: ['./edit-team.component.css'],
   providers: [TeamsService]
 })
-export class EditTeamComponent {
+export class EditTeamComponent implements OnChanges {
   @Input() team: Team;
   @Input() me: Individual;
   @Output() closed: EventEmitter<any> = new EventEmitter();
@@ -21,7 +21,7 @@ export class EditTeamComponent {
   public error: String;
 
   constructor(
-    private teamsService: TeamsService, 
+    private teamsService: TeamsService,
     private errorService: ErrorService) {
   }
 
@@ -35,23 +35,23 @@ export class EditTeamComponent {
   isNew(): boolean {
     return this.model.id == null;
   }
-  
+
   canSave(form: any): boolean {
     return form.form.valid && this.me.canChangeRelease();
   }
-  
+
   ok(): void {
     this.saveModel(FinishedEditing.Save, null);
   }
-  
+
   cancel(): void {
     this.closed.emit({value: FinishedEditing.Cancel});
   }
-  
+
   addAnother(form): void {
     this.saveModel(FinishedEditing.AddAnother, form);
   }
-  
+
   private saveModel(result: FinishedEditing, form: any): void {
     let method: any = this.model.id ? this.teamsService.update : this.teamsService.create;
     method.call(this.teamsService, this.model).subscribe(

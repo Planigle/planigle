@@ -33,23 +33,23 @@ export class EditReleaseComponent implements OnChanges {
   isNew(): boolean {
     return this.model.id == null;
   }
-    
+
   canSave(form: any): boolean {
     return form.form.valid && this.me.canChangeRelease();
   }
-  
+
   ok(): void {
     this.saveModel(FinishedEditing.Save, null);
   }
-  
+
   cancel(): void {
     this.closed.emit({value: FinishedEditing.Cancel});
   }
-  
+
   addAnother(form): void {
     this.saveModel(FinishedEditing.AddAnother, form);
   }
-  
+
   private saveModel(result: FinishedEditing, form: any): void {
     let method: any = this.model.id ? this.releasesService.update : this.releasesService.create;
     method.call(this.releasesService, this.model).subscribe(

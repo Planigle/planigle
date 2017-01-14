@@ -54,37 +54,37 @@ export class StoriesService {
     let headers = new Headers({ 'Content-Type': 'application/json' });
     let options = new RequestOptions({ headers: headers });
     let record = {};
-    if('name' in story) {
+    if ('name' in story) {
       record['name'] = story.name;
     }
-    if('description' in story) {
+    if ('description' in story) {
       record['description'] = story.description;
     }
-    if('status_code' in story) {
+    if ('status_code' in story) {
       record['status_code'] = story.status_code;
     }
-    if('reason_blocked' in story) {
+    if ('reason_blocked' in story) {
       record['reason_blocked'] = story.reason_blocked;
     }
-    if('project_id' in story) {
+    if ('project_id' in story) {
       record['project_id'] = story.project_id;
     }
-    if('release_id' in story) {
+    if ('release_id' in story) {
       record['release_id'] = story.release_id;
     }
-    if('iteration_id' in story) {
+    if ('iteration_id' in story) {
       record['iteration_id'] = story.iteration_id;
     }
-    if('team_id' in story) {
+    if ('team_id' in story) {
       record['team_id'] = story.team_id;
     }
-    if('individual_id' in story) {
+    if ('individual_id' in story) {
       record['individual_id'] = story.individual_id;
     }
-    if('effort' in story) {
+    if ('effort' in story) {
       record['effort'] = story.effort == null ? '' : ('' + story.effort);
     }
-    if('acceptance_criteria_string' in story) {
+    if ('acceptance_criteria_string' in story) {
       record['acceptance_criteria'] = story.acceptance_criteria_string;
     }
     if (story.priority) {

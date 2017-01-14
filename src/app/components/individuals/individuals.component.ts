@@ -1,4 +1,4 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { GridOptions } from 'ag-grid/main';
 import { IndividualActionsComponent } from '../individual-actions/individual-actions.component';
@@ -17,15 +17,7 @@ declare var $: any;
   styleUrls: ['./individuals.component.css'],
   providers: [IndividualsService, CompaniesService]
 })
-export class IndividualsComponent implements AfterViewInit {
-  constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private sessionsService: SessionsService,
-    private individualsService: IndividualsService,
-    private companiesService: CompaniesService
-  ) { }
-
+export class IndividualsComponent implements AfterViewInit, OnDestroy {
   public gridOptions: GridOptions = <GridOptions>{};
   public columnDefs: any[] = [{
     headerName: '',
@@ -72,34 +64,41 @@ export class IndividualsComponent implements AfterViewInit {
   public teams: Team[] = [];
   public selection: Individual;
   public user: Individual;
- 
+
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private sessionsService: SessionsService,
+    private individualsService: IndividualsService,
+    private companiesService: CompaniesService
+  ) { }
+
   ngAfterViewInit(): void {
-    let self = this;
     this.setGridHeight();
     $(window).resize(this.setGridHeight);
     this.user = new Individual(this.sessionsService.getCurrentUser());
-    this.route.params.subscribe((params:Map<string,string>) => this.applyNavigation(params));
+    this.route.params.subscribe((params: Map<string, string>) => this.applyNavigation(params));
   }
-      
+
   ngOnDestroy(): void {
     $(window).off('resize');
   }
-  
+
   private setGridHeight(): void {
     $('app-individuals ag-grid-ng2').height(($(window).height() - $('app-header').height() - 65) * 0.6);
   }
-  
+
   private fetchIndividuals(afterAction, afterActionParams): void {
     this.individualsService.getIndividuals()
       .subscribe(
         (individuals: Individual[]) => {
           this.individuals = individuals;
-          if(afterAction) {
+          if (afterAction) {
             afterAction.call(this, afterActionParams);
           }
         });
   }
-      
+
   private fetchCompany(): void {
     let self: IndividualsComponent = this;
     this.companiesService.getCompanies()
@@ -110,29 +109,28 @@ export class IndividualsComponent implements AfterViewInit {
           });
         });
   }
-    
-  private applyNavigation(params: Map<string,string>): void {
+
+  private applyNavigation(params: Map<string, string>): void {
     let individualId: string = params['individual'];
-    if(this.individuals) {
+    if (this.individuals) {
       this.setSelection(individualId);
     } else {
       this.fetchIndividuals(this.setSelection, individualId);
       this.fetchCompany();
     }
   }
-  
+
   private setSelection(individualId: string): void {
-    if(individualId) {
-      if(individualId === 'New') {
-        let lastIndividual = this.individuals.length > 0 ? this.individuals[this.individuals.length - 1] : null;
+    if (individualId) {
+      if (individualId === 'New') {
         this.selection = new Individual({
           role: 2,
           enabled: true,
-          refresh_interval: 1000*60*5
+          refresh_interval: 1000 * 60 * 5
         });
       } else {
         this.individuals.forEach((individual: Individual) => {
-          if(String(individual.id) === individualId) {
+          if (String(individual.id) === individualId) {
             this.selection = individual;
           }
         });
@@ -141,19 +139,19 @@ export class IndividualsComponent implements AfterViewInit {
       this.selection = null;
     }
   }
-  
+
   addIndividual(): void {
     this.router.navigate(['people', {individual: 'New'}]);
   }
-  
-  private editRow(event): void {
+
+  editRow(event): void {
     this.editIndividual(event.data);
   }
-  
+
   editIndividual(individual: Individual): void {
     this.router.navigate(['people', {individual: individual.id}]);
   }
-      
+
   deleteIndividual(individual: Individual): void {
     this.individualsService.delete(individual).subscribe(
       (task: any) => {
@@ -162,14 +160,14 @@ export class IndividualsComponent implements AfterViewInit {
       }
     );
   }
-    
+
   get context(): any {
     return {
       me: this.user,
       gridHolder: this
     };
   }
-  
+
   finishedEditing(result: FinishedEditing): void {
     if (this.selection) {
       if (this.selection.added) {

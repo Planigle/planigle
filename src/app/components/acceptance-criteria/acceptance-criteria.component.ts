@@ -21,7 +21,7 @@ export class AcceptanceCriteriaComponent implements OnChanges, AfterViewInit {
       this.ensureAtLeastOneCriterium();
     }
   }
-  
+
   ngAfterViewInit(): void {
     let self: AcceptanceCriteriaComponent = this;
     $('.grid').selectable({
@@ -32,7 +32,7 @@ export class AcceptanceCriteriaComponent implements OnChanges, AfterViewInit {
       },
       stop: function(event, ui) {
         let selection = self.selection();
-        if (selection.length == 1) {
+        if (selection.length === 1) {
           let criterium: AcceptanceCriterium = self.getCriterium.call(self, selection);
           self.unselectCriteria();
           self.editCriterium(criterium);
@@ -45,16 +45,16 @@ export class AcceptanceCriteriaComponent implements OnChanges, AfterViewInit {
       self.cutPaste.call(self, event);
     });
   }
-  
+
   unselectCriteria(): void {
     $('.ui-selected').removeClass('ui-selected');
   }
-  
+
   private getCriterium(selection: any): AcceptanceCriterium {
     let response: AcceptanceCriterium = null;
-    let id: number = parseInt(selection.attr('criterium'));
+    let id: number = parseInt(selection.attr('criterium'), 10);
     this.model.acceptance_criteria.forEach((criterium: AcceptanceCriterium) => {
-      if(criterium.id === id) {
+      if (criterium.id === id) {
         response = criterium;
       }
     });
@@ -80,25 +80,25 @@ export class AcceptanceCriteriaComponent implements OnChanges, AfterViewInit {
   cutPaste(event): void {
     let self: AcceptanceCriteriaComponent = this;
     let selection: any = this.selection();
-    if($(':focus').attr('id') !== 'pasteArea' || selection.length <= 1 || (!event.ctrlKey && !event.metaKey)) {
+    if ($(':focus').attr('id') !== 'pasteArea' || selection.length <= 1 || (!event.ctrlKey && !event.metaKey)) {
       // focus is elsewhere or it isn't CTRL + key
       return;
     }
     let key: string = event.key.toLowerCase();
-    if(key === 'c' || key == 'x') {
+    if (key === 'c' || key === 'x') {
       let buffer = '';
       selection.each(function() {
         let criterium: AcceptanceCriterium = self.getCriterium.call(self, $(this));
-        if(key == 'x') {
+        if (key === 'x') {
           self.model.acceptance_criteria.splice(self.model.acceptance_criteria.indexOf(criterium), 1);
         }
-        if(buffer !== '') {
+        if (buffer !== '') {
           buffer += '\n';
         }
         buffer += criterium.description;
       });
       this.pasteArea().val(buffer).select();
-    } else if(key === 'v') {
+    } else if (key === 'v') {
       this.pasteArea().select();
       setTimeout(() => {
         let rows: string[] = this.pasteArea().val().split('\n');
@@ -109,30 +109,30 @@ export class AcceptanceCriteriaComponent implements OnChanges, AfterViewInit {
         if (rows.length > acceptanceCriteria.length) {
           let index: number = this.model.acceptance_criteria.indexOf(acceptanceCriteria[0]) + acceptanceCriteria.length;
           let length: number = acceptanceCriteria.length;
-          for(let i=0; i<rows.length - length; i++) {
+          for (let i = 0; i < rows.length - length; i++) {
             let acceptanceCriterium: AcceptanceCriterium = this.createNewAcceptanceCriterium();
             this.model.acceptance_criteria.splice(index + i, 0, acceptanceCriterium);
             acceptanceCriteria.push(acceptanceCriterium);
             setTimeout(() => {
               $('.content[criterium="' + acceptanceCriterium.id + '"]').addClass('ui-selected');
-            },0);
+            }, 0);
           }
-        } else if(acceptanceCriteria.length > rows.length) {
+        } else if (acceptanceCriteria.length > rows.length) {
           this.model.acceptance_criteria.splice(
             this.model.acceptance_criteria.indexOf(acceptanceCriteria[rows.length - 1]) + 1,
             acceptanceCriteria.length - rows.length);
         }
-        for(let i=0; i<rows.length; i++) {
+        for (let i = 0; i < rows.length; i++) {
           acceptanceCriteria[i].description = rows[i];
         }
       }, 500);
     }
   }
-  
+
   private pasteArea(): any {
     return $('#pasteArea');
   }
-  
+
   handleKeyStroke(event): void {
     let key: string = event.key;
     let index: number = this.criteriumToEdit === null ? null : this.model.acceptance_criteria.indexOf(this.criteriumToEdit);
@@ -149,28 +149,28 @@ export class AcceptanceCriteriaComponent implements OnChanges, AfterViewInit {
         this.editCriterium(this.model.acceptance_criteria[index - 1]);
       }
       event.preventDefault();
-    } else if((event.ctrlKey || event.metaKey) && key === 'v') {
+    } else if ((event.ctrlKey || event.metaKey) && key === 'v') {
       setTimeout(() => {
         let rows: string[] = this.criteriumToEdit.description.split('\n');
-        if(rows.length > 1) {
+        if (rows.length > 1) {
           let objects: any[] = this.model.acceptance_criteria.slice(0);
-          objects.splice(0,objects.indexOf(this.criteriumToEdit));
+          objects.splice(0, objects.indexOf(this.criteriumToEdit));
           if (rows.length > objects.length) {
             let length: number = objects.length;
-            for(let i=0; i<rows.length - length; i++) {
+            for (let i = 0; i < rows.length - length; i++) {
               let object: any = this.createNewAcceptanceCriterium();
               this.model.acceptance_criteria.push(object);
               objects.push(object);
             }
           }
-          for(let i=0; i<rows.length; i++) {
+          for (let i = 0; i < rows.length; i++) {
             objects[i].description = rows[i];
           }
         }
       }, 500);
     }
   }
-  
+
   private selection(): any {
     return $('.grid .ui-selected.content');
   }

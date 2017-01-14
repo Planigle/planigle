@@ -25,11 +25,11 @@ export class StoryOverallActionsComponent implements OnInit {
     private storiesService: StoriesService,
     private errorService: ErrorService,
     private modalService: NgbModal) { }
-  
+
   ngOnInit(): void {
     $('#import').fileupload(this.getFileUploadOptions());
   }
-  
+
   export(): void {
     let filters: StoryFiltersComponent = this.grid.filters;
     this.storiesService.exportStories(filters.queryString);
@@ -38,7 +38,7 @@ export class StoryOverallActionsComponent implements OnInit {
   import(): void {
     $('#import').click();
   }
-  
+
   selectColumns(): void {
     const modalRef: NgbModalRef = this.modalService.open(SelectColumnsComponent, {size: 'sm'});
     modalRef.componentInstance.storyAttributes = this.grid.storyAttributes;
@@ -48,13 +48,13 @@ export class StoryOverallActionsComponent implements OnInit {
   refresh(): void {
     this.grid.refresh();
   }
-  
+
   addStory(): void {
     this.grid.addStory();
   }
-  
+
   editItems(): void {
-    if (this.grid.selectedWork.length == 1) {
+    if (this.grid.selectedWork.length === 1) {
       this.grid.updateNavigation(this.grid.selectedWork[0].uniqueId);
     } else {
       const modalRef: NgbModalRef = this.modalService.open(EditMultipleComponent);
@@ -68,16 +68,16 @@ export class StoryOverallActionsComponent implements OnInit {
       component.individuals = this.grid.filters.choosableIndividuals;
     }
   }
-  
+
   deleteItems(): void {
     let self: StoryOverallActionsComponent = this;
     const modalRef: NgbModalRef = this.modalService.open(ConfirmationDialogComponent, {size: 'sm'});
-    let typeOfObject: string = this.grid.selectedWork.length == 1 ?
+    let typeOfObject: string = this.grid.selectedWork.length === 1 ?
       (this.grid.selectedWork[0].isStory() ? 'Story' : 'Task') :
       'Items';
     let model: any = {
       title: 'Delete ' + typeOfObject,
-      body: 'Are you sure you want to delete ' + (this.grid.selectedWork.length == 1 ? 'this ' : 'these ') + typeOfObject + '?',
+      body: 'Are you sure you want to delete ' + (this.grid.selectedWork.length === 1 ? 'this ' : 'these ') + typeOfObject + '?',
       confirmed: false
     };
     modalRef.componentInstance.model = model;
@@ -94,8 +94,8 @@ export class StoryOverallActionsComponent implements OnInit {
               tasks.push(<Task>work);
             }
           });
-          tasks.forEach((task:Task) => {
-            if (stories.indexOf(task.story) == -1) {
+          tasks.forEach((task: Task) => {
+            if (stories.indexOf(task.story) === -1) {
               self.grid.deleteWork(task);
             }
           });
@@ -103,11 +103,11 @@ export class StoryOverallActionsComponent implements OnInit {
       }
     );
   }
-  
+
   hasItemsSelected(): boolean {
     return this.grid.selectedWork.length > 0;
   }
-  
+
   private getFileUploadOptions(): any {
     let self: StoryOverallActionsComponent = this;
     let grid: StoriesComponent = this.grid;

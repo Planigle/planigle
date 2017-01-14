@@ -50,6 +50,9 @@ import { IndividualActionsComponent } from './components/individual-actions/indi
 import { IndividualOverallActionsComponent } from './components/individual-overall-actions/individual-overall-actions.component';
 import { EditProjectComponent } from './components/edit-project/edit-project.component';
 import { SignupComponent } from './components/signup/signup.component';
+import { ChangesComponent } from './components/changes/changes.component';
+import { DatesService } from './services/dates.service';
+import { HtmlCellComponent } from './components/html-cell/html-cell.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'stories', pathMatch: 'full' },
@@ -57,7 +60,8 @@ const appRoutes: Routes = [
   { path: 'signup', component: SignupComponent },
   { path: 'stories', component: StoriesComponent, canActivate: [AuthGuardService] },
   { path: 'schedule', component: ScheduleComponent, canActivate: [AuthGuardService] },
-  { path: 'people', component: PeopleComponent, canActivate: [AuthGuardService] }
+  { path: 'people', component: PeopleComponent, canActivate: [AuthGuardService] },
+  { path: 'changes', component: ChangesComponent, canActivate: [AuthGuardService] }
 ];
 
 @NgModule({
@@ -100,7 +104,9 @@ const appRoutes: Routes = [
     IndividualActionsComponent,
     IndividualOverallActionsComponent,
     EditProjectComponent,
-    SignupComponent
+    SignupComponent,
+    ChangesComponent,
+    HtmlCellComponent
   ],
   entryComponents: [
     SelectColumnsComponent,
@@ -122,13 +128,15 @@ const appRoutes: Routes = [
       IterationActionsComponent,
       ReleaseActionsComponent,
       TeamActionsComponent,
-      IndividualActionsComponent
+      IndividualActionsComponent,
+      HtmlCellComponent
     ])
   ],
   providers: [
     NgbActiveModal,
     ErrorService,
     SessionsService,
+    DatesService,
     AuthGuardService
   ],
   bootstrap: [AppComponent]

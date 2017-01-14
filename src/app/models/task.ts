@@ -8,7 +8,7 @@ export class Task extends Work {
   public previous_story_id: number;
 
   constructor(values: any) {
-    super(values)
+    super(values);
     this.estimate = values.estimate ? parseFloat(values.estimate) : null;
     this.actual = values.actual ? parseFloat(values.actual) : null;
     this.story = values.story;

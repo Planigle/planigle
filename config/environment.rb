@@ -86,3 +86,42 @@ if defined? Mongrel::DirHandler
     end
   end
 end
+
+# Modify what gets sent via JSON for Audits
+class Audited::Audit
+  def user_name
+    user ? user.name : null
+  end
+  
+  def as_json(options = {})
+    if !options[:except]
+      options[:except] = [:project_id, :user_type, :username, :version, :comment, :remote_address, :request_uuid, :association_id, :association_type]
+    end
+    if !options[:methods]
+      options[:methods] = [:user_name] 
+    end
+    super(options)
+  end
+end
+
+# Handle yaml issues
+require 'syck'
+module ActiveRecord
+  module Coders # :nodoc:
+    class YAMLColumn # :nodoc:
+      def load(yaml)
+        return object_class.new if object_class != Object && yaml.nil?
+        return yaml unless yaml.is_a?(String) && /^---/.match(yaml)
+        begin
+          obj = YAML.load(yaml.gsum("\r","<br>"))
+        rescue => e
+          obj = Syck.load(yaml) # Use old version of yaml
+        end
+        assert_valid_value(obj)
+        obj ||= object_class.new if object_class != Object
+
+        obj
+      end
+    end
+  end
+end

@@ -16,7 +16,7 @@ import { Team } from '../../models/team';
 export class TeamActionsComponent implements AgRendererComponent {
   model: Organization;
   grid: TeamsComponent;
-  
+
   constructor(
       private modalService: NgbModal,
   ) { }
@@ -25,19 +25,19 @@ export class TeamActionsComponent implements AgRendererComponent {
     this.model = params.data;
     this.grid = params.context.gridHolder;
   }
-  
+
   addProject(): void {
     this.grid.addProject(<Company> this.model);
   }
-  
+
   addTeam(): void {
     this.grid.addTeam(<Project> this.model);
   }
-  
+
   edit(): void {
     this.grid.editOrganization(this.model);
   }
-  
+
   deleteItem(): void {
     let self: TeamActionsComponent = this;
     const modalRef: NgbModalRef = this.modalService.open(ConfirmationDialogComponent);
@@ -46,7 +46,7 @@ export class TeamActionsComponent implements AgRendererComponent {
     modalRef.result.then(
       (result: any) => {
         if (component.model.confirmed) {
-          if(self.model.isTeam()) {
+          if (self.model.isTeam()) {
             self.grid.deleteTeam(<Team> self.model);
           } else {
             self.grid.deleteProject(<Project> self.model);

@@ -12,7 +12,7 @@ export class ConfirmationDialogComponent {
   constructor(
     private activeModal: NgbActiveModal,
   ) { }
-  
+
   confirmDelete(objectType: string, objectName: string) {
     this.model = {
       title: 'Delete ' + objectType,

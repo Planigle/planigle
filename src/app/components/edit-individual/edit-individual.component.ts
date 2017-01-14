@@ -3,7 +3,7 @@ import { IndividualsService } from '../../services/individuals.service';
 import { ErrorService } from '../../services/error.service';
 import { Individual } from '../../models/individual';
 import { Team } from '../../models/team';
-import { FinishedEditing } from '../../models/finished-editing'
+import { FinishedEditing } from '../../models/finished-editing';
 declare var $: any;
 
 @Component({
@@ -11,7 +11,7 @@ declare var $: any;
   templateUrl: './edit-individual.component.html',
   styleUrls: ['./edit-individual.component.css']
 })
-export class EditIndividualComponent {
+export class EditIndividualComponent implements OnChanges {
   @Input() individual: Individual;
   @Input() me: Individual;
   @Input() teams: Team[];
@@ -21,7 +21,7 @@ export class EditIndividualComponent {
   public error: String;
 
   constructor(
-    private individualsService: IndividualsService, 
+    private individualsService: IndividualsService,
     private errorService: ErrorService) {
   }
 
@@ -31,11 +31,11 @@ export class EditIndividualComponent {
       setTimeout(() => $('input[autofocus=""]').focus(), 0);
     }
   }
-  
+
   isNew(): boolean {
     return this.model.id == null;
   }
-  
+
   updateTeam(): void {
     if (String(this.model.team_id) === 'null') {
       this.model.team_id = null;
@@ -47,23 +47,23 @@ export class EditIndividualComponent {
   canSave(form: any): boolean {
     return form.form.valid && this.canUpdate();
   }
-  
+
   canUpdate(): boolean {
     return this.me.id === this.individual.id || this.me.canChangeRelease();
   }
-  
+
   ok(): void {
     this.saveModel(FinishedEditing.Save, null);
   }
-    
+
   addAnother(form): void {
     this.saveModel(FinishedEditing.AddAnother, form);
   }
-  
+
   cancel(): void {
     this.closed.emit({value: FinishedEditing.Cancel});
   }
-  
+
   private saveModel(result: FinishedEditing, form: any): void {
     this.individualsService.update(this.model).subscribe(
       (individual: Individual) => {

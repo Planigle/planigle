@@ -24,7 +24,7 @@ export class IndividualsService {
         return result;
       });
   }
-  
+
   create(individual: Individual): Observable<Individual> {
     return this.createOrUpdate(individual, this.http.post, '');
   }
@@ -60,7 +60,7 @@ export class IndividualsService {
       notification_type: individual.notification_type,
       refresh_interval: individual.refresh_interval
     };
-    if(individual.password) {
+    if (individual.password) {
       record['password'] = individual.password;
       record['password_confirmation'] = individual.password_confirmation;
     }

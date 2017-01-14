@@ -3,7 +3,7 @@ import { CompaniesService } from '../../services/companies.service';
 import { ErrorService } from '../../services/error.service';
 import { Company } from '../../models/company';
 import { Individual } from '../../models/individual';
-import { FinishedEditing } from '../../models/finished-editing'
+import { FinishedEditing } from '../../models/finished-editing';
 declare var $: any;
 
 @Component({
@@ -20,7 +20,7 @@ export class EditCompanyComponent implements OnChanges {
   public error: String;
 
   constructor(
-    private companiesService: CompaniesService, 
+    private companiesService: CompaniesService,
     private errorService: ErrorService) {
   }
 
@@ -34,15 +34,15 @@ export class EditCompanyComponent implements OnChanges {
   canSave(form: any): boolean {
     return form.form.valid && this.me.canChangeRelease();
   }
-  
+
   ok(): void {
     this.saveModel(FinishedEditing.Save, null);
   }
-  
+
   cancel(): void {
     this.closed.emit({value: FinishedEditing.Cancel});
   }
-  
+
   private saveModel(result: FinishedEditing, form: any): void {
     this.companiesService.update(this.model).subscribe(
       (company: Company) => {

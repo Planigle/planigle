@@ -1,0 +1,47 @@
+<div class="container-fluid" >
+	<app-header></app-header>
+	<div class="search-bar">
+	    <select name="individual" [(ngModel)]="individual" (change)="updateNavigation()">
+	        <option *ngFor="let individual of individuals" [value]="individual.id">  
+	        {{individual.name}}
+	        </option>
+	        <option [value]="null">All Users</option>
+	    </select>
+	    <select name="objectType" [(ngModel)]="objectType" (change)="updateNavigation()">
+	        <option value="Company">Company</option>
+	        <option value="Individual">Individual</option>
+	        <option value="Iteration">Iteration</option>
+	        <option value="Project">Project</option>
+	        <option value="Release">Release</option>
+	        <option value="Story">Story</option>
+	        <option value="StoryAttribute">Story Attribute</option>
+	        <option value="StoryAttributeValue">Story Attribute Value</option>
+	        <option value="Task">Task</option>
+	        <option value="Team">Team</option>
+	        <option [value]="null">All Types</option>
+	    </select>
+    	<my-date-picker
+			[options]="{dateFormat: 'mm-dd-yyyy'}"
+			[selDate]="startStringTwoDigit()"
+			(dateChanged)="updateStart($event.jsdate)"></my-date-picker>
+		<span class="to">to</span>
+    	<my-date-picker
+			[options]="{dateFormat: 'mm-dd-yyyy'}"
+			[selDate]="endStringTwoDigit()"
+			(dateChanged)="updateEnd($event.jsdate)"></my-date-picker>
+	</div>
+	<div class="content">
+		<ag-grid-ng2 #agGrid class="ag-fresh"
+			[gridOptions]="gridOptions"
+		    [columnDefs]="columnDefs"
+		    [rowData]="changes"
+		    (modelUpdated)="gridReady()"
+		    enableColResize
+		    enableSorting
+		    rowHeight="22"
+		    rowBuffer="100"
+		    suppressCellSelection
+		    suppressDragLeaveHidesColumns>
+		</ag-grid-ng2>  <!-- rowBuffer high to better handle mouseover  -->
+	</div>
+</div>

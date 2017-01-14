@@ -3,7 +3,7 @@ import { IterationsService } from '../../services/iterations.service';
 import { ErrorService } from '../../services/error.service';
 import { Iteration } from '../../models/iteration';
 import { Individual } from '../../models/individual';
-import { FinishedEditing } from '../../models/finished-editing'
+import { FinishedEditing } from '../../models/finished-editing';
 declare var $: any;
 
 @Component({
@@ -21,7 +21,7 @@ export class EditIterationComponent implements OnChanges {
   public error: String;
 
   constructor(
-    private iterationsService: IterationsService, 
+    private iterationsService: IterationsService,
     private errorService: ErrorService) {
   }
 
@@ -35,23 +35,23 @@ export class EditIterationComponent implements OnChanges {
   isNew(): boolean {
     return this.model.id == null;
   }
-  
+
   canSave(form: any): boolean {
     return form.form.valid && this.me.canChangeRelease();
   }
-  
+
   ok(): void {
     this.saveModel(FinishedEditing.Save, null);
   }
-  
+
   cancel(): void {
     this.closed.emit({value: FinishedEditing.Cancel});
   }
-  
+
   addAnother(form): void {
     this.saveModel(FinishedEditing.AddAnother, form);
   }
-  
+
   private saveModel(result: FinishedEditing, form: any): void {
     let method: any = this.model.id ? this.iterationsService.update : this.iterationsService.create;
     method.call(this.iterationsService, this.model).subscribe(

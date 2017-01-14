@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { ReleasesComponent } from '../releases/releases.component'
-import { Release } from '../../models/release'
+import { ReleasesComponent } from '../releases/releases.component';
 
 @Component({
   selector: 'app-release-overall-actions',
@@ -9,7 +8,7 @@ import { Release } from '../../models/release'
 })
 export class ReleaseOverallActionsComponent {
   @Input() grid: ReleasesComponent;
-  
+
   constructor() { }
 
   addRelease() {

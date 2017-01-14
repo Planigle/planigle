@@ -36,7 +36,7 @@ export class EditStoryComponent implements OnChanges {
   @Output() closed: EventEmitter<any> = new EventEmitter();
 
   public model: Story;
-  public customValues: Map<string,any> = new Map();
+  public customValues: Map<string, any> = new Map();
   public error: String;
 
   constructor(
@@ -164,7 +164,8 @@ export class EditStoryComponent implements OnChanges {
         value: value === 'null' ? '' : value
       }));
     });
-    if(this.model.acceptance_criteria.length === 1 && this.model.acceptance_criteria[0].description === AcceptanceCriteriaComponent.instructions) {
+    if (this.model.acceptance_criteria.length === 1 &&
+      this.model.acceptance_criteria[0].description === AcceptanceCriteriaComponent.instructions) {
       this.model.acceptance_criteria = [];
     }
     let method: any = this.model.id ? this.storiesService.update : this.storiesService.create;
@@ -203,7 +204,7 @@ export class EditStoryComponent implements OnChanges {
       }
     );
   }
-  
+
   editAttributes(): void {
     const modalRef: NgbModalRef = this.modalService.open(EditAttributesComponent);
     let component: EditAttributesComponent = modalRef.componentInstance;
@@ -211,7 +212,7 @@ export class EditStoryComponent implements OnChanges {
     component.setCustomStoryAttributes(this.customStoryAttributes);
     modalRef.result.then(
       (data) => {
-        if(component.hasChanges) {
+        if (component.hasChanges) {
           this.updatedAttributes.next();
         }
       });

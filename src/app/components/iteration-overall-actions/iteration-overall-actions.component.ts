@@ -1,6 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { IterationsComponent } from '../iterations/iterations.component'
-import { Iteration } from '../../models/iteration'
+import { IterationsComponent } from '../iterations/iterations.component';
 
 @Component({
   selector: 'app-iteration-overall-actions',
@@ -9,7 +8,7 @@ import { Iteration } from '../../models/iteration'
 })
 export class IterationOverallActionsComponent {
   @Input() grid: IterationsComponent;
-  
+
   constructor() { }
 
   addIteration(): void {

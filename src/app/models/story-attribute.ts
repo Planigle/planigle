@@ -45,7 +45,7 @@ export class StoryAttribute {
     this.ordering = parseFloat(values.ordering);
     this.show = values.show;
     let attributeValues = values.story_attribute_values ? values.story_attribute_values : values.storyAttributeValues;
-    if(attributeValues) {
+    if (attributeValues) {
       attributeValues.forEach((storyAttributeValue) => {
         this.storyAttributeValues.push(new StoryAttributeValue(storyAttributeValue));
       });
@@ -102,7 +102,7 @@ export class StoryAttribute {
     let storyAttribute = params.colDef.storyAttribute;
     let result = null;
     if (object.story_values) {
-      if(storyAttribute.storyAttributeValues.length > 0) {
+      if (storyAttribute.storyAttributeValues.length > 0) {
         storyAttribute.storyAttributeValues.forEach((value: StoryAttributeValue) => {
           object.story_values.forEach((storyValue: StoryValue) => {
             if (storyValue.story_attribute_id === storyAttribute.id && parseFloat(storyValue.value) === value.id) {
@@ -152,13 +152,13 @@ export class StoryAttribute {
     });
     return values;
   }
-  
+
   values(): string {
     let values: string[] = [];
     this.storyAttributeValues.forEach((value: StoryAttributeValue) => {
-      if(value.release_id) {
+      if (value.release_id) {
         values.push(value.release_id + '@' + value.value);
-      } else if(value.id) {
+      } else if (value.id) {
         values.push('@' + value.id + '@' + value.value);
       } else {
         values.push(value.value);
@@ -170,7 +170,7 @@ export class StoryAttribute {
   hasReleaseList(): boolean {
     return this.value_type === 4;
   }
-  
+
   hasList(): boolean {
     return this.value_type === 3 || this.value_type === 4;
   }

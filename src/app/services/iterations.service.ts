@@ -24,7 +24,7 @@ export class IterationsService {
         return result;
       });
   }
-  
+
   create(iteration: Iteration): Observable<Iteration> {
     return this.createOrUpdate(iteration, this.http.post, '');
   }

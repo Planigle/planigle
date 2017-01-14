@@ -13,7 +13,7 @@ import { Individual } from '../../models/individual';
 export class IndividualActionsComponent implements AgRendererComponent {
   model: Individual;
   grid: IndividualsComponent;
-  
+
   constructor(
       private modalService: NgbModal,
   ) { }
@@ -22,11 +22,11 @@ export class IndividualActionsComponent implements AgRendererComponent {
     this.model = params.data;
     this.grid = params.context.gridHolder;
   }
-  
+
   edit(): void {
     this.grid.editIndividual(this.model);
   }
-  
+
   deleteItem(): void {
     let self: IndividualActionsComponent = this;
     const modalRef: NgbModalRef = this.modalService.open(ConfirmationDialogComponent);
