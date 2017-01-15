@@ -1,4 +1,5 @@
 import { Component, OnChanges, Input, Output, EventEmitter } from '@angular/core';
+import { Router } from '@angular/router';
 import { ReleasesService } from '../../services/releases.service';
 import { ErrorService } from '../../services/error.service';
 import { Release } from '../../models/release';
@@ -20,7 +21,10 @@ export class EditReleaseComponent implements OnChanges {
   public model: Release;
   public error: String;
 
-  constructor(private releasesService: ReleasesService, private errorService: ErrorService) {
+  constructor(
+    private router: Router,
+    private releasesService: ReleasesService,
+    private errorService: ErrorService) {
   }
 
   ngOnChanges(changes): void {
@@ -71,5 +75,9 @@ export class EditReleaseComponent implements OnChanges {
         this.error = this.errorService.getError(err);
       }
     );
+  }
+
+  viewChanges(): void {
+    this.router.navigate(['changes', {type: 'Release', id: this.model.id}]);
   }
 }

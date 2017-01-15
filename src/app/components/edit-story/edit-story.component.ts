@@ -1,5 +1,6 @@
 import { Component, OnChanges, Input, Output, EventEmitter } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { Router } from '@angular/router';
 import { EditAttributesComponent } from '../edit-attributes/edit-attributes.component';
 import { AcceptanceCriteriaComponent } from '../acceptance-criteria/acceptance-criteria.component';
 import { StoriesService } from '../../services/stories.service';
@@ -40,6 +41,7 @@ export class EditStoryComponent implements OnChanges {
   public error: String;
 
   constructor(
+    private router: Router,
     private modalService: NgbModal,
     private storiesService: StoriesService,
     private errorService: ErrorService) {
@@ -216,5 +218,9 @@ export class EditStoryComponent implements OnChanges {
           this.updatedAttributes.next();
         }
       });
+  }
+
+  viewChanges(): void {
+    this.router.navigate(['changes', {type: 'Story', id: this.model.id}]);
   }
 }

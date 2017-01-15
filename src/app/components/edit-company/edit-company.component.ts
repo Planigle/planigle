@@ -1,4 +1,5 @@
 import { Component, OnChanges, Input, Output, EventEmitter } from '@angular/core';
+import { Router } from '@angular/router';
 import { CompaniesService } from '../../services/companies.service';
 import { ErrorService } from '../../services/error.service';
 import { Company } from '../../models/company';
@@ -20,6 +21,7 @@ export class EditCompanyComponent implements OnChanges {
   public error: String;
 
   constructor(
+    private router: Router,
     private companiesService: CompaniesService,
     private errorService: ErrorService) {
   }
@@ -57,5 +59,9 @@ export class EditCompanyComponent implements OnChanges {
         this.error = this.errorService.getError(err);
       }
     );
+  }
+
+  viewChanges(): void {
+    this.router.navigate(['changes', {type: 'Company', id: this.model.id}]);
   }
 }

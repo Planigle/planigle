@@ -1,4 +1,5 @@
 import { Component, OnChanges, Input, Output, EventEmitter } from '@angular/core';
+import { Router } from '@angular/router';
 import { IterationsService } from '../../services/iterations.service';
 import { ErrorService } from '../../services/error.service';
 import { Iteration } from '../../models/iteration';
@@ -21,6 +22,7 @@ export class EditIterationComponent implements OnChanges {
   public error: String;
 
   constructor(
+    private router: Router,
     private iterationsService: IterationsService,
     private errorService: ErrorService) {
   }
@@ -75,5 +77,9 @@ export class EditIterationComponent implements OnChanges {
         this.error = this.errorService.getError(err);
       }
     );
+  }
+
+  viewChanges(): void {
+    this.router.navigate(['changes', {type: 'Iteration', id: this.model.id}]);
   }
 }

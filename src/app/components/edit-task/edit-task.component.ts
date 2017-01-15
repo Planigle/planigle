@@ -1,4 +1,5 @@
 import { Component, OnChanges, Input, Output, EventEmitter } from '@angular/core';
+import { Router } from '@angular/router';
 import { TasksService } from '../../services/tasks.service';
 import { ErrorService } from '../../services/error.service';
 import { Task } from '../../models/task';
@@ -23,7 +24,10 @@ export class EditTaskComponent implements OnChanges {
   public model: Task;
   public error: String;
 
-  constructor(private tasksService: TasksService, private errorService: ErrorService) {
+  constructor(
+    private router: Router,
+    private tasksService: TasksService,
+    private errorService: ErrorService) {
   }
 
   ngOnChanges(changes): void {
@@ -107,5 +111,9 @@ export class EditTaskComponent implements OnChanges {
         this.error = this.errorService.getError(err);
       }
     );
+  }
+
+  viewChanges(): void {
+    this.router.navigate(['changes', {type: 'Task', id: this.model.id}]);
   }
 }

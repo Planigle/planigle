@@ -32,14 +32,19 @@ export class Change {
           let name: string = name_parts.join(' ');
           let oldValue: string = values.audited_changes[property][0] == null ? null :
             ('' + values.audited_changes[property][0]).replace(/\r/g, '<br>');
-          let newValue: string = ('' + values.audited_changes[property][1]).replace(/\r/g, '<br>');
+          let newValue: string = values.audited_changes[property][1] == null ? null :
+            ('' + values.audited_changes[property][1]).replace(/\r/g, '<br>');
           if (name === 'Status Code') {
             name = 'Status';
             oldValue = this.getStatus(oldValue);
             newValue = this.getStatus(newValue);
           }
           if (oldValue) {
-            changes.push(name + ' has changed from \'' + oldValue + '\' to \'' + newValue + '\'');
+            if (newValue) {
+              changes.push(name + ' has changed from \'' + oldValue + '\' to \'' + newValue + '\'');
+            } else {
+              changes.push(name + ' has changed from \'' + oldValue + '\' to \'\'');
+            }
           } else {
             changes.push(name + ' set to \'' + newValue + '\'');
           }

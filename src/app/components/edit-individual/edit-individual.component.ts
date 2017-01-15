@@ -1,4 +1,5 @@
 import { Component, OnChanges, Input, Output, EventEmitter } from '@angular/core';
+import { Router } from '@angular/router';
 import { IndividualsService } from '../../services/individuals.service';
 import { ErrorService } from '../../services/error.service';
 import { Individual } from '../../models/individual';
@@ -21,6 +22,7 @@ export class EditIndividualComponent implements OnChanges {
   public error: String;
 
   constructor(
+    private router: Router,
     private individualsService: IndividualsService,
     private errorService: ErrorService) {
   }
@@ -89,5 +91,9 @@ export class EditIndividualComponent implements OnChanges {
         this.error = this.errorService.getError(err);
       }
     );
+  }
+
+  viewChanges(): void {
+    this.router.navigate(['changes', {type: 'Individual', id: this.model.id}]);
   }
 }

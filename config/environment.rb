@@ -87,10 +87,56 @@ if defined? Mongrel::DirHandler
   end
 end
 
+# Modify what gets saved for Audits
+module Audited::Auditor::AuditedInstanceMethods
+  def write_audit(attrs)
+     attrs[:associated] = send(audit_associated_with) unless audit_associated_with.nil?
+     self.audit_comment = nil
+     
+     # Added part
+     if self.class == StoryValue
+       if (story_attribute.value_type == StoryAttribute::List || story_attribute.value_type == StoryAttribute::ReleaseList)
+         if attrs[:action] == 'destroy'
+           old_value = value ? StoryAttributeValue.find(value) : nil
+           changed_value = [old_value ? old_value.value : '', 'None']
+         else
+           old_value = changed_attributes['value'] ? StoryAttributeValue.find(changed_attributes['value']) : nil
+           new_value = value ? StoryAttributeValue.find(value) : nil
+           changed_value = [old_value ? old_value.value : 'None', new_value ? new_value.value : '']
+         end
+       else
+         if attrs[:action] == 'destroy'
+           changed_value = [value, nil]
+         elsif attrs[:action] == 'update'
+           changed_value = [changed_attributes['value'], value]
+         else
+           changed_value = [nil, value]
+         end
+       end
+       if story
+         attrs[:action]= 'update'
+         attrs[:audited_changes] = {story_attribute.name => changed_value}
+         attrs[:auditable_name] = story.name
+         attrs[:project_id] = Thread.current[:user] ? Thread.current[:user].project_id : nil
+         attrs[:user_id] = Thread.current[:user] ? Thread.current[:user].id : nil
+         attrs[:username] = Thread.current[:user] ? Thread.current[:user].name : nil
+         story.run_callbacks(:audit)  { story.audits.create(attrs) } if Story.auditing_enabled  # original
+       end
+     else
+       pr_id = respond_to?(:project_id) ? project_id : (Thread.current[:user] ? Thread.current[:user].project_id : nil)
+       attrs[:auditable_name] = name
+       attrs[:project_id] = pr_id
+       attrs[:user_id] = Thread.current[:user] ? Thread.current[:user].id : nil
+       attrs[:username] = Thread.current[:user] ? Thread.current[:user].name : nil
+       run_callbacks(:audit)  { audits.create(attrs) } if auditing_enabled  # original
+     end
+   end
+end
+
 # Modify what gets sent via JSON for Audits
 class Audited::Audit
   def user_name
-    user ? user.name : null
+    username
   end
   
   def as_json(options = {})

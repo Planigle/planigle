@@ -1,4 +1,5 @@
 import { Component, OnChanges, Input, Output, EventEmitter } from '@angular/core';
+import { Router } from '@angular/router';
 import { ProjectsService } from '../../services/projects.service';
 import { ErrorService } from '../../services/error.service';
 import { Project } from '../../models/project';
@@ -21,6 +22,7 @@ export class EditProjectComponent implements OnChanges {
   public error: String;
 
   constructor(
+    private router: Router,
     private projectsService: ProjectsService,
     private errorService: ErrorService) {
   }
@@ -73,5 +75,9 @@ export class EditProjectComponent implements OnChanges {
         this.error = this.errorService.getError(err);
       }
     );
+  }
+
+  viewChanges(): void {
+    this.router.navigate(['changes', {type: 'Project', id: this.model.id}]);
   }
 }

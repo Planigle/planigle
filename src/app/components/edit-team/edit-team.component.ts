@@ -1,4 +1,5 @@
 import { Component, OnChanges, Input, Output, EventEmitter } from '@angular/core';
+import { Router } from '@angular/router';
 import { TeamsService } from '../../services/teams.service';
 import { ErrorService } from '../../services/error.service';
 import { Team } from '../../models/team';
@@ -21,6 +22,7 @@ export class EditTeamComponent implements OnChanges {
   public error: String;
 
   constructor(
+    private router: Router,
     private teamsService: TeamsService,
     private errorService: ErrorService) {
   }
@@ -72,5 +74,9 @@ export class EditTeamComponent implements OnChanges {
         this.error = this.errorService.getError(err);
       }
     );
+  }
+
+  viewChanges(): void {
+    this.router.navigate(['changes', {type: 'Team', id: this.model.id}]);
   }
 }
