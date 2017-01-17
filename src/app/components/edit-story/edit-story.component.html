@@ -44,7 +44,7 @@
 			  	<p class="form-control-static">{{model.id}}</p>
 			  </div>
 			</div>
-			<div class="form-group row" *ngIf="false">
+			<div class="form-group row">
 			  <label for="project" class="col-xs-2 col-form-label">Project</label>
 			  <div class="col-xs-10">
 			      <select name="project" class="form-control" [(ngModel)]="model.project_id" (ngModelChange)="updateProject()" [disabled]="!me.canChangeBacklog()">

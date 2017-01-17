@@ -46,7 +46,15 @@ export class Individual {
     this.company_id = values.company_id;
     this.selected_project_id = values.selected_project_id;
     this.refresh_interval = values.refresh_interval;
-    this.project_ids = values.project_ids;
+    if (Array.isArray(values.project_ids)) {
+      this.project_ids = values.project_ids;
+    } else {
+      let string_ids: string[] = values.project_ids ? values.project_ids.split(',') : [];
+      this.project_ids = [];
+      for (let i = 0; i < string_ids.length; i++) {
+        this.project_ids[i] = parseInt(string_ids[i], 10);
+      }
+    }
   }
 
   get name(): string {

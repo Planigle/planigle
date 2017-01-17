@@ -1,9 +1,11 @@
 import { Component, OnChanges, Input, Output, EventEmitter } from '@angular/core';
 import { Router } from '@angular/router';
+import {IMultiSelectOption} from 'angular-2-dropdown-multiselect/src/multiselect-dropdown';
 import { IndividualsService } from '../../services/individuals.service';
 import { ErrorService } from '../../services/error.service';
 import { Individual } from '../../models/individual';
 import { Team } from '../../models/team';
+import { Project } from '../../models/project';
 import { FinishedEditing } from '../../models/finished-editing';
 declare var $: any;
 
@@ -15,10 +17,12 @@ declare var $: any;
 export class EditIndividualComponent implements OnChanges {
   @Input() individual: Individual;
   @Input() me: Individual;
+  @Input() projects: IMultiSelectOption[];
   @Input() teams: Team[];
   @Output() closed: EventEmitter<any> = new EventEmitter();
 
   public model: Individual;
+  public projectTeams: Team[];
   public error: String;
 
   constructor(
@@ -30,12 +34,35 @@ export class EditIndividualComponent implements OnChanges {
   ngOnChanges(changes): void {
     if (changes.individual) {
       this.model = new Individual(this.individual);
+      this.updateProject();
       setTimeout(() => $('input[autofocus=""]').focus(), 0);
     }
   }
 
   isNew(): boolean {
     return this.model.id == null;
+  }
+
+  updateProject(): void {
+    let self: EditIndividualComponent = this;
+    let projectTeams: Team[] = [];
+    let hasTeam = false;
+    this.projects.forEach((project:  Project) => {
+      for (let i = 0; i < self.model.project_ids.length; i++) {
+        if (project.id === self.model.project_ids[i]) {
+          project.teams.forEach((team: Team) => {
+            projectTeams.push(team);
+            if (team.id === this.model.team_id) {
+              hasTeam = true;
+            }
+          });
+        }
+      }
+    });
+    this.projectTeams = projectTeams;
+    if (!hasTeam) {
+      this.model.team_id = null;
+    }
   }
 
   updateTeam(): void {

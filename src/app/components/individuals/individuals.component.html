@@ -6,6 +6,7 @@
 	*ngIf="selection"
 	[(individual)]="selection"
 	[(me)]="user"
+	[(projects)]="projects"
 	[(teams)]="teams"
 	(closed)="finishedEditing($event.value)"></app-edit-individual>
 <ag-grid-ng2 #agGrid class="ag-fresh"

@@ -19,7 +19,7 @@ export class CustomAttributesComponent implements OnChanges {
   constructor() { }
 
   ngOnChanges(changes): void {
-    if (changes.releaseId) {
+    if (changes.releaseId && !this.filter && !this.multiple) {
       this.customStoryAttributes.forEach((attribute: StoryAttribute) => {
         if (attribute.hasReleaseList()) {
           if (attribute.getValuesForRelease(this.releaseId).indexOf(this.customValues[attribute.id]) === -1) {

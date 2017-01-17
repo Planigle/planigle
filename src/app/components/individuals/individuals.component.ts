@@ -7,6 +7,7 @@ import { CompaniesService } from '../../services/companies.service';
 import { SessionsService } from '../../services/sessions.service';
 import { Individual } from '../../models/individual';
 import { Company } from '../../models/company';
+import { Project } from '../../models/project';
 import { Team } from '../../models/team';
 import { FinishedEditing } from '../../models/finished-editing';
 declare var $: any;
@@ -61,6 +62,7 @@ export class IndividualsComponent implements AfterViewInit, OnDestroy {
     field: 'last_login_string'
   }];
   public individuals: Individual[] = null;
+  public projects: Project[] = [];
   public teams: Team[] = [];
   public selection: Individual;
   public user: Individual;
@@ -99,25 +101,26 @@ export class IndividualsComponent implements AfterViewInit, OnDestroy {
         });
   }
 
-  private fetchCompany(): void {
-    let self: IndividualsComponent = this;
-    this.companiesService.getCompanies()
-      .subscribe(
-        (companies: Company[]) => {
-          companies.forEach((company: Company) => { // only 1 company
-            self.teams = company.getAllTeams();
-          });
-        });
-  }
-
   private applyNavigation(params: Map<string, string>): void {
     let individualId: string = params['individual'];
     if (this.individuals) {
       this.setSelection(individualId);
     } else {
-      this.fetchIndividuals(this.setSelection, individualId);
-      this.fetchCompany();
+      this.fetchCompany(individualId);
     }
+  }
+
+  private fetchCompany(individualId): void {
+    let self: IndividualsComponent = this;
+    this.companiesService.getCompanies()
+      .subscribe(
+        (companies: Company[]) => {
+          companies.forEach((company: Company) => { // only 1 company
+            self.projects = company.projects;
+            self.teams = company.getAllTeams();
+            this.fetchIndividuals(this.setSelection, individualId);
+          });
+        });
   }
 
   private setSelection(individualId: string): void {

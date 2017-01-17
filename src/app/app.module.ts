@@ -8,6 +8,7 @@ import { Angular2FontawesomeModule } from 'angular2-fontawesome/angular2-fontawe
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { MyDatePicker } from 'mydatepicker/src/my-date-picker/my-date-picker.component';
+import { MultiselectDropdownModule } from 'angular-2-dropdown-multiselect/src/multiselect-dropdown';
 
 import { AuthGuardService } from './services/auth-guard.service';
 import { ErrorService } from './services/error.service';
@@ -122,6 +123,7 @@ const appRoutes: Routes = [
     HttpModule,
     NgbModule.forRoot(),
     Angular2FontawesomeModule,
+    MultiselectDropdownModule,
     AgGridModule.withComponents([
       ChooseStatusComponent,
       StoryActionsComponent,

@@ -71,6 +71,26 @@ export class EditStoryComponent implements OnChanges {
   updateProject(): void {
     let storyId: number = parseInt(String(this.model.project_id), 10);
     this.model.project_id = storyId;
+    this.model.release_id = null;
+    this.model.release_name = null;
+    this.model.iteration_id = null;
+    this.model.iteration_name = null;
+    this.model.team_id = null;
+    this.model.team_name = null;
+    let hasOwner = false;
+    this.individuals.forEach((individual: Individual) => {
+      if (individual.id === this.model.individual_id) {
+        for (let i = 0; i < individual.project_ids.length; i++) {
+          if (individual.project_ids[i] === storyId) {
+            hasOwner = true;
+          }
+        }
+      }
+    });
+    if (!hasOwner) {
+      this.model.individual_id = null;
+      this.model.individual_name = null;
+    }
   }
 
   updateRelease(): void {

@@ -3,10 +3,16 @@
 		<div class="panel">
 		    <div [hidden]="!error" class="alert alert-danger" [innerHtml]="error"></div>
 			<div class="form-group row">
+			  <label for="projects" class="col-xs-2 col-form-label">Projects</label>
+			  <div class="col-xs-10">
+			    <ss-multiselect-dropdown name="projects" [options]="projects" [(ngModel)]="model.project_ids" (ngModelChange)="updateProject()"></ss-multiselect-dropdown>
+			  </div>
+			</div>
+			<div class="form-group row">
 			  <label for="team" class="col-xs-2 col-form-label">Team</label>
 			  <div class="col-xs-10">
 			      <select name="team" class="form-control" [(ngModel)]="model.team_id" (ngModelChange)="updateTeam()" [disabled]="!canUpdate()">
-			      	<option *ngFor="let team of teams" [ngValue]="team.id">{{team.name}}</option>
+			      	<option *ngFor="let team of projectTeams" [ngValue]="team.id">{{team.name}}</option>
 			      	<option [ngValue]="null">No Team</option>
 			      </select>
 			  </div>

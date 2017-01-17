@@ -38,6 +38,7 @@
     "@angular/compiler-cli": "2.4.1",
     "@types/jasmine": "2.5.38",
     "@types/node": "^6.0.42",
+    "angular-2-dropdown-multiselect": "^0.4.0",
     "angular-cli": "1.0.0-beta.21",
     "codelyzer": "~2.0.0-beta.4",
     "jasmine-core": "2.5.2",
