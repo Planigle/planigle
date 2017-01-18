@@ -96,6 +96,7 @@ export class EditIndividualComponent implements OnChanges {
   private saveModel(result: FinishedEditing, form: any): void {
     this.individualsService.update(this.model).subscribe(
       (individual: Individual) => {
+        this.individual.project_ids = individual.project_ids;
         this.individual.team_id = individual.team_id;
         this.individual.team_name = individual.team_name;
         this.individual.login = individual.login;

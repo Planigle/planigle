@@ -676,7 +676,7 @@ export class StoriesComponent implements AfterViewInit, OnDestroy {
   }
 
   private setGridHeight(): void {
-    $('ag-grid-ng2').height($(window).height() - 84);
+    $('ag-grid-ng2').height($(window).height() - 71);
   }
 
   setAttributes(storyAttributes: StoryAttribute[]): void {

@@ -58,8 +58,11 @@ export class IndividualsService {
       email: individual.email,
       phone_number: individual.phone_number,
       notification_type: individual.notification_type,
-      refresh_interval: individual.refresh_interval
+      refresh_interval: individual.refresh_interval,
+      project_ids: individual.project_ids,
+      selected_project_id: individual.selected_project_id
     };
+
     if (individual.password) {
       record['password'] = individual.password;
       record['password_confirmation'] = individual.password_confirmation;

@@ -61,7 +61,7 @@ export class ReleasesComponent implements AfterViewInit, OnDestroy {
   }
 
   private setGridHeight(): void {
-    $('app-releases ag-grid-ng2').height(($(window).height() - $('app-header').height() - 70) * 0.4);
+    $('app-releases ag-grid-ng2').height(($(window).height() - $('app-header').height() - 69) * 0.4);
   }
 
   private fetchReleases(afterAction, afterActionParams): void {

@@ -79,7 +79,7 @@ export class ChangesComponent implements AfterViewInit, OnDestroy {
   }
 
   private setGridHeight(): void {
-    $('ag-grid-ng2').height($(window).height() - $('app-header').height() - 40);
+    $('ag-grid-ng2').height($(window).height() - $('app-header').height() - 38);
   }
 
   private applyNavigation(params: Map<string, string>): void {

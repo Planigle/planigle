@@ -123,7 +123,7 @@ class Individual < ActiveRecord::Base
         @changed_attributes['project_id'] = [project_ids, nil]
         projects.clear
         if (value)
-          value.split(",").each {|project_id| projects << Project.find(project_id)}
+          value.each {|project_id| projects << Project.find(project_id)}
         end
         if (changed_attributes['project_id'][0] == project_ids)
           @changed_attributes.delete('project_id')

@@ -61,7 +61,7 @@ export class IterationsComponent implements AfterViewInit, OnDestroy {
   }
 
   private setGridHeight(): void {
-    $('app-iterations ag-grid-ng2').height(($(window).height() - $('app-header').height() - 70) * 0.6);
+    $('app-iterations ag-grid-ng2').height(($(window).height() - $('app-header').height() - 69) * 0.6);
   }
 
   private fetchIterations(afterAction, afterActionParams): void {

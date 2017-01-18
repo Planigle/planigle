@@ -73,7 +73,7 @@ export class TeamsComponent implements AfterViewInit, OnDestroy {
   }
 
   private setGridHeight(): void {
-    $('app-teams ag-grid-ng2').height(($(window).height() - $('app-header').height() - 70) * 0.4);
+    $('app-teams ag-grid-ng2').height(($(window).height() - $('app-header').height() - 63) * 0.4);
   }
 
   private fetchCompanies(afterAction, afterActionParams): void {

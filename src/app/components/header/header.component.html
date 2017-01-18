@@ -18,5 +18,10 @@
 		<li class="nav-item float-xs-right">
 			<a class="nav-link" (click)="logout()">Log out</a>
 		</li>
+		<li class="nav-item float-xs-right" *ngIf="projects.length > 1">
+	    	<select name="project" [(ngModel)]="user.selected_project_id" (ngModelChange)="updateProject()">
+	    		<option *ngFor="let project of projects" [ngValue]="project.id">{{project.name}}</option>
+	    	</select>
+		</li>
 	</ul>
 </nav>

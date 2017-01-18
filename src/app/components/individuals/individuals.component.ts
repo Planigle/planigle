@@ -87,7 +87,7 @@ export class IndividualsComponent implements AfterViewInit, OnDestroy {
   }
 
   private setGridHeight(): void {
-    $('app-individuals ag-grid-ng2').height(($(window).height() - $('app-header').height() - 65) * 0.6);
+    $('app-individuals ag-grid-ng2').height(($(window).height() - $('app-header').height() - 63) * 0.6);
   }
 
   private fetchIndividuals(afterAction, afterActionParams): void {

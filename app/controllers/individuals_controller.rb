@@ -68,6 +68,6 @@ protected
   
 private
   def record_params
-    params.require(:record).permit(:login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled, :role, :last_login, :accepted_agreement, :team_id, :phone_number, :notification_type, :company_id, :selected_project_id, :refresh_interval)
+    params.require(:record).permit(:login, :email, :first_name, :last_name, :password, :password_confirmation, :enabled, :role, :last_login, :accepted_agreement, :team_id, :phone_number, :notification_type, :company_id, :selected_project_id, :refresh_interval, :project_ids => [])
   end
 end

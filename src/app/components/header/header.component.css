@@ -19,3 +19,7 @@ nav {
 .nav-item a:hover, .nav-item.active a {
 	color: #0275d8;
 }
+
+select {
+	margin-top: 5px;
+}
