@@ -15,6 +15,7 @@ import { Work } from '../../models/work';
 import { Story } from '../../models/story';
 import { Task } from '../../models/task';
 import { Project } from '../../models/project';
+import { Team } from '../../models/team';
 import { Individual } from '../../models/individual';
 import { FinishedEditing } from '../../models/finished-editing';
 declare var $: any;
@@ -37,6 +38,8 @@ export class StoriesComponent implements AfterViewInit, OnDestroy {
   public storyAttributes: StoryAttribute[] = [];
   public customStoryAttributes: StoryAttribute[] = [];
   public selectedWork: Work[] = [];
+  public velocityAllocation: Map<Team, number> = new Map<Team, number>();
+  public storyAllocation: Map<Team, number> = new Map<Team, number>();
 
   @ViewChild(StoryFiltersComponent)
   public filters: StoryFiltersComponent;
@@ -291,6 +294,7 @@ export class StoriesComponent implements AfterViewInit, OnDestroy {
         this.selectedWork.push(work);
       }
     }
+    this.updateAllocations();
     this.lastSelected = work;
   }
 
@@ -544,11 +548,13 @@ export class StoriesComponent implements AfterViewInit, OnDestroy {
     if (row.isStory()) {
       this.stories.push(<Story> row);
       this.storiesService.setRanks(this.stories);
+      this.updateAllocations();
     } else {
       this.stories.forEach((story: Story) => {
         if (story.id === row.story_id) {
           story.expanded = true;
           story.tasks.push(<Task> row);
+          this.updateAllocations();
         }
       });
     }
@@ -616,6 +622,7 @@ export class StoriesComponent implements AfterViewInit, OnDestroy {
       this.updateExpandContractAll();
     }
     this.storiesService.setRanks(this.stories);
+    this.updateAllocations();
   }
 
   getIndex(objects: any[], id: number): number {
@@ -676,7 +683,8 @@ export class StoriesComponent implements AfterViewInit, OnDestroy {
   }
 
   private setGridHeight(): void {
-    $('ag-grid-ng2').height($(window).height() - 71);
+    let premium = $('app-stories-summary div');
+    $('ag-grid-ng2').height($(window).height() - (71 + (premium.length > 0 ? premium.height() : 0)));
   }
 
   setAttributes(storyAttributes: StoryAttribute[]): void {
@@ -827,6 +835,8 @@ export class StoriesComponent implements AfterViewInit, OnDestroy {
           if (!this.menusLoaded) {
             this.menusLoaded = true;
             this.fetchMenus();
+          } else {
+            this.updateAllocations();
           }
         },
         (err: any) => {
@@ -859,5 +869,70 @@ export class StoriesComponent implements AfterViewInit, OnDestroy {
     } else {
       this.errorService.showError(this.errorService.getError(error));
     }
+  }
+
+  get numberOfStories(): number {
+    return this.stories.length;
+  }
+
+  updateAllocations(): void {
+    let velocityAllocation: Map<Team, number> = new Map<Team, number>();
+    let storyAllocation: Map<Team, number> = new Map<Team, number>();
+    let velocityById: Map<number, number> = new Map<number, number>();
+    let storyById: Map<number, number> = new Map<number, number>();
+    let totalVelocity = 0;
+    let totalStory = 0;
+    let stories = this.stories;
+    if  (this.selectedWork.length > 0) {
+      stories = [];
+      this.selectedWork.forEach((work: Work) => {
+        let story: Story = work.isStory ? <Story>work : (<Task>work).story;
+        if (stories.indexOf(story) === -1) {
+          stories.push(story);
+        }
+      });
+    }
+    stories.forEach((story: Story) => {
+      let teamId: number = story.team_id ? story.team_id : 0;
+      let currentVelocity: number = velocityById.get(teamId);
+      let storySize = story.size ? story.size : 0;
+      velocityById.set(teamId, currentVelocity ? currentVelocity + storySize : storySize);
+      totalVelocity += storySize;
+      let currentStory: number = storyById.get(teamId);
+      let storyToDo = story.toDo ? story.toDo : 0;
+      storyById.set(teamId, currentStory ? currentStory + storyToDo : storyToDo);
+      totalStory += storyToDo;
+    });
+    if (this.filters.team === 'All') {
+      this.filters.teams.forEach((team: Team) => {
+        if (team.name !== 'My Team') {
+          if (team.name === 'All Teams') {
+            velocityAllocation.set(team, totalVelocity);
+            storyAllocation.set(team, totalStory);
+          } else {
+            if (velocityById.get(team.id) != null) {
+              velocityAllocation.set(team, velocityById.get(team.id));
+            }
+            if (storyById.get(team.id) != null) {
+              storyAllocation.set(team, storyById.get(team.id));
+            }
+          }
+        }
+      });
+    } else {
+      let id: number = this.filters.team === 'MyTeam' ? this.user.team_id : parseInt(this.filters.team, 10);
+      let self: StoriesComponent = this;
+      this.filters.teams.forEach((team: Team) => {
+        if (self.filters.team === '' && team.name === 'No Team') {
+          velocityAllocation.set(team, velocityById.get(0) ? velocityById.get(0) : 0);
+          storyAllocation.set(team, storyById.get(0) ? storyById.get(0) : 0);
+        } else if (team.id === id) {
+          velocityAllocation.set(team, velocityById.get(id) ? velocityById.get(id) : 0);
+          storyAllocation.set(team, storyById.get(id) ? storyById.get(id) : 0);
+        }
+      });
+    }
+    this.velocityAllocation = velocityAllocation;
+    this.storyAllocation = storyAllocation;
   }
 }

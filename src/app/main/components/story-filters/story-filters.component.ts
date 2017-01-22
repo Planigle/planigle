@@ -18,12 +18,12 @@ import { StoryAttribute } from '../../models/story-attribute';
   providers: [ ReleasesService, IterationsService, TeamsService, IndividualsService ]
 })
 export class StoryFiltersComponent implements AfterViewInit, OnChanges {
+  private static all: string = '-1';
   private static defaultRelease = 'Current';
   private static defaultIteration = 'Current';
   private static defaultTeam = 'MyTeam';
   private static defaultIndividual = 'All';
   private static defaultStatus = 'NotDone';
-  private static all: string = '-1';
   @Input() grid: StoriesComponent;
   @Input() customStoryAttributes: StoryAttribute[];
   @Output() currentReleaseChanged: EventEmitter<any> = new EventEmitter();
@@ -378,8 +378,8 @@ export class StoryFiltersComponent implements AfterViewInit, OnChanges {
       .subscribe(
         (teams: Team[]) => {
           this.addTeamOptions(teams);
+          this.grid.updateAllocations();
         });
-
   }
 
   private fetchIndividuals(user: Individual): void {

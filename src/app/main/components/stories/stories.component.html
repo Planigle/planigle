@@ -3,7 +3,7 @@
 </div>
 <div class="container-fluid" >
 	<app-header></app-header>
-	<div [hidden]="selection != null">
+	<div *ngIf="selection == null">
 		<app-story-overall-actions [grid]="this"></app-story-overall-actions>
 		<app-story-filters
 			[grid]="this"
@@ -11,6 +11,11 @@
 			(currentReleaseChanged)="updateNewStoryReleaseId($event.value)"
 			(currentIterationChanged)="updateNewStoryIterationId($event.value)"></app-story-filters>
 	</div>
+	<app-stories-summary *ngIf="selection == null"
+		[numberOfStories]="numberOfStories"
+		[velocityAllocation]="velocityAllocation"
+		[storyAllocation]="storyAllocation">
+	</app-stories-summary>
 	<app-edit-story
 		*ngIf="selection && selection.isStory()"
 		[(story)]="selection"
@@ -58,3 +63,4 @@
 	</ag-grid-ng2>
 	<div class="scroll-down"></div>
 </div>
+<template ngbModalContainer></template>

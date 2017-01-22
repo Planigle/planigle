@@ -32,8 +32,11 @@ Planigle::Application.routes.draw do
   get '/refresh', :to => 'sessions#refresh', :as => 'refresh'
   get '/summarize', :to => 'systems#summarize', :as => 'summarize'
   get '/report', :to => 'systems#report', :as => 'report'
+  get '/report_iteration_totals', :to => 'systems#report_iteration_totals', :as => 'report_iteration_totals'
   get '/report_iteration', :to => 'systems#report_iteration', :as => 'report_iteration'
   get '/report_release', :to => 'systems#report_release', :as => 'report_release'
+  get '/report_team_totals', :to => 'systems#report_team_totals', :as => 'report_team_totals'
+  get '/stats', :to => 'systems#stats', :as => 'stats'
   get '/activate/:activation_code', :to => 'individuals#activate', :as => 'activate'
   get '/logout', :to => 'sessions#logout', :as => 'logout'
 

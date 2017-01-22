@@ -100,7 +100,7 @@ class StoriesController < ResourceController
   rescue ActiveRecord::RecordNotFound
     head 404
   end
-
+  
 protected
 
   # Answer descriptor for this type of object
