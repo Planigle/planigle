@@ -147,7 +147,7 @@ class Individual < ActiveRecord::Base
       options[:except] = [:crypted_password, :salt, :remember_token, :remember_token_expires_at, :activation_code, :accepted_agreement, :created_at, :updated_at, :deleted_at]
     end
     if !options[:methods]
-      options[:methods] = [:project_ids, :team_name]
+      options[:methods] = [:project_ids, :team_name, :is_premium]
     end
     super(options)
   end  

@@ -6,6 +6,7 @@ import { StoryFiltersComponent } from '../story-filters/story-filters.component'
 import { StoryActionsComponent } from '../story-actions/story-actions.component';
 import { SessionsService } from '../../services/sessions.service';
 import { StoryAttributesService } from '../../services/story-attributes.service';
+import { ProjectionsService } from '../../../premium/services/projections.service';
 import { ErrorService } from '../../services/error.service';
 import { ProjectsService } from '../../services/projects.service';
 import { StoriesService } from '../../services/stories.service';
@@ -24,7 +25,7 @@ declare var $: any;
   selector: 'app-stories',
   templateUrl: './stories.component.html',
   styleUrls: ['./stories.component.css'],
-  providers: [StoriesService, TasksService, StoryAttributesService, ProjectsService]
+  providers: [StoriesService, TasksService, StoryAttributesService, ProjectsService, ProjectionsService]
 })
 export class StoriesComponent implements AfterViewInit, OnDestroy {
   private static noSelection = 'None';
@@ -59,6 +60,7 @@ export class StoriesComponent implements AfterViewInit, OnDestroy {
     private projectsService: ProjectsService,
     private storiesService: StoriesService,
     private tasksService: TasksService,
+    private projectionsService: ProjectionsService,
     private errorService: ErrorService
   ) {}
 
@@ -331,9 +333,11 @@ export class StoriesComponent implements AfterViewInit, OnDestroy {
       if (this.selection.added) {
         this.selection.added = false;
         this.addRow(this.selection);
+        this.updateProjections();
         this.updateRows();
       } else {
         this.checkRemoveRow(this.selection);
+        this.updateProjections();
         this.refreshView();
       }
     }
@@ -622,6 +626,7 @@ export class StoriesComponent implements AfterViewInit, OnDestroy {
       this.updateExpandContractAll();
     }
     this.storiesService.setRanks(this.stories);
+    this.updateProjections();
     this.updateAllocations();
   }
 
@@ -714,7 +719,7 @@ export class StoriesComponent implements AfterViewInit, OnDestroy {
     storyAttributes.forEach((storyAttribute: StoryAttribute) => {
       if (storyAttribute.show &&
         (this.filters.release === 'All' || storyAttribute.name !== 'Release') &&
-        (this.filters.iteration === 'All' || storyAttribute.name !== 'Iteration') &&
+        (this.filters.iteration === 'All' || this.filters.iteration === '' || storyAttribute.name !== 'Iteration') &&
         (this.filters.team === 'All' || storyAttribute.name !== 'Team')) {
         let columnDef: any = {
           headerName: storyAttribute.name,
@@ -820,6 +825,7 @@ export class StoriesComponent implements AfterViewInit, OnDestroy {
     this.storiesService.getStories(this.filters.queryString)
       .subscribe(
         (stories: Story[]) => {
+          this.setAttributes(this.storyAttributes);
           stories.forEach((story: Story) => {
             this.id_map[story.uniqueId] = story;
             story.tasks.forEach((task: Task) => {
@@ -827,6 +833,7 @@ export class StoriesComponent implements AfterViewInit, OnDestroy {
             });
           });
           this.stories = stories;
+          this.updateProjections();
           this.updateExpandContractAll();
           if (selection) {
             this.applySelection(selection);
@@ -934,5 +941,11 @@ export class StoriesComponent implements AfterViewInit, OnDestroy {
     }
     this.velocityAllocation = velocityAllocation;
     this.storyAllocation = storyAllocation;
+  }
+
+  private updateProjections(): void {
+    if (this.user && this.user.is_premium && this.filters.iteration === '') {
+      this.projectionsService.project(this.stories);
+    }
   }
 }

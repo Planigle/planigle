@@ -3,7 +3,7 @@
 </div>
 <div class="container-fluid" >
 	<app-header></app-header>
-	<div *ngIf="selection == null">
+	<div [hidden]="selection != null">
 		<app-story-overall-actions [grid]="this"></app-story-overall-actions>
 		<app-story-filters
 			[grid]="this"
@@ -11,7 +11,7 @@
 			(currentReleaseChanged)="updateNewStoryReleaseId($event.value)"
 			(currentIterationChanged)="updateNewStoryIterationId($event.value)"></app-story-filters>
 	</div>
-	<app-stories-summary *ngIf="selection == null"
+	<app-stories-summary *ngIf="selection == null && user && user.is_premium"
 		[numberOfStories]="numberOfStories"
 		[velocityAllocation]="velocityAllocation"
 		[storyAllocation]="storyAllocation">

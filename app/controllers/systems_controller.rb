@@ -37,6 +37,12 @@ class SystemsController < ResourceController
   def report_team_totals
     render :json => data_team_totals
   end
+  
+  # Return information about upcoming iterations.
+  # GET /report_upcoming_iterations
+  def report_upcoming_iterations
+    render :json => data_upcoming_iterations
+  end
 
   # Return stats on work for current iteration.
   # GET /stats
@@ -93,10 +99,31 @@ protected
   
   # Answer team reporting data
   def data_team_totals
+    result = ActiveRecord::Base.connection.exec_query(\
+      velocity_query
+    )
+    result.to_a
+  end
+  
+  def data_upcoming_iterations
+    result = ActiveRecord::Base.connection.exec_query(\
+      'SELECT iterations.id as iteration_id, iterations.name as iteration_name, teams.id as team_id, teams.name as team_name, SUM(IFNULL(stories.effort,0)) as planned, teams.velocity '\
+      'FROM iterations '\
+      'JOIN (' + velocity_query + ') teams '\
+      'LEFT JOIN stories ON stories.iteration_id=iterations.id AND stories.team_id=teams.id '\
+      'WHERE iterations.finish > now() '\
+      'AND iterations.project_id=' + Integer(project_id).to_s + ' '\
+      'GROUP by iterations.id, teams.id '\
+      'ORDER by iterations.start, teams.name '
+    )
+    result.to_a
+  end
+  
+  def velocity_query
     last3Iterations = Iteration.where('project_id = :project_id and finish < now()', {project_id: project_id}).order('finish desc').limit(3)
     last3IterationIds = last3Iterations.collect{|iteration| iteration.id}
     numIterations = last3IterationIds.length
-    result = ActiveRecord::Base.connection.exec_query(\
+    return \
       'SELECT IFNULL(teams.id,0) AS id, IFNULL(teams.name,"None") AS name, SUM(IFNULL(stories.effort,0)) / ' + numIterations.to_s + ' AS velocity, SUM(IFNULL(tt.estimate,0)) / ' + numIterations.to_s + ' AS utilization '\
       'FROM stories '\
       'LEFT JOIN teams ON teams.id=stories.team_id '\
@@ -116,8 +143,6 @@ protected
       'AND stories.status_code=3 '\
       'AND stories.deleted_at IS NULL '\
       'GROUP BY teams.id '
-    )
-    result.to_a
   end
   
   # Answer the reporting data for the last 4 iterations and last release.

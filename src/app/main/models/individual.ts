@@ -22,6 +22,7 @@ export class Individual {
   public added: boolean = false;
   public password: string; // only present when changing
   public password_confirmation: string; // only present when changing
+  public is_premium: boolean;
 
   constructor(values: any) {
     this.id = values.id;
@@ -46,6 +47,7 @@ export class Individual {
     this.company_id = values.company_id;
     this.selected_project_id = values.selected_project_id;
     this.refresh_interval = values.refresh_interval;
+    this.is_premium = values.is_premium;
     if (Array.isArray(values.project_ids)) {
       this.project_ids = values.project_ids;
     } else {
