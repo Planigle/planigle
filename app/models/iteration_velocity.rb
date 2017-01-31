@@ -37,4 +37,24 @@ class IterationVelocity < Total
   def self.find_items(object, team)
     object.stories.where(team_id: team ? team.id : nil)
   end
+  
+  def iteration_name
+    return iteration.name
+  end
+
+  def iteration_notable
+    return iteration.notable
+  end
+  
+  def iteration_finish
+    return iteration.finish
+  end
+
+  # Override as_json to include iteration finish.
+  def as_json(options = {})
+    if !options[:methods]
+      options[:methods] = [:iteration_name, :iteration_finish, :iteration_notable] 
+    end
+    super(options)
+  end
 end

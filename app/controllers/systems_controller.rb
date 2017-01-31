@@ -43,6 +43,10 @@ class SystemsController < ResourceController
   def report_upcoming_iterations
     render :json => data_upcoming_iterations
   end
+  
+  def report_iteration_metrics
+    render :json => data_iteration_metrics
+  end
 
   # Return stats on work for current iteration.
   # GET /stats
@@ -145,6 +149,16 @@ protected
       'GROUP BY teams.id '
   end
   
+  def data_iteration_metrics
+    query = 'iterations.project_id = :project_id'
+    values = {project_id: project_id}
+    if params[:team_id]
+      query += ' and iteration_velocities.team_id = :team_id'
+      values[:team_id] = params[:team_id]
+    end
+    IterationVelocity.where(query, values).joins(:iteration).order('iterations.finish')
+  end
+  
   # Answer the reporting data for the last 4 iterations and last release.
   def data
     report_data = data_iteration_totals
@@ -152,7 +166,7 @@ protected
     lastReleaseIds = lastRelease.collect{|release| release.id}
     report_data['release_totals'] = ReleaseTotal.where('releases.id in (:ids)', {ids: lastReleaseIds}).joins(:release)
     report_data['release_breakdowns'] = lastRelease.inject([]) {|collect, release| collect.concat(CategoryTotal.summarize_for(release))}
-    report_data['iteration_velocities'] = IterationVelocity.where('iterations.project_id = :project_id', {project_id: project_id}).joins(:iteration)
+    report_data['iteration_velocities'] = data_iteration_metrics
     report_data
   end
   

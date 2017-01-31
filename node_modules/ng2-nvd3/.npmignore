@@ -1,0 +1,7 @@
+.idea
+node_modules
+examples
+coverage
+build/test
+app
+typings

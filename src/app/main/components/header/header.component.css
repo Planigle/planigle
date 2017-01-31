@@ -7,19 +7,6 @@
 	height: 30px;
 }
 
-nav {
-	padding: 0px;
-}
-
-.nav-item a {
-	color: #888888;
-	cursor: pointer;
-}
-
-.nav-item a:hover, .nav-item.active a {
-	color: #0275d8;
-}
-
 select {
 	margin-top: 5px;
 }

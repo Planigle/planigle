@@ -1,12 +1,15 @@
 import { NgModule } from '@angular/core';
 import { StoriesSummaryComponent } from './components/stories-summary/stories-summary.component';
+import { PremiumReportsComponent } from './components/premium-reports/premium-reports.component';
 
 @NgModule({
   declarations: [
-    StoriesSummaryComponent
+    StoriesSummaryComponent,
+    PremiumReportsComponent
   ],
   exports: [
-    StoriesSummaryComponent
+    StoriesSummaryComponent,
+    PremiumReportsComponent
   ]
 })
 export class PremiumModule { }

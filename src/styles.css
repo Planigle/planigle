@@ -92,3 +92,16 @@ ag-grid-ng2 {
 .popover ul {
 	-webkit-padding-start: 15px;
 }
+
+nav {
+	padding: 0px;
+}
+
+.nav-item a {
+	color: #888888 !important;
+	cursor: pointer;
+}
+
+.nav-item a:hover, .nav-item.active a {
+	color: #0275d8 !important;
+}

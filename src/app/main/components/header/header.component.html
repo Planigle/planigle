@@ -6,6 +6,9 @@
 		<li class="nav-item active" [routerLink]="['/stories']" routerLinkActive="active">
 			<a class="nav-link" [routerLink]="['/stories']">Stories</a>
 		</li>
+		<li class="nav-item active" *ngIf="user && user.is_premium && premiumService.isPremium()" [routerLink]="['/reports']" routerLinkActive="active">
+			<a class="nav-link" [routerLink]="['/reports']">Reports</a>
+		</li>
 		<li class="nav-item active" [routerLink]="['/schedule']" routerLinkActive="active">
 			<a class="nav-link" [routerLink]="['/schedule']">Schedule</a>
 		</li>
@@ -18,7 +21,7 @@
 		<li class="nav-item float-xs-right">
 			<a class="nav-link" (click)="logout()">Log out</a>
 		</li>
-		<li class="nav-item float-xs-right" *ngIf="projects.length > 1">
+		<li class="nav-item float-xs-right" *ngIf="user && projects.length > 1">
 	    	<select name="project" [(ngModel)]="user.selected_project_id" (ngModelChange)="updateProject()">
 	    		<option *ngFor="let project of projects" [ngValue]="project.id">{{project.name}}</option>
 	    	</select>

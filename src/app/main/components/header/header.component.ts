@@ -2,6 +2,7 @@ import { Component, AfterViewInit } from '@angular/core';
 import { SessionsService } from '../../services/sessions.service';
 import { ProjectsService } from '../../services/projects.service';
 import { IndividualsService } from '../../services/individuals.service';
+import { PremiumService } from '../../../premium/services/premium.service';
 import { Project } from '../../models/project';
 import { Individual } from '../../models/individual';
 
@@ -9,7 +10,7 @@ import { Individual } from '../../models/individual';
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
-  providers: [ ProjectsService, IndividualsService ]
+  providers: [ ProjectsService, IndividualsService, PremiumService ]
 })
 export class HeaderComponent implements AfterViewInit {
   projects: Project[] = [];
@@ -17,7 +18,8 @@ export class HeaderComponent implements AfterViewInit {
   constructor(
     private sessionsService: SessionsService,
     private projectsService: ProjectsService,
-    private IndividualsService: IndividualsService
+    private IndividualsService: IndividualsService,
+    private premiumService: PremiumService
   ) { }
 
   ngAfterViewInit(): void {

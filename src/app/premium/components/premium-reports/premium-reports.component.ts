@@ -1,0 +1,11 @@
+import { Component, Input } from '@angular/core';
+
+@Component({
+  selector: 'app-premium-reports',
+  templateUrl: './premium-reports.component.html',
+  styleUrls: ['./premium-reports.component.css']
+})
+export class PremiumReportsComponent {
+  @Input() user: any;
+  @Input() teams: any[];
+}
