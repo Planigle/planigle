@@ -8,4 +8,6 @@ import { Component, Input } from '@angular/core';
 export class PremiumReportsComponent {
   @Input() user: any;
   @Input() teams: any[];
+  @Input() releases: any[];
+  @Input() iterations: any[];
 }

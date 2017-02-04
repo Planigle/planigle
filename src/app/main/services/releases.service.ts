@@ -9,8 +9,8 @@ const baseUrl = 'api/releases';
 export class ReleasesService {
   constructor(private http: Http) { }
 
-  getReleases(): Observable<Release[]> {
-    return this.http.get(baseUrl)
+  getReleases(historical?: boolean): Observable<Release[]> {
+    return this.http.get(baseUrl + (historical ? '?historical=true' : ''))
       .map(res => res.json())
       .map((releases: Array<any>) => {
         let result: Array<Release> = [];

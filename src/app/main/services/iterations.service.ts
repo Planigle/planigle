@@ -9,8 +9,8 @@ const baseUrl = 'api/iterations';
 export class IterationsService {
   constructor(private http: Http) { }
 
-  getIterations(): Observable<Iteration[]> {
-    return this.http.get(baseUrl)
+  getIterations(historical?: boolean): Observable<Iteration[]> {
+    return this.http.get(baseUrl + (historical ? '?historical=true' : ''))
       .map(res => res.json())
       .map((iterations: Array<any>) => {
         let result: Array<Iteration> = [];

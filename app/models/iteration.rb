@@ -33,8 +33,12 @@ class Iteration < ActiveRecord::Base
   end
 
   # Answer the records for a particular user.
-  def self.get_records(current_user)
-    Iteration.where(project_id: current_user.project_id).order('start')
+  def self.get_records(current_user, historical)
+    where = "project_id = :project_id"
+    if historical
+      where += " AND start <= CURDATE()"
+    end
+    Iteration.where([where, {project_id: current_user.project_id}]).order('start')
   end
 
   # Answer the current iteration for a particular user.

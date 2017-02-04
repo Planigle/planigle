@@ -172,11 +172,12 @@ protected
   
   def data_iteration_totals
     report_data = {}
-    last4Iterations = Iteration.where('iterations.project_id = :project_id and start < now()', {project_id: project_id}).order('start desc').includes({stories: :story_values},:project).limit(4)
-    last4IterationIds = last4Iterations.collect{|iteration| iteration.id}
-    report_data['iteration_totals'] = IterationTotal.where('iterations.id in (:ids)', {ids: last4IterationIds}).joins(:iteration)
-    report_data['iteration_story_totals'] = IterationStoryTotal.where('iterations.id in (:ids)', {ids: last4IterationIds}).joins(:iteration)
-    report_data['iteration_breakdowns'] = last4Iterations.inject([]) {|collect, iteration| collect.concat(CategoryTotal.summarize_for(iteration))}
+    iteration = Iteration.find(params[:iteration_id])
+    if iteration and iteration.project_id == project_id
+      report_data['iteration_totals'] = IterationTotal.where('iterations.id = :iteration_id and team_id=:team_id and iterations.start <= date and iterations.finish >= date', {iteration_id: params[:iteration_id], team_id: params[:team_id]}).joins(:iteration)
+      report_data['iteration_story_totals'] = IterationStoryTotal.where('iterations.id = :iteration_id and team_id=:team_id and iterations.start <= date and iterations.finish >= date', {iteration_id: params[:iteration_id], team_id: params[:team_id]}).joins(:iteration)
+      report_data['iteration_breakdowns'] = CategoryTotal.summarize_for(iteration).select {|total| puts total.as_json; total.team_id == params[:team_id].to_i}
+    end
     report_data
   end
   

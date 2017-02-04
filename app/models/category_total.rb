@@ -11,7 +11,7 @@ class CategoryTotal
         attribs.each {|attrib| put(values, attrib.id, story.team_id, story.value_for(attrib), story.effort)}
       end
     end
-    collect =[]
+    collect = []
     values.keys.each do |attrib_id|
       values[attrib_id].keys.each do |team_id|
         values[attrib_id][team_id].keys.each do |category|
@@ -20,17 +20,6 @@ class CategoryTotal
       end
     end
     collect
-  end
-
-  def as_json(options = {})
-    return
-      "{" +
-        "\"id\": " + @id +
-        "\"story-attribute-id\": " + @story_attribute_id +
-        "\"team-id\": " + @team_id +
-        "\"category\": " + @category +
-        "\"total\": " + @total +
-      "}";
   end
 
 protected
