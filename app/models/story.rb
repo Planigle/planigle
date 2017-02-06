@@ -596,7 +596,43 @@ class Story < ActiveRecord::Base
       end
     end
   end
-  
+
+  def name_for(attrib)
+    if attrib.is_custom
+      value = story_values.detect {|val| val.story_attribute == attrib}
+      values = attrib.story_attribute_values.select {|val| value != nil && val.id == value.value.to_i}
+      values.empty? ? nil : values[0].name
+    else
+      case attrib.name
+      when 'Release'
+        release ? release.name : 'No Release'
+      when 'Iteration'
+        iteration ? iteration.name : 'Backlog'
+      when 'Team'
+        team ? team.name : 'No Team'
+      when 'Owner'
+        individual ? individual.name : 'No Owner'
+      when 'Status'
+        case status_code
+        when 0
+          'Not Started'
+        when 1
+          'In Progress'
+        when 2
+          'Blocked'
+        when 3
+          'Done'
+        end
+      when 'Public'
+        is_public ? 'True' : 'False'
+      when 'Epic'
+        epic ? epic.name : 'No Epic'
+      else
+        nil
+      end
+    end
+  end
+    
   def updated_at_string
     updated_at ? updated_at.to_s : updated_at
   end

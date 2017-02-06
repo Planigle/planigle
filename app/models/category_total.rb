@@ -1,21 +1,24 @@
 class CategoryTotal
 
-  attr_reader :id, :story_attribute_id, :team_id, :category, :total
+  attr_reader :category, :total
 
   # Summarize an object and return the instances (do not persist).
-  def self.summarize_for(object)
+  def self.summarize_for(object, team_id)
     attribs = object.project.story_attributes.select {|attrib| attrib.value_type >= StoryAttribute::List}
     values = {}
     object.stories.each do |story|
-      if story.effort && story.effort > 0
-        attribs.each {|attrib| put(values, attrib.id, story.team_id, story.value_for(attrib), story.effort)}
+      if story.effort && story.effort > 0 && story.team_id == team_id
+        attribs.each {|attrib| put(values, attrib.name, story.team_id, story.name_for(attrib), story.effort)}
       end
     end
-    collect = []
-    values.keys.each do |attrib_id|
-      values[attrib_id].keys.each do |team_id|
-        values[attrib_id][team_id].keys.each do |category|
-          collect << self.new(:id => object.id, :team_id => (team_id == "" ? nil : team_id), :story_attribute_id => attrib_id, :category => (category == "" ? "null" : category.to_s), :total => values[attrib_id][team_id][category])
+    collect = {}
+    values.keys.each do |attrib_name|
+      values[attrib_name].keys.each do |team_id|
+        values[attrib_name][team_id].keys.each do |category|
+          if collect[attrib_name] == nil
+            collect[attrib_name] = []
+          end
+          collect[attrib_name] << self.new(:category => category, :total => values[attrib_name][team_id][category])
         end
       end
     end
@@ -24,25 +27,22 @@ class CategoryTotal
 
 protected
   
-  def self.put(hash, attrib_id, team_id, category, amount)
-    if !hash[attrib_id]
-      hash[attrib_id] = {}
+  def self.put(hash, attrib_name, team_id, category, amount)
+    if !hash[attrib_name]
+      hash[attrib_name] = {}
     end
     team_id = team_id ? team_id : ""
-    if !hash[attrib_id][team_id]
-      hash[attrib_id][team_id] = {}
+    if !hash[attrib_name][team_id]
+      hash[attrib_name][team_id] = {}
     end
-    category = category ? category : ""
-    if !hash[attrib_id][team_id][category]
-      hash[attrib_id][team_id][category] = 0
+    category = category ? category : "None"
+    if !hash[attrib_name][team_id][category]
+      hash[attrib_name][team_id][category] = 0
     end
-    hash[attrib_id][team_id][category] += amount
+    hash[attrib_name][team_id][category] += amount
   end
   
   def initialize(attributes)
-    @id = attributes[:id]
-    @team_id = attributes[:team_id]
-    @story_attribute_id = attributes[:story_attribute_id]
     @category = attributes[:category]
     @total = attributes[:total]
   end

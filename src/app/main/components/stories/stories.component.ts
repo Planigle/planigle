@@ -505,7 +505,7 @@ export class StoriesComponent implements AfterViewInit, OnDestroy {
         this.stories.push(story);
       }
       story.priority = this.determinePriority(this.stories, story);
-      this.storiesService.update(story).subscribe((story) => {}, (error) => this.processError.call(this, error));
+      this.storiesService.update(story).subscribe((revisedStory) => {}, (error) => this.processError.call(this, error));
     } else {
       // Move task
       let task: Task = <Task> movedRow;
@@ -529,7 +529,7 @@ export class StoriesComponent implements AfterViewInit, OnDestroy {
       }
       task.priority = this.determinePriority(newStory.tasks, task);
       this.tasksService.update(task)
-        .subscribe((task) => task.previous_story_id = null, (error) => this.processError.call(this, error));
+        .subscribe((revisedTask) => task.previous_story_id = null, (error) => this.processError.call(this, error));
       newStory.expanded = true;
     }
     this.updateRows();
