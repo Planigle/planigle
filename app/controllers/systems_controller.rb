@@ -8,57 +8,41 @@ class SystemsController < ResourceController
     render :json => {reponse: 'Recent data has now been summarized.'}
   end
 
-  # Return the system data.
-  # GET /report
-  def report
-    render :json => data
-  end
-
-  # Return the report data for the specified release.
-  # GET /report_release
-  def report_release
-    render :json => data_release
-  end
-
-  # Return the report data for the specified iteration.
-  # GET /report_iteration
-  def report_iteration
-    render :json => data_iteration
-  end
-
-  # Return the report totals for the last 4 iterations.
+  # Return the report totals for the specified iteration.
   # GET /report_iteration_totals
   def report_iteration_totals
-    render :json => data_iteration_totals
+    render :json => new_report.iteration_totals
+  end
+  
+  # Return the report totals for the specified release.
+  # GET /report_release_totals
+  def report_iteration_totals
+    render :json => new_report.iteration_totals
   end
   
   # Return the teams totals for the last 3 iterations.
   # GET /report_team_totals
   def report_team_totals
-    render :json => data_team_totals
+    render :json => new_report.team_totals
   end
   
   # Return information about upcoming iterations.
   # GET /report_upcoming_iterations
   def report_upcoming_iterations
-    render :json => data_upcoming_iterations
+    render :json => new_report.upcoming_iterations
   end
   
+  # Return information about all iterations.
+  # GET /report_upcoming_iterations
   def report_iteration_metrics
-    render :json => data_iteration_metrics
-  end
-
-  # Return stats on work for current iteration.
-  # GET /stats
-  def stats
-    if(current_individual.is_premium && current_individual.project != nil)
-      render :json => Story.get_stats(current_individual, conditions)
-    else
-      render :json => []
-    end
+    render :json => new_report.iteration_metrics
   end
 
 protected
+
+  def new_report
+    Report.new(:params => params, :current_individual => current_individual)
+  end
 
   # Return all records.
   def get_records
@@ -100,113 +84,9 @@ protected
       false
     end
   end
-  
-  # Answer team reporting data
-  def data_team_totals
-    result = ActiveRecord::Base.connection.exec_query(\
-      velocity_query
-    )
-    result.to_a
-  end
-  
-  def data_upcoming_iterations
-    result = ActiveRecord::Base.connection.exec_query(\
-      'SELECT iterations.id as iteration_id, iterations.name as iteration_name, teams.id as team_id, teams.name as team_name, SUM(IFNULL(stories.effort,0)) as planned, teams.velocity '\
-      'FROM iterations '\
-      'JOIN (' + velocity_query + ') teams '\
-      'LEFT JOIN stories ON stories.iteration_id=iterations.id AND stories.team_id=teams.id '\
-      'WHERE iterations.finish > now() '\
-      'AND iterations.project_id=' + Integer(project_id).to_s + ' '\
-      'GROUP by iterations.id, teams.id '\
-      'ORDER by iterations.start, teams.name '
-    )
-    result.to_a
-  end
-  
-  def velocity_query
-    last3Iterations = Iteration.where('project_id = :project_id and finish < now()', {project_id: project_id}).order('finish desc').limit(3)
-    last3IterationIds = last3Iterations.collect{|iteration| iteration.id}
-    numIterations = last3IterationIds.length
-    return \
-      'SELECT IFNULL(teams.id,0) AS id, IFNULL(teams.name,"None") AS name, SUM(IFNULL(stories.effort,0)) / ' + numIterations.to_s + ' AS velocity, SUM(IFNULL(tt.estimate,0)) / ' + numIterations.to_s + ' AS utilization '\
-      'FROM stories '\
-      'LEFT JOIN teams ON teams.id=stories.team_id '\
-      'LEFT JOIN ('\
-        'SELECT stories.id, SUM(estimate) AS estimate '\
-        'FROM stories '\
-        'JOIN tasks ON tasks.story_id = stories.id '\
-        'WHERE ' + (params[:team_id] ? ('IFNULL(stories.team_id,0)=' + Integer(params[:team_id]).to_s) : 'stories.project_id=' + Integer(project_id).to_s) + ' '\
-        'AND stories.iteration_id IN (' + last3IterationIds.join(',') + ') '\
-        'AND stories.status_code=3 '\
-        'AND stories.deleted_at IS NULL '\
-        'AND tasks.deleted_at IS NULL '\
-        'GROUP BY stories.id '\
-      ') tt ON tt.id=stories.id '\
-      'WHERE ' + (params[:team_id] ? ('stories.team_id=' + Integer(params[:team_id]).to_s) : 'stories.project_id=' + Integer(project_id).to_s) + ' '\
-      'AND stories.iteration_id IN (' + last3IterationIds.join(',') + ') '\
-      'AND stories.status_code=3 '\
-      'AND stories.deleted_at IS NULL '\
-      'GROUP BY teams.id '
-  end
-  
-  def data_iteration_metrics
-    query = 'iterations.project_id = :project_id'
-    values = {project_id: project_id}
-    if params[:team_id]
-      query += ' and iteration_velocities.team_id = :team_id'
-      values[:team_id] = params[:team_id]
-    end
-    IterationVelocity.where(query, values).joins(:iteration).order('iterations.finish')
-  end
-  
-  # Answer the reporting data for the last 4 iterations and last release.
-  def data
-    report_data = data_iteration_totals
-    lastRelease = Release.where('releases.project_id = :project_id and start < now()', {project_id: project_id}).order('start desc').limit(1)
-    lastReleaseIds = lastRelease.collect{|release| release.id}
-    report_data['release_totals'] = ReleaseTotal.where('releases.id in (:ids)', {ids: lastReleaseIds}).joins(:release)
-    report_data['release_breakdowns'] = lastRelease.inject([]) {|collect, release| collect.concat(CategoryTotal.summarize_for(release))}
-    report_data['iteration_velocities'] = data_iteration_metrics
-    report_data
-  end
-  
-  def data_iteration_totals
-    report_data = {}
-    iteration = Iteration.find(params[:iteration_id])
-    if iteration and iteration.project_id == project_id
-      report_data['totals'] = IterationTotal.where('iterations.id = :iteration_id and team_id=:team_id and iterations.start <= date and iterations.finish >= date', {iteration_id: params[:iteration_id], team_id: params[:team_id]}).joins(:iteration)
-      report_data['story_totals'] = IterationStoryTotal.where('iterations.id = :iteration_id and team_id=:team_id and iterations.start <= date and iterations.finish >= date', {iteration_id: params[:iteration_id], team_id: params[:team_id]}).joins(:iteration)
-      report_data['breakdowns'] = CategoryTotal.summarize_for(iteration, params[:team_id].to_i)
-    end
-    report_data
-  end
-  
-  # Answer the reporting data for the specified release.
-  def data_release
-    report_data = {}
-    release_id = params[:release_id]
-    release = Release.find(release_id)
-    if (release != nil && release.project_id == project_id)
-      report_data['release_totals'] = ReleaseTotal.where(release_id: release_id)
-      report_data['release_breakdowns'] = CategoryTotal.summarize_for(release)
-    end
-    report_data
-  end
-  
-  # Answer the reporting data for the specified iteration.
-  def data_iteration
-    report_data = {}
-    iteration_id = params[:iteration_id]
-    iteration = Iteration.find(iteration_id)
-    if (iteration != nil && iteration.project_id == project_id)
-      report_data['iteration_totals'] = IterationTotal.where(iteration_id: iteration_id)
-      report_data['iteration_story_totals'] = IterationStoryTotal.where(iteration_id: iteration_id)
-      report_data['iteration_breakdowns'] = CategoryTotal.summarize_for(iteration)
-    end
-    report_data
-  end
-  
+
 private
+  
   def record_params
     params.require(:record).permit(:license_agreement)
   end

@@ -30,6 +30,8 @@ export class ReportsComponent implements OnInit {
   ngOnInit(): void {
     this.user = this.sessionsService.getCurrentUser();
     this.teamsService.getTeams(this.user.selected_project_id).subscribe((teams: Team[]) => {
+      teams.push(new Team({name: 'No Team', id: ''}));
+      teams.push(new Team({name: 'All Teams', id: 'All'}));
       this.teams = teams;
     });
     this.releasesService.getReleases(true).subscribe((releases: Release[]) => {
