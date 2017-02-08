@@ -16,8 +16,8 @@ class SystemsController < ResourceController
   
   # Return the report totals for the specified release.
   # GET /report_release_totals
-  def report_iteration_totals
-    render :json => new_report.iteration_totals
+  def report_release_totals
+    render :json => new_report.release_totals
   end
   
   # Return the teams totals for the last 3 iterations.

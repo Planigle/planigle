@@ -5,7 +5,7 @@
 	<h4 class="modal-title">Edit Multiple</h4>
 </div>
 <div class="modal-body">
-	<div class="form-group row" *ngIf="releases.length>1 && !onlyTasks()">
+	<div class="form-group row" *ngIf="releases.length>0 && !onlyTasks()">
 	  <label for="release" class="col-xs-2 col-form-label">Release</label>
 	  <div class="col-xs-10">
 	      <select name="release" class="form-control" [(ngModel)]="model.release_id" (ngModelChange)="update('release_id')">
