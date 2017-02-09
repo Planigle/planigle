@@ -660,18 +660,12 @@ export class StoriesComponent implements AfterViewInit, OnDestroy {
       gridHolder.tasksService.update(changedTask).subscribe(
         (task: Task) => {
           gridHolder.updateGridForStatusChange(task);
-          let statusChanged = false;
           if (changedTask.status_code === 2 && changedTask.story.status_code !== 2) {
             changedTask.story.status_code = 2;
-            statusChanged = true;
+            gridHolder.updateGridForStatusChange(changedTask.story);
           } else if (changedTask.status_code > 0 && changedTask.story.status_code === 0) {
             changedTask.story.status_code = 1;
-            statusChanged = true;
-          }
-          if (statusChanged) {
-            gridHolder.storiesService.update(changedTask.story).subscribe(
-              (story: Story) => gridHolder.updateGridForStatusChange(changedTask.story),
-              (err) => gridHolder.processError.call(gridHolder, err));
+            gridHolder.updateGridForStatusChange(changedTask.story);
           }
         },
         (err: any) => gridHolder.processError(err));

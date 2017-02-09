@@ -1,0 +1,51 @@
+:host /deep/ app-task-overall-actions .btn-group {
+	padding-top: 0px;
+}
+
+.board {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.row {
+	margin-left: 0px;
+	margin-right: 0px;
+	width: 100%;
+}
+
+.row:first-child {
+	border-top: 1px solid grey;
+}
+
+.square {
+	border-right: 1px solid grey;
+	border-bottom: 1px solid grey;
+	padding-left: 5px;
+	padding-right: 5px;
+	padding-bottom: 5px;
+	width: 20%;
+}
+
+.square:first-child {
+	border-left: 1px solid grey;
+	padding-top: 5px;
+}
+
+.title {
+	text-align: center;
+	font-weight: bold;
+}
+
+.task {
+	display: block;
+	width: 100%;
+	border: 1px solid grey;
+	padding: 5px;
+	margin-top: 5px;
+	cursor: pointer;
+}
+
+.owner {
+	display: block;
+	font-style: italic;
+}

@@ -1,0 +1,48 @@
+<div class="container-fluid" >
+	<app-header></app-header>
+	<app-task-overall-actions [grid]="this"></app-task-overall-actions>
+	<div class="action-bar">
+	    <select name="team" [(ngModel)]="team" *ngIf="teams.length>3" (change)="updateNavigation()">
+	        <option *ngFor="let team of teams" [value]="team.id">
+	        {{team.name}}
+	        </option>
+	    </select>
+	</div>
+	<template ngbModalContainer></template>
+	<table class="board">
+		<tr class="row">
+			<th class="square title">Story</th>
+			<th class="square title">Not Started</th>
+			<th class="square title">Blocked</th>
+			<th class="square title">In Progress</th>
+			<th class="square title">Done</th>
+		</tr>
+		<tr *ngFor="let story of stories" class="row" [attr.story]="story.id">
+			<td class="square story">{{story.name}}</td>
+			<td class="square droppable" valign="top" [attr.status]="0">
+				<span *ngFor="let task of story.tasks | filter: {status_code: 0}" class="task" [attr.story]="story.id" [attr.task]="task.id">
+					<span class="name">{{task.name}}</span>
+					<span class="owner" *ngIf="task.individual_name != null">{{task.individual_name}}</span>
+				</span>
+			</td>
+			<td class="square droppable" valign="top" [attr.status]="2">
+				<span *ngFor="let task of story.tasks | filter: {status_code: 2}" class="task" [attr.story]="story.id" [attr.task]="task.id">
+					<span class="name">{{task.name}}</span>
+					<span class="owner" *ngIf="task.individual_name != null">{{task.individual_name}}</span>
+				</span>
+			</td>
+			<td class="square droppable" valign="top" [attr.status]="1">
+				<span *ngFor="let task of story.tasks | filter: {status_code: 1}" class="task" [attr.story]="story.id" [attr.task]="task.id">
+					<span class="name">{{task.name}}</span>
+					<span class="owner" *ngIf="task.individual_name != null">{{task.individual_name}}</span>
+				</span>
+			</td>
+			<td class="square droppable" valign="top" [attr.status]="3">
+				<span *ngFor="let task of story.tasks | filter: {status_code: 3}" class="task" [attr.story]="story.id" [attr.task]="task.id">
+					<span class="name">{{task.name}}</span>
+					<span class="owner" *ngIf="task.individual_name != null">{{task.individual_name}}</span>
+				</span>
+			</td>
+		</tr>
+	</table>
+</div>

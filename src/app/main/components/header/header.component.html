@@ -6,6 +6,9 @@
 		<li class="nav-item active" [routerLink]="['/stories']" routerLinkActive="active">
 			<a class="nav-link" [routerLink]="['/stories']">Stories</a>
 		</li>
+		<li class="nav-item active" [routerLink]="['/tasks']" routerLinkActive="active">
+			<a class="nav-link" [routerLink]="['/tasks']">Tasks</a>
+		</li>
 		<li class="nav-item active" *ngIf="user && user.is_premium && premiumService.isPremium()" [routerLink]="['/reports']" routerLinkActive="active">
 			<a class="nav-link" [routerLink]="['/reports']">Reports</a>
 		</li>
