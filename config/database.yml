@@ -1,7 +1,7 @@
 default: &default
   adapter: mysql2
   encoding: utf8
-  pool: 5
+  pool: 10
   timeout: 5000
   host: 127.0.0.1
 
@@ -9,7 +9,7 @@ development:
   <<: *default
   database: planigle_development
   username: root
-  password: 
+  password: ospace1
 
 test:
   <<: *default

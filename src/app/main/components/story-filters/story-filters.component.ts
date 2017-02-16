@@ -88,11 +88,15 @@ export class StoryFiltersComponent implements AfterViewInit, OnChanges {
 
   get queryString(): string {
     let queryString = '?';
-    if (this.release !== 'All') {
-      queryString += 'release_id=' + (this.release ? this.release : '') + '&';
-    }
-    if (this.iteration !== 'All') {
-      queryString += 'iteration_id=' + (this.iteration ? this.iteration : '') + '&';
+    if (this.grid.showEpics()) {
+      queryString += 'view_epics=true&';
+    } else {
+      if (this.release !== 'All') {
+        queryString += 'release_id=' + (this.release ? this.release : '') + '&';
+      }
+      if (this.iteration !== 'All') {
+        queryString += 'iteration_id=' + (this.iteration ? this.iteration : '') + '&';
+      }
     }
     if (this.team !== 'All') {
       queryString += 'team_id=' + (this.team ? this.team : '') + '&';
@@ -115,6 +119,10 @@ export class StoryFiltersComponent implements AfterViewInit, OnChanges {
       }
     };
     return queryString.substring(0, queryString.length - 1);
+  }
+
+  getTeamId(): string {
+    return this.team === 'All' ? null : (this.team ? this.team : '');
   }
 
   updateNavigation(): void {

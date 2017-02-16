@@ -54,20 +54,25 @@ class Story < ActiveRecord::Base
   def self.export(current_user, conditions = {})
     CSV.generate(:row_sep => "\n") do |csv|
       attribs = ['PID', 'Epic', 'Name', 'Description', 'Acceptance Criteria', 'Size', 'Estimate', 'To Do', 'Actual', 'Status', 'Reason Blocked', 'Release', 'Iteration', 'Team', 'Owner', 'Public', 'User Rank', 'Lead Time', 'Cycle Time']
-      if (current_user.project)
-        if (!current_user.project.track_actuals)
-          attribs.delete('Actual')
-        end
-        current_user.project.story_attributes.where(is_custom: true).order("name").each {|attrib| attribs << attrib.name}
+      if (!current_user.project.track_actuals)
+        attribs.delete('Actual')
       end
+      story_attributes = current_user.project.story_attributes.where(is_custom: true).includes([:story_attribute_values]).order('name')
+      story_attributes.each {|attrib| attribs << attrib.name}
       csv << attribs
-      get_records(current_user, conditions).each do |story|
-        story.current_conditions = conditions
-        story.export(csv)
-        story.stories.each do |child|
-          child.export(csv)
-        end
+      stories = get_records(current_user, conditions)
+      include_tasks = !conditions.delete(:view_epics)
+      stories.each do |story|
+        story.export_with_children(conditions, story_attributes, csv, include_tasks)
       end
+    end
+  end
+  
+  def export_with_children(conditions, story_attributes, csv, include_tasks)
+    @current_conditions = conditions
+    export(story_attributes, csv, include_tasks)
+    stories.includes([:story_values]).each do |child|
+      child.export_with_children(conditions, story_attributes, csv, include_tasks)
     end
   end
   
@@ -88,7 +93,7 @@ class Story < ActiveRecord::Base
     end
   end
   
-  def export(csv)
+  def export(story_attributes, csv, include_tasks)
     values = [
       'S' + id.to_s,
       epic ? epic.name : '',
@@ -112,15 +117,17 @@ class Story < ActiveRecord::Base
       user_priority,
       lead_time,
       cycle_time]
-    project.story_attributes.where(is_custom: true).order('name').each do |attrib|
-      value = story_values.where(story_attribute_id: attrib.id).first
+    story_attributes.each do |attrib|
+      value = story_values.detect {|story_value| story_value.story_attribute_id == attrib.id}
       if (attrib.value_type == StoryAttribute::List || attrib.value_type == StoryAttribute::ReleaseList) && value
-        value = attrib.story_attribute_values.where(id: value.value).first
+        value = attrib.story_attribute_values.detect {|story_attribute_value| story_attribute_value.id == value.value}
       end
       values << (value ? value.value : '')
     end
     csv << values
-    filtered_tasks.each {|task| task.export(csv)}
+    if include_tasks
+      filtered_tasks.each {|task| task.export(csv)}
+    end
   end
 
   # Import from a CSV string representing the stories.
@@ -264,7 +271,7 @@ class Story < ActiveRecord::Base
       options[:except] = [:created_at, :updated_at, :deleted_at, :in_progress_at, :done_at]
     end
     if !options[:include]
-      options[:include] = [:story_values, :criteria]
+      options[:include] = [:story_values, :criteria, :stories]
     end
     if !options[:methods]
       options[:methods] = [:epic_name, :lead_time, :cycle_time, :filtered_tasks, :release_name, :iteration_name, :team_name, :individual_name] #:filtered_stories, 
@@ -301,6 +308,16 @@ class Story < ActiveRecord::Base
     Story.with_deleted.joins('LEFT OUTER JOIN tasks ON tasks.story_id=stories.id').where(["(stories.updated_at >= :time or stories.deleted_at >= :time or tasks.updated_at >= :time or tasks.deleted_at >= :time) and stories.project_id = :project_id", {time: time, project_id: current_user.project_id}]).count > 0
   end
 
+  # Answer the epics for a particular user.
+  def self.get_epics(current_user, conditions={})
+    modified_conditions = conditions.clone
+    modified_conditions[:view_all] = true
+    modified_conditions = substitute_conditions(current_user, modified_conditions)
+    modified_conditions['tasks'] = {:id => nil}
+    result = Story.joins("LEFT JOIN tasks ON tasks.story_id=stories.id").where(modified_conditions).group('stories.id').order('name')
+    result.collect{|story| {id: story.id, name: story.name}}
+  end
+
   # Answer the records for a particular user.
   def self.get_records(current_user, conditions={}, per_page=nil, page=nil)
     modified_conditions = conditions.clone
@@ -309,7 +326,7 @@ class Story < ActiveRecord::Base
     individual_id = modified_conditions.delete(:individual_id)
     text_filter = modified_conditions.delete(:text)
     modified_conditions = substitute_conditions(current_user, modified_conditions)
-    options = {:include => [:criteria, :story_values, :tasks, :iteration, :release, :team, :individual], :conditions => modified_conditions, :order => 'stories.priority', :joins => joins}
+    options = {:include => [:criteria, :story_values, :tasks, :iteration, :release, :team, :individual, :stories], :conditions => modified_conditions, :order => 'stories.priority', :joins => joins}
     should_paginate = per_page && page && !filter_on_individual && !text_filter
     if should_paginate
       options[:per_page] = per_page
@@ -354,7 +371,7 @@ class Story < ActiveRecord::Base
         conditions.delete(:iteration_id)
       end
     end
-    if conditions[:iteration_id] && conditions[:view_epics]
+    if conditions[:iteration_id] && (conditions[:view_epics] || conditions[:view_all])
       conditions.delete(:iteration_id)
     end
     if conditions[:team_id] == "MyTeam"
@@ -370,9 +387,10 @@ class Story < ActiveRecord::Base
     end
     if conditions[:view_epics]
       conditions["stories.story_id"] = nil
-    else
+    elsif !conditions[:view_all]
       conditions["child.id"] = nil
     end
+    conditions.delete(:view_all)
     conditions.delete(:view_epics)
     new_conditions = conditions.clone
     conditions.each_pair do |key,value|
@@ -386,7 +404,7 @@ class Story < ActiveRecord::Base
   
   def self.get_joins(conditions)
     joins = ""
-    if(!conditions[:view_epics])
+    if(!conditions[:view_epics] && !conditions[:view_all])
       joins += "LEFT OUTER JOIN stories as child ON stories.id=child.story_id "
     end
     conditions.each_pair do |key,value|
@@ -643,6 +661,30 @@ class Story < ActiveRecord::Base
   
   def epic_name
     epic ? epic.name : nil;
+  end
+  
+  def update_parent_status
+    if epic
+      if status_code == 2
+        if epic.status_code != 2
+          epic.status_code = 2;
+          epic.save
+        end
+      else
+        if epic.status_code == 2 && !epic.reason_blocked && !epic.stories.detect{|story| story.status_code == 2}
+          if epic.stories.detect{|story| story.status_code > 0}
+            epic.status_code = 1;            
+          else
+            epic.status_code = 0;
+          end
+          epic.save
+        elsif status_code > 0 && epic.status_code == 0
+          epic.status_code = 1;
+          epic.save
+        end
+      end
+      epic.update_parent_status
+    end
   end
     
 protected

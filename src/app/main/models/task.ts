@@ -29,4 +29,37 @@ export class Task extends Work {
   isStory(): boolean {
     return false;
   }
+
+  updateParentStatus(): void {
+    let status_code: number = this.status_code;
+    let story: Story = this.story;
+    if (status_code === 2) {
+      if (story.status_code !== 2) {
+        story.status_code = 2;
+      }
+    } else {
+      let hasBlockedTask = false;
+      story.tasks.forEach((task: Task) => {
+        if (task.status_code === 2) {
+          hasBlockedTask = true;
+        }
+      });
+      if (story.status_code === 2 && !story.reason_blocked && !hasBlockedTask) {
+        let hasInProgressTask = false;
+        story.tasks.forEach((task: Task) => {
+          if (task.status_code > 0) {
+            hasInProgressTask = true;
+          }
+        });
+        if (hasInProgressTask) {
+          story.status_code = 1;
+        } else {
+          story.status_code = 0;
+        }
+      } else if (status_code > 0 && story.status_code === 0) {
+        story.status_code = 1;
+      }
+    }
+    story.updateParentStatus();
+  }
 }

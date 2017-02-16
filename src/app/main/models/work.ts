@@ -29,8 +29,17 @@ export abstract class Work {
     this.cycle_time = values.cycle_time ? parseFloat(values.cycle_time) : null;
   }
 
+  hasLoaded(): boolean {
+    return true;
+  }
+
+  isEpic(): boolean {
+    return false;
+  }
+
   abstract get uniqueId(): string;
   abstract get size(): number;
   abstract get toDo(): number;
   abstract isStory(): boolean;
+  abstract updateParentStatus(): void;
 }

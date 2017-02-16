@@ -58,12 +58,14 @@ import { ReportsComponent } from './components/reports/reports.component';
 import { TasksComponent } from './components/tasks/tasks.component';
 import { FilterPipe } from './pipes/filter.pipe';
 import { TaskOverallActionsComponent } from './components/task-overall-actions/task-overall-actions.component';
+import { EpicsComponent } from './components/epics/epics.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'stories', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
   { path: 'reports', component: ReportsComponent, canActivate: [AuthGuardService] },
+  { path: 'epics', component: EpicsComponent, canActivate: [AuthGuardService] },
   { path: 'stories', component: StoriesComponent, canActivate: [AuthGuardService] },
   { path: 'tasks', component: TasksComponent, canActivate: [AuthGuardService] },
   { path: 'schedule', component: ScheduleComponent, canActivate: [AuthGuardService] },
@@ -116,7 +118,8 @@ const appRoutes: Routes = [
     ReportsComponent,
     TasksComponent,
     FilterPipe,
-    TaskOverallActionsComponent
+    TaskOverallActionsComponent,
+    EpicsComponent
   ],
   entryComponents: [
     SelectColumnsComponent,

@@ -1,10 +1,10 @@
 <div class="action-bar">
-    <select name="release" [(ngModel)]="release" *ngIf="releases.length>3" (change)="updateNavigation()">
+    <select name="release" [(ngModel)]="release" *ngIf="!grid.showEpics() && releases.length>3" (change)="updateNavigation()">
         <option *ngFor="let release of releases" [value]="release.id">  
         {{release.name}}
         </option>
     </select>
-    <select name="iteration" [(ngModel)]="iteration" *ngIf="iterations.length>3" (change)="updateNavigation()">
+    <select name="iteration" [(ngModel)]="iteration" *ngIf="!grid.showEpics() && iterations.length>3" (change)="updateNavigation()">
         <option *ngFor="let iteration of iterations" [value]="iteration.id">
         {{iteration.name}}
         </option>

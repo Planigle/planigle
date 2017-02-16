@@ -16,9 +16,13 @@ export class Story extends Work {
   public rank: number;
   public user_rank: number;
   public expanded: boolean = false;
+  public epic_name: string;
   public acceptance_criteria: AcceptanceCriterium[] = [];
-  public tasks: Task[]= [];
+  public tasks: Task[] = [];
   public story_values: StoryValue[] = [];
+  public stories: Story[] = [];
+  public epic: Story;
+  public childrenLoaded: boolean = true;
 
   constructor(values: any) {
     super(values);
@@ -31,6 +35,7 @@ export class Story extends Work {
     this.release_name = values.release_name;
     this.team_id = values.team_id;
     this.team_name = values.team_name;
+    this.epic_name = values.epic_name;
     let story = this;
     let criteria = values.criteria ? values.criteria : values.acceptance_criteria;
     if (criteria) {
@@ -49,6 +54,18 @@ export class Story extends Work {
         this.story_values.push(new StoryValue(storyValue));
       });
     }
+    if (values.stories) {
+      if (values.stories.length > 0) {
+        this.childrenLoaded = false;
+      }
+      values.stories.forEach((child: any) => {
+        this.stories.push(new Story(child));
+      });
+    }
+  }
+
+  isEpic(): boolean {
+    return this.tasks.length === 0;
   }
 
   get uniqueId(): string {
@@ -105,5 +122,44 @@ export class Story extends Work {
 
     // Round to one hundredths place scaling to account for floating point issues
     return total === 0 ? null : (Math.round((total + 0.00001) * 100) / 100);
+  }
+
+  hasLoaded(): boolean {
+    return this.childrenLoaded;
+  }
+
+  updateParentStatus(): void {
+    let epic = this.epic;
+    if (epic) {
+      let status_code = this.status_code;
+      if (status_code === 2) {
+        if (epic.status_code !== 2) {
+          epic.status_code = 2;
+        }
+      } else {
+        let hasBlockedStory = false;
+        epic.stories.forEach((story: Story) => {
+          if (story.status_code === 2) {
+            hasBlockedStory = true;
+          }
+        });
+        if (epic.status_code === 2 && !epic.reason_blocked && !hasBlockedStory) {
+          let hasInProgresStory = false;
+          epic.stories.forEach((story: Story) => {
+            if (story.status_code > 0) {
+              hasInProgresStory = true;
+            }
+          });
+          if (hasInProgresStory) {
+            epic.status_code = 1;
+          } else {
+            epic.status_code = 0;
+          }
+        } else if (status_code > 0 && epic.status_code === 0) {
+          epic.status_code = 1;
+        }
+      }
+      epic.updateParentStatus();
+    }
   }
 }

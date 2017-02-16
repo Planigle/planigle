@@ -70,6 +70,12 @@ protected
     if cond[:individual_id] == ""; cond[:individual_id] = nil; end
     if cond[:id] && cond[:id][0] == 83; cond[:id] = cond[:id][1..cond[:id].length - 1]; end  # 83 = S
     session[:conditions] = cond
+      
+    cond = cond.clone
+    if get_params[:view_all]; cond[:view_all] = get_params[:view_all] == 'true'; end
+    if get_params[:view_epics]; cond[:view_epics] = get_params[:view_epics] == 'true'; end
+    if get_params[:story_id]; cond[:story_id] = get_params[:story_id]; end
+
     cond
   end
 end

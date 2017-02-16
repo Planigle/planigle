@@ -29,6 +29,40 @@ export class StoriesService {
       });
   }
 
+  getEpics(status: any): Observable<Story[]> {
+    return this.http.get(baseUrl + '/epics' + (status ? '?status_code=' + status : ''))
+      .map((res: any) => res.json())
+      .map((stories: Array<any>) => {
+        let result: Array<Story> = [];
+        if (stories) {
+          stories.forEach((story: any) => {
+            result.push(
+              new Story(story)
+            );
+          });
+        }
+        return result;
+      });
+  }
+
+  getChildren(story: Story, teamId?: any): Observable<Story[]> {
+    return this.http.get(baseUrl + '?view_all=true&story_id=' + story.id + (teamId ? '&team_id=' + teamId : ''))
+      .map((res: any) => res.json())
+      .map((stories: Array<any>) => {
+        let result: Array<Story> = [];
+        if (stories) {
+          stories.forEach((child: any) => {
+            let childStory = new Story(child);
+            childStory.epic = story;
+            result.push(childStory);
+          });
+          story.stories = result;
+          story.childrenLoaded = true;
+        }
+        return result;
+      });
+  }
+
   exportStories(queryString: string): void {
     $.fileDownload(baseUrl + '/export' + queryString);
   }
@@ -68,6 +102,9 @@ export class StoriesService {
     }
     if ('project_id' in story) {
       record['project_id'] = story.project_id;
+    }
+    if ('story_id' in story) {
+      record['story_id'] = story.story_id;
     }
     if ('release_id' in story) {
       record['release_id'] = story.release_id;

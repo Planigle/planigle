@@ -15,7 +15,7 @@ export class StoryAttribute {
 
   private mappings: any = {
     'Id': 'id',
-    'Epic': 'story_id',
+    'Epic': 'epic_name',
     'Name': 'name',
     'Description': 'description',
     'Acceptance Criteria': 'acceptance_criteria_string',

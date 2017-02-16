@@ -101,6 +101,10 @@ class StoriesController < ResourceController
     head 404
   end
   
+  def epics
+    render :json => Story.get_epics(current_individual, conditions)
+  end
+  
 protected
 
   # Answer descriptor for this type of object
@@ -180,5 +184,6 @@ protected
       end
     end
     @record.attributes = params.require(:record).permit(allowed_params)
+    @record.update_parent_status
   end
 end

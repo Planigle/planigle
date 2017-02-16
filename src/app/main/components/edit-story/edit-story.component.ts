@@ -26,6 +26,7 @@ export class EditStoryComponent implements OnChanges {
   @Input() story: Story;
   @Input() customStoryAttributes: StoryAttribute[];
   @Input() projects: Project[];
+  @Input() epics: Story[];
   @Input() releases: Release[];
   @Input() iterations: Iteration[];
   @Input() teams: Team[];
@@ -90,6 +91,14 @@ export class EditStoryComponent implements OnChanges {
     if (!hasOwner) {
       this.model.individual_id = null;
       this.model.individual_name = null;
+    }
+  }
+
+  updateEpic(): void {
+    if (String(this.model.story_id) === 'null') {
+      this.model.story_id = null;
+    } else {
+      this.model.story_id = parseInt(String(this.model.story_id), 10);
     }
   }
 
@@ -197,6 +206,8 @@ export class EditStoryComponent implements OnChanges {
           this.story.added = true;
         }
         this.story.id = story.id;
+        this.story.story_id = story.story_id;
+        this.story.epic_name = story.epic_name;
         this.story.name = story.name;
         this.story.description = story.description;
         this.story.status_code = story.status_code;

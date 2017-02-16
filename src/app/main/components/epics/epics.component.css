@@ -1,0 +1,125 @@
+select {
+	font-size: 1rem;
+}
+
+:host /deep/ .ag-fresh .ag-group-cell {
+	font-style: normal;
+}
+
+:host /deep/ .task .ag-cell:first-child span {
+	display: none;
+}
+
+:host /deep/ .story .ag-cell:first-child span {
+	padding-left: 0px !important;
+}
+
+:host /deep/ .ag-cell select {
+	padding: 0px;
+	height: 1.2rem !important;
+	font-size: 0.9rem;
+}
+
+:host /deep/ .ui-droppable-hover {
+	border-top: 1px solid black;
+}
+
+:host /deep/ .ui-draggable-dragging {
+	background: lightgrey;
+	opacity: 0.5;
+}
+
+:host /deep/ .ag-row-level-1 {
+	background: #D4E5FD;
+}
+
+:host /deep/ .ag-row-level-2 {
+	background: #C4D5FD;
+}
+
+:host /deep/ .ag-row-level-3 {
+	background: #B4D5FD;
+}
+
+:host /deep/ .ag-row-level-4 {
+	background: #A4C5FD;
+}
+
+:host /deep/ .ag-row-level-5 {
+	background: #94B5FD;
+}
+
+:host /deep/ .ag-row-level-6 {
+	background: #84A5FD;
+}
+
+:host /deep/ .ag-row-level-1 [colid=name] {
+	padding-left: 15px;
+}
+
+:host /deep/ .ag-row-level-2 [colid=name] {
+	padding-left: 30px;
+}
+
+:host /deep/ .ag-row-level-3 [colid=name] {
+	padding-left: 45px;
+}
+
+:host /deep/ .ag-row-level-4 [colid=name] {
+	padding-left: 60px;
+}
+
+:host /deep/ .ag-row-level-5 [colid=name] {
+	padding-left: 75px;
+}
+
+:host /deep/ .ag-header-container i.fa {
+	font-size: 14px;
+	padding-top: 6px;
+	margin-left: -1px;
+	cursor: pointer;
+}
+
+.scroll-up, .scroll-down {
+	height: 16px;
+	width: 100%;
+	position: fixed;
+	z-index: -10;
+}
+
+.scroll-up {
+	top: 77px;
+}
+
+.scroll-up.ui-droppable-hover {
+	border-top: 0px solid black;
+	border-bottom: 1px solid black;
+}
+
+.scroll-down {
+	bottom: 1px;
+}
+
+.wait-cursor {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.wait-cursor img {
+	height: 32px;
+	width: 32px;
+	z-index: 10;
+}
+
+:host /deep/ .selected {
+	background: #0275d8;
+	color: white;
+}
+
+:host /deep/ .selected i {
+	color: white;
+}

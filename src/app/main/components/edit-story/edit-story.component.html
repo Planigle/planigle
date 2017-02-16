@@ -52,6 +52,15 @@
 			      </select>
 			  </div>
 			</div>
+			<div class="form-group row">
+			  <label for="epic" class="col-xs-2 col-form-label">Epic</label>
+			  <div class="col-xs-10">
+			      <select name="epic" class="form-control" [(ngModel)]="model.story_id" (ngModelChange)="updateEpic()" [disabled]="!me.canChangeBacklog()">
+			      	<option *ngFor="let epic of epics" [ngValue]="epic.id" [hidden]="epic.id == model.id">{{epic.name}}</option>
+			      	<option [ngValue]="null">No Epic</option>
+			      </select>
+			  </div>
+			</div>
 			<div class="form-group row" *ngIf="releases.length>0">
 			  <label for="release" class="col-xs-2 col-form-label">Release</label>
 			  <div class="col-xs-10">

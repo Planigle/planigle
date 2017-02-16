@@ -42,7 +42,7 @@ export class StoryActionsComponent implements AgRendererComponent {
     );
   }
 
-  addTask(): void {
-    this.grid.addTask(<Story> this.model);
+  addChild(): void {
+    this.grid.addChild(<Story> this.model);
   }
 }

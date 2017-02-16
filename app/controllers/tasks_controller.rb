@@ -69,6 +69,7 @@ protected
       @record.story.status_code = 1;
       @record.story.save
     end
+    @record.update_parent_status
   end
   
 private

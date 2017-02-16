@@ -164,6 +164,28 @@ class Task < ActiveRecord::Base
     !cond || (matches_individual(cond) && matches_status(cond))
   end
 
+  def update_parent_status
+    if status_code == 2
+      if story.status_code != 2
+        story.status_code = 2;
+        story.save
+      end
+    else
+      if story.status_code == 2 && !story.reason_blocked && !story.tasks.detect{|task| task.status_code == 2}
+        if story.tasks.detect{|task| task.status_code > 0}
+          story.status_code = 1;
+        else
+          story.status_code = 0;
+        end
+        story.save
+      elsif status_code > 0 && story.status_code == 0
+        story.status_code = 1;
+        story.save
+      end
+    end
+    story.update_parent_status
+  end
+  
 protected
 
   def matches_individual(cond)

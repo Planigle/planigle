@@ -2,6 +2,7 @@ Planigle::Application.routes.draw do
   post '/stories/import', :to => 'stories#import', :as => 'import'
   get '/stories/export', :to => 'stories#export', :as => 'export'
   post '/stories/split/:id', :to => 'stories#split', :as => 'split'
+  get '/stories/epics', :to => 'stories#epics', :as => 'epics'
 
   resources :audits
   
