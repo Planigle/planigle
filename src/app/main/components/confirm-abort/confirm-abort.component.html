@@ -2,12 +2,13 @@
 	<button type="button" class="close" aria-label="Close" (click)="cancel()">
 		<span aria-hidden="true">&times;</span>
 	</button>
-	<h4 class="modal-title">{{model.title}}</h4>
+	<h4 class="modal-title">Abort</h4>
 </div>
 <div class="modal-body">
-	<div>{{model.body}}</div>
+	<div>Would you like to abort the previous story (change its size to 0 and mark as done)?</div>
 </div>
 <div class="modal-footer">
-	<input type="button" class="btn btn-secondary" (click)="ok()" value="OK" autofocus>
+	<input type="button" class="btn btn-secondary" (click)="yes()" value="Yes" autofocus>
+	<input type="button" class="btn btn-secondary" (click)="no()" value="No">
 	<input type="button" class="btn btn-secondary" (click)="cancel()" value="Cancel">
 </div>

@@ -29,6 +29,7 @@
 		[me]="user"
 		[hasPrevious]="previous() != null"
 		[hasNext]="next() != null"
+		[split]="split"
 		(updatedAttributes)="fetchStoryAttributes()"
 		(closed)="finishedEditing($event.value)"></app-edit-story>
 	<app-edit-task

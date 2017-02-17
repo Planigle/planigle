@@ -1,17 +1,20 @@
 import { Component, OnChanges, Input, Output, EventEmitter } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { Router } from '@angular/router';
+import { ConfirmAbortComponent } from '../confirm-abort/confirm-abort.component';
 import { EditAttributesComponent } from '../edit-attributes/edit-attributes.component';
 import { AcceptanceCriteriaComponent } from '../acceptance-criteria/acceptance-criteria.component';
 import { StoriesService } from '../../services/stories.service';
 import { ErrorService } from '../../services/error.service';
 import { Story } from '../../models/story';
+import { Task } from '../../models/task';
 import { StoryAttribute } from '../../models/story-attribute';
 import { StoryValue } from '../../models/story-value';
 import { Project } from '../../models/project';
 import { Release } from '../../models/release';
 import { Iteration } from '../../models/iteration';
 import { Team } from '../../models/team';
+import { AcceptanceCriterium } from '../../models/acceptance-criterium';
 import { Individual } from '../../models/individual';
 import { FinishedEditing } from '../../models/finished-editing';
 declare var $: any;
@@ -34,12 +37,14 @@ export class EditStoryComponent implements OnChanges {
   @Input() me: Individual;
   @Input() hasPrevious: boolean;
   @Input() hasNext: boolean;
+  @Input() split: boolean;
   @Output() updatedAttributes: EventEmitter<any> = new EventEmitter();
   @Output() closed: EventEmitter<any> = new EventEmitter();
 
   public model: Story;
   public customValues: Map<string, any> = new Map();
   public error: String;
+  private modelUpdated: boolean = false;
 
   constructor(
     private router: Router,
@@ -50,6 +55,7 @@ export class EditStoryComponent implements OnChanges {
 
   ngOnChanges(changes: any) {
     if (changes.story) {
+      this.modelUpdated = false;
       this.model = new Story(this.story);
       this.model.story_values.forEach((storyValue) => {
         this.customValues[storyValue.story_attribute_id] = storyValue.value;
@@ -62,6 +68,30 @@ export class EditStoryComponent implements OnChanges {
           this.customValues[storyAttribute.id] = null;
         }
       });
+    }
+    if ((changes.story || changes.split || changes.iterations) && (this.model && this.split && this.iterations.length > 0)
+      && !this.modelUpdated) {
+      this.modelUpdated = true;
+      let criteria: AcceptanceCriterium[] = [];
+      this.model.acceptance_criteria.forEach((criterium: AcceptanceCriterium) => {
+        if (!criterium.isDone()) {
+          criteria.push(criterium);
+        }
+      });
+      this.model.acceptance_criteria = criteria;
+      let selectedIndex = -1;
+      let index = 0;
+      this.iterations.forEach((iteration: Iteration) => {
+        if (iteration.id === this.model.iteration_id) {
+          selectedIndex = index;
+        }
+        index++;
+      });
+      if (selectedIndex !== -1 && selectedIndex < this.iterations.length - 1) {
+        this.model.iteration_id = this.iterations[selectedIndex + 1].id;
+      } else {
+        this.model.iteration_id = null;
+      }
     }
   }
 
@@ -187,6 +217,31 @@ export class EditStoryComponent implements OnChanges {
   }
 
   private saveModel(result: FinishedEditing, form: any): void {
+    if (this.split) {
+      let self: EditStoryComponent = this;
+      const modalRef: NgbModalRef = this.modalService.open(ConfirmAbortComponent);
+      let component: ConfirmAbortComponent = modalRef.componentInstance;
+      modalRef.result.then(
+        (answer: any) => {
+          if (component.model.response) {
+            if (component.model.response === 'Yes') {
+              this.story.status_code = 3;
+              this.story.effort = 0;
+              this.storiesService.update(this.story).subscribe((modifiedStory: Story) => {
+                self.updateModel(result, form);
+              });
+            } else {
+              self.updateModel(result, form);
+            }
+          }
+        }
+      );
+    } else {
+      this.updateModel(result, form);
+    }
+  }
+
+  private updateModel(result: FinishedEditing, form: any): void {
     this.model.story_values = [];
     Object.keys(this.customValues).forEach((key) => {
       let value: string = this.customValues[key];
@@ -199,33 +254,53 @@ export class EditStoryComponent implements OnChanges {
       this.model.acceptance_criteria[0].description === AcceptanceCriteriaComponent.instructions) {
       this.model.acceptance_criteria = [];
     }
-    let method: any = this.model.id ? this.storiesService.update : this.storiesService.create;
+    let method: any = this.model.id ?
+      (this.split ? this.storiesService.split : this.storiesService.update) :
+      this.storiesService.create;
     method.call(this.storiesService, this.model).subscribe(
       (story: Story) => {
-        if (!this.story.id) {
-          this.story.added = true;
+        if (this.split) {
+          let newTasks = [];
+          this.story.tasks.forEach((task: Task) => {
+            if (task.status_code === 3) {
+              newTasks.push(task);
+            }
+          });
+          this.story.tasks = newTasks;
+          let newCriteria = [];
+          this.story.acceptance_criteria.forEach((criterium: AcceptanceCriterium) => {
+            if (criterium.isDone()) {
+              newCriteria.push(criterium);
+            }
+          });
+          this.story.acceptance_criteria = newCriteria;
+          this.story.split = story;
+        } else {
+          if (!this.story.id) {
+            this.story.added = true;
+          }
+          this.story.id = story.id;
+          this.story.story_id = story.story_id;
+          this.story.epic_name = story.epic_name;
+          this.story.name = story.name;
+          this.story.description = story.description;
+          this.story.status_code = story.status_code;
+          this.story.acceptance_criteria = story.acceptance_criteria;
+          this.story.reason_blocked = story.reason_blocked;
+          this.story.project_id = story.project_id;
+          this.story.release_id = story.release_id;
+          this.story.release_name = story.release_name;
+          this.story.iteration_id = story.iteration_id;
+          this.story.iteration_name = story.iteration_name;
+          this.story.team_id = story.team_id;
+          this.story.team_name = story.team_name;
+          this.story.individual_id = story.individual_id;
+          this.story.individual_name = story.individual_name;
+          this.story.effort = story.effort;
+          this.story.priority = story.priority;
+          this.story.user_priority = story.user_priority;
+          this.story.story_values = story.story_values;
         }
-        this.story.id = story.id;
-        this.story.story_id = story.story_id;
-        this.story.epic_name = story.epic_name;
-        this.story.name = story.name;
-        this.story.description = story.description;
-        this.story.status_code = story.status_code;
-        this.story.acceptance_criteria = story.acceptance_criteria;
-        this.story.reason_blocked = story.reason_blocked;
-        this.story.project_id = story.project_id;
-        this.story.release_id = story.release_id;
-        this.story.release_name = story.release_name;
-        this.story.iteration_id = story.iteration_id;
-        this.story.iteration_name = story.iteration_name;
-        this.story.team_id = story.team_id;
-        this.story.team_name = story.team_name;
-        this.story.individual_id = story.individual_id;
-        this.story.individual_name = story.individual_name;
-        this.story.effort = story.effort;
-        this.story.priority = story.priority;
-        this.story.user_priority = story.user_priority;
-        this.story.story_values = story.story_values;
         if (form) {
           form.reset();
           $('input[name="name"]').focus();

@@ -30,6 +30,7 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
   public epics: Story[] = [];
   public projects: Project[] = [];
   public selection: Work = null;
+  public split: boolean = false;
   public user: Individual;
   public waiting: boolean = false;
   public storyAttributes: StoryAttribute[] = [];
@@ -90,14 +91,15 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
   private applyNavigation(params: Map<string, string>) {
     this.filters.applyNavigation(params);
     if (!this.selectionChanged) {
-      this.fetchStories(params['selection']);
+      this.fetchStories(params['selection'], false, params['split']);
     } else {
       this.selectionChanged = false;
-      this.applySelection(params['selection']);
+      this.applySelection(params['selection'], params['split']);
     }
   }
 
-  private applySelection(selectionValue) {
+  private applySelection(selectionValue, split?: boolean) {
+    this.split = false;
     let selection: Work = null;
     if (selectionValue === 'NewStory') {
       selection = this.createNewStory();
@@ -113,6 +115,7 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
       }
     } else {
       selection = this.id_map[selectionValue];
+      this.split = split;
     }
     this.selection = selection ? selection : null;
   }
@@ -374,6 +377,14 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
       if (this.selection.added) {
         this.selection.added = false;
         this.addRow(this.selection);
+        this.checkRemoveRow(this.selection);
+        this.updateProjections();
+        this.updateRows();
+      } else if (this.selection.isStory() && (<Story>this.selection).split) {
+        let originalStory = <Story>this.selection;
+        this.addRow(originalStory.split);
+        originalStory.split = null;
+        this.checkRemoveRow(originalStory);
         this.updateProjections();
         this.updateRows();
       } else {
@@ -594,7 +605,7 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
 
   private addRow(row: Work): void {
     this.id_map[row.uniqueId] = row;
-    if (row.isStory() && row.story_id === null) {
+    if (row.isStory() && (row.story_id === null || !this.showEpics())) {
       this.stories.push(<Story> row);
       this.storiesService.setRanks(this.stories);
       this.updateAllocations();
@@ -765,7 +776,7 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
     if (this.user.canChangeBacklog()) {
       newColumnDefs.push({
         headerName: '',
-        width: 54,
+        width: 72,
         field: 'blank',
         cellRendererFramework: StoryActionsComponent,
         suppressMovable: true,
@@ -795,6 +806,9 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
         }
         if (storyAttribute.getCellRenderer()) {
           columnDef.cellRendererFramework = storyAttribute.getCellRenderer();
+        }
+        if (storyAttribute.name === 'Rank') {
+          columnDef.sort = 'asc';
         }
         newColumnDefs.push(columnDef);
       }
@@ -890,19 +904,22 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
         (err: any) => this.processError(err));
   }
 
-  updateNavigation(selection?: String): void {
+  updateNavigation(selection?: String, split?: boolean): void {
     let params: Map<string, string> = new Map();
     this.filters.updateNavigationParams(params);
     if (selection) {
       this.selectionChanged = true;
       if (selection !== ParentWorkItemsComponent.noSelection) {
         params['selection'] = selection;
+        if (split) {
+          params['split'] = true;
+        }
       }
     }
     this.router.navigate([this.getRoute(), params]);
   }
 
-  fetchStories(selection?: Work, ignoreErrors?: boolean): void {
+  fetchStories(selection?: Work, ignoreErrors?: boolean, split?: boolean): void {
     this.waiting = true;
     this.storiesService.getStories(this.filters.queryString)
       .subscribe(
@@ -922,7 +939,7 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
           this.updateProjections();
           this.updateExpandContractAll();
           if (selection) {
-            this.applySelection(selection);
+            this.applySelection(selection, split);
           }
           this.waiting = false;
           if (!this.menusLoaded) {

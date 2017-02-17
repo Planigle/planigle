@@ -59,6 +59,7 @@ import { TasksComponent } from './components/tasks/tasks.component';
 import { FilterPipe } from './pipes/filter.pipe';
 import { TaskOverallActionsComponent } from './components/task-overall-actions/task-overall-actions.component';
 import { EpicsComponent } from './components/epics/epics.component';
+import { ConfirmAbortComponent } from './components/confirm-abort/confirm-abort.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'stories', pathMatch: 'full' },
@@ -119,11 +120,13 @@ const appRoutes: Routes = [
     TasksComponent,
     FilterPipe,
     TaskOverallActionsComponent,
-    EpicsComponent
+    EpicsComponent,
+    ConfirmAbortComponent
   ],
   entryComponents: [
     SelectColumnsComponent,
     ConfirmationDialogComponent,
+    ConfirmAbortComponent,
     EditReasonBlockedComponent,
     EditMultipleComponent,
     EditAttributesComponent

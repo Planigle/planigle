@@ -44,28 +44,18 @@ class StoriesController < ResourceController
   end
   
   # Split the story (tasks which have not been accepted will automatically be put in the new story).
-  # GET /stories/1/split                Returns a template for the new story.
   # POST /stories/1/split               Creates the new story and moves the unaccepted tasks to it.
   def split
     @old = Story.find(params[:id])
     
-    if request.get?
-      @record = @old.split
-      if @record.authorized_for_read?(current_individual)
-        render :json => @record
-      else
-        unauthorized
-      end
-    else
-      Story.transaction do
-        @tasks = @old.tasks.select{|task| !task.accepted?}
-        @criteria = @old.criteria.select{|criterium| !criterium.accepted?}
-        create
-        if authorized_for_create?(@record) && @record.errors.empty?
-          @record.created_at = @old.created_at
-          @record.in_progress_at = @old.in_progress_at
-          @record.save( :validate=> false )
-        end
+    Story.transaction do
+      @tasks = @old.tasks.select{|task| !task.accepted?}
+      @criteria = @old.criteria.select{|criterium| !criterium.accepted?}
+      create
+      if authorized_for_create?(@record) && @record.errors.empty?
+        @record.created_at = @old.created_at
+        @record.in_progress_at = @old.in_progress_at
+        @record.save( :validate=> false )
       end
     end
   rescue ActiveRecord::RecordNotFound

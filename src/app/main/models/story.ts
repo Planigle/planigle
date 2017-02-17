@@ -23,6 +23,7 @@ export class Story extends Work {
   public stories: Story[] = [];
   public epic: Story;
   public childrenLoaded: boolean = true;
+  public split: Story;
 
   constructor(values: any) {
     super(values);

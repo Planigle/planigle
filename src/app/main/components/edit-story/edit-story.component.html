@@ -106,7 +106,7 @@
 			<button type="button" class="btn btn-secondary" (click)="editAttributes()" [hidden]="!me.canChangeBacklog()">Edit Attributes</button>
 		</div>
 		<div class="buttons">
-			<button type="submit" class="btn btn-secondary" (click)="isNew() ? addAnother(form) : ok()" [disabled]="!canSave(form)">{{isNew() ? 'Create' : 'Update'}}</button>
+			<button type="submit" class="btn btn-secondary" (click)="isNew() ? addAnother(form) : ok()" [disabled]="!canSave(form)">{{isNew() ? 'Create' : split ? 'Split' : 'Update'}}</button>
 			<button type="submit" class="btn btn-secondary" (click)="ok()" [disabled]="!canSave(form)" [hidden]="!isNew()">Create & Close</button>
 			<button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
 			<button type="submit" class="btn btn-secondary" title="Previous" (click)="previous()" [disabled]="!canSave(form)" [hidden]="!hasPrevious"><fa [name]="'arrow-up'"></fa></button>

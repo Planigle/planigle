@@ -42,6 +42,10 @@ export class StoryActionsComponent implements AgRendererComponent {
     );
   }
 
+  split(): void {
+    this.grid.updateNavigation(this.model.uniqueId, true);
+  }
+
   addChild(): void {
     this.grid.addChild(<Story> this.model);
   }

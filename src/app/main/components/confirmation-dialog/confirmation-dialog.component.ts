@@ -1,12 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+declare var $: any;
 
 @Component({
   selector: 'app-confirmation-dialog',
   templateUrl: './confirmation-dialog.component.html',
   styleUrls: ['./confirmation-dialog.component.css']
 })
-export class ConfirmationDialogComponent {
+export class ConfirmationDialogComponent implements AfterViewInit {
   model: any;
 
   constructor(
@@ -19,6 +20,10 @@ export class ConfirmationDialogComponent {
       body: 'Are you sure you want to delete "' + objectName + '"?',
       confirmed: false
     };
+  }
+
+  ngAfterViewInit(): void {
+    $('input[autofocus]').focus();
   }
 
   ok(): void {

@@ -71,6 +71,10 @@ export class StoriesService {
     return this.createOrUpdate(story, this.http.post, '');
   }
 
+  split(story: Story): Observable<Story> {
+    return this.createOrUpdate(story, this.http.post, '/split/' + story.id);
+  }
+
   update(story: any): Observable<Story> {
     return this.createOrUpdate(story, this.http.put, '/' + story.id);
   }
