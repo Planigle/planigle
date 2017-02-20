@@ -800,8 +800,7 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
   }
 
   private setGridHeight(): void {
-    let premium = $('app-stories-summary div');
-    $('ag-grid-ng2').height($(window).height() - (71 + (premium.length > 0 ? premium.height() : 0)));
+    $('ag-grid-ng2').height($(window).height() - (71 + ($('app-stories-summary div').length > 0 ? 21 : 0)));
   }
 
   setAttributes(storyAttributes: StoryAttribute[]): void {
