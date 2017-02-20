@@ -60,6 +60,7 @@ import { FilterPipe } from './pipes/filter.pipe';
 import { TaskOverallActionsComponent } from './components/task-overall-actions/task-overall-actions.component';
 import { EpicsComponent } from './components/epics/epics.component';
 import { ConfirmAbortComponent } from './components/confirm-abort/confirm-abort.component';
+import { GroupHeaderComponent } from './components/group-header/group-header.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'stories', pathMatch: 'full' },
@@ -121,7 +122,8 @@ const appRoutes: Routes = [
     FilterPipe,
     TaskOverallActionsComponent,
     EpicsComponent,
-    ConfirmAbortComponent
+    ConfirmAbortComponent,
+    GroupHeaderComponent
   ],
   entryComponents: [
     SelectColumnsComponent,
@@ -146,7 +148,8 @@ const appRoutes: Routes = [
       ReleaseActionsComponent,
       TeamActionsComponent,
       IndividualActionsComponent,
-      HtmlCellComponent
+      HtmlCellComponent,
+      GroupHeaderComponent
     ]),
     PremiumModule
   ],

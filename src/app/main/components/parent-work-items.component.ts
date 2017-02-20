@@ -4,6 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { GridOptions } from 'ag-grid/main';
 import { StoryFiltersComponent } from './story-filters/story-filters.component';
 import { StoryActionsComponent } from './story-actions/story-actions.component';
+import { GroupHeaderComponent } from './group-header/group-header.component';
 import { SessionsService } from '../services/sessions.service';
 import { StoryAttributesService } from '../services/story-attributes.service';
 import { ProjectionsService } from '../../premium/services/projections.service';
@@ -174,6 +175,7 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
     let self: ParentWorkItemsComponent = this;
     let interval: any = null;
     const scrollAmount = 150;
+    let copy = false;
     $('.ag-row').draggable({
       appendTo: '.ag-body-viewport',
       zIndex: 100,
@@ -181,6 +183,10 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
       helper: 'clone',
       revert: 'invalid',
       start: function(event: any, ui: any) {
+        if (event.ctrlKey) {
+          copy = true;
+          $('.ui-draggable-dragging').css('background', '#D4E5FD');
+        }
         $('.scroll-up, .scroll-down').css('z-index', 10);
       },
       stop: function(event: any, ui: any) {
@@ -188,7 +194,7 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
       }
     }).droppable({
       drop: function(event, ui) {
-        self.dropRow(event, ui, $(this));
+        self.dropRow(event, ui, $(this), copy);
       },
       tolerance: 'pointer'
     });
@@ -212,7 +218,7 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
 
     $('.scroll-down').droppable({
       drop: function(event, ui) {
-        self.dropRow(event, ui, $(this));
+        self.dropRow(event, ui, $(this), copy);
       },
       over: function(event: any, ui: any){
         interval = setInterval(function() {
@@ -535,60 +541,97 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
     return this.id_map[result];
   }
 
-  dropRow(event, ui, target): void {
+  dropRow(event, ui, target, copy: boolean): void {
     let movedRow: Work = this.getRowWork($(ui.draggable[0]));
     let targetRow: Work = this.getRowWork(target);
     if (movedRow.isStory()) {
-      // Move story
-      let story: Story = <Story> movedRow;
-      let targetStory: Story = null;
-      if (targetRow && !targetRow.isStory()) {
-        // If moving story to task, move after story for task
-        let task: Task = <Task> targetRow;
-        let index = this.stories.indexOf(task.story) + 1;
-        if (index >= this.stories.length) {
-          targetStory = null;
-        } else {
-          targetStory = this.stories[index];
-        }
-      } else {
-        targetStory = <Story> targetRow;
-      }
-      this.stories.splice(this.stories.indexOf(story), 1);
-      if (targetStory) {
-        this.stories.splice(this.stories.indexOf(targetStory), 0, story);
-      } else {
-        this.stories.push(story);
-      }
-      story.priority = this.determinePriority(this.stories, story);
-      this.storiesService.update(story).subscribe((revisedStory) => {}, (error) => this.processError.call(this, error));
+      this.dropStory(<Story>movedRow, targetRow, copy);
     } else {
-      // Move task
-      let task: Task = <Task> movedRow;
-      let oldStory: Story = task.story;
-      oldStory.tasks.splice(oldStory.tasks.indexOf(task), 1);
-      let index: number = targetRow && targetRow.isStory() ? this.stories.indexOf(<Story> targetRow) : -1;
-      let newStory: Story = targetRow ?
-        (targetRow.isStory() ? (this.stories[index === 0 ? 0 : index - 1]) : (<Task> targetRow).story) :
-        this.stories[this.stories.length - 1];
-      if (oldStory.id !== newStory.id) {
-        task.story = newStory;
-        task.previous_story_id = oldStory.id;
-        task.story_id = newStory.id;
-      }
-      if (targetRow && !targetRow.isStory()) {
-        // Moving to within tasks
-        newStory.tasks.splice(newStory.tasks.indexOf(<Task> targetRow), 0, task);
-      } else {
-        // Moving to end of tasks
-        newStory.tasks.push(task);
-      }
-      task.priority = this.determinePriority(newStory.tasks, task);
-      this.tasksService.update(task)
-        .subscribe((revisedTask) => task.previous_story_id = null, (error) => this.processError.call(this, error));
-      newStory.expanded = true;
+      this.dropTask(<Task>movedRow, targetRow, copy);
     }
-    this.updateRows();
+  }
+
+  private dropStory(story: Story, targetRow: Work, copy: boolean): void  {
+    let targetStory: Story = null;
+    if (targetRow && !targetRow.isStory()) {
+      // If moving story to task, move after story for task
+      let task: Task = <Task> targetRow;
+      let index = this.stories.indexOf(task.story) + 1;
+      if (index >= this.stories.length) {
+        targetStory = null;
+      } else {
+        targetStory = this.stories[index];
+      }
+    } else {
+      targetStory = <Story> targetRow;
+    }
+    if (copy) {
+      story = new Story(story);
+    } else {
+      this.stories.splice(this.stories.indexOf(story), 1);
+    }
+    if (targetStory) {
+      this.stories.splice(this.stories.indexOf(targetStory), 0, story);
+    } else {
+      this.stories.push(story);
+    }
+    story.priority = this.determinePriority(this.stories, story);
+    let method = copy ? this.storiesService.create : this.storiesService.update;
+    method.call(this.storiesService, story).subscribe(
+    (revisedStory) => {
+      story.id = revisedStory.id;
+      this.id_map[revisedStory.uniqueId] = story;
+      this.updateRows();
+      this.updateAllocations();
+      this.updateProjections();
+      this.storiesService.setRanks(this.stories);
+      this.gridOptions.api.onSortChanged();
+    }, (error) => this.processError.call(this, error));
+  }
+
+  private dropTask(task: Task, targetRow: Work, copy: boolean): void {
+    let oldStory: Story = task.story;
+    if (copy) {
+      task = new Task(task);
+    } else {
+      oldStory.tasks.splice(oldStory.tasks.indexOf(task), 1);
+    }
+    let index: number = targetRow && targetRow.isStory() ? this.stories.indexOf(<Story> targetRow) : -1;
+    let newStory: Story = targetRow ?
+      (targetRow.isStory() ? (this.stories[index === 0 ? 0 : index - 1]) : (<Task> targetRow).story) :
+      this.stories[this.stories.length - 1];
+    if (oldStory.id !== newStory.id) {
+      task.story = newStory;
+      if (!copy) {
+        task.previous_story_id = oldStory.id;
+      }
+      task.story_id = newStory.id;
+    }
+    if (targetRow && !targetRow.isStory()) {
+      // Moving to within tasks
+      newStory.tasks.splice(newStory.tasks.indexOf(<Task> targetRow), 0, task);
+    } else {
+      // Moving to end of tasks
+      newStory.tasks.push(task);
+    }
+    task.priority = this.determinePriority(newStory.tasks, task);
+    if (copy) {
+      this.tasksService.create(task).subscribe(
+          (revisedTask) => {
+            task.id = revisedTask.id;
+            this.id_map[revisedTask.uniqueId] = task;
+            this.updateRows();
+            this.updateAllocations();
+          }, (error) => this.processError.call(this, error));
+    } else {
+      this.tasksService.update(task).subscribe(
+        (revisedTask) => {
+          task.previous_story_id = null;
+          this.updateRows();
+          this.updateAllocations();
+        }, (error) => this.processError.call(this, error));
+    }
+    newStory.expanded = true;
   }
 
   private determinePriority(objects, object): number {
@@ -767,7 +810,7 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
       headerName: '',
       width: 20,
       field: 'blank',
-      headerCellTemplate: this.getGroupHeader,
+      headerComponentFramework: GroupHeaderComponent,
       cellRenderer: 'group',
       suppressMovable: true,
       suppressResize: true,
@@ -825,10 +868,6 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
       }
     });
     this.customStoryAttributes = filtered;
-  }
-
-  private getGroupHeader(): string {
-    return '<i class="fa fa-plus-square-o" aria-hidden="true"></i>';
   }
 
   private storiesToExpand(): boolean {

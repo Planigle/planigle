@@ -5,8 +5,8 @@ import {Column} from "../entities/column";
 import {Utils as _} from "../utils";
 import {PopupService} from "../widgets/popupService";
 import {GridOptionsWrapper} from "../gridOptionsWrapper";
-import {IAfterFilterGuiAttachedParams} from "../interfaces/iFilter";
 import {EventService} from "../eventService";
+import {IAfterGuiAttachedParams} from "../interfaces/iComponent";
 
 @Bean('menuFactory')
 export class StandardMenuFactory implements IMenuFactory {
@@ -42,8 +42,13 @@ export class StandardMenuFactory implements IMenuFactory {
         _.addCssClass(eMenu, 'ag-menu');
         eMenu.appendChild(filterWrapper.gui);
 
-        var bodyScrollListener = () => {
-            hidePopup();
+        var hidePopup: (event?: any)=>void;
+
+        var bodyScrollListener = (event: any) => {
+            // if h scroll, popup is no longer over the column
+            if (event.direction==='horizontal') {
+                hidePopup();
+            }
         };
 
         this.eventService.addEventListener('bodyScroll', bodyScrollListener);
@@ -53,11 +58,11 @@ export class StandardMenuFactory implements IMenuFactory {
 
         // need to show filter before positioning, as only after filter
         // is visible can we find out what the width of it is
-        var hidePopup = this.popupService.addAsModalPopup(eMenu, true, closedCallback);
+        hidePopup = this.popupService.addAsModalPopup(eMenu, true, closedCallback);
         positionCallback(eMenu);
 
         if (filterWrapper.filter.afterGuiAttached) {
-            var params: IAfterFilterGuiAttachedParams = {
+            var params: IAfterGuiAttachedParams = {
                 hidePopup: hidePopup
             };
             filterWrapper.filter.afterGuiAttached(params);

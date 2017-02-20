@@ -5,14 +5,14 @@ import {GridOptionsWrapper} from "../gridOptionsWrapper";
 import {ColumnGroupChild} from "../entities/columnGroupChild";
 import {ColumnGroup} from "../entities/columnGroup";
 import {ColumnController} from "../columnController/columnController";
-import {IRenderedHeaderElement} from "./iRenderedHeaderElement";
 import {Column} from "../entities/column";
 import {DropTarget} from "../dragAndDrop/dragAndDropService";
-import {RenderedHeaderGroupCell} from "./renderedHeaderGroupCell";
-import {RenderedHeaderCell} from "./renderedHeaderCell";
+import {RenderedHeaderCell} from "./deprecated/renderedHeaderCell";
 import {EventService} from "../eventService";
 import {Events} from "../events";
 import {Utils as _} from "../utils";
+import {HeaderWrapperComp} from "./header/headerWrapperComp";
+import {HeaderGroupWrapperComp} from "./headerGroup/headerGroupWrapperComp";
 
 export class HeaderRowComp extends Component {
 
@@ -24,7 +24,7 @@ export class HeaderRowComp extends Component {
     private dept: number;
     private pinned: string;
 
-    private headerElements: {[key: string]: IRenderedHeaderElement} = {};
+    private headerElements: {[key: string]: Component} = {};
 
     private eRoot: HTMLElement;
     private dropTarget: DropTarget;
@@ -41,7 +41,7 @@ export class HeaderRowComp extends Component {
         this.dropTarget = dropTarget;
     }
 
-    public forEachHeaderElement(callback: (renderedHeaderElement: IRenderedHeaderElement)=>void): void {
+    public forEachHeaderElement(callback: (comp: Component)=>void): void {
         Object.keys(this.headerElements).forEach( key => {
             var headerElement = this.headerElements[key];
             callback(headerElement);
@@ -69,27 +69,42 @@ export class HeaderRowComp extends Component {
         this.getGui().style.height = rowHeight + 'px';
     }
 
+    //noinspection JSUnusedLocalSymbols
     @PostConstruct
     private init(): void {
 
         this.onRowHeightChanged();
         this.onVirtualColumnsChanged();
+        this.setWidth();
 
         this.addDestroyableEventListener(this.gridOptionsWrapper, GridOptionsWrapper.PROP_HEADER_HEIGHT, this.onRowHeightChanged.bind(this) );
         this.addDestroyableEventListener(this.eventService, Events.EVENT_VIRTUAL_COLUMNS_CHANGED, this.onVirtualColumnsChanged.bind(this) );
         this.addDestroyableEventListener(this.eventService, Events.EVENT_DISPLAYED_COLUMNS_CHANGED, this.onDisplayedColumnsChanged.bind(this) );
+        this.addDestroyableEventListener(this.eventService, Events.EVENT_COLUMN_RESIZED, this.onColumnResized.bind(this) );
+        this.addDestroyableEventListener(this.eventService, Events.EVENT_GRID_COLUMNS_CHANGED, this.onGridColumnsChanged.bind(this) );
+    }
+
+    private onColumnResized(): void {
+        this.setWidth();
+    }
+
+    private setWidth(): void {
+        var mainRowWidth = this.columnController.getContainerWidth(this.pinned) + 'px';
+        this.getGui().style.width = mainRowWidth;
+    }
+
+    private onGridColumnsChanged(): void {
+        this.removeAndDestroyAllChildComponents();
+    }
+
+    private removeAndDestroyAllChildComponents(): void {
+        var idsOfAllChildren = Object.keys(this.headerElements);
+        this.removeAndDestroyChildComponents(idsOfAllChildren);
     }
 
     private onDisplayedColumnsChanged(): void {
-        // because column groups are created and destroyed on the fly as groups are opened / closed and columns are moved,
-        // we have to throw away all of the components when columns are changed, as the references to the old groups
-        // are no longer value. this is not true for columns where columns do not get destroyed between open / close
-        // or moving actions.
-        if (this.showingGroups) {
-            var idsOfAllChildren = Object.keys(this.headerElements);
-            this.removeAndDestroyChildComponents(idsOfAllChildren);
-        }
         this.onVirtualColumnsChanged();
+        this.setWidth();
     }
     
     private onVirtualColumnsChanged(): void {
@@ -108,7 +123,9 @@ export class HeaderRowComp extends Component {
             }
 
             // skip groups that have no displayed children. this can happen when the group is broken,
-            // and this section happens to have nothing to display for the open / closed state
+            // and this section happens to have nothing to display for the open / closed state.
+            // (a broken group is one that is split, ie columns in the group have a non-group column
+            // in between them)
             if (child instanceof ColumnGroup && (<ColumnGroup>child).getDisplayedChildren().length === 0) {
                 return;
             }
@@ -122,15 +139,46 @@ export class HeaderRowComp extends Component {
         this.removeAndDestroyChildComponents(currentChildIds);
     }
 
-    private createHeaderElement(columnGroupChild:ColumnGroupChild):IRenderedHeaderElement {
-        var result:IRenderedHeaderElement;
+    // check if user is using the deprecated
+    private isUsingOldHeaderRenderer(column: Column): boolean {
+        let colDef = column.getColDef();
+
+        return _.anyExists([
+            // header template
+            this.gridOptionsWrapper.getHeaderCellTemplateFunc(),
+            this.gridOptionsWrapper.getHeaderCellTemplate(),
+            colDef.headerCellTemplate,
+            // header cellRenderer
+            colDef.headerCellRenderer,
+            this.gridOptionsWrapper.getHeaderCellRenderer()
+        ]);
+
+    }
+
+    private createHeaderElement(columnGroupChild:ColumnGroupChild): Component {
+        var result:Component;
+
         if (columnGroupChild instanceof ColumnGroup) {
-            result = new RenderedHeaderGroupCell(<ColumnGroup> columnGroupChild, this.eRoot, this.dropTarget);
+            result = new HeaderGroupWrapperComp(<ColumnGroup> columnGroupChild, this.eRoot, this.dropTarget, this.pinned);
         } else {
-            result = new RenderedHeaderCell(<Column> columnGroupChild, this.eRoot, this.dropTarget);
+            if (this.isUsingOldHeaderRenderer(<Column> columnGroupChild)) {
+                ////// DEPRECATED - TAKE THIS OUT IN V9
+                if (!warningGiven) {
+                    console.warn('ag-Grid: since v8, custom headers are now done using components. Please refer to the documentation https://www.ag-grid.com/javascript-grid-header-rendering/. Support for the old way will be dropped in v9.');
+                    warningGiven = true;
+                }
+                result = new RenderedHeaderCell(<Column> columnGroupChild, this.eRoot, this.dropTarget, this.pinned);
+            } else {
+                // the future!!!
+                result = new HeaderWrapperComp(<Column> columnGroupChild, this.eRoot, this.dropTarget, this.pinned);
+            }
         }
+
         this.context.wireBean(result);
         return result;
     }
 
 }
+
+// remove this in v9, when we take out support for the old headers
+let warningGiven = false;
