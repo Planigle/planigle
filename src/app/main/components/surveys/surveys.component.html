@@ -1,0 +1,30 @@
+<div class="container-fluid" >
+	<app-header></app-header>
+	<div class="surveys">
+		<ag-grid-ng2 #agGrid class="ag-fresh"
+			[gridOptions]="gridOptions"
+		    [columnDefs]="columnDefs"
+		    [rowData]="surveys"
+		    [context]="context"
+		    [getRowClass]="getRowClass"
+		    (rowClicked)="viewSurvey($event)"
+		    enableColResize
+		    enableSorting
+		    rowHeight="22"
+		    suppressCellSelection
+		    suppressDragLeaveHidesColumns>
+		</ag-grid-ng2>
+	</div>
+	<div class="mappings">
+		<ag-grid-ng2 #agGrid class="ag-fresh"
+			[gridOptions]="detailsGridOptions"
+		    [columnDefs]="detailsColumnDefs"
+		    [rowData]="selection ? selection.surveyMappings : []"
+		    enableColResize
+		    enableSorting
+		    rowHeight="22"
+		    suppressCellSelection
+		    suppressDragLeaveHidesColumns>
+		</ag-grid-ng2>
+	</div>
+</div>

@@ -1,4 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
+import { Router } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { StoriesComponent } from '../stories/stories.component';
@@ -22,6 +23,7 @@ export class StoryOverallActionsComponent implements OnInit {
   @Input() grid: StoriesComponent;
 
   constructor(
+    private router: Router,
     private storiesService: StoriesService,
     private errorService: ErrorService,
     private modalService: NgbModal) { }
@@ -102,6 +104,10 @@ export class StoryOverallActionsComponent implements OnInit {
         }
       }
     );
+  }
+
+  viewSurveys(): void {
+    this.router.navigate(['surveys']);
   }
 
   hasItemsSelected(): boolean {

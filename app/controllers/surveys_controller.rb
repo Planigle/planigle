@@ -7,9 +7,9 @@ class SurveysController < ApplicationController
   def new
     project = Project.find(:first, :conditions => [ "survey_key = ? and survey_mode != 0", params[:survey_key]])
     if !project || !project.company.is_premium
-      render :xml => xml_error("Invalid survey key"), :status => :unprocessable_entity
+      render :json => {error: "Invalid survey key"}, :status => :unprocessable_entity
     else
-      render :xml => project.create_survey
+      render :json => project.create_survey
     end
   end
   
@@ -17,7 +17,7 @@ class SurveysController < ApplicationController
   def create
     project = Project.find(:first, :conditions => [ "survey_key = ? and survey_mode != 0", params[:survey_key]])
     if !project || !project.company.is_premium
-      render :xml => xml_error("Invalid survey key"), :status => :unprocessable_entity
+      render :json => {error: "Invalid survey key"}, :status => :unprocessable_entity
     else
       begin
         Survey.transaction do
@@ -50,15 +50,15 @@ class SurveysController < ApplicationController
             story.save!
           end
           
-          render :xml => "Survey submitted successfully!  Thanks for your help."
+          render :json => "Survey submitted successfully!  Thanks for your help."
         end
       rescue Exception => e
         if @record.valid?
           logger.error(e)
           logger.error(e.backtrace.join("\n"))
-          render :xml => xml_error('Error processing survey'), :status => 500
+          render :json => {error: 'Error processing survey'}, :status => 500
         else
-          render :xml => @record.errors, :status => :unprocessable_entity
+          render :json => @record.errors, :status => :unprocessable_entity
         end
       end
     end
@@ -68,15 +68,15 @@ class SurveysController < ApplicationController
 
   # List the existing surveys.
   def index
-    @records = project_id ? Survey.find(:all, :conditions => ["project_id = ?", project_id]) : Survey.find(:all)
-    render :xml => @records.to_xml(:include => [])
+    @records = project_id ? Survey.where(project_id: project_id) : Survey.all
+    render :json => @records.to_json(:include => [])
   end
 
   # Show details on a particular survey
   def show
-    @record = Survey.find(params[:id])
+    @record = Survey.includes([survey_mappings: [:story]]).find(params[:id])
     if @record.authorized_for_read?(current_individual)
-      render :xml => @record
+      render :json => @record
     else
       unauthorized
     end
@@ -91,7 +91,7 @@ class SurveysController < ApplicationController
       if params.has_key?(:record) and params[:record].has_key?(:excluded)
         begin
           Survey.transaction do
-            excluded = params[:record][:excluded] == "true"
+            excluded = params[:record][:excluded]
             @record.excluded = excluded
             @record.save!
     
@@ -111,19 +111,19 @@ class SurveysController < ApplicationController
               end
             end
         
-            render :xml => @record
+            render :json => @record
           end
         rescue Exception => e
           if @record.valid?
             logger.error(e)
             logger.error(e.backtrace.join("\n"))
-            render :xml => xml_error('Error processing survey'), :status => 500
+            render :json => {error: 'Error processing survey'}, :status => 500
           else
-            render :xml => @record.errors, :status => :unprocessable_entity
+            render :json => @record.errors, :status => :unprocessable_entity
           end
         end
       else
-        render :xml => xml_error('Can only change whether a survey is excluded'), :status => :unprocessable_entity
+        render :json => {error: 'Can only change whether a survey is excluded'}, :status => :unprocessable_entity
       end
     else
       unauthorized

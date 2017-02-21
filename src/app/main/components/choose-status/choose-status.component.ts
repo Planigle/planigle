@@ -64,7 +64,7 @@ export class ChooseStatusComponent implements AgRendererComponent {
       this.model.individual_name = this.me.name;
     }
     if (this.updateFunction) {
-      this.updateFunction(this.gridHolder, this.model);
+      this.updateFunction.call(this.gridHolder, this.model);
     }
   }
 }

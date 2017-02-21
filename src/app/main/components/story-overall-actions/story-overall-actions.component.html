@@ -6,5 +6,6 @@
 	<button type="button" class="btn btn-secondary" title="Export CSV" (click)="export()"><fa [name]="'download'"></fa></button>
 	<button type="button" class="btn btn-secondary" *ngIf="grid.user && grid.user.canChangeBacklog()" title="Import CSV" (click)="import()"><fa [name]="'upload'"></fa></button>
 	<button type="button" class="btn btn-secondary" title="Get the latest data" (click)="refresh()"><fa [name]="'refresh'"></fa></button>
+	<button type="button" class="btn btn-secondary" *ngIf="grid.user && grid.user.is_premium" title="View surveys" (click)="viewSurveys()"><fa [name]="'comments'"></fa></button>
 </div>
 <input id="import" class="hidden" type="file" name="Filedata" data-url="api/stories/import">

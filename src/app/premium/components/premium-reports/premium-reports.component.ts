@@ -6,6 +6,7 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['./premium-reports.component.css']
 })
 export class PremiumReportsComponent {
+  static height: number = 0;
   @Input() user: any;
   @Input() teams: any[];
   @Input() releases: any[];

@@ -1,0 +1,4 @@
+<select name="excluded" class="form-control" [value]="model.excluded" [disabled]="me && !me.canChangeBacklog()" (change)="updateExcluded($event)">
+	<option value="true">True</option>
+	<option value="false">False</option>
+</select>

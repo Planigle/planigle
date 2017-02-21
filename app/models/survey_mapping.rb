@@ -8,7 +8,7 @@ class SurveyMapping < ActiveRecord::Base
   # attr_accessible :survey_id, :story_id, :priority
 
   # Override as_json to exclude private attributes.
-  def as_json(options = {})
+  def serializable_hash(options = {})
     if !options[:except]
       options[:except] = []
     end

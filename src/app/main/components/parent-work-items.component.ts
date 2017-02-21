@@ -5,6 +5,7 @@ import { GridOptions } from 'ag-grid/main';
 import { StoryFiltersComponent } from './story-filters/story-filters.component';
 import { StoryActionsComponent } from './story-actions/story-actions.component';
 import { GroupHeaderComponent } from './group-header/group-header.component';
+import { PremiumReportsComponent } from '../../premium/components/premium-reports/premium-reports.component';
 import { SessionsService } from '../services/sessions.service';
 import { StoryAttributesService } from '../services/story-attributes.service';
 import { ProjectionsService } from '../../premium/services/projections.service';
@@ -761,32 +762,32 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
     };
   }
 
-  private statusChanged(gridHolder: ParentWorkItemsComponent, row: Work): void {
+  statusChanged(row: Work): void {
     if (row.isStory()) {
-      gridHolder.storiesService.update(<Story> row).subscribe(
+      this.storiesService.update(<Story> row).subscribe(
         (story: Story) => {
-          gridHolder.updateGridForStatusChange(story);
+          this.updateGridForStatusChange(story);
           row.updateParentStatus();
           let parent: Story = (<Story>row).epic;
           while (parent) {
-            gridHolder.updateGridForStatusChange(parent);
+            this.updateGridForStatusChange(parent);
             parent = parent.epic;
           }
         },
-        (err: any) => gridHolder.processError.call(gridHolder, err));
+        (err: any) => this.processError.call(this, err));
     } else {
       let changedTask: Task = <Task> row;
-      gridHolder.tasksService.update(changedTask).subscribe(
+      this.tasksService.update(changedTask).subscribe(
         (task: Task) => {
-          gridHolder.updateGridForStatusChange(task);
+          this.updateGridForStatusChange(task);
           row.updateParentStatus();
           let parent: Story = changedTask.story;
           while (parent) {
-            gridHolder.updateGridForStatusChange(parent);
+            this.updateGridForStatusChange(parent);
             parent = parent.epic;
           }
         },
-        (err: any) => gridHolder.processError(err));
+        (err: any) => this.processError(err));
     }
   }
 
@@ -800,7 +801,7 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
   }
 
   private setGridHeight(): void {
-    $('ag-grid-ng2').height($(window).height() - (71 + (this.user && this.user.is_premium ? 21 : 0)));
+    $('ag-grid-ng2').height($(window).height() - (71 + (this.user && this.user.is_premium ? PremiumReportsComponent.height : 0)));
   }
 
   setAttributes(storyAttributes: StoryAttribute[]): void {

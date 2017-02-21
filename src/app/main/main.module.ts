@@ -61,6 +61,8 @@ import { TaskOverallActionsComponent } from './components/task-overall-actions/t
 import { EpicsComponent } from './components/epics/epics.component';
 import { ConfirmAbortComponent } from './components/confirm-abort/confirm-abort.component';
 import { GroupHeaderComponent } from './components/group-header/group-header.component';
+import { SurveysComponent } from './components/surveys/surveys.component';
+import { SurveyExcludedComponent } from './components/survey-excluded/survey-excluded.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'stories', pathMatch: 'full' },
@@ -72,7 +74,8 @@ const appRoutes: Routes = [
   { path: 'tasks', component: TasksComponent, canActivate: [AuthGuardService] },
   { path: 'schedule', component: ScheduleComponent, canActivate: [AuthGuardService] },
   { path: 'people', component: PeopleComponent, canActivate: [AuthGuardService] },
-  { path: 'changes', component: ChangesComponent, canActivate: [AuthGuardService] }
+  { path: 'changes', component: ChangesComponent, canActivate: [AuthGuardService] },
+  { path: 'surveys', component: SurveysComponent, canActivate: [AuthGuardService] }
 ];
 
 @NgModule({
@@ -123,7 +126,9 @@ const appRoutes: Routes = [
     TaskOverallActionsComponent,
     EpicsComponent,
     ConfirmAbortComponent,
-    GroupHeaderComponent
+    GroupHeaderComponent,
+    SurveysComponent,
+    SurveyExcludedComponent
   ],
   entryComponents: [
     SelectColumnsComponent,
@@ -149,7 +154,8 @@ const appRoutes: Routes = [
       TeamActionsComponent,
       IndividualActionsComponent,
       HtmlCellComponent,
-      GroupHeaderComponent
+      GroupHeaderComponent,
+      SurveyExcludedComponent
     ]),
     PremiumModule
   ],
