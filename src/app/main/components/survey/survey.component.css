@@ -1,0 +1,38 @@
+.panel {
+	width: 550px;
+	padding: 10px;
+}
+
+ag-grid-ng2 {
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+:host /deep/ .ui-droppable-hover {
+	border-top: 1px solid black;
+}
+
+:host /deep/ .ui-draggable-dragging {
+	background: lightgrey;
+	opacity: 0.5;
+}
+
+.scroll-up, .scroll-down {
+	height: 16px;
+	width: 100%;
+	position: fixed;
+	z-index: -10;
+}
+
+.scroll-up {
+	top: 265px;
+}
+
+.scroll-up.ui-droppable-hover {
+	border-top: 0px solid black;
+	border-bottom: 1px solid black;
+}
+
+.scroll-down {
+	bottom: 1px;
+}

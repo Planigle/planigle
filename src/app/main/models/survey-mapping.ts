@@ -12,4 +12,17 @@ export class SurveyMapping {
     this.description = values.description;
     this.normalized_priority = values.normalized_priority;
   }
+
+  get descriptionFirstLine(): string {
+    if (this.description) {
+      let index: number = this.description.indexOf('\r');
+      if (index > -1) {
+        return this.description.substring(0, index);
+      } else {
+        return this.description;
+      }
+    } else {
+      return this.description;
+    }
+  }
 }

@@ -9,6 +9,7 @@ export class Survey {
   updated_at: Date;
   name: String;
   company: String;
+  survey_key: String;
   surveyMappings: SurveyMapping[];
 
   constructor(values: any) {
@@ -18,6 +19,7 @@ export class Survey {
     this.updated_at = this.getDatesService().parseDateTime(values.updated_at);
     this.name = values.name;
     this.company = values.company;
+    this.survey_key = values.survey_key;
   }
 
   addSurveyMappings(mappings: any[]): void {

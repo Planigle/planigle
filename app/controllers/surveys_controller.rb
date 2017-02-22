@@ -5,7 +5,7 @@ class SurveysController < ApplicationController
 
   # Create a survey template.
   def new
-    project = Project.find(:first, :conditions => [ "survey_key = ? and survey_mode != 0", params[:survey_key]])
+    project = Project.where([ "survey_key = ? and survey_mode != 0", params[:survey_key]]).first
     if !project || !project.company.is_premium
       render :json => {error: "Invalid survey key"}, :status => :unprocessable_entity
     else
@@ -15,29 +15,30 @@ class SurveysController < ApplicationController
   
   # Post a survey template.
   def create
-    project = Project.find(:first, :conditions => [ "survey_key = ? and survey_mode != 0", params[:survey_key]])
+    record = params[:record]
+    project = Project.where("survey_key = ? and survey_mode != 0", record[:survey_key]).first
     if !project || !project.company.is_premium
       render :json => {error: "Invalid survey key"}, :status => :unprocessable_entity
     else
       begin
         Survey.transaction do
           # Create Survey / clear existing entries for this email
-          if (@record = Survey.find(:first, :conditions => [ "project_id = ? and STRCMP( email, ?)=0", project.id, params[:email] ]))
-            @record.name = params[:name]
-            @record.company = params[:company]
+          if @record = Survey.where("project_id = ? and STRCMP( email, ?)=0", project.id, record[:email]).first
+            @record.name = record[:name]
+            @record.company = record[:company]
             @record.survey_mappings.delete_all
           else
-            @record = Survey.new(:project_id => project.id, :name => params[:name], :company => params[:company], :email => params[:email])
+            @record = Survey.new(:project_id => project.id, :name => record[:name], :company => record[:company], :email => record[:email])
             @record.save!
           end
     
           # Add new entries
           priority = 1
-          params[:stories].each do |story|
+          record[:stories].each do |story|
             if story.to_s.include? ','
               match = story.match(/(.*),(.*)/)
               name = "User suggestion: " + CGI::unescape(match[1])
-              description = "Suggested by " + params[:name] + " (" + params[:email] + ")" + (params[:company] ? " of " + params[:company] : "") + "\r" + CGI::unescape(match[2])
+              description = "Suggested by " + record[:name] + " (" + record[:email] + ")" + (record[:company] ? " of " + record[:company] : "") + "\r" + CGI::unescape(match[2])
               story = Story.create(:project_id=>project.id, :name=>name,:description=>description, :is_public=>false).id
             end
             @record.survey_mappings << SurveyMapping.new(:story_id => story, :priority => priority)
@@ -50,7 +51,8 @@ class SurveysController < ApplicationController
             story.save!
           end
           
-          render :json => "Survey submitted successfully!  Thanks for your help."
+          @record.notify_users
+          render :json => { message: "Survey submitted successfully!  Thanks for your help." }
         end
       rescue Exception => e
         if @record.valid?
@@ -68,7 +70,7 @@ class SurveysController < ApplicationController
 
   # List the existing surveys.
   def index
-    @records = project_id ? Survey.where(project_id: project_id) : Survey.all
+    @records = project_id ? Survey.where(project_id: project_id).order('updated_at desc') : Survey.all.order('updated_at desc')
     render :json => @records.to_json(:include => [])
   end
 
@@ -90,28 +92,33 @@ class SurveysController < ApplicationController
     if @record.authorized_for_update?(current_individual)
       if params.has_key?(:record) and params[:record].has_key?(:excluded)
         begin
-          Survey.transaction do
-            excluded = params[:record][:excluded]
-            @record.excluded = excluded
-            @record.save!
-    
-            # Update the user rankings on the stories
-            ranked_stories = @record.apply_to_stories
-            ranked_stories.each do |story|
-              story.save!
-            end
-            
-            # nil out user_priority for stories that are no longer ranked.
-            if excluded
-              @record.stories.each do |story|
-                if !ranked_stories.include? story
-                  story.user_priority = nil
-                  story.save!
+          ActiveRecord::Base.record_timestamps = false
+          begin
+            Survey.transaction do
+              excluded = params[:record][:excluded]
+              @record.excluded = excluded
+              @record.save!
+      
+              # Update the user rankings on the stories
+              ranked_stories = @record.apply_to_stories
+              ranked_stories.each do |story|
+                story.save!
+              end
+              
+              # nil out user_priority for stories that are no longer ranked.
+              if excluded
+                @record.stories.each do |story|
+                  if !ranked_stories.include? story
+                    story.user_priority = nil
+                    story.save!
+                  end
                 end
               end
+          
+              render :json => @record
             end
-        
-            render :json => @record
+          ensure
+            ActiveRecord::Base.record_timestamps = true  # don't forget to enable it again!
           end
         rescue Exception => e
           if @record.valid?

@@ -48,7 +48,7 @@ export class SurveysComponent implements AfterViewInit, OnDestroy {
   }, {
     headerName: 'Description',
     width: 600,
-    field: 'description',
+    field: 'descriptionFirstLine',
     tooltipField: 'description'
   }, {
     headerName: 'Rank',

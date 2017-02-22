@@ -128,22 +128,18 @@ class Project < ActiveRecord::Base
 
   # Create a survey for this project (in XML)
   def create_survey
-    builder = ::Builder::XmlMarkup.new
-    builder.instruct!
-    builder.stories do
-      i = 1
-      stories.where(status_code: Story.Done, is_public: true).order('priority').each do |story|
-        if story.stories.empty?
-          builder.story do
-            builder.id story.id
-            builder.name story.name
-            builder.description story.description
-            builder.priority i
-          end
-          i += 1
-        end
-      end
+    response = []
+    i = 1
+    stories.joins("left join stories as child on child.story_id=stories.id").where("stories.status_code!=? and stories.is_public=1 and child.id is null", Story.Done).order('priority').each do |story|
+      response << {
+        story_id: story.id,
+        name: story.name,
+        description: story.description,
+        priority: i
+      }
+      i += 1
     end
+    response
   end
 
   # Answer the records for a particular user.

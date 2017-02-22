@@ -13,6 +13,7 @@ import { ErrorService } from '../services/error.service';
 import { ProjectsService } from '../services/projects.service';
 import { StoriesService } from '../services/stories.service';
 import { TasksService } from '../services/tasks.service';
+import { DragDropService } from '../services/drag-drop.service';
 import { StoryAttribute } from '../models/story-attribute';
 import { Work } from '../models/work';
 import { Story } from '../models/story';
@@ -60,6 +61,7 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
     protected storiesService: StoriesService,
     private tasksService: TasksService,
     private projectionsService: ProjectionsService,
+    private dragDropService: DragDropService,
     private errorService: ErrorService
   ) {
     ParentWorkItemsComponent.instance = this;
@@ -173,72 +175,9 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
   }
 
   gridReady(): void {
+    this.dragDropService.setUpDragDrop(this, this.dropRow, true);
+
     let self: ParentWorkItemsComponent = this;
-    let interval: any = null;
-    const scrollAmount = 150;
-    let copy = false;
-    $('.ag-row').draggable({
-      appendTo: '.ag-body-viewport',
-      zIndex: 100,
-      axis: 'y',
-      helper: 'clone',
-      revert: 'invalid',
-      start: function(event: any, ui: any) {
-        if (event.ctrlKey) {
-          copy = true;
-          $('.ui-draggable-dragging').css('background', '#D4E5FD');
-        }
-        $('.scroll-up, .scroll-down').css('z-index', 10);
-      },
-      stop: function(event: any, ui: any) {
-        $('.scroll-up, .scroll-down').css('z-index', -10);
-      }
-    }).droppable({
-      drop: function(event, ui) {
-        self.dropRow(event, ui, $(this), copy);
-      },
-      tolerance: 'pointer'
-    });
-    $('.scroll-up').droppable({
-      over: function(event: any, ui: any){
-        interval = setInterval(function() {
-          let scroll: number = $('.ag-body-viewport').scrollTop();
-          let diff: number = scroll < scrollAmount ? -scroll : -scrollAmount;
-          if (diff < 0) {
-            $('.ag-body-viewport').scrollTop(scroll + diff);
-          }
-        }, 200);
-      },
-      out: function(event: any, ui: any){
-        if (interval !== null) {
-          clearInterval(interval);
-          interval = null;
-        }
-      }
-    });
-
-    $('.scroll-down').droppable({
-      drop: function(event, ui) {
-        self.dropRow(event, ui, $(this), copy);
-      },
-      over: function(event: any, ui: any){
-        interval = setInterval(function() {
-          let scroll: number = $('.ag-body-viewport').scrollTop();
-          let maxScroll: number = $('.ag-body-viewport').prop('scrollHeight') - $('.ag-body-viewport').innerHeight();
-          let diff: number = scroll + scrollAmount > maxScroll ? (maxScroll - scrollAmount) : scrollAmount;
-          if (diff > 0) {
-            $('.ag-body-viewport').scrollTop(scroll + diff);
-          }
-        }, 200);
-      },
-      out: function(event: any, ui: any){
-        if (interval !== null) {
-          clearInterval(interval);
-          interval = null;
-        }
-      }
-    });
-
     $('.ag-header-container i.fa').off('click').click(function() {
       self.expandContractAll();
     });

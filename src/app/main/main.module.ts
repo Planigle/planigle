@@ -63,11 +63,13 @@ import { ConfirmAbortComponent } from './components/confirm-abort/confirm-abort.
 import { GroupHeaderComponent } from './components/group-header/group-header.component';
 import { SurveysComponent } from './components/surveys/surveys.component';
 import { SurveyExcludedComponent } from './components/survey-excluded/survey-excluded.component';
+import { SurveyComponent } from './components/survey/survey.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'stories', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'signup', component: SignupComponent },
+  { path: 'survey', component: SurveyComponent },
   { path: 'reports', component: ReportsComponent, canActivate: [AuthGuardService] },
   { path: 'epics', component: EpicsComponent, canActivate: [AuthGuardService] },
   { path: 'stories', component: StoriesComponent, canActivate: [AuthGuardService] },
@@ -128,7 +130,8 @@ const appRoutes: Routes = [
     ConfirmAbortComponent,
     GroupHeaderComponent,
     SurveysComponent,
-    SurveyExcludedComponent
+    SurveyExcludedComponent,
+    SurveyComponent
   ],
   entryComponents: [
     SelectColumnsComponent,

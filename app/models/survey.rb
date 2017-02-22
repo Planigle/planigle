@@ -9,8 +9,6 @@ class Survey < ActiveRecord::Base
   validates_length_of       :company, :maximum => 80, :allow_nil => true
   validates_length_of       :email, :within => 6..100
   validates_format_of       :email, :with => /(^([^@\s]+)@((?:[-_a-z0-9]+\.)+[a-z]{2,})$)|(^$)/i
-
-  after_create :notify_users
   
   # Notify admins that a new survey has been created
   def notify_users

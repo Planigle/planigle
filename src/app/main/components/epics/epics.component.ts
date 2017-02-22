@@ -8,6 +8,7 @@ import { ErrorService } from '../../services/error.service';
 import { ProjectsService } from '../../services/projects.service';
 import { StoriesService } from '../../services/stories.service';
 import { TasksService } from '../../services/tasks.service';
+import { DragDropService } from '../../services/drag-drop.service';
 import { Work } from '../../models/work';
 import { Story } from '../../models/story';
 declare var $: any;
@@ -16,7 +17,7 @@ declare var $: any;
   selector: 'app-epics',
   templateUrl: './epics.component.html',
   styleUrls: ['./epics.component.css'],
-  providers: [StoriesService, TasksService, StoryAttributesService, ProjectsService, ProjectionsService]
+  providers: [StoriesService, TasksService, StoryAttributesService, ProjectsService, ProjectionsService, DragDropService]
 })
 export class EpicsComponent extends ParentWorkItemsComponent implements AfterViewInit, OnDestroy {
   constructor(
@@ -28,11 +29,12 @@ export class EpicsComponent extends ParentWorkItemsComponent implements AfterVie
     storiesService: StoriesService,
     tasksService: TasksService,
     projectionsService: ProjectionsService,
+    dragDropService: DragDropService,
     errorService: ErrorService
   ) {
     super(
       router, route, sessionsService, storyAttributesService, projectsService,
-      storiesService, tasksService, projectionsService, errorService);
+      storiesService, tasksService, projectionsService, dragDropService, errorService);
   }
 
   getRoute(): string {

@@ -8,12 +8,13 @@ import { ErrorService } from '../../services/error.service';
 import { ProjectsService } from '../../services/projects.service';
 import { StoriesService } from '../../services/stories.service';
 import { TasksService } from '../../services/tasks.service';
+import { DragDropService } from '../../services/drag-drop.service';
 
 @Component({
   selector: 'app-stories',
   templateUrl: './stories.component.html',
   styleUrls: ['./stories.component.css'],
-  providers: [StoriesService, TasksService, StoryAttributesService, ProjectsService, ProjectionsService]
+  providers: [StoriesService, TasksService, StoryAttributesService, ProjectsService, ProjectionsService, DragDropService]
 })
 export class StoriesComponent extends ParentWorkItemsComponent implements AfterViewInit, OnDestroy {
   constructor(
@@ -25,11 +26,12 @@ export class StoriesComponent extends ParentWorkItemsComponent implements AfterV
     storiesService: StoriesService,
     tasksService: TasksService,
     projectionsService: ProjectionsService,
+    dragDropService: DragDropService,
     errorService: ErrorService
   ) {
     super(
       router, route, sessionsService, storyAttributesService, projectsService,
-      storiesService, tasksService, projectionsService, errorService);
+      storiesService, tasksService, projectionsService, dragDropService, errorService);
   }
 
   getRoute(): string {
