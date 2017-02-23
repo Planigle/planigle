@@ -56,7 +56,11 @@ export class SurveysService {
     let options: RequestOptions = new RequestOptions({ headers: headers });
     let stories = [];
     survey.surveyMappings.forEach((mapping: SurveyMapping) => {
-      stories.push(mapping.story_id);
+      if (mapping.story_id < 0) {
+        stories.push(mapping.name + ',' + mapping.description);
+      } else {
+        stories.push(mapping.story_id);
+      }
     });
     let record: any = {
       survey_key: survey.survey_key,

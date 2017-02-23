@@ -1,5 +1,5 @@
 <div class="panel">
-	<p *ngIf="!submitted">Drag and drop the stories to order them from most important to least important and then click Submit.<!--  Click the + button to add your own ideas to the mix.--></p>
+	<p *ngIf="!submitted">Drag and drop the stories to order them from most important to least important and then click Submit.  Click the + button to add your own ideas to the mix.</p>
 	<form (ngsubmit)="submit()" #form="ngForm">
 	    <div [hidden]="!error" class="alert alert-danger" [innerHtml]="error"></div>
 	    <div [hidden]="!notice" class="alert alert-success" [innerHtml]="notice"></div>
@@ -28,10 +28,12 @@
 		  </div>
 		</div>
 		<div class="buttons" *ngIf="!submitted">
+			<button type="button" class="btn btn-secondary icon" title="Add suggestion" (click)="addSuggestion()"><fa [name]="'plus'"></fa></button>
 			<button type="submit" class="btn btn-secondary" (click)="submit()" [disabled]="!form.form.valid">Submit</button>
 		</div>
 	</form>
 </div>
+<app-edit-suggestion *ngIf="suggestion" [suggestion]="suggestion" (finishedSuggesting)="finishedSuggesting($event.value)"></app-edit-suggestion>
 <div class="scroll-up"></div>
 <ag-grid-ng2 #agGrid class="ag-fresh"
 	[gridOptions]="gridOptions"

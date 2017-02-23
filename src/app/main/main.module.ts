@@ -64,6 +64,7 @@ import { GroupHeaderComponent } from './components/group-header/group-header.com
 import { SurveysComponent } from './components/surveys/surveys.component';
 import { SurveyExcludedComponent } from './components/survey-excluded/survey-excluded.component';
 import { SurveyComponent } from './components/survey/survey.component';
+import { EditSuggestionComponent } from './components/edit-suggestion/edit-suggestion.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'stories', pathMatch: 'full' },
@@ -131,7 +132,8 @@ const appRoutes: Routes = [
     GroupHeaderComponent,
     SurveysComponent,
     SurveyExcludedComponent,
-    SurveyComponent
+    SurveyComponent,
+    EditSuggestionComponent
   ],
   entryComponents: [
     SelectColumnsComponent,

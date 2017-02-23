@@ -20,6 +20,8 @@ export class SurveyComponent implements AfterViewInit, OnDestroy {
   notice: string;
   gridOptions: GridOptions = <GridOptions>{};
   submitted: boolean = false;
+  suggestion: SurveyMapping;
+  nextId: number = -1;
   columnDefs: any[] = [{
     headerName: 'Name',
     width: 350,
@@ -107,7 +109,22 @@ export class SurveyComponent implements AfterViewInit, OnDestroy {
     $('ag-grid-ng2').height($(window).height() - 261);
   }
 
-  submit() {
+  addSuggestion(): void {
+    this.suggestion = new SurveyMapping({});
+  }
+
+  finishedSuggesting(shouldAdd: boolean): void {
+    if (shouldAdd)  {
+      this.survey.surveyMappings.push(this.suggestion);
+      this.suggestion.story_id = this.nextId;
+      this.id_map[this.nextId] = this.suggestion;
+      this.nextId--;
+      this.gridOptions.api.setRowData(this.survey.surveyMappings);
+    }
+    this.suggestion = null;
+  }
+
+  submit(): void {
     this.submitted = true;
     this.error = null;
     this.notice = null;
