@@ -1,4 +1,4 @@
-class AddCycleTimeAttributes < ActiveRecord::Migration
+class AddCycleTimeAttributes < ActiveRecord::Migration[4.2]
   def self.up
     add_column :stories, :in_progress_at, :datetime
     add_column :stories, :done_at, :datetime

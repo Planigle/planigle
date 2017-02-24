@@ -1,4 +1,4 @@
-class AddBlockedToTotals < ActiveRecord::Migration
+class AddBlockedToTotals < ActiveRecord::Migration[4.2]
   def self.up
     add_column :iteration_totals, :blocked, :decimal, :precision => 7, :scale => 2
     add_column :release_totals, :blocked, :decimal, :precision => 7, :scale => 2

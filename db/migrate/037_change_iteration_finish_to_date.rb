@@ -1,4 +1,4 @@
-class ChangeIterationFinishToDate < ActiveRecord::Migration
+class ChangeIterationFinishToDate < ActiveRecord::Migration[4.2]
   def self.up
     add_column :iterations, :finish, :date, :null => false
     Iteration.reset_column_information # Work around an issue where the new columns are not in the cache.

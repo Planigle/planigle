@@ -1,4 +1,4 @@
-class AddReasonToStories < ActiveRecord::Migration
+class AddReasonToStories < ActiveRecord::Migration[4.2]
   def self.up
     add_column :stories, :reason_blocked, :text, :limit => 4096
     add_column :tasks, :reason_blocked, :text, :limit => 4096

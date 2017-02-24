@@ -1,4 +1,4 @@
-class CreateReleaseTotals < ActiveRecord::Migration
+class CreateReleaseTotals < ActiveRecord::Migration[4.2]
   def self.up
     create_table :release_totals do |t|
       t.integer :release_id

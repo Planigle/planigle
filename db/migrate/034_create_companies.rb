@@ -1,4 +1,4 @@
-class CreateCompanies < ActiveRecord::Migration
+class CreateCompanies < ActiveRecord::Migration[4.2]
   def self.up
     create_table :companies, :force => true do |t|
       t.string :name, :null => false, :limit => 40

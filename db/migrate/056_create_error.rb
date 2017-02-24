@@ -1,4 +1,4 @@
-class CreateError < ActiveRecord::Migration
+class CreateError < ActiveRecord::Migration[4.2]
   def self.up
     create_table( :errors, :force => true ) do |t|
       t.integer :individual_id, :null => false

@@ -1,4 +1,4 @@
-class RemoveLengthDefault < ActiveRecord::Migration
+class RemoveLengthDefault < ActiveRecord::Migration[4.2]
   def self.up
     change_column_default :iterations, :length, nil
   end

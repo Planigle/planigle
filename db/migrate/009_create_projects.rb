@@ -1,4 +1,4 @@
-class CreateProjects < ActiveRecord::Migration
+class CreateProjects < ActiveRecord::Migration[4.2]
   def self.up
     create_table :projects, :force => true do |t|
       t.string :name, :null => false, :limit => 40

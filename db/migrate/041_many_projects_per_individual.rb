@@ -1,4 +1,4 @@
-class ManyProjectsPerIndividual < ActiveRecord::Migration
+class ManyProjectsPerIndividual < ActiveRecord::Migration[4.2]
   def self.up
     create_table :individuals_projects, :id => false do |t|
       t.integer :project_id

@@ -3,7 +3,6 @@ class CompaniesController < ResourceController
   before_action :login_or_signup_required, :only => :create
 
   # POST /companies
-  # POST /companies.xml
   def create
     if params[:individual]
       begin
@@ -41,7 +40,7 @@ class CompaniesController < ResourceController
           end
         end
       rescue Exception => e
-        format.xml { render :xml => merge_errors(@record, @project), :status => :unprocessable_entity }
+        render :json => merge_errors(@record, @project), :status => :unprocessable_entity
       end
     else
       super

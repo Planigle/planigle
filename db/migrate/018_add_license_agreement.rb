@@ -1,4 +1,4 @@
-class AddLicenseAgreement < ActiveRecord::Migration
+class AddLicenseAgreement < ActiveRecord::Migration[4.2]
   def self.up
     create_table :systems do |t|
       t.string :license_agreement, :default => ''

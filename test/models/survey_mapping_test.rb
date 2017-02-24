@@ -35,8 +35,8 @@ class Survey_MappingTest < ActiveSupport::TestCase
     assert_nil survey_mappings(:second).normalized_priority
   end
 
-  # Test the xml created for survey mappings.
-  def test_xml
+  # Test the response created for survey mappings.
+  def test_response
     survey_mapping = survey_mappings(:first)
     assert_no_tag( survey_mapping, :id )
     assert_no_tag( survey_mapping, :survey_id )

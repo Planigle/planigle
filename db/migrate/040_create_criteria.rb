@@ -1,4 +1,4 @@
-class CreateCriteria < ActiveRecord::Migration
+class CreateCriteria < ActiveRecord::Migration[4.2]
   def self.up
     create_table :criteria do |t|
       t.text :description, :null => false, :limit => 4096

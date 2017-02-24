@@ -1,4 +1,4 @@
-class CreateStories < ActiveRecord::Migration
+class CreateStories < ActiveRecord::Migration[4.2]
   def self.up
     create_table( :stories, :force => true ) do |t|
       t.string :name, :null => false, :limit => 40

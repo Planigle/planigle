@@ -1,4 +1,4 @@
-class ChangeTaskNameLength < ActiveRecord::Migration
+class ChangeTaskNameLength < ActiveRecord::Migration[4.2]
   def self.up
     change_column :tasks, :name, :string, :null => false, :limit => 250
   end

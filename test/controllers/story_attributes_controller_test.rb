@@ -19,7 +19,7 @@ class StoryAttributesControllerTest < ActionController::TestCase
   # Test index getting attribute values.
   def test_index_get_values
     login_as(individuals(:aaron))
-    get :index, :format => 'xml', :project_id => 1
+    get :index, params: {:project_id => 1}
     assert_response :success
     assert_select "story-attributes" do
       assert_select "story-attribute", Project.find(1).story_attributes.length
@@ -29,7 +29,7 @@ class StoryAttributesControllerTest < ActionController::TestCase
   # Test show getting attribute values.
   def test_show_get_values
     login_as(individuals(:aaron))
-    get :show, :format => 'xml', :id => 5
+    get :show, params: {:id => 5}
     assert_response :success
     assert_select "story-attribute" do
       assert_select "story-attribute-values" do
@@ -61,7 +61,7 @@ class StoryAttributesControllerTest < ActionController::TestCase
   # Test getting story attributes (based on role).
   def index_by_role(user, count)
     login_as(user)
-    get :index, :format => 'xml', :project_id => 1
+    get :index, params: {:project_id => 1}
     assert_response :success
     assert_select "story-attributes" do
       assert_select "story-attribute", count
@@ -71,7 +71,7 @@ class StoryAttributesControllerTest < ActionController::TestCase
   # Test showing a story attribute for another project.
   def test_show_wrong_project
     login_as(individuals(:aaron))
-    get :show, :id => 4, :format => 'xml', :project_id => 2
+    get :show, params: {:id => 4, :project_id => 2}
     assert_response 401
   end
     
@@ -94,9 +94,9 @@ class StoryAttributesControllerTest < ActionController::TestCase
   def test_create_wrong_project
     login_as(individuals(:aaron))
     num = resource_count
-    params = create_success_parameters.merge( :format => 'xml' )
+    params = create_success_parameters
     params[:record] = params[:record].merge( :project_id => '2' )
-    post :create, params
+    post :create, params: params
     assert_response 401
     assert_equal num, resource_count
   end
@@ -105,7 +105,7 @@ class StoryAttributesControllerTest < ActionController::TestCase
   def create_by_role_successful( user )
     login_as(user)
     num = resource_count
-    post :create, create_success_parameters.merge( :format => 'xml' )
+    post :create, params: create_success_parameters
     assert_response 201
     assert_equal num + 1, resource_count
     assert_create_succeeded
@@ -115,7 +115,7 @@ class StoryAttributesControllerTest < ActionController::TestCase
   def create_by_role_unsuccessful( user )
     login_as(user)
     num = resource_count
-    post :create, create_success_parameters.merge( :format => 'xml' )
+    post :create, params: create_success_parameters
     assert_response 401
     assert_equal num, resource_count
     assert_select "errors"
@@ -127,7 +127,7 @@ class StoryAttributesControllerTest < ActionController::TestCase
     num = resource_count
     params = create_success_parameters
     params[:record][:is_custom] = false
-    post :create, params.merge( :format => 'xml' )
+    post :create, params: params
     assert_select "is-custom", "true"
     assert_response 201
     assert_equal num + 1, resource_count
@@ -157,9 +157,9 @@ class StoryAttributesControllerTest < ActionController::TestCase
   # Test updating a team for another project.
   def test_update_wrong_project
     login_as(individuals(:aaron))
-    params = update_success_parameters.merge( :format => 'xml', :id => 4 )
+    params = update_success_parameters.merge( :id => 4 )
     params[:record] = params[:record].merge( :project_id => '2' )
-    put :update, params
+    put :update, params: params
     assert_response 401
     assert_change_failed
     assert_select 'errors'
@@ -168,7 +168,7 @@ class StoryAttributesControllerTest < ActionController::TestCase
   # Update successfully based on role.
   def update_by_role_successful( user, params = update_success_parameters )
     login_as(user)
-    put :update, {:id => 1, :format => 'xml'}.merge(params)
+    put :update, params: {:id => 1}.merge(params)
     assert_response :success
     assert_update_succeeded
   end
@@ -176,7 +176,7 @@ class StoryAttributesControllerTest < ActionController::TestCase
   # Update unsuccessfully based on role.
   def update_by_role_unsuccessful( user, params = update_success_parameters )
     login_as(user)
-    put :update, {:id => 1, :format => 'xml'}.merge(params)
+    put :update, params: {:id => 1}.merge(params)
     assert_response 401
     assert_change_failed
     assert_select "errors"
@@ -187,7 +187,7 @@ class StoryAttributesControllerTest < ActionController::TestCase
     login_as(individuals(:admin2))
     params = update_success_parameters
     params[:record][:is_custom] = true
-    put :update, {:id => 1, :format => 'xml'}.merge(params)
+    put :update, params: {:id => 1}.merge(params)
     assert_select 'is-custom', "true"
     assert_response :success
     assert_update_succeeded
@@ -211,7 +211,7 @@ class StoryAttributesControllerTest < ActionController::TestCase
   # Delete from a different project.
   def test_delete_wrong_project
     login_as(individuals(:aaron))
-    delete :destroy, :id => 4, :format => 'xml'
+    delete :destroy, params: {:id => 4}
     assert_response 401
     assert StoryAttribute.find_by_name('Test_String2')
     assert_select "errors"
@@ -220,7 +220,7 @@ class StoryAttributesControllerTest < ActionController::TestCase
   # Delete successfully based on role.
   def delete_by_role_successful( user )
     login_as(user)
-    delete :destroy, :id => 1, :format => 'xml'
+    delete :destroy, params: {:id => 1}
     assert_response :success
     assert_nil StoryAttribute.find_by_name('Test_String')
   end
@@ -228,7 +228,7 @@ class StoryAttributesControllerTest < ActionController::TestCase
   # Delete unsuccessfully based on role.
   def delete_by_role_unsuccessful( user )
     login_as(user)
-    delete :destroy, :id => 1, :format => 'xml'
+    delete :destroy, params: {:id => 1}
     assert_response 401
     assert Team.find_by_name('Test_team')
     assert_select "errors"

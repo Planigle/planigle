@@ -1,4 +1,4 @@
-class SeedUpdateTimes < ActiveRecord::Migration
+class SeedUpdateTimes < ActiveRecord::Migration[4.2]
   def self.up
     Company.update_all :updated_at => Time.now
     Project.update_all :updated_at => Time.now

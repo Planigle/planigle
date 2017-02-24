@@ -1,4 +1,4 @@
-class AddIndividual < ActiveRecord::Migration
+class AddIndividual < ActiveRecord::Migration[4.2]
   def self.up
     add_column :stories, :individual_id, :integer
   end

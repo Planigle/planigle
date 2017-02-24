@@ -122,7 +122,7 @@ module Audited::Auditor::AuditedInstanceMethods
          attrs[:username] = Thread.current[:user] ? Thread.current[:user].name : nil
          story.run_callbacks(:audit)  { story.audits.create(attrs) } if Story.auditing_enabled  # original
        end
-     else
+     elsif !$auditing_disabled
        pr_id = respond_to?(:project_id) ? project_id : (Thread.current[:user] ? Thread.current[:user].project_id : nil)
        attrs[:auditable_name] = name
        attrs[:project_id] = pr_id

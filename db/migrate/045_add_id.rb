@@ -1,4 +1,4 @@
-class AddId < ActiveRecord::Migration
+class AddId < ActiveRecord::Migration[4.2]
   def self.up
     Project.with_deleted.each do |project|
       StoryAttribute.create(:project_id => project.id, :name => "Id", :value_type => StoryAttribute::String, :is_custom => false, :show => false, :width => 60, :ordering => 5)

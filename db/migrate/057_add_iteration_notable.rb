@@ -1,4 +1,4 @@
-class AddIterationNotable < ActiveRecord::Migration
+class AddIterationNotable < ActiveRecord::Migration[4.2]
   def self.up
     add_column :iterations, :notable, :string, :limit => 40, :default => ""
   end

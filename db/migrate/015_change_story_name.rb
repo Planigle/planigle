@@ -1,4 +1,4 @@
-class ChangeStoryName < ActiveRecord::Migration
+class ChangeStoryName < ActiveRecord::Migration[4.2]
   def self.up
     change_column :stories, :name, :string, :null => false, :limit => 250
   end

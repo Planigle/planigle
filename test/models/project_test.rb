@@ -83,7 +83,7 @@ class ProjectTest < ActiveSupport::TestCase
     assert Individual.find_by_id(6).projects.empty?
   end
 
-  # Test the xml created for surveys.
+  # Test the response created for surveys.
   def test_create_survey
     survey = projects(:first).create_survey
     assert_tag( survey, :stories)
@@ -225,6 +225,6 @@ private
 
   # Create an individual with valid values.  Options will override default values (should be :attribute => value).
   def create_individual(options = {})
-    Individual.create({ :first_name => 'foo', :last_name => 'bar', :login => 'quire' << rand.to_s, :email => 'quire' << rand.to_s << '@example.com', :password => 'quired', :password_confirmation => 'quired', :role => 0, :company_id => 1, :project_ids => "1", :phone_number => '5555555555' }.merge(options))
+    Individual.create({ :first_name => 'foo', :last_name => 'bar', :login => 'quire' << rand.to_s, :email => 'quire' << rand.to_s << '@example.com', :password => 'quired', :password_confirmation => 'quired', :role => 0, :company_id => 1, :project_id => "1", :phone_number => '5555555555' }.merge(options))
   end
 end

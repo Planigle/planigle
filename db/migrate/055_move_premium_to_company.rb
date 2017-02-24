@@ -1,4 +1,4 @@
-class MovePremiumToCompany < ActiveRecord::Migration
+class MovePremiumToCompany < ActiveRecord::Migration[4.2]
   def self.up
     add_column :companies, :premium_expiry, :date
     add_column :companies, :premium_limit, :integer

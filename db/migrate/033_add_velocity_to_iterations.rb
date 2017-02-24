@@ -1,4 +1,4 @@
-class AddVelocityToIterations < ActiveRecord::Migration
+class AddVelocityToIterations < ActiveRecord::Migration[4.2]
   def self.up
     create_table :iteration_velocities do |t|
       t.integer :iteration_id

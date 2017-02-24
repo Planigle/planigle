@@ -1,4 +1,4 @@
-class AddAuditsTable < ActiveRecord::Migration
+class AddAuditsTable < ActiveRecord::Migration[4.2]
   def self.up
   end
 

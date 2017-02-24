@@ -1,6 +1,6 @@
 # Removing to be consistent.
 
-class RemoveTimestamps < ActiveRecord::Migration
+class RemoveTimestamps < ActiveRecord::Migration[4.2]
   def self.up
     remove_column :iterations, :created_at
     remove_column :iterations, :updated_at

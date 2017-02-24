@@ -10,15 +10,12 @@ require 'activeresource'
 class Resource < ActiveResource::Base
   self.site="http://username:password@www.planigle.com/planigle/"
 
-  def to_xml(options = {})
+  def as_json(options = {})
     options[:root] = :record
     super(options)
   end
 
   def id_from_response(response)
-    doc = REXML::Document.new(response.body)
-    doc.elements.each( self.class.name.downcase + '/id') do |s|
-      s.text
-    end
+    response.id
   end
 end

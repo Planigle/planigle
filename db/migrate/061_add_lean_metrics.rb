@@ -1,4 +1,4 @@
-class AddLeanMetrics < ActiveRecord::Migration
+class AddLeanMetrics < ActiveRecord::Migration[4.2]
   def self.up
     Project.with_deleted.each do |project|
       maxOrdering = 0

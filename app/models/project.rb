@@ -126,7 +126,7 @@ class Project < ActiveRecord::Base
     valid_mode_values.collect { |val| i+=1;[val, i] }
   end
 
-  # Create a survey for this project (in XML)
+  # Create a survey for this project (in json)
   def create_survey
     response = []
     i = 1

@@ -1,4 +1,4 @@
-class AddSurveys < ActiveRecord::Migration
+class AddSurveys < ActiveRecord::Migration[4.2]
   def self.up
     create_table :surveys, :force => true do |t|
       t.integer :project_id, :null => false

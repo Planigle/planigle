@@ -1,4 +1,4 @@
-class AddIndices < ActiveRecord::Migration
+class AddIndices < ActiveRecord::Migration[4.2]
   def self.up
     add_index :individuals, [:project_id], :unique => false
     add_index :individuals, [:remember_token], :unique => false

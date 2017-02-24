@@ -34,7 +34,7 @@ class CompaniesControllerTest < ActiveSupport::TestCase
     num = resource_count
     individuals = Individual.count
     projects = Project.count
-    post :create, create_success_parameters.merge( {:project => {:name => 'foo'}, :individual => {:login => 'foo', :email => 'foo@sample.com', :last_name => 'bar', :role => 1, :company_id => 1,
+    post :create, params: create_success_parameters.merge( {:project => {:name => 'foo'}, :individual => {:login => 'foo', :email => 'foo@sample.com', :last_name => 'bar', :role => 1, :company_id => 1,
       :first_name => 'foo', :password => 'testit', :password_confirmation => 'testit'}} )
     assert_equal num + 1, resource_count
     assert_equal projects + 1, Project.count
@@ -52,7 +52,7 @@ class CompaniesControllerTest < ActiveSupport::TestCase
     num = resource_count
     individuals = Individual.count
     projects = Project.count
-    post :create, create_success_parameters.merge( {:project => {:name => 'foo'}, :individual => {:login => '', :email => 'foo@sample.com', :last_name => 'bar', :role => 1, :company_id => 1,
+    post :create, params: create_success_parameters.merge( {:project => {:name => 'foo'}, :individual => {:login => '', :email => 'foo@sample.com', :last_name => 'bar', :role => 1, :company_id => 1,
       :first_name => 'foo', :password => 'testit', :password_confirmation => 'testit'}} )
     assert_response :success
     assert_equal num, resource_count
@@ -63,10 +63,10 @@ class CompaniesControllerTest < ActiveSupport::TestCase
     assert_select "errors"
   end
 
-  # Test that the teams are included in the xml.
-  def test_xml
+  # Test that the teams are included in the response.
+  def test_response
     login_as(individuals(:aaron))
-    get :index, :format => 'xml'
+    get :index
     assert_response :success
     assert_select "companies" do
       assert_select "company", 1 do
@@ -114,7 +114,7 @@ class CompaniesControllerTest < ActiveSupport::TestCase
   # Test getting companies (based on role).
   def index_by_role(user, count, params = {})
     login_as(user)
-    get :index, {:format => 'xml'}.merge(params)
+    get :index, params: params
     assert_response :success
     assert_select "companies" do
       assert_select "company", count
@@ -124,7 +124,7 @@ class CompaniesControllerTest < ActiveSupport::TestCase
   # Test showing another company.
   def test_show_wrong_company
     login_as(individuals(:aaron))
-    get :show, :id => 2, :format => 'xml'
+    get :show, params: {:id => 2}
     assert_response 401
   end
     
@@ -147,7 +147,7 @@ class CompaniesControllerTest < ActiveSupport::TestCase
   def create_by_role_successful( user )
     login_as(user)
     num = resource_count
-    post :create, create_success_parameters.merge( :format => 'xml' )
+    post :create, params: create_success_parameters
     assert_response :success
     assert_equal num + 1, resource_count
     assert_create_succeeded
@@ -157,7 +157,7 @@ class CompaniesControllerTest < ActiveSupport::TestCase
   def create_by_role_unsuccessful( user )
     login_as(user)
     num = resource_count
-    post :create, create_success_parameters.merge( :format => 'xml' )
+    post :create, params: create_success_parameters
     assert_response 401
     assert_equal num, resource_count
     assert_select "errors"
@@ -181,7 +181,7 @@ class CompaniesControllerTest < ActiveSupport::TestCase
   # Test updating another company.
   def test_update_wrong_company
     login_as(individuals(:aaron))
-    put :update, {:id => 2, :format => 'xml'}.merge(update_success_parameters)
+    put :update, params: {:id => 2}.merge(update_success_parameters)
     assert_response 401
     assert_change_failed
     assert_select 'errors'
@@ -190,7 +190,7 @@ class CompaniesControllerTest < ActiveSupport::TestCase
   # Update successfully based on role.
   def update_by_role_successful( user, params = (update_success_parameters[resource_symbol]) )
     login_as(user)
-    put :update, :id => 1, resource_symbol => params, :format => 'xml'
+    put :update, params: {:id => 1, resource_symbol => params}
     assert_response :success
     assert_update_succeeded
   end
@@ -198,7 +198,7 @@ class CompaniesControllerTest < ActiveSupport::TestCase
   # Update unsuccessfully based on role.
   def update_by_role_unsuccessful( user, params = (update_success_parameters[resource_symbol]) )
     login_as(user)
-    put :update, :id => 1, resource_symbol => params, :format => 'xml'
+    put :update, params: {:id => 1, resource_symbol => params}
     assert_response 401
     assert_change_failed
     assert_select "errors"
@@ -222,7 +222,7 @@ class CompaniesControllerTest < ActiveSupport::TestCase
   # Delete successfully based on role.
   def delete_by_role_successful( user )
     login_as(user)
-    delete :destroy, :id => 1, :format => 'xml'
+    delete :destroy, params: {:id => 1}
     assert_response :success
     assert_nil Company.find_by_name('Test_company')
   end
@@ -230,7 +230,7 @@ class CompaniesControllerTest < ActiveSupport::TestCase
   # Delete unsuccessfully based on role.
   def delete_by_role_unsuccessful( user )
     login_as(user)
-    delete :destroy, :id => 1, :format => 'xml'
+    delete :destroy, params: {:id => 1}
     assert_response 401
     assert Company.find_by_name('Test_company')
     assert_select "errors"
@@ -260,11 +260,11 @@ class CompaniesControllerTest < ActiveSupport::TestCase
   def update_premium_by_role_successful( user )
     login_as(user)
     new_expire = Date.tomorrow
-    put :update, :id => 1, resource_symbol => {:premium_expiry => new_expire}, :format => 'xml'
+    put :update, params: {:id => 1, resource_symbol => {:premium_expiry => new_expire}}
     assert_response :success
     assert_equal new_expire, companies(:first).reload.premium_expiry
 
-    put :update, :id => 1, resource_symbol => {:premium_limit => 2}, :format => 'xml'
+    put :update, params: {:id => 1, resource_symbol => {:premium_limit => 2}}
     assert_response :success
     assert_equal 2, companies(:first).reload.premium_limit
   end
@@ -274,13 +274,13 @@ class CompaniesControllerTest < ActiveSupport::TestCase
     login_as(user)
     old_expire = companies(:first).premium_expiry
     new_expire = Date.tomorrow
-    put :update, :id => 1, resource_symbol => {:premium_expiry => new_expire}, :format => 'xml'
+    put :update, params: {:id => 1, resource_symbol => {:premium_expiry => new_expire}}
     assert_response 401
     assert_equal old_expire, companies(:first).reload.premium_expiry
     assert_select "errors"
 
     old_limit = companies(:first).premium_limit
-    put :update, :id => 1, resource_symbol => {:premium_limit => 2}, :format => 'xml'
+    put :update, params: {:id => 1, resource_symbol => {:premium_limit => 2}}
     assert_response 401
     assert_equal old_limit, companies(:first).reload.premium_limit
     assert_select "errors"

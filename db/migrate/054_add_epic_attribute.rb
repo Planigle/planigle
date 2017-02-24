@@ -1,4 +1,4 @@
-class AddEpicAttribute < ActiveRecord::Migration
+class AddEpicAttribute < ActiveRecord::Migration[4.2]
   def self.up
     Project.with_deleted.each do |project|
       attrib = project.story_attributes.find(:first, :conditions => {:name=>"Name"})

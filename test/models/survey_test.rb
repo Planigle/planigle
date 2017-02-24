@@ -88,8 +88,8 @@ class SurveyTest < ActiveSupport::TestCase
     assert_nil SurveyMapping.find_by_id(1)
   end
 
-  # Test the xml created for surveys.
-  def test_xml
+  # Test the response created for surveys.
+  def test_response
     survey = surveys(:first)
     assert_no_tag( survey, :project_id )
   end

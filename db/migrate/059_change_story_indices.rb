@@ -1,4 +1,4 @@
-class ChangeStoryIndices < ActiveRecord::Migration
+class ChangeStoryIndices < ActiveRecord::Migration[4.2]
   def self.up
     remove_index :stories, [:project_id]
     add_index :stories, [:project_id,:status_code], :unique => false

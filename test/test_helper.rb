@@ -15,7 +15,7 @@ class ActiveSupport::TestCase
   # in MySQL.  Turn off transactional fixtures in this case; however, if you
   # don't care one way or the other, switching from MyISAM to InnoDB tables
   # is recommended.
-  self.use_transactional_fixtures = false
+  self.use_transactional_tests = false
 
   # Instantiated fixtures are slow, but give you @david where otherwise you
   # would need people(:david).  If you don't want to migrate your existing
@@ -92,33 +92,23 @@ class ActiveSupport::TestCase
     str
   end
 
-  # Assert that the XML for object includes the specified tag and value.
+  # Assert that the Reponse for object includes the specified tag and value.
   def assert_tag( object, tag, value=nil )
     if value
       includes = /.*<#{tag}.*>#{value}<\/#{tag}>.*/
     else
       includes = /.*<#{tag}.*>.*<\/#{tag}>.*/
     end
-    assert_match includes, object.class == String ? object : object.to_xml
+    assert_match includes, object.class == String ? object : object.to_json
   end
   
-  # Assert that the XML for object does not include the specified tag.
+  # Assert that the Response for object does not include the specified tag.
   def assert_no_tag( object, tag )
     includes = /.*<#{tag}.*>.*/
-    assert_no_match includes, object.to_xml
+    assert_no_match includes, object.to_json
   end
 
 private
-
-  # Log in as Flex would.
-  def flex_login
-    post '/session.xml', {:login => 'admin2', :password => 'testit'}, flex_header
-  end
-
-  # Log in as an iPhone user would.
-  def iphone_login(user_id)
-    post '/session', {:login => user_id, :password => 'testit'}, iphone_user_agent
-  end
 
   # Answer the string to get the current count of this object.
   def get_count
@@ -137,24 +127,14 @@ private
   def object_type
     self.class.to_s.chomp('Test').delete('_')
   end
-  
-  # Answer the header to use to show that flex is the client.
-  def flex_header
-    {'HTTP_X_FLASH_VERSION' => '9,0,115,0'}
-  end
 
-  # Answer the accept header that xml clients should end.
+  # Answer the accept header that clients should end.
   def accept_header
-    {'Accept' => 'text/xml'}
+    {'Accept' => 'application/json'}
   end
 
-  # Answer the authorization and accepts headers that xml clients should send.
+  # Answer the authorization and accepts headers that clients should send.
   def authorization_header
-    {'Authorization' => Base64.encode64('admin2' << ':' << 'testit'), 'Accept' => 'text/xml'}
-  end
-
-  # Answer the string representing the iPhone user agent.  
-  def iphone_user_agent
-    {:user_agent => 'Mozilla/5.0 (iPhone; U; CPU like Mac OS X; en) AppleWebKit/420+ (KHTML, like Gecko) Version/3.0 Mobile/1A543a Safari/419.3'}
+    {'Authorization' => Base64.encode64('admin2' << ':' << 'testit'), 'Accept' => 'application/json'}
   end
 end

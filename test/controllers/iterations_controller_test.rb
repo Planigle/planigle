@@ -52,7 +52,7 @@ class IterationsControllerTest < ActionController::TestCase
   # Test getting iterations (based on role).
   def index_by_role(user, count, params={})
     login_as(user)
-    get :index, {:format => 'xml'}.merge(params)
+    get :index, params: params
     assert_response :success
     if (count == 0)
       assert_select "iterations", false
@@ -66,7 +66,7 @@ class IterationsControllerTest < ActionController::TestCase
   # Test showing an iteration for another project.
   def test_show_wrong_project
     login_as(individuals(:aaron))
-    get :show, :id => 3, :format => 'xml'
+    get :show, params: {:id => 3}
     assert_response 401
   end
     
@@ -89,9 +89,9 @@ class IterationsControllerTest < ActionController::TestCase
   def test_create_wrong_project
     login_as(individuals(:aaron))
     num = resource_count
-    params = create_success_parameters.merge( :format => 'xml' )
+    params = create_success_parameters
     params[:record] = params[:record].merge( :project_id => '2' )
-    post :create, params
+    post :create, params: params
     assert_response 401
     assert_equal num, resource_count
     assert_select 'errors'
@@ -101,7 +101,7 @@ class IterationsControllerTest < ActionController::TestCase
   def create_by_role_successful( user )
     login_as(user)
     num = resource_count
-    post :create, create_success_parameters.merge( :format => 'xml' )
+    post :create, params: create_success_parameters
     assert_response 201
     assert_equal num + 1, resource_count
     assert_create_succeeded
@@ -111,7 +111,7 @@ class IterationsControllerTest < ActionController::TestCase
   def create_by_role_unsuccessful( user )
     login_as(user)
     num = resource_count
-    post :create, create_success_parameters.merge( :format => 'xml' )
+    post :create, params: create_success_parameters
     assert_response 401
     assert_equal num, resource_count
     assert_select "errors"
@@ -140,7 +140,7 @@ class IterationsControllerTest < ActionController::TestCase
   # Test updating an iteration for another project.
   def test_update_wrong_project
     login_as(individuals(:aaron))
-    put :update, {:id => 3, :format => 'xml'}.merge(update_success_parameters)
+    put :update, params: {:id => 3}.merge(update_success_parameters)
     assert_response 401
     assert_change_failed
     assert_select 'errors'
@@ -149,7 +149,7 @@ class IterationsControllerTest < ActionController::TestCase
   # Update successfully based on role.
   def update_by_role_successful( user, params = (update_success_parameters[resource_symbol]) )
     login_as(user)
-    put :update, :id => 1, resource_symbol => params, :format => 'xml'
+    put :update, params: {:id => 1, resource_symbol => params}
     assert_response :success
     assert_update_succeeded
   end
@@ -157,7 +157,7 @@ class IterationsControllerTest < ActionController::TestCase
   # Update unsuccessfully based on role.
   def update_by_role_unsuccessful( user, params = (update_success_parameters[resource_symbol]) )
     login_as(user)
-    put :update, :id => 1, resource_symbol => params, :format => 'xml'
+    put :update, params: {:id => 1, resource_symbol => params}
     assert_response 401
     assert_change_failed
     assert_select "errors"
@@ -181,7 +181,7 @@ class IterationsControllerTest < ActionController::TestCase
   # Delete from a different project.
   def test_delete_wrong_project
     login_as(individuals(:aaron))
-    delete :destroy, :id => 3, :format => 'xml'
+    delete :destroy, params: {:id => 3}
     assert_response 401
     assert Iteration.find_by_name('third')
     assert_select "errors"
@@ -190,7 +190,7 @@ class IterationsControllerTest < ActionController::TestCase
   # Delete successfully based on role.
   def delete_by_role_successful( user )
     login_as(user)
-    delete :destroy, :id => 1, :format => 'xml'
+    delete :destroy, params: {:id => 1}
     assert_response :success
     assert_nil Iteration.find_by_name('first')
   end
@@ -198,7 +198,7 @@ class IterationsControllerTest < ActionController::TestCase
   # Delete unsuccessfully based on role.
   def delete_by_role_unsuccessful( user )
     login_as(user)
-    delete :destroy, :id => 1, :format => 'xml'
+    delete :destroy, params: {:id => 1}
     assert_response 401
     assert Iteration.find_by_name('first')
     assert_select "errors"

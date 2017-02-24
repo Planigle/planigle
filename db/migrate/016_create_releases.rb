@@ -1,4 +1,4 @@
-class CreateReleases < ActiveRecord::Migration
+class CreateReleases < ActiveRecord::Migration[4.2]
   def self.up
     create_table :releases do |t|
       t.integer :project_id

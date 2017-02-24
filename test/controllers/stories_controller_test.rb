@@ -27,14 +27,14 @@ class StoriesControllerTest < ActionController::TestCase
 
   # Test getting a split story template without credentials.
   def test_split_get_unauthorized
-    get :split, :id => 1
+    get :split, params: {:id => 1}
     assert_redirected_to :controller => 'sessions', :action => 'new'        
   end
 
   # Test getting a split story template successfully.
   def test_split_get_success
     login_as(individuals(:quentin))
-    get :split, :id => 1
+    get :split, params: {:id => 1}
     assert_response :success
     assert_not_nil assigns(resource_symbol)
     assert assigns(resource_symbol).valid?
@@ -43,7 +43,7 @@ class StoriesControllerTest < ActionController::TestCase
   # Test splitting a story without credentials.
   def test_split_put_unauthorized
     num = resource_count
-    put :split, :id => 1, resource_symbol => (create_success_parameters[resource_symbol]) # hack to get around compiler issue
+    put :split, params: {:id => 1, resource_symbol => (create_success_parameters[resource_symbol])} # hack to get around compiler issue
     assert_redirected_to :controller => 'sessions', :action => 'new'        
     assert_equal num, resource_count    
   end
@@ -54,7 +54,7 @@ class StoriesControllerTest < ActionController::TestCase
     login_as(individuals(:quentin))
     params = create_success_parameters
     params[resource_symbol]['acceptance_criteria'] = 'criteria'
-    put :split, :id => 1, resource_symbol => (params[resource_symbol]) # hack to get around compiler issue
+    put :split, params: {:id => 1, resource_symbol => (params[resource_symbol])} # hack to get around compiler issue
     assert_equal num + 1, resource_count
     assert_create_succeeded
     assert_equal 1, stories(:first).tasks.count
@@ -68,7 +68,7 @@ class StoriesControllerTest < ActionController::TestCase
   def test_split_put_failure
     num = resource_count
     login_as(individuals(:quentin))
-    put :split, :id => 1, resource_symbol => (create_failure_parameters[resource_symbol]) # hack to get around compiler issue
+    put :split, params: {:id => 1, resource_symbol => (create_failure_parameters[resource_symbol])} # hack to get around compiler issue
     assert_response :success
     assert_equal num, resource_count
     assert_change_failed
@@ -77,7 +77,7 @@ class StoriesControllerTest < ActionController::TestCase
   # Test successfully setting the iteration.
   def test_set_iteration_success
     login_as(individuals(:quentin))
-    put :update, :id => 1, :record => {:iteration_id => 2}
+    put :update, params: {:id => 1, :record => {:iteration_id => 2}}
     assert_response :success
     assert_equal stories(:first).reload.iteration_id, 2
   end
@@ -85,7 +85,7 @@ class StoriesControllerTest < ActionController::TestCase
   # Test unsuccessfully setting the iteration.
   def test_set_iteration_failure
     login_as(individuals(:quentin))
-    put :update, :id => 1, :record => {:iteration_id => 999}
+    put :update, params: {:id => 1, :record => {:iteration_id => 999}}
     assert_response :success
     assert_not_equal stories(:first).reload.iteration_id, 999
   end
@@ -93,7 +93,7 @@ class StoriesControllerTest < ActionController::TestCase
   # Test successfully setting the owner.
   def test_set_owner_success
     login_as(individuals(:quentin))
-    put :update, :id => 1, :record => {:individual_id => 2}
+    put :update, params: {:id => 1, :record => {:individual_id => 2}}
     assert_response :success
     assert_equal stories(:first).reload.individual_id, 2
   end
@@ -101,7 +101,7 @@ class StoriesControllerTest < ActionController::TestCase
   # Test unsuccessfully setting the owner.
   def test_set_owner_failure
     login_as(individuals(:quentin))
-    put :update, :id => 1, :record => {:individual_id => 999}
+    put :update, params: {:id => 1, :record => {:individual_id => 999}}
     assert_response :success
     assert_not_equal stories(:first).reload.individual_id, 999
   end
@@ -111,7 +111,7 @@ class StoriesControllerTest < ActionController::TestCase
     assert_equal 2, stories(:first).user_priority
     login_as(individuals(:quentin))
 
-    put :update, :id => 2, :record => {:status_code => 0}
+    put :update, params: {:id => 2, :record => {:status_code => 0}}
   
     # Rounded to 1000th place to eliminate trivial differences
     assert_equal BigDecimal("1.5"), stories(:first).reload.user_priority
@@ -125,7 +125,7 @@ class StoriesControllerTest < ActionController::TestCase
     email_count = PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
     sms_count = PLANIGLE_SMS_NOTIFIER.number_of_notifications
     login_as(individuals(:user2))
-    put :update, :id => 5, :record => {:status_code => 2}
+    put :update, params: {:id => 5, :record => {:status_code => 2}}
     assert_equal email_count, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
     assert_equal sms_count, PLANIGLE_SMS_NOTIFIER.number_of_notifications
   end
@@ -135,7 +135,7 @@ class StoriesControllerTest < ActionController::TestCase
     email_count = PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
     sms_count = PLANIGLE_SMS_NOTIFIER.number_of_notifications
     login_as(individuals(:aaron))
-    put :update, :id => 1, :record => {:status_code => 2}
+    put :update, params: {:id => 1, :record => {:status_code => 2}}
     assert_equal email_count+2, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
     assert_equal sms_count+2, PLANIGLE_SMS_NOTIFIER.number_of_notifications
   end
@@ -145,7 +145,7 @@ class StoriesControllerTest < ActionController::TestCase
     email_count = PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
     sms_count = PLANIGLE_SMS_NOTIFIER.number_of_notifications
     login_as(individuals(:aaron))
-    put :update, :id => 1, :record => {:status_code => 3}
+    put :update, params: {:id => 1, :record => {:status_code => 3}}
     assert_equal email_count+2, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
     assert_equal sms_count+2, PLANIGLE_SMS_NOTIFIER.number_of_notifications
   end
@@ -155,7 +155,7 @@ class StoriesControllerTest < ActionController::TestCase
     email_count = PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
     sms_count = PLANIGLE_SMS_NOTIFIER.number_of_notifications
     login_as(individuals(:aaron))
-    put :update, :id => 2, :record => {:status_code => 2}
+    put :update, params: {:id => 2, :record => {:status_code => 2}}
     assert_equal email_count+2, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
     assert_equal sms_count+2, PLANIGLE_SMS_NOTIFIER.number_of_notifications
   end
@@ -212,7 +212,7 @@ class StoriesControllerTest < ActionController::TestCase
   def import_by_role(user, success)
     name = stories(:first).name
     login_as(user)
-    post :import, :Filedata => StringIO.new("PID,name\n1,Foo")
+    post :import, params: {:Filedata => StringIO.new("PID,name\n1,Foo")}
     assert_response :success
     if success
       assert_select 'results'
@@ -227,7 +227,7 @@ class StoriesControllerTest < ActionController::TestCase
   def test_import_wrong_project
     name = stories(:fifth).name
     login_as(individuals(:user))
-    post :import, :Filedata => StringIO.new("PID,name\n5,Foo")
+    post :import, params: {:Filedata => StringIO.new("PID,name\n5,Foo")}
     assert_response :success
     assert_select 'errors'
     assert_equal name, stories(:fifth).reload.name
@@ -266,7 +266,7 @@ class StoriesControllerTest < ActionController::TestCase
   # Test getting stories (based on role).
   def index_by_role(user, count, params={})
     login_as(user)
-    get :index, {:format => 'xml'}.merge(params)
+    get :index, params: params
     assert_response :success
     if count == 0
       assert_select "stories", false
@@ -280,7 +280,7 @@ class StoriesControllerTest < ActionController::TestCase
   # Test showing a story for another project.
   def test_show_wrong_project
     login_as(individuals(:aaron))
-    get :show, :id => 5, :format => 'xml'
+    get :show, params: {:id => 5}
     assert_response 401
   end
     
@@ -303,9 +303,9 @@ class StoriesControllerTest < ActionController::TestCase
   def test_create_wrong_project
     login_as(individuals(:aaron))
     num = resource_count
-    params = create_success_parameters.merge( :format => 'xml' )
+    params = create_success_parameters
     params[:record] = params[:record].merge( :project_id => '2' )
-    post :create, params
+    post :create, params: params
     assert_response 401
     assert_equal num, resource_count
     assert_select 'errors'
@@ -315,7 +315,7 @@ class StoriesControllerTest < ActionController::TestCase
   def create_by_role_successful( user )
     login_as(user)
     num = resource_count
-    post :create, create_success_parameters.merge( :format => 'xml' )
+    post :create, params: create_success_parameters
     assert_response 201
     assert_equal num + 1, resource_count
     assert_create_succeeded
@@ -325,7 +325,7 @@ class StoriesControllerTest < ActionController::TestCase
   def create_by_role_unsuccessful( user )
     login_as(user)
     num = resource_count
-    post :create, create_success_parameters.merge( :format => 'xml' )
+    post :create, params: create_success_parameters
     assert_response 401
     assert_equal num, resource_count
     assert_select "errors"
@@ -350,9 +350,9 @@ class StoriesControllerTest < ActionController::TestCase
   def test_split_wrong_project
     login_as(individuals(:aaron))
     num = resource_count
-    params = create_success_parameters.merge( :id => 1, :format => 'xml' )
+    params = create_success_parameters.merge( :id => 1 )
     params[:record] = params[:record].merge( :project_id => '2' )
-    post :split, params
+    post :split, params: params
     assert_response 401
     assert_equal num, resource_count
     assert_select 'errors'
@@ -364,7 +364,7 @@ class StoriesControllerTest < ActionController::TestCase
     num = resource_count
     params = create_success_parameters
     params[resource_symbol]['acceptance_criteria'] = 'criteria'
-    put :split, params.merge( :id => 1, :format => 'xml' )
+    put :split, params: params.merge( :id => 1 )
     assert_response 201
     assert_equal num + 1, resource_count
     assert_create_succeeded
@@ -379,7 +379,7 @@ class StoriesControllerTest < ActionController::TestCase
   def split_by_role_unsuccessful( user )
     login_as(user)
     num = resource_count
-    put :split, create_success_parameters.merge( :id => 1, :format => 'xml' )
+    put :split, params: create_success_parameters.merge( :id => 1 )
     assert_response 401
     assert_equal num, resource_count
     assert_select "errors"
@@ -413,7 +413,7 @@ class StoriesControllerTest < ActionController::TestCase
   # Test updating a story for another project.
   def test_update_wrong_project
     login_as(individuals(:aaron))
-    put :update, {:id => 5, :format => 'xml'}.merge(update_success_parameters)
+    put :update, params: {:id => 5}.merge(update_success_parameters)
     assert_response 401
     assert_change_failed
     assert_select 'errors'
@@ -422,7 +422,7 @@ class StoriesControllerTest < ActionController::TestCase
   # Update successfully based on role.
   def update_by_role_successful( user, params = (update_success_parameters[resource_symbol]) )
     login_as(user)
-    put :update, :id => 2, resource_symbol => params, :format => 'xml'
+    put :update, params: {:id => 2, resource_symbol => params}
     assert_response :success
     assert_update_succeeded
   end
@@ -430,7 +430,7 @@ class StoriesControllerTest < ActionController::TestCase
   # Update unsuccessfully based on role.
   def update_by_role_unsuccessful( user, params = (update_success_parameters[resource_symbol]) )
     login_as(user)
-    put :update, :id => 1, resource_symbol => params, :format => 'xml'
+    put :update, params: {:id => 1, resource_symbol => params}
     assert_response 401
     assert_change_failed
     assert_select "errors"
@@ -454,7 +454,7 @@ class StoriesControllerTest < ActionController::TestCase
   # Delete from a different project.
   def test_delete_wrong_project
     login_as(individuals(:aaron))
-    delete :destroy, :id => 5, :format => 'xml'
+    delete :destroy, params: {:id => 5}
     assert_response 401
     assert Story.find_by_name('test5')
     assert_select "errors"
@@ -463,7 +463,7 @@ class StoriesControllerTest < ActionController::TestCase
   # Delete successfully based on role.
   def delete_by_role_successful( user )
     login_as(user)
-    delete :destroy, :id => 1, :format => 'xml'
+    delete :destroy, params: {:id => 1}
     assert_response :success
     assert_nil Story.find_by_name('test1')
   end
@@ -471,49 +471,16 @@ class StoriesControllerTest < ActionController::TestCase
   # Delete unsuccessfully based on role.
   def delete_by_role_unsuccessful( user )
     login_as(user)
-    delete :destroy, :id => 1, :format => 'xml'
+    delete :destroy, params: {:id => 1}
     assert_response 401
     assert Story.find_by_name('test')
     assert_select "errors"
   end
-  
-  # Test showing on an iPhone.
-  def test_show_iphone
-    login_as(individuals(:admin2))
-    get :show, {:id => 1, :format => 'iphone'}
-    assert_response :success
-  end
-  
-  # Test showing on an iPhone without logging in.
-  def test_show_iphone_project_admin_unauthorized
-    get :show, {:id => 1, :format => 'iphone'}
-    assert_redirected_to :controller => 'sessions', :action => 'new'
-  end
-  
-  # Test index on an iPhone.
-  def test_index_iphone_admin
-    login_as(individuals(:quentin))
-    get :index, {:format => 'iphone'}
-    assert_response :success
-  end
-  
-  # Test index on an iPhone.
-  def test_index_iphone_project_admin
-    login_as(individuals(:admin2))
-    get :index, {:format => 'iphone'}
-    assert_response :success
-  end
-  
-  # Test index on an iPhone without logging in.
-  def test_index_iphone_project_admin_unauthorized
-    get :index, {:format => 'iphone'}
-    assert_redirected_to :controller => 'sessions', :action => 'new'
-  end
-  
+    
   def test_story_filtered_out
     login_as(individuals(:aaron))
-    get :index, {:format => 'xml', :conditions => {:status_code => 1}}
-    put :update, :id => 1, :record => {:status_code => 2}
+    get :index, params: {:conditions => {:status_code => 1}}
+    put :update, params: {:id => 1, :record => {:status_code => 2}}
     assert_select "errors" do
       assert_select "error"
     end
@@ -521,8 +488,8 @@ class StoriesControllerTest < ActionController::TestCase
   
   def test_task_filtered_out
     login_as(individuals(:aaron))
-    get :index, {:format => 'xml', :conditions => {:status_code => 1}}
-    put :update, :id => 1, :record => {}
+    get :index, params: {:conditions => {:status_code => 1}}
+    put :update, params: {:id => 1, :record => {}}
     assert_select "filtered-tasks" do
       assert_select "filtered-task", :count => 1
     end

@@ -1,4 +1,4 @@
-class AddCycleTimeReporting < ActiveRecord::Migration
+class AddCycleTimeReporting < ActiveRecord::Migration[4.2]
   def self.up
     add_column :iteration_velocities, :lead_time, :decimal, :precision => 7, :scale => 2
     add_column :iteration_velocities, :cycle_time, :decimal, :precision => 7, :scale => 2

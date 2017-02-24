@@ -1,4 +1,4 @@
-class CreateAttributePreferences < ActiveRecord::Migration
+class CreateAttributePreferences < ActiveRecord::Migration[4.2]
   def self.up
     add_column :story_attributes, :is_custom, :boolean, :null => false, :default => true
     add_column :story_attributes, :width, :integer, :null => false

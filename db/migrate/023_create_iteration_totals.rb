@@ -1,4 +1,4 @@
-class CreateIterationTotals < ActiveRecord::Migration
+class CreateIterationTotals < ActiveRecord::Migration[4.2]
   def self.up
     create_table :iteration_totals do |t|
       t.integer :iteration_id

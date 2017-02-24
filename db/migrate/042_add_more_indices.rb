@@ -1,4 +1,4 @@
-class AddMoreIndices < ActiveRecord::Migration
+class AddMoreIndices < ActiveRecord::Migration[4.2]
   def self.up
     add_index :projects, [:company_id], :unique => false
     add_index :teams, [:project_id], :unique => false

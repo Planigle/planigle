@@ -1,4 +1,4 @@
-class AddTaskPriority < ActiveRecord::Migration
+class AddTaskPriority < ActiveRecord::Migration[4.2]
   def self.up
     add_column :tasks, :priority, :decimal, :precision => 9, :scale => 5
     Task.reset_column_information # Work around an issue where the new columns are not in the cache.

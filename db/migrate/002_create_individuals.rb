@@ -1,4 +1,4 @@
-class CreateIndividuals < ActiveRecord::Migration
+class CreateIndividuals < ActiveRecord::Migration[4.2]
   DefaultLogin = 'admin'
   DefaultPassword = 'admin'
   
@@ -48,7 +48,10 @@ class CreateIndividuals < ActiveRecord::Migration
     individual.password = DefaultPassword
     individual.password_confirmation = DefaultPassword
     individual.activate!
+    
+    $auditing_disabled = true
     individual.save( :validate=> false )
+    $auditing_disabled = nil
   end
 
   def self.down

@@ -66,10 +66,10 @@ class Company < ActiveRecord::Base
 
   # Delete all non-admins
   def destroy
-    Individual.delete_all(["company_id = ? and role != 0", id])
+    Individual.where(["company_id = ? and role != 0", id]).delete_all
     super
   end
-
+  
   # Answer whether records have changed.
   def self.have_records_changed(current_user, time)
     if current_user.role >= Individual::ProjectAdmin

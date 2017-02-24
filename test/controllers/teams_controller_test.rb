@@ -38,7 +38,7 @@ class TeamsControllerTest < ActionController::TestCase
   # Test getting teams (based on role).
   def index_by_role(user, count)
     login_as(user)
-    get :index, :format => 'xml', :project_id => 1
+    get :index, params: {:project_id => 1}
     assert_response :success
     assert_select "teams" do
       assert_select "team", count
@@ -48,7 +48,7 @@ class TeamsControllerTest < ActionController::TestCase
   # Test showing a team for another project.
   def test_show_wrong_project
     login_as(individuals(:aaron))
-    get :show, :id => 3, :format => 'xml', :project_id => 2
+    get :show, params: {:id => 3, :project_id => 2}
     assert_response 401
   end
     
@@ -71,7 +71,7 @@ class TeamsControllerTest < ActionController::TestCase
   def test_create_wrong_project
     login_as(individuals(:aaron))
     num = resource_count
-    post :create, create_success_parameters.merge( :format => 'xml', :project_id => '2' )
+    post :create, params: create_success_parameters.merge( :project_id => '2' )
     assert_response 401
     assert_equal num, resource_count
   end
@@ -80,7 +80,7 @@ class TeamsControllerTest < ActionController::TestCase
   def create_by_role_successful( user )
     login_as(user)
     num = resource_count
-    post :create, create_success_parameters.merge( :format => 'xml' )
+    post :create, params: create_success_parameters
     assert_response 201
     assert_equal num + 1, resource_count
     assert_create_succeeded
@@ -90,7 +90,7 @@ class TeamsControllerTest < ActionController::TestCase
   def create_by_role_unsuccessful( user )
     login_as(user)
     num = resource_count
-    post :create, create_success_parameters.merge( :format => 'xml' )
+    post :create, params: create_success_parameters
     assert_response 401
     assert_equal num, resource_count
     assert_select "errors"
@@ -119,7 +119,7 @@ class TeamsControllerTest < ActionController::TestCase
   # Test updating a team for another project.
   def test_update_wrong_project
     login_as(individuals(:aaron))
-    put :update, update_success_parameters.merge({:id => 3, :project_id => 2, :format => 'xml'})
+    put :update, params: update_success_parameters.merge({:id => 3, :project_id => 2})
     assert_response 401
     assert_change_failed
     assert_select 'errors'
@@ -128,7 +128,7 @@ class TeamsControllerTest < ActionController::TestCase
   # Update successfully based on role.
   def update_by_role_successful( user, params = update_success_parameters )
     login_as(user)
-    put :update, {:id => 1, :format => 'xml'}.merge(params)
+    put :update, params: {:id => 1}.merge(params)
     assert_response :success
     assert_update_succeeded
   end
@@ -136,7 +136,7 @@ class TeamsControllerTest < ActionController::TestCase
   # Update unsuccessfully based on role.
   def update_by_role_unsuccessful( user, params = update_success_parameters )
     login_as(user)
-    put :update, {:id => 1, :format => 'xml'}.merge(params)
+    put :update, params: {:id => 1}.merge(params)
     assert_response 401
     assert_change_failed
     assert_select "errors"
@@ -160,7 +160,7 @@ class TeamsControllerTest < ActionController::TestCase
   # Delete from a different project.
   def test_delete_wrong_project
     login_as(individuals(:aaron))
-    delete :destroy, :id => 3, :format => 'xml', :project_id => 2
+    delete :destroy, params: {:id => 3, :project_id => 2}
     assert_response 401
     assert Team.find_by_name('test2')
     assert_select "errors"
@@ -169,7 +169,7 @@ class TeamsControllerTest < ActionController::TestCase
   # Delete successfully based on role.
   def delete_by_role_successful( user )
     login_as(user)
-    delete :destroy, :id => 1, :format => 'xml', :project_id => 1
+    delete :destroy, params: {:id => 1, :project_id => 1}
     assert_response :success
     assert_nil Team.find_by_name('Test_team')
   end
@@ -177,7 +177,7 @@ class TeamsControllerTest < ActionController::TestCase
   # Delete unsuccessfully based on role.
   def delete_by_role_unsuccessful( user )
     login_as(user)
-    delete :destroy, :id => 1, :format => 'xml', :project_id => 1
+    delete :destroy, params: {:id => 1, :project_id => 1}
     assert_response 401
     assert Team.find_by_name('Test_team')
     assert_select "errors"

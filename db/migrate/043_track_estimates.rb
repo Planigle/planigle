@@ -1,4 +1,4 @@
-class TrackEstimates < ActiveRecord::Migration
+class TrackEstimates < ActiveRecord::Migration[4.2]
   def self.up
     add_column :projects, :track_actuals, :boolean, :null => false, :default => false
     add_column :tasks, :estimate, :decimal, :precision => 7, :scale => 2

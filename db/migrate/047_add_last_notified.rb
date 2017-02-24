@@ -1,4 +1,4 @@
-class AddLastNotified < ActiveRecord::Migration
+class AddLastNotified < ActiveRecord::Migration[4.2]
   def self.up
     add_column :projects, :last_notified_of_inactivity, :datetime
     add_column :projects, :last_notified_of_expiration, :datetime

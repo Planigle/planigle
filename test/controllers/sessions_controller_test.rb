@@ -20,7 +20,7 @@ class SessionsControllerTest < ActionController::TestCase
 
   # Test successfully logging in.
   def test_should_login_admin
-    post :create, :login => 'quentin', :password => 'testit', :format => 'xml'
+    post :create, params: {:login => 'quentin', :password => 'testit'}
     assert session[:individual_id]
     assert individuals(:quentin).last_login > (Time.now - 10)
     assert_select 'current-individual', 1
@@ -38,7 +38,7 @@ class SessionsControllerTest < ActionController::TestCase
     i = individuals(:quentin)
     i.selected_project_id = 1
     i.save( :validate=> false )
-    post :create, :login => 'quentin', :password => 'testit', :format => 'xml', :conditions => {:status_code => 'NotDone', :team_id => 'MyTeam', :release_id => 'Current', :iteration_id => 'Current'}
+    post :create, params: {:login => 'quentin', :password => 'testit', :conditions => {:status_code => 'NotDone', :team_id => 'MyTeam', :release_id => 'Current', :iteration_id => 'Current'}}
     assert session[:individual_id]
     assert individuals(:quentin).reload.last_login > (Time.now - 10)
     assert_select 'current-individual', 1
@@ -53,7 +53,7 @@ class SessionsControllerTest < ActionController::TestCase
 
   # Test successfully logging in.
   def test_should_login_project_admin
-    post :create, :login => 'aaron', :password => 'testit', :format => 'xml', :conditions => {:status_code => 'NotDone', :team_id => 'MyTeam', :release_id => 'Current', :iteration_id => 'Current'}
+    post :create, params: {:login => 'aaron', :password => 'testit', :conditions => {:status_code => 'NotDone', :team_id => 'MyTeam', :release_id => 'Current', :iteration_id => 'Current'}}
     assert session[:individual_id]
     assert individuals(:aaron).last_login > (Time.now - 10)
     assert_select 'current-individual', 1
@@ -68,14 +68,14 @@ class SessionsControllerTest < ActionController::TestCase
 
   # Test failure to log in.
   def test_should_fail_login
-    post :create, :login => 'quentin', :password => 'bad password'
+    post :create, params: {:login => 'quentin', :password => 'bad password'}
     assert_nil session[:individual_id]
     assert_response :success
   end
 
   # Test logging out.
   def test_should_logout
-    post :create, :login => 'quentin', :password => 'testit'
+    post :create, params: {:login => 'quentin', :password => 'testit'}
     assert session[:individual_id]
     delete :destroy
     assert_nil session[:individual_id]
@@ -83,19 +83,19 @@ class SessionsControllerTest < ActionController::TestCase
 
   # Test setting remember me.
   def test_should_remember_me
-    post :create, :login => 'quentin', :password => 'testit', :remember_me => "true"
+    post :create, params: {:login => 'quentin', :password => 'testit', :remember_me => "true"}
     assert_not_nil @response.cookies["auth_token"]
   end
 
   # Test turning off remember me.
   def test_should_not_remember_me
-    post :create, :login => 'quentin', :password => 'testit', :remember_me => "false"
+    post :create, params: {:login => 'quentin', :password => 'testit', :remember_me => "false"}
     assert_nil @response.cookies["auth_token"]
   end
   
   # Test that logging out removes remember me.
   def test_should_delete_token_on_logout
-    post :create, :login => 'quentin', :password => 'testit', :remember_me => "true"
+    post :create, params: {:login => 'quentin', :password => 'testit', :remember_me => "true"}
     assert_not_nil @response.cookies["auth_token"]
     delete :destroy
     assert_equal @response.cookies["auth_token"], []
@@ -134,50 +134,15 @@ class SessionsControllerTest < ActionController::TestCase
     system = System.find(:first)
     system.license_agreement = "You must accept"
     system.save( :validate=> false )
-    post :create, :login => 'quentin', :password => 'testit', :format => 'xml'
+    post :create, params: {:login => 'quentin', :password => 'testit'}
     assert_response 422
     assert_select "error"
     assert_select "agreement"
     assert_nil session[:individual_id]
     
-    post :create, :login => 'quentin', :password => 'testit', :accept_agreement => "true", :format => 'xml'
+    post :create, params: {:login => 'quentin', :password => 'testit', :accept_agreement => "true"}
     assert session[:individual_id]
     assert individuals(:quentin).accepted_agreement > (Time.now - 10)
-  end
-
-  # Test the login screen on an iphone
-  def test_new_iphone
-    login_as(individuals(:admin2))
-    get :new, {:format => 'iphone'}
-    assert_response :success
-  end
-
-  # Test logging in on an iphone
-  def test_create_iphone
-    post :create, :format => 'iphone', :login => 'admin2', :password => 'testit', :remember_me => "true"
-    assert_redirected_to :controller => 'stories', :action => 'index'
-  end
-
-  # Test logging in on an iphone w/o the agreement
-  def test_create_iphone_no_agreement
-    individ = individuals(:admin2)
-    individ.accepted_agreement = nil
-    individ.save( :validate=> false )
-    post :create, :format => 'iphone', :login => 'admin2', :password => 'testit', :remember_me => "true"
-    assert_redirected_to :controller => 'stories', :action => 'index'
-  end
-
-  # Test logging in on an iphone as a community customer
-  def test_create_iphone_community
-    post :create, :format => 'iphone', :login => 'pa2', :password => 'testit', :remember_me => "true"
-    assert_response :success
-  end
-
-  # Test the logout link on an iphone
-  def test_destroy_iphone
-    post :create, :format => 'iphone', :login => 'admin2', :password => 'testit', :remember_me => "true"
-    delete :destroy, :format => 'iphone'
-    assert_redirected_to :controller => 'sessions', :action => 'new'
   end
 
 private

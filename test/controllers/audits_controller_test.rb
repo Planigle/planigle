@@ -19,7 +19,7 @@ class AuditsControllerTest < ActionController::TestCase
   # Test successfully getting a listing of resources.
   def test_index_success
     login_as(individuals(:quentin))
-    get :index, {}
+    get :index, params: {}
     assert_response :success
     assert_select 'audits' do
       assert_select 'audit', 6
@@ -29,7 +29,7 @@ class AuditsControllerTest < ActionController::TestCase
   # Test successfully getting a listing of audits by object id.
   def test_index_object_id
     login_as(individuals(:quentin))
-    get :index, {:object_id => 1, :type => 'Story'}
+    get :index, params: {:object_id => 1, :type => 'Story'}
     assert_response :success
     assert_select 'audits' do
       assert_select 'audit', 2
@@ -39,7 +39,7 @@ class AuditsControllerTest < ActionController::TestCase
   # Test successfully getting a listing of audits by user id.
   def test_index_user_id
     login_as(individuals(:quentin))
-    get :index, {:user_id => 2}
+    get :index, params: {:user_id => 2}
     assert_response :success
     assert_select 'audits' do
       assert_select 'audit', 4
@@ -49,7 +49,7 @@ class AuditsControllerTest < ActionController::TestCase
   # Test successfully getting a listing of audits by start.
   def test_index_start
     login_as(individuals(:quentin))
-    get :index, {:start => '2008-11-03'}
+    get :index, params: {:start => '2008-11-03'}
     assert_response :success
     assert_select 'audits' do
       assert_select 'audit', 4
@@ -59,7 +59,7 @@ class AuditsControllerTest < ActionController::TestCase
   # Test successfully getting a listing of audits by end.
   def test_index_end
     login_as(individuals(:quentin))
-    get :index, {:end => '2008-11-03'}
+    get :index, params: {:end => '2008-11-03'}
     assert_response :success
     assert_select 'audits' do
       assert_select 'audit', 3
@@ -69,7 +69,7 @@ class AuditsControllerTest < ActionController::TestCase
   # Test successfully getting a listing of audits by type.
   def test_index_type
     login_as(individuals(:quentin))
-    get :index, {:type => 'Story'}
+    get :index, params: {:type => 'Story'}
     assert_response :success
     assert_select 'audits' do
       assert_select 'audit', 5
@@ -78,14 +78,14 @@ class AuditsControllerTest < ActionController::TestCase
 
   # Test showing an resource without credentials.
   def test_show_unauthorized
-    get :show, {:id => 1}
+    get :show, params: {:id => 1}
     assert_redirected_to :controller => 'sessions', :action => 'new'
   end
     
   # Test successfully showing a resource.
   def test_show_success
     login_as(individuals(:quentin))
-    get :show, {:id => 1}
+    get :show, params: {:id => 1}
     assert_response :success
     assert_select 'audit'
   end
@@ -93,7 +93,7 @@ class AuditsControllerTest < ActionController::TestCase
   # Test unsuccessfully showing a resource.
   def test_show_not_found
     login_as(individuals(:quentin))
-    get :show, {:id => 999}
+    get :show, params: {:id => 999}
     assert_response 404
   end
 
@@ -120,7 +120,7 @@ class AuditsControllerTest < ActionController::TestCase
   # Test getting audits (based on role).
   def index_by_role(user, count)
     login_as(user)
-    get :index, :format => 'xml'
+    get :index
     assert_response :success
     assert_select "audits" do
       assert_select "audit", count
@@ -130,7 +130,7 @@ class AuditsControllerTest < ActionController::TestCase
   # Test showing an audit for another project.
   def test_show_wrong_project
     login_as(individuals(:aaron))
-    get :show, :id => 6, :format => 'xml'
+    get :show, params: {:id => 6}
     assert_response 401
   end
 end

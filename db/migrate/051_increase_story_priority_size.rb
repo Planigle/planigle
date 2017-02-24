@@ -1,4 +1,4 @@
-class IncreaseStoryPrioritySize < ActiveRecord::Migration
+class IncreaseStoryPrioritySize < ActiveRecord::Migration[4.2]
   def self.up
     change_column :stories, :priority, :decimal, :precision => 11, :scale => 5
   end

@@ -397,8 +397,8 @@ class IndividualTest < ActiveSupport::TestCase
     assert individuals(:quentin).remember_token_expires_at - time < 60 # <60 seconds off from when we say to expire.
   end
 
-  # Test the xml created for stories.
-  def test_xml
+  # Test the response created for individuals.
+  def test_response
     individ = individuals(:quentin)
     assert_no_tag( individ, :crypted_password )
     assert_no_tag( individ, :salt )

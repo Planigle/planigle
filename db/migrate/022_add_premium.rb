@@ -1,4 +1,4 @@
-class AddPremium < ActiveRecord::Migration
+class AddPremium < ActiveRecord::Migration[4.2]
   def self.up
     add_column :projects, :premium_expiry, :date
     add_column :projects, :premium_limit, :integer

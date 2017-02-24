@@ -624,7 +624,8 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
         if (this.filters.release === '') {
           filtered = filtered || story.release_id != null;
         } else if (this.filters.release === 'Current') {
-          filtered = filtered || story.release_id !== this.filters.getCurrentReleaseId(this.filters.releases);
+          let currentReleaseId = this.filters.getCurrentReleaseId(this.filters.releases);
+          filtered = filtered || (currentReleaseId !== null && story.release_id !== currentReleaseId);
         } else {
           filtered = filtered || story.release_id !== this.filters.release;
         }

@@ -1,4 +1,4 @@
-class CreateStoryAttributesAndValues < ActiveRecord::Migration
+class CreateStoryAttributesAndValues < ActiveRecord::Migration[4.2]
   def self.up
     create_table( :story_attributes, :force => true ) do |t|
       t.integer :project_id, :null => false

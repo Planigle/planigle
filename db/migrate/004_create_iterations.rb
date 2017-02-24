@@ -1,4 +1,4 @@
-class CreateIterations < ActiveRecord::Migration
+class CreateIterations < ActiveRecord::Migration[4.2]
   def self.up
     create_table :iterations do |t|
       t.string :name

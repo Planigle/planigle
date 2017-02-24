@@ -1,4 +1,4 @@
-class FixDataIssues < ActiveRecord::Migration
+class FixDataIssues < ActiveRecord::Migration[4.2]
   def self.up
     Iteration.with_deleted.each do |iteration|
       if start < Time.now and finish > Time.new(2008, 12, 15)

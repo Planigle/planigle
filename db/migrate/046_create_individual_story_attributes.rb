@@ -1,4 +1,4 @@
-class CreateIndividualStoryAttributes < ActiveRecord::Migration
+class CreateIndividualStoryAttributes < ActiveRecord::Migration[4.2]
   def self.up
     create_table( :individual_story_attributes, :force => true ) do |t|
       t.integer :individual_id, :null => false

@@ -1,4 +1,4 @@
-class AddTimeAttributes < ActiveRecord::Migration
+class AddTimeAttributes < ActiveRecord::Migration[4.2]
   def self.up
     add_column :companies, :created_at, :datetime
     add_column :companies, :updated_at, :datetime
