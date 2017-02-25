@@ -3,11 +3,6 @@ class IterationsController < ResourceController
 
 protected
 
-  # Answer whether records have changed.
-  def have_records_changed(time)
-    Iteration.have_records_changed(current_individual, time)
-  end
-
   # Get the records based on the current individual.
   def get_records
     Iteration.get_records(current_individual, params[:historical] == 'true')

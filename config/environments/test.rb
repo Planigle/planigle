@@ -42,10 +42,6 @@ Rails.application.configure do
 
   # Planigle specific
 
-  # Configure static asset server for tests with Cache-Control for performance
-  config.public_file_server.enabled = true
-  config.public_file_server.headers = { 'Cache-Control' => 'public, max-age=3600' }
-
   # Log error messages when you accidentally call methods on nil
   config.whiny_nils = true
 
@@ -96,4 +92,6 @@ Rails.application.configure do
 
   # The email address to notify of things going on with projects (creation, expiration, inactivity; blank=no one)
   config.who_to_notify = nil
+  
+  Rails.backtrace_cleaner.remove_silencers!
 end

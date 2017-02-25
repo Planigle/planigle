@@ -54,7 +54,7 @@ class StoryAttribute < ActiveRecord::Base
       end
     end
     if !new_record?
-      story_attribute_values(true) # Force reload so that updated values will be used
+      story_attribute_values.reload # Force reload so that updated values will be used
     end
   end
 

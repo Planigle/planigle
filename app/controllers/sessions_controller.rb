@@ -25,11 +25,6 @@ class SessionsController < ApplicationController
     else
       render :json => {:error => 'Invalid Credentials'}, :status => :unprocessable_entity
     end
-  end  
-
-  # Refresh the data for the current session
-  def refresh
-    render :json => data(false)
   end
 
   # Log out
@@ -42,59 +37,6 @@ class SessionsController < ApplicationController
   end
 
 protected
-
-  # Answer the data for the current user.
-  def data(initial)
-    parms = get_params
-    result = {}
-    result['time'] = Time.now.to_s
-    if conditions.include?(:project_id)
-      show_project(conditions[:project_id])
-    end
-    if initial
-      result['system'] = System.first()
-      result['current_individual'] = current_individual
-      result['current_individual'].current_user_project = project
-      result['current_release'] = current_release
-      result['current_iteration'] = current_iteration
-    end
-    update_stories = false
-    if (!parms[:companies] || Company.have_records_changed(current_individual, Time.parse(parms[:companies])))
-      result['companies'] = Company.get_records(current_individual)
-    end
-    if (!parms[:individuals] || Individual.have_records_changed(current_individual, Time.parse(parms[:individuals])))
-      update_stories = true
-      result['individuals'] = Individual.get_records(current_individual)
-      result['individuals'].each {|individual| individual.current_user_project = project}
-    end
-    if current_individual.project_id
-      if (!parms[:releases] || Release.have_records_changed(current_individual, Time.parse(parms[:releases])))
-        update_stories = true
-        result['current_release'] = current_release
-        result['releases'] = Release.get_records(current_individual)
-      end
-      if (!parms[:iterations] || Iteration.have_records_changed(current_individual, Time.parse(parms[:iterations])))
-        update_stories = true
-        result['current_iteration'] = current_iteration
-        result['iterations'] = Iteration.get_records(current_individual)
-      end
-      if (update_stories || !parms[:stories] || Story.have_records_changed(current_individual, Time.parse(parms[:stories])))
-        result['stories'] = Story.get_records(current_individual, conditions, parms.delete(:page_size), 1)
-        if(current_individual.is_premium && current_individual.project != nil)
-          result['story_stats'] = Story.get_stats(current_individual, conditions)
-        end
-      end
-    end
-    result
-  end
-
-  def current_release
-    Release.find_current(current_individual)
-  end
-  
-  def current_iteration
-    Iteration.find_current(current_individual)
-  end
   
   def show_project(project_id)
     if project_id

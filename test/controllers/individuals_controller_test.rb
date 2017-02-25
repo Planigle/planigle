@@ -20,7 +20,7 @@ class IndividualsControllerTest < ActiveSupport::TestCase
     ActionMailer::Base.deliveries = []
     IndividualMailer.site = 'www.testxyz.com'
     @controller = IndividualsController.new
-    @request    = ActionController::TestRequest.new
+    @request    = ActionController::TestRequest.create
     @response   = ActionController::TestResponse.new
   end
 

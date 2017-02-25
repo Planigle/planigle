@@ -23,7 +23,7 @@ class ProjectsControllerTest < ActiveSupport::TestCase
     IndividualMailer.site = 'www.testxyz.com'
     CompanyMailer.who_to_notify = 'test@testit.com'
     @controller = ProjectsController.new
-    @request    = ActionController::TestRequest.new
+    @request    = ActionController::TestRequest.create
     @response   = ActionController::TestResponse.new
   end
 
@@ -152,9 +152,9 @@ class ProjectsControllerTest < ActiveSupport::TestCase
   def create_wrong_company
     login_as(individuals(:aaron))
     num = resource_count
-    params = params: create_success_parameters
+    params = create_success_parameters
     params[:record].merge( :company_id => 2 )
-    post :create, params
+    post :create, params: params
     assert_response 401
     assert_equal num, resource_count
     assert_select "errors"

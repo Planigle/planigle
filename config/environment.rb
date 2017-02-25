@@ -97,7 +97,7 @@ module Audited::Auditor::AuditedInstanceMethods
      if self.class == StoryValue
        if (story_attribute.value_type == StoryAttribute::List || story_attribute.value_type == StoryAttribute::ReleaseList)
          if attrs[:action] == 'destroy'
-           old_value = value ? StoryAttributeValue.find(value) : nil
+           old_value = value ? StoryAttributeValue.where(id: value).first : nil
            changed_value = [old_value ? old_value.value : '', 'None']
          else
            old_value = changed_attributes['value'] ? StoryAttributeValue.find(changed_attributes['value']) : nil
@@ -151,7 +151,17 @@ class Audited::Audit
 end
 
 # Handle yaml issues
+Object.class_eval <<-eorb, __FILE__, __LINE__ + 1
+  alias :psych_to_yaml :to_yaml
+eorb
 require 'syck'
+# Don't let Syck become the new default
+Object.class_eval <<-eorb, __FILE__, __LINE__ + 1
+    remove_const 'YAML' if defined? YAML
+    YAML = Psych
+    remove_method :to_yaml
+    alias :to_yaml :psych_to_yaml
+eorb
 module ActiveRecord
   module Coders # :nodoc:
     class YAMLColumn # :nodoc:
@@ -159,7 +169,7 @@ module ActiveRecord
         return object_class.new if object_class != Object && yaml.nil?
         return yaml unless yaml.is_a?(String) && /^---/.match(yaml)
         begin
-          obj = YAML.load(yaml.gsum("\r","<br>"))
+          obj = YAML.load(yaml.gsub("\r","<br>"))
         rescue => e
           obj = Syck.load(yaml) # Use old version of yaml
         end

@@ -104,7 +104,7 @@ class SurveysControllerTest < ActionController::TestCase
   # Test listing surveys.
   def test_list_survey
     login_as(individuals(:quentin))
-    get :index, :project_id => 1
+    get :index, params: {:project_id => 1}
     assert_response :success
 
     assert_select 'surveys' do

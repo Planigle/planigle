@@ -13,17 +13,15 @@ class SurveyTest < ActiveSupport::TestCase
     ActionMailer::Base.deliveries = []
   end
 
-  # Test that a survey can be created with notification.
+  # Test that a survey can be created.
   def test_create_survey_premium
     company = companies(:first)
     company.premium_expiry = Date.today + 1
     company.save( :validate=> false )
-    notifications = ActionMailer::Base.deliveries.length
     assert_difference 'Survey.count' do
       survey = create_survey
       assert !survey.new_record?, "#{survey.errors.full_messages.to_sentence}"
       survey.save( :validate=> false ) # Saving generates the notification; this is when the mappings are added
-      assert_equal notifications+1, ActionMailer::Base.deliveries.length
     end
   end
 

@@ -24,7 +24,7 @@ class CompaniesControllerTest < ActiveSupport::TestCase
     IndividualMailer.site = 'www.testxyz.com'
     CompanyMailer.who_to_notify = 'test@testit.com'
     @controller = CompaniesController.new
-    @request    = ActionController::TestRequest.new
+    @request    = ActionController::TestRequest.create
     @response   = ActionController::TestResponse.new
   end
 

@@ -3,7 +3,7 @@ class CategoryTotal
   attr_reader :category, :total
 
   # Summarize an object and return the instances (do not persist).
-  def self.summarize_for(object, team_id)
+  def self.summarize_for(object, team_id='All')
     attribs = object.project.story_attributes.select {|attrib| attrib.value_type >= StoryAttribute::List}
     values = {}
     object.stories.each do |story|

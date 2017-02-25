@@ -110,7 +110,7 @@ class TaskTest < ActiveSupport::TestCase
   def test_in_progress_at
     task = tasks(:one)
     task.status_code = Story.Created
-    assert_equal nil, task.in_progress_at
+    assert_nil task.in_progress_at
     task.status_code = Story.InProgress
     assert task.in_progress_at != nil
     task.status_code = Story.Blocked
@@ -122,11 +122,11 @@ class TaskTest < ActiveSupport::TestCase
   def test_done_at
     task = tasks(:one)
     task.status_code = Story.Created
-    assert_equal nil, task.done_at
+    assert_nil task.done_at
     task.status_code = Story.InProgress
-    assert_equal nil, task.done_at
+    assert_nil task.done_at
     task.status_code = Story.Blocked
-    assert_equal nil, task.done_at
+    assert_nil task.done_at
     task.status_code = Story.Done
     assert task.done_at != nil
   end
@@ -155,7 +155,7 @@ class TaskTest < ActiveSupport::TestCase
 
     task.in_progress_at = nil
     task.done_at = nil
-    assert_equal nil, task.cycle_time
+    assert_nil task.cycle_time
   end
 
 private

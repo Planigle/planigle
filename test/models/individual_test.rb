@@ -223,7 +223,7 @@ class IndividualTest < ActiveSupport::TestCase
   # Test the method project_id
   def test_project_id
     i = individuals(:quentin)
-    assert_equal nil, i.project_id
+    assert_nil i.project_id
     i.selected_project_id = 1
     assert_equal 1, i.project_id
     i = individuals(:aaron)
@@ -458,68 +458,11 @@ class IndividualTest < ActiveSupport::TestCase
     Task.create({:story_id => 1, :name => 'test', :individual_id => 2, :status_code => 3, :estimate => 6, :actual => 9})
     assert_equal 12, individuals(:aaron).utilization_in(iterations(:first).reload)
   end
-  
-  def test_have_records_changed_no_changes
-    sleep 1 # Distance from set up
-    start = Time.now
-    assert_no_changes(start)
-  end
-  
-  def test_have_records_changed_individual_changed
-    assert_have_records_changed(individuals(:user2), individuals(:ted))
-  end
-  
-  def test_have_records_changed_project_changed
-    sleep 1 # Distance from set up
-    start = Time.now
-    sleep 1 # At least one second elapsed
-    individual = individuals(:aaron)
-    individual.assign_attributes(project_ids: [3])
-    individual.save( :validate=> false )
-    assert Individual.have_records_changed(individuals(:aaron), start)
-  end
 
 private
 
-  def assert_no_changes(start)
-    assert !Individual.have_records_changed(individuals(:quentin), start)
-    assert !Individual.have_records_changed(individuals(:aaron), start)
-    assert !Individual.have_records_changed(individuals(:user), start)
-    assert !Individual.have_records_changed(individuals(:readonly), start)
-  end
-  
-  def assert_have_records_changed(other_project_object, project_object)
-    sleep 1 # Distance from set up
-    start = Time.now
-    sleep 1 # At least one second elapsed
-    other_project_object.first_name = "changed"
-    other_project_object.save( :validate=> false )
-    assert_admin_changes(start)
-
-    project_object.first_name = "changed"
-    project_object.save( :validate=> false )
-    assert_all_changes(start)
-
-    project_object.destroy
-    assert_all_changes(start)
-  end
-
-  def assert_admin_changes(start)
-    assert Individual.have_records_changed(individuals(:quentin), start)
-    assert !Individual.have_records_changed(individuals(:aaron), start)
-    assert !Individual.have_records_changed(individuals(:user), start)
-    assert !Individual.have_records_changed(individuals(:readonly), start)
-  end
-
-  def assert_all_changes(start)
-    assert Individual.have_records_changed(individuals(:quentin), start)
-    assert Individual.have_records_changed(individuals(:aaron), start)
-    assert Individual.have_records_changed(individuals(:user), start)
-    assert Individual.have_records_changed(individuals(:readonly), start)
-  end
-
   # Create an individual with valid values.  Options will override default values (should be :attribute => value).
   def create_individual(options = {})
-    Individual.create({ :first_name => 'foo', :last_name => 'bar', :login => 'quire' << rand.to_s, :email => 'quire' << rand.to_s << '@example.com', :password => 'quired', :password_confirmation => 'quired', :role => 0, :company_id => 1, :project_ids => "1", :phone_number => '5555555555' }.merge(options))
+    Individual.create({ :first_name => 'foo', :last_name => 'bar', :login => 'quire' << rand.to_s, :email => 'quire' << rand.to_s << '@example.com', :password => 'quired', :password_confirmation => 'quired', :role => 0, :company_id => 1, :project_id => "1", :phone_number => '5555555555' }.merge(options))
   end
 end

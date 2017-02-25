@@ -182,15 +182,6 @@ class Individual < ActiveRecord::Base
     projects.collect {|project|project.id}.join(',')
   end
 
-  # Answer whether records have changed.
-  def self.have_records_changed(current_user, time)
-    if current_user.role >= Individual::ProjectAdmin # Note: updated_at is >, not >= to ignore the change from logging in
-      Individual.with_deleted.where(["company_id = :company_id and role in (1,2,3) and (updated_at > :time or deleted_at >= :time)", {company_id: current_user.company_id, time: time}]).count > 0
-    else
-      Individual.with_deleted.where(["updated_at >= :time or deleted_at >= :time", {time: time}]).count > 0
-    end
-  end
-
   # Answer the records for a particular user.
   def self.get_records(current_user)
     if current_user.role >= Individual::ProjectAdmin
@@ -200,8 +191,8 @@ class Individual < ActiveRecord::Base
         joins(:projects).includes(:projects).where(["(projects.id = :project_id and role in (1,2,3)) or individuals.id=:user_id", {project_id: current_user.project_id, user_id: current_user.id}]).order('first_name, last_name')
       end
     elsif current_user.selected_project
-      users = where(["company_id = :company_id", {company_id: current_user.selected_project.company_id}]).order('first_name, last_name')
-      !users.include?(current_user) ? users << current_user : users
+      users = [].concat(where(company_id: current_user.selected_project.company_id).order('first_name, last_name'))
+      !users.include?(current_user) ? (users << current_user) : users
     else
       Array[current_user]
     end

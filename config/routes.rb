@@ -30,7 +30,6 @@ Planigle::Application.routes.draw do
   resource :system
   resources :errors
 
-  get '/refresh', :to => 'sessions#refresh', :as => 'refresh'
   get '/summarize', :to => 'systems#summarize', :as => 'summarize'
   get '/report_iteration_totals', :to => 'systems#report_iteration_totals', :as => 'report_iteration_totals'
   get '/report_release_totals', :to => 'systems#report_release_totals', :as => 'report_release_totals'

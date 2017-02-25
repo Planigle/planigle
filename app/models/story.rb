@@ -120,7 +120,7 @@ class Story < ActiveRecord::Base
     story_attributes.each do |attrib|
       value = story_values.detect {|story_value| story_value.story_attribute_id == attrib.id}
       if (attrib.value_type == StoryAttribute::List || attrib.value_type == StoryAttribute::ReleaseList) && value
-        value = attrib.story_attribute_values.detect {|story_attribute_value| story_attribute_value.id == value.value}
+        value = attrib.story_attribute_values.detect {|story_attribute_value| story_attribute_value.id == value.value.to_i}
       end
       values << (value ? value.value : '')
     end
@@ -301,11 +301,6 @@ class Story < ActiveRecord::Base
   
   def filtered_tasks
     tasks.select{|task| task.matches(self.current_conditions)}
-  end
-  
-  # Answer whether records have changed.
-  def self.have_records_changed(current_user, time)
-    Story.with_deleted.joins('LEFT OUTER JOIN tasks ON tasks.story_id=stories.id').where(["(stories.updated_at >= :time or stories.deleted_at >= :time or tasks.updated_at >= :time or tasks.deleted_at >= :time) and stories.project_id = :project_id", {time: time, project_id: current_user.project_id}]).count > 0
   end
 
   # Answer the epics for a particular user.
@@ -884,7 +879,6 @@ private
     story = Story.where(id: values[:id]).first
     if story && story.authorized_for_update?(current_user)
       values.delete(:estimate) # export only
-      values.delete(:release_id) # export only
       story.update_attributes(values)
     elsif story
       story.errors.add(:id, "is invalid")

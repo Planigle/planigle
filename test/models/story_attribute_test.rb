@@ -106,7 +106,7 @@ class StoryAttributeTest < ActiveSupport::TestCase
     assert_equal 1, val[1].release_id
     assert_equal 'new', val[1].value
     assert val[2].id > 5
-    assert_equal nil, val[2].release_id
+    assert_nil val[2].release_id
     assert_equal 'test', val[2].value
   end
 

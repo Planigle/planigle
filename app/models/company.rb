@@ -69,15 +69,6 @@ class Company < ActiveRecord::Base
     Individual.where(["company_id = ? and role != 0", id]).delete_all
     super
   end
-  
-  # Answer whether records have changed.
-  def self.have_records_changed(current_user, time)
-    if current_user.role >= Individual::ProjectAdmin
-      Company.with_deleted.joins('LEFT OUTER JOIN projects ON projects.company_id=companies.id LEFT OUTER JOIN teams ON teams.project_id=projects.id').where(["companies.id = :company_id and (companies.updated_at >= :time or companies.deleted_at >= :time or projects.updated_at >= :time or projects.deleted_at >= :time or teams.updated_at >= :time or teams.deleted_at >= :time)", {company_id: current_user.company_id, time: time}]).count > 0
-    else
-      Company.with_deleted.joins('LEFT OUTER JOIN projects ON projects.company_id=companies.id LEFT OUTER JOIN teams ON teams.project_id=projects.id').where(["companies.updated_at >= :time or companies.deleted_at >= :time or projects.updated_at >= :time or projects.deleted_at >= :time or teams.updated_at >= :time or teams.deleted_at >= :time", {time: time}]).count > 0
-    end
-  end
 
   # Answer the records for a particular user.
   def self.get_records(current_user)

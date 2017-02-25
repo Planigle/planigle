@@ -15,22 +15,21 @@ class CategoryTotalTest < ActiveSupport::TestCase
   
   def test_summarize_for
     iteration = create_iteration
-    story = create_story(:name => 'test', :status_code => 1, :release_id => 1, :iteration_id => iteration.id, :team_id => 1, :individual_id => 2, :is_public => true, :custom_5 => 1, :effort => 3)
+    create_story(:name => 'test', :status_code => 1, :release_id => 1, :iteration_id => iteration.id, :team_id => 1, :individual_id => 2, :is_public => true, :custom_5 => 1, :effort => 3)
     create_story(:name => 'test2', :status_code => 0, :release_id => nil, :iteration_id => iteration.id, :team_id => nil, :individual_id => nil, :is_public => false, :custom_5 => nil, :effort => 2)
     iteration.reload()
-    totals = CategoryTotal.summarize_for(iteration)
-    verify_totals(totals, 1, 3, {5 => "1", 19 => "1", 9 => "1", 10 => "2", 13 => "1", 14 => "1"})
-    verify_totals(totals, nil, 2, {5 => "0", 19 => "null", 9 => "null", 10 => "null", 13 => "0", 14 => "0"})
+    verify_totals(CategoryTotal.summarize_for(iteration, 1), 3, {"Test_List"=>"Value 1", "Test_Release"=>"None", "Iteration"=>"foo", "Team"=>"Test_team", "Owner"=>"aaron hank", "Status"=>"In Progress", "Public"=>"True", "Release"=>"first"})
+    verify_totals(CategoryTotal.summarize_for(iteration, nil), 2, {"Test_List"=>"None", "Test_Release"=>"None", "Iteration"=>"foo", "Team"=>"No Team", "Owner"=>"No Owner", "Status"=>"Not Started", "Public"=>"False", "Release"=>"No Release"})
   end
 
 private
 
   # Verify that the totals are as expected
-  def verify_totals(collect, team_id, effort, mapping)
-      mapping.keys.each do |key|
-      values = collect.select {|total| total.team_id == team_id && total.story_attribute_id == key && total.category == mapping[key]}
-      assert_equal 1, values.length, key
-      assert_equal effort, values[0].total
+  def verify_totals(hash, effort, mapping)
+    mapping.keys.each do |key|
+      value = hash[key][0]
+      assert_equal mapping[key], value.category
+      assert_equal effort, value.total
     end
   end
 

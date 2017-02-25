@@ -27,13 +27,8 @@ class Iteration < ActiveRecord::Base
     write_attribute(:project_id, project_id)
   end
 
-  # Answer whether records have changed.
-  def self.have_records_changed(current_user, time)
-    Iteration.with_deleted.where(["project_id = :project_id and (updated_at >= :time or deleted_at >= :time)", {project_id: current_user.project_id, time: time}]).count > 0
-  end
-
   # Answer the records for a particular user.
-  def self.get_records(current_user, historical)
+  def self.get_records(current_user, historical=false)
     where = "project_id = :project_id"
     if historical
       where += " AND start <= CURDATE()"

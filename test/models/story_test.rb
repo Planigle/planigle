@@ -115,8 +115,8 @@ class StoryTest < ActiveSupport::TestCase
   
   # Test changing my project.
   def test_project_id
-    single_individ = Individual.create(:first_name => 'foo', :last_name => 'bar', :login => 'single' << rand.to_s, :email => 'single' << rand.to_s << '@example.com', :password => 'quired', :password_confirmation => 'quired', :role => 0, :company_id => 1, :project_ids => "1", :phone_number => '5555555555')
-    multi_individ = Individual.create(:first_name => 'foo', :last_name => 'bar', :login => 'multiple' << rand.to_s, :email => 'multiple' << rand.to_s << '@example.com', :password => 'quired', :password_confirmation => 'quired', :role => 0, :company_id => 1, :project_ids => "1,3", :phone_number => '5555555555')
+    single_individ = Individual.create(:first_name => 'foo', :last_name => 'bar', :login => 'single' << rand.to_s, :email => 'single' << rand.to_s << '@example.com', :password => 'quired', :password_confirmation => 'quired', :role => 0, :company_id => 1, :project_id => "1", :phone_number => '5555555555')
+    multi_individ = Individual.create(:first_name => 'foo', :last_name => 'bar', :login => 'multiple' << rand.to_s, :email => 'multiple' << rand.to_s << '@example.com', :password => 'quired', :password_confirmation => 'quired', :role => 0, :company_id => 1, :project_ids => ["1","3"], :phone_number => '5555555555')
     story = create_story
     single_task = Task.create(:story_id => story.id, :name => 'test', :individual_id => single_individ.id)
     multi_task = Task.create(:story_id => story.id, :name => 'test', :individual_id => multi_individ.id)
@@ -142,7 +142,7 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal '5', story.story_values.where(story_attribute_id: 3).first.value
     story = create_story(:custom_10 => '5')
     assert_equal 1, story.errors.count
-    assert_equal nil, story.story_values.where(story_attribute_id: 10).first
+    assert_nil story.story_values.where(story_attribute_id: 10).first
   end
   
   # Test a custom list attribute.
@@ -220,8 +220,8 @@ class StoryTest < ActiveSupport::TestCase
     story = create_story(:iteration_id => 4, :release_id => 1 ).split
     assert_equal 'foo Part Two', story.name
     assert_equal 1, story.project_id
-    assert_equal nil, story.individual_id
-    assert_equal nil, story.iteration_id
+    assert_nil story.individual_id
+    assert_nil story.iteration_id
     assert_equal 'bar', story.description
     assert_equal 5, story.effort
     assert_equal 0, story.status_code
@@ -232,8 +232,8 @@ class StoryTest < ActiveSupport::TestCase
     story = create_story(:iteration_id => nil ).split
     assert_equal 'foo Part Two', story.name
     assert_equal 1, story.project_id
-    assert_equal nil, story.individual_id
-    assert_equal nil, story.iteration_id
+    assert_nil story.individual_id
+    assert_nil story.iteration_id
     assert_equal 'bar', story.description
     assert_equal 5, story.effort
     assert_equal 0, story.status_code
@@ -612,20 +612,6 @@ class StoryTest < ActiveSupport::TestCase
     assert_equal story.priority + 1, story.determine_priority(story.id.to_s,"")
   end
   
-  def test_have_records_changed_no_changes
-    sleep 1 # Distance from set up
-    start = Time.now
-    assert_no_changes(start)
-  end
-  
-  def test_have_records_changed_story_changed
-    assert_have_records_changed(stories(:fifth), stories(:first))
-  end
-  
-  def test_have_records_changed_task_changed
-    assert_have_records_changed(tasks(:three), tasks(:one))
-  end
-  
   def test_is_ready_to_accept
     story = stories(:first)
     assert !story.is_ready_to_accept
@@ -702,7 +688,7 @@ class StoryTest < ActiveSupport::TestCase
   def test_in_progress_at
     story = stories(:first)
     story.status_code = Story.Created
-    assert_equal nil, story.in_progress_at
+    assert_nil story.in_progress_at
     story.status_code = Story.InProgress
     assert story.in_progress_at != nil
     story.status_code = Story.Blocked
@@ -714,11 +700,11 @@ class StoryTest < ActiveSupport::TestCase
   def test_done_at
     story = stories(:first)
     story.status_code = Story.Created
-    assert_equal nil, story.done_at
+    assert_nil story.done_at
     story.status_code = Story.InProgress
-    assert_equal nil, story.done_at
+    assert_nil story.done_at
     story.status_code = Story.Blocked
-    assert_equal nil, story.done_at
+    assert_nil story.done_at
     story.status_code = Story.Done
     assert story.done_at != nil
   end
@@ -747,33 +733,10 @@ class StoryTest < ActiveSupport::TestCase
 
     story.in_progress_at = nil
     story.done_at = nil
-    assert_equal nil, story.cycle_time
+    assert_nil story.cycle_time
   end
 
 private
-
-  def assert_changes(start)
-    assert Story.have_records_changed(individuals(:aaron), start)
-  end
-
-  def assert_no_changes(start)
-    assert !Story.have_records_changed(individuals(:aaron), start)
-  end
-  
-  def assert_have_records_changed(other_project_object, project_object)
-    sleep 1 # Distance from set up
-    start = Time.now
-    other_project_object.name = "changed"
-    other_project_object.save( :validate=> false )
-    assert_no_changes(start)
-
-    project_object.name = "changed"
-    project_object.save( :validate=> false )
-    assert_changes(start)
-
-    project_object.destroy
-    assert_changes(start)
-  end
 
   # Create a story with valid values.  Options will override default values (should be :attribute => value).
   def create_story(options = {})

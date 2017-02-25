@@ -86,12 +86,11 @@ class ProjectTest < ActiveSupport::TestCase
   # Test the response created for surveys.
   def test_create_survey
     survey = projects(:first).create_survey
-    assert_tag( survey, :stories)
-    assert_tag( survey, :story)
-    assert_tag( survey, :id)
-    assert_tag( survey, :name)
-    assert_tag( survey, :description)
-    assert_tag( survey, :priority)
+    story = survey[0]
+    assert story[:story_id]
+    assert story[:name]
+    assert story[:description]
+    assert story[:priority]
   end
 
   # Test finding individuals for a specific user.

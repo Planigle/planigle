@@ -108,7 +108,7 @@ protected
     cond = conditions.clone
     page_size = get_params.delete(:page_size)
     page = get_params.delete(:page)
-    if (!time || (page && page > 1) || Story.have_records_changed(current_individual, Time.parse(time)))
+    if (!time || (page && page > 1))
       Story.get_records(current_individual, cond, page_size, page)
     else
       nil

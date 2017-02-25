@@ -2,10 +2,7 @@ class ResourceController < ApplicationController
 
   # GET /records
   def index
-    time = get_params[:time]
-    if (!time || have_records_changed(Time.parse(time)))
-      @records = get_records
-    end
+    @records = get_records
     render :json => @records
   end
   
@@ -147,11 +144,6 @@ protected
   
   # Some records make read only changes so need to be able to differentiate based on intention.
   def post_update
-  end
-
-  # Answer whether records have changed.
-  def have_records_changed(time)
-    true
   end
   
   # Answer whether the record being changed is up to date.
