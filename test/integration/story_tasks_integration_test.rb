@@ -11,9 +11,6 @@ class StoryTasksIntegrationTest < ActionDispatch::IntegrationTest
   fixtures :stories
   fixtures :tasks
 
-  # Re-raise errors caught by the controller.
-  class TasksController; def rescue_action(e) raise e end; end
-
   # Return the url to get the resource (ex., resources)
   def resource_url
     '/stories/1/tasks'
@@ -48,6 +45,7 @@ class StoryTasksIntegrationTest < ActionDispatch::IntegrationTest
   
   # Test successfully setting the owner.
   def test_set_owner_success
+    login_as(individuals(:admin2))
     put '/stories/1/tasks/1', params: {:record => {:individual_id => 2}}, headers: authorization_header
     assert_response :success
     assert_equal tasks(:one).reload.individual_id, 2
@@ -55,11 +53,10 @@ class StoryTasksIntegrationTest < ActionDispatch::IntegrationTest
   
   # Test unsuccessfully setting the owner.
   def test_set_owner_failure
+    login_as(individuals(:admin2))
     put '/stories/1/tasks/1', params: {:record => {:individual_id => 999}}, headers: authorization_header
     assert_response :unprocessable_entity
-    assert_select 'errors' do
-      assert_select 'error'
-    end
+    assert json
     assert_not_equal tasks(:one).reload.individual_id, 999
   end
 end

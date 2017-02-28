@@ -12,7 +12,7 @@ class StoriesController < ResourceController
   def import
     errors = nil
     Story.transaction do
-      errors = Story.import(current_individual, params['Filedata'].read)
+      errors = Story.import(current_individual, (params['Filedata'].is_a?(String) ? params['Filedata'] : params['Filedata'].read))
       if errors.detect {|error| !error.empty?}
         raise "Errors importing data"
       end

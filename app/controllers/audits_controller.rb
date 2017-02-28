@@ -28,7 +28,7 @@ class AuditsController < ApplicationController
   
   # GET /audits/1
   def show
-    @record = Audit.find(params[:id])
+    @record = Audited::Audit.find(params[:id])
     if (authorized_for_read?(@record))
       render :json => @record
     else

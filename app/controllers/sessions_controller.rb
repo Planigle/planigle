@@ -30,7 +30,10 @@ class SessionsController < ApplicationController
   # Log out
   # DELETE /session
   def destroy
-    self.current_individual.forget_me if logged_in?
+    if logged_in?
+      self.current_individual.forget_me
+      self.current_individual.save( :validate=> false )
+    end
     cookies.delete :auth_token
     log_out
     render :json => {}, :status => :ok

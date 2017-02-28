@@ -11,6 +11,7 @@ class Individual < ActiveRecord::Base
   has_many :tasks, -> {where(deleted_at: nil)}, dependent: :nullify
   has_many :user_errors, :dependent => :destroy, :class_name => 'Error'
   audited :except => [:selected_project_id, :crypted_password, :salt, :remember_token, :remember_token_expires_at, :activation_code, :activated_at, :last_login, :accepted_agreement]
+  after_create :notify_of_creation
 
   # Virtual attribute for the unencrypted password
   attr_accessor :password
@@ -389,5 +390,9 @@ protected
         self.selected_project_id = nil
       end
     end
+  end
+  
+  def notify_of_creation
+    IndividualMailer.signup_notification( self ).deliver_now if not activated?
   end
 end

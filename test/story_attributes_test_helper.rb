@@ -31,31 +31,35 @@ module StoryAttributesTestHelper
 
   # Verify that the object was created.
   def assert_create_succeeded
-    assert StoryAttribute.find_by_name('foo')
+    assert StoryAttribute.where(name: 'foo').first
   end
 
   # Verify that the object was updated.
   def assert_update_succeeded
-    assert StoryAttribute.find_by_name('foo')
+    assert StoryAttribute.where(name: 'foo').first
   end
 
   # Verify that the object was not created / updated.
   def assert_change_failed
-    assert_nil StoryAttribute.find_by_name('')
+    assert_nil StoryAttribute.where(name: '').first
   end
 
   # Verify that the object was not created / updated with valid changes.
   def assert_valid_change_failed
-    assert_nil StoryAttribute.find_by_name('foo')
+    assert_nil StoryAttribute.where(name: 'foo').first
   end
 
   # Verify that the object was deleted.
   def assert_delete_succeeded
-    assert_nil StoryAttribute.find_by_name('Test_Text', :conditions => 'project_id=1')
+    assert_nil StoryAttribute.where(name: 'Test_Text', project_id: 1).first
   end
 
   # Verify that the object was not deleted.
   def assert_delete_failed
-    assert StoryAttribute.find_by_name('Test_Text')
+    assert StoryAttribute.where(name: 'Test_Text').first
+  end
+  
+  def base_URL
+    '/story_attributes'
   end
 end

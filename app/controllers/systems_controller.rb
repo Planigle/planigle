@@ -62,7 +62,7 @@ protected
   # Update the record given the params.
   def update_record
     @license_changed = params[:record] && @record.license_agreement != params[:record][:license_agreement]
-    @record.attributes = params[:record]
+    @record.attributes = record_params
   end
 
   # Save the record (answering whether it was successful

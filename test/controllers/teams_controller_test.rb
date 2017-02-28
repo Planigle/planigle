@@ -2,10 +2,7 @@ require "#{File.dirname(__FILE__)}/../test_helper"
 require "#{File.dirname(__FILE__)}/../teams_test_helper"
 require "#{File.dirname(__FILE__)}/controller_resource_helper"
 
-# Re-raise errors caught by the controller.
-class TeamsController; def rescue_action(e) raise e end; end
-
-class TeamsControllerTest < ActionController::TestCase
+class TeamsControllerTest < ActionDispatch::IntegrationTest
   include ControllerResourceHelper
   include TeamsTestHelper
 
@@ -38,17 +35,15 @@ class TeamsControllerTest < ActionController::TestCase
   # Test getting teams (based on role).
   def index_by_role(user, count)
     login_as(user)
-    get :index, params: {:project_id => 1}
+    get base_URL
     assert_response :success
-    assert_select "teams" do
-      assert_select "team", count
-    end
+    assert_equal count, json.length
   end
 
   # Test showing a team for another project.
   def test_show_wrong_project
     login_as(individuals(:aaron))
-    get :show, params: {:id => 3, :project_id => 2}
+    get '/projects/2/teams/3'
     assert_response 401
   end
     
@@ -71,7 +66,7 @@ class TeamsControllerTest < ActionController::TestCase
   def test_create_wrong_project
     login_as(individuals(:aaron))
     num = resource_count
-    post :create, params: create_success_parameters.merge( :project_id => '2' )
+    post '/projects/2/teams', params: create_success_parameters
     assert_response 401
     assert_equal num, resource_count
   end
@@ -80,7 +75,7 @@ class TeamsControllerTest < ActionController::TestCase
   def create_by_role_successful( user )
     login_as(user)
     num = resource_count
-    post :create, params: create_success_parameters
+    post base_URL, params: create_success_parameters
     assert_response 201
     assert_equal num + 1, resource_count
     assert_create_succeeded
@@ -90,10 +85,10 @@ class TeamsControllerTest < ActionController::TestCase
   def create_by_role_unsuccessful( user )
     login_as(user)
     num = resource_count
-    post :create, params: create_success_parameters
+    post base_URL, params: create_success_parameters
     assert_response 401
     assert_equal num, resource_count
-    assert_select "errors"
+    assert json['error']
   end
     
   # Test updating teams (based on role).
@@ -119,16 +114,16 @@ class TeamsControllerTest < ActionController::TestCase
   # Test updating a team for another project.
   def test_update_wrong_project
     login_as(individuals(:aaron))
-    put :update, params: update_success_parameters.merge({:id => 3, :project_id => 2})
+    put '/projects/2/teams/3', params: update_success_parameters
     assert_response 401
     assert_change_failed
-    assert_select 'errors'
+    assert json['error']
   end
   
   # Update successfully based on role.
   def update_by_role_successful( user, params = update_success_parameters )
     login_as(user)
-    put :update, params: {:id => 1}.merge(params)
+    put base_URL + '/1', params: params
     assert_response :success
     assert_update_succeeded
   end
@@ -136,10 +131,10 @@ class TeamsControllerTest < ActionController::TestCase
   # Update unsuccessfully based on role.
   def update_by_role_unsuccessful( user, params = update_success_parameters )
     login_as(user)
-    put :update, params: {:id => 1}.merge(params)
+    put base_URL + '/1', params: params
     assert_response 401
     assert_change_failed
-    assert_select "errors"
+    assert json['error']
   end
     
   # Test deleting teams (based on role).
@@ -160,26 +155,26 @@ class TeamsControllerTest < ActionController::TestCase
   # Delete from a different project.
   def test_delete_wrong_project
     login_as(individuals(:aaron))
-    delete :destroy, params: {:id => 3, :project_id => 2}
+    delete '/projects/2/teams/3'
     assert_response 401
-    assert Team.find_by_name('test2')
-    assert_select "errors"
+    assert Team.where(name: 'test2').first
+    assert json['error']
   end
       
   # Delete successfully based on role.
   def delete_by_role_successful( user )
     login_as(user)
-    delete :destroy, params: {:id => 1, :project_id => 1}
+    delete base_URL + '/1'
     assert_response :success
-    assert_nil Team.find_by_name('Test_team')
+    assert_nil Team.where(name: 'Test_team').first
   end
 
   # Delete unsuccessfully based on role.
   def delete_by_role_unsuccessful( user )
     login_as(user)
-    delete :destroy, params: {:id => 1, :project_id => 1}
+    delete base_URL + '/1'
     assert_response 401
-    assert Team.find_by_name('Test_team')
-    assert_select "errors"
+    assert Team.where(name: 'Test_team').first
+    assert json['error']
   end
 end

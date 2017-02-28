@@ -2,10 +2,7 @@ require "#{File.dirname(__FILE__)}/../test_helper"
 require "#{File.dirname(__FILE__)}/../individuals_test_helper"
 require "#{File.dirname(__FILE__)}/controller_resource_helper"
 
-# Re-raise errors caught by the controller.
-class IndividualsController; def rescue_action(e) raise e end; end
-
-class IndividualsControllerTest < ActiveSupport::TestCase
+class IndividualsControllerTest < ActionDispatch::IntegrationTest
   include ControllerResourceHelper
   include IndividualsTestHelper
   
@@ -13,37 +10,35 @@ class IndividualsControllerTest < ActiveSupport::TestCase
   fixtures :individuals
   fixtures :projects
   fixtures :individuals_projects
+  fixtures :companies
 
   def setup
     ActionMailer::Base.delivery_method = :test
     ActionMailer::Base.perform_deliveries = true
     ActionMailer::Base.deliveries = []
     IndividualMailer.site = 'www.testxyz.com'
-    @controller = IndividualsController.new
-    @request    = ActionController::TestRequest.create
-    @response   = ActionController::TestResponse.new
   end
 
   # Test activating a user.
   def test_should_activate_user
     assert_nil Individual.authenticate('ted', 'testit')
-    get :activate, params: {:activation_code => individuals(:ted).activation_code}
-    assert_redirected_to 'http://test.host/'
+    get '/activate/' + individuals(:ted).activation_code
+    assert_redirected_to 'http://www.example.com/'
     assert_equal individuals(:ted), Individual.authenticate('ted', 'testit')
   end
 
   # Test activation without a key.
   def test_should_not_activate_user_without_key
-    get :activate
-    assert_redirected_to 'http://test.host/'
+    get '/activate'
+    assert_redirected_to 'http://www.example.com/'
   rescue ActionController::RoutingError
     # in the event your routes deny this, we'll just bow out gracefully.
   end
 
   # Test activation with a blank key.
   def test_should_not_activate_user_with_blank_key
-    get :activate, params: {:activation_code => ''}
-    assert_redirected_to 'http://test.host/'
+    get '/activate/'
+    assert_redirected_to 'http://www.example.com/'
   rescue ActionController::RoutingError
     # well played, sir
   end
@@ -55,80 +50,68 @@ class IndividualsControllerTest < ActiveSupport::TestCase
     
   # Test getting individuals (based on role).
   def test_index_by_project_admin
-    index_by_role(individuals(:project_admin2), Individual.find(:all, :joins => :projects, :conditions => "projects.id = 2 and role != 0").length)
+    index_by_role(individuals(:project_admin2), Individual.joins(:projects).where("projects.id = 2 and role != 0").length)
   end
     
   # Test getting individuals (based on role).
   def test_index_by_project_admin_premium
-    index_by_role(individuals(:aaron), Individual.find_all_by_company_id(1, :conditions => "role != 0").length)
+    index_by_role(individuals(:aaron), Individual.where("company_id=1 and role != 0").length)
   end
     
   # Test getting individuals (based on role).
   def test_index_by_project_user
-    index_by_role(individuals(:user2), Individual.find(:all, :joins => :projects, :conditions => "projects.id = 2 and role != 0").length)
+    index_by_role(individuals(:user2), Individual.joins(:projects).where("projects.id = 2 and role != 0").length)
   end
     
   # Test getting individuals (based on role).
   def test_index_by_project_user_premium
-    index_by_role(individuals(:user), Individual.find_all_by_company_id(1, :conditions => "role != 0").length)
+    index_by_role(individuals(:user), Individual.where("company_id = 1 and role != 0").length)
   end
     
   # Test getting individuals (based on role).
   def test_index_by_read_only_user
-    index_by_role(individuals(:ro2), Individual.find(:all, :joins => :projects, :conditions => "projects.id = 4 and role != 0").length)
+    index_by_role(individuals(:ro2), Individual.joins(:projects).where("projects.id = 4 and role != 0").length)
   end
 
   # Test getting individuals (based on role).
   def test_index_by_read_only_user_premium
-    index_by_role(individuals(:readonly), Individual.find_all_by_company_id(1, :conditions => "role != 0").length)
-  end
-    
-  # Test getting companies (based on role).
-  def test_index_no_changes
-    index_by_role(individuals(:aaron), nil, {:date => (Time.now + 5).to_s})
-  end
-    
-  # Test getting companies (based on role).
-  def test_index_changes
-    index_by_role(individuals(:aaron), Individual.find_all_by_company_id(1, :conditions => "role != 0").length, {:date => (Time.now - 5).to_s})
+    index_by_role(individuals(:readonly), Individual.where("company_id=1 and role != 0").length)
   end
 
   # Test getting individuals (based on role).
   def index_by_role(user, count, params={})
     login_as(user)
-    get :index, params: params
+    get base_URL, params: params
     assert_response :success
-    assert_select "individuals" do
-      assert_select "individual", count
-    end
+    assert count, json.length
   end
 
   # Test showing an individual for another project.
   def test_show_wrong_project
     login_as(individuals(:project_admin2))
-    get :show, params: {:id => 10}
+    get base_URL + '/10'
     assert_response 401
   end
 
   # Test showing an individual for another project.
   def test_show_wrong_project_premium
     login_as(individuals(:aaron))
-    get :show, params: {:id => 9}
+    get base_URL + '/9'
     assert_response :success
-    assert_select "individual"
+    assert json
   end
 
   # Test showing an individual for another company.
   def test_show_wrong_company
     login_as(individuals(:aaron))
-    get :show, params: {:id => 7}
+    get base_URL + '/7'
     assert_response 401
   end
 
   # Ensure project admin can't see admin in same project.
   def test_show_admin_by_project_admin
     login_as(individuals(:aaron))
-    get :show, params: {:id => 6}
+    get base_URL + '/6'
     assert_response 401
   end
     
@@ -153,10 +136,10 @@ class IndividualsControllerTest < ActiveSupport::TestCase
     num = resource_count
     params = create_success_parameters
     params[:record] = params[:record].merge( :role => 0 )
-    post :create, params: params
+    post base_URL, params: params
     assert_response 401
     assert_equal num, resource_count
-    assert_select 'errors'
+    assert json['error']
   end
 
   # Test creating an individual for another project.
@@ -164,11 +147,11 @@ class IndividualsControllerTest < ActiveSupport::TestCase
     login_as(individuals(:project_admin2))
     num = resource_count
     params = create_success_parameters
-    params[:record] = params[:record].merge( :project_id => '4' )
-    post :create, params: params
+    params[:record] = params[:record].merge( :project_ids => ['4'] )
+    post base_URL, params: params
     assert_response 401
     assert_equal num, resource_count
-    assert_select 'errors'
+    assert json['error']
   end
 
   # Test creating an individual for another project.
@@ -176,11 +159,11 @@ class IndividualsControllerTest < ActiveSupport::TestCase
     login_as(individuals(:aaron))
     num = resource_count
     params = create_success_parameters
-    params[:record] = params[:record].merge( :project_id => '3' )
-    post :create, params: params
+    params[:record] = params[:record].merge( :project_ids => ['3'] )
+    post base_URL, params: params
     assert_response 201
     assert_equal num + 1, resource_count
-    assert Individual.find_by_login('foo')
+    assert Individual.where(login: "foo")
     assert_equal ActionMailer::Base.deliveries.length, 1
   end
 
@@ -189,18 +172,18 @@ class IndividualsControllerTest < ActiveSupport::TestCase
     login_as(individuals(:aaron))
     num = resource_count
     params = create_success_parameters
-    params[:record] = params[:record].merge( :company_id =>'2', :project_id => '2' )
-    post :create, params: params
+    params[:record] = params[:record].merge( :company_id =>'2', :project_ids => ['2'] )
+    post base_URL, params: params
     assert_response 401
     assert_equal num, resource_count
-    assert_select 'errors'
+    assert json['error']
   end
 
   # Create successfully based on role.
   def create_by_role_successful( user )
     login_as(user)
     num = resource_count
-    post :create, params: create_success_parameters
+    post base_URL, params: create_success_parameters
     assert_response 201
     assert_equal num + 1, resource_count
     assert_create_succeeded
@@ -210,10 +193,10 @@ class IndividualsControllerTest < ActiveSupport::TestCase
   def create_by_role_unsuccessful( user )
     login_as(user)
     num = resource_count
-    post :create, params: create_success_parameters
+    post base_URL, params: create_success_parameters
     assert_response 401
     assert_equal num, resource_count
-    assert_select "errors"
+    assert json['error']
   end
     
   # Test updating individuals (based on role).
@@ -234,7 +217,7 @@ class IndividualsControllerTest < ActiveSupport::TestCase
   # Test updating your own role.
   def test_update_role_self
     login_as(individuals(:quentin))
-    put :update, params: {:id => 1, :record => {:role => 1}}
+    put base_URL + '/1', params: {:record => {:role => 1}}
     assert_response 401
     assert_equal 0, individuals(:quentin).reload.role
   end
@@ -261,7 +244,7 @@ class IndividualsControllerTest < ActiveSupport::TestCase
     
   # Test updating project by role.
   def test_update_project_by_admin
-    update_project_by_role_successful( individuals(:quentin), {:project_id => 4, :team_id => nil}, 7 )
+    update_project_by_role_successful( individuals(:quentin), {:project_ids => [4], :team_id => nil}, 7 )
   end
     
   # Test updating project by role.
@@ -271,7 +254,7 @@ class IndividualsControllerTest < ActiveSupport::TestCase
     
   # Test updating project by role.
   def test_update_project_by_project_admin_different_company
-    update_project_by_role_unsuccessful( individuals(:aaron), {:project_id => 4, :team_id => nil}, 7 )
+    update_project_by_role_unsuccessful( individuals(:aaron), {:project_ids => [4], :team_id => nil}, 7 )
   end
     
   # Test updating project by role.
@@ -287,16 +270,16 @@ class IndividualsControllerTest < ActiveSupport::TestCase
   # Test updating an individual for another project.
   def test_update_wrong_project
     login_as(individuals(:project_admin2))
-    put :update, params: {:id => 10 }.merge(update_success_parameters)
+    put base_URL + '/10', params: update_success_parameters
     assert_response 401
     assert_change_failed
-    assert_select 'errors'
+    assert json['error']
   end
 
   # Test updating an individual for another project.
   def test_update_wrong_project_premium
     login_as(individuals(:aaron))
-    put :update, params: {:id => 9}.merge(update_success_parameters)
+    put base_URL + '/9', params: update_success_parameters
     assert_response :success
     assert_update_succeeded
   end
@@ -304,101 +287,101 @@ class IndividualsControllerTest < ActiveSupport::TestCase
   # Test updating an individual for another company.
   def test_update_wrong_company
     login_as(individuals(:aaron))
-    put :update, params: {:id => 7}.merge(update_success_parameters)
+    put base_URL + '/7', params: update_success_parameters
     assert_response 401
     assert_change_failed
-    assert_select 'errors'
+    assert json['error']
   end
 
   # Test updating an individual with no company.
   def test_update_no_company
     login_as(individuals(:aaron))
-    put :update, params: {:id => 1}.merge(update_success_parameters)
+    put base_URL + '/1', params: update_success_parameters
     assert_response 401
     assert_change_failed
-    assert_select 'errors'
+    assert json['error']
   end
 
   # Test to ensure that a project admin can't modify an admin (even if in the same project).
   def test_update_admin_by_project_admin
     login_as(individuals(:aaron))
-    put :update, params: {:id => 6}.merge(update_success_parameters)
+    put base_URL + '/6', params: update_success_parameters
     assert_response 401
     assert_change_failed
-    assert_select 'errors'
+    assert json['error']
   end
 
   # Test to ensure that a project admin can't modify a user to become an admin (even if in the same project).
   def test_update_to_admin_by_project_admin
     login_as(individuals(:aaron))
-    params = {:id => 2}.merge(update_success_parameters)
+    params = update_success_parameters
     params[:record] = params[:record].merge(:role => 0)
-    put :update, params: params
+    put base_URL + '/2', params: params
     assert_response 401
     assert_change_failed
-    assert_select 'errors'
+    assert json['error']
   end
   
   # Update successfully based on role.
   def update_by_role_successful( user, params = (update_success_parameters[resource_symbol]) )
     login_as(user)
-    put :update, params:  {:id => 3, resource_symbol => params}
+    put base_URL + '/3', params: {resource_symbol => params}
     assert_response :success
     assert_update_succeeded
   end
   
   # Update company successfully based on role.
-  def update_company_by_role_successful( user, params = {:company_id => 2, :project_id => 2, :team_id => nil} )
+  def update_company_by_role_successful( user, params = {:company_id => 2, :project_ids => [2], :team_id => nil} )
     login_as(user)
-    put :update, params: {:id => 3, resource_symbol => params}
+    put base_URL + '/3', params: {resource_symbol => params}
     assert_response :success
     assert_equal 2, individuals(:ted).reload.project_id
   end
   
   # Update project successfully based on role.
-  def update_project_by_role_successful( user, params = {:project_id => 3, :team_id => nil}, id=3 )
+  def update_project_by_role_successful( user, params = {:project_ids => [3], :team_id => nil}, id=3 )
     login_as(user)
-    put :update, params: {:id => id, resource_symbol => params}
+    put base_URL + '/' + id.to_s, params: {resource_symbol => params}
     assert_response :success
-    assert_equal params[:project_id], Project.find(:first, :joins=>:individuals, :conditions=>['individuals.id=?',id]).id
+    assert_equal params[:project_ids][0], Project.joins(:individuals).where("individuals.id=?", id).first.id
   end
   
   # Update unsuccessfully based on role.
   def update_by_role_unsuccessful( user, params = (update_success_parameters[resource_symbol]) )
     login_as(user)
-    put :update, params: {:id => 3, resource_symbol => params}
+    put base_URL + '/3', params: {resource_symbol => params}
     assert_response 401
     assert_change_failed
-    assert_select "errors"
+    assert json['error']
   end
   
   # Update company unsuccessfully based on role.
-  def update_company_by_role_unsuccessful( user, params = {:company_id => 2, :project_id => 2, :team_id => nil} )
+  def update_company_by_role_unsuccessful( user, params = {:company_id => 2, :project_ids => [2], :team_id => nil} )
     login_as(user)
-    put :update, params: {:id => 3, resource_symbol => params}
+    put base_URL + '/3', params: {resource_symbol => params}
     assert_response 401
     assert_equal 1, individuals(:ted).reload.project_id
-    assert_select "errors"
+    assert json['error']
   end
   
   # Update project unsuccessfully based on role.
-  def update_project_by_role_unsuccessful( user, params = {:project_id => 3, :team_id => nil}, id=3 )
+  def update_project_by_role_unsuccessful( user, params = {:project_ids => [3], :team_id => nil}, id=3 )
     orig_id = Individual.find(id).project_id
     login_as(user)
-    put :update, params: {:id => id, resource_symbol => params}
+    put base_URL + '/' + id.to_s, params: {resource_symbol => params}
     assert_response 401
-    assert_equal orig_id, Project.find(:first, :joins=>:individuals, :conditions=>['individuals.id=?',id]).id
-    assert_select "errors"
+    assert_equal orig_id, Project.joins(:individuals).where("individuals.id=?", id).first.id
+    assert json['error']
   end
     
   # Can't change project id to a project that is already full.
   def update_project_full( user )
     login_as(user)
     project(:first).premium_limit = 1
-    put :update, params: {:id => 3, :project_id => 2}
-    put :update, params: {:id => 6, :project_id => 2}
+    put base_URL + '/3', params: {:project_ids => [2]}
+    put base_URL + '/6', params: {:project_ids => [2]}
     assert_equal 1, individuals(:admin2).reload.project_id
-    assert_select "errors"
+    assert json['error']
   end
 
   # Test deleting individuals (based on role).
@@ -419,70 +402,70 @@ class IndividualsControllerTest < ActiveSupport::TestCase
   # Delete someone from a different project.
   def test_delete_wrong_project
     login_as(individuals(:project_admin2))
-    delete :destroy, params: {:id => 10}
+    delete base_URL + '/10'
     assert_response 401
-    assert Individual.find_by_login('quentin')
-    assert_select "errors"
+    assert Individual.where(login: "quentin").first
+    assert json['error']
   end
   
   # Delete someone from a different project.
   def test_delete_wrong_project_premium
     login_as(individuals(:aaron))
-    delete :destroy, params: {:id => 9}
+    delete base_URL + '/9'
     assert_response :success
-    assert_nil Individual.find_by_login('user3')
+    assert_nil Individual.where(login: "user3").first
   end
   
   # Delete someone from a different company.
   def test_delete_wrong_company
     login_as(individuals(:aaron))
-    delete :destroy, params: {:id => 7}
+    delete base_URL + '/7'
     assert_response 401
-    assert Individual.find_by_login('user2')
-    assert_select "errors"
+    assert Individual.where(login: "user2").first
+    assert json['error']
   end
   
   # Delete someone from no company.
   def test_delete_no_company
     login_as(individuals(:aaron))
-    delete :destroy, params: {:id => 1}
+    delete base_URL + '/1'
     assert_response 401
-    assert Individual.find_by_login('ro2')
-    assert_select "errors"
+    assert Individual.where(login: "ro2").first
+    assert json['error']
   end
 
   # Test to ensure that a project admin can't delete an admin (even if in the same project).
   def test_delete_admin_by_project_admin
     login_as(individuals(:aaron))
-    delete :destroy, params: {:id => 6}
+    delete base_URL + '/6'
     assert_response 401
-    assert Individual.find_by_login('admin2')
-    assert_select "errors"
+    assert Individual.where(login: "admin2").first
+    assert json['error']
   end
     
   # Test deleting yourself.
   def test_delete_self
     login_as(individuals(:quentin))
-    delete :destroy, params: {:id => 1}
+    delete base_URL + '/1'
     assert_response 401
-    assert Individual.find_by_login('quentin')
-    assert_select "errors"
+    assert Individual.where(login: "quentin").first
+    assert json['error']
   end
   
   # Delete successfully based on role.
   def delete_by_role_successful( user )
     login_as(user)
-    delete :destroy, params: {:id => 3}
+    delete base_URL + '/3'
     assert_response :success
-    assert_nil Individual.find_by_login('ted')
+    assert_nil Individual.where(login: "ted").first
   end
 
   # Delete unsuccessfully based on role.
   def delete_by_role_unsuccessful( user )
     login_as(user)
-    delete :destroy, params: {:id => 3}
+    delete base_URL + '/3'
     assert_response 401
-    assert Individual.find_by_login('ted')
-    assert_select "errors"
+    assert Individual.where(login: "ted").first
+    assert json['error']
   end
 end

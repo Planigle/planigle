@@ -1,9 +1,6 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
 
-# Re-raise errors caught by the controller.
-class AuditsController; def rescue_action(e) raise e end; end
-
-class AuditsControllerTest < ActionController::TestCase
+class AuditsControllerTest < ActionDispatch::IntegrationTest
   fixtures :systems
   fixtures :individuals
   fixtures :audits
@@ -12,125 +9,121 @@ class AuditsControllerTest < ActionController::TestCase
   fixtures :audits
 
   def test_index_unauthorized
-    get :index, {}
-    assert_redirected_to :controller => 'sessions', :action => 'new'
+    get base_URL
+    assert_response 401
   end
     
   # Test successfully getting a listing of resources.
   def test_index_success
     login_as(individuals(:quentin))
-    get :index, params: {}
+    get base_URL
     assert_response :success
-    assert_select 'audits' do
-      assert_select 'audit', 6
-    end
+    assert 6, json.length
   end
     
   # Test successfully getting a listing of audits by object id.
   def test_index_object_id
     login_as(individuals(:quentin))
-    get :index, params: {:object_id => 1, :type => 'Story'}
+    get base_URL, params: {:object_id => 1, :type => 'Story'}
     assert_response :success
-    assert_select 'audits' do
-      assert_select 'audit', 2
-    end
+    assert 2, json.length
   end
     
   # Test successfully getting a listing of audits by user id.
   def test_index_user_id
     login_as(individuals(:quentin))
-    get :index, params: {:user_id => 2}
+    get base_URL, params: {:user_id => 2}
     assert_response :success
-    assert_select 'audits' do
-      assert_select 'audit', 4
-    end
+    assert 4, json.length
   end
     
   # Test successfully getting a listing of audits by start.
   def test_index_start
     login_as(individuals(:quentin))
-    get :index, params: {:start => '2008-11-03'}
+    get base_URL, params: {:start => '2008-11-03'}
     assert_response :success
-    assert_select 'audits' do
-      assert_select 'audit', 4
-    end
+    assert 4, json.length
   end
     
   # Test successfully getting a listing of audits by end.
   def test_index_end
     login_as(individuals(:quentin))
-    get :index, params: {:end => '2008-11-03'}
+    get base_URL, params: {:end => '2008-11-03'}
     assert_response :success
-    assert_select 'audits' do
-      assert_select 'audit', 3
-    end
+    assert 3, json.length
   end
     
   # Test successfully getting a listing of audits by type.
   def test_index_type
     login_as(individuals(:quentin))
-    get :index, params: {:type => 'Story'}
+    get base_URL, params: {:type => 'Story'}
     assert_response :success
-    assert_select 'audits' do
-      assert_select 'audit', 5
-    end
+    assert 5, json.length
   end
 
   # Test showing an resource without credentials.
   def test_show_unauthorized
-    get :show, params: {:id => 1}
-    assert_redirected_to :controller => 'sessions', :action => 'new'
+    get base_URL + '/1'
+    assert_response 401
   end
     
   # Test successfully showing a resource.
   def test_show_success
     login_as(individuals(:quentin))
-    get :show, params: {:id => 1}
+    get base_URL + '/1'
     assert_response :success
-    assert_select 'audit'
+    assert json
   end
     
   # Test unsuccessfully showing a resource.
   def test_show_not_found
     login_as(individuals(:quentin))
-    get :show, params: {:id => 999}
+    get base_URL + '/999'
     assert_response 404
   end
 
   # Test getting audits (based on role).
   def test_index_by_admin
-    index_by_role(individuals(:quentin), Audit.count)
+    index_by_role(individuals(:quentin), Audited::Audit.count)
   end
     
   # Test getting audits (based on role).
   def test_index_by_project_admin
-    index_by_role(individuals(:aaron), Audit.find_all_by_project_id(1).length)
+    index_by_role(individuals(:aaron), Audited::Audit.where(project_id: 1).length)
   end
     
   # Test getting audits (based on role).
   def test_index_by_project_user
-    index_by_role(individuals(:user), Audit.find_all_by_project_id(1).length)
+    index_by_role(individuals(:user), Audited::Audit.where(project_id: 1).length)
   end
     
   # Test getting audits (based on role).
   def test_index_by_read_only_user
-    index_by_role(individuals(:readonly), Audit.find_all_by_project_id(1).length)
+    index_by_role(individuals(:readonly), Audited::Audit.where(project_id: 1).length)
   end
 
   # Test getting audits (based on role).
   def index_by_role(user, count)
     login_as(user)
-    get :index
+    get base_URL
     assert_response :success
-    assert_select "audits" do
-      assert_select "audit", count
-    end
+    assert count, json.length
   end
 
   # Test showing an audit for another project.
   def test_show_wrong_project
     login_as(individuals(:aaron))
-    get :show, params: {:id => 6}
+    get base_URL + '/6'
     assert_response 401
+  end
+  
+private
+
+  def json
+    JSON.parse(response.body)
+  end
+  
+  def base_URL
+    '/audits'
   end
 end

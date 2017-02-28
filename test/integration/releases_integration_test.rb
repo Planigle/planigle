@@ -12,7 +12,4 @@ class ReleasesIntegrationTest < ActionDispatch::IntegrationTest
   fixtures :projects
   fixtures :individuals_projects
   fixtures :stories
-
-  # Re-raise errors caught by the controller.
-  class ReleasesController; def rescue_action(e) raise e end; end
 end

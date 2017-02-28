@@ -9,11 +9,10 @@ module ResourceHelper
 
   # Test a successful get /resources request.
   def test_index_success
+    login_as(individuals(:admin2))
     get resource_url, params: {}, headers: authorization_header
     assert_response :success
-    assert_select resources_string do
-      assert_select resource_string, :count => resource_count
-    end
+    assert_equal resource_count, json.length
   end
 
   # Test the post /resources request.
@@ -27,22 +26,22 @@ module ResourceHelper
 
   # Test a successful post /resources request.
   def test_create_success
+    login_as(individuals(:admin2))
     num = resource_count
     post resource_url, params: create_success_parameters, headers: authorization_header
     assert_response 201 # Created
-    assert_select resource_string
+    assert  json
     assert_create_succeeded
     assert_equal num + 1, resource_count
   end
 
   # Test a failed post /resources request.
   def test_create_failure
+    login_as(individuals(:admin2))
     num = resource_count
     post resource_url, params: create_failure_parameters, headers: authorization_header
     assert_response 422 # Unprocessable Entity
-    assert_select 'errors' do
-      assert_select 'error'
-    end
+    assert json
     assert_change_failed
     assert_equal num, resource_count
   end
@@ -55,13 +54,15 @@ module ResourceHelper
 
   # Test a successful get /resources/id request.
   def test_show_success
+    login_as(individuals(:admin2))
     get resource_url << '/1', params: {}, headers: authorization_header
     assert_response :success
-    assert_select resource_string
+    assert json
   end
 
   # Test a failed get /resources/id request.
   def test_show_not_found
+    login_as(individuals(:admin2))
     get resource_url << '/999', params: {}, headers: authorization_header
     assert_response 404
   end
@@ -75,6 +76,7 @@ module ResourceHelper
 
   # Test a successful put /resources/id request.
   def test_update_success
+    login_as(individuals(:admin2))
     put resource_url << '/1', params: update_success_parameters, headers: authorization_header
     assert_response 200 # Success
     assert_update_succeeded
@@ -82,16 +84,16 @@ module ResourceHelper
 
   # Test a failed put /resources/id request.
   def test_update_failure
+    login_as(individuals(:admin2))
     put resource_url << '/1', params: update_failure_parameters, headers: authorization_header
     assert_response 422 # Unprocessable Entity
-    assert_select 'errors' do
-      assert_select 'error'
-    end
+    assert json
     assert_change_failed
   end
 
   # Test a failed (not found) put /resources/id request.
   def test_update_not_found
+    login_as(individuals(:admin2))
     put resource_url << '/999', params: update_success_parameters, headers: authorization_header
     assert_response 404 # Not found
     assert_change_failed
@@ -106,6 +108,7 @@ module ResourceHelper
 
   # Test a successful delete /resources/id request.
   def test_destroy_success
+    login_as(individuals(:admin2))
     delete resource_url << '/2', params: {}, headers: authorization_header
     assert_response 200 # Success
     assert_delete_succeeded
@@ -113,6 +116,7 @@ module ResourceHelper
 
   # Test a failed delete /resources/id request.
   def test_destroy_failure
+    login_as(individuals(:admin2))
     delete resource_url << '/999', params: {}, headers: authorization_header
     assert_response 404 # Does not exist
   end
@@ -137,5 +141,9 @@ private
   # Answer a string representing the type of object. Ex., Story.
   def object_type
     self.class.to_s.chomp('IntegrationTest')
+  end
+    
+  def json
+    JSON.parse(response.body)
   end
 end

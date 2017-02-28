@@ -17,7 +17,7 @@ protected
   
   # Some records make read only changes so need to be able to differentiate based on intention.
   def get_record_for_change
-    StoryAttribute.find_by(id: params[:id])
+    StoryAttribute.find(params[:id])
   end
   
   # Create a new record given the params.

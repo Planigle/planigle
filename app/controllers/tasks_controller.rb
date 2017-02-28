@@ -59,7 +59,7 @@ protected
     if @record.status_code == Story.Done && effort == nil
       @record.effort = 0
     end
-    if status != nil && status != Story.Created && status != Story.Blocked && @record.individual_id == nil && owner == nil
+    if status != nil && status.to_i != Story.Created && status.to_i != Story.Blocked && @record.individual_id == nil
       @record.individual_id = current_individual.id
     end
     if @record.status_code == 2 && @record.story.status_code != 2

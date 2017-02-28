@@ -66,7 +66,7 @@ module AuthenticatedSystem
   # to access the requested action.  For example, a popup window might
   # simply close itself.
   def access_denied
-    render status: 401
+    render :json => {error: 'You must be logged in'}, status: 401
   end
 
   # Store the URI of the current request in the session.

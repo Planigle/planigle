@@ -2,10 +2,7 @@ require "#{File.dirname(__FILE__)}/../test_helper"
 require "#{File.dirname(__FILE__)}/../releases_test_helper"
 require "#{File.dirname(__FILE__)}/controller_resource_helper"
 
-# Re-raise errors caught by the controller.
-class ReleasesController; def rescue_action(e) raise e end; end
-
-class ReleasesControllerTest < ActionController::TestCase
+class ReleasesControllerTest < ActionDispatch::IntegrationTest
   include ControllerResourceHelper
   include ReleasesTestHelper
 
@@ -22,47 +19,31 @@ class ReleasesControllerTest < ActionController::TestCase
     
   # Test getting releases (based on role).
   def test_index_by_project_admin
-    index_by_role(individuals(:aaron), Release.find_all_by_project_id(1).length)
+    index_by_role(individuals(:aaron), Release.where(project_id: 1).length)
   end
     
   # Test getting releases (based on role).
   def test_index_by_project_user
-    index_by_role(individuals(:user), Release.find_all_by_project_id(1).length)
+    index_by_role(individuals(:user), Release.where(project_id: 1).length)
   end
     
   # Test getting releases (based on role).
   def test_index_by_read_only_user
-    index_by_role(individuals(:readonly), Release.find_all_by_project_id(1).length)
-  end
-    
-  # Test getting companies (based on role).
-  def test_index_no_changes
-    index_by_role(individuals(:aaron), nil, {:date => (Time.now + 5).to_s})
-  end
-    
-  # Test getting companies (based on role).
-  def test_index_changes
-    index_by_role(individuals(:aaron), Release.find_all_by_project_id(1).length, {:date => (Time.now - 5).to_s})
+    index_by_role(individuals(:readonly), Release.where(project_id: 1).length)
   end
 
   # Test getting releases (based on role).
   def index_by_role(user, count, params={})
     login_as(user)
-    get :index, params: params
+    get base_URL, params: params
     assert_response :success
-    if (count == 0)
-      assert_select "releases", false
-    else
-      assert_select "releases" do
-        assert_select "release", count
-      end
-    end
+    assert_equal count, json.length
   end
 
   # Test showing an release for another project.
   def test_show_wrong_project
     login_as(individuals(:aaron))
-    get :show, params: {:id => 3}
+    get base_URL + '/3'
     assert_response 401
   end
     
@@ -87,17 +68,17 @@ class ReleasesControllerTest < ActionController::TestCase
     num = resource_count
     params = create_success_parameters
     params[:record] = params[:record].merge( :project_id => '2' )
-    post :create, params: params
+    post base_URL, params: params
     assert_response 401
     assert_equal num, resource_count
-    assert_select 'errors'
+    assert json['error']
   end
 
   # Create successfully based on role.
   def create_by_role_successful( user )
     login_as(user)
     num = resource_count
-    post :create, params: create_success_parameters
+    post base_URL, params: create_success_parameters
     assert_response 201
     assert_equal num + 1, resource_count
     assert_create_succeeded
@@ -107,10 +88,10 @@ class ReleasesControllerTest < ActionController::TestCase
   def create_by_role_unsuccessful( user )
     login_as(user)
     num = resource_count
-    post :create, params: create_success_parameters
+    post base_URL, params: create_success_parameters
     assert_response 401
     assert_equal num, resource_count
-    assert_select "errors"
+    assert json['error']
   end
     
   # Test updating releases (based on role).
@@ -136,16 +117,16 @@ class ReleasesControllerTest < ActionController::TestCase
   # Test updating an release for another project.
   def test_update_wrong_project
     login_as(individuals(:aaron))
-    put :update, params: {:id => 3}.merge(update_success_parameters)
+    put base_URL + '/3', params: update_success_parameters
     assert_response 401
     assert_change_failed
-    assert_select 'errors'
+    assert json['error']
   end
   
   # Update successfully based on role.
   def update_by_role_successful( user, params = (update_success_parameters[resource_symbol]) )
     login_as(user)
-    put :update, params: {:id => 1, resource_symbol => params}
+    put base_URL + '/1', params: {resource_symbol => params}
     assert_response :success
     assert_update_succeeded
   end
@@ -153,10 +134,10 @@ class ReleasesControllerTest < ActionController::TestCase
   # Update unsuccessfully based on role.
   def update_by_role_unsuccessful( user, params = (update_success_parameters[resource_symbol]) )
     login_as(user)
-    put :update, params: {:id => 1, resource_symbol => params}
+    put base_URL + '/1', params: {resource_symbol => params}
     assert_response 401
     assert_change_failed
-    assert_select "errors"
+    assert json['error']
   end
     
   # Test deleting releases (based on role).
@@ -177,26 +158,26 @@ class ReleasesControllerTest < ActionController::TestCase
   # Delete from a different project.
   def test_delete_wrong_project
     login_as(individuals(:aaron))
-    delete :destroy, params: {:id => 3}
+    delete base_URL + '/3'
     assert_response 401
-    assert Release.find_by_name('third')
-    assert_select "errors"
+    assert Release.where(name: 'third').first
+    assert json['error']
   end
       
   # Delete successfully based on role.
   def delete_by_role_successful( user )
     login_as(user)
-    delete :destroy, params: {:id => 1}
+    delete base_URL + '/1'
     assert_response :success
-    assert_nil Release.find_by_name('first')
+    assert_nil Release.where(name: 'first').first
   end
 
   # Delete unsuccessfully based on role.
   def delete_by_role_unsuccessful( user )
     login_as(user)
-    delete :destroy, params: {:id => 1}
+    delete base_URL + '/1'
     assert_response 401
-    assert Release.find_by_name('first')
-    assert_select "errors"
+    assert Release.where(name: 'first').first
+    assert json['error']
   end
 end

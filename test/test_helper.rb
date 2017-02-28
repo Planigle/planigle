@@ -26,7 +26,9 @@ class ActiveSupport::TestCase
 
   # Set the current individual in the session from the individual fixtures.
   def login_as(individual)
-    @request.session[:individual_id] = individual ? individual.id : nil
+    if individual
+      post '/session', params: {login: individual.login, password: 'testit'}
+    end
   end
 
   # Set the header for http authentication using the specified individual. 

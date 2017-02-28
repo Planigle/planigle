@@ -26,16 +26,20 @@ module SystemsTestHelper
 
   # Verify that the object was updated.
   def assert_update_succeeded
-    assert_equal 'foo', System.find(:first).reload.license_agreement
+    assert_equal 'foo', System.first.reload.license_agreement
   end
 
   # Verify that the object was not created / updated.
   def assert_change_failed
-    assert 'foo', System.find(:first).reload.license_agreement != 'foo'
+    assert 'foo', System.first.reload.license_agreement != 'foo'
   end
 
   # Verify that the object was not created / updated with valid changes.
   def assert_valid_change_failed
-    assert 'foo', System.find(:first).reload.license_agreement != 'foo'
+    assert 'foo', System.first.reload.license_agreement != 'foo'
+  end
+  
+  def base_URL
+    '/system'
   end
 end

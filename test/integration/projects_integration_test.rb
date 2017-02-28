@@ -13,9 +13,6 @@ class ProjectsIntegrationTest < ActionDispatch::IntegrationTest
   fixtures :teams
   fixtures :story_attributes
 
-  # Re-raise errors caught by the controller.
-  class ProjectsController; def rescue_action(e) raise e end; end
-
   def setup
     ActionMailer::Base.delivery_method = :test
     ActionMailer::Base.perform_deliveries = true
@@ -25,16 +22,9 @@ class ProjectsIntegrationTest < ActionDispatch::IntegrationTest
 
   # Test getting teams and attributes for a project.
   def test_show_teams_and_attributes
+    login_as(individuals(:admin2))
     get resource_url << '/1', params: {}, headers: authorization_header
     assert_response :success
-    assert_select resource_string
-    assert_select 'project' do
-      assert_select 'filtered-attributes' do
-        assert_select 'filtered-attribute'
-      end
-      assert_select 'teams' do
-        assert_select 'team'
-      end
-    end
+    assert json
   end
 end

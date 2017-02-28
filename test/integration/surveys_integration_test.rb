@@ -10,38 +10,27 @@ class SurveysIntegrationTest < ActionDispatch::IntegrationTest
   fixtures :surveys
   fixtures :survey_mappings
 
-  # Re-raise errors caught by the controller.
-  class SurveysController; def rescue_action(e) raise e end; end
-
   # Test creating a survey.
   def test_create_survey
+    login_as(individuals(:admin2))
     get '/surveys/new?survey_key=' + projects(:first).survey_key, params: {}, headers: accept_header
     assert_response :success
-
-    assert_select 'stories' do
-      assert_select 'story', 2 do
-        assert_select 'id'
-        assert_select 'story'
-        assert_select 'description'
-        assert_select 'priority'
-      end
-    end
+    assert_equal 2, json.length
   end
 
   # Test creating a survey w/ invalid number.
   def test_create_survey_invalid
+    login_as(individuals(:admin2))
     get '/surveys/new?survey_key=0', params: {}, headers: accept_header
     assert_response 422
-
-    assert_select 'errors' do
-      assert_select 'error'
-    end
+    assert json
   end
 
   # Test submitting a survey.
   def test_submit_survey_success
-    post '/surveys?survey_key=' + projects(:first).survey_key, params: {:name => 'hat', :email => 'hat@bat.com', :stories => [4, 1]}, headers: accept_header    
-    assert_response 201
+    login_as(individuals(:admin2))
+    post '/surveys', params: {record: {:survey_key => projects(:first).survey_key, :name => 'hat', :email => 'hat@bat.com', :stories => [4, 1]}}, headers: accept_header    
+    assert_response 200
 
     assert_equal (BigDecimal("4")/3).round(3), stories(:first).reload.user_priority
     assert_equal BigDecimal("1"), stories(:second).reload.user_priority
@@ -51,23 +40,21 @@ class SurveysIntegrationTest < ActionDispatch::IntegrationTest
 
   # Test submitting a survey unsuccessfully.
   def test_submit_survey_failure
-    post '/surveys?survey_key=' + projects(:first).survey_key, params: {:stories => [4, 1]}, headers: accept_header    
+    login_as(individuals(:admin2))
+    post '/surveys', params: {record: {:survey_key => projects(:first).survey_key, :stories => [4, 1]}}, headers: accept_header    
     assert_response 422
 
-    assert_select 'errors' do
-      assert_select 'error'
-    end
+    assert json
     assert_nil stories(:fourth).reload.user_priority
   end
 
   # Test submitting a survey w/ an invalid survey number.
   def test_submit_survey_invalid
-    post '/surveys?survey_key=0', params: {:email => 'hat@bat.com', :stories => [4, 1]}, headers: accept_header    
+    login_as(individuals(:admin2))
+    post '/surveys', params: {record: {:survey_key => 0, :email => 'hat@bat.com', :stories => [4, 1]}}, headers: accept_header    
     assert_response 422
 
-    assert_select 'errors' do
-      assert_select 'error'
-    end
+    assert json
     assert_nil stories(:fourth).reload.user_priority
   end
   
@@ -79,18 +66,10 @@ class SurveysIntegrationTest < ActionDispatch::IntegrationTest
 
   # Test listing surveys.
   def test_list_survey
+    login_as(individuals(:admin2))
     get '/surveys', params: {}, headers: authorization_header
     assert_response :success
-
-    assert_select 'surveys' do
-      assert_select 'survey', Survey.where(project_id: 1).count do
-        assert_select 'id'
-        assert_select 'name'
-        assert_select 'company'
-        assert_select 'email'
-        assert_select 'excluded'
-      end
-    end
+    assert Survey.where(project_id: 1).count, json.length
   end
 
   # Test showing a survey.
@@ -101,35 +80,25 @@ class SurveysIntegrationTest < ActionDispatch::IntegrationTest
 
   # Test showing a survey.
   def test_show_survey
+    login_as(individuals(:admin2))
     get '/surveys/1', params: {}, headers: authorization_header
     assert_response :success
-
-    assert_select 'survey' do
-      assert_select 'id'
-      assert_select 'name'
-      assert_select 'company'
-      assert_select 'email'
-      assert_select 'excluded'
-      assert_select 'survey-mappings' do
-        assert_select 'survey-mapping' do
-          assert_select 'story-id'
-          assert_select 'priority'
-        end
-      end
-    end
+    assert json
   end
 
   # Test updating a survey.
   def test_update_survey
+    login_as(individuals(:admin2))
     put '/surveys/2', params: {:record => {:excluded => true}}, headers: authorization_header
     assert_response :success
-    assert_select 'survey'
+    assert json
     assert surveys(:second).reload.excluded
     assert_nil stories(:third).reload.user_priority
   end
 
   # Test updating a survey w/ invalid number.
   def test_update_survey_invalid
+    login_as(individuals(:admin2))
     put '/surveys/0', params: {:record => {:excluded => true}}, headers: authorization_header
     assert_response 404
     assert_equal 2.0, stories(:third).reload.user_priority
@@ -141,5 +110,11 @@ class SurveysIntegrationTest < ActionDispatch::IntegrationTest
     assert_response 401
     assert !surveys(:second).reload.excluded
     assert_equal 2.0, stories(:third).reload.user_priority
+  end
+  
+private
+  
+  def json
+    JSON.parse(response.body)
   end
 end

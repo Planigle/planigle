@@ -12,7 +12,4 @@ class IterationsIntegrationTest < ActionDispatch::IntegrationTest
   fixtures :projects
   fixtures :individuals_projects
   fixtures :stories
-
-  # Re-raise errors caught by the controller.
-  class IterationsController; def rescue_action(e) raise e end; end
 end

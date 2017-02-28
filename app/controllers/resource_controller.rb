@@ -34,14 +34,12 @@ class ResourceController < ApplicationController
           not_visible("created")
         end
       rescue Exception => e
-        respond_to do |format|
-          if @record.valid?
-            logger.error(e)
-            logger.error(e.backtrace.join("\n"))
-            render :json => {:error => 'Error creating'}, :status => 500
-          else
-            render :json => @record.errors, :status => :unprocessable_entity
-          end
+        if @record.valid?
+          logger.error(e)
+          logger.error(e.backtrace.join("\n"))
+          render :json => {:error => 'Error creating'}, :status => 500
+        else
+          render :json => @record.errors, :status => :unprocessable_entity
         end
       end
     else

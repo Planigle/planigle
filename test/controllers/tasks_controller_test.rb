@@ -2,21 +2,21 @@ require "#{File.dirname(__FILE__)}/../test_helper"
 require "#{File.dirname(__FILE__)}/../tasks_test_helper"
 require "#{File.dirname(__FILE__)}/controller_resource_helper"
 
-# Re-raise errors caught by the controller.
-class TasksController; def rescue_action(e) raise e end; end
-
-class TasksControllerTest < ActionController::TestCase
+class TasksControllerTest < ActionDispatch::IntegrationTest
   include ControllerResourceHelper
   include TasksTestHelper
 
   fixtures :systems
   fixtures :individuals
   fixtures :tasks
+  fixtures :stories
+  fixtures :projects
+  fixtures :individuals_projects
     
   # Test successfully setting the owner.
   def test_set_owner_success
     login_as(individuals(:quentin))
-    put :update, params: {:id => 1, :record => {:individual_id => 2}, :story_id => 1}
+    put base_URL + '/1', params: {:record => {:individual_id => 2}}
     assert_response :success
     assert_equal tasks(:one).reload.individual_id, 2
   end
@@ -24,45 +24,43 @@ class TasksControllerTest < ActionController::TestCase
   # Test unsuccessfully setting the owner.
   def test_set_owner_failure
     login_as(individuals(:quentin))
-    put :update, params: {:id => 1, :record => {:individual_id => 999}, :story_id => 1}
-    assert_response :success
+    put base_URL + '/1', params: {:record => {:individual_id => 999}}
+    assert_response 422
     assert_not_equal tasks(:one).reload.individual_id, 999
   end
 
   # Test getting tasks (based on role).
   def test_index_by_admin
-    index_by_role(individuals(:quentin), Story.find_all_by_project_id(1).inject(0){|sum, story| sum + story.tasks.length})
+    index_by_role(individuals(:quentin), Story.where(project_id: 1).inject(0){|sum, story| sum + story.tasks.length})
   end
     
   # Test getting tasks (based on role).
   def test_index_by_project_admin
-    index_by_role(individuals(:aaron), Story.find_all_by_project_id(1).inject(0){|sum, story| sum + story.tasks.length})
+    index_by_role(individuals(:aaron), Story.where(project_id: 1).inject(0){|sum, story| sum + story.tasks.length})
   end
     
   # Test getting tasks (based on role).
   def test_index_by_project_user
-    index_by_role(individuals(:user), Story.find_all_by_project_id(1).inject(0){|sum, story| sum + story.tasks.length})
+    index_by_role(individuals(:user), Story.where(project_id: 1).inject(0){|sum, story| sum + story.tasks.length})
   end
     
   # Test getting tasks (based on role).
   def test_index_by_read_only_user
-    index_by_role(individuals(:readonly), Story.find_all_by_project_id(1).inject(0){|sum, story| sum + story.tasks.length})
+    index_by_role(individuals(:readonly), Story.where(project_id: 1).inject(0){|sum, story| sum + story.tasks.length})
   end
 
   # Test getting tasks (based on role).
   def index_by_role(user, count)
     login_as(user)
-    get :index, params: {:story_id => 1}
+    get base_URL
     assert_response :success
-    assert_select "tasks" do
-      assert_select "task", count
-    end
+    assert_equal count, json.length
   end
 
   # Test showing a task for another project.
   def test_show_wrong_project
     login_as(individuals(:aaron))
-    get :show, params: {:id => 3, :story_id => 5}
+    get '/stories/5/tasks/3'
     assert_response 401
   end
     
@@ -85,7 +83,7 @@ class TasksControllerTest < ActionController::TestCase
   def test_create_wrong_project
     login_as(individuals(:aaron))
     num = resource_count
-    post :create, params: create_success_parameters.merge( :story_id => '5' )
+    post '/stories/5/tasks', params: create_success_parameters
     assert_response 401
     assert_equal num, resource_count
   end
@@ -94,7 +92,7 @@ class TasksControllerTest < ActionController::TestCase
   def create_by_role_successful( user )
     login_as(user)
     num = resource_count
-    post :create, params: create_success_parameters
+    post base_URL, params: create_success_parameters
     assert_response 201
     assert_equal num + 1, resource_count
     assert_create_succeeded
@@ -104,10 +102,10 @@ class TasksControllerTest < ActionController::TestCase
   def create_by_role_unsuccessful( user )
     login_as(user)
     num = resource_count
-    post :create, params: create_success_parameters
+    post base_URL, params: create_success_parameters
     assert_response 401
     assert_equal num, resource_count
-    assert_select "errors"
+    assert json['error']
   end
     
   # Test updating tasks (based on role).
@@ -128,16 +126,16 @@ class TasksControllerTest < ActionController::TestCase
   # Test updating a task for another project.
   def test_update_wrong_project
     login_as(individuals(:aaron))
-    put :update, params: update_success_parameters.merge({:id => 3, :story_id => 5})
+    put '/stories/5/tasks/3', params: update_success_parameters
     assert_response 401
     assert_change_failed
-    assert_select 'errors'
+    assert json['error']
   end
   
   # Update successfully based on role.
   def update_by_role_successful( user )
     login_as(user)
-    put :update, params: {:id => 1}.merge(update_success_parameters)
+    put base_URL + '/1', params: update_success_parameters
     assert_response :success
     assert_update_succeeded
   end
@@ -145,10 +143,10 @@ class TasksControllerTest < ActionController::TestCase
   # Update unsuccessfully based on role.
   def update_by_role_unsuccessful( user )
     login_as(user)
-    put :update, params: {:id => 1}.merge(update_success_parameters)
+    put base_URL + '/1', params: update_success_parameters
     assert_response 401
     assert_change_failed
-    assert_select "errors"
+    assert json['error']
   end
     
   # Test deleting tasks (based on role).
@@ -169,27 +167,27 @@ class TasksControllerTest < ActionController::TestCase
   # Delete from a different project.
   def test_delete_wrong_project
     login_as(individuals(:aaron))
-    delete :destroy, params: {:id => 3, :story_id => 5}
+    delete '/stories/5/tasks/3'
     assert_response 401
-    assert Task.find_by_name('test3')
-    assert_select "errors"
+    assert Task.where(name: 'test3').first
+    assert json['error']
   end
       
   # Delete successfully based on role.
   def delete_by_role_successful( user )
     login_as(user)
-    delete :destroy, params: {:id => 1, :story_id => 1}
+    delete base_URL + '/1'
     assert_response :success
-    assert_nil Task.find_by_name('test_task')
+    assert_nil Task.where(name: 'test_task').first
   end
 
   # Delete unsuccessfully based on role.
   def delete_by_role_unsuccessful( user )
     login_as(user)
-    delete :destroy, params: {:id => 1, :story_id => 1}
+    delete base_URL + '/1'
     assert_response 401
-    assert Task.find_by_name('test_task')
-    assert_select "errors"
+    assert Task.where(name: 'test_task').first
+    assert json['error']
   end
 
   # Test changing all the tasks status to done.
@@ -197,7 +195,7 @@ class TasksControllerTest < ActionController::TestCase
     email_count = PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
     sms_count = PLANIGLE_SMS_NOTIFIER.number_of_notifications
     login_as(individuals(:aaron))
-    put :update, params: {:id => 1, :record => {:status_code => 3}, :story_id => 1}
+    put base_URL + '/1', params: {:record => {:status_code => 3}}
     assert_equal email_count+2, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
     assert_equal sms_count+2, PLANIGLE_SMS_NOTIFIER.number_of_notifications
   end
@@ -205,7 +203,7 @@ class TasksControllerTest < ActionController::TestCase
   # Test successfully setting the owner.
   def test_moving_to_done_clears_effort
     login_as(individuals(:quentin))
-    put :update, params: {:id => 1, :record => {:status_code =>3}, :story_id => 1}
+    put base_URL + '/1', params: {:record => {:status_code =>3}}
     assert_response :success
     assert_equal 0, tasks(:one).reload.effort
   end
@@ -213,7 +211,7 @@ class TasksControllerTest < ActionController::TestCase
   # Test successfully setting the owner.
   def test_moving_to_done_clears_effort_unless_set
     login_as(individuals(:quentin))
-    put :update, params: {:id => 1, :record => {:status_code =>3, :effort =>1}, :story_id => 1}
+    put base_URL + '/1', params: {:record => {:status_code =>3, :effort =>1}}
     assert_response :success
     assert_equal 1, tasks(:one).reload.effort
   end
@@ -221,15 +219,15 @@ class TasksControllerTest < ActionController::TestCase
   # Test successfully setting the owner.
   def test_moving_to_in_progress_assigns_owner
     prepare_for_owner_test
-    put :update, params: {:id => 1, :record => {:status_code =>1}, :story_id => 1}
+    put base_URL + '/1', params: {:record => {:status_code =>1}}
     assert_response :success
-    assert_equal 3, tasks(:one).reload.individual_id
+    assert_equal 4, tasks(:one).reload.individual_id
   end
     
   # Test successfully setting the owner.
   def test_moving_to_in_progress_assigns_owner_unless_set
     prepare_for_owner_test
-    put :update, params: {:id => 1, :record => {:status_code =>1, :individual_id =>2}, :story_id => 1}
+    put base_URL + '/1', params: {:record => {:status_code =>1, :individual_id =>2}}
     assert_response :success
     assert_equal 2, tasks(:one).reload.individual_id
   end
@@ -237,7 +235,7 @@ class TasksControllerTest < ActionController::TestCase
   # Test successfully setting the owner.
   def test_moving_to_in_progress_assigns_owner_unless_no_status
     prepare_for_owner_test
-    put :update, params: {:id => 1, :record => {:name => 'foo'}, :story_id => 1}
+    put base_URL + '/1', params: {:record => {:name => 'foo'}}
     assert_response :success
     assert_nil tasks(:one).reload.individual_id
   end
@@ -245,7 +243,7 @@ class TasksControllerTest < ActionController::TestCase
   # Test successfully setting the owner.
   def test_moving_to_in_progress_assigns_owner_unless_status_created
     prepare_for_owner_test
-    put :update, params: {:id => 1, :record => {:status_code =>0}, :story_id => 1}
+    put base_URL + '/1', params: {:record => {:status_code =>0}}
     assert_response :success
     assert_nil tasks(:one).reload.individual_id
   end
@@ -253,7 +251,7 @@ class TasksControllerTest < ActionController::TestCase
   # Test successfully setting the owner.
   def test_moving_to_in_progress_assigns_owner_unless_owner_set
     prepare_for_owner_test(false)
-    put :update, params: {:id => 1, :record => {:status_code =>1}, :story_id => 1}
+    put base_URL + '/1', params: {:record => {:status_code =>1}}
     assert_response :success
     assert_equal 2, tasks(:one).reload.individual_id
   end
@@ -265,6 +263,6 @@ class TasksControllerTest < ActionController::TestCase
       task.individual_id = nil
     end
     task.save( :validate=> false )
-    login_as(individuals(:ted))
+    login_as(individuals(:user))
   end
 end

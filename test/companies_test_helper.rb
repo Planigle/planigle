@@ -31,31 +31,35 @@ module CompaniesTestHelper
 
   # Verify that the object was created.
   def assert_create_succeeded
-    assert Company.find_by_name('foo')
+    assert Company.where(name: 'foo').first
   end
 
   # Verify that the object was updated.
   def assert_update_succeeded
-    assert Company.find_by_name('foo')
+    assert Company.where(name: 'foo').first
   end
 
   # Verify that the object was not created / updated.
   def assert_change_failed
-    assert_nil Company.find_by_name('')
+    assert_nil Company.where(name: '').first
   end
 
   # Verify that the object was not created / updated with valid changes.
   def assert_valid_change_failed
-    assert_nil Company.find_by_name('foo')
+    assert_nil Company.where(name: 'foo').first
   end
 
   # Verify that the object was deleted.
   def assert_delete_succeeded
-    assert_nil Company.find_by_name('Test2_company')
+    assert_nil Company.where(name: 'Test2_company').first
   end
 
   # Verify that the object was not deleted.
   def assert_delete_failed
-    assert Company.find_by_name('Test2_company')
+    assert Company.where(name: 'Test2_company').first
+  end
+  
+  def base_URL
+    '/companies'
   end
 end

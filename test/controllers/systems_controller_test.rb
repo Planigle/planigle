@@ -1,10 +1,9 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
 require "#{File.dirname(__FILE__)}/../systems_test_helper"
 
-# Re-raise errors caught by the controller.
-class SystemsController; def rescue_action(e) raise e end; end
-
-class SystemsControllerTest < ActionController::TestCase
+class SystemsControllerTest < ActionDispatch::IntegrationTest
+  base_URL = '/system'
+  
   include SystemsTestHelper
 
   fixtures :systems
@@ -26,102 +25,89 @@ class SystemsControllerTest < ActionController::TestCase
 
   # Test summarizing data.
   def test_summarize
-    get :summarize
+    get '/summarize'
   end
 
   # Test getting report data.
-  def test_report
+  def test_iteration_totals
     login_as(individuals(:admin2))
-    get :report
-    assert_select "release-totals" do
-      assert_select "release-total", 0
-    end
-    assert_select "release-breakdowns" do
-      assert_select "category-total", 0
-    end
-    assert_select "iteration-totals" do
-      assert_select "iteration-total", 2
-    end
-    assert_select "iteration-story-totals" do
-      assert_select "iteration-story-total", 2
-    end
-    assert_select "iteration-breakdowns" do
-      assert_select "category-total", 16
-    end
-    assert_select "iteration-velocities" do
-      assert_select "iteration-velocity", 2
-    end
+    get '/report_iteration_totals', params: {iteration_id: 1}
+    assert_response :success
+    assert json
   end
 
   # Test getting report data.
-  def test_report_release
+  def test_iteration_totals_unauthorized
+    get '/report_iteration_totals', params: {iteration_id: 1}
+    assert_response 401
+    assert json['error']
+  end
+
+  # Test getting report data.
+  def test_release_totals
     login_as(individuals(:admin2))
-    get :report_release, params: {:release_id => 1}
-    assert_select "release-totals" do
-      assert_select "release-total", 2
-    end
-    assert_select "release-breakdowns" do
-      assert_select "category-total", 16
-    end
+    get '/report_release_totals', params: {release_id: 1}
+    assert_response :success
+    assert json
   end
 
   # Test getting report data.
-  def test_report_release_diff_project
-    login_as(individuals(:project_admin2))
-    get :report_release, params: {:release_id => 1}
-    assert_select "release-totals", 0
-    assert_select "release-breakdowns", 0
+  def test_release_totals_unauthorized
+    get '/report_release_totals', params: {release_id: 1}
+    assert_response 401
+    assert json['error']
   end
 
   # Test getting report data.
-  def test_report_iteration
+  def test_team_totals
     login_as(individuals(:admin2))
-    get :report_iteration, params: {:iteration_id => 1}
-    assert_select "iteration-totals" do
-      assert_select "iteration-total", 2
-    end
-    assert_select "iteration-story-totals" do
-      assert_select "iteration-story-total", 2
-    end
-    assert_select "iteration-breakdowns" do
-      assert_select "category-total", 16
-    end
+    get '/report_team_totals'
+    assert_response :success
+    assert json
   end
 
   # Test getting report data.
-  def test_report_iteration_diff_project
-    login_as(individuals(:project_admin2))
-    get :report_iteration, params: {:iteration_id => 1}
-    assert_select "iteration-totals", 0
-    assert_select "iteration-story-totals", 0
-    assert_select "iteration-breakdowns", 0
+  def test_team_totals_unauthorized
+    get '/report_team_totals'
+    assert_response 401
+    assert json['error']
   end
 
-  def test_report_admin
-    i = individuals(:quentin)
-    i.selected_project_id = 1
-    i.save( :validate=> false )
-    login_as(individuals(:quentin))
-    get :report
-    assert_select "release-totals" do
-      assert_select "release-total", 0
-    end
-    assert_select "iteration-totals" do
-      assert_select "iteration-total", 2
-    end
-    assert_select "iteration-story-totals" do
-      assert_select "iteration-story-total", 2
-    end
-    assert_select "iteration-velocities" do
-      assert_select "iteration-velocity", 2
-    end
+  # Test getting report data.
+  def test_upcoming_iterations
+    login_as(individuals(:admin2))
+    get '/report_upcoming_iterations'
+    assert_response :success
+    assert json
+  end
+
+  # Test getting report data.
+  def test_upcoming_iterations_unauthorized
+    get '/report_upcoming_iterations'
+    assert_response 401
+    assert json['error']
+  end
+
+  # Test getting report data.
+  def test_iteration_metrics
+    login_as(individuals(:admin2))
+    get '/report_iteration_metrics'
+    assert_response :success
+    assert json
+  end
+
+  # Test getting report data.
+  def test_iteration_metrics_unauthorized
+    get '/report_iteration_metrics'
+    assert_response 401
+    assert json['error']
   end
     
   # Test creating a new resource without credentials.
   def test_create_unauthorized
     num = resource_count
-    post :create, params: create_failure_parameters
-    assert_redirected_to :controller => 'sessions', :action => 'new'
+    post base_URL, params: create_failure_parameters
+    assert_response 401
     assert_equal num, resource_count
     assert_change_failed
   end
@@ -130,48 +116,42 @@ class SystemsControllerTest < ActionController::TestCase
   def test_create_failure
     login_as(individuals(:quentin))
     num = resource_count
-    post :create, params: create_failure_parameters
-    assert_response :success
+    post base_URL, params: create_failure_parameters
     assert_equal num, resource_count
     assert_change_failed
+    assert json['error']
   end
 
   # Test updating an resource without credentials.
   def test_update_unauthorized
-    put :update, params: {:id => 1}.merge(update_success_parameters)
-    assert_redirected_to :controller => 'sessions', :action => 'new'
+    put base_URL, params: update_success_parameters
+    assert_response 401
     assert_change_failed
   end
 
-  # Test succcessfully updating an resource.
+  # Test successfully updating an resource.
   def test_update_success
     login_as(individuals(:quentin))
-    put :update, params: {:id => 1}.merge(update_success_parameters)
+    put base_URL, params: update_success_parameters
     assert_response :success
     assert_update_succeeded
   end
 
-  # Test updating an resource where the update fails.
-  def test_update_failure
-    login_as(individuals(:quentin))
-    put :update, params: {:id => 1}.merge(update_failure_parameters)
-    assert_response :success
-    assert_change_failed
-  end
-
   # Test deleting an resource without credentials.
   def test_destroy_unauthorized
-    delete :destroy, params: {:id => 2}.merge(context)
-    assert_redirected_to :controller => 'sessions', :action => 'new'
+    delete base_URL, params: context
+    assert_response 401
     assert_equal 1, System.count
+    assert json['error']
   end
     
   # Test unsuccessfully deleting a resource.
   def test_destroy_success
     login_as(individuals(:quentin))
-    delete :destroy, params: {:id => 1}.merge(context)
-    assert_response :success
+    delete base_URL, params: context
+    assert_response 401
     assert_equal 1, System.count
+    assert json['error']
   end
     
   # Test creating systems (based on role).
@@ -193,10 +173,10 @@ class SystemsControllerTest < ActionController::TestCase
   def create_by_role_unsuccessful( user )
     login_as(user)
     num = resource_count
-    post :create, params: create_failure_parameters
+    post base_URL, params: create_failure_parameters
     assert_response 401
     assert_equal num, resource_count
-    assert_select "errors"
+    assert json['error']
   end
     
   # Test updating systems (based on role).
@@ -214,19 +194,10 @@ class SystemsControllerTest < ActionController::TestCase
     update_by_role_unsuccessful(individuals(:readonly))
   end
     
-  # Test updating another system.
-  def test_update_wrong_system
-    login_as(individuals(:aaron))
-    put :update, params: {:id => 2}.merge(update_success_parameters)
-    assert_response 401
-    assert_change_failed
-    assert_select 'errors'
-  end
-  
   # Update successfully based on role.
   def update_by_role_successful( user, params = (update_success_parameters[:record]) )
     login_as(user)
-    put :update, params: {:id => 1, :record => params}
+    put base_URL, params: {:record => params}
     assert_response :success
     assert_update_succeeded
   end
@@ -234,10 +205,10 @@ class SystemsControllerTest < ActionController::TestCase
   # Update unsuccessfully based on role.
   def update_by_role_unsuccessful( user, params = (update_success_parameters[:record]) )
     login_as(user)
-    put :update, params: {:id => 1, :record => params}
+    put base_URL, params: {:record => params}
     assert_response 401
     assert_change_failed
-    assert_select "errors"
+    assert json['error']
   end
     
   # Test deleting systems (based on role).
@@ -258,9 +229,15 @@ class SystemsControllerTest < ActionController::TestCase
   # Delete unsuccessfully based on role.
   def delete_by_role_unsuccessful( user )
     login_as(user)
-    delete :destroy, params: {:id => 1}
+    delete base_URL
     assert_response 401
     assert_equal 1, System.count
-    assert_select "errors"
+    assert json['error']
+  end
+    
+private
+
+  def json
+    JSON.parse(response.body)
   end
 end

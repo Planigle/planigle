@@ -1,9 +1,6 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
-# Re-raise errors caught by the controller.
-class SessionsController; def rescue_action(e) raise e end; end
-
-class SessionsControllerTest < ActionController::TestCase
+class SessionsControllerTest < ActionDispatch::IntegrationTest
   fixtures :systems
   fixtures :individuals
   fixtures :projects
@@ -14,23 +11,12 @@ class SessionsControllerTest < ActionController::TestCase
   fixtures :releases
   fixtures :iterations
   
-  def setup
-    @controller = SessionsController.new
-  end
-
   # Test successfully logging in.
   def test_should_login_admin
-    post :create, params: {:login => 'quentin', :password => 'testit'}
+    post base_URL, params: {:login => 'quentin', :password => 'testit'}
     assert session[:individual_id]
     assert individuals(:quentin).last_login > (Time.now - 10)
-    assert_select 'current-individual', 1
-    assert_select 'system', 1
-    assert_select 'release', false
-    assert_select 'iteration', false
-    assert_select 'story', false
-    assert_select 'company', Company.count
-    assert_select 'project', Project.count
-    assert_select 'individual', 1 # no project, so just load me
+    assert json
   end
 
   # Test successfully logging in.
@@ -38,76 +24,56 @@ class SessionsControllerTest < ActionController::TestCase
     i = individuals(:quentin)
     i.selected_project_id = 1
     i.save( :validate=> false )
-    post :create, params: {:login => 'quentin', :password => 'testit', :conditions => {:status_code => 'NotDone', :team_id => 'MyTeam', :release_id => 'Current', :iteration_id => 'Current'}}
+    post base_URL, params: {:login => 'quentin', :password => 'testit', :conditions => {:status_code => 'NotDone', :team_id => 'MyTeam', :release_id => 'Current', :iteration_id => 'Current'}}
     assert session[:individual_id]
     assert individuals(:quentin).reload.last_login > (Time.now - 10)
-    assert_select 'current-individual', 1
-    assert_select 'system', 1
-    assert_select 'release', Release.find_all_by_project_id(1).length
-    assert_select 'iteration', Iteration.find_all_by_project_id(1).length
-    assert_select 'story', 3
-    assert_select 'company', Company.count
-    assert_select 'project', Project.count
-    assert_select 'individual', 8 # users in company + me
+    assert json
   end
 
   # Test successfully logging in.
   def test_should_login_project_admin
-    post :create, params: {:login => 'aaron', :password => 'testit', :conditions => {:status_code => 'NotDone', :team_id => 'MyTeam', :release_id => 'Current', :iteration_id => 'Current'}}
+    post base_URL, params: {:login => 'aaron', :password => 'testit', :conditions => {:status_code => 'NotDone', :team_id => 'MyTeam', :release_id => 'Current', :iteration_id => 'Current'}}
     assert session[:individual_id]
     assert individuals(:aaron).last_login > (Time.now - 10)
-    assert_select 'current-individual', 1
-    assert_select 'system', 1
-    assert_select 'release', Release.find_all_by_project_id(1).length
-    assert_select 'iteration', Iteration.find_all_by_project_id(1).length
-    assert_select 'story', 1
-    assert_select 'company', 1
-    assert_select 'project', 2
-    assert_select 'individual', 6
+    assert json
   end
 
   # Test failure to log in.
   def test_should_fail_login
-    post :create, params: {:login => 'quentin', :password => 'bad password'}
+    post base_URL, params: {:login => 'quentin', :password => 'bad password'}
     assert_nil session[:individual_id]
-    assert_response :success
+    assert_response 422
   end
 
   # Test logging out.
   def test_should_logout
-    post :create, params: {:login => 'quentin', :password => 'testit'}
+    post base_URL, params: {:login => 'quentin', :password => 'testit'}
     assert session[:individual_id]
-    delete :destroy
+    delete base_URL
     assert_nil session[:individual_id]
   end
 
-  # Test setting remember me.
+  # Test logging in should remember me.
   def test_should_remember_me
-    post :create, params: {:login => 'quentin', :password => 'testit', :remember_me => "true"}
+    post base_URL, params: {:login => 'quentin', :password => 'testit'}
     assert_not_nil @response.cookies["auth_token"]
   end
 
-  # Test turning off remember me.
-  def test_should_not_remember_me
-    post :create, params: {:login => 'quentin', :password => 'testit', :remember_me => "false"}
-    assert_nil @response.cookies["auth_token"]
-  end
-  
   # Test that logging out removes remember me.
   def test_should_delete_token_on_logout
-    post :create, params: {:login => 'quentin', :password => 'testit', :remember_me => "true"}
+    post base_URL, params: {:login => 'quentin', :password => 'testit'}
     assert_not_nil @response.cookies["auth_token"]
-    delete :destroy
-    assert_equal @response.cookies["auth_token"], []
+    delete base_URL
+    assert_nil @response.cookies["auth_token"]
   end
 
   # Test that cookie's presence results in automatic login.
   def test_should_login_with_cookie
     individuals(:quentin).remember_me
     individuals(:quentin).save( :validate=> false )
-    @request.cookies["auth_token"] = cookie_for(:quentin)
-    get :new
-    assert @controller.send(:logged_in?)
+    cookies['auth_token'] = cookie_for(:quentin)
+    get '/stories'
+    assert_response :success
   end
 
   # Test that an expired cookie does not log you in.
@@ -115,32 +81,32 @@ class SessionsControllerTest < ActionController::TestCase
     individuals(:quentin).remember_me
     individuals(:quentin).save( :validate=> false )
     individuals(:quentin).update_attribute :remember_token_expires_at, 5.minutes.ago
-    @request.cookies["auth_token"] = cookie_for(:quentin)
-    get :new
-    assert !@controller.send(:logged_in?)
+    cookies['auth_token'] = cookie_for(:quentin)
+    get '/stories'
+    assert_response 401
   end
 
   # Test that if the server doesn't know about the remember me cookie, it is ignored.
   def test_should_fail_cookie_login
     individuals(:quentin).remember_me
     individuals(:quentin).save( :validate=> false )
-    @request.cookies["auth_token"] = auth_token('invalid_auth_token')
-    get :new
-    assert !@controller.send(:logged_in?)
+    cookies['auth_token'] = auth_token('invalid_auth_token')
+    get '/stories'
+    assert_response 401
   end
 
   # Verify that if there is a license agreement, the user should have to accept
   def test_should_require_accept_license
-    system = System.find(:first)
+    system = System.first
     system.license_agreement = "You must accept"
     system.save( :validate=> false )
-    post :create, params: {:login => 'quentin', :password => 'testit'}
+    post base_URL, params: {:login => 'quentin', :password => 'testit'}
     assert_response 422
-    assert_select "error"
-    assert_select "agreement"
+    assert json['error']
+    assert json['agreement']
     assert_nil session[:individual_id]
     
-    post :create, params: {:login => 'quentin', :password => 'testit', :accept_agreement => "true"}
+    post base_URL, params: {:login => 'quentin', :password => 'testit', :accept_agreement => "true"}
     assert session[:individual_id]
     assert individuals(:quentin).accepted_agreement > (Time.now - 10)
   end
@@ -154,6 +120,14 @@ private
   
   # Return the cookie for remember me for an individual.
   def cookie_for(individual)
-    auth_token individuals(individual).remember_token
+    individuals(individual).remember_token
+  end
+
+  def json
+    JSON.parse(response.body)
+  end
+  
+  def base_URL
+    '/session'
   end
 end

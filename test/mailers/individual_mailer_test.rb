@@ -24,7 +24,7 @@ class IndividualMailerTest < ActiveSupport::TestCase
     response = IndividualMailer.signup_notification(i)
     assert_equal PLANIGLE_ADMIN_EMAIL, response.from[0]
     assert_equal i.email, response.to[0]
-    url_reg = /.*#{IndividualMailer.site}\/activate\/#{i.activation_code}.*/
+    url_reg = /.*#{IndividualMailer.site}\/api\/activate\/#{i.activation_code}.*/
     assert_match url_reg, response.body.to_s
     url_req = /.*enabled for the Premium Edition.*/
     assert_match url_req, response.body.to_s

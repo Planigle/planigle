@@ -31,31 +31,35 @@ module IterationsTestHelper
 
   # Verify that the object was created.
   def assert_create_succeeded
-    assert Iteration.find_by_name('foo')
+    assert Iteration.where(name: 'foo').first
   end
 
   # Verify that the object was updated.
   def assert_update_succeeded
-    assert Iteration.find_by_name('foo')
+    assert Iteration.where(name: 'foo').first
   end
 
   # Verify that the object was not created / updated.
   def assert_change_failed
-    assert_nil Iteration.find_by_name('')
+    assert_nil Iteration.where(name: '').first
   end
 
   # Verify that the object was not created / updated with valid changes.
   def assert_valid_change_failed
-    assert_nil Iteration.find_by_name('foo')
+    assert_nil Iteration.where(name: 'foo').first
   end
 
   # Verify that the object was deleted.
   def assert_delete_succeeded
-    assert_nil Iteration.find_by_name('second', :conditions => 'project_id=1')
+    assert_nil Iteration.where(project_id: 1, name: 'second').first
   end
 
   # Verify that the object was not deleted.
   def assert_delete_failed
-    assert Iteration.find_by_name('second')
+    assert Iteration.where(name: 'second').first
+  end
+  
+  def base_URL
+    '/iterations'
   end
 end

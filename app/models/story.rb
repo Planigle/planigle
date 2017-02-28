@@ -54,16 +54,20 @@ class Story < ActiveRecord::Base
   def self.export(current_user, conditions = {})
     CSV.generate(:row_sep => "\n") do |csv|
       attribs = ['PID', 'Epic', 'Name', 'Description', 'Acceptance Criteria', 'Size', 'Estimate', 'To Do', 'Actual', 'Status', 'Reason Blocked', 'Release', 'Iteration', 'Team', 'Owner', 'Public', 'User Rank', 'Lead Time', 'Cycle Time']
-      if (!current_user.project.track_actuals)
-        attribs.delete('Actual')
+      if current_user.project
+        if (!current_user.project.track_actuals)
+          attribs.delete('Actual')
+        end
+        story_attributes = current_user.project.story_attributes.where(is_custom: true).includes([:story_attribute_values]).order('name')
+        story_attributes.each {|attrib| attribs << attrib.name}
       end
-      story_attributes = current_user.project.story_attributes.where(is_custom: true).includes([:story_attribute_values]).order('name')
-      story_attributes.each {|attrib| attribs << attrib.name}
       csv << attribs
-      stories = get_records(current_user, conditions)
-      include_tasks = !conditions.delete(:view_epics)
-      stories.each do |story|
-        story.export_with_children(conditions, story_attributes, csv, include_tasks)
+      if current_user.project
+        stories = get_records(current_user, conditions)
+        include_tasks = !conditions.delete(:view_epics)
+        stories.each do |story|
+          story.export_with_children(conditions, story_attributes, csv, include_tasks)
+        end
       end
     end
   end

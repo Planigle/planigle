@@ -16,7 +16,7 @@ class SurveysController < ApplicationController
   # Post a survey template.
   def create
     record = params[:record]
-    project = Project.where("survey_key = ? and survey_mode != 0", record[:survey_key]).first
+    project = record[:survey_key] ? Project.where("survey_key = ? and survey_mode != 0", record[:survey_key]).first : nil
     if !project || !project.company.is_premium
       render :json => {error: "Invalid survey key"}, :status => :unprocessable_entity
     else
@@ -56,8 +56,6 @@ class SurveysController < ApplicationController
         end
       rescue Exception => e
         if @record.valid?
-          logger.error(e)
-          logger.error(e.backtrace.join("\n"))
           render :json => {error: 'Error processing survey'}, :status => 500
         else
           render :json => @record.errors, :status => :unprocessable_entity
