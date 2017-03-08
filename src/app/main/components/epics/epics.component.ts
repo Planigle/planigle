@@ -56,7 +56,8 @@ export class EpicsComponent extends ParentWorkItemsComponent implements AfterVie
       this.moveStory(<Story>movedRow, (<Story>movedRow).epic, targetRow.story_id);
       movedRow.story_id = targetRow.story_id;
     }
-    children.splice(this.getIndex(children, movedRow.id), 1);
+    let oldIndex: number = this.getIndex(children, movedRow.id);
+    children.splice(oldIndex, 1);
     children.splice(index, 0, <Story>movedRow);
     this.updateRows();
     this.checkRemoveRow(movedRow);

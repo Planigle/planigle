@@ -35,10 +35,10 @@
 				<textarea class="form-control" name="reason_blocked" rows="3" [(ngModel)]="model.reason_blocked" maxlength="4096" [disabled]="!me.canChangeBacklog()"></textarea>
 			  </div>
 			</div>
-			<app-custom-attributes [(customStoryAttributes)]="customStoryAttributes" [(customValues)]="customValues" [releaseId]="model.release_id" [me]="me"></app-custom-attributes>
+			<app-custom-attributes [(customStoryAttributes)]="customStoryAttributes" [(customValues)]="customValues" [(customNumericValues)]="customNumericValues" [releaseId]="model.release_id" [me]="me"></app-custom-attributes>
 		</div>
 		<div class="panel">
-			<div class="form-group row">
+			<div class="form-group row" *ngIf="!isNew()">
 			  <label for="id" class="col-xs-2 col-form-label">ID</label>
 			  <div class="col-xs-10">
 			  	<p class="form-control-static">{{model.id}}</p>
@@ -100,7 +100,7 @@
 			<div class="form-group row">
 			  <label for="toDo" class="col-xs-2 col-form-label">Size</label>
 			  <div class="col-xs-10">
-			    <input class="form-control" type="number" step="any" [(ngModel)]="model.effort" name="toDo" [disabled]="!me.canChangeBacklog()">
+			    <input class="form-control" type="number" step="any" min="0" [(ngModel)]="model.effort" name="toDo" [disabled]="!me.canChangeBacklog()">
 			  </div>
 			</div>
 			<button type="button" class="btn btn-secondary" (click)="editAttributes()" [hidden]="!me.canChangeBacklog()">Edit Attributes</button>

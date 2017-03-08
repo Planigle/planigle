@@ -43,6 +43,7 @@ export class EditStoryComponent implements OnChanges {
 
   public model: Story;
   public customValues: Map<string, any> = new Map();
+  public customNumericValues: Map<string, number> = new Map();
   public error: String;
   private modelUpdated: boolean = false;
 
@@ -59,6 +60,7 @@ export class EditStoryComponent implements OnChanges {
       this.model = new Story(this.story);
       this.model.story_values.forEach((storyValue) => {
         this.customValues[storyValue.story_attribute_id] = storyValue.value;
+        this.customNumericValues[storyValue.story_attribute_id] = parseFloat(storyValue.value);
       });
       setTimeout(() => $('input[autofocus=""]').focus(), 0);
     }
@@ -66,12 +68,11 @@ export class EditStoryComponent implements OnChanges {
       this.customStoryAttributes.forEach((storyAttribute: StoryAttribute) => {
         if (!this.customValues[storyAttribute.id]) {
           this.customValues[storyAttribute.id] = null;
+          this.customNumericValues[storyAttribute.id] = null;
         }
       });
     }
-    if ((changes.story || changes.split || changes.iterations) && (this.model && this.split && this.iterations.length > 0)
-      && !this.modelUpdated) {
-      this.modelUpdated = true;
+    if ((changes.story || changes.split) && (this.model && this.split)) {
       let criteria: AcceptanceCriterium[] = [];
       this.model.acceptance_criteria.forEach((criterium: AcceptanceCriterium) => {
         if (!criterium.isDone()) {
@@ -79,6 +80,10 @@ export class EditStoryComponent implements OnChanges {
         }
       });
       this.model.acceptance_criteria = criteria;
+    }
+    if ((changes.story || changes.split || changes.iterations) && (this.model && this.split && this.iterations.length > 0)
+      && !this.modelUpdated) {
+      this.modelUpdated = true;
       let selectedIndex = -1;
       let index = 0;
       this.iterations.forEach((iteration: Iteration) => {
@@ -242,11 +247,13 @@ export class EditStoryComponent implements OnChanges {
   }
 
   private updateModel(result: FinishedEditing, form: any): void {
+    let self: EditStoryComponent = this;
     this.model.story_values = [];
-    Object.keys(this.customValues).forEach((key) => {
-      let value: string = this.customValues[key];
+    this.customStoryAttributes.forEach((storyAttribute: StoryAttribute) => {
+      let key: string = storyAttribute.id + '';
+      let value: any = storyAttribute.isNumber() ? self.customNumericValues[key] : self.customValues[key];
       this.model.story_values.push(new StoryValue({
-        story_attribute_id: key,
+        story_attribute_id: storyAttribute.id,
         value: value === 'null' ? '' : value
       }));
     });

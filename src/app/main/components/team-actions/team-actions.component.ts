@@ -42,7 +42,7 @@ export class TeamActionsComponent implements AgRendererComponent {
     let self: TeamActionsComponent = this;
     const modalRef: NgbModalRef = this.modalService.open(ConfirmationDialogComponent);
     let component: ConfirmationDialogComponent = modalRef.componentInstance;
-    component.confirmDelete('Iteration', this.model.name);
+    component.confirmDelete(this.model.isTeam() ? 'Team' : 'Project', this.model.name);
     modalRef.result.then(
       (result: any) => {
         if (component.model.confirmed) {

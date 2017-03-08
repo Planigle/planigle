@@ -49,13 +49,19 @@
 			<div class="form-group row">
 			  <label for="estimate" class="col-xs-2 col-form-label">Estimate</label>
 			  <div class="col-xs-10">
-			    <input class="form-control" type="number" step="any" [(ngModel)]="model.estimate" name="estimate" [disabled]="!me.canChangeBacklog() || model.status_code != 0" (ngModelChange)="updateEstimate()">
+			    <input class="form-control" type="number" step="any" min="0" [(ngModel)]="model.estimate" name="estimate" [disabled]="!me.canChangeBacklog() || model.status_code != 0" (ngModelChange)="updateEstimate()">
 			  </div>
 			</div>
 			<div class="form-group row">
 			  <label for="toDo" class="col-xs-2 col-form-label">To Do</label>
 			  <div class="col-xs-10">
-			    <input class="form-control" type="number" step="any" [(ngModel)]="model.effort" name="toDo" [disabled]="!me.canChangeBacklog()">
+			    <input class="form-control" type="number" step="any" min="0" [(ngModel)]="model.effort" name="toDo" [disabled]="!me.canChangeBacklog()">
+			  </div>
+			</div>
+			<div class="form-group row" *ngIf="showActuals">
+			  <label for="actual" class="col-xs-2 col-form-label">Actual</label>
+			  <div class="col-xs-10">
+			    <input class="form-control" type="number" step="any" min="0" [(ngModel)]="model.actual" name="actual" [disabled]="!me.canChangeBacklog()">
 			  </div>
 			</div>
 		</div>

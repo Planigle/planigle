@@ -42,6 +42,7 @@ export class SessionsService {
             $('#agreementDialog').one('show.bs.modal', function (event) {
               $('.modal-title').text('License Agreement');
               $('.modal-body').html(agreement.replace(/\r/g, '<br>'));
+              setTimeout(() => $('#agreementDialog input[autofocus]').focus(), 500);
             }).modal();
           } else {
             response.error = error;

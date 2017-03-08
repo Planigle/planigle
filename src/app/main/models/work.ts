@@ -42,4 +42,8 @@ export abstract class Work {
   abstract get toDo(): number;
   abstract isStory(): boolean;
   abstract updateParentStatus(): void;
+
+  canAddChildren(): boolean {
+    return false;
+  }
 }

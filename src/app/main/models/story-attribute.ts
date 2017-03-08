@@ -153,6 +153,14 @@ export class StoryAttribute {
     return values;
   }
 
+  getValuesStringsForRelease(release_id: number): String[] {
+    let strings = [];
+    this.getValuesForRelease(release_id).forEach((storyAttributeValue: StoryAttributeValue) => {
+      strings.push(storyAttributeValue.id + '');
+    });
+    return strings;
+  }
+
   values(): string {
     let values: string[] = [];
     this.storyAttributeValues.forEach((value: StoryAttributeValue) => {
@@ -173,5 +181,9 @@ export class StoryAttribute {
 
   hasList(): boolean {
     return this.value_type === 3 || this.value_type === 4;
+  }
+
+  isNumber(): boolean {
+    return this.value_type === 2;
   }
 }

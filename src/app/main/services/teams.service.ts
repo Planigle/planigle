@@ -34,7 +34,7 @@ export class TeamsService {
   }
 
   delete(team: Team): Observable<Team> {
-    return this.http.delete(baseUrl + '/' + team.id)
+    return this.http.delete(baseUrl.replace(new RegExp('{project_id}'), '' + team.project_id) + '/' + team.id)
       .map((res: any) => res.json())
       .map((response: any) => {
         if (response.hasOwnProperty('record')) {

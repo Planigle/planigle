@@ -2,7 +2,7 @@
     <div class="row">
         <div class="account-wall mx-auto">
         	<img class="profile-img" src="images/logo.png" alt="Planigle logo">
-        	<div class="text-xs-center">Version 2.0</div>
+        	<div class="text-xs-center">Version 2.0.1</div>
         	<form class="form-signin">
         		<input [(ngModel)]="user.login" name="login" type="text" class="form-control" placeholder="User Name" required autofocus autocomplete="off">
         		<input [(ngModel)]="user.password" name="password" type="password" class="form-control" placeholder="Password" required autocomplete="off">
@@ -24,8 +24,8 @@
       <div class="modal-body agreement">
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="acceptAgreement()" i18n>Accept</button>
-        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="declineAgreement()" i18n>Decline</button>
+        <input type="button" class="btn btn-default" data-dismiss="modal" (click)="acceptAgreement()" autofocus value="Accept">
+        <input type="button" class="btn btn-default" data-dismiss="modal" (click)="declineAgreement()" value="Decline">
       </div>
     </div>
   </div>

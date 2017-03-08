@@ -23,6 +23,7 @@ class AuditsController < ApplicationController
       if params[:type]; query += ' and auditable_type = :type'; query_params[:type] = params[:type]; end
     end
     @records = Audited::Audit.where(query, query_params).order('created_at desc').limit(100)
+    @records.each{|audit| convert_audit(audit)}
     render :json => @records
   end
   
@@ -30,6 +31,7 @@ class AuditsController < ApplicationController
   def show
     @record = Audited::Audit.find(params[:id])
     if (authorized_for_read?(@record))
+      convert_audit(@record)
       render :json => @record
     else
       unauthorized
@@ -39,6 +41,20 @@ class AuditsController < ApplicationController
   end
   
 protected
+
+  def convert_audit(audit)
+    audit.audited_changes.each_pair do |key, values|
+      if values.is_a?(String)
+        values.gsub!("\r","<br>")
+      elsif values.is_a?(Array)
+        values.each do |value|
+          if value && value.is_a?(String)
+            value.gsub!("\r","<br>")
+          end
+        end
+      end
+    end
+  end
 
   def authorized_for_read?(record)
     current_individual.role == Individual::Admin or project_id == record.project_id

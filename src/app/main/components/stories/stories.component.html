@@ -39,6 +39,7 @@
 		[me]="user"
 		[hasPrevious]="previous() != null"
 		[hasNext]="next() != null"
+		[showActuals]="myProject && myProject.track_actuals"
 		(closed)="finishedEditing($event.value)"></app-edit-task>
 	<div class="scroll-up"></div>
 	<ag-grid-ng2 #agGrid class="ag-fresh"

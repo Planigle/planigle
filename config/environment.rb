@@ -168,10 +168,15 @@ module ActiveRecord
       def load(yaml)
         return object_class.new if object_class != Object && yaml.nil?
         return yaml unless yaml.is_a?(String) && /^---/.match(yaml)
-        begin
-          obj = YAML.load(yaml.gsub("\r","<br>"))
-        rescue => e
+        if yaml.match(/.*\\x.*/)
           obj = Syck.load(yaml) # Use old version of yaml
+          puts obj
+        else # try new version first
+          begin
+            obj = YAML.load(yaml)
+          rescue => e
+            obj = Syck.load(yaml) # Use old version of yaml
+          end
         end
         assert_valid_value(obj)
         obj ||= object_class.new if object_class != Object

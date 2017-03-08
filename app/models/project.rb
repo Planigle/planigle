@@ -204,7 +204,7 @@ class Project < ActiveRecord::Base
     story_attributes << StoryAttribute.new(:name => 'To Do', :is_custom => false, :value_type => StoryAttribute::Number, :width => 50, :ordering => 130, :show => true)
     story_attributes << StoryAttribute.new(:name => 'Status', :is_custom => false, :value_type => StoryAttribute::List, :width => 100, :ordering => 140, :show => true)
     story_attributes << StoryAttribute.new(:name => 'Public', :is_custom => false, :value_type => StoryAttribute::List, :width => 60, :ordering => 150, :show => false)
-    story_attributes << StoryAttribute.new(:name => 'Rank', :is_custom => false, :value_type => StoryAttribute::Number, :width => 40, :ordering => 160, :show => true)
+    story_attributes << StoryAttribute.new(:name => 'Rank', :is_custom => false, :value_type => StoryAttribute::Number, :width => 60, :ordering => 160, :show => true)
     story_attributes << StoryAttribute.new(:name => 'User Rank', :is_custom => false, :value_type => StoryAttribute::Number, :width => 90, :ordering => 170, :show => false)
     story_attributes << StoryAttribute.new(:name => 'Lead Time', :is_custom => false, :value_type => StoryAttribute::Number, :width => 90, :ordering => 180, :show => false)
     story_attributes << StoryAttribute.new(:name => 'Cycle Time', :is_custom => false, :value_type => StoryAttribute::Number, :width => 90, :ordering => 190, :show => false)

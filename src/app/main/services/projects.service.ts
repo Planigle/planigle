@@ -25,6 +25,14 @@ export class ProjectsService {
       });
   }
 
+  getProject(projectId: number): Observable<Project> {
+    return this.http.get(baseUrl + '/' + projectId)
+      .map(res => res.json())
+      .map((project: any) => {
+        return new Project(project);
+      });
+  }
+
   create(project: Project): Observable<Project> {
     return this.createOrUpdate(project, this.http.post, '');
   }

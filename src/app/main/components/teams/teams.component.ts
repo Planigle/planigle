@@ -108,7 +108,7 @@ export class TeamsComponent implements AfterViewInit, OnDestroy {
   private setSelection(selectionValue: string): void {
     let selection: Organization = null;
     if (('' + selectionValue).search(/NewProject\{C\d+\}/i) === 0) {
-      let company: Company = this.id_map[selectionValue.substring(10, selectionValue.length - 1)];
+      let company: Company = this.id_map[selectionValue.substring(11, selectionValue.length - 1)];
       if (company) {
         selection = new Project({
           company: company,
@@ -118,7 +118,7 @@ export class TeamsComponent implements AfterViewInit, OnDestroy {
         });
       }
     } else if (('' + selectionValue).search(/NewTeam\{P\d+\}/i) === 0) {
-      let project: Project = this.id_map[selectionValue.substring(7, selectionValue.length - 1)];
+      let project: Project = this.id_map[selectionValue.substring(8, selectionValue.length - 1)];
       if (project) {
         selection = new Team({
           project: project,
@@ -128,7 +128,7 @@ export class TeamsComponent implements AfterViewInit, OnDestroy {
     } else {
       selection = this.id_map[selectionValue];
     }
-    this.selection = selection ? selection : null;
+    this.selection = selection;
   }
 
   rowGroupOpened(event: any): void {
@@ -136,11 +136,11 @@ export class TeamsComponent implements AfterViewInit, OnDestroy {
   }
 
   addProject(company: Company): void {
-    this.router.navigate(['people', {organization: 'NewProject(' + company.id + ')'}]);
+    this.router.navigate(['people', {organization: 'NewProject{C' + company.id + '}'}]);
   }
 
   addTeam(project: Project): void {
-    this.router.navigate(['people', {organization: 'NewTeam(' + project.id + ')'}]);
+    this.router.navigate(['people', {organization: 'NewTeam{P' + project.id + '}'}]);
   }
 
   editRow(event): void {
@@ -209,16 +209,19 @@ export class TeamsComponent implements AfterViewInit, OnDestroy {
   }
 
   finishedEditing(result: FinishedEditing): void {
-    if (this.selection) {
-      if (this.selection.added) {
-        this.selection.added = false;
-        if (this.selection.isTeam()) {
-          let team: Team = <Team> this.selection;
+    let selection: Organization = this.selection;
+    if (selection) {
+      if (selection.added) {
+        selection.added = false;
+        if (selection.isTeam()) {
+          let team: Team = <Team> selection;
           this.id_map[team.uniqueId] = team;
+          team.project.expanded =  true;
           team.project.teams.push(team);
         } else {
-          let project: Project = <Project> this.selection;
+          let project: Project = <Project> selection;
           this.id_map[project.uniqueId] = project;
+          project.company.expanded = true;
           project.company.projects.push(project);
         }
         this.gridOptions.api.setRowData(this.companies);
@@ -228,8 +231,8 @@ export class TeamsComponent implements AfterViewInit, OnDestroy {
     }
     switch (result) {
       case FinishedEditing.AddAnother:
-        if (this.selection.isTeam()) {
-          this.setSelection('NewTeam(' + (<Team>this.selection).project.id + ')');
+        if (selection.isTeam()) {
+          this.setSelection('NewTeam(' + (<Team>selection).project.id + ')');
         } else {
           this.setSelection('NewProject(');
         }

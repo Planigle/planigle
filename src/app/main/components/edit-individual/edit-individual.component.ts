@@ -81,12 +81,16 @@ export class EditIndividualComponent implements OnChanges {
     return this.me.id === this.individual.id || this.me.canChangeRelease();
   }
 
-  ok(): void {
-    this.saveModel(FinishedEditing.Save, null);
+  ok(form): void {
+    if (this.canSave(form)) {
+      this.saveModel(FinishedEditing.Save, null);
+    }
   }
 
   addAnother(form): void {
-    this.saveModel(FinishedEditing.AddAnother, form);
+    if (this.canSave(form)) {
+      this.saveModel(FinishedEditing.AddAnother, form);
+    }
   }
 
   cancel(): void {
@@ -94,7 +98,8 @@ export class EditIndividualComponent implements OnChanges {
   }
 
   private saveModel(result: FinishedEditing, form: any): void {
-    this.individualsService.update(this.model).subscribe(
+    let method: any = this.model.id ? this.individualsService.update : this.individualsService.create;
+    method.call(this.individualsService, this.model).subscribe(
       (individual: Individual) => {
         this.individual.project_ids = individual.project_ids;
         this.individual.team_id = individual.team_id;

@@ -3,12 +3,13 @@ import { Project } from './project';
 
 export class Team extends Organization {
   public description: string;
-  public project_id: number;
   public project: Project;
+  public project_id: number;
 
   constructor(values: any) {
     super(values);
     this.description = values.description;
+    this.project = values.project;
     this.project_id = values.project_id;
   }
 

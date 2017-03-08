@@ -275,7 +275,7 @@ class Story < ActiveRecord::Base
       options[:except] = [:created_at, :updated_at, :deleted_at, :in_progress_at, :done_at]
     end
     if !options[:include]
-      options[:include] = [:story_values, :criteria, :stories]
+      options[:include] = [:story_values, :criteria, :filtered_stories]
     end
     if !options[:methods]
       options[:methods] = [:epic_name, :lead_time, :cycle_time, :filtered_tasks, :release_name, :iteration_name, :team_name, :individual_name] #:filtered_stories, 
@@ -300,7 +300,7 @@ class Story < ActiveRecord::Base
   end
   
   def filtered_stories
-    stories
+    stories.sort{|a, b| a.priority <=> b.priority }
   end
   
   def filtered_tasks
@@ -761,6 +761,17 @@ protected
       @custom_attributes.each_pair do |key, value|
         attrib = project.story_attributes.where(id: key, is_custom: true).first
         if attrib
+          if attrib.is_date && value != nil
+            value = value.gsub(/\//, '-') # Excel likes to substitute these
+            splits = value.split('-')
+            if (splits[0].length == 1)
+              splits[0] = '0' +  splits[0];
+            end
+            if (splits.length > 1 && splits[1].length == 1)
+              splits[0] = '0' +  splits[1];
+            end
+            value = splits.join('-')
+          end
           val = story_values.where(story_attribute_id: key).first
           if val && value != nil and value != ""
             val.value = value
@@ -854,11 +865,12 @@ private
     if values.has_key?(:id) && values[:id]
       id = values[:id].downcase
       if (id[0,1] == 't')
+        remove_story_values(values)
         if (id.size == 1 && prev_story)
+          values.delete(:id)
           values[:story_id] = prev_story.id
           object = Task.create(values)
         else
-          values.delete(:story_id) # don't use epic
           values[:id] = id[1..id.size-1]
           object = update_task(current_user, values)
         end
@@ -866,10 +878,19 @@ private
         if (id[0,1] == 's')
           values[:id] = id[1..id.size-1]
         end
-        object = update_story(current_user, values)
+        remove_task_values(values)
+        if (id == 's')
+          values[:project_id] = current_user.project_id
+          values.delete(:id)
+          object = Story.create(values)
+        else
+          object = update_story(current_user, values)
+        end
       end
     else
       values[:project_id] = current_user.project_id
+      values.delete(:id)
+      remove_task_values(values)
       object = Story.create(values)
     end
     if !object
@@ -882,29 +903,39 @@ private
   def self.update_story(current_user, values)
     story = Story.where(id: values[:id]).first
     if story && story.authorized_for_update?(current_user)
-      values.delete(:estimate) # export only
       story.update_attributes(values)
     elsif story
       story.errors.add(:id, "is invalid")
     end
     story
   end
+  
+  def self.remove_story_values(values)
+    values.delete(:story_id)
+    values.delete(:acceptance_criteria)
+    values.delete(:size)
+    values.delete(:release_id)
+    values.delete(:iteration_id)
+    values.delete(:team_id)
+    values.delete(:is_public)
+    
+    custom_attributes = []
+    values.clone.each_pair do |key, value|
+      if key.to_s[0..6] == "custom_"
+        values.delete(key)
+      end
+    end
+  end
+  
+  def self.remove_task_values(values)
+    values.delete(:estimate)
+    values.delete(:actual)
+  end
 
   def self.update_task(current_user, values)
     task = Task.where(id: values[:id]).first
     if task && task.story.authorized_for_update?(current_user)
-      values.delete(:acceptance_criteria) # story only
-      values.delete(:release_id) # story only
-      values.delete(:iteration_id) # story only
-      values.delete(:team_id) # story only
-      values.delete(:is_public) # story only
-      new_values = values.clone
-      values.each_pair do |key,value|
-        if key.to_s[0..6] == "custom_"
-          new_values.delete(key)
-        end
-      end
-      task.update_attributes(new_values)
+      task.update_attributes(values)
     elsif task
       task.errors.add(:id, "is invalid")
     end

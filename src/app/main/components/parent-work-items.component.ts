@@ -51,13 +51,14 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
   private refresh_interval = null;
   private selectionChanged: boolean = false;
   private lastSelected: Work = null;
+  private currentParams: Map<string, string>;
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private sessionsService: SessionsService,
     private storyAttributesService: StoryAttributesService,
-    private projectsService: ProjectsService,
+    protected projectsService: ProjectsService,
     protected storiesService: StoriesService,
     private tasksService: TasksService,
     private projectionsService: ProjectionsService,
@@ -93,6 +94,7 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
   }
 
   private applyNavigation(params: Map<string, string>) {
+    this.currentParams = params;
     this.filters.applyNavigation(params);
     if (!this.selectionChanged) {
       this.fetchStories(params['selection'], false, params['split']);
@@ -319,26 +321,27 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
   }
 
   finishedEditing(result: FinishedEditing): void {
-    if (this.selection) {
-      if (this.selection.added) {
-        this.selection.added = false;
-        this.addRow(this.selection);
-        this.checkRemoveRow(this.selection);
+    let work: Work = this.selection;
+    if (work) {
+      if (work.added) {
+        work.added = false;
+        this.addRow(work);
+        this.checkRemoveRow(work);
         this.updateProjections();
         this.updateRows();
-      } else if (this.selection.isStory() && (<Story>this.selection).split) {
-        let originalStory = <Story>this.selection;
+      } else if (work.isStory() && (<Story>work).split) {
+        let originalStory = <Story>work;
         this.addRow(originalStory.split);
         originalStory.split = null;
         this.checkRemoveRow(originalStory);
         this.updateProjections();
         this.updateRows();
       } else {
-        if (this.selection.isStory() && this.showEpics()) {
-          let story: Story = <Story>this.selection;
+        if (work.isStory() && this.showEpics()) {
+          let story: Story = <Story>work;
           this.moveStory(story, story.epic, story.story_id);
         }
-        this.checkRemoveRow(this.selection);
+        this.checkRemoveRow(work);
         this.updateProjections();
         this.refreshView();
       }
@@ -351,12 +354,7 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
         this.updateNavigation(this.previous() ? this.previous().uniqueId : ParentWorkItemsComponent.noSelection);
         break;
       case FinishedEditing.AddAnother:
-        if (this.selection.isStory()) {
-          this.addStory();
-        } else {
-          let task: Task = <Task> this.selection;
-          this.addChild(task.story);
-        }
+        this.applySelection(this.currentParams['selection']);
         break;
       case FinishedEditing.Save:
       case FinishedEditing.Cancel:
@@ -657,7 +655,7 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
         }
       }
     }
-    if (this.filters.status !== 'All') {
+    if (this.filters.status !== 'All' && (!this.showEpics() || (<Story>row).epic == null)) {
       if (this.filters.status === 'NotDone') {
         filtered = filtered || (row.status_code === 3);
       } else {
@@ -831,14 +829,12 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
   private expandWork(work: Work, shouldExpand: boolean): void {
     if (work.isStory) {
       let story: Story = <Story> work;
-      if (story.hasLoaded()) {
-        story.expanded = shouldExpand;
-      } else {
+      story.expanded = shouldExpand;
+      if (!story.hasLoaded()) {
         this.storiesService.getChildren(story, this.filters.getTeamId()).subscribe((children: Story[]) => {
           children.forEach((child: Story) => {
             this.id_map[child.uniqueId] = child;
           });
-          story.expanded = shouldExpand;
           this.updateRows();
         });
       }

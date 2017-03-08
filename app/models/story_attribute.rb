@@ -166,4 +166,8 @@ class StoryAttribute < ActiveRecord::Base
     end
     individual_values
   end
+  
+  def is_date
+    return value_type == 5
+  end
 end

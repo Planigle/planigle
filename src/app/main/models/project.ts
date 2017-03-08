@@ -16,6 +16,7 @@ export class Project extends Organization {
     this.description = values.description;
     this.survey_key = values.survey_key;
     this.survey_mode = values.survey_mode;
+    this.company = values.company;
     this.company_id = values.company_id;
     this.track_actuals = values.track_actuals;
 

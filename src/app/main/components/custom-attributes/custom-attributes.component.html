@@ -19,7 +19,7 @@
 		class="form-control"
 		type="number" step="any"
 		name="custom_{{customStoryAttribute.id}}"
-		[(ngModel)]="customValues[customStoryAttribute.id]"
+		[(ngModel)]="customNumericValues[customStoryAttribute.id]"
 		[disabled]="me && !me.canChangeBacklog()"
 		[hidden]="customStoryAttribute.value_type!=2">
     <select

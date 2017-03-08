@@ -55,18 +55,24 @@ export class Story extends Work {
         this.story_values.push(new StoryValue(storyValue));
       });
     }
-    if (values.stories) {
-      if (values.stories.length > 0) {
+    if (values.filtered_stories) {
+      if (values.filtered_stories.length > 0) {
         this.childrenLoaded = false;
       }
-      values.stories.forEach((child: any) => {
-        this.stories.push(new Story(child));
+      values.filtered_stories.forEach((child: any) => {
+        let childStory: Story = new Story(child);
+        childStory.epic = this;
+        this.stories.push(childStory);
       });
     }
   }
 
   isEpic(): boolean {
     return this.tasks.length === 0;
+  }
+
+  canAddChildren(): boolean {
+    return (this.epic == null || this.epic.childrenLoaded) && this.isEpic();
   }
 
   get uniqueId(): string {

@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CompaniesService } from '../../services/companies.service';
 import { ErrorService } from '../../services/error.service';
 import { Registration } from '../../models/registration';
+declare var $: any;
 
 @Component({
   selector: 'app-signup',
@@ -10,7 +11,7 @@ import { Registration } from '../../models/registration';
   styleUrls: ['./signup.component.css'],
   providers: [CompaniesService]
 })
-export class SignupComponent {
+export class SignupComponent implements OnInit {
   model: Registration = new Registration();
   error: string = '';
 
@@ -20,11 +21,17 @@ export class SignupComponent {
     private errorService: ErrorService
   ) { }
 
-  ok(): void {
-    this.companiesService.register(this.model).subscribe(
-      () => window.location.href = 'https://www.planigle.com/products/signup_successful',
-      (err: any) => this.error = this.errorService.getError(err)
-    );
+  ngOnInit(): void {
+    setTimeout(() => $('input[autofocus=""]').focus(), 0);
+  }
+
+  ok(form): void {
+    if (form.valid) {
+      this.companiesService.register(this.model).subscribe(
+        () => window.location.href = 'https://www.planigle.com/products/signup_successful',
+        (err: any) => this.error = this.errorService.getError(err)
+      );
+    }
   }
 
   cancel(): void {

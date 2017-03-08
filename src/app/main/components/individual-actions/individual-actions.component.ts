@@ -31,7 +31,7 @@ export class IndividualActionsComponent implements AgRendererComponent {
     let self: IndividualActionsComponent = this;
     const modalRef: NgbModalRef = this.modalService.open(ConfirmationDialogComponent);
     let component: ConfirmationDialogComponent = modalRef.componentInstance;
-    component.confirmDelete('Iteration', this.model.name);
+    component.confirmDelete('Individual', this.model.name);
     modalRef.result.then(
       (result: any) => {
         if (component.model.confirmed) {

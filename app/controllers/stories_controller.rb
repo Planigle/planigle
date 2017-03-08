@@ -119,8 +119,12 @@ protected
   def record_visible
     cond = session[:conditions]
     if cond
-      cond[:id] = @record.id
-      Story.get_records(current_individual, cond).length == 1
+      modified_conditions = {}
+      modified_conditions.each_pair do |key,value|
+        modified_conditions[key._to_s]= value
+      end
+      modified_conditions[:id] = @record.id
+      Story.get_records(current_individual, modified_conditions).length == 1
     else
       true
     end

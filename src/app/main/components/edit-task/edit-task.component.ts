@@ -17,6 +17,7 @@ export class EditTaskComponent implements OnChanges {
   @Input() task: Task;
   @Input() individuals: Individual[];
   @Input() me: Individual;
+  @Input() showActuals: boolean = false;
   @Input() hasPrevious: boolean;
   @Input() hasNext: boolean;
   @Output() closed: EventEmitter<any> = new EventEmitter();
@@ -100,6 +101,7 @@ export class EditTaskComponent implements OnChanges {
         this.task.individual_name = task.individual_name;
         this.task.estimate = task.estimate;
         this.task.effort = task.effort;
+        this.task.actual = task.actual;
         this.task.priority = task.priority;
         if (form) {
           form.reset();

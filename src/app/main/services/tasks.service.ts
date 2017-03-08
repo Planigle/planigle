@@ -56,6 +56,9 @@ export class TasksService {
     if ('effort' in task) {
       record['effort'] = task.effort == null ? '' : ('' + task.effort);
     }
+    if ('actual' in task) {
+      record['actual'] = task.actual == null ? '' : ('' + task.actual);
+    }
     if (task.priority) {
       record['priority'] = task.priority;
     }
