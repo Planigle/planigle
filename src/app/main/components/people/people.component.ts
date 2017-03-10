@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Notifier } from '../../models/notifier';
 
 @Component({
   selector: 'app-people',
@@ -6,4 +7,9 @@ import { Component } from '@angular/core';
   styleUrls: ['./people.component.css']
 })
 export class PeopleComponent {
+  notifier: Notifier = new Notifier();
+
+  public projectsChanged(): void {
+    this.notifier.notify();
+  }
 }

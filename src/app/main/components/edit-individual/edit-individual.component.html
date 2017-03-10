@@ -4,8 +4,11 @@
 		    <div [hidden]="!error" class="alert alert-danger" [innerHtml]="error"></div>
 			<div class="form-group row">
 			  <label for="projects" class="col-xs-2 col-form-label">Projects</label>
-			  <div class="col-xs-10">
+			  <div class="col-xs-10" *ngIf="canUpdate() && (me.id != model.id || me.canChangeRelease())">
 			    <ss-multiselect-dropdown name="projects" [options]="projects" [(ngModel)]="model.project_ids" (ngModelChange)="updateProject()"></ss-multiselect-dropdown>
+			  </div>
+			  <div class="col-xs-10" *ngIf="!canUpdate() || (me.id == model.id && !me.canChangeRelease())">
+			  	<div>{{projectNames()}}</div>
 			  </div>
 			</div>
 			<div class="form-group row">
@@ -35,13 +38,13 @@
 			<div class="form-group row">
 			  <label for="password_confirmation" class="col-xs-2 col-form-label">Password Confirmation</label>
 			  <div class="col-xs-10">
-			    <input class="form-control" type="password" [(ngModel)]="model.password_confirmation" name="password" maxlength="40" [disabled]="!canUpdate()">
+			    <input class="form-control" type="password" [(ngModel)]="model.password_confirmation" name="password_confirmation" maxlength="40" [disabled]="!canUpdate()">
 			  </div>
 			</div>
 			<div class="form-group row">
 			  <label for="team" class="col-xs-2 col-form-label">Role</label>
 			  <div class="col-xs-10">
-			      <select name="role" class="form-control" [(ngModel)]="model.role" [disabled]="!canUpdate()">
+			      <select name="role" class="form-control" [(ngModel)]="model.role" [disabled]="!canUpdate() || me.id == model.id">
 			      	<option [ngValue]="1">Project Admin</option>
 			      	<option [ngValue]="2">Project User</option>
 			      	<option [ngValue]="3">Read Only User</option>
@@ -51,7 +54,7 @@
 			<div class="form-group row">
 			  <label for="team" class="col-xs-2 col-form-label">Enabled</label>
 			  <div class="col-xs-10">
-			      <select name="enabled" class="form-control" [(ngModel)]="model.enabled" [disabled]="!canUpdate()">
+			      <select name="enabled" class="form-control" [(ngModel)]="model.enabled" [disabled]="!canUpdate() || me.id == model.id">
 			      	<option [ngValue]="true">True</option>
 			      	<option [ngValue]="false">False</option>
 			      </select>
@@ -108,8 +111,8 @@
 			</div>
 		</div>
 		<div class="buttons">
-			<button type="submit" class="btn btn-secondary" (click)="isNew() ? addAnother(form) : ok(form)">{{isNew() ? 'Create' : 'Update'}}</button>
-			<button type="submit" class="btn btn-secondary" (click)="ok(form)" [hidden]="!isNew()">Create & Close</button>
+			<button type="submit" class="btn btn-secondary" *ngIf="canUpdate()" (click)="isNew() ? addAnother(form) : ok(form)">{{isNew() ? 'Create' : 'Update'}}</button>
+			<button type="submit" class="btn btn-secondary" *ngIf="canUpdate()" (click)="ok(form)" [hidden]="!isNew()">Create & Close</button>
 			<button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
 			<button type="button" class="btn btn-secondary" title="View Changes" (click)="viewChanges()" [hidden]="isNew()"><fa [name]="'info'"></fa></button>
 		</div>

@@ -58,6 +58,9 @@ export class EditStoryComponent implements OnChanges {
     if (changes.story) {
       this.modelUpdated = false;
       this.model = new Story(this.story);
+      this.customValues = new Map();
+      this.customNumericValues = new Map();
+      this.setInitialValues();
       this.model.story_values.forEach((storyValue) => {
         this.customValues[storyValue.story_attribute_id] = storyValue.value;
         this.customNumericValues[storyValue.story_attribute_id] = parseFloat(storyValue.value);
@@ -65,12 +68,7 @@ export class EditStoryComponent implements OnChanges {
       setTimeout(() => $('input[autofocus=""]').focus(), 0);
     }
     if (changes.customStoryAttributes) {
-      this.customStoryAttributes.forEach((storyAttribute: StoryAttribute) => {
-        if (!this.customValues[storyAttribute.id]) {
-          this.customValues[storyAttribute.id] = null;
-          this.customNumericValues[storyAttribute.id] = null;
-        }
-      });
+      this.setInitialValues();
     }
     if ((changes.story || changes.split) && (this.model && this.split)) {
       let criteria: AcceptanceCriterium[] = [];
@@ -98,6 +96,15 @@ export class EditStoryComponent implements OnChanges {
         this.model.iteration_id = null;
       }
     }
+  }
+
+  private setInitialValues(): void {
+    this.customStoryAttributes.forEach((storyAttribute: StoryAttribute) => {
+      if (!this.customValues[storyAttribute.id]) {
+        this.customValues[storyAttribute.id] = null;
+        this.customNumericValues[storyAttribute.id] = null;
+      }
+    });
   }
 
   isNew(): boolean {
@@ -198,7 +205,11 @@ export class EditStoryComponent implements OnChanges {
   }
 
   canSave(form: any): boolean {
-    return form.form.valid && this.me.canChangeBacklog();
+    return this.formValid(form) && this.me.canChangeBacklog();
+  }
+
+  formValid(form: any): boolean {
+    return form.form.valid || !this.me.canChangeBacklog();
   }
 
   ok(): void {
@@ -247,77 +258,81 @@ export class EditStoryComponent implements OnChanges {
   }
 
   private updateModel(result: FinishedEditing, form: any): void {
-    let self: EditStoryComponent = this;
-    this.model.story_values = [];
-    this.customStoryAttributes.forEach((storyAttribute: StoryAttribute) => {
-      let key: string = storyAttribute.id + '';
-      let value: any = storyAttribute.isNumber() ? self.customNumericValues[key] : self.customValues[key];
-      this.model.story_values.push(new StoryValue({
-        story_attribute_id: storyAttribute.id,
-        value: value === 'null' ? '' : value
-      }));
-    });
-    if (this.model.acceptance_criteria.length === 1 &&
-      this.model.acceptance_criteria[0].description === AcceptanceCriteriaComponent.instructions) {
-      this.model.acceptance_criteria = [];
-    }
-    let method: any = this.model.id ?
-      (this.split ? this.storiesService.split : this.storiesService.update) :
-      this.storiesService.create;
-    method.call(this.storiesService, this.model).subscribe(
-      (story: Story) => {
-        if (this.split) {
-          let newTasks = [];
-          this.story.tasks.forEach((task: Task) => {
-            if (task.status_code === 3) {
-              newTasks.push(task);
-            }
-          });
-          this.story.tasks = newTasks;
-          let newCriteria = [];
-          this.story.acceptance_criteria.forEach((criterium: AcceptanceCriterium) => {
-            if (criterium.isDone()) {
-              newCriteria.push(criterium);
-            }
-          });
-          this.story.acceptance_criteria = newCriteria;
-          this.story.split = story;
-        } else {
-          if (!this.story.id) {
-            this.story.added = true;
-          }
-          this.story.id = story.id;
-          this.story.story_id = story.story_id;
-          this.story.epic_name = story.epic_name;
-          this.story.name = story.name;
-          this.story.description = story.description;
-          this.story.status_code = story.status_code;
-          this.story.acceptance_criteria = story.acceptance_criteria;
-          this.story.reason_blocked = story.reason_blocked;
-          this.story.project_id = story.project_id;
-          this.story.release_id = story.release_id;
-          this.story.release_name = story.release_name;
-          this.story.iteration_id = story.iteration_id;
-          this.story.iteration_name = story.iteration_name;
-          this.story.team_id = story.team_id;
-          this.story.team_name = story.team_name;
-          this.story.individual_id = story.individual_id;
-          this.story.individual_name = story.individual_name;
-          this.story.effort = story.effort;
-          this.story.priority = story.priority;
-          this.story.user_priority = story.user_priority;
-          this.story.story_values = story.story_values;
-        }
-        if (form) {
-          form.reset();
-          $('input[name="name"]').focus();
-        }
-        this.closed.emit({value: result});
-      },
-      (err: any) => {
-        this.error = this.errorService.getError(err);
+    if (this.me.canChangeBacklog()) {
+      let self: EditStoryComponent = this;
+      this.model.story_values = [];
+      this.customStoryAttributes.forEach((storyAttribute: StoryAttribute) => {
+        let key: string = storyAttribute.id + '';
+        let value: any = storyAttribute.isNumber() ? self.customNumericValues[key] : self.customValues[key];
+        this.model.story_values.push(new StoryValue({
+          story_attribute_id: storyAttribute.id,
+          value: value === 'null' ? '' : value
+        }));
+      });
+      if (this.model.acceptance_criteria.length === 1 &&
+        this.model.acceptance_criteria[0].description === AcceptanceCriteriaComponent.instructions) {
+        this.model.acceptance_criteria = [];
       }
-    );
+      let method: any = this.model.id ?
+        (this.split ? this.storiesService.split : this.storiesService.update) :
+        this.storiesService.create;
+      method.call(this.storiesService, this.model).subscribe(
+        (story: Story) => {
+          if (this.split) {
+            let newTasks = [];
+            this.story.tasks.forEach((task: Task) => {
+              if (task.status_code === 3) {
+                newTasks.push(task);
+              }
+            });
+            this.story.tasks = newTasks;
+            let newCriteria = [];
+            this.story.acceptance_criteria.forEach((criterium: AcceptanceCriterium) => {
+              if (criterium.isDone()) {
+                newCriteria.push(criterium);
+              }
+            });
+            this.story.acceptance_criteria = newCriteria;
+            this.story.split = story;
+          } else {
+            if (!this.story.id) {
+              this.story.added = true;
+            }
+            this.story.id = story.id;
+            this.story.story_id = story.story_id;
+            this.story.epic_name = story.epic_name;
+            this.story.name = story.name;
+            this.story.description = story.description;
+            this.story.status_code = story.status_code;
+            this.story.acceptance_criteria = story.acceptance_criteria;
+            this.story.reason_blocked = story.reason_blocked;
+            this.story.project_id = story.project_id;
+            this.story.release_id = story.release_id;
+            this.story.release_name = story.release_name;
+            this.story.iteration_id = story.iteration_id;
+            this.story.iteration_name = story.iteration_name;
+            this.story.team_id = story.team_id;
+            this.story.team_name = story.team_name;
+            this.story.individual_id = story.individual_id;
+            this.story.individual_name = story.individual_name;
+            this.story.effort = story.effort;
+            this.story.priority = story.priority;
+            this.story.user_priority = story.user_priority;
+            this.story.story_values = story.story_values;
+          }
+          if (form) {
+            form.reset();
+            $('input[name="name"]').focus();
+          }
+          this.closed.emit({value: result});
+        },
+        (err: any) => {
+          this.error = this.errorService.getError(err);
+        }
+      );
+    } else {
+      this.closed.emit({value: result});
+    }
   }
 
   editAttributes(): void {

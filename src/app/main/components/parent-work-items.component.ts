@@ -101,6 +101,7 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
     } else {
       this.selectionChanged = false;
       this.applySelection(params['selection'], params['split']);
+      this.gridReady();
     }
   }
 

@@ -17,6 +17,9 @@ class SessionsController < ApplicationController
         self.current_individual.remember_me
         cookies[:auth_token] = { :value => self.current_individual.remember_token , :expires => self.current_individual.remember_token_expires_at }
         self.current_individual.save( :validate=> false )
+        if self.current_individual.team && self.current_individual.team.project != self.current_individual.project
+          self.current_individual.team = nil # while looking at another project, current team isn't visible
+        end
         render :json => self.current_individual, :status => :created
       else
         log_out

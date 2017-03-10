@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { GridOptions } from 'ag-grid/main';
 import { TeamActionsComponent } from '../team-actions/team-actions.component';
@@ -21,6 +21,7 @@ declare var $: any;
   providers: [CompaniesService, ProjectsService, TeamsService]
 })
 export class TeamsComponent implements AfterViewInit, OnDestroy {
+  @Output() projectsChanged: EventEmitter<any> = new EventEmitter();
   public gridOptions: GridOptions = <GridOptions>{};
   public columnDefs: any[] = [{
     headerName: '',
@@ -73,7 +74,7 @@ export class TeamsComponent implements AfterViewInit, OnDestroy {
   }
 
   private setGridHeight(): void {
-    $('app-teams ag-grid-ng2').height(($(window).height() - $('app-header').height() - 63) * 0.4);
+    $('app-teams ag-grid-ng2').height(($(window).height() - $('app-header').height() - 42) * 0.4);
   }
 
   private fetchCompanies(afterAction, afterActionParams): void {
@@ -156,6 +157,7 @@ export class TeamsComponent implements AfterViewInit, OnDestroy {
       (deletedProject: any) => {
         project.company.projects.splice(project.company.projects.indexOf(project), 1);
         this.companies = this.companies.slice(0); // Force ag-grid to deal with change in rows
+        this.projectsChanged.emit();
       }
     );
   }
@@ -223,6 +225,7 @@ export class TeamsComponent implements AfterViewInit, OnDestroy {
           this.id_map[project.uniqueId] = project;
           project.company.expanded = true;
           project.company.projects.push(project);
+          this.projectsChanged.emit();
         }
         this.gridOptions.api.setRowData(this.companies);
       } else {

@@ -20,7 +20,7 @@
 			<div class="form-group row">
 			  <label for="acceptance-criteria" class="col-xs-2 col-form-label">Acceptance Criteria</label>
 			  <div class="col-xs-10">
-			  	<app-acceptance-criteria [(model)]="model"></app-acceptance-criteria>
+			  	<app-acceptance-criteria [(model)]="model" [(me)]="me"></app-acceptance-criteria>
 			  </div>
 			</div>
 			<div class="form-group row">
@@ -106,11 +106,11 @@
 			<button type="button" class="btn btn-secondary" (click)="editAttributes()" [hidden]="!me.canChangeBacklog()">Edit Attributes</button>
 		</div>
 		<div class="buttons">
-			<button type="submit" class="btn btn-secondary" (click)="isNew() ? addAnother(form) : ok()" [disabled]="!canSave(form)">{{isNew() ? 'Create' : split ? 'Split' : 'Update'}}</button>
-			<button type="submit" class="btn btn-secondary" (click)="ok()" [disabled]="!canSave(form)" [hidden]="!isNew()">Create & Close</button>
+			<button type="submit" class="btn btn-secondary" *ngIf="me.canChangeBacklog()" (click)="isNew() ? addAnother(form) : ok()" [disabled]="!canSave(form)">{{isNew() ? 'Create' : split ? 'Split' : 'Update'}}</button>
+			<button type="submit" class="btn btn-secondary" *ngIf="me.canChangeBacklog()" (click)="ok()" [disabled]="!canSave(form)" [hidden]="!isNew()">Create & Close</button>
 			<button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
-			<button type="submit" class="btn btn-secondary" title="Previous" (click)="previous()" [disabled]="!canSave(form)" [hidden]="!hasPrevious"><fa [name]="'arrow-up'"></fa></button>
-			<button type="submit" class="btn btn-secondary" title="Next" (click)="next()" [disabled]="!canSave(form)" [hidden]="!hasNext || isNew()"><fa [name]="'arrow-down'"></fa></button>
+			<button type="submit" class="btn btn-secondary" title="Previous" (click)="previous()" [disabled]="!formValid(form)" [hidden]="!hasPrevious"><fa [name]="'arrow-up'"></fa></button>
+			<button type="submit" class="btn btn-secondary" title="Next" (click)="next()" [disabled]="!formValid(form)" [hidden]="!hasNext || isNew()"><fa [name]="'arrow-down'"></fa></button>
 			<button type="button" class="btn btn-secondary" title="View Changes" (click)="viewChanges()" [hidden]="isNew()"><fa [name]="'info'"></fa></button>
 		</div>
 	</form>

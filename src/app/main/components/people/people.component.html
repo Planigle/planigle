@@ -1,7 +1,7 @@
 <div class="container-fluid" >
-	<app-header></app-header>
+	<app-header [notifier]="notifier"></app-header>
 	<div class="content">
-		<app-teams></app-teams>
+		<app-teams (projectsChanged)="projectsChanged()"></app-teams>
 		<app-individuals></app-individuals>
 	</div>
 </div>

@@ -1,6 +1,7 @@
 import { Component, OnChanges, Input, AfterViewInit } from '@angular/core';
 import { AcceptanceCriterium } from '../../models/acceptance-criterium';
 import { Story } from '../../models/story';
+import { Individual } from '../../models/individual';
 declare var $: any;
 
 @Component({
@@ -11,6 +12,7 @@ declare var $: any;
 export class AcceptanceCriteriaComponent implements OnChanges, AfterViewInit {
   public static instructions: String = '<Enter criteria here; Press Enter or down arrow to add additional>';
   @Input() model: Story;
+  @Input() me: Individual;
   criteriumToEdit: AcceptanceCriterium;
   addedId: number = -1;
 
@@ -23,27 +25,29 @@ export class AcceptanceCriteriaComponent implements OnChanges, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    let self: AcceptanceCriteriaComponent = this;
-    $('.grid').selectable({
-      filter: '.content',
-      cancel: '.status, .delete, textarea',
-      start: function(event, ui) {
-        self.stopEditingCriterium();
-      },
-      stop: function(event, ui) {
-        let selection = self.selection();
-        if (selection.length === 1) {
-          let criterium: AcceptanceCriterium = self.getCriterium.call(self, selection);
-          self.unselectCriteria();
-          self.editCriterium(criterium);
-        } else {
-          self.pasteArea().focus();
+    if (this.me.canChangeBacklog()) {
+      let self: AcceptanceCriteriaComponent = this;
+      $('.grid').selectable({
+        filter: '.content',
+        cancel: '.status, .delete, textarea',
+        start: function(event, ui) {
+          self.stopEditingCriterium();
+        },
+        stop: function(event, ui) {
+          let selection = self.selection();
+          if (selection.length === 1) {
+            let criterium: AcceptanceCriterium = self.getCriterium.call(self, selection);
+            self.unselectCriteria();
+            self.editCriterium(criterium);
+          } else {
+            self.pasteArea().focus();
+          }
         }
-      }
-    });
-    $('body').keydown(function(event) {
-      self.cutPaste.call(self, event);
-    });
+      });
+      $('body').keydown(function(event) {
+        self.cutPaste.call(self, event);
+      });
+    }
   }
 
   unselectCriteria(): void {

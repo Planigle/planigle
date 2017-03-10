@@ -1,10 +1,11 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, Input } from '@angular/core';
 import { SessionsService } from '../../services/sessions.service';
 import { ProjectsService } from '../../services/projects.service';
 import { IndividualsService } from '../../services/individuals.service';
 import { PremiumService } from '../../../premium/services/premium.service';
 import { Project } from '../../models/project';
 import { Individual } from '../../models/individual';
+import { Notifier } from '../../models/notifier';
 
 @Component({
   selector: 'app-header',
@@ -13,6 +14,7 @@ import { Individual } from '../../models/individual';
   providers: [ ProjectsService, IndividualsService, PremiumService ]
 })
 export class HeaderComponent implements AfterViewInit {
+  @Input() notifier: Notifier;
   projects: Project[] = [];
 
   constructor(
@@ -24,6 +26,12 @@ export class HeaderComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.fetchProjects();
+    if (this.notifier) {
+      let self: HeaderComponent = this;
+      this.notifier.addClient(function() {
+        self.fetchProjects();
+      });
+    }
   }
 
   private fetchProjects(): void {
@@ -41,7 +49,7 @@ export class HeaderComponent implements AfterViewInit {
   }
 
   updateProject(): void {
-    this.IndividualsService.update(this.user).subscribe(
+    this.IndividualsService.updateProject(this.user).subscribe(
       (individual: Individual) => {
         location.reload();
       });

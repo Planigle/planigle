@@ -65,6 +65,18 @@ export class EditIndividualComponent implements OnChanges {
     }
   }
 
+  projectNames(): string {
+    let names = [];
+    this.projects.forEach((project) => {
+      this.model.project_ids.forEach((project_id => {
+        if (project.id === project_id) {
+          names.push(project.name);
+        }
+      }));
+    });
+    return names.join(', ');
+  }
+
   updateTeam(): void {
     if (String(this.model.team_id) === 'null') {
       this.model.team_id = null;

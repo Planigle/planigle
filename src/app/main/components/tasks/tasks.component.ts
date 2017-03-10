@@ -23,6 +23,7 @@ export class TasksComponent implements AfterViewInit {
   team: any;
   stories: Story[] = [];
   mapping: Map<number, Task> = new Map<number, Task>();
+  private user: Individual;
   private refresh_interval = null;
 
   constructor(
@@ -38,6 +39,7 @@ export class TasksComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.fetchTeams();
+    this.user = new Individual(this.sessionsService.getCurrentUser());
     this.route.params.subscribe((params: Map<string, string>) => this.applyNavigation(params));
     if (this.getUser().refresh_interval) {
       let self: TasksComponent = this;
@@ -125,24 +127,26 @@ export class TasksComponent implements AfterViewInit {
   private setDragDrop(): void {
     let self: TasksComponent = this;
     setTimeout((timeout) => {
-      $('.task').draggable({
-        revert: 'invalid',
-        helper: function() {
-          return $('<div style="width: ' + $(this).parent().width() + 'px"></div>').append($(this).clone());
-        }
-      });
-      self.stories.forEach((story: Story) => {
-        story.tasks.forEach((task: Task) => {
-          self.mapping.set(task.id, task);
+      if (self.user.canChangeBacklog()) {
+        $('.task').draggable({
+          revert: 'invalid',
+          helper: function() {
+            return $('<div style="width: ' + $(this).parent().width() + 'px"></div>').append($(this).clone());
+          }
         });
-        $('.task[story="' + story.id + '"]').draggable('option', 'containment', '.row[story="' + story.id + '"]');
-      });
-      $('.droppable').droppable({
-        tolerance: 'pointer',
-        drop: function(event, ui) {
-          self.dropTask(event, ui, $(this));
-        }
-      });
+        self.stories.forEach((story: Story) => {
+          story.tasks.forEach((task: Task) => {
+            self.mapping.set(task.id, task);
+          });
+          $('.task[story="' + story.id + '"]').draggable('option', 'containment', '.row[story="' + story.id + '"]');
+        });
+        $('.droppable').droppable({
+          tolerance: 'pointer',
+          drop: function(event, ui) {
+            self.dropTask(event, ui, $(this));
+          }
+        });
+      }
     }, 0);
   }
 

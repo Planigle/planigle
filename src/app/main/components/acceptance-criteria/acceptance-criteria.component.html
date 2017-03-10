@@ -1,15 +1,15 @@
 <div class="grid-wrapper">
 	<div class="grid">
 		<div class="row" *ngFor="let criterium of model.acceptance_criteria">
-			<div class="cell status">
-				<fa *ngIf="!criterium.isDone()" title="Mark Done" (click)="criterium.markDone()" [name]="'square-o'"></fa>
-				<fa *ngIf="criterium.isDone()" title="Mark Not Done" (click)="criterium.markNotDone()" [name]="'check-square-o'"></fa></div>
+			<div class="cell status" [ngClass]="{disabled: !me.canChangeBacklog()}">
+				<fa *ngIf="!criterium.isDone()" title="Mark Done" (click)="me.canChangeBacklog() && criterium.markDone()" [name]="'square-o'"></fa>
+				<fa *ngIf="criterium.isDone()" title="Mark Not Done" (click)="me.canChangeBacklog() && criterium.markNotDone()" [name]="'check-square-o'"></fa></div>
 			<div class="cell description">
 				<div [attr.criterium]="criterium.id" class="content" [hidden]="criteriumToEdit == criterium">{{criterium.description}}</div>
-				<textarea auto-select *ngIf="criteriumToEdit == criterium" id="edit-{{criterium.id}}" [(ngModel)]="criterium.description" (blur)="stopEditingCriterium()" (keydown)="handleKeyStroke($event)"></textarea>
+				<textarea auto-select *ngIf="criteriumToEdit == criterium" id="edit-{{criterium.id}}" [(ngModel)]="criterium.description" [disabled]="!me.canChangeBacklog()" (blur)="me.canChangeBacklog() && stopEditingCriterium()" (keydown)="me.canChangeBacklog() && handleKeyStroke($event)"></textarea>
 			</div>
-			<div class="cell delete"><fa title="Delete" (click)="deleteCriterium(criterium)" [name]="'remove'"></fa></div>
+			<div class="cell delete"><fa title="Delete" *ngIf="me.canChangeBacklog()" (click)="deleteCriterium(criterium)" [name]="'remove'"></fa></div>
 		</div>
 	</div>
 </div>
-<textarea id="pasteArea" (blur)="unselectCriteria()"></textarea>
+<textarea id="pasteArea" (blur)="me.canChangeBacklog() && unselectCriteria()"></textarea>

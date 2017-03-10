@@ -62,7 +62,11 @@ export class EditTaskComponent implements OnChanges {
   }
 
   canSave(form: any): boolean {
-    return form.form.valid && this.me.canChangeBacklog();
+    return this.formValid(form) && this.me.canChangeBacklog();
+  }
+
+  formValid(form: any): boolean {
+    return form.form.valid || !this.me.canChangeBacklog();
   }
 
   ok(): void {
@@ -86,33 +90,37 @@ export class EditTaskComponent implements OnChanges {
   }
 
   private saveModel(result: FinishedEditing, form: any): void {
-    let method: any = this.model.id ? this.tasksService.update : this.tasksService.create;
-    method.call(this.tasksService, this.model).subscribe(
-      (task: Task) => {
-        if (!this.task.id) {
-          this.task.added = true;
+    if (this.me.canChangeBacklog()) {
+      let method: any = this.model.id ? this.tasksService.update : this.tasksService.create;
+      method.call(this.tasksService, this.model).subscribe(
+        (task: Task) => {
+          if (!this.task.id) {
+            this.task.added = true;
+          }
+          this.task.id = task.id;
+          this.task.name = task.name;
+          this.task.description = task.description;
+          this.task.status_code = task.status_code;
+          this.task.reason_blocked = task.reason_blocked;
+          this.task.individual_id = task.individual_id;
+          this.task.individual_name = task.individual_name;
+          this.task.estimate = task.estimate;
+          this.task.effort = task.effort;
+          this.task.actual = task.actual;
+          this.task.priority = task.priority;
+          if (form) {
+            form.reset();
+            $('input[name="name"]').focus();
+          }
+          this.closed.emit({value: result});
+        },
+        (err: any) => {
+          this.error = this.errorService.getError(err);
         }
-        this.task.id = task.id;
-        this.task.name = task.name;
-        this.task.description = task.description;
-        this.task.status_code = task.status_code;
-        this.task.reason_blocked = task.reason_blocked;
-        this.task.individual_id = task.individual_id;
-        this.task.individual_name = task.individual_name;
-        this.task.estimate = task.estimate;
-        this.task.effort = task.effort;
-        this.task.actual = task.actual;
-        this.task.priority = task.priority;
-        if (form) {
-          form.reset();
-          $('input[name="name"]').focus();
-        }
-        this.closed.emit({value: result});
-      },
-      (err: any) => {
-        this.error = this.errorService.getError(err);
-      }
-    );
+      );
+    } else {
+      this.closed.emit({value: result});
+    }
   }
 
   viewChanges(): void {

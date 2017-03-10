@@ -109,9 +109,9 @@ class ProjectTest < ActiveSupport::TestCase
     ActiveRecord::Base.connection.clear_query_cache
     Rails.configuration.notify_of_inactivity_after = 3
     Rails.configuration.notify_when_expiring_in = 3
-    today = Date.today
+    now = Time.now
     project = create_project()
-    project.individuals << create_individual(:last_login => today - 4)
+    project.individuals << create_individual(:last_login => now - 3*24*60*60 - 60)
     notifications = ActionMailer::Base.deliveries.length
     Project.send_notifications
     assert_equal notifications+2, ActionMailer::Base.deliveries.length

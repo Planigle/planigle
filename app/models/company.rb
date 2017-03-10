@@ -1,6 +1,6 @@
 class Company < ActiveRecord::Base
   acts_as_paranoid
-  has_many :projects, -> {where(deleted_at: nil)}, dependent: :destroy
+  has_many :projects, -> {where(deleted_at: nil).order('name')}, dependent: :destroy
   has_many :individuals, -> {where(deleted_at: nil)}, dependent: :nullify
   audited
   before_save :update_notifications
