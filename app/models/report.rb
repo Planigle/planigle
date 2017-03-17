@@ -7,7 +7,7 @@ class Report
     last3Iterations = lastIterations
     if last3Iterations.length > 0
       result = ActiveRecord::Base.connection.exec_query(\
-        velocity_query(last3Itertions)
+        velocity_query(last3Iterations)
       )
       result.to_a
     else
