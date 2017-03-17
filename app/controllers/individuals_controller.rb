@@ -7,7 +7,7 @@ class IndividualsController < ResourceController
     if (individual = Individual.activate(params[:activation_code]))
       individual.save( :validate=> false )
     end
-    redirect_to(ENV['url_after_activate'] ? ENV['url_after_activate'] : '/')
+    redirect_to(Rails.configuration.site_url + '/')
   end
 
 protected
