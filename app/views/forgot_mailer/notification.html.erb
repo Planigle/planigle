@@ -1,2 +1,2 @@
-<% if @logo != nil %><%= @logo %><% end %><br/>
-<p>Have you forgotten your password?  If so, click <a href="http://www.planigle.com/login;login=<%= @login %>;token=<%= @token %>">here</a> to log in and change your password.  Note: this URL will only work once and will expire in 24 hours.</p>
+<% if @logo != nil %><img height="160" width="160" src="<%= @logo %>"><% end %><br/>
+<p>Have you forgotten your password?  If so, click <a href="<%= @site %>/login;login=<%= @login %>;token=<%= @token %>">here</a> to log in and change your password.  Note: this URL will only work once and will expire in 24 hours.</p>

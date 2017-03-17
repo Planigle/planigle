@@ -1,4 +1,4 @@
-<% if @logo != nil %><%= @logo %><% end %><br/>
+<% if @logo != nil %><img height="160" width="160" src="<%= @logo %>"><% end %><br/>
 <p>An error has occurred in Planigle.</p>
   <b>Company Name:</b> <%= @error.individual.company.name %><br />
   <b>Individual:</b> <%= @error.individual.first_name %> <%= @error.individual.last_name %><br />

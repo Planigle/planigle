@@ -9,6 +9,7 @@ protected
 
   # Set up common email properties.
   def setup_email(individual)
+    @site = Rails.configuration.site_url
     @logo = Rails.configuration.site_logo
     @login = individual.login
     @token = individual.forgot_token
