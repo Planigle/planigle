@@ -30,7 +30,7 @@ export class SessionsService {
       (loggedInUser: any) => {
         self.current_user = new Individual(loggedInUser);
         self.forceLogin(); // Otherwise it won't retry current page
-        self.router.navigateByUrl(user.token != null ? ('people;individual=' + loggedInUser.id) : self.path);
+        self.router.navigateByUrl(user && user.token != null ? ('people;individual=' + loggedInUser.id) : self.path);
       },
       (err: any) => {
         if (url) {

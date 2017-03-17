@@ -4,24 +4,34 @@ class Report
     
   # Answer team reporting data
   def team_totals
-    result = ActiveRecord::Base.connection.exec_query(\
-      velocity_query
-    )
-    result.to_a
+    last3Iterations = lastIterations
+    if last3Iterations.length > 0
+      result = ActiveRecord::Base.connection.exec_query(\
+        velocity_query(last3Itertions)
+      )
+      result.to_a
+    else
+      []
+    end
   end
   
   def upcoming_iterations
-    result = ActiveRecord::Base.connection.exec_query(\
-      'SELECT iterations.id as iteration_id, iterations.name as iteration_name, teams.id as team_id, teams.name as team_name, SUM(IFNULL(stories.effort,0)) as planned, teams.velocity '\
-      'FROM iterations '\
-      'JOIN (' + velocity_query + ') teams '\
-      'LEFT JOIN stories ON stories.iteration_id=iterations.id AND stories.team_id=teams.id '\
-      'WHERE iterations.finish > now() '\
-      'AND iterations.project_id=' + Integer(project_id).to_s + ' '\
-      'GROUP by iterations.id, teams.id '\
-      'ORDER by iterations.start, teams.name '
-    )
-    result.to_a
+    last3Iterations = lastIterations
+    if last3Iterations.length > 0
+      result = ActiveRecord::Base.connection.exec_query(\
+        'SELECT iterations.id as iteration_id, iterations.name as iteration_name, teams.id as team_id, teams.name as team_name, SUM(IFNULL(stories.effort,0)) as planned, teams.velocity '\
+        'FROM iterations '\
+        'JOIN (' + velocity_query(last3Iterations) + ') teams '\
+        'LEFT JOIN stories ON stories.iteration_id=iterations.id AND stories.team_id=teams.id '\
+        'WHERE iterations.finish > now() '\
+        'AND iterations.project_id=' + Integer(project_id).to_s + ' '\
+        'GROUP by iterations.id, teams.id '\
+        'ORDER by iterations.start, teams.name '
+      )
+      result.to_a
+    else
+      []
+    end
   end
   
   def iteration_metrics
@@ -88,8 +98,7 @@ class Report
 
 private
 
-  def velocity_query
-    last3Iterations = Iteration.where('project_id = :project_id and finish < now()', {project_id: project_id}).order('finish desc').limit(3)
+  def velocity_query(last3Iterations)
     last3IterationIds = last3Iterations.collect{|iteration| iteration.id}
     numIterations = last3IterationIds.length
     teamId = params[:team_id] ? (params[:team_id] == '' ? 0 : Integer(params[:team_id]).to_s) : nil
@@ -113,6 +122,10 @@ private
       'AND stories.status_code=3 '\
       'AND stories.deleted_at IS NULL '\
       'GROUP BY teams.id '
+  end
+  
+  def lastIterations
+    Iteration.where('project_id = :project_id and finish < now()', {project_id: project_id}).order('finish desc').limit(3)
   end
   
   def group_iteration_velocities(velocities)
