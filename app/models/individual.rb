@@ -10,7 +10,7 @@ class Individual < ActiveRecord::Base
   has_many :individual_story_attributes, :dependent => :destroy
   has_many :tasks, -> {where(deleted_at: nil)}, dependent: :nullify
   has_many :user_errors, :dependent => :destroy, :class_name => 'Error'
-  audited :except => [:selected_project_id, :crypted_password, :salt, :remember_token, :remember_token_expires_at, :activation_code, :activated_at, :last_login, :accepted_agreement]
+  audited :except => [:selected_project_id, :crypted_password, :salt, :remember_token, :remember_token_expires_at, :forgot_token, :forgot_token_expires_at, :activation_code, :activated_at, :last_login, :accepted_agreement]
   after_create :notify_of_creation
 
   # Virtual attribute for the unencrypted password
@@ -292,6 +292,16 @@ class Individual < ActiveRecord::Base
   
   def updated_at_string
     updated_at ? updated_at.to_s : updated_at
+  end
+  
+  def forgot_password
+    self.forgot_token_expires_at = 1.day.from_now.utc
+    self.forgot_token = encrypt("#{email}--#{forgot_token_expires_at}")
+  end
+  
+  def clear_forgot_password
+    self.forgot_token = nil
+    self.forgot_token_expires_at = nil
   end
 
 protected

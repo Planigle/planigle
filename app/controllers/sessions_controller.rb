@@ -26,7 +26,18 @@ class SessionsController < ApplicationController
         render :json => license_agreement, :status => :unprocessable_entity
       end
     else
-      render :json => {:error => 'Invalid Credentials'}, :status => :unprocessable_entity
+      render :json => {:error => params[:password] != '' ? 'Invalid Credentials' : 'Invalid Token'}, :status => :unprocessable_entity
+    end
+  end
+
+  # Send the email associated with the specified login a temporary URL so that they can log in.
+  # POST /session/reset_password
+  def reset_password
+    individual = Individual.find_by_login(params[:login])
+    if individual
+      individual.forgot_password
+      individual.save( :validate=> false )
+      ForgotMailer.notification(individual).deliver_now
     end
   end
 

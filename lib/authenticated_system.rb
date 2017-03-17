@@ -8,7 +8,7 @@ module AuthenticatedSystem
 
   # Accesses the current individual from the session.
   def current_individual
-    @current_individual ||= (login_from_session || login_from_basic_auth || login_from_cookie)
+    @current_individual ||= (login_from_session || login_from_basic_auth || login_from_forgot_token || login_from_cookie)
     Thread.current[:user] = @current_individual
   end
 
@@ -101,7 +101,17 @@ module AuthenticatedSystem
     end
   end
 
-  # Called from #current_individual.  Finaly, attempt to login by an expiring token in the cookie.
+  # Called from #current_individual.  Attempt to login by a token.
+  def login_from_forgot_token
+    individual = params[:token] && Individual.find_by_forgot_token(params[:token])
+    if individual && individual.login == params[:login] && Time.now.utc < individual.forgot_token_expires_at
+      individual.clear_forgot_password
+      individual.save( :validate=> false )
+      self.current_individual = individual
+    end
+  end
+
+  # Called from #current_individual.  Finally, attempt to login by an expiring token in the cookie.
   def login_from_cookie
     individual = cookies[:auth_token] && Individual.find_by_remember_token(cookies[:auth_token])
     if individual && individual.remember_token?

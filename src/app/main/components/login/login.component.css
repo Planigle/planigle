@@ -42,3 +42,12 @@ a {
     text-align: center;
     margin-top: 10px;
 }
+
+a {
+	color: #0275d8 !important;
+	cursor: pointer;
+}
+
+a:hover {
+	color: black !important;
+}

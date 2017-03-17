@@ -30,7 +30,7 @@ export class SessionsService {
       (loggedInUser: any) => {
         self.current_user = new Individual(loggedInUser);
         self.forceLogin(); // Otherwise it won't retry current page
-        self.router.navigateByUrl(self.path);
+        self.router.navigateByUrl(user.token != null ? ('people;individual=' + loggedInUser.id) : self.path);
       },
       (err: any) => {
         if (url) {
@@ -48,6 +48,18 @@ export class SessionsService {
             response.error = error;
           }
         }
+      });
+  }
+
+  forgotPassword(user: Credentials, response: ApiResponse): void {
+    let headers = new Headers({ 'Content-Type': 'application/json' });
+    let options = new RequestOptions({ headers: headers });
+    this.http.post(baseUrl + '/reset_password', JSON.stringify(user), options)
+    .map(res => res.json())
+    .subscribe(
+      () => {
+        response.error = 'A temporary login URL was sent to the email associated with the specified login.  ' +
+          'If you do not receive it, please double check the login and check your spam folder.';
       });
   }
 

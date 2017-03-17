@@ -36,6 +36,7 @@ Planigle::Application.routes.draw do
   get '/report_team_totals', :to => 'systems#report_team_totals', :as => 'report_team_totals'
   get '/report_upcoming_iterations', :to => 'systems#report_upcoming_iterations', :as => 'report_upcoming_iterations'
   get '/report_iteration_metrics', :to => 'systems#report_iteration_metrics', :as => 'report_iteration_metrics'
+  post '/session/reset_password', :to => 'sessions#reset_password', :as => 'reset_password'
   get '/activate/:activation_code', :to => 'individuals#activate', :as => 'activate'
   get '/logout', :to => 'sessions#logout', :as => 'logout'
 
