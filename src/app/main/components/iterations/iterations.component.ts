@@ -17,27 +17,7 @@ declare var $: any;
 })
 export class IterationsComponent implements AfterViewInit, OnDestroy {
   public gridOptions: GridOptions = <GridOptions>{};
-  public columnDefs: any[] = [{
-    headerName: '',
-    width: 54,
-    field: 'blank',
-    cellRendererFramework: IterationActionsComponent,
-    suppressMovable: true,
-    suppressResize: true,
-    suppressSorting: true
-  }, {
-    headerName: 'Name',
-    width: 300,
-    field: 'name'
-  }, {
-    headerName: 'Start',
-    width: 200,
-    field: 'startString'
-  }, {
-    headerName: 'Finish',
-    width: 200,
-    field: 'finishString'
-  }];
+  public columnDefs: any[] = [];
   public iterations: Iteration[] = null;
   public selection: Iteration;
   public user: Individual;
@@ -54,6 +34,27 @@ export class IterationsComponent implements AfterViewInit, OnDestroy {
     $(window).resize(this.setGridHeight);
     this.user = new Individual(this.sessionsService.getCurrentUser());
     this.route.params.subscribe((params: Map<string, string>) => this.applyNavigation(params));
+    this.columnDefs = [{
+      headerName: '',
+      width: this.user.canChangeRelease() ? 54 : 36,
+      field: 'blank',
+      cellRendererFramework: IterationActionsComponent,
+      suppressMovable: true,
+      suppressResize: true,
+      suppressSorting: true
+    }, {
+      headerName: 'Name',
+      width: 300,
+      field: 'name'
+    }, {
+      headerName: 'Start',
+      width: 200,
+      field: 'startString'
+    }, {
+      headerName: 'Finish',
+      width: 200,
+      field: 'finishString'
+    }];
   }
 
   ngOnDestroy(): void {

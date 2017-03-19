@@ -20,47 +20,7 @@ declare var $: any;
 })
 export class IndividualsComponent implements AfterViewInit, OnDestroy {
   public gridOptions: GridOptions = <GridOptions>{};
-  public columnDefs: any[] = [{
-    headerName: '',
-    width: 36,
-    field: 'blank',
-    cellRendererFramework: IndividualActionsComponent,
-    suppressMovable: true,
-    suppressResize: true,
-    suppressSorting: true
-  }, {
-    headerName: 'Team',
-    width: 100,
-    field: 'team_name'
-  }, {
-    headerName: 'Login',
-    width: 100,
-    field: 'login'
-  }, {
-    headerName: 'First Name',
-    width: 100,
-    field: 'first_name'
-  }, {
-    headerName: 'Last Name',
-    width: 100,
-    field: 'last_name'
-  }, {
-    headerName: 'Role',
-    width: 100,
-    field: 'role_name'
-  }, {
-    headerName: 'Activated',
-    width: 60,
-    field: 'is_activated'
-  }, {
-    headerName: 'Enabled',
-    width: 60,
-    field: 'enabled'
-  }, {
-    headerName: 'Last Logged In',
-    width: 150,
-    field: 'last_login_string'
-  }];
+  public columnDefs: any[] = [];
   public individuals: Individual[] = null;
   public projects: Project[] = [];
   public teams: Team[] = [];
@@ -80,6 +40,47 @@ export class IndividualsComponent implements AfterViewInit, OnDestroy {
     $(window).resize(this.setGridHeight);
     this.user = new Individual(this.sessionsService.getCurrentUser());
     this.route.params.subscribe((params: Map<string, string>) => this.applyNavigation(params));
+    this.columnDefs = [{
+      headerName: '',
+      width: this.user.canChangeRelease() ? 36 : 18,
+      field: 'blank',
+      cellRendererFramework: IndividualActionsComponent,
+      suppressMovable: true,
+      suppressResize: true,
+      suppressSorting: true
+    }, {
+      headerName: 'Team',
+      width: 100,
+      field: 'team_name'
+    }, {
+      headerName: 'Login',
+      width: 100,
+      field: 'login'
+    }, {
+      headerName: 'First Name',
+      width: 100,
+      field: 'first_name'
+    }, {
+      headerName: 'Last Name',
+      width: 100,
+      field: 'last_name'
+    }, {
+      headerName: 'Role',
+      width: 100,
+      field: 'role_name'
+    }, {
+      headerName: 'Activated',
+      width: 60,
+      field: 'is_activated'
+    }, {
+      headerName: 'Enabled',
+      width: 60,
+      field: 'enabled'
+    }, {
+      headerName: 'Last Logged In',
+      width: 150,
+      field: 'last_login_string'
+    }];
   }
 
   ngOnDestroy(): void {

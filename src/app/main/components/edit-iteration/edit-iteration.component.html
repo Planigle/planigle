@@ -48,7 +48,7 @@
 		</div>
 		<div class="buttons">
 			<button type="submit" class="btn btn-secondary" *ngIf="me.canChangeRelease()" (click)="isNew() ? addAnother(form) : ok()" [disabled]="!canSave(form)">{{isNew() ? 'Create' : 'Update'}}</button>
-			<button type="submit" class="btn btn-secondary" *ngIf="me.canChangeRelease()" (click)="ok()" [disabled]="!canSave(form)" [hidden]="!isNew()">Create & Close</button>
+			<button type="submit" class="btn btn-secondary" *ngIf="me.canChangeRelease()" (click)="ok()" [disabled]="!canSave(form)" [hidden]="!isNew()">Create &amp; Close</button>
 			<button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
 			<button type="button" class="btn btn-secondary" title="View Changes" (click)="viewChanges()" [hidden]="isNew()"><fa [name]="'info'"></fa></button>
 		</div>

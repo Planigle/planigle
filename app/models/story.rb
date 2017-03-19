@@ -761,7 +761,7 @@ protected
       @custom_attributes.each_pair do |key, value|
         attrib = project.story_attributes.where(id: key, is_custom: true).first
         if attrib
-          if attrib.is_date && value != nil
+          if attrib.is_date && value != nil && value.strip != ''
             value = value.gsub(/\//, '-') # Excel likes to substitute these
             splits = value.split('-')
             if (splits[0].length == 1)

@@ -23,31 +23,7 @@ declare var $: any;
 export class TeamsComponent implements AfterViewInit, OnDestroy {
   @Output() projectsChanged: EventEmitter<any> = new EventEmitter();
   public gridOptions: GridOptions = <GridOptions>{};
-  public columnDefs: any[] = [{
-    headerName: '',
-    width: 20,
-    field: 'blank',
-    cellRenderer: 'group',
-    suppressMovable: true,
-    suppressResize: true,
-    suppressSorting: true
-  }, {
-    headerName: '',
-    width: 54,
-    field: 'blank',
-    cellRendererFramework: TeamActionsComponent,
-    suppressMovable: true,
-    suppressResize: true,
-    suppressSorting: true
-  }, {
-    headerName: 'Name',
-    width: 300,
-    field: 'name'
-  }, {
-    headerName: 'Description',
-    width: 400,
-    field: 'description'
-  }];
+  public columnDefs: any[] = [];
   public companies: Company[] = null;
   public selection: Organization;
   public user: Individual;
@@ -67,6 +43,31 @@ export class TeamsComponent implements AfterViewInit, OnDestroy {
     $(window).resize(this.setGridHeight);
     this.user = new Individual(this.sessionsService.getCurrentUser());
     this.route.params.subscribe((params: Map<string, string>) => this.applyNavigation(params));
+    this.columnDefs = [{
+      headerName: '',
+      width: 20,
+      field: 'blank',
+      cellRenderer: 'group',
+      suppressMovable: true,
+      suppressResize: true,
+      suppressSorting: true
+    }, {
+      headerName: '',
+      width: this.user.canChangeRelease() ? 54 : 18,
+      field: 'blank',
+      cellRendererFramework: TeamActionsComponent,
+      suppressMovable: true,
+      suppressResize: true,
+      suppressSorting: true
+    }, {
+      headerName: 'Name',
+      width: 300,
+      field: 'name'
+    }, {
+      headerName: 'Description',
+      width: 400,
+      field: 'description'
+    }];
   }
 
   ngOnDestroy(): void {

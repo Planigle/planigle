@@ -67,7 +67,7 @@
 		</div>
 		<div class="buttons">
 			<button type="submit" class="btn btn-secondary" *ngIf="me.canChangeBacklog()" (click)="isNew() ? addAnother(form) : ok()" [disabled]="!canSave(form)">{{isNew() ? 'Create' : 'Update'}}</button>
-			<button type="submit" class="btn btn-secondary" *ngIf="me.canChangeBacklog()" (click)="ok()" [disabled]="!canSave(form)" [hidden]="!isNew()">Create & Close</button>
+			<button type="submit" class="btn btn-secondary" *ngIf="me.canChangeBacklog()" (click)="ok()" [disabled]="!canSave(form)" [hidden]="!isNew()">Create &amp; Close</button>
 			<button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
 			<button type="submit" class="btn btn-secondary" title="Previous" (click)="previous()" [disabled]="!formValid(form)" [hidden]="!hasPrevious || isNew()"><fa [name]="'arrow-up'"></fa></button>
 			<button type="submit" class="btn btn-secondary" title="Next" (click)="next()" [disabled]="!formValid(form)" [hidden]="!hasNext || isNew()"><fa [name]="'arrow-down'"></fa></button>
