@@ -6,14 +6,14 @@
 </div>
 <div class="modal-body">
 	<div class="panel">
-		<div class="attributes list">
+		<div class="attributes list" *ngIf="customStoryAttributes.length>0">
 			<div class="item" *ngFor="let attrib of customStoryAttributes" (click)="selectAttribute(attrib)">
 				<span *ngIf="!isSelected(attrib)">{{attrib.name}}</span>
 				<textarea rows="1" auto-select *ngIf="isSelected(attrib)" type="text" [(ngModel)]="attrib.name" (keydown)="handleAttributeKeyStroke($event)"></textarea>
 				<div class="delete"><fa title="Delete" (click)="deleteAttribute(attrib)" [name]="'remove'"></fa></div>
 			</div>
 		</div>
-		<button type="button" class="btn btn-secondary" title="Add attribute" (click)="addAttribute()"><fa [name]="'plus'"></fa></button>
+		<button type="button" class="btn btn-secondary" (click)="addAttribute()"><fa [name]="'plus'"></fa>Add Attribute</button>
 	</div>
 	<div class="panel">
 		<div *ngIf="selectedAttribute != null">
@@ -53,7 +53,7 @@
 				</div>
 			  </div>
 			</div>
-			<button type="button" class="btn btn-secondary" *ngIf="selectedAttribute.hasList()" title="Add value" (click)="addValue()"><fa [name]="'plus'"></fa></button>
+			<button type="button" class="btn btn-secondary" *ngIf="selectedAttribute.hasList()" (click)="addValue()"><fa [name]="'plus'"></fa>Add Value</button>
 		</div>
 	</div>
 	<div class="clear"></div>
