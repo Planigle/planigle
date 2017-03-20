@@ -3,6 +3,8 @@ Planigle::Application.routes.draw do
   get '/stories/export', :to => 'stories#export', :as => 'export'
   post '/stories/split/:id', :to => 'stories#split', :as => 'split'
   get '/stories/epics', :to => 'stories#epics', :as => 'epics'
+  get '/stories/num_pages', :to => 'stories#num_pages', :as => 'num_story_pages'
+  get '/audits/num_pages', :to => 'audits#num_pages', :as => 'num_audit_pages'
 
   resources :audits
   

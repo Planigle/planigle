@@ -317,8 +317,26 @@ class Story < ActiveRecord::Base
     result.collect{|story| {id: story.id, name: story.name}}
   end
 
+  def self.get_num_pages(current_user, conditions={}, per_page=nil, page=nil)
+    if should_paginate(per_page, page, conditions)
+      count = get_query(current_user, conditions).count
+      count == 0 ? 1 : (count.to_d / per_page).ceil
+    else
+      1
+    end
+  end
+  
   # Answer the records for a particular user.
   def self.get_records(current_user, conditions={}, per_page=nil, page=nil)
+    result = get_query(current_user, conditions)
+    if should_paginate(per_page, page, conditions)
+      result = result.paginate(:per_page=>per_page, :page=>page)
+    end
+    result.each{|story| story.current_conditions=conditions}
+    result
+  end
+    
+  def self.get_query(current_user, conditions={})
     modified_conditions = conditions.clone
     joins = get_joins(modified_conditions)
     filter_on_individual = modified_conditions.has_key?(:individual_id)
@@ -326,27 +344,20 @@ class Story < ActiveRecord::Base
     text_filter = modified_conditions.delete(:text)
     modified_conditions = substitute_conditions(current_user, modified_conditions)
     options = {:include => [:criteria, :story_values, :tasks, :iteration, :release, :team, :individual, :stories], :conditions => modified_conditions, :order => 'stories.priority', :joins => joins}
-    should_paginate = per_page && page && !filter_on_individual && !text_filter
-    if should_paginate
-      options[:per_page] = per_page
-      options[:page] = page
-    end
     result = Story
-    if should_paginate
-      result = Story.paginate(options)
-    else
-      if options[:include] then result = result.includes(options[:include]) end
-      if options[:joins] then result = result.joins(options[:joins]) end
-      if options[:conditions] then result = result.where(options[:conditions]) end
-      if options[:order] then result = result.order(options[:order]) end
-    end
+    if options[:include] then result = result.includes(options[:include]) end
+    if options[:joins] then result = result.joins(options[:joins]) end
+    if options[:conditions] then result = result.where(options[:conditions]) end
+    if options[:order] then result = result.order(options[:order]) end
     if filter_on_individual
       individual_id = individual_id ? individual_id.to_i : individual_id
       result = result.select {|story| story.individual_id==individual_id || story.tasks.detect {|task| task.individual_id==individual_id}}
     end
-    result = text_filter ? result.select {|story| story.matches_text(text_filter)} : result
-    result.each{|story| story.current_conditions=conditions}
-    result
+    text_filter ? result.select {|story| story.matches_text(text_filter)} : result
+  end
+
+  def self.should_paginate(per_page, page, conditions={})
+    per_page && page && !conditions.has_key?(:individual_id) && !conditions.has_key?(:text)
   end
   
   # Update conditions replacing logical values with actual values

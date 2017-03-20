@@ -44,5 +44,6 @@
 		    suppressDragLeaveHidesColumns>
 		</ag-grid-ng2>  <!-- rowBuffer high to better handle mouseover  -->
 	</div>
+	<app-pagination *ngIf="numPages > 1" [(currentPage)]="currentPage" [numPages]="numPages" (changePage)="fetchPage($event.value)"></app-pagination>
 </div>
 <template ngbModalContainer></template>

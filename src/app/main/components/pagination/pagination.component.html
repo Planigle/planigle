@@ -1,0 +1,5 @@
+<nav *ngIf="pageNumbers.length> 1">
+	<ul class="pagination">
+		<li *ngFor="let page of pageNumbers" class="page-item" [ngClass]="{active: currentPage == page}" (click)="fetchPage(page)"><a class="page-link">{{page}}</a></li>
+	</ul>
+</nav>

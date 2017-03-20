@@ -65,5 +65,6 @@
 	    suppressDragLeaveHidesColumns>  <!-- rowBuffer high to better handle drag and drop  -->
 	</ag-grid-ng2>
 	<div class="scroll-down"></div>
+	<app-pagination *ngIf="numPages > 1" [(currentPage)]="currentPage" [numPages]="numPages" (changePage)="fetchPage($event.value)"></app-pagination>
 </div>
 <template ngbModalContainer></template>

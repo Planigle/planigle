@@ -12,8 +12,8 @@ const baseUrl = 'api/stories';
 export class StoriesService {
   constructor(private http: Http) { }
 
-  getStories(queryString: string): Observable<Story[]> {
-    return this.http.get(baseUrl + queryString)
+  getStories(queryString: string, page: number): Observable<Story[]> {
+    return this.http.get(baseUrl + queryString + '&page=' + page)
       .map((res: any) => res.json())
       .map((stories: Array<any>) => {
         let result: Array<Story> = [];
@@ -27,6 +27,11 @@ export class StoriesService {
         this.setRanks(result);
         return result;
       });
+  }
+
+  getStoriesNumPages(queryString: string): Observable<number> {
+    return this.http.get(baseUrl + '/num_pages' + queryString)
+      .map((res: any) => res.json());
   }
 
   getEpics(status: any): Observable<Story[]> {

@@ -231,7 +231,7 @@ export class TasksComponent implements AfterViewInit {
     if (this.team !== 'All') {
       queryString += '&team_id=' + (this.team ? this.team : '');
     }
-    this.storiesService.getStories(queryString).subscribe((stories: Story[]) => {
+    this.storiesService.getStories(queryString, 1).subscribe((stories: Story[]) => {
       this.stories = stories;
       this.setDragDrop();
     });

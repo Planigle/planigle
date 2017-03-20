@@ -36,6 +36,10 @@
 	font-weight: bold;
 }
 
+.story {
+	cursor: pointer;
+}
+
 .task {
 	display: block;
 	width: 100%;

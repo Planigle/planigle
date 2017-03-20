@@ -13,13 +13,9 @@ export class ChangesService {
     private datesService: DatesService
   ) { }
 
-  getChanges(user_id: number, object_type: string, start: Date, end: Date, object_id: number): Observable<Change[]> {
-    let queryString = '';
-    queryString = this.addParameter(queryString, 'user_id', user_id);
-    queryString = this.addParameter(queryString, 'type', object_type);
-    queryString = this.addParameter(queryString, 'start', this.getDateString(start));
-    queryString = this.addParameter(queryString, 'end', this.getDateString(end));
-    queryString = this.addParameter(queryString, 'object_id', object_id);
+  getChanges(user_id: number, object_type: string, start: Date, end: Date, object_id: number, page: number): Observable<Change[]> {
+    let queryString = this.getQueryString(user_id, object_type, start, end, object_id);
+    queryString = this.addParameter(queryString, 'page', page);
     return this.http.get(baseUrl + queryString)
       .map(res => res.json())
       .map((changes: Array<any>) => {
@@ -33,6 +29,21 @@ export class ChangesService {
         }
         return result;
       });
+  }
+
+  getNumPages(user_id: number, object_type: string, start: Date, end: Date, object_id: number): Observable<number> {
+    return this.http.get(baseUrl + '/num_pages' + this.getQueryString(user_id, object_type, start, end, object_id))
+      .map(res => res.json());
+  }
+
+  private getQueryString(user_id: number, object_type: string, start: Date, end: Date, object_id: number): string {
+    let queryString = '';
+    queryString = this.addParameter(queryString, 'user_id', user_id);
+    queryString = this.addParameter(queryString, 'type', object_type);
+    queryString = this.addParameter(queryString, 'start', this.getDateString(start));
+    queryString = this.addParameter(queryString, 'end', this.getDateString(end));
+    queryString = this.addParameter(queryString, 'object_id', object_id);
+    return queryString;
   }
 
   private addParameter(queryString: string, param: string, value: any) {

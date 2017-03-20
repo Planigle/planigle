@@ -1,4 +1,5 @@
 class StoriesController < ResourceController
+  STORIES_PER_PAGE = 100
   before_action :login_required
 #  session :cookie_only => false, :only => [:import, :export]
 
@@ -41,6 +42,12 @@ class StoriesController < ResourceController
     response.headers["Content-Disposition"] = 'attachment; filename=stories.csv'
     cookies[:fileDownload] = { :value => true , :path => '/' }
     render :plain => Story.export(current_individual, conditions)
+  end
+  
+  # GET /stories/num_pages
+  def num_pages
+    page = get_params.delete(:page)
+    render :json => Story.get_num_pages(current_individual, conditions.clone, STORIES_PER_PAGE, page ? page : 1)
   end
   
   # Split the story (tasks which have not been accepted will automatically be put in the new story).
@@ -104,15 +111,8 @@ protected
 
   # Get the records based on the current individual.
   def get_records
-    time = get_params[:time]
-    cond = conditions.clone
-    page_size = get_params.delete(:page_size)
     page = get_params.delete(:page)
-    if (!time || (page && page > 1))
-      Story.get_records(current_individual, cond, page_size, page)
-    else
-      nil
-    end
+    Story.get_records(current_individual, conditions.clone, STORIES_PER_PAGE, page ? page : 1)
   end
 
   # Answer whether the resulting record is visible

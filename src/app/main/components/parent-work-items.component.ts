@@ -29,6 +29,8 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
   private static noSelection = 'None';
   public gridOptions: GridOptions = <GridOptions>{};
   public columnDefs: any[] = [];
+  public currentPage: number = 1;
+  public numPages: number = 1;
   public stories: Story[] = [];
   public epics: Story[] = [];
   public projects: Project[] = [];
@@ -740,7 +742,8 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
   }
 
   private setGridHeight(): void {
-    $('ag-grid-ng2').height($(window).height() - (71 + (this.user && this.user.is_premium ? PremiumReportsComponent.height : 0)));
+    let height: number = this.numPages > 1 ? 113 : 71;
+    $('ag-grid-ng2').height($(window).height() - (height + (this.user && this.user.is_premium ? PremiumReportsComponent.height : 0)));
   }
 
   setAttributes(storyAttributes: StoryAttribute[]): void {
@@ -895,9 +898,14 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
     this.router.navigate([this.getRoute(), params]);
   }
 
+  private fetchPage(pageNumber: number): void {
+    this.currentPage = pageNumber;
+    this.fetchStories();
+  }
+
   fetchStories(selection?: Work, ignoreErrors?: boolean, split?: boolean): void {
     this.waiting = true;
-    this.storiesService.getStories(this.filters.queryString)
+    this.storiesService.getStories(this.filters.queryString, this.currentPage)
       .subscribe(
         (stories: Story[]) => {
           this.setAttributes(this.storyAttributes);
@@ -930,6 +938,11 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
             this.processError(err);
           }
         });
+    this.storiesService.getStoriesNumPages(this.filters.queryString).subscribe(
+      (numPages: number) => {
+        this.numPages = numPages;
+        this.setGridHeight();
+      });
     this.fetchEpics();
   }
 

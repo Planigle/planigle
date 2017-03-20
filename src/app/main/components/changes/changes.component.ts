@@ -45,11 +45,14 @@ export class ChangesComponent implements AfterViewInit, OnDestroy {
     cellRendererFramework: HtmlCellComponent,
   }];
   public changes: Change[] = [];
+  public currentPage: number = 1;
+  public numPages: number = 1;
   public individuals: Individual[] = [];
   public individual: any = 'null';
   public objectType: any = 'null';
   public start: Date;
   public end: Date;
+  private params: Map<string, string>;
 
   constructor(
     private router: Router,
@@ -79,21 +82,13 @@ export class ChangesComponent implements AfterViewInit, OnDestroy {
   }
 
   private setGridHeight(): void {
-    $('ag-grid-ng2').height($(window).height() - $('app-header').height() - 38);
+    $('ag-grid-ng2').height($(window).height() - $('app-header').height() - (this.numPages > 1 ? 85 : 43));
   }
 
   private applyNavigation(params: Map<string, string>): void {
-    let user: number = params['user'] ? parseInt(params['user'], 10) : null;
-    if (user) {
-      this.individual = user;
-    }
-    let objectType: string = params['type'];
-    if (objectType) {
-      this.objectType = objectType;
-    }
-    this.start = this.datesService.parseDate(params['start']);
-    this.end = this.datesService.parseDate(params['end']);
-    this.fetchChanges(user, objectType, this.start, this.end, params['id']);
+    this.params = params;
+    this.currentPage = 1;
+    this.fetchChanges();
   }
 
   updateNavigation(): void {
@@ -131,9 +126,33 @@ export class ChangesComponent implements AfterViewInit, OnDestroy {
     return this.datesService.getDateStringTwoDigit(this.end);
   }
 
-  private fetchChanges(user_id: number, object_type: string, start: Date, end: Date, object_id: number): void {
-    this.changesService.getChanges(user_id, object_type, start, end, object_id).subscribe(
+  private fetchPage(pageNumber: number): void {
+    this.currentPage = pageNumber;
+    this.fetchChanges();
+  }
+
+  private fetchChanges(): void {
+    let user: number = this.params['user'] ? parseInt(this.params['user'], 10) : null;
+    if (user) {
+      this.individual = user;
+    }
+    let objectType: string = this.params['type'];
+    if (objectType) {
+      this.objectType = objectType;
+    }
+    this.start = this.datesService.parseDate(this.params['start']);
+    this.end = this.datesService.parseDate(this.params['end']);
+    this.fetchChangesParemeterized(user, objectType, this.start, this.end, this.params['id']);
+  }
+
+  private fetchChangesParemeterized(user_id: number, object_type: string, start: Date, end: Date, object_id: number): void {
+    this.changesService.getChanges(user_id, object_type, start, end, object_id, this.currentPage).subscribe(
       (changes: Change[]) => this.changes = changes);
+    this.changesService.getNumPages(user_id, object_type, start, end, object_id).subscribe(
+      (numPages: number) => {
+        this.numPages = numPages;
+        this.setGridHeight();
+      });
   }
 
   private fetchUsers(): void {
