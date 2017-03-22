@@ -1,4 +1,4 @@
-<div *ngIf="selection === null">
+<div *ngIf="selection === null && !editing">
 	<span class="title">Teams</span>
 </div>
 <app-edit-company
@@ -16,13 +16,14 @@
 	[(team)]="selection"
 	[(me)]="user"
 	(closed)="finishedEditing($event.value)"></app-edit-team>
-<ag-grid-ng2 #agGrid class="ag-fresh"
+<ag-grid-ng2 [hidden]="selection != null || editing" #agGrid class="ag-fresh"
 	[gridOptions]="gridOptions"
     [columnDefs]="columnDefs"
     [rowData]="companies"
     [context]="context"
     [getNodeChildDetails]="getChildren"
     [getRowClass]="getRowClass"
+    (modelUpdated)="gridReady()"
     (rowDoubleClicked)="editRow($event)"
     (rowGroupOpened)="rowGroupOpened($event)"
     enableColResize

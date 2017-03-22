@@ -40,8 +40,8 @@
 		[hasPrevious]="previous() != null"
 		[hasNext]="next() != null"
 		(closed)="finishedEditing($event.value)"></app-edit-task>
-	<div class="scroll-up"></div>
-	<ag-grid-ng2 #agGrid class="ag-fresh"
+	<div [hidden]="selection != null" class="scroll-up"></div>
+	<ag-grid-ng2 [hidden]="selection != null" #agGrid class="ag-fresh"
 		[gridOptions]="gridOptions"
 	    [columnDefs]="columnDefs"
 	    [rowData]="stories"
@@ -58,12 +58,12 @@
 	    (rowGroupOpened)="updateExpandContractAll()"
 	    enableColResize
 	    enableSorting
-	    rowHeight="22"
+	    rowHeight="25"
 	    rowBuffer="1000"
 	    suppressCellSelection
 	    suppressDragLeaveHidesColumns>  <!-- rowBuffer high to better handle drag and drop  -->
 	</ag-grid-ng2>
-	<div class="scroll-down"></div>
-	<app-pagination *ngIf="numPages > 1" [(currentPage)]="currentPage" [numPages]="numPages" (changePage)="fetchPage($event.value)"></app-pagination>
+	<div [hidden]="selection != null" class="scroll-down"></div>
+	<app-pagination [hidden]="selection != null && numPages > 1" [(currentPage)]="currentPage" [numPages]="numPages" (changePage)="fetchPage($event.value)"></app-pagination>
 </div>
 <template ngbModalContainer></template>

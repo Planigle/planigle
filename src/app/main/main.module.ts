@@ -21,7 +21,6 @@ import { SelectColumnsComponent } from './components/select-columns/select-colum
 import { EditStoryComponent } from './components/edit-story/edit-story.component';
 import { EditTaskComponent } from './components/edit-task/edit-task.component';
 import { ChooseStatusComponent } from './components/choose-status/choose-status.component';
-import { StoryActionsComponent } from './components/story-actions/story-actions.component';
 import { EditReasonBlockedComponent } from './components/edit-reason-blocked/edit-reason-blocked.component';
 import { ConfirmationDialogComponent } from './components/confirmation-dialog/confirmation-dialog.component';
 import { AcceptanceCriteriaComponent } from './components/acceptance-criteria/acceptance-criteria.component';
@@ -36,8 +35,6 @@ import { ReleasesComponent } from './components/releases/releases.component';
 import { ScheduleComponent } from './components/schedule/schedule.component';
 import { EditIterationComponent } from './components/edit-iteration/edit-iteration.component';
 import { EditReleaseComponent } from './components/edit-release/edit-release.component';
-import { IterationActionsComponent } from './components/iteration-actions/iteration-actions.component';
-import { ReleaseActionsComponent } from './components/release-actions/release-actions.component';
 import { IterationOverallActionsComponent } from './components/iteration-overall-actions/iteration-overall-actions.component';
 import { ReleaseOverallActionsComponent } from './components/release-overall-actions/release-overall-actions.component';
 import { PeopleComponent } from './components/people/people.component';
@@ -46,8 +43,6 @@ import { IndividualsComponent } from './components/individuals/individuals.compo
 import { EditCompanyComponent } from './components/edit-company/edit-company.component';
 import { EditTeamComponent } from './components/edit-team/edit-team.component';
 import { EditIndividualComponent } from './components/edit-individual/edit-individual.component';
-import { TeamActionsComponent } from './components/team-actions/team-actions.component';
-import { IndividualActionsComponent } from './components/individual-actions/individual-actions.component';
 import { IndividualOverallActionsComponent } from './components/individual-overall-actions/individual-overall-actions.component';
 import { EditProjectComponent } from './components/edit-project/edit-project.component';
 import { SignupComponent } from './components/signup/signup.component';
@@ -91,7 +86,6 @@ const appRoutes: Routes = [
     EditStoryComponent,
     EditTaskComponent,
     ChooseStatusComponent,
-    StoryActionsComponent,
     EditReasonBlockedComponent,
     ConfirmationDialogComponent,
     AcceptanceCriteriaComponent,
@@ -107,8 +101,6 @@ const appRoutes: Routes = [
     ScheduleComponent,
     EditIterationComponent,
     EditReleaseComponent,
-    IterationActionsComponent,
-    ReleaseActionsComponent,
     IterationOverallActionsComponent,
     ReleaseOverallActionsComponent,
     PeopleComponent,
@@ -117,8 +109,6 @@ const appRoutes: Routes = [
     EditCompanyComponent,
     EditTeamComponent,
     EditIndividualComponent,
-    TeamActionsComponent,
-    IndividualActionsComponent,
     IndividualOverallActionsComponent,
     EditProjectComponent,
     SignupComponent,
@@ -155,11 +145,6 @@ const appRoutes: Routes = [
     MultiselectDropdownModule,
     AgGridModule.withComponents([
       ChooseStatusComponent,
-      StoryActionsComponent,
-      IterationActionsComponent,
-      ReleaseActionsComponent,
-      TeamActionsComponent,
-      IndividualActionsComponent,
       HtmlCellComponent,
       GroupHeaderComponent,
       SurveyExcludedComponent

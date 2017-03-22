@@ -1,4 +1,4 @@
-<div *ngIf="selection === null">
+<div *ngIf="selection === null && !editing">
 	<app-iteration-overall-actions [grid]="this"></app-iteration-overall-actions>
 	<span class="title">Iterations</span>
 </div>
@@ -7,11 +7,13 @@
 	[(iteration)]="selection"
 	[(me)]="user"
 	(closed)="finishedEditing($event.value)"></app-edit-iteration>
-<ag-grid-ng2 #agGrid class="ag-fresh"
+<ag-grid-ng2 [hidden]="selection != null || editing" #agGrid class="ag-fresh"
 	[gridOptions]="gridOptions"
     [columnDefs]="columnDefs"
     [rowData]="iterations"
     [context]="context"
+    [getRowClass]="getRowClass"
+    (modelUpdated)="gridReady()"
     (rowDoubleClicked)="editRow($event)"
     enableColResize
     enableSorting

@@ -1,6 +1,0 @@
-<div class="actions">
-	<fa title="Edit" (click)="edit()" [name]="'edit'"></fa>
-	<fa title="Delete" (click)="deleteItem()" [name]="'remove'"></fa>
-	<fa [attr.title]="grid.showEpics() ? 'Add Story' : 'Add Task'" (click)="addChild()" [name]="'plus'" *ngIf="model.isStory() && (!grid.showEpics() || model.canAddChildren())"></fa>
-	<fa title="Split" *ngIf="model.isStory()" (click)="split()" [name]="'pie-chart'"></fa>
-</div>

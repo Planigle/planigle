@@ -1,5 +1,6 @@
 import { Component, AfterViewInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ParentWorkItemsComponent } from '../parent-work-items.component';
 import { SessionsService } from '../../services/sessions.service';
 import { StoryAttributesService } from '../../services/story-attributes.service';
@@ -23,6 +24,7 @@ export class EpicsComponent extends ParentWorkItemsComponent implements AfterVie
   constructor(
     router: Router,
     route: ActivatedRoute,
+    modalService: NgbModal,
     sessionsService: SessionsService,
     storyAttributesService: StoryAttributesService,
     projectsService: ProjectsService,
@@ -33,7 +35,7 @@ export class EpicsComponent extends ParentWorkItemsComponent implements AfterVie
     errorService: ErrorService
   ) {
     super(
-      router, route, sessionsService, storyAttributesService, projectsService,
+      router, route, modalService, sessionsService, storyAttributesService, projectsService,
       storiesService, tasksService, projectionsService, dragDropService, errorService);
   }
 

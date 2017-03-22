@@ -36,7 +36,7 @@
 		[showActuals]="myProject && myProject.track_actuals"
 		(closed)="finishedEditing($event.value)"></app-edit-task>
 	<template ngbModalContainer></template>
-	<table class="board">
+	<table [hidden]="selection != null" class="board">
 		<tr class="row">
 			<th class="square title">Story</th>
 			<th class="square title">Not Started</th>

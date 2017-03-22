@@ -34,7 +34,7 @@ select {
 }
 
 :host /deep/ .ag-header-container i.fa {
-	font-size: 14px;
+	font-size: 1rem;
 	padding-top: 6px;
 	margin-left: -1px;
 	cursor: pointer;

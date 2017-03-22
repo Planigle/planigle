@@ -2,7 +2,7 @@
 	<form (ngsubmit)="ok()" #form="ngForm">
 		<div class="panel">
 		    <div [hidden]="!error" class="alert alert-danger" [innerHtml]="error"></div>
-			<div class="form-group row">
+			<div class="form-group required row">
 			  <label for="name" class="col-xs-4 col-form-label">Company Name</label>
 			  <div class="col-xs-8">
 			    <input class="form-control" type="text" [(ngModel)]="model.name" name="name" #name="ngModel" maxlength="250" [disabled]="!me.canChangeRelease()" required autofocus>

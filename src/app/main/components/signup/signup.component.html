@@ -3,7 +3,7 @@
 	<form (ngsubmit)="ok()" #form="ngForm">
 		<div class="panel">
 		    <div [hidden]="!error" class="alert alert-danger" [innerHtml]="error"></div>
-			<div class="form-group row">
+			<div class="form-group required row">
 			  <label for="company_name" class="col-xs-3 col-form-label">Company Name</label>
 			  <div class="col-xs-9">
 			    <input class="form-control" type="text" [(ngModel)]="model.company_name" name="company_name" #company_name="ngModel" maxlength="40" required autofocus>
@@ -12,7 +12,7 @@
 		        </div>
 			  </div>
 			</div>
-			<div class="form-group row">
+			<div class="form-group required row">
 			  <label for="project_name" class="col-xs-3 col-form-label">Project Name</label>
 			  <div class="col-xs-9">
 			    <input class="form-control" type="text" [(ngModel)]="model.project_name" name="project_name" #project_name="ngModel" maxlength="40" required>
@@ -27,7 +27,7 @@
 				<textarea class="form-control" name="project_description" rows="3" [(ngModel)]="model.project_description"></textarea>
 			  </div>
 			</div>
-			<div class="form-group row">
+			<div class="form-group required row">
 			  <label for="login" class="col-xs-3 col-form-label">Login</label>
 			  <div class="col-xs-9">
 			    <input class="form-control" type="text" [(ngModel)]="model.login" name="login" #login="ngModel" maxlength="40" required>
@@ -36,7 +36,7 @@
 		        </div>
 			  </div>
 			</div>
-			<div class="form-group row">
+			<div class="form-group required row">
 			  <label for="password" class="col-xs-3 col-form-label">Password</label>
 			  <div class="col-xs-9">
 			    <input class="form-control" type="password" [(ngModel)]="model.password" name="password" #password="ngModel" maxlength="40" required>
@@ -45,8 +45,8 @@
 		        </div>
 			  </div>
 			</div>
-			<div class="form-group row">
-			  <label for="password_confirmation" class="col-xs-3 col-form-label">Password Confirmation</label>
+			<div class="form-group required row">
+			  <label for="password_confirmation" class="col-xs-3 col-form-label ascend-label">Password Confirmation</label>
 			  <div class="col-xs-9">
 			    <input class="form-control" type="password" [(ngModel)]="model.password_confirmation" name="password_confirmation" #password_confirmation="ngModel" maxlength="40" required>
 			    <div [hidden]="password_confirmation.valid || password_confirmation.pristine" class="alert alert-danger">
@@ -54,7 +54,7 @@
 		        </div>
 			  </div>
 			</div>
-			<div class="form-group row">
+			<div class="form-group required row ascend-follow">
 			  <label for="email" class="col-xs-3 col-form-label">Email</label>
 			  <div class="col-xs-9">
 			    <input class="form-control" type="text" [(ngModel)]="model.email" name="email" #email="ngModel" maxlength="100" required>
@@ -69,7 +69,7 @@
 			    <input class="form-control" type="text" [(ngModel)]="model.phone_number" name="phone_number" #phone_number="ngModel" maxlength="20">
 			  </div>
 			</div>
-			<div class="form-group row">
+			<div class="form-group required row">
 			  <label for="first_name" class="col-xs-3 col-form-label">First Name</label>
 			  <div class="col-xs-9">
 			    <input class="form-control" type="text" [(ngModel)]="model.first_name" name="first_name" #first_name="ngModel" maxlength="40" required>
@@ -78,7 +78,7 @@
 		        </div>
 			  </div>
 			</div>
-			<div class="form-group row">
+			<div class="form-group required row">
 			  <label for="last_name" class="col-xs-3 col-form-label">Last Name</label>
 			  <div class="col-xs-9">
 			    <input class="form-control" type="text" [(ngModel)]="model.last_name" name="last_name" #last_name="ngModel" maxlength="40" required>

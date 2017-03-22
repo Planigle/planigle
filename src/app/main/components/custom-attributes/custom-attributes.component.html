@@ -1,6 +1,6 @@
 <div class="form-group row" *ngFor="let customStoryAttribute of customStoryAttributes" [hidden]="(filter || multiple) && customStoryAttribute.value_type != 3 && customStoryAttribute.value_type != 4">
-  <label for="custom_{{customStoryAttribute.id}}" class="col-xs-2 col-form-label">{{customStoryAttribute.name}}</label>
-  <div class="col-xs-10">
+  <label for="custom_{{customStoryAttribute.id}}" class="col-xs-3 col-form-label">{{customStoryAttribute.name}}</label>
+  <div class="col-xs-9">
 	<input
 		class="form-control"
 		type="text"

@@ -2,9 +2,9 @@
 	<form (ngsubmit)="ok()" #form="ngForm">
 		<div class="panel">
 		    <div [hidden]="!error" class="alert alert-danger" [innerHtml]="error"></div>
-			<div class="form-group row">
-			  <label for="name" class="col-xs-2 col-form-label">Story Name</label>
-			  <div class="col-xs-10">
+			<div class="form-group required row">
+			  <label for="name" class="col-xs-3 col-form-label">Story Name</label>
+			  <div class="col-xs-9">
 			    <input class="form-control" type="text" [(ngModel)]="model.name" name="name" #name="ngModel" maxlength="250" [disabled]="!me.canChangeBacklog()" required autofocus>
 			    <div [hidden]="name.valid || name.pristine" class="alert alert-danger">
 		          Name is required
@@ -12,26 +12,26 @@
 			  </div>
 			</div>
 			<div class="form-group row">
-			  <label for="description" class="col-xs-2 col-form-label">Description</label>
-			  <div class="col-xs-10">
+			  <label for="description" class="col-xs-3 col-form-label">Description</label>
+			  <div class="col-xs-9">
 				<textarea class="form-control" name="description" rows="5" [(ngModel)]="model.description" maxlength="20480" [disabled]="!me.canChangeBacklog()"></textarea>
 			  </div>
 			</div>
 			<div class="form-group row">
-			  <label for="acceptance-criteria" class="col-xs-2 col-form-label">Acceptance Criteria</label>
-			  <div class="col-xs-10">
+			  <label for="acceptance-criteria" class="col-xs-3 col-form-label">Acceptance Criteria</label>
+			  <div class="col-xs-9">
 			  	<app-acceptance-criteria [(model)]="model" [(me)]="me"></app-acceptance-criteria>
 			  </div>
 			</div>
 			<div class="form-group row">
-			  <label for="status" class="col-xs-2 col-form-label">Status</label>
-			  <div class="col-xs-10">
+			  <label for="status" class="col-xs-3 col-form-label">Status</label>
+			  <div class="col-xs-9">
 			  	<app-choose-status [(model)]="model" [me]="me"></app-choose-status>
 			  </div>
 			</div>
 			<div class="form-group row" *ngIf="model.status_code==2">
-			  <label for="reason_blocked" class="col-xs-2 col-form-label">Reason Blocked</label>
-			  <div class="col-xs-10">
+			  <label for="reason_blocked" class="col-xs-3 col-form-label">Reason Blocked</label>
+			  <div class="col-xs-9">
 				<textarea class="form-control" name="reason_blocked" rows="3" [(ngModel)]="model.reason_blocked" maxlength="4096" [disabled]="!me.canChangeBacklog()"></textarea>
 			  </div>
 			</div>
@@ -103,7 +103,7 @@
 			    <input class="form-control" type="number" step="any" min="0" [(ngModel)]="model.effort" name="toDo" [disabled]="!me.canChangeBacklog()">
 			  </div>
 			</div>
-			<button type="button" class="btn btn-secondary" (click)="editAttributes()" [hidden]="!me.canChangeBacklog()">Edit Attributes</button>
+			<button type="button" class="btn btn-secondary" *ngIf="me.canChangeRelease()" (click)="editAttributes()">Edit Attributes</button>
 		</div>
 		<div class="buttons">
 			<button type="submit" class="btn btn-secondary" *ngIf="me.canChangeBacklog()" (click)="isNew() ? addAnother(form) : ok()" [disabled]="!canSave(form)">{{isNew() ? 'Create' : split ? 'Split' : 'Update'}}</button>

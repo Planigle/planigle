@@ -1,9 +1,10 @@
-import { Component, AfterViewInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild } from '@angular/core';
 import { Response } from '@angular/http';
 import { Router, ActivatedRoute } from '@angular/router';
 import { GridOptions } from 'ag-grid/main';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
 import { StoryFiltersComponent } from './story-filters/story-filters.component';
-import { StoryActionsComponent } from './story-actions/story-actions.component';
 import { GroupHeaderComponent } from './group-header/group-header.component';
 import { PremiumReportsComponent } from '../../premium/components/premium-reports/premium-reports.component';
 import { SessionsService } from '../services/sessions.service';
@@ -24,7 +25,7 @@ import { Individual } from '../models/individual';
 import { FinishedEditing } from '../models/finished-editing';
 declare var $: any;
 
-export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestroy {
+export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit, OnDestroy {
   private static instance: ParentWorkItemsComponent;
   private static noSelection = 'None';
   public gridOptions: GridOptions = <GridOptions>{};
@@ -58,6 +59,7 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
   constructor(
     private router: Router,
     private route: ActivatedRoute,
+    private modalService: NgbModal,
     private sessionsService: SessionsService,
     private storyAttributesService: StoryAttributesService,
     protected projectsService: ProjectsService,
@@ -73,9 +75,12 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
   abstract getRoute(): string;
   abstract showEpics(): boolean;
 
+  ngOnInit(): void {
+    this.user = new Individual(this.sessionsService.getCurrentUser());
+  }
+
   ngAfterViewInit(): void {
     let self = this;
-    this.user = new Individual(this.sessionsService.getCurrentUser());
     this.filters.addDefaultOptions(this.user);
     this.setGridHeight();
     $(window).resize(this.setGridHeight);
@@ -182,10 +187,92 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
   gridReady(): void {
     this.dragDropService.setUpDragDrop(this, this.dropRow, true);
 
+    $.contextMenu('destroy');
+    $.contextMenu(this.getStoryMenu(true));
+    $.contextMenu(this.getStoryMenu(false));
+    $.contextMenu(this.getTaskMenu());
+
     let self: ParentWorkItemsComponent = this;
     $('.ag-header-container i.fa').off('click').click(function() {
       self.expandContractAll();
     });
+  }
+
+  private getStoryMenu(canAddChildren: boolean): any {
+    let self: ParentWorkItemsComponent = this;
+    let menu = {
+      selector: canAddChildren ? '.story-children' : '.story-no-children',
+      items: {
+        edit: {
+        name: 'Edit',
+          callback: function(key, opt) { self.editItem(self.getRowWork(this)); }
+        }
+      }
+    };
+    if (this.user.canChangeBacklog()) {
+      menu['items']['deleteItem'] = {
+        name: 'Delete',
+        callback: function(key, opt) { self.deleteItem(self.getRowWork(this)); }
+      };
+      if (canAddChildren) {
+        menu['items']['addChild'] = {
+          name: this.showEpics() ? 'Add Story' : 'Add Task',
+          callback: function(key, opt) { self.addChildItem(self.getRowWork(this)); }
+        };
+      }
+      menu['items']['split'] = {
+        name: 'Split',
+        callback: function(key, opt) { self.splitItem(self.getRowWork(this)); }
+      };
+    }
+    return menu;
+  }
+
+  private getTaskMenu(): any {
+    let self: ParentWorkItemsComponent = this;
+    let menu: any = {
+      selector: '.task',
+      items: {
+        edit: {
+          name: 'Edit',
+          callback: function(key, opt) { self.editItem(self.getRowWork(this)); }
+        }
+      }
+    };
+    if (this.user.canChangeBacklog()) {
+      menu['items']['deleteItem'] = {
+        name: 'Delete',
+        callback: function(key, opt) { self.deleteItem(self.getRowWork(this)); }
+      };
+    }
+    return menu;
+  }
+
+  editItem(model: Work): void {
+    this.updateNavigation(model.uniqueId);
+  }
+
+  deleteItem(model: Work): void {
+    let self: ParentWorkItemsComponent = this;
+    const modalRef: NgbModalRef = this.modalService.open(ConfirmationDialogComponent);
+    let typeOfObject: string = model.isStory() ? 'Story' : 'Task';
+    let component: ConfirmationDialogComponent = modalRef.componentInstance;
+    component.confirmDelete(typeOfObject, model.name);
+    modalRef.result.then(
+      (result: any) => {
+        if (component.model.confirmed) {
+          self.deleteWork(model);
+        }
+      }
+    );
+  }
+
+  addChildItem(model: Work): void {
+    this.addChild(<Story> model);
+  }
+
+  splitItem(model: Work): void {
+    this.updateNavigation(model.uniqueId, true);
   }
 
   getChildren(rowItem: Story): any {
@@ -465,7 +552,9 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
   }
 
   getRowClass(rowItem: any): string {
-    return (rowItem.data.isStory() ? 'story' : 'task') + ' id-' + rowItem.data.uniqueId;
+    let parentStatus = rowItem.data.isStory() ?
+      (!ParentWorkItemsComponent.instance.showEpics() || rowItem.data.canAddChildren() ? ' story-children' : ' story-no-children') : '';
+    return (rowItem.data.isStory() ? 'story' : 'task') + parentStatus + ' id-' + rowItem.data.uniqueId;
   }
 
   getRowNodeId(rowItem): string {
@@ -742,7 +831,7 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
   }
 
   private setGridHeight(): void {
-    let height: number = this.numPages > 1 ? 113 : 71;
+    let height: number = this.numPages > 1 ? 126 : 84;
     $('ag-grid-ng2').height($(window).height() - (height + (this.user && this.user.is_premium ? PremiumReportsComponent.height : 0)));
   }
 
@@ -758,17 +847,6 @@ export abstract class ParentWorkItemsComponent implements AfterViewInit, OnDestr
       suppressResize: true,
       suppressSorting: true
     }];
-    if (this.user.canChangeBacklog()) {
-      newColumnDefs.push({
-        headerName: '',
-        width: 72,
-        field: 'blank',
-        cellRendererFramework: StoryActionsComponent,
-        suppressMovable: true,
-        suppressResize: true,
-        suppressSorting: true
-      });
-    }
     this.filteredAttributes = [];
     storyAttributes.forEach((storyAttribute: StoryAttribute) => {
       if (storyAttribute.show &&

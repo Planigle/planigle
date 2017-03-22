@@ -2,7 +2,7 @@ export abstract class Organization {
   public id: number;
   public name: string;
   public added: boolean;
-  public expanded: boolean;
+  public expanded: boolean = true;
 
   constructor(values: any) {
     this.id = values.id;

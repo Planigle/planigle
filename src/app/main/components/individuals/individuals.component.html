@@ -1,4 +1,4 @@
-<div *ngIf="selection === null">
+<div *ngIf="selection === null && !editing">
 	<app-individual-overall-actions [grid]="this"></app-individual-overall-actions>
 	<span class="title">Individuals</span>
 </div>
@@ -9,11 +9,13 @@
 	[(projects)]="projects"
 	[(teams)]="teams"
 	(closed)="finishedEditing($event.value)"></app-edit-individual>
-<ag-grid-ng2 #agGrid class="ag-fresh"
+<ag-grid-ng2 [hidden]="selection != null || editing" #agGrid class="ag-fresh"
 	[gridOptions]="gridOptions"
     [columnDefs]="columnDefs"
     [rowData]="individuals"
     [context]="context"
+    [getRowClass]="getRowClass"
+    (modelUpdated)="gridReady()"
     (rowDoubleClicked)="editRow($event)"
     enableColResize
     enableSorting

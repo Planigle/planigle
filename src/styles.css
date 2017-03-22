@@ -16,7 +16,8 @@
 }
 
 .edit-component .panel:nth-child(2) {
-	width: 400px;
+	padding-left: 10px;
+	width: 410px;
 }
 
 .edit-component .buttons {
@@ -34,7 +35,7 @@ p.form-control-static {
 }
 
 html {
-	font-size: 14px;
+	font-size: 16px;
 }
 
 @media (max-width: 543px) {
@@ -104,4 +105,34 @@ nav {
 
 .nav-item a:hover, .nav-item.active a {
 	color: #0275d8 !important;
+}
+
+ag-grid-ng2 {
+	margin-top: 5px;
+}
+
+.context-menu-list {
+	font-size: 0.85rem;
+}
+
+.context-menu-item {
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.descend {
+	margin-top: 6px;
+}
+
+.ascend-label {
+	margin-top: -15px;
+}
+
+.ascend-follow {
+	margin-top: -11px;	
+}
+
+.form-group.required label:after {
+  content:"*";
+  color:red;
 }

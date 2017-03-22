@@ -1,7 +1,8 @@
-import { Component, AfterViewInit, OnDestroy, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, Output, EventEmitter } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { GridOptions } from 'ag-grid/main';
-import { TeamActionsComponent } from '../team-actions/team-actions.component';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { CompaniesService } from '../../services/companies.service';
 import { ProjectsService } from '../../services/projects.service';
 import { TeamsService } from '../../services/teams.service';
@@ -20,42 +21,39 @@ declare var $: any;
   styleUrls: ['./teams.component.css'],
   providers: [CompaniesService, ProjectsService, TeamsService]
 })
-export class TeamsComponent implements AfterViewInit, OnDestroy {
+export class TeamsComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() projectsChanged: EventEmitter<any> = new EventEmitter();
   public gridOptions: GridOptions = <GridOptions>{};
   public columnDefs: any[] = [];
   public companies: Company[] = null;
   public selection: Organization;
   public user: Individual;
+  public editing: boolean = false;
   private id_map: Map<string, Organization> = new Map();
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
+    private modalService: NgbModal,
     private sessionsService: SessionsService,
     private companiesService: CompaniesService,
     private projectsService: ProjectsService,
     private teamsService: TeamsService
   ) { }
 
+  ngOnInit(): void {
+    this.user = new Individual(this.sessionsService.getCurrentUser());
+  }
+
   ngAfterViewInit(): void {
     this.setGridHeight();
     $(window).resize(this.setGridHeight);
-    this.user = new Individual(this.sessionsService.getCurrentUser());
     this.route.params.subscribe((params: Map<string, string>) => this.applyNavigation(params));
     this.columnDefs = [{
       headerName: '',
       width: 20,
       field: 'blank',
       cellRenderer: 'group',
-      suppressMovable: true,
-      suppressResize: true,
-      suppressSorting: true
-    }, {
-      headerName: '',
-      width: this.user.canChangeRelease() ? 54 : 18,
-      field: 'blank',
-      cellRendererFramework: TeamActionsComponent,
       suppressMovable: true,
       suppressResize: true,
       suppressSorting: true
@@ -75,7 +73,7 @@ export class TeamsComponent implements AfterViewInit, OnDestroy {
   }
 
   private setGridHeight(): void {
-    $('app-teams ag-grid-ng2').height(($(window).height() - $('app-header').height() - 42) * 0.4);
+    $('app-teams ag-grid-ng2').height(($(window).height() - $('app-header').height() - 57) * 0.4);
   }
 
   private fetchCompanies(afterAction, afterActionParams): void {
@@ -105,6 +103,82 @@ export class TeamsComponent implements AfterViewInit, OnDestroy {
     } else {
       this.fetchCompanies(this.setSelection, params['organization']);
     }
+    this.editing = params['individual'] != null;
+  }
+
+  gridReady(): void {
+    $.contextMenu('destroy');
+    $.contextMenu(this.getMenu('.company', 'Project', this.addProjectItem));
+    $.contextMenu(this.getMenu('.project', 'Team', this.addTeamItem));
+    $.contextMenu(this.getMenu('.team', null, null));
+  }
+
+  private getMenu(selector: string, childName: string, childFunction: any): any {
+    let self: TeamsComponent = this;
+    let menu = {
+      selector: selector,
+      items: {
+        edit: {
+        name: 'Edit',
+          callback: function(key, opt) { self.editItem(self.getItem(this)); }
+        }
+      }
+    };
+    if (this.user.canChangeRelease()) {
+      if (childName != null) {
+        menu['items']['addChild'] = {
+          name: 'Add ' + childName,
+          callback: function(key, opt) { childFunction.call(self, self.getItem(this)); }
+        };
+      }
+      if (childName !== 'Project') {
+        menu['items']['deleteItem'] = {
+          name: 'Delete',
+          callback: function(key, opt) { self.deleteItem(self.getItem(this)); }
+        };
+      }
+    }
+    return menu;
+  }
+
+  private getItem(jQueryObject: any): Organization {
+    let result: string = null;
+    $.each(jQueryObject.attr('class').toString().split(' '), function (i: number, className: string) {
+      if (className.indexOf('id-') === 0) {
+        result = className.substring(3);
+      }
+    });
+    return this.id_map[result];
+  }
+
+  addProjectItem(model: Organization): void {
+    this.addProject(<Company> model);
+  }
+
+  addTeamItem(model: Organization): void {
+    this.addTeam(<Project> model);
+  }
+
+  editItem(model: Organization): void {
+    this.editOrganization(model);
+  }
+
+  deleteItem(model: Organization): void {
+    let self: TeamsComponent = this;
+    const modalRef: NgbModalRef = this.modalService.open(ConfirmationDialogComponent);
+    let component: ConfirmationDialogComponent = modalRef.componentInstance;
+    component.confirmDelete(model.isTeam() ? 'Team' : 'Project', model.name);
+    modalRef.result.then(
+      (result: any) => {
+        if (component.model.confirmed) {
+          if (model.isTeam()) {
+            self.deleteTeam(<Team> model);
+          } else {
+            self.deleteProject(<Project> model);
+          }
+        }
+      }
+    );
   }
 
   private setSelection(selectionValue: string): void {
@@ -208,7 +282,8 @@ export class TeamsComponent implements AfterViewInit, OnDestroy {
   }
 
   getRowClass(rowItem: any): string {
-    return rowItem.data.isCompany() ? 'company' : (rowItem.data.isProject() ? 'project' : 'team');
+    return (rowItem.data.isCompany() ? 'company' : (rowItem.data.isProject() ? 'project' : 'team')) +
+      ' id-' + rowItem.data.uniqueId;
   }
 
   finishedEditing(result: FinishedEditing): void {

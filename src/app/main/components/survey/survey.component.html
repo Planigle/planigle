@@ -3,7 +3,7 @@
 	<form (ngsubmit)="submit()" #form="ngForm">
 	    <div [hidden]="!error" class="alert alert-danger" [innerHtml]="error"></div>
 	    <div [hidden]="!notice" class="alert alert-success" [innerHtml]="notice"></div>
-		<div class="form-group row">
+		<div class="form-group required row">
 		  <label for="name" class="col-xs-2 col-form-label">Name</label>
 		  <div class="col-xs-10">
 		    <input class="form-control" type="text" [(ngModel)]="survey.name" name="name" #name="ngModel" maxlength="80" required autofocus>
@@ -18,7 +18,7 @@
 		    <input class="form-control" type="text" [(ngModel)]="survey.company" name="company" #company="ngModel" maxlength="80">
 		  </div>
 		</div>
-		<div class="form-group row">
+		<div class="form-group required row">
 		  <label for="email" class="col-xs-2 col-form-label">Email</label>
 		  <div class="col-xs-10">
 		    <input class="form-control" type="text" [(ngModel)]="survey.email" name="email" #email="ngModel" maxlength="100" required>

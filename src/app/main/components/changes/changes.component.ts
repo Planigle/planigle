@@ -27,7 +27,7 @@ export class ChangesComponent implements AfterViewInit, OnDestroy {
     field: 'user_name'
   }, {
     headerName: 'Object Type',
-    width: 100,
+    width: 150,
     field: 'auditable_type'
   }, {
     headerName: 'Object Name',

@@ -1,7 +1,8 @@
-import { Component, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { GridOptions } from 'ag-grid/main';
-import { IndividualActionsComponent } from '../individual-actions/individual-actions.component';
+import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation-dialog.component';
 import { IndividualsService } from '../../services/individuals.service';
 import { CompaniesService } from '../../services/companies.service';
 import { SessionsService } from '../../services/sessions.service';
@@ -18,7 +19,7 @@ declare var $: any;
   styleUrls: ['./individuals.component.css'],
   providers: [IndividualsService, CompaniesService]
 })
-export class IndividualsComponent implements AfterViewInit, OnDestroy {
+export class IndividualsComponent implements OnInit, AfterViewInit, OnDestroy {
   public gridOptions: GridOptions = <GridOptions>{};
   public columnDefs: any[] = [];
   public individuals: Individual[] = null;
@@ -26,14 +27,21 @@ export class IndividualsComponent implements AfterViewInit, OnDestroy {
   public teams: Team[] = [];
   public selection: Individual;
   public user: Individual;
+  public editing: boolean = false;
+  private id_map: Map<string, Individual> = new Map();
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
+    private modalService: NgbModal,
     private sessionsService: SessionsService,
     private individualsService: IndividualsService,
     private companiesService: CompaniesService
   ) { }
+
+  ngOnInit(): void {
+    this.user = new Individual(this.sessionsService.getCurrentUser());
+  }
 
   ngAfterViewInit(): void {
     this.setGridHeight();
@@ -41,14 +49,6 @@ export class IndividualsComponent implements AfterViewInit, OnDestroy {
     this.user = new Individual(this.sessionsService.getCurrentUser());
     this.route.params.subscribe((params: Map<string, string>) => this.applyNavigation(params));
     this.columnDefs = [{
-      headerName: '',
-      width: this.user.canChangeRelease() ? 36 : 18,
-      field: 'blank',
-      cellRendererFramework: IndividualActionsComponent,
-      suppressMovable: true,
-      suppressResize: true,
-      suppressSorting: true
-    }, {
       headerName: 'Team',
       width: 100,
       field: 'team_name'
@@ -66,15 +66,15 @@ export class IndividualsComponent implements AfterViewInit, OnDestroy {
       field: 'last_name'
     }, {
       headerName: 'Role',
-      width: 100,
+      width: 125,
       field: 'role_name'
     }, {
       headerName: 'Activated',
-      width: 60,
+      width: 70,
       field: 'is_activated'
     }, {
       headerName: 'Enabled',
-      width: 60,
+      width: 70,
       field: 'enabled'
     }, {
       headerName: 'Last Logged In',
@@ -88,13 +88,16 @@ export class IndividualsComponent implements AfterViewInit, OnDestroy {
   }
 
   private setGridHeight(): void {
-    $('app-individuals ag-grid-ng2').height(($(window).height() - $('app-header').height() - 42) * 0.6);
+    $('app-individuals ag-grid-ng2').height(($(window).height() - $('app-header').height() - 57) * 0.6);
   }
 
   private fetchIndividuals(afterAction, afterActionParams): void {
     this.individualsService.getIndividuals()
       .subscribe(
         (individuals: Individual[]) => {
+          individuals.forEach((individual: Individual) => {
+            this.id_map[individual.id] = individual;
+          });
           this.individuals = individuals;
           if (afterAction) {
             afterAction.call(this, afterActionParams);
@@ -109,6 +112,60 @@ export class IndividualsComponent implements AfterViewInit, OnDestroy {
     } else {
       this.fetchCompany(individualId);
     }
+    this.editing = params['organization'] != null;
+  }
+
+  gridReady(): void {
+    let self: IndividualsComponent = this;
+    let menu = {
+      selector: '.individual',
+      items: {
+        edit: {
+        name: 'Edit',
+          callback: function(key, opt) { self.editItem(self.getItem(this)); }
+        }
+      }
+    };
+    if (this.user.canChangeRelease()) {
+      menu['items']['deleteItem'] = {
+        name: 'Delete',
+        callback: function(key, opt) { self.deleteItem(self.getItem(this)); }
+      };
+    }
+    $.contextMenu('destroy');
+    $.contextMenu(menu);
+  }
+
+  getRowClass(rowItem: any): string {
+    return 'individual id-' + rowItem.data.id;
+  }
+
+  private getItem(jQueryObject: any): Individual {
+    let result: string = null;
+    $.each(jQueryObject.attr('class').toString().split(' '), function (i: number, className: string) {
+      if (className.indexOf('id-') === 0) {
+        result = className.substring(3);
+      }
+    });
+    return this.id_map[result];
+  }
+
+  editItem(model: Individual): void {
+    this.editIndividual(model);
+  }
+
+  deleteItem(model: Individual): void {
+    let self: IndividualsComponent = this;
+    const modalRef: NgbModalRef = this.modalService.open(ConfirmationDialogComponent);
+    let component: ConfirmationDialogComponent = modalRef.componentInstance;
+    component.confirmDelete('Individual', model.name);
+    modalRef.result.then(
+      (result: any) => {
+        if (component.model.confirmed) {
+          self.deleteIndividual(model);
+        }
+      }
+    );
   }
 
   private fetchCompany(individualId): void {
@@ -177,6 +234,7 @@ export class IndividualsComponent implements AfterViewInit, OnDestroy {
       if (this.selection.added) {
         this.selection.added = false;
         this.individuals.push(this.selection);
+        this.id_map[this.selection.id] = this.selection;
         this.gridOptions.api.setRowData(this.individuals);
       } else {
         this.gridOptions.api.refreshView();
