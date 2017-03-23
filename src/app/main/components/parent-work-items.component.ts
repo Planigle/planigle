@@ -831,8 +831,9 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
   }
 
   private setGridHeight(): void {
-    let height: number = this.numPages > 1 ? 126 : 84;
-    $('ag-grid-ng2').height($(window).height() - (height + (this.user && this.user.is_premium ? PremiumReportsComponent.height : 0)));
+    let height: number = ParentWorkItemsComponent.instance.numPages > 1 ? 132 : 84;
+    $('ag-grid-ng2').height($(window).height() - (height + (ParentWorkItemsComponent.instance.user &&
+      ParentWorkItemsComponent.instance.user.is_premium ? PremiumReportsComponent.height : 0)));
   }
 
   setAttributes(storyAttributes: StoryAttribute[]): void {

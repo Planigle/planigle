@@ -16,6 +16,7 @@ declare var $: any;
   providers: [ChangesService, IndividualsService, DatesService]
 })
 export class ChangesComponent implements AfterViewInit, OnDestroy {
+  private static instance: ChangesComponent;
   public gridOptions: GridOptions = <GridOptions>{};
   public columnDefs: any[] = [{
     headerName: 'Date',
@@ -60,7 +61,9 @@ export class ChangesComponent implements AfterViewInit, OnDestroy {
     private changesService: ChangesService,
     private individualsService: IndividualsService,
     private datesService: DatesService
-  ) {}
+  ) {
+    ChangesComponent.instance = this;
+  }
 
   ngAfterViewInit(): void {
     this.setGridHeight();
@@ -82,7 +85,7 @@ export class ChangesComponent implements AfterViewInit, OnDestroy {
   }
 
   private setGridHeight(): void {
-    $('ag-grid-ng2').height($(window).height() - $('app-header').height() - (this.numPages > 1 ? 85 : 43));
+    $('ag-grid-ng2').height($(window).height() - $('app-header').height() - (ChangesComponent.instance.numPages > 1 ? 97 : 49));
   }
 
   private applyNavigation(params: Map<string, string>): void {
