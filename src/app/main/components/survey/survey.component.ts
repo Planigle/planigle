@@ -106,7 +106,7 @@ export class SurveyComponent implements AfterViewInit, OnDestroy {
   }
 
   private setGridHeight(): void {
-    $('ag-grid-ng2').height($(window).height() - 261);
+    $('ag-grid-ng2').height($(window).height() - 325);
   }
 
   addSuggestion(): void {
