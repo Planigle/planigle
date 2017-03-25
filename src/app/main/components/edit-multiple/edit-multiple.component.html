@@ -6,8 +6,8 @@
 </div>
 <div class="modal-body">
 	<div class="form-group row" *ngIf="releases.length>0 && !onlyTasks()">
-	  <label for="release" class="col-xs-2 col-form-label">Release</label>
-	  <div class="col-xs-10">
+	  <label for="release" class="col-xs-3 col-form-label">Release</label>
+	  <div class="col-xs-9">
 	      <select name="release" class="form-control" [(ngModel)]="model.release_id" (ngModelChange)="update('release_id')">
 	      	<option *ngFor="let release of releases" [ngValue]="release.id">{{release.name}}</option>
 	      	<option [ngValue]="null">No Release</option>
@@ -16,8 +16,8 @@
 	  </div>
 	</div>
 	<div class="form-group row" *ngIf="!onlyTasks()">
-	  <label for="iteration" class="col-xs-2 col-form-label">Iteration</label>
-	  <div class="col-xs-10">
+	  <label for="iteration" class="col-xs-3 col-form-label">Iteration</label>
+	  <div class="col-xs-9">
 	      <select name="iteration" class="form-control" [(ngModel)]="model.iteration_id" (ngModelChange)="update('iteration_id')">
 	      	<option *ngFor="let iteration of iterations" [ngValue]="iteration.id">{{iteration.name}}</option>
 	      	<option [ngValue]="null">Backlog</option>
@@ -26,8 +26,8 @@
 	  </div>
 	</div>
 	<div class="form-group row" *ngIf="!onlyTasks()">
-	  <label for="team" class="col-xs-2 col-form-label">Team</label>
-	  <div class="col-xs-10">
+	  <label for="team" class="col-xs-3 col-form-label">Team</label>
+	  <div class="col-xs-9">
 	      <select name="team" class="form-control" [(ngModel)]="model.team_id" (ngModelChange)="update('team_id')">
 	      	<option *ngFor="let team of teams" [ngValue]="team.id">{{team.name}}</option>
 	      	<option [ngValue]="null">No Team</option>
@@ -36,8 +36,8 @@
 	  </div>
 	</div>
 	<div class="form-group row">
-	  <label for="owner" class="col-xs-2 col-form-label">Owner</label>
-	  <div class="col-xs-10">
+	  <label for="owner" class="col-xs-3 col-form-label">Owner</label>
+	  <div class="col-xs-9">
 	      <select name="owner" class="form-control" [(ngModel)]="model.individual_id" (ngModelChange)="update('individual_id')">
 	      	<option *ngFor="let individual of individuals" [ngValue]="individual.id">{{individual.name}}</option>
 	      	<option [ngValue]="null">No Owner</option>
@@ -46,14 +46,14 @@
 	  </div>
 	</div>
 	<div class="form-group row">
-	  <label for="status" class="col-xs-2 col-form-label">Status</label>
-	  <div class="col-xs-10">
+	  <label for="status" class="col-xs-3 col-form-label">Status</label>
+	  <div class="col-xs-9">
 	  	<app-choose-status [(model)]="model" [includeNoChange]="true"></app-choose-status>
 	  </div>
 	</div>
 	<div class="form-group row" *ngIf="model.status_code==2">
-	  <label for="reason_blocked" class="col-xs-2 col-form-label">Reason Blocked</label>
-	  <div class="col-xs-10">
+	  <label for="reason_blocked" class="col-xs-3 col-form-label">Reason Blocked</label>
+	  <div class="col-xs-9">
 		<textarea class="form-control" name="reason_blocked" rows="3" [(ngModel)]="model.reason_blocked" maxlength="4096"></textarea>
 	  </div>
 	</div>

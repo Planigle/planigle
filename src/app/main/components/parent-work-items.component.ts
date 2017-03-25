@@ -717,7 +717,7 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
           let currentReleaseId = this.filters.getCurrentReleaseId(this.filters.releases);
           filtered = filtered || (currentReleaseId !== null && story.release_id !== currentReleaseId);
         } else {
-          filtered = filtered || story.release_id !== this.filters.release;
+          filtered = filtered || String(story.release_id) !== this.filters.release;
         }
       }
       if (!this.showEpics() && this.filters.iteration !== 'All') {
@@ -727,7 +727,7 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
           let currentIterationId = this.filters.getCurrentIterationId(this.filters.iterations);
           filtered = filtered || (currentIterationId !== null && story.iteration_id !== currentIterationId);
         } else {
-          filtered = filtered || story.iteration_id !== this.filters.iteration;
+          filtered = filtered || String(story.iteration_id) !== this.filters.iteration;
         }
       }
       if (this.filters.team !== 'All') {
@@ -736,14 +736,14 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
         } else if (this.filters.team === 'MyTeam') {
           filtered = filtered || story.team_id !== this.user.team_id;
         } else {
-          filtered = filtered || story.team_id !== this.filters.team;
+          filtered = filtered || String(story.team_id) !== this.filters.team;
         }
       }
       if (this.filters.individual !== 'All') {
         if (this.filters.individual === '') {
           filtered = filtered || story.individual_id != null;
         } else {
-          filtered = filtered || story.individual_id !== this.filters.individual;
+          filtered = filtered || String(story.individual_id) !== this.filters.individual;
         }
       }
     }
@@ -873,6 +873,9 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
         }
         if (storyAttribute.name === 'Rank') {
           columnDef.sort = 'asc';
+          columnDef.comparator = function(valueA, valueB, nodeA, nodeB, isInverted) {
+            return nodeA.priority - nodeB.priority;
+          };
         }
         newColumnDefs.push(columnDef);
       }

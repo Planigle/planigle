@@ -101,7 +101,7 @@ export class EditStoryComponent implements OnChanges {
   private setInitialValues(): void {
     this.customStoryAttributes.forEach((storyAttribute: StoryAttribute) => {
       if (!this.customValues[storyAttribute.id]) {
-        this.customValues[storyAttribute.id] = null;
+        this.customValues[storyAttribute.id] = storyAttribute.hasList() ? 'null' : null;
         this.customNumericValues[storyAttribute.id] = null;
       }
     });
