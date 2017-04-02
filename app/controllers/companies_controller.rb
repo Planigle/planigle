@@ -46,6 +46,15 @@ class CompaniesController < ResourceController
       super
     end
   end
+  
+  # /companies/recent - return companies accessed in the last 30 days
+  def recent
+    if (Company.authorized_for_recent?(current_individual))
+      render :json => Company.get_recent(current_individual)
+    else
+      unauthorized
+    end
+  end
 
 protected
 

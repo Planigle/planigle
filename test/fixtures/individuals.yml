@@ -2,6 +2,7 @@
 quentin:
   id: 1
   role: 0
+  company_id: 1
   login: quentin
   first_name: quentin
   last_name: tarantino

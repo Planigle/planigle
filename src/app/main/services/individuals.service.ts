@@ -33,6 +33,21 @@ export class IndividualsService {
     return this.createOrUpdate(individual, this.http.put, '/' + individual.id);
   }
 
+  updateCompany(individual: Individual): Observable<Individual> {
+    let headers: Headers = new Headers({ 'Content-Type': 'application/json' });
+    let options: RequestOptions = new RequestOptions({ headers: headers });
+    let record: any = {
+      company_id: individual.company_id,
+      selected_project_id: individual.selected_project_id
+    };
+
+    return this.http.put(baseUrl + '/' + individual.id, {record: record}, options)
+      .map((res: any) => res.json())
+      .map((updatedIndividual: any) => {
+        return new Individual(updatedIndividual);
+      });
+  }
+
   updateProject(individual: Individual): Observable<Individual> {
     let headers: Headers = new Headers({ 'Content-Type': 'application/json' });
     let options: RequestOptions = new RequestOptions({ headers: headers });

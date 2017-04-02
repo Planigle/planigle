@@ -49,6 +49,8 @@ export class EditCompanyComponent implements OnChanges {
     this.companiesService.update(this.model).subscribe(
       (company: Company) => {
         this.company.name = company.name;
+        this.company.premium_expiry = company.premium_expiry;
+        this.company.premium_limit = company.premium_limit;
         if (form) {
           form.reset();
           $('input[name="name"]').focus();

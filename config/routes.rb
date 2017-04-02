@@ -5,6 +5,7 @@ Planigle::Application.routes.draw do
   get '/stories/epics', :to => 'stories#epics', :as => 'epics'
   get '/stories/num_pages', :to => 'stories#num_pages', :as => 'num_story_pages'
   get '/audits/num_pages', :to => 'audits#num_pages', :as => 'num_audit_pages'
+  get '/companies/recent', :to => 'companies#recent', :as => 'recent_companies'
 
   resources :audits
   

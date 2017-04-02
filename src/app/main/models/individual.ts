@@ -112,6 +112,10 @@ export class Individual {
     return this.role <= 1;
   }
 
+  canChangeCompany(): boolean {
+    return this.role <= 0;
+  }
+
   private getDatesService(): DatesService {
     return ReflectiveInjector.resolveAndCreate([DatesService]).get(DatesService);
   }

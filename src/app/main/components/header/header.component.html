@@ -32,5 +32,10 @@
 	    		<option *ngFor="let project of projects" [ngValue]="project.id">{{project.name}}</option>
 	    	</select>
 		</li>
+		<li class="nav-item float-xs-right" *ngIf="user && companies.length > 1">
+	    	<select name="company" [(ngModel)]="user.company_id" (ngModelChange)="updateCompany()">
+	    		<option *ngFor="let company of companies" [ngValue]="company.id">{{company.name}}</option>
+	    	</select>
+		</li>
 	</ul>
 </nav>

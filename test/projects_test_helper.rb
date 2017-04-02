@@ -26,7 +26,7 @@ module ProjectsTestHelper
   
   # Answer the number of resources that exist.
   def resource_count
-    Project.count
+    Project.where(company_id: 1).length
   end
 
   # Verify that the object was created.

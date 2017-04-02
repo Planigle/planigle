@@ -70,13 +70,14 @@ class Company < ActiveRecord::Base
     super
   end
 
+  # Answer the companies access in the last 30 days
+  def self.get_recent(current_user)
+    Company.joins(:individuals).where(["DATEDIFF(CURRENT_DATE, last_login) < 30"]).group('companies.id').order("companies.name, companies.id")
+  end
+  
   # Answer the records for a particular user.
   def self.get_records(current_user)
-    if current_user.role >= Individual::ProjectAdmin
-      all = Company.includes(:projects => [:teams, {:story_attributes => :story_attribute_values}]).where(["companies.id = :company_id", {company_id: current_user.company_id}])
-    else
-      all = Company.includes(:projects => [:teams, {:story_attributes => :story_attribute_values}]).order('companies.name')
-    end
+    all = Company.includes(:projects => [:teams, {:story_attributes => :story_attribute_values}]).where(["companies.id = :company_id", {company_id: current_user.company_id}])
     
     # Ensure we load the settings for the current user
     all.each do |company|
@@ -112,6 +113,10 @@ class Company < ActiveRecord::Base
     else
       projects.select{|project| project == user.project}
     end
+  end
+  
+  def self.authorized_for_recent?(current_user)
+    current_user.role <= Individual::Admin
   end
 
   # Only admins can create projects.

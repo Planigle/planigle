@@ -17,33 +17,37 @@ module ResourceHelper
 
   # Test the post /resources request.
   def test_create_unauthorized
-    num = resource_count
+    num = full_resource_count
     post resource_url, params: create_success_parameters, headers: accept_header
     assert_response 401 # Unauthorized
-    assert_equal num, resource_count
+    assert_equal num, full_resource_count
     assert_valid_change_failed
   end
 
   # Test a successful post /resources request.
   def test_create_success
     login_as(individuals(:admin2))
-    num = resource_count
+    num = full_resource_count
     post resource_url, params: create_success_parameters, headers: authorization_header
     assert_response 201 # Created
     assert  json
     assert_create_succeeded
-    assert_equal num + 1, resource_count
+    assert_equal num + 1, full_resource_count
   end
 
   # Test a failed post /resources request.
   def test_create_failure
     login_as(individuals(:admin2))
-    num = resource_count
+    num = full_resource_count
     post resource_url, params: create_failure_parameters, headers: authorization_header
     assert_response 422 # Unprocessable Entity
     assert json
     assert_change_failed
-    assert_equal num, resource_count
+    assert_equal num, full_resource_count
+  end
+  
+  def full_resource_count
+    resource_count
   end
 
   # Test the get /resources/id request without credentials.

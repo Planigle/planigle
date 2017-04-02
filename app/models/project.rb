@@ -145,14 +145,10 @@ class Project < ActiveRecord::Base
   # Answer the records for a particular user.
   def self.get_records(current_user)
     current_user.individual_story_attributes # load these in one shot
-    if current_user.role >= Individual::ProjectAdmin
-      if (current_user.is_premium)
-        Project.includes(:story_attributes, :teams).where(["projects.company_id = :company_id",{company_id: current_user.company_id}]).order('projects.name')
-      else
-        Project.includes(:story_attributes, :teams).where(["projects.id = :project_id", {project_id: current_user.project_id}]).order('projects.name')
-      end
+    if (current_user.is_premium)
+      Project.includes(:story_attributes, :teams).where(["projects.company_id = :company_id",{company_id: current_user.company_id}]).order('projects.name')
     else
-      Project.includes(:story_attributes, :teams).order('projects.name')
+      Project.includes(:story_attributes, :teams).where(["projects.id = :project_id", {project_id: current_user.project_id}]).order('projects.name')
     end
   end
 

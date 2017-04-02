@@ -25,14 +25,14 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
   # Test successfully signing up.
   def test_signup_success
     ActionMailer::Base.deliveries = []
-    companies = resource_count
+    companies = Company.count
     individuals = Individual.count
     projects = Project.count
     params = create_success_parameters.merge( {:project => {:name => 'foo'}, :individual => {:login => 'foobar', :email => 'foo@sample.com', :last_name => 'bar', :role => 1,
       :first_name => 'foo', :password => 'testit', :password_confirmation => 'testit'}} )
     post base_URL, params: params
     assert_response :success
-    assert_equal companies + 1, resource_count
+    assert_equal companies + 1, Company.count
     assert_equal projects + 1, Project.count
     assert_equal individuals + 1, Individual.count
     assert_create_succeeded
@@ -73,7 +73,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
   
   # Test getting companies (based on role).
   def test_index_by_admin
-    index_by_role(individuals(:quentin), Company.count)
+    index_by_role(individuals(:quentin), 1)
   end
     
   # Test getting companies (based on role).

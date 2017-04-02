@@ -33,7 +33,7 @@ class ProjectsControllerTest < ActionDispatch::IntegrationTest
   
   # Test getting projects (based on role).
   def test_index_by_admin
-    index_by_role(individuals(:quentin), Project.count)
+    index_by_role(individuals(:quentin), 2)
   end
     
   # Test getting projects (based on role).

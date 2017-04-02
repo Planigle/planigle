@@ -14,13 +14,19 @@
 			<div class="form-group row">
 			  <label for="premium_expiry" class="col-xs-4 col-form-label">Premium Expiry</label>
 			  <div class="col-xs-8">
-			  	<p class="form-control-static">{{model.premium_expiry_string}}</p>
+				<my-date-picker
+					[options]="{dateFormat: 'mm-dd-yyyy', showClearDateBtn: false}"
+					[selDate]="model.premiumExpiryStringTwoDigit"
+					[hidden]="!me.canChangeCompany()"
+					(dateChanged)="model.premium_expiry = $event.jsdate"></my-date-picker>
+			  	<p class="form-control-static" [hidden]="me.canChangeCompany()">{{model.premium_expiry_string}}</p>
 			  </div>
 			</div>
 			<div class="form-group row">
 			  <label for="premium_limit" class="col-xs-4 col-form-label">Premium Limit (# Users)</label>
 			  <div class="col-xs-8">
-			  	<p class="form-control-static">{{model.premium_limit}}</p>
+			    <input class="form-control" type="number" [(ngModel)]="model.premium_limit" name="premium_limit" #name="ngModel" maxlength="50"  [hidden]="!me.canChangeCompany()" required>
+			  	<p class="form-control-static" [hidden]="me.canChangeCompany()">{{model.premium_limit}}</p>
 			  </div>
 			</div>
 		</div>

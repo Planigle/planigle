@@ -420,10 +420,9 @@ class IndividualTest < ActiveSupport::TestCase
   # Test finding individuals for a specific user.
   def test_find
     quentin = individuals(:quentin)
-    assert_equal 1, Individual.get_records(quentin).length
+    assert_equal Individual.where(['company_id = ? and role > 0', 1]).length, Individual.get_records(quentin).length
     quentin.selected_project_id = 1
     quentin.save( :validate=> false )
-    assert_equal Individual.where(company_id: 1).length + 1, Individual.get_records(quentin).length # include me
     assert_equal Individual.where(['company_id=:company_id and role != 0', {company_id: 1}]).length, Individual.get_records(individuals(:aaron)).length
     assert_equal Individual.where(['company_id=:company_id and role != 0', {company_id: 1}]).length, Individual.get_records(individuals(:user)).length
     assert_equal Individual.where(['company_id=:company_id and role != 0', {company_id: 1}]).length, Individual.get_records(individuals(:readonly)).length

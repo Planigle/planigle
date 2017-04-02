@@ -27,6 +27,22 @@ export class CompaniesService {
       });
   }
 
+  getRecentCompanies(): Observable<Company[]> {
+    return this.http.get(baseUrl + '/recent')
+      .map((res: any) => res.json())
+      .map((companies: Array<any>) => {
+        let result: Array<Company> = [];
+        if (companies) {
+          companies.forEach((company) => {
+            result.push(
+              new Company(company)
+            );
+          });
+        }
+        return result;
+      });
+  }
+
   register(registration: Registration): Observable<any> {
     let headers: Headers = new Headers({ 'Content-Type': 'application/json' });
     let options: RequestOptions = new RequestOptions({ headers: headers });
@@ -82,6 +98,10 @@ export class CompaniesService {
     let record: any = {
       name: company.name
     };
+    if (method === this.http.put) {
+      record['premium_expiry'] = company.premium_expiry;
+      record['premium_limit'] = company.premium_limit;
+    }
     return method.call(this.http, baseUrl + idString, {record: record}, options)
       .map((res: any) => res.json())
       .map((updatedCompany: any) => {

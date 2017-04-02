@@ -37,16 +37,12 @@ protected
 
   def audit_query
     query_params = {}
-    if current_individual.role >= Individual::ProjectAdmin or project_id
-      if params[:type] == 'Company'
-        query = 'auditable_id = :company_id'
-        query_params[:company_id] = current_individual.company_id
-      else
-        query = 'project_id = :project_id'
-        query_params[:project_id] = project_id
-      end
+    if params[:type] == 'Company'
+      query = 'auditable_id = :company_id'
+      query_params[:company_id] = current_individual.company_id
     else
-      query = 'project_id = project_id'
+      query = 'project_id = :project_id'
+      query_params[:project_id] = project_id
     end
     if params
       if params[:object_id]; query += ' and auditable_id = :object_id'; query_params[:object_id] = params[:object_id]; end

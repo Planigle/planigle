@@ -50,7 +50,7 @@ class CompanyTest < ActiveSupport::TestCase
 
   # Test finding individuals for a specific user.
   def test_find
-    assert_equal Company.count, Company.get_records(individuals(:quentin)).length
+    assert_equal 1, Company.get_records(individuals(:quentin)).length
     assert_equal 1, Company.get_records(individuals(:aaron)).length
     assert_equal 1, Company.get_records(individuals(:user)).length
     assert_equal 1, Company.get_records(individuals(:readonly)).length

@@ -60,4 +60,8 @@ export class Company extends Organization {
   private getDatesService(): DatesService {
     return ReflectiveInjector.resolveAndCreate([DatesService]).get(DatesService);
   }
+
+  get premiumExpiryStringTwoDigit(): string {
+    return this.getDatesService().getDateStringTwoDigit(this.premium_expiry);
+  }
 }

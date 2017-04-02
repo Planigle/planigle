@@ -26,6 +26,10 @@ module CompaniesTestHelper
   
   # Answer the number of resources that exist.
   def resource_count
+    1
+  end
+  
+  def full_resource_count
     Company.count
   end
 

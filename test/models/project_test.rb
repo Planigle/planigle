@@ -95,7 +95,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   # Test finding individuals for a specific user.
   def test_find
-    assert_equal Project.count, Project.get_records(individuals(:quentin)).length
+    assert_equal 2, Project.get_records(individuals(:quentin)).length
     assert_equal 2, Project.get_records(individuals(:aaron)).length
     assert_equal 2, Project.get_records(individuals(:user)).length
     assert_equal 2, Project.get_records(individuals(:readonly)).length

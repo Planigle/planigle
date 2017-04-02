@@ -14,30 +14,34 @@ module ControllerResourceHelper
 
   # Test creating a new resource without credentials.
   def test_create_unauthorized
-    num = resource_count
+    num = full_resource_count
     post base_URL, params: create_success_parameters
     assert_response 401
-    assert_equal num, resource_count
+    assert_equal num, full_resource_count
     assert_change_failed
   end
 
   # Test successfully creating a new resource.
   def test_create_success
     login_as(individuals(:quentin))
-    num = resource_count
+    num = full_resource_count
     post base_URL, params: create_success_parameters
-    assert_equal num + 1, resource_count
+    assert_equal num + 1, full_resource_count
     assert_create_succeeded
   end
 
   # Test creating a new resource unsuccessfully.
   def test_create_failure
     login_as(individuals(:quentin))
-    num = resource_count
+    num = full_resource_count
     post base_URL, params: create_failure_parameters
     assert_response 422
-    assert_equal num, resource_count
+    assert_equal num, full_resource_count
     assert_change_failed
+  end
+  
+  def full_resource_count
+    resource_count
   end
 
   # Test showing an resource without credentials.
