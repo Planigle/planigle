@@ -611,10 +611,10 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
     (revisedStory) => {
       story.id = revisedStory.id;
       this.id_map[revisedStory.uniqueId] = story;
+      this.storiesService.setRanks(this.stories);
       this.updateRows();
       this.updateAllocations();
       this.updateProjections();
-      this.storiesService.setRanks(this.stories);
       this.gridOptions.api.onSortChanged();
     }, (error) => this.processError.call(this, error));
   }

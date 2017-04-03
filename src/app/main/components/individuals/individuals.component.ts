@@ -184,10 +184,13 @@ export class IndividualsComponent implements OnInit, AfterViewInit, OnDestroy {
   private setSelection(individualId: string): void {
     if (individualId) {
       if (individualId === 'New') {
+        let project_id = this.user.selected_project_id;
         this.selection = new Individual({
           role: 2,
           enabled: true,
-          refresh_interval: 1000 * 60 * 5
+          refresh_interval: 1000 * 60 * 5,
+          project_ids: [project_id],
+          selected_project_id: project_id
         });
       } else {
         this.individuals.forEach((individual: Individual) => {
