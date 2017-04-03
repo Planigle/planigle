@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, Input } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { GridOptions } from 'ag-grid/main';
@@ -6,6 +6,7 @@ import { ConfirmationDialogComponent } from '../confirmation-dialog/confirmation
 import { IndividualsService } from '../../services/individuals.service';
 import { CompaniesService } from '../../services/companies.service';
 import { SessionsService } from '../../services/sessions.service';
+import { Notifier } from '../../models/notifier';
 import { Individual } from '../../models/individual';
 import { Company } from '../../models/company';
 import { Project } from '../../models/project';
@@ -20,6 +21,8 @@ declare var $: any;
   providers: [IndividualsService, CompaniesService]
 })
 export class IndividualsComponent implements OnInit, AfterViewInit, OnDestroy {
+  @Input() projectNotifier: Notifier;
+  @Input() teamNotifier: Notifier;
   public gridOptions: GridOptions = <GridOptions>{};
   public columnDefs: any[] = [];
   public individuals: Individual[] = null;
@@ -81,6 +84,17 @@ export class IndividualsComponent implements OnInit, AfterViewInit, OnDestroy {
       width: 150,
       field: 'last_login_string'
     }];
+    let self: IndividualsComponent = this;
+    if (this.projectNotifier) {
+      this.projectNotifier.addClient(function() {
+        self.fetchOrganizations();
+      });
+    }
+    if (this.teamNotifier) {
+      this.teamNotifier.addClient(function() {
+        self.fetchOrganizations();
+      });
+    }
   }
 
   ngOnDestroy(): void {
@@ -132,7 +146,6 @@ export class IndividualsComponent implements OnInit, AfterViewInit, OnDestroy {
         callback: function(key, opt) { self.deleteItem(self.getItem(this)); }
       };
     }
-    $.contextMenu('destroy');
     $.contextMenu(menu);
   }
 
@@ -181,6 +194,18 @@ export class IndividualsComponent implements OnInit, AfterViewInit, OnDestroy {
         });
   }
 
+  private fetchOrganizations(): void {
+    let self: IndividualsComponent = this;
+    this.companiesService.getCompanies()
+      .subscribe(
+        (companies: Company[]) => {
+          companies.forEach((company: Company) => { // only 1 company
+            self.projects = company.projects;
+            self.teams = company.getAllTeams();
+          });
+        });
+  }
+
   private setSelection(individualId: string): void {
     if (individualId) {
       if (individualId === 'New') {
@@ -190,7 +215,8 @@ export class IndividualsComponent implements OnInit, AfterViewInit, OnDestroy {
           enabled: true,
           refresh_interval: 1000 * 60 * 5,
           project_ids: [project_id],
-          selected_project_id: project_id
+          selected_project_id: project_id,
+          team_id: this.user.team_id
         });
       } else {
         this.individuals.forEach((individual: Individual) => {
@@ -240,6 +266,9 @@ export class IndividualsComponent implements OnInit, AfterViewInit, OnDestroy {
         this.id_map[this.selection.id] = this.selection;
         this.gridOptions.api.setRowData(this.individuals);
       } else {
+        if (this.selection.id === this.user.id) {
+          this.user.team_id = this.selection.team_id; // Update since used for new users
+        }
         this.gridOptions.api.refreshView();
       }
     }

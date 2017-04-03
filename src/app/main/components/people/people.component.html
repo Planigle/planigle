@@ -1,8 +1,8 @@
 <div class="container-fluid" >
-	<app-header [notifier]="notifier"></app-header>
+	<app-header [notifier]="projectNotifier"></app-header>
 	<div class="content">
-		<app-teams (projectsChanged)="projectsChanged()"></app-teams>
-		<app-individuals></app-individuals>
+		<app-teams (projectsChanged)="projectsChanged()" (teamsChanged)="teamsChanged()"></app-teams>
+		<app-individuals [projectNotifier]="projectNotifier" [teamNotifier]="teamNotifier"></app-individuals>
 	</div>
 </div>
 <template ngbModalContainer></template>

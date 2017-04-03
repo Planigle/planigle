@@ -3,7 +3,7 @@ require 'active_support/builder' unless defined?(Builder)
 class Project < ActiveRecord::Base
   acts_as_paranoid
   belongs_to :company
-  has_many :teams, -> {where(deleted_at: nil)}, dependent: :destroy
+  has_many :teams, -> {where(deleted_at: nil).order('name')}, dependent: :destroy
   has_many :all_teams, -> { with_deleted }, class_name: "Team"
   has_and_belongs_to_many :individuals, :conditions => "individuals.deleted_at IS NULL"
   has_many :individuals_with_selection, -> {where(deleted_at: nil)}, class_name: "Individual", foreign_key: "selected_project_id", dependent: :nullify

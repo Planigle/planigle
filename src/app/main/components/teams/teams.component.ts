@@ -23,6 +23,7 @@ declare var $: any;
 })
 export class TeamsComponent implements OnInit, AfterViewInit, OnDestroy {
   @Output() projectsChanged: EventEmitter<any> = new EventEmitter();
+  @Output() teamsChanged: EventEmitter<any> = new EventEmitter();
   public gridOptions: GridOptions = <GridOptions>{};
   public columnDefs: any[] = [];
   public companies: Company[] = null;
@@ -107,7 +108,6 @@ export class TeamsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   gridReady(): void {
-    $.contextMenu('destroy');
     $.contextMenu(this.getMenu('.company', 'Project', this.addProjectItem));
     $.contextMenu(this.getMenu('.project', 'Team', this.addTeamItem));
     $.contextMenu(this.getMenu('.team', null, null));
@@ -119,7 +119,7 @@ export class TeamsComponent implements OnInit, AfterViewInit, OnDestroy {
       selector: selector,
       items: {
         edit: {
-        name: 'Edit',
+          name: 'Edit',
           callback: function(key, opt) { self.editItem(self.getItem(this)); }
         }
       }
@@ -131,7 +131,7 @@ export class TeamsComponent implements OnInit, AfterViewInit, OnDestroy {
           callback: function(key, opt) { childFunction.call(self, self.getItem(this)); }
         };
       }
-      if (childName !== 'Project') {
+      if (selector !== '.company') {
         menu['items']['deleteItem'] = {
           name: 'Delete',
           callback: function(key, opt) { self.deleteItem(self.getItem(this)); }
@@ -242,6 +242,7 @@ export class TeamsComponent implements OnInit, AfterViewInit, OnDestroy {
       (deletedTeam: any) => {
         team.project.teams.splice(team.project.teams.indexOf(team), 1);
         this.companies = this.companies.slice(0); // Force ag-grid to deal with change in rows
+        this.teamsChanged.emit();
       }
     );
   }
@@ -296,6 +297,7 @@ export class TeamsComponent implements OnInit, AfterViewInit, OnDestroy {
           this.id_map[team.uniqueId] = team;
           team.project.expanded =  true;
           team.project.teams.push(team);
+          this.teamsChanged.emit();
         } else {
           let project: Project = <Project> selection;
           this.id_map[project.uniqueId] = project;
@@ -305,15 +307,20 @@ export class TeamsComponent implements OnInit, AfterViewInit, OnDestroy {
         }
         this.gridOptions.api.setRowData(this.companies);
       } else {
+        if (selection.isTeam()) {
+          this.teamsChanged.emit();
+        } else if (selection.isProject()) {
+          this.projectsChanged.emit();
+        }
         this.gridOptions.api.refreshView();
       }
     }
     switch (result) {
       case FinishedEditing.AddAnother:
         if (selection.isTeam()) {
-          this.setSelection('NewTeam(' + (<Team>selection).project.id + ')');
+          this.addTeam((<Team>selection).project);
         } else {
-          this.setSelection('NewProject(');
+          this.addProject((<Project>selection).company);
         }
         break;
       case FinishedEditing.Save:

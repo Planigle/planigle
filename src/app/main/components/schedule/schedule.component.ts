@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+declare var $: any;
 
 @Component({
   selector: 'app-schedule',
@@ -6,4 +7,7 @@ import { Component } from '@angular/core';
   styleUrls: ['./schedule.component.css']
 })
 export class ScheduleComponent {
+  ScheduleComponent() {
+    $.contextMenu('destroy');
+  }
 }

@@ -109,7 +109,6 @@ export class ReleasesComponent implements OnInit, AfterViewInit, OnDestroy {
       name: 'Plan',
       callback: function(key, opt) { self.planItem(self.getItem(this)); }
     };
-    $.contextMenu('destroy');
     $.contextMenu(menu);
   }
 

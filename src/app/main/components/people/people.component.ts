@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Notifier } from '../../models/notifier';
+declare var $: any;
 
 @Component({
   selector: 'app-people',
@@ -7,9 +8,18 @@ import { Notifier } from '../../models/notifier';
   styleUrls: ['./people.component.css']
 })
 export class PeopleComponent {
-  notifier: Notifier = new Notifier();
+  projectNotifier: Notifier = new Notifier();
+  teamNotifier: Notifier = new Notifier();
+
+  PeopleComponent() {
+    $.contextMenu('destroy');
+  }
 
   public projectsChanged(): void {
-    this.notifier.notify();
+    this.projectNotifier.notify();
+  }
+
+  public teamsChanged(): void {
+    this.teamNotifier.notify();
   }
 }
