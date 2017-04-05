@@ -47,6 +47,7 @@ class Report
   end
   
   def iteration_totals
+    Iteration.includes(:stories).where(['start < :now and finish + interval 14 day > :now', {now: Time.now}]).each { |iteration| iteration.summarize }
     report_data = {}
     iteration = Iteration.find(params[:iteration_id])
     if iteration and iteration.project_id == project_id
@@ -73,6 +74,7 @@ class Report
   
   # Answer the reporting data for the specified release.
   def release_totals
+    Release.includes(:stories).where(['start < :now and finish + interval 14 day > :now', {now: Time.now}]).each { |release| release.summarize }
     report_data = {}
     release = Release.find(params[:release_id])
     if release and release.project_id == project_id
