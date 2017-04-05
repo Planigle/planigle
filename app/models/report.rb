@@ -88,7 +88,7 @@ class Report
           query_params[:team_id] = params[:team_id] == '' ? nil : params[:team_id]
         end
       end
-      report_data['totals'] = group_totals(ReleaseTotal.where(query, query_params).joins(:release).order('date'))
+      report_data['story_totals'] = group_totals(ReleaseTotal.where(query, query_params).joins(:release).order('date'))
       teamId = 'All'
       if params[:team_id]
         teamId = params[:team_id] == '' ? nil : Integer(params[:team_id])
