@@ -87,7 +87,7 @@ export class SurveysComponent implements AfterViewInit, OnDestroy {
   }
 
   private setGridHeight(): void {
-    let height = ($(window).height() - $('app-header').height() - 15);
+    let height = ($(window).height() - $('app-header').height() - 27);
     $('app-surveys .surveys ag-grid-ng2').height(height * 0.4);
     $('app-surveys .mappings ag-grid-ng2').height(height * 0.6);
   }
