@@ -318,10 +318,10 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
     let service: any = work.isStory() ? this.storiesService : this.tasksService;
     service.delete.call(service, work).subscribe(
       (task: any) => {
-        this.selection = work;
-        this.selection.deleted = true;
-        this.finishedEditing(FinishedEditing.Cancel);
-        this.selection = null;
+        work.deleted = true;
+        this.checkRemoveRow(work);
+        this.updateProjections();
+        this.refreshView();
       }
     );
   }

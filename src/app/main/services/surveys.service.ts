@@ -56,7 +56,7 @@ export class SurveysService {
     let options: RequestOptions = new RequestOptions({ headers: headers });
     let stories = [];
     survey.surveyMappings.forEach((mapping: SurveyMapping) => {
-      if (mapping.story_id < 0) {
+      if (mapping.story_id < -999) {
         stories.push(mapping.name + ',' + mapping.description);
       } else {
         stories.push(mapping.story_id);

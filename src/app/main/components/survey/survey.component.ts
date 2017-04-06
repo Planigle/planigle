@@ -21,7 +21,7 @@ export class SurveyComponent implements AfterViewInit, OnDestroy {
   gridOptions: GridOptions = <GridOptions>{};
   submitted: boolean = false;
   suggestion: SurveyMapping;
-  nextId: number = -1;
+  nextId: number = -1000;
   columnDefs: any[] = [{
     headerName: 'Name',
     width: 350,
