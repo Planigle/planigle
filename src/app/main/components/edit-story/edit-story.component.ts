@@ -38,6 +38,7 @@ export class EditStoryComponent implements OnChanges {
   @Input() hasPrevious: boolean;
   @Input() hasNext: boolean;
   @Input() split: boolean;
+  @Input() showPublic: boolean;
   @Output() updatedAttributes: EventEmitter<any> = new EventEmitter();
   @Output() closed: EventEmitter<any> = new EventEmitter();
 
@@ -319,6 +320,7 @@ export class EditStoryComponent implements OnChanges {
             this.story.priority = story.priority;
             this.story.user_priority = story.user_priority;
             this.story.story_values = story.story_values;
+            this.story.is_public = story.is_public;
           }
           if (form) {
             form.reset();

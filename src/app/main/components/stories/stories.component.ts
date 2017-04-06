@@ -10,7 +10,6 @@ import { ProjectsService } from '../../services/projects.service';
 import { StoriesService } from '../../services/stories.service';
 import { TasksService } from '../../services/tasks.service';
 import { DragDropService } from '../../services/drag-drop.service';
-import { Project } from '../../models/project';
 
 @Component({
   selector: 'app-stories',
@@ -19,8 +18,6 @@ import { Project } from '../../models/project';
   providers: [StoriesService, TasksService, StoryAttributesService, ProjectsService, ProjectionsService, DragDropService]
 })
 export class StoriesComponent extends ParentWorkItemsComponent implements AfterViewInit, OnDestroy {
-  myProject: Project;
-
   constructor(
     router: Router,
     route: ActivatedRoute,
@@ -37,13 +34,6 @@ export class StoriesComponent extends ParentWorkItemsComponent implements AfterV
     super(
       router, route, modalService, sessionsService, storyAttributesService, projectsService,
       storiesService, tasksService, projectionsService, dragDropService, errorService);
-  }
-
-  ngAfterViewInit(): void {
-    super.ngAfterViewInit();
-    this.projectsService.getProject(this.user.selected_project_id).subscribe((project: Project) => {
-      this.myProject = project;
-    });
   }
 
   getRoute(): string {

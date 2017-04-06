@@ -30,7 +30,8 @@ export class EditMultipleComponent {
     iteration_id: EditMultipleComponent.NoChange,
     team_id: EditMultipleComponent.NoChange,
     individual_id: EditMultipleComponent.NoChange,
-    status_code: EditMultipleComponent.NoChange
+    status_code: EditMultipleComponent.NoChange,
+    is_public: EditMultipleComponent.NoChange
   };
   public customValues: Map<string, any> = new Map();
   public selectedWork: Work[] = [];
@@ -38,6 +39,7 @@ export class EditMultipleComponent {
   public iterations: Iteration[] = [];
   public teams: Team[] = [];
   public individuals: Individual[] = [];
+  public showPublic: boolean;
 
   constructor(
     private activeModal: NgbActiveModal,
@@ -113,6 +115,10 @@ export class EditMultipleComponent {
       if (this.model.status_code === 2) {
         record['reason_blocked'] = null;
       }
+      hasChange = true;
+    }
+    if (this.model.is_public !== EditMultipleComponent.NoChange) {
+      record['is_public'] = this.model.is_public;
       hasChange = true;
     }
     record['story_values'] = [];

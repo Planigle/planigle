@@ -30,6 +30,7 @@
 		[hasPrevious]="previous() != null"
 		[hasNext]="next() != null"
 		[split]="split"
+		[showPublic]="getProject() && getProject().survey_mode != 0"
 		(updatedAttributes)="fetchStoryAttributes()"
 		(closed)="finishedEditing($event.value)"></app-edit-story>
 	<app-edit-task
@@ -39,7 +40,7 @@
 		[me]="user"
 		[hasPrevious]="previous() != null"
 		[hasNext]="next() != null"
-		[showActuals]="myProject && myProject.track_actuals"
+		[showActuals]="getProject() && getProject().track_actuals"
 		(closed)="finishedEditing($event.value)"></app-edit-task>
 	<div [hidden]="selection != null" class="scroll-up"></div>
 	<ag-grid-ng2 [hidden]="selection != null" #agGrid class="ag-fresh"

@@ -44,6 +44,7 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
   public selectedWork: Work[] = [];
   public velocityAllocation: Map<Team, number> = new Map<Team, number>();
   public storyAllocation: Map<Team, number> = new Map<Team, number>();
+  public project: Project;
 
   @ViewChild(StoryFiltersComponent)
   public filters: StoryFiltersComponent;
@@ -91,6 +92,9 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
         self.refresh();
       }, this.user.refresh_interval);
     }
+    this.projectsService.getProject(this.user.selected_project_id).subscribe((project: Project) => {
+      this.project = project;
+    });
   }
 
   ngOnDestroy(): void {
@@ -157,7 +161,8 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
       team_id: team_id,
       story_id: epic ? epic.id : null,
       epic: epic,
-      individual_id: null
+      individual_id: null,
+      is_public: this.getProject().survey_mode === 2
     });
   }
 
@@ -1122,5 +1127,9 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
     if (this.user && this.user.is_premium && this.filters.iteration === '') {
       this.projectionsService.project(this.stories);
     }
+  }
+
+  public getProject(): Project {
+    return this.project;
   }
 }

@@ -97,6 +97,15 @@
 			      </select>
 			  </div>
 			</div>
+			<div class="form-group row" *ngIf="showPublic">
+			  <label for="public" class="col-xs-2 col-form-label">Public</label>
+			  <div class="col-xs-10">
+			      <select name="public" class="form-control" [(ngModel)]="model.is_public" [disabled]="!me.canChangeBacklog()">
+			      	<option [ngValue]="true">True</option>
+			      	<option [ngValue]="false">False</option>
+			      </select>
+			  </div>
+			</div>
 			<div class="form-group row">
 			  <label for="toDo" class="col-xs-2 col-form-label">Size</label>
 			  <div class="col-xs-10">

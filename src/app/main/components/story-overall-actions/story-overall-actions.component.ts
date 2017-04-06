@@ -68,6 +68,7 @@ export class StoryOverallActionsComponent implements OnInit {
       component.iterations = this.grid.filters.choosableIterations;
       component.teams = this.grid.filters.choosableTeams;
       component.individuals = this.grid.filters.choosableIndividuals;
+      component.showPublic = this.grid.getProject() && this.grid.getProject().survey_mode !== 0;
     }
   }
 

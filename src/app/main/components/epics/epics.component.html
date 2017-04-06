@@ -30,6 +30,7 @@
 		[hasPrevious]="previous() != null"
 		[hasNext]="next() != null"
 		[split]="split"
+		[showPublic]="getProject() && getProject().survey_mode != 0"
 		(updatedAttributes)="fetchStoryAttributes()"
 		(closed)="finishedEditing($event.value)"></app-edit-story>
 	<app-edit-task

@@ -133,6 +133,9 @@ export class StoriesService {
     if ('acceptance_criteria_string' in story) {
       record['acceptance_criteria'] = story.acceptance_criteria_string;
     }
+    if ('is_public' in story) {
+      record['is_public'] = story.is_public;
+    }
     if (story.priority) {
       record['priority'] = story.priority;
     }

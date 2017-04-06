@@ -65,6 +65,7 @@ export class EditProjectComponent implements OnChanges {
         this.project.name = project.name;
         this.project.description = project.description;
         this.project.track_actuals = project.track_actuals;
+        this.project.survey_mode = project.survey_mode;
         if (form) {
           form.reset();
           $('input[name="name"]').focus();

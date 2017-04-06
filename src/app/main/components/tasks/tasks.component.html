@@ -24,6 +24,7 @@
 		[hasPrevious]="false"
 		[hasNext]="false"
 		[split]="false"
+		[showPublic]="myProject && myProject.survey_mode != 0"
 		(updatedAttributes)="fetchStoryAttributes()"
 		(closed)="finishedEditing($event.value)"></app-edit-story>
 	<app-edit-task

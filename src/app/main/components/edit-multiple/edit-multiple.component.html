@@ -57,6 +57,16 @@
 		<textarea class="form-control" name="reason_blocked" rows="3" [(ngModel)]="model.reason_blocked" maxlength="4096"></textarea>
 	  </div>
 	</div>
+	<div class="form-group row" *ngIf="showPublic">
+	  <label for="public" class="col-xs-3 col-form-label">Public</label>
+	  <div class="col-xs-9">
+	      <select name="public" class="form-control" [(ngModel)]="model.is_public">
+	      	<option [ngValue]="true">True</option>
+	      	<option [ngValue]="false">False</option>
+	      	<option [ngValue]="-1">No Change</option>
+	      </select>
+	  </div>
+	</div>
 	<app-custom-attributes *ngIf="!onlyTasks()" [(customStoryAttributes)]="customStoryAttributes" [(customValues)]="customValues" [releaseId]="model.release_id" [multiple]="true"></app-custom-attributes>
 </div>
 <div class="modal-footer">

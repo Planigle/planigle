@@ -26,6 +26,16 @@
 			      </select>
 			  </div>
 			</div>
+			<div class="form-group row">
+			  <label for="stories" class="col-xs-3 col-form-label">Stories</label>
+			  <div class="col-xs-9">
+			      <select name="survey_mode" class="form-control" [(ngModel)]="model.survey_mode" [disabled]="!me.canChangeRelease()">
+			      	<option [ngValue]="0">Private</option>
+			      	<option [ngValue]="1">Private by Default</option>
+			      	<option [ngValue]="2">Public by Default</option>
+			      </select>
+			  </div>
+			</div>
 			<div class="form-group row refresh-interval">
 			  <label for="survey_url" class="col-xs-3 col-form-label">Survey URL</label>
 			  <div class="col-xs-9 descend">
