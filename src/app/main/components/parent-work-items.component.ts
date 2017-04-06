@@ -879,7 +879,7 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
         if (storyAttribute.name === 'Rank') {
           columnDef.sort = 'asc';
           columnDef.comparator = function(valueA, valueB, nodeA, nodeB, isInverted) {
-            return nodeA.priority - nodeB.priority;
+            return nodeA.data.priority - nodeB.data.priority;
           };
         }
         newColumnDefs.push(columnDef);
