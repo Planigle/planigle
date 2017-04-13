@@ -323,7 +323,7 @@ export class EditStoryComponent implements OnChanges {
             this.story.is_public = story.is_public;
           }
           if (form) {
-            form.reset();
+            form.reset({project: this.me.selected_project_id});
             $('input[name="name"]').focus();
           }
           this.closed.emit({value: result});
