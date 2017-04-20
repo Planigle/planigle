@@ -8,7 +8,7 @@ ag-grid-ng2 {
 	padding-right: 10px;
 }
 
-:host /deep/ .ui-droppable-hover {
+:host /deep/ .ui-droppable-hover:not(.ag-body-viewport) {
 	border-top: 1px solid black;
 }
 
@@ -25,7 +25,7 @@ ag-grid-ng2 {
 }
 
 .scroll-up {
-	top: 265px;
+	top: 329px;
 }
 
 .scroll-up.ui-droppable-hover {
@@ -34,7 +34,7 @@ ag-grid-ng2 {
 }
 
 .scroll-down {
-	bottom: 1px;
+	bottom: 0px;
 }
 
 .icon {

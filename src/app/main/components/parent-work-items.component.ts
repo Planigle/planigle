@@ -51,7 +51,7 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
 
   private filteredAttributes: StoryAttribute[] = [];
   private menusLoaded: boolean = false;
-  private id_map: Map<string, Work> = new Map();
+  protected id_map: Map<string, Work> = new Map();
   private refresh_interval = null;
   private selectionChanged: boolean = false;
   private lastSelected: Work = null;
@@ -837,8 +837,10 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
 
   private setGridHeight(): void {
     let height: number = ParentWorkItemsComponent.instance.numPages > 1 ? 132 : 84;
-    $('ag-grid-ng2').height($(window).height() - (height + (ParentWorkItemsComponent.instance.user &&
-      ParentWorkItemsComponent.instance.user.is_premium ? PremiumReportsComponent.height : 0)));
+    let premium: number = ParentWorkItemsComponent.instance.user &&
+      ParentWorkItemsComponent.instance.user.is_premium ? PremiumReportsComponent.height : 0;
+    $('ag-grid-ng2').height($(window).height() - (height + premium));
+    $('.scroll-up').css('top', 87 + premium);
   }
 
   setAttributes(storyAttributes: StoryAttribute[]): void {
@@ -1123,7 +1125,7 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
     this.storyAllocation = storyAllocation;
   }
 
-  private updateProjections(): void {
+  protected updateProjections(): void {
     if (this.user && this.user.is_premium && this.filters.iteration === '') {
       this.projectionsService.project(this.stories);
     }

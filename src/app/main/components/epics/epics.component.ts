@@ -48,23 +48,59 @@ export class EpicsComponent extends ParentWorkItemsComponent implements AfterVie
   }
 
   dropRow(event, ui, target): void {
-    let movedRow: Work = this.getRowWork($(ui.draggable[0]));
-    let targetRow: Work = this.getRowWork(target);
-    let children: Story[] = (<Story>targetRow).epic ? (<Story>targetRow).epic.stories : this.stories;
-    let index: number = this.getIndex(children, targetRow.id);
-    let prev: number = index === 0 ? targetRow.priority - 10 : children[index - 1].priority;
-    movedRow.priority = (prev + targetRow.priority) / 2;
-    if (targetRow.story_id !== movedRow.story_id) {
-      this.moveStory(<Story>movedRow, (<Story>movedRow).epic, targetRow.story_id);
-      movedRow.story_id = targetRow.story_id;
+    let movedStory: Story = <Story>this.getRowWork($(ui.draggable[0]));
+    let previousStory: Story = null;
+    let followingStory: Story = <Story>this.getRowWork(target);
+    let epic: Story = null;
+    let stories: Story[] = this.stories;
+    if (followingStory) {
+      epic = followingStory.epic;
+      if (epic) {
+        stories = epic.stories;
+        let index: number = this.getIndex(stories, followingStory.id);
+        previousStory = index === 0 ? null : stories[index - 1];
+      } else {
+        let index: number = this.getIndex(stories, followingStory.id);
+        if (index > 0) {
+          previousStory = this.stories[index - 1];
+          while (previousStory && previousStory.expanded && previousStory.isEpic()) {
+            epic = previousStory;
+            stories = previousStory.stories;
+            previousStory = stories.length > 0 ? stories[stories.length - 1] : null;
+            followingStory = null;
+          }
+        }
+      }
+    } else {
+      previousStory = this.stories[this.stories.length - 1];
+      while (previousStory && previousStory.expanded && previousStory.isEpic()) {
+        epic = previousStory;
+        stories = previousStory.stories;
+        previousStory = stories.length > 0 ? previousStory.stories[stories.length - 1] : null;
+        followingStory = null;
+      }
     }
-    let oldIndex: number = this.getIndex(children, movedRow.id);
-    children.splice(oldIndex, 1);
-    children.splice(index, 0, <Story>movedRow);
-    this.updateRows();
-    this.checkRemoveRow(movedRow);
-    this.storiesService.update(movedRow).subscribe((story: Story) => {
-      // all done
+    let index: number = followingStory ? this.getIndex(stories, followingStory.id) : stories.length;
+    let previousPriority: number = previousStory ? previousStory.priority : followingStory.priority - 10;
+    let followingPriority: number = followingStory ? followingStory.priority : previousStory.priority + 10;
+    movedStory.priority = (previousPriority + followingPriority) / 2;
+    if (epic !== movedStory.epic) {
+      let epicId: number = epic ? epic.id : null;
+      this.moveStory(movedStory, movedStory.epic, epicId);
+      movedStory.story_id = epicId;
+    }
+    let oldIndex: number = this.getIndex(stories, movedStory.id);
+    stories.splice(oldIndex, 1);
+    stories.splice(index, 0, <Story>movedStory);
+    this.storiesService.update(movedStory).subscribe((revisedStory: Story) => {
+      movedStory.id = revisedStory.id;
+      this.id_map[revisedStory.uniqueId] = movedStory;
+      this.checkRemoveRow(movedStory);
+      this.storiesService.setRanks(this.stories);
+      this.updateRows();
+      this.updateAllocations();
+      this.updateProjections();
+      this.gridOptions.api.onSortChanged();
     });
   }
 }

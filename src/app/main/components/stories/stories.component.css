@@ -20,7 +20,7 @@ select {
 	font-size: 0.9rem;
 }
 
-:host /deep/ .ui-droppable-hover {
+:host /deep/ .ui-droppable-hover:not(.ag-body-viewport) {
 	border-top: 1px solid black;
 }
 
@@ -41,14 +41,14 @@ select {
 }
 
 .scroll-up, .scroll-down {
-	height: 16px;
 	width: 100%;
 	position: fixed;
 	z-index: -10;
+	height: 16px;
 }
 
 .scroll-up {
-	top: 77px;
+	top: 87px;
 }
 
 .scroll-up.ui-droppable-hover {
@@ -57,7 +57,7 @@ select {
 }
 
 .scroll-down {
-	bottom: 1px;
+	bottom: 0px;
 }
 
 .wait-cursor {
