@@ -9,7 +9,7 @@
 
 .panel:nth-child(1) button {
 	margin-top: 15px;
-	margin-left: 90px;
+	margin-left: 40px;
 }
 
 .panel:nth-child(2) {
@@ -18,7 +18,7 @@
 }
 
 .panel:nth-child(2) button {
-	margin-left: 180px;
+	margin-left: 140px;
 }
 
 .list {
