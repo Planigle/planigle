@@ -61,6 +61,7 @@ import { SurveyExcludedComponent } from './components/survey-excluded/survey-exc
 import { SurveyComponent } from './components/survey/survey.component';
 import { EditSuggestionComponent } from './components/edit-suggestion/edit-suggestion.component';
 import { PaginationComponent } from './components/pagination/pagination.component';
+import { EditCommentsComponent } from './components/edit-comments/edit-comments.component';
 
 const appRoutes: Routes = [
   { path: '', redirectTo: 'stories', pathMatch: 'full' },
@@ -125,7 +126,8 @@ const appRoutes: Routes = [
     SurveyExcludedComponent,
     SurveyComponent,
     EditSuggestionComponent,
-    PaginationComponent
+    PaginationComponent,
+    EditCommentsComponent
   ],
   entryComponents: [
     SelectColumnsComponent,

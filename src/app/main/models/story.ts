@@ -1,6 +1,7 @@
 import { AcceptanceCriterium } from './acceptance-criterium';
 import { Work } from './work';
 import { Task } from './task';
+import { Comment } from './comment';
 import { StoryValue } from './story-value';
 
 export class Story extends Work {
@@ -19,6 +20,7 @@ export class Story extends Work {
   public epic_name: string;
   public acceptance_criteria: AcceptanceCriterium[] = [];
   public tasks: Task[] = [];
+  public comments: Comment[] = [];
   public story_values: StoryValue[] = [];
   public stories: Story[] = [];
   public epic: Story;
@@ -48,6 +50,11 @@ export class Story extends Work {
       values.filtered_tasks.forEach((task: any) => {
         task.story = story;
         this.tasks.push(new Task(task));
+      });
+    }
+    if (values.comments) {
+      values.comments.forEach((comment: any) => {
+        this.comments.push(new Comment(comment));
       });
     }
     if (values.story_values) {

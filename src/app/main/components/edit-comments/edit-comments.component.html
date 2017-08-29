@@ -1,0 +1,8 @@
+Comments:
+<form #form="ngForm">
+	<div class="row" *ngFor="let comment of story.comments">
+		<div class="user">{{comment.individual_name}} {{comment.startString}}:</div>
+		<div class="message" [hidden]="comment.individual_id == me.id && comment.editing" (dblclick)="comment.editing = true"><pre>{{comment.message}}</pre></div>
+		<textarea class="form-control" [hidden]="comment.individual_id != me.id || !comment.editing" (dblclick)="comment.editing = false" name="message" rows="5" (change)="comment.message = $event.target.value" maxlength="20480">{{comment.message}}</textarea>
+	</div>
+</form>

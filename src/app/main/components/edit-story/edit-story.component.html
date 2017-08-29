@@ -114,6 +114,9 @@
 			</div>
 			<button type="button" class="btn btn-secondary" *ngIf="me.canChangeRelease()" (click)="editAttributes()">Edit Attributes</button>
 		</div>
+		<div class="panel">
+			<app-edit-comments [me]="me" [story]="model"></app-edit-comments>
+		</div>
 		<div class="buttons">
 			<button type="submit" class="btn btn-secondary" *ngIf="me.canChangeBacklog()" (click)="isNew() ? addAnother(form) : ok()" [disabled]="!canSave(form)">{{isNew() ? 'Create' : split ? 'Split' : 'Update'}}</button>
 			<button type="submit" class="btn btn-secondary" *ngIf="me.canChangeBacklog()" (click)="ok()" [disabled]="!canSave(form)" [hidden]="!isNew()">Create &amp; Close</button>

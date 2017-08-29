@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170317154100) do
+ActiveRecord::Schema.define(version: 20170826150000) do
 
   create_table "audits", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
     t.integer  "auditable_id"
@@ -34,6 +34,16 @@ ActiveRecord::Schema.define(version: 20170317154100) do
     t.index ["project_id"], name: "project_index", using: :btree
     t.index ["request_uuid"], name: "index_audits_on_request_uuid", using: :btree
     t.index ["user_id", "user_type"], name: "user_index", using: :btree
+  end
+
+  create_table "comments", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer  "story_id",                    null: false
+    t.integer  "individual_id",               null: false
+    t.integer  "ordering",                    null: false
+    t.text     "message",       limit: 65535, null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.datetime "deleted_at"
   end
 
   create_table "companies", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|

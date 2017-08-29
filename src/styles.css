@@ -20,6 +20,11 @@
 	width: 410px;
 }
 
+.edit-component .panel:nth-child(3) {
+	padding-left: 10px;
+	width: 450px;
+}
+
 .edit-component .buttons {
 	margin-left: 10px;
 	margin-bottom: 10px;

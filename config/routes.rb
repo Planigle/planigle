@@ -11,6 +11,7 @@ Planigle::Application.routes.draw do
   
   resources :stories do
     resources :tasks
+    resources :comments
   end
 
   resources :iterations do

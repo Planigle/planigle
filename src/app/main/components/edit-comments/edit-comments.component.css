@@ -1,0 +1,19 @@
+.user {
+	font-weight: bold;
+}
+
+.message {
+	margin-bottom: 10px;
+	min-height: 24px;
+}
+
+.row {
+	margin-left: 15px;
+}
+
+form {
+    max-height: 520px;
+    overflow-y: auto;
+    padding-right: 15px;
+	margin-bottom: 10px;
+}

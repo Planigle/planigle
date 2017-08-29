@@ -1,0 +1,20 @@
+one:
+  id: 1
+  message: test_comment
+  story_id: 1
+  individual_id: 2
+  ordering: 2
+
+two:
+  id: 2
+  message: test2_comment
+  story_id: 1
+  individual_id: 2
+  ordering: 1
+
+three:
+  id: 3
+  message: test3
+  story_id: 5
+  individual_id: 2
+  ordering: 1

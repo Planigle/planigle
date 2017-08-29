@@ -5,9 +5,11 @@ import { ConfirmAbortComponent } from '../confirm-abort/confirm-abort.component'
 import { EditAttributesComponent } from '../edit-attributes/edit-attributes.component';
 import { AcceptanceCriteriaComponent } from '../acceptance-criteria/acceptance-criteria.component';
 import { StoriesService } from '../../services/stories.service';
+import { CommentsService } from '../../services/comments.service';
 import { ErrorService } from '../../services/error.service';
 import { Story } from '../../models/story';
 import { Task } from '../../models/task';
+import { Comment } from '../../models/comment';
 import { StoryAttribute } from '../../models/story-attribute';
 import { StoryValue } from '../../models/story-value';
 import { Project } from '../../models/project';
@@ -23,7 +25,7 @@ declare var $: any;
   selector: 'app-edit-story',
   templateUrl: './edit-story.component.html',
   styleUrls: ['./edit-story.component.css'],
-  providers: [NgbModal, StoriesService, ErrorService]
+  providers: [NgbModal, StoriesService, CommentsService, ErrorService]
 })
 export class EditStoryComponent implements OnChanges {
   @Input() story: Story;
@@ -52,6 +54,7 @@ export class EditStoryComponent implements OnChanges {
     private router: Router,
     private modalService: NgbModal,
     private storiesService: StoriesService,
+    private commentsService: CommentsService,
     private errorService: ErrorService) {
   }
 
@@ -66,6 +69,16 @@ export class EditStoryComponent implements OnChanges {
         this.customValues[storyValue.story_attribute_id] = storyValue.value;
         this.customNumericValues[storyValue.story_attribute_id] = parseFloat(storyValue.value);
       });
+      if (this.me.canChangeBacklog()) {
+        const newComment = new Comment({
+          story_id: this.story.id,
+          individual_id: this.me.id,
+          individual_name: this.me.name,
+          message: '',
+          editing: true
+        });
+        this.model.comments.push(newComment);
+      }
       setTimeout(() => $('input[autofocus=""]').focus(), 0);
     }
     if (changes.customStoryAttributes) {
@@ -279,6 +292,29 @@ export class EditStoryComponent implements OnChanges {
         this.storiesService.create;
       method.call(this.storiesService, this.model).subscribe(
         (story: Story) => {
+          this.model.comments.slice().forEach((comment: Comment) => {
+            if (comment.isNew()) {
+              this.commentsService.create(comment).subscribe((newComment: Comment) => {
+                this.story.comments.push(newComment);
+              });
+            } else if (comment.isDeleted()) {
+              this.commentsService.delete(comment).subscribe(() => {
+                this.story.comments.forEach((oldComment: Comment) => {
+                  if (oldComment.id === comment.id) {
+                    this.story.comments.splice(this.story.comments.indexOf(oldComment), 1);
+                  }
+                });
+              });
+            } else if (comment.hasChanged()) {
+              this.commentsService.update(comment).subscribe(() => {
+                this.story.comments.forEach((oldComment: Comment) => {
+                  if (oldComment.id === comment.id) {
+                    oldComment.message = comment.message;
+                  }
+                });
+              });
+            }
+          });
           if (this.split) {
             let newTasks = [];
             this.story.tasks.forEach((task: Task) => {

@@ -15,6 +15,7 @@ class Story < ActiveRecord::Base
   has_many :criteria, -> {order('criteria.priority')}, dependent: :destroy
   has_many :tasks, -> {where(deleted_at: nil).order('tasks.priority')}, dependent: :destroy
   has_many :survey_mappings, :dependent => :destroy
+  has_many :comments, -> {where(deleted_at: nil).order('comments.ordering')}, :dependent => :destroy
   audited :except => [:user_priority, :in_progress_at, :done_at]
   
   validates_presence_of     :project_id, :name
@@ -278,7 +279,7 @@ class Story < ActiveRecord::Base
       options[:include] = [:story_values, :criteria, :filtered_stories]
     end
     if !options[:methods]
-      options[:methods] = [:epic_name, :lead_time, :cycle_time, :filtered_tasks, :release_name, :iteration_name, :team_name, :individual_name] #:filtered_stories, 
+      options[:methods] = [:epic_name, :lead_time, :cycle_time, :filtered_tasks, :comments, :release_name, :iteration_name, :team_name, :individual_name] #:filtered_stories, 
     end
     super(options)
   end
