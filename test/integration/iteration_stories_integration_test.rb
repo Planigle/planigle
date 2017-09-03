@@ -19,7 +19,7 @@ private
 
   # Return the url to get the resource (ex., resources)
   def resource_url
-    '/iterations/1/stories'
+    '/planigle/api/iterations/1/stories'
   end
 
   # Answer a string representing the type of object. Ex., Story.

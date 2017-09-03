@@ -1,5 +1,11 @@
 class CompaniesController < ResourceController
-  before_action :login_required, :except => :create
+  before_action only: [:index, :show] do
+    log_in_or_oauth :read
+  end
+  before_action only: [:update] do
+    log_in_or_oauth :admin
+  end
+  before_action :login_required, :only => [:recent, :destroy]
   before_action :login_or_signup_required, :only => :create
 
   # POST /companies

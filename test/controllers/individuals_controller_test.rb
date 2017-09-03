@@ -22,14 +22,14 @@ class IndividualsControllerTest < ActionDispatch::IntegrationTest
   # Test activating a user.
   def test_should_activate_user
     assert_nil Individual.authenticate('ted', 'testit')
-    get '/activate/' + individuals(:ted).activation_code
+    get '/planigle/api/activate/' + individuals(:ted).activation_code
     assert_redirected_to 'http://www.example.com/'
     assert_equal individuals(:ted), Individual.authenticate('ted', 'testit')
   end
 
   # Test activation without a key.
   def test_should_not_activate_user_without_key
-    get '/activate'
+    get '/planigle/api/activate'
     assert_redirected_to 'http://www.example.com/'
   rescue ActionController::RoutingError
     # in the event your routes deny this, we'll just bow out gracefully.
@@ -37,7 +37,7 @@ class IndividualsControllerTest < ActionDispatch::IntegrationTest
 
   # Test activation with a blank key.
   def test_should_not_activate_user_with_blank_key
-    get '/activate/'
+    get '/planigle/api/activate/'
     assert_redirected_to 'http://www.example.com/'
   rescue ActionController::RoutingError
     # well played, sir

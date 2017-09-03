@@ -25,20 +25,20 @@ class SystemsControllerTest < ActionDispatch::IntegrationTest
 
   # Test summarizing data.
   def test_summarize
-    get '/summarize'
+    get '/planigle/api/summarize'
   end
 
   # Test getting report data.
   def test_iteration_totals
     login_as(individuals(:admin2))
-    get '/report_iteration_totals', params: {iteration_id: 1}
+    get '/planigle/api/report_iteration_totals', params: {iteration_id: 1}
     assert_response :success
     assert json
   end
 
   # Test getting report data.
   def test_iteration_totals_unauthorized
-    get '/report_iteration_totals', params: {iteration_id: 1}
+    get '/planigle/api/report_iteration_totals', params: {iteration_id: 1}
     assert_response 401
     assert json['error']
   end
@@ -46,14 +46,14 @@ class SystemsControllerTest < ActionDispatch::IntegrationTest
   # Test getting report data.
   def test_release_totals
     login_as(individuals(:admin2))
-    get '/report_release_totals', params: {release_id: 1}
+    get '/planigle/api/report_release_totals', params: {release_id: 1}
     assert_response :success
     assert json
   end
 
   # Test getting report data.
   def test_release_totals_unauthorized
-    get '/report_release_totals', params: {release_id: 1}
+    get '/planigle/api/report_release_totals', params: {release_id: 1}
     assert_response 401
     assert json['error']
   end
@@ -61,14 +61,14 @@ class SystemsControllerTest < ActionDispatch::IntegrationTest
   # Test getting report data.
   def test_team_totals
     login_as(individuals(:admin2))
-    get '/report_team_totals'
+    get '/planigle/api/report_team_totals'
     assert_response :success
     assert json
   end
 
   # Test getting report data.
   def test_team_totals_unauthorized
-    get '/report_team_totals'
+    get '/planigle/api/report_team_totals'
     assert_response 401
     assert json['error']
   end
@@ -76,14 +76,14 @@ class SystemsControllerTest < ActionDispatch::IntegrationTest
   # Test getting report data.
   def test_upcoming_iterations
     login_as(individuals(:admin2))
-    get '/report_upcoming_iterations'
+    get '/planigle/api/report_upcoming_iterations'
     assert_response :success
     assert json
   end
 
   # Test getting report data.
   def test_upcoming_iterations_unauthorized
-    get '/report_upcoming_iterations'
+    get '/planigle/api/report_upcoming_iterations'
     assert_response 401
     assert json['error']
   end
@@ -91,14 +91,14 @@ class SystemsControllerTest < ActionDispatch::IntegrationTest
   # Test getting report data.
   def test_iteration_metrics
     login_as(individuals(:admin2))
-    get '/report_iteration_metrics'
+    get '/planigle/api/report_iteration_metrics'
     assert_response :success
     assert json
   end
 
   # Test getting report data.
   def test_iteration_metrics_unauthorized
-    get '/report_iteration_metrics'
+    get '/planigle/api/report_iteration_metrics'
     assert_response 401
     assert json['error']
   end

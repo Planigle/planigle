@@ -60,6 +60,6 @@ module StoryAttributesTestHelper
   end
   
   def base_URL
-    '/story_attributes'
+    '/planigle/api/story_attributes'
   end
 end

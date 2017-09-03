@@ -1,5 +1,10 @@
 class IndividualsController < ResourceController
-  before_action :login_required, :except => :activate
+  before_action only: [:index, :show] do
+    log_in_or_oauth :read
+  end
+  before_action only: [:create, :update, :destroy] do
+    log_in_or_oauth :admin
+  end
 
   # Allow the user to activate himself/herself by clicking on an email link.
   # GET /activate/<activation code>

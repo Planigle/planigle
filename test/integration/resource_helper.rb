@@ -129,7 +129,7 @@ private
 
   # Return the url to get the resource (ex., resources)
   def resource_url
-    '/' << resources_string
+    '/planigle/api/' << resources_string
   end
 
   # Return the string representing the resource plural form (ex., resources)

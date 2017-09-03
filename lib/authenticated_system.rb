@@ -1,5 +1,9 @@
 module AuthenticatedSystem
   protected
+  def log_in_or_oauth(level)
+    authorized? || doorkeeper_authorize!(level) || access_denied
+  end
+  
   # Returns true or false if the individual is logged in.
   # Preloads @current_individual with the individual model if they're logged in.
   def logged_in?
@@ -8,7 +12,7 @@ module AuthenticatedSystem
 
   # Accesses the current individual from the session.
   def current_individual
-    @current_individual ||= (login_from_session || login_from_basic_auth || login_from_forgot_token || login_from_cookie)
+    @current_individual ||= (login_from_session || login_from_basic_auth || login_from_forgot_token || login_from_cookie || login_from_doorkeeper)
     Thread.current[:user] = @current_individual
   end
 
@@ -111,11 +115,16 @@ module AuthenticatedSystem
     end
   end
 
-  # Called from #current_individual.  Finally, attempt to login by an expiring token in the cookie.
+  # Called from #current_individual.  Attempt to login by an expiring token in the cookie.
   def login_from_cookie
     individual = cookies[:auth_token] && Individual.find_by_remember_token(cookies[:auth_token])
     if individual && individual.remember_token?
       self.current_individual = individual
     end
+  end
+
+  # Called from #current_individual.  Finally, attempt to login through doorkeeper.
+  def login_from_doorkeeper
+    self.current_individual = Individual.find_by_id(doorkeeper_token.resource_owner_id) if doorkeeper_token
   end
 end

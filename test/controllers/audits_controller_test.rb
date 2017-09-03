@@ -124,6 +124,6 @@ private
   end
   
   def base_URL
-    '/audits'
+    '/planigle/api/audits'
   end
 end

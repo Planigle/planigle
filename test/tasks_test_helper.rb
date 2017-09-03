@@ -60,6 +60,6 @@ module TasksTestHelper
   end
   
   def base_URL
-    '/stories/1/tasks'
+    '/planigle/api/stories/1/tasks'
   end
 end

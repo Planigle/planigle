@@ -60,6 +60,6 @@ module ReleasesTestHelper
   end
   
   def base_URL
-    '/releases'
+    '/planigle/api/releases'
   end
 end

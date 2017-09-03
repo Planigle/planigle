@@ -66,6 +66,6 @@ module IndividualsTestHelper
   end
   
   def base_URL
-    '/individuals'
+    '/planigle/api/individuals'
   end  
 end

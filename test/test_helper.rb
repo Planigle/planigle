@@ -27,7 +27,7 @@ class ActiveSupport::TestCase
   # Set the current individual in the session from the individual fixtures.
   def login_as(individual)
     if individual
-      post '/session', params: {login: individual.login, password: 'testit'}
+      post '/planigle/api/session', params: {login: individual.login, password: 'testit'}
     end
   end
 

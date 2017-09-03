@@ -1,9 +1,14 @@
 class StoriesController < ResourceController
-  STORIES_PER_PAGE = 100
-  before_action :login_required
-#  session :cookie_only => false, :only => [:import, :export]
+  before_action only: [:index, :show, :export, :num_pages, :epics] do
+    log_in_or_oauth :read
+  end
+  before_action only: [:create, :update, :destroy, :import, :split] do
+    log_in_or_oauth :backlog
+  end
 
-  # GET /records
+  STORIES_PER_PAGE = 100
+
+  # GET /stories
   def index
     @records = get_records
     render :json => @records

@@ -222,6 +222,6 @@ private
   end
   
   def base_URL
-    '/surveys'
+    '/planigle/api/surveys'
   end
 end

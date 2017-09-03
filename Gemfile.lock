@@ -51,6 +51,8 @@ GEM
       rails-observers (~> 0.1.2)
     builder (3.2.2)
     concurrent-ruby (1.0.4)
+    doorkeeper (4.2.6)
+      railties (>= 4.2)
     erubis (2.7.0)
     fastercsv (1.5.5)
     globalid (0.3.7)
@@ -127,6 +129,7 @@ PLATFORMS
 
 DEPENDENCIES
   audited (~> 4.3)
+  doorkeeper (= 4.2.6)
   fastercsv (= 1.5.5)
   mysql2 (= 0.4.5)
   paranoia (~> 2.2)

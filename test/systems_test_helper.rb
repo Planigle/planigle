@@ -40,6 +40,6 @@ module SystemsTestHelper
   end
   
   def base_URL
-    '/system'
+    '/planigle/api/system'
   end
 end

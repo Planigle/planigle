@@ -21,7 +21,7 @@ class StoriesIntegrationTest < ActionDispatch::IntegrationTest
   # Test splitting a story without credentials.
   def test_split_put_unauthorized
     num = resource_count
-    post '/stories/split/1', params: create_success_parameters, headers: accept_header
+    post '/planigle/api/stories/split/1', params: create_success_parameters, headers: accept_header
     assert_response 401
     assert_equal num, resource_count    
   end
@@ -30,7 +30,7 @@ class StoriesIntegrationTest < ActionDispatch::IntegrationTest
   def test_split_put_success
     login_as(individuals(:admin2))
     num = resource_count
-    post '/stories/split/1', params: create_success_parameters, headers: authorization_header
+    post '/planigle/api/stories/split/1', params: create_success_parameters, headers: authorization_header
     assert_response 201
     assert_equal num + 1, resource_count
     assert_create_succeeded
@@ -43,7 +43,7 @@ class StoriesIntegrationTest < ActionDispatch::IntegrationTest
   def test_split_put_failure
     login_as(individuals(:admin2))
     num = resource_count
-    post '/stories/split/1', params: create_failure_parameters, headers: authorization_header
+    post '/planigle/api/stories/split/1', params: create_failure_parameters, headers: authorization_header
     assert_response 422
     assert_equal num, resource_count
     assert_change_failed
@@ -52,7 +52,7 @@ class StoriesIntegrationTest < ActionDispatch::IntegrationTest
   # Test successfully setting the iteration.
   def test_set_iteration_success
     login_as(individuals(:admin2))
-    put '/stories/1', params: {:record => {:iteration_id => 2}}, headers: authorization_header
+    put '/planigle/api/stories/1', params: {:record => {:iteration_id => 2}}, headers: authorization_header
     assert_response :success
     assert_equal stories(:first).reload.iteration_id, 2
   end
@@ -60,7 +60,7 @@ class StoriesIntegrationTest < ActionDispatch::IntegrationTest
   # Test unsuccessfully setting the iteration.
   def test_set_iteration_failure
     login_as(individuals(:admin2))
-    put '/stories/1', params: {:record => {:iteration_id => 999}}, headers: authorization_header
+    put '/planigle/api/stories/1', params: {:record => {:iteration_id => 999}}, headers: authorization_header
     assert_response :unprocessable_entity
     assert json
     assert_not_equal stories(:first).reload.iteration_id, 999
@@ -69,7 +69,7 @@ class StoriesIntegrationTest < ActionDispatch::IntegrationTest
   # Test successfully setting the owner.
   def test_set_owner_success
     login_as(individuals(:admin2))
-    put '/stories/1', params: {:record => {:individual_id => 2}}, headers: authorization_header
+    put '/planigle/api/stories/1', params: {:record => {:individual_id => 2}}, headers: authorization_header
     assert_response :success
     assert_equal stories(:first).reload.individual_id, 2
   end
@@ -77,7 +77,7 @@ class StoriesIntegrationTest < ActionDispatch::IntegrationTest
   # Test unsuccessfully setting the owner.
   def test_set_owner_failure
     login_as(individuals(:admin2))
-    put '/stories/1', params: {:record => {:individual_id => 999}}, headers: authorization_header
+    put '/planigle/api/stories/1', params: {:record => {:individual_id => 999}}, headers: authorization_header
     assert_response :unprocessable_entity
     assert json
     assert_not_equal stories(:first).reload.individual_id, 999

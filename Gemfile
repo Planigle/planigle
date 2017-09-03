@@ -9,3 +9,4 @@ gem "paranoia", "~> 2.2"
 gem "audited", "~> 4.3"
 gem "rails-observers", github: 'rails/rails-observers'
 gem 'syck', '1.2.0'
+gem 'doorkeeper', '4.2.6'

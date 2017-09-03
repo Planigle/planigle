@@ -64,6 +64,6 @@ module CompaniesTestHelper
   end
   
   def base_URL
-    '/companies'
+    '/planigle/api/companies'
   end
 end

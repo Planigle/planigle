@@ -60,6 +60,6 @@ module ProjectsTestHelper
   end
   
   def base_URL
-    '/projects'
+    '/planigle/api/projects'
   end
 end

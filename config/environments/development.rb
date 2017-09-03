@@ -100,7 +100,7 @@ Rails.application.configure do
   config.notify_when_expiring_in = nil
 
   # The protocol://host[:port] of the server (for URLs). Ex. http://www.planigle.com
-  config.site_url = '<Replace with web site protocol://host[:port]>'
+  config.site_url = 'http://localhost/planigle'
   
   # The image tag for your logo '<img height="nnn" width="nnn" src="url"/>'
   config.site_logo = nil

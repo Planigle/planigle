@@ -72,7 +72,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     individuals(:quentin).remember_me
     individuals(:quentin).save( :validate=> false )
     cookies['auth_token'] = cookie_for(:quentin)
-    get '/stories'
+    get '/planigle/api/stories'
     assert_response :success
   end
 
@@ -82,7 +82,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     individuals(:quentin).save( :validate=> false )
     individuals(:quentin).update_attribute :remember_token_expires_at, 5.minutes.ago
     cookies['auth_token'] = cookie_for(:quentin)
-    get '/stories'
+    get '/planigle/api/stories'
     assert_response 401
   end
 
@@ -91,7 +91,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     individuals(:quentin).remember_me
     individuals(:quentin).save( :validate=> false )
     cookies['auth_token'] = auth_token('invalid_auth_token')
-    get '/stories'
+    get '/planigle/api/stories'
     assert_response 401
   end
 
@@ -128,6 +128,6 @@ private
   end
   
   def base_URL
-    '/session'
+    '/planigle/api/session'
   end
 end

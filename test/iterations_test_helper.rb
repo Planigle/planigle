@@ -60,6 +60,6 @@ module IterationsTestHelper
   end
   
   def base_URL
-    '/iterations'
+    '/planigle/api/iterations'
   end
 end

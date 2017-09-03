@@ -1,5 +1,10 @@
 class TasksController < ResourceController
-  before_action :login_required
+  before_action only: [:index, :show] do
+    log_in_or_oauth :read
+  end
+  before_action only: [:create, :update, :destroy] do
+    log_in_or_oauth :backlog
+  end
 
   # Notify of key changes.
   def update

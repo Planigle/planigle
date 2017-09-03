@@ -10,9 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170826150000) do
+ActiveRecord::Schema.define(version: 20170831193157) do
 
-  create_table "audits", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "audits", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer  "auditable_id"
     t.string   "auditable_type"
     t.string   "auditable_name"
@@ -22,17 +22,16 @@ ActiveRecord::Schema.define(version: 20170826150000) do
     t.string   "username"
     t.string   "action"
     t.text     "audited_changes",  limit: 65535
+    t.text     "comment",          limit: 65535
     t.integer  "version",                        default: 0
-    t.datetime "created_at"
-    t.string   "comment"
-    t.string   "remote_address"
     t.string   "request_uuid"
+    t.string   "remote_address"
+    t.datetime "created_at"
     t.integer  "association_id"
     t.string   "association_type"
     t.index ["auditable_id", "auditable_type"], name: "auditable_index", using: :btree
     t.index ["created_at"], name: "index_audits_on_created_at", using: :btree
     t.index ["project_id"], name: "project_index", using: :btree
-    t.index ["request_uuid"], name: "index_audits_on_request_uuid", using: :btree
     t.index ["user_id", "user_type"], name: "user_index", using: :btree
   end
 
@@ -46,7 +45,7 @@ ActiveRecord::Schema.define(version: 20170826150000) do
     t.datetime "deleted_at"
   end
 
-  create_table "companies", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "companies", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.string   "name",                        limit: 40, null: false
     t.datetime "created_at"
     t.datetime "updated_at"
@@ -56,7 +55,7 @@ ActiveRecord::Schema.define(version: 20170826150000) do
     t.datetime "last_notified_of_expiration"
   end
 
-  create_table "criteria", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "criteria", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.text    "description", limit: 65535,                                     null: false
     t.integer "status_code",                                       default: 0, null: false
     t.integer "story_id"
@@ -64,14 +63,14 @@ ActiveRecord::Schema.define(version: 20170826150000) do
     t.index ["story_id"], name: "index_criteria_on_story_id", using: :btree
   end
 
-  create_table "errors", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "errors", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer  "individual_id",              null: false
     t.datetime "time",                       null: false
     t.string   "message",       limit: 256,  null: false
     t.string   "stack_trace",   limit: 8192, null: false
   end
 
-  create_table "individual_story_attributes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "individual_story_attributes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer "individual_id",                                              null: false
     t.integer "story_attribute_id",                                         null: false
     t.integer "width",                                                      null: false
@@ -79,7 +78,7 @@ ActiveRecord::Schema.define(version: 20170826150000) do
     t.boolean "show",                                       default: false, null: false
   end
 
-  create_table "individuals", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "individuals", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.string   "login",                     limit: 40
     t.string   "email",                     limit: 100
     t.string   "first_name",                limit: 40
@@ -109,14 +108,14 @@ ActiveRecord::Schema.define(version: 20170826150000) do
     t.index ["remember_token"], name: "index_individuals_on_remember_token", using: :btree
   end
 
-  create_table "individuals_projects", id: false, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "individuals_projects", id: false, force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer "project_id"
     t.integer "individual_id"
     t.index ["individual_id"], name: "index_individuals_projects_on_individual_id", using: :btree
     t.index ["project_id"], name: "index_individuals_projects_on_project_id", using: :btree
   end
 
-  create_table "iteration_story_totals", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "iteration_story_totals", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer "iteration_id"
     t.date    "date"
     t.integer "team_id"
@@ -126,7 +125,7 @@ ActiveRecord::Schema.define(version: 20170826150000) do
     t.decimal "done",         precision: 7, scale: 2
   end
 
-  create_table "iteration_totals", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "iteration_totals", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer "iteration_id"
     t.date    "date"
     t.decimal "created",      precision: 7, scale: 2
@@ -136,7 +135,7 @@ ActiveRecord::Schema.define(version: 20170826150000) do
     t.decimal "blocked",      precision: 7, scale: 2
   end
 
-  create_table "iteration_velocities", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "iteration_velocities", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer "iteration_id"
     t.integer "team_id"
     t.decimal "attempted",    precision: 7, scale: 2
@@ -146,7 +145,7 @@ ActiveRecord::Schema.define(version: 20170826150000) do
     t.integer "num_stories"
   end
 
-  create_table "iterations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "iterations", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.string   "name"
     t.date     "start"
     t.integer  "project_id"
@@ -159,7 +158,47 @@ ActiveRecord::Schema.define(version: 20170826150000) do
     t.index ["project_id"], name: "index_iterations_on_project_id", using: :btree
   end
 
-  create_table "projects", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "oauth_access_grants", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer  "resource_owner_id",               null: false
+    t.integer  "application_id",                  null: false
+    t.string   "token",                           null: false
+    t.integer  "expires_in",                      null: false
+    t.text     "redirect_uri",      limit: 65535, null: false
+    t.datetime "created_at",                      null: false
+    t.datetime "revoked_at"
+    t.string   "scopes"
+    t.index ["application_id"], name: "fk_rails_b4b53e07b8", using: :btree
+    t.index ["token"], name: "index_oauth_access_grants_on_token", unique: true, using: :btree
+  end
+
+  create_table "oauth_access_tokens", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.integer  "resource_owner_id"
+    t.integer  "application_id"
+    t.string   "token",                               null: false
+    t.string   "refresh_token"
+    t.integer  "expires_in"
+    t.datetime "revoked_at"
+    t.datetime "created_at",                          null: false
+    t.string   "scopes"
+    t.string   "previous_refresh_token", default: "", null: false
+    t.index ["application_id"], name: "fk_rails_732cb83ab7", using: :btree
+    t.index ["refresh_token"], name: "index_oauth_access_tokens_on_refresh_token", unique: true, using: :btree
+    t.index ["resource_owner_id"], name: "index_oauth_access_tokens_on_resource_owner_id", using: :btree
+    t.index ["token"], name: "index_oauth_access_tokens_on_token", unique: true, using: :btree
+  end
+
+  create_table "oauth_applications", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string   "name",                                    null: false
+    t.string   "uid",                                     null: false
+    t.string   "secret",                                  null: false
+    t.text     "redirect_uri", limit: 65535,              null: false
+    t.string   "scopes",                     default: "", null: false
+    t.datetime "created_at",                              null: false
+    t.datetime "updated_at",                              null: false
+    t.index ["uid"], name: "index_oauth_applications_on_uid", unique: true, using: :btree
+  end
+
+  create_table "projects", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.string   "name",                        limit: 40,                    null: false
     t.text     "description",                 limit: 65535
     t.string   "survey_key",                  limit: 40,                    null: false
@@ -174,7 +213,7 @@ ActiveRecord::Schema.define(version: 20170826150000) do
     t.index ["survey_key"], name: "index_projects_on_survey_key", unique: true, using: :btree
   end
 
-  create_table "release_totals", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "release_totals", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer "release_id"
     t.integer "team_id"
     t.date    "date"
@@ -184,7 +223,7 @@ ActiveRecord::Schema.define(version: 20170826150000) do
     t.decimal "blocked",     precision: 7, scale: 2
   end
 
-  create_table "releases", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "releases", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer  "project_id"
     t.string   "name"
     t.date     "start"
@@ -195,20 +234,16 @@ ActiveRecord::Schema.define(version: 20170826150000) do
     t.index ["project_id"], name: "index_releases_on_project_id", using: :btree
   end
 
-  create_table "schema_info", id: false, force: :cascade, options: "ENGINE=MyISAM DEFAULT CHARSET=latin1" do |t|
-    t.integer "version"
-  end
-
-  create_table "stories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
-    t.string   "name",           limit: 250,                                        null: false
+  create_table "stories", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
+    t.string   "name",           limit: 250,                                            null: false
     t.text     "description",    limit: 65535
     t.decimal  "effort",                       precision: 7,  scale: 2
-    t.integer  "status_code",                                           default: 0, null: false
+    t.integer  "status_code",                                           default: 0,     null: false
     t.decimal  "priority",                     precision: 11, scale: 5
     t.integer  "iteration_id"
     t.integer  "individual_id"
     t.integer  "project_id"
-    t.boolean  "is_public"
+    t.boolean  "is_public",                                             default: false
     t.decimal  "user_priority",                precision: 7,  scale: 3
     t.integer  "release_id"
     t.integer  "team_id"
@@ -224,14 +259,14 @@ ActiveRecord::Schema.define(version: 20170826150000) do
     t.index ["story_id"], name: "index_stories_on_story_id", using: :btree
   end
 
-  create_table "story_attribute_values", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "story_attribute_values", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer "story_attribute_id"
     t.integer "release_id"
     t.text    "value",              limit: 255
     t.index ["story_attribute_id"], name: "index_story_attribute_values_on_story_attribute_id", using: :btree
   end
 
-  create_table "story_attributes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "story_attributes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer "project_id",                                                    null: false
     t.string  "name",       limit: 40,                                         null: false
     t.integer "value_type",                                                    null: false
@@ -242,21 +277,21 @@ ActiveRecord::Schema.define(version: 20170826150000) do
     t.index ["project_id"], name: "index_story_attributes_on_project_id", using: :btree
   end
 
-  create_table "story_values", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "story_values", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer "story_id",                         null: false
     t.integer "story_attribute_id",               null: false
     t.text    "value",              limit: 65535
     t.index ["story_id"], name: "index_story_values_on_story_id", using: :btree
   end
 
-  create_table "survey_mappings", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "survey_mappings", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer "survey_id", null: false
     t.integer "story_id"
     t.integer "priority"
     t.index ["survey_id"], name: "index_survey_mappings_on_survey_id", using: :btree
   end
 
-  create_table "surveys", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "surveys", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.integer  "project_id",                             null: false
     t.string   "email",      limit: 100,                 null: false
     t.boolean  "excluded",               default: false
@@ -267,11 +302,11 @@ ActiveRecord::Schema.define(version: 20170826150000) do
     t.index ["project_id"], name: "index_surveys_on_project_id", using: :btree
   end
 
-  create_table "systems", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "systems", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.text "license_agreement", limit: 65535
   end
 
-  create_table "tasks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "tasks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.string   "name",           limit: 250,                                       null: false
     t.text     "description",    limit: 65535
     t.decimal  "effort",                       precision: 7, scale: 2
@@ -290,7 +325,7 @@ ActiveRecord::Schema.define(version: 20170826150000) do
     t.index ["story_id"], name: "index_tasks_on_story_id", using: :btree
   end
 
-  create_table "teams", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+  create_table "teams", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci" do |t|
     t.string   "name",        limit: 40,    null: false
     t.text     "description", limit: 65535
     t.integer  "project_id"
@@ -300,4 +335,6 @@ ActiveRecord::Schema.define(version: 20170826150000) do
     t.index ["project_id"], name: "index_teams_on_project_id", using: :btree
   end
 
+  add_foreign_key "oauth_access_grants", "oauth_applications", column: "application_id"
+  add_foreign_key "oauth_access_tokens", "oauth_applications", column: "application_id"
 end

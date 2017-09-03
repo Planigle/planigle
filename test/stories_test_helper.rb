@@ -60,6 +60,6 @@ module StoriesTestHelper
   end
   
   def base_URL
-    '/stories'
+    '/planigle/api/stories'
   end
 end

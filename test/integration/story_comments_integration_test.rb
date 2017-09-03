@@ -13,7 +13,7 @@ class StoryCommentsIntegrationTest < ActionDispatch::IntegrationTest
 
   # Return the url to get the resource (ex., resources)
   def resource_url
-    '/stories/1/comments'
+    '/planigle/api/stories/1/comments'
   end
 
   # Answer a string representing the type of object. Ex., Story.
@@ -46,7 +46,7 @@ class StoryCommentsIntegrationTest < ActionDispatch::IntegrationTest
   # Test successfully setting the owner.
   def test_set_owner_success
     login_as(individuals(:admin2))
-    put '/stories/1/comments/1', params: {:record => {:individual_id => 2}}, headers: authorization_header
+    put '/planigle/api/stories/1/comments/1', params: {:record => {:individual_id => 2}}, headers: authorization_header
     assert_response :success
     assert_equal comments(:one).reload.individual_id, 2
   end
@@ -54,7 +54,7 @@ class StoryCommentsIntegrationTest < ActionDispatch::IntegrationTest
   # Test unsuccessfully setting the owner.
   def test_set_owner_failure
     login_as(individuals(:admin2))
-    put '/stories/1/comments/1', params: {:record => {:individual_id => 1}}, headers: authorization_header
+    put '/planigle/api/stories/1/comments/1', params: {:record => {:individual_id => 1}}, headers: authorization_header
     assert_response :success
     assert_not_equal comments(:one).reload.individual_id, 1
   end

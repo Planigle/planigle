@@ -60,6 +60,6 @@ module TeamsTestHelper
   end
   
   def base_URL
-    '/projects/1/teams'
+    '/planigle/api/projects/1/teams'
   end
 end

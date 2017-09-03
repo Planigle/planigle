@@ -60,7 +60,7 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
   # Test showing a task for another project.
   def test_show_wrong_project
     login_as(individuals(:aaron))
-    get '/stories/5/tasks/3'
+    get '/planigle/api/stories/5/tasks/3'
     assert_response 401
   end
     
@@ -83,7 +83,7 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
   def test_create_wrong_project
     login_as(individuals(:aaron))
     num = resource_count
-    post '/stories/5/tasks', params: create_success_parameters
+    post '/planigle/api/stories/5/tasks', params: create_success_parameters
     assert_response 401
     assert_equal num, resource_count
   end
@@ -126,7 +126,7 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
   # Test updating a task for another project.
   def test_update_wrong_project
     login_as(individuals(:aaron))
-    put '/stories/5/tasks/3', params: update_success_parameters
+    put '/planigle/api/stories/5/tasks/3', params: update_success_parameters
     assert_response 401
     assert_change_failed
     assert json['error']
@@ -167,7 +167,7 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
   # Delete from a different project.
   def test_delete_wrong_project
     login_as(individuals(:aaron))
-    delete '/stories/5/tasks/3'
+    delete '/planigle/api/stories/5/tasks/3'
     assert_response 401
     assert Task.where(name: 'test3').first
     assert json['error']

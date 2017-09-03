@@ -2,6 +2,11 @@
 class SessionsController < ApplicationController
   before_action :login_required, :only => :refresh
 
+  def main
+    puts Rails.configuration.site_url
+    redirect_to(Rails.configuration.site_url + '/')
+  end
+  
   # Process login results by creating a session.
   # POST /session
   def create

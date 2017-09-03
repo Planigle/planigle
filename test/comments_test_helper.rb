@@ -60,6 +60,6 @@ module CommentsTestHelper
   end
   
   def base_URL
-    '/stories/1/comments'
+    '/planigle/api/stories/1/comments'
   end
 end

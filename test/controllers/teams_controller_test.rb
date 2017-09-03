@@ -43,7 +43,7 @@ class TeamsControllerTest < ActionDispatch::IntegrationTest
   # Test showing a team for another project.
   def test_show_wrong_project
     login_as(individuals(:aaron))
-    get '/projects/2/teams/3'
+    get '/planigle/api/projects/2/teams/3'
     assert_response 401
   end
     
@@ -66,7 +66,7 @@ class TeamsControllerTest < ActionDispatch::IntegrationTest
   def test_create_wrong_project
     login_as(individuals(:aaron))
     num = resource_count
-    post '/projects/2/teams', params: create_success_parameters
+    post '/planigle/api/projects/2/teams', params: create_success_parameters
     assert_response 401
     assert_equal num, resource_count
   end
@@ -114,7 +114,7 @@ class TeamsControllerTest < ActionDispatch::IntegrationTest
   # Test updating a team for another project.
   def test_update_wrong_project
     login_as(individuals(:aaron))
-    put '/projects/2/teams/3', params: update_success_parameters
+    put '/planigle/api/projects/2/teams/3', params: update_success_parameters
     assert_response 401
     assert_change_failed
     assert json['error']
@@ -155,7 +155,7 @@ class TeamsControllerTest < ActionDispatch::IntegrationTest
   # Delete from a different project.
   def test_delete_wrong_project
     login_as(individuals(:aaron))
-    delete '/projects/2/teams/3'
+    delete '/planigle/api/projects/2/teams/3'
     assert_response 401
     assert Team.where(name: 'test2').first
     assert json['error']
