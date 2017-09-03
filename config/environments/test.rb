@@ -51,8 +51,8 @@ Rails.application.configure do
   config.log_level = :debug
 
   # Set notification
-  PLANIGLE_EMAIL_NOTIFIER = ::Notification::TestNotifier.new
-  PLANIGLE_SMS_NOTIFIER = ::Notification::TestNotifier.new
+  PLANIGLE_EMAIL_NOTIFIER = '::Notification::TestNotifier'
+  PLANIGLE_SMS_NOTIFIER = '::Notification::TestNotifier'
   
   # Whether LDAP should be used for authentication; if true you must set the next few values
   config.use_ldap = false

@@ -3,7 +3,6 @@ class SessionsController < ApplicationController
   before_action :login_required, :only => :refresh
 
   def main
-    puts Rails.configuration.site_url
     redirect_to(Rails.configuration.site_url + '/')
   end
   

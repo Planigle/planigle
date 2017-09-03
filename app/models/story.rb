@@ -546,7 +546,7 @@ class Story < ActiveRecord::Base
   end
 
   def external_url
-    "#{Rails.configuration.site_url}/?project_id=" + project.id.to_s() + "&id=" + id.to_s()
+    "#{Rails.configuration.site_url}/stories;selection=S" + id.to_s()
   end
 
   # Override assign_attributes to handle story values set through custom_<StoryAttribute.id>.

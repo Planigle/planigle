@@ -243,11 +243,11 @@ class Individual < ActiveRecord::Base
   def send_notification(project, subject, message)
     if is_premium
       if notification_type == EmailNotifications || notification_type == BothNotifications
-        PLANIGLE_EMAIL_NOTIFIER.send_notification(project, email, subject, message)
+        PLANIGLE_EMAIL_NOTIFIER.constantize.new.send_notification(project, email, subject, message)
       end
   
       if (notification_type == SMSNotifications || notification_type == BothNotifications) && phone_number && phone_number != ''
-        PLANIGLE_SMS_NOTIFIER.send_notification(project, phone_number, subject, message)
+        PLANIGLE_SMS_NOTIFIER.constantize.new.send_notification(project, phone_number, subject, message)
       end
     end
   end

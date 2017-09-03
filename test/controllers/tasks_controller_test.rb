@@ -192,12 +192,10 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
 
   # Test changing all the tasks status to done.
   def test_change_to_done_premium_team
-    email_count = PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
-    sms_count = PLANIGLE_SMS_NOTIFIER.number_of_notifications
+    notification_count = ::Notification::TestNotifier.number_of_notifications
     login_as(individuals(:aaron))
     put base_URL + '/1', params: {:record => {:status_code => 3}}
-    assert_equal email_count+2, PLANIGLE_EMAIL_NOTIFIER.number_of_notifications
-    assert_equal sms_count+2, PLANIGLE_SMS_NOTIFIER.number_of_notifications
+    assert_equal notification_count + 4, ::Notification::TestNotifier.number_of_notifications
   end
     
   # Test successfully setting the owner.

@@ -11,7 +11,7 @@ class IndividualStoryAttribute < ActiveRecord::Base
   before_create :initialize_defaults
 
   def name
-    story_attribute.name
+    story_attribute ? story_attribute.name : 'Unknown'
   end
 
   # Set the initial order to the number of story attributes (+10 for me).  Set public to false if not set.

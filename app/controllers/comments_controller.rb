@@ -10,7 +10,7 @@ class CommentsController < ResourceController
   def create
     super
     if @record && @record.story
-      @record.story.send_notification(current_individual, "New Comment from " + current_individual.name + " on " + @record.story.name, @record.message)
+      @record.story.send_notification(current_individual, "New Comment from " + current_individual.name + " on " + @record.story.name, email_body(@record.story))
     end
   end
 
@@ -18,11 +18,15 @@ class CommentsController < ResourceController
   def update
     super
     if @record && @record.story
-      @record.story.send_notification(current_individual, "Updated Comment from " + current_individual.name + " on " + @record.story.name, @record.message)
+      @record.story.send_notification(current_individual, "Updated Comment from " + current_individual.name + " on " + @record.story.name, email_body(@record.story))
     end
   end
 
 protected
+
+  def email_body(story)
+    '<pre>' + @record.message + '</pre>' + '<br><p>To respond to this comment, click here: ' + story.link + '.</p>'
+  end
 
   # Answer descriptor for this type of object
   def record_type

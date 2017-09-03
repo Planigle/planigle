@@ -632,11 +632,11 @@ class StoryTest < ActiveSupport::TestCase
   end
   
   def test_ready_to_accept_message
-    assert_equal "All tasks for <a href='/?project_id=1&id=1'>test</a> are done.", stories(:first).ready_to_accept_message
+    assert_equal "All tasks for <a href='/stories;selection=S1'>test</a> are done.", stories(:first).ready_to_accept_message
   end
   
   def test_done_message
-    assert_equal "<a href='/?project_id=1&id=1'>test</a> is done.", stories(:first).done_message
+    assert_equal "<a href='/stories;selection=S1'>test</a> is done.", stories(:first).done_message
   end
 
   def test_matching_tasks

@@ -16,7 +16,6 @@ class AuditsController < ApplicationController
   # GET /audits/num_pages
   def num_pages
     count = audit_query.count
-    puts count
     render :json => count == 0 ? 1 : (count.to_d / AUDITS_PER_PAGE).ceil
   end
   
