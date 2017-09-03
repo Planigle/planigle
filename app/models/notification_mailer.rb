@@ -15,6 +15,8 @@ protected
       to: "#{emailAddresses}",
       subject: "[#{project.name}] " + subject,
       content_type: 'text/html'
-    )
+    ) do |format|
+      format.html { render plain: @message_to_send }
+    end
   end
 end
