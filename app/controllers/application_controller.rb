@@ -52,8 +52,10 @@ protected
   
   # Filter the results
   def conditions
-    cond = {}
-
+    cond = {
+      project_id: project_id
+    }
+    
     if get_params[:release_id]; cond[:release_id] = get_params[:release_id]; end
     if get_params[:iteration_id]; cond[:iteration_id] = get_params[:iteration_id]; end
     if get_params[:team_id]; cond[:team_id] = get_params[:team_id]; end
@@ -76,6 +78,20 @@ protected
     if get_params[:view_epics]; cond[:view_epics] = get_params[:view_epics] == 'true'; end
     if get_params[:story_id]; cond[:story_id] = get_params[:story_id]; end
 
+    if cond[:team_id] == "MyTeam"
+      team_id = current_individual.team_id
+      if team_id && current_individual.team.project_id == current_individual.project_id
+        cond[:team_id] = team_id
+      else
+        cond.delete(:team_id)
+      end
+    end
+
     cond
+  end
+  
+  def project_id
+    project_id = get_params[:project_id]
+    project_id && current_individual.project_ids.include?(project_id) ? project_id : current_individual.project_id
   end
 end

@@ -38,8 +38,8 @@
 <div class="more-options" [hidden]="!showMoreOptions">
 	<app-custom-attributes [(customStoryAttributes)]="customStoryAttributes" [(customValues)]="customValues" [releaseId]="release" [filter]="true" (changed)="updateNavigation()"></app-custom-attributes>
 	<div class="form-group row">
-	  <label for="searchText" class="col-xs-2 col-form-label">Search Text</label>
-	  <div class="col-xs-10">
+	  <label for="searchText" class="col-xs-3 col-form-label">Search Text</label>
+	  <div class="col-xs-9">
 		<input #searchTextInput class="form-control" type="text" name="searchText" [(ngModel)]="searchText">
 	  </div>
 	</div>

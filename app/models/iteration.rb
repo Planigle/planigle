@@ -28,20 +28,20 @@ class Iteration < ActiveRecord::Base
   end
 
   # Answer the records for a particular user.
-  def self.get_records(current_user, historical=false)
+  def self.get_records(project_id, historical=false)
     where = "project_id = :project_id"
     if historical
       where += " AND start <= CURDATE()"
     end
-    Iteration.where([where, {project_id: current_user.project_id}]).order('start')
+    Iteration.where([where, {project_id: project_id}]).order('start')
   end
 
   # Answer the current iteration for a particular user.
-  def self.find_current(current_user, release=nil)
+  def self.find_current(project_id, release=nil)
     if release
-      current_user.project_id ? Iteration.where(["project_id = :project_id and start <= CURDATE() and finish >= CURDATE() and start <= :start and finish >= :finish", {project_id: current_user.project_id, start: release.finish, finish: release.start}]).order('start,finish').first : nil
+      project_id ? Iteration.where(["project_id = :project_id and start <= CURDATE() and finish >= CURDATE() and start <= :start and finish >= :finish", {project_id: project_id, start: release.finish, finish: release.start}]).order('start,finish').first : nil
     else
-      current_user.project_id ? Iteration.where(["project_id = :project_id and start <= CURDATE() and finish >= CURDATE()", {project_id: current_user.project_id}]).order('start,finish').first : nil
+      project_id ? Iteration.where(["project_id = :project_id and start <= CURDATE() and finish >= CURDATE()", {project_id: project_id}]).order('start,finish').first : nil
     end
   end
   

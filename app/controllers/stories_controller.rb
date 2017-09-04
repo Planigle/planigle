@@ -46,13 +46,13 @@ class StoriesController < ResourceController
   def export
     response.headers["Content-Disposition"] = 'attachment; filename=stories.csv'
     cookies[:fileDownload] = { :value => true , :path => '/' }
-    render :plain => Story.export(current_individual, conditions)
+    render :plain => Story.export(conditions)
   end
   
   # GET /stories/num_pages
   def num_pages
     page = get_params.delete(:page)
-    render :json => Story.get_num_pages(current_individual, conditions.clone, STORIES_PER_PAGE, page ? page : 1)
+    render :json => Story.get_num_pages(conditions.clone, STORIES_PER_PAGE, page ? page : 1)
   end
   
   # Split the story (tasks which have not been accepted will automatically be put in the new story).
@@ -104,7 +104,7 @@ class StoriesController < ResourceController
   end
   
   def epics
-    render :json => Story.get_epics(current_individual, conditions)
+    render :json => Story.get_epics(conditions)
   end
   
 protected
@@ -117,7 +117,7 @@ protected
   # Get the records based on the current individual.
   def get_records
     page = get_params.delete(:page)
-    Story.get_records(current_individual, conditions.clone, STORIES_PER_PAGE, page ? page : 1)
+    Story.get_records(conditions.clone, STORIES_PER_PAGE, page ? page : 1)
   end
 
   # Answer whether the resulting record is visible
@@ -129,7 +129,7 @@ protected
         modified_conditions[key._to_s]= value
       end
       modified_conditions[:id] = @record.id
-      Story.get_records(current_individual, modified_conditions).length == 1
+      Story.get_records(modified_conditions).length == 1
     else
       true
     end

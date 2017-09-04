@@ -4,7 +4,7 @@ Doorkeeper.configure do
 
   # This block will be called to check whether the resource owner is authenticated or not.
   resource_owner_authenticator do
-    Individual.find_by_id(session[:current_user_id]) if session[:current_user_id] || redirect_to(Rails.configuration.site_url + '/')
+    Individual.find_by_id(session[:individual_id]) if session[:individual_id] || redirect_to(Rails.configuration.site_url + '/')
   end
 
   # If you want to restrict access to the web interface for adding oauth authorized applications, you need to declare the block below.

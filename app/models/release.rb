@@ -12,17 +12,17 @@ class Release < ActiveRecord::Base
   validate :validate
 
   # Answer the records for a particular user.
-  def self.get_records(current_user, historical=false)
+  def self.get_records(project_id, historical=false)
     where = "project_id = :project_id"
     if historical
       where += " AND start <= CURDATE()"
     end
-    Release.where([where, {project_id: current_user.project_id}]).order('start')
+    Release.where([where, {project_id: project_id}]).order('start')
   end
 
   # Answer the current release for a particular user.
-  def self.find_current(current_user)
-    current_user.project_id ? Release.where(["project_id = :project_id and start <= CURDATE() and finish >= CURDATE()", {project_id: current_user.project_id}]).order('start,finish').first : nil
+  def self.find_current(project_id)
+    project_id ? Release.where(["project_id = :project_id and start <= CURDATE() and finish >= CURDATE()", {project_id: project_id}]).order('start,finish').first : nil
   end
 
   # Summarize my current data.

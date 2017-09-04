@@ -53,19 +53,19 @@ class ReleaseTest < ActiveSupport::TestCase
 
   # Test finding individuals for a specific user.
   def test_find
-    assert_equal 0, Release.get_records(individuals(:quentin)).length
-    assert_equal Release.where(project_id: 1).length, Release.get_records(individuals(:aaron)).length
+    assert_equal 0, Release.get_records(individuals(:quentin).project_id).length
+    assert_equal Release.where(project_id: 1).length, Release.get_records(individuals(:aaron).project_id).length
     user = individuals(:user)
     user.selected_project_id = 1
-    assert_equal Release.where(project_id: 1).length, Release.get_records(user).length
-    assert_equal Release.where(project_id: 1).length, Release.get_records(individuals(:readonly)).length
+    assert_equal Release.where(project_id: 1).length, Release.get_records(user.project_id).length
+    assert_equal Release.where(project_id: 1).length, Release.get_records(individuals(:readonly).project_id).length
   end
   
   # Test finding the current release
   def test_find_current
-    assert_nil Release.find_current(individuals(:admin2))
+    assert_nil Release.find_current(individuals(:admin2).project_id)
     release = create_release()
-    assert_equal release, Release.find_current(individuals(:admin2))
+    assert_equal release, Release.find_current(individuals(:admin2).project_id)
   end
   
   # Test summarization.

@@ -276,93 +276,93 @@ class StoryTest < ActiveSupport::TestCase
 
   # Test finding stories for a specific user.
   def test_find
-    assert_equal 0, Story.get_records(individuals(:quentin)).length
-    assert_equal Story.where(project_id: 1).length - 1, Story.get_records(individuals(:aaron)).length
-    assert_equal Story.where(project_id: 1).length - 1, Story.get_records(individuals(:user)).length
-    assert_equal Story.where(project_id: 1).length - 1, Story.get_records(individuals(:readonly)).length
-    assert_equal Story.where(project_id: 1, iteration_id: 1).length, Story.get_records(individuals(:readonly), {:iteration_id => iterations(:first).id}).length
+    assert_equal 0, Story.get_records({project_id: individuals(:quentin).project_id}).length
+    assert_equal Story.where(project_id: 1).length - 1, Story.get_records({project_id: individuals(:aaron).project_id}).length
+    assert_equal Story.where(project_id: 1).length - 1, Story.get_records({project_id: individuals(:user).project_id}).length
+    assert_equal Story.where(project_id: 1).length - 1, Story.get_records({project_id: individuals(:readonly).project_id}).length
+    assert_equal Story.where(project_id: 1, iteration_id: 1).length, Story.get_records({project_id: individuals(:readonly).project_id, iteration_id: iterations(:first).id}).length
   end
   
   # Test finding individuals for a specific user.
   def test_find_not_done
-    assert_equal Story.where(project_id: 1, status_code: [0,1,2]).length - 1, Story.get_records(individuals(:readonly), {:status_code => 'NotDone'}).length
+    assert_equal Story.where(project_id: 1, status_code: [0,1,2]).length - 1, Story.get_records({project_id: individuals(:readonly).project_id, status_code: 'NotDone'}).length
   end
   
   # Test finding individuals for a specific user.
   def test_find_current_release
-    assert_equal Story.where(project_id: 1).length - 1, Story.get_records(individuals(:readonly), {:release_id => 'Current'}).length
+    assert_equal Story.where(project_id: 1).length - 1, Story.get_records({project_id: individuals(:readonly).project_id, release_id: 'Current'}).length
     release = Release.create(:project_id => 1, :name => 'Test', :start => Date.today, :finish =>  Date.today + 14)
-    assert_equal Story.where(project_id: 1, release_id: release.id).length, Story.get_records(individuals(:readonly), {:release_id => 'Current'}).length
+    assert_equal Story.where(project_id: 1, release_id: release.id).length, Story.get_records({project_id: individuals(:readonly).project_id, release_id: 'Current'}).length
   end
 
   # Test finding individuals for a specific user.
   def test_find_current_iteration
-    assert_equal Story.where(project_id: 1).length - 1, Story.get_records(individuals(:readonly), {:iteration_id => 'Current'}).length
+    assert_equal Story.where(project_id: 1).length - 1, Story.get_records({project_id: individuals(:readonly).project_id, iteration_id: 'Current'}).length
     iteration = Iteration.create(:project_id => 1, :name => 'Test', :start => Date.today, :finish =>  Date.today + 14)
-    assert_equal Story.where(project_id: 1, iteration_id: iteration.id).length, Story.get_records(individuals(:readonly), {:iteration_id => 'Current'}).length
+    assert_equal Story.where(project_id: 1, iteration_id: iteration.id).length, Story.get_records({project_id: individuals(:readonly).project_id, iteration_id: 'Current'}).length
   end
 
   # Test finding individuals for a specific user.
   def test_find_my_team
-    assert_equal Story.where(project_id: 1, team_id: individuals(:aaron).team_id).length, Story.get_records(individuals(:aaron), {:team_id => 'MyTeam'}).length
-    assert_equal Story.where(project_id: 1).length - 1, Story.get_records(individuals(:readonly), {:team_id => 'MyTeam'}).length
+    assert_equal Story.where(project_id: 1, team_id: individuals(:aaron).team_id).length, Story.get_records({project_id: individuals(:aaron).project_id, team_id: individuals(:aaron).team_id}).length
+    assert_equal Story.where(project_id: 1).length - 1, Story.get_records({project_id: individuals(:readonly).project_id}).length
   end
 
   # Test finding individuals for a specific user.
   def test_find_individual
-    assert_equal 1, Story.get_records(individuals(:aaron), {:individual_id => individuals(:aaron).id}).length
+    assert_equal 1, Story.get_records({project_id: individuals(:aaron).project_id, individual_id: individuals(:aaron).id}).length
     Task.create(:story_id => 3, :name => 'assigned', :individual_id => individuals(:aaron).id)
-    assert_equal 2, Story.get_records(individuals(:aaron), {:individual_id => individuals(:aaron).id}).length
-    assert_equal 3, Story.get_records(individuals(:aaron), {:individual_id => nil}).length
+    assert_equal 2, Story.get_records({project_id: individuals(:aaron).project_id, individual_id: individuals(:aaron).id}).length
+    assert_equal 3, Story.get_records({project_id: individuals(:aaron).project_id, individual_id: nil}).length
   end
 
   # Test finding epics for a specific user.
   def test_find_epics
-    assert_equal 1, 1, Story.get_records(individuals(:aaron), {:view_epics => true}).length
-    assert_equal 1, 1, Story.get_records(individuals(:aaron), {:view_epics => true, :iteration_id => 1}).length # iteration id ignored
+    assert_equal 1, 1, Story.get_records({project_id: individuals(:aaron).project_id, view_epics: true}).length
+    assert_equal 1, 1, Story.get_records({project_id: individuals(:aaron).project_id, view_epics: true, iteration_id: 1}).length # iteration id ignored
   end
 
   # Test finding based on custom list attributes.
   def test_find_custom_list
-    assert_equal 1, Story.get_records(individuals(:aaron), {:custom_5 => 1}).length
-    assert_equal 0, Story.get_records(individuals(:aaron), {:custom_5 => 2}).length
-    assert_equal 3, Story.get_records(individuals(:aaron), {:custom_5 => nil}).length
-    assert_equal 1, Story.get_records(individuals(:aaron), {:custom_6 => 4}).length
-    assert_equal 0, Story.get_records(individuals(:aaron), {:custom_6 => 5}).length
-    assert_equal 3, Story.get_records(individuals(:aaron), {:custom_6 => nil}).length
-    assert_equal 1, Story.get_records(individuals(:aaron), {:custom_5 => 1, :custom_6 => 4}).length
-    assert_equal 0, Story.get_records(individuals(:aaron), {:custom_5 => 1, :custom_6 => 5}).length
+    assert_equal 1, Story.get_records({project_id: individuals(:aaron).project_id, custom_5: 1}).length
+    assert_equal 0, Story.get_records({project_id: individuals(:aaron).project_id, custom_5: 2}).length
+    assert_equal 3, Story.get_records({project_id: individuals(:aaron).project_id, custom_5: nil}).length
+    assert_equal 1, Story.get_records({project_id: individuals(:aaron).project_id, custom_6: 4}).length
+    assert_equal 0, Story.get_records({project_id: individuals(:aaron).project_id, custom_6: 5}).length
+    assert_equal 3, Story.get_records({project_id: individuals(:aaron).project_id, custom_6: nil}).length
+    assert_equal 1, Story.get_records({project_id: individuals(:aaron).project_id, custom_5: 1, custom_6: 4}).length
+    assert_equal 0, Story.get_records({project_id: individuals(:aaron).project_id, custom_5: 1, custom_6: 5}).length
   end
 
   # Test finding stories matching text.
   def test_find_text
-    assert_equal 0, Story.get_records(individuals(:aaron), :text => 'teststring').length
+    assert_equal 0, Story.get_records({project_id: individuals(:aaron).project_id, text: 'teststring'}).length
     create_story(:name => 'TestString')
-    assert_equal 1, Story.get_records(individuals(:aaron), :text => 'teststring').length
+    assert_equal 1, Story.get_records({project_id: individuals(:aaron).project_id, text: 'teststring'}).length
     create_story(:description => 'TestString')
-    assert_equal 2, Story.get_records(individuals(:aaron), :text => 'teststring').length
+    assert_equal 2, Story.get_records({project_id: individuals(:aaron).project_id, text: 'teststring'}).length
     create_story(:reason_blocked => 'TestString')
-    assert_equal 3, Story.get_records(individuals(:aaron), :text => 'teststring').length
+    assert_equal 3, Story.get_records({project_id: individuals(:aaron).project_id, text: 'teststring'}).length
     create_story(:acceptance_criteria => 'TestString')
-    assert_equal 4, Story.get_records(individuals(:aaron), :text => 'teststring').length
+    assert_equal 4, Story.get_records({project_id: individuals(:aaron).project_id, text: 'teststring'}).length
     story = create_story(:custom_1 => 'TestString')
-    assert_equal 5, Story.get_records(individuals(:aaron), :text => 'teststring').length
+    assert_equal 5, Story.get_records({project_id: individuals(:aaron).project_id, text: 'teststring'}).length
     create_story(:custom_2 => 'TestString')
-    assert_equal 6, Story.get_records(individuals(:aaron), :text => 'teststring').length
+    assert_equal 6, Story.get_records({project_id: individuals(:aaron).project_id, text: 'teststring'}).length
     story = create_story
     story.tasks << Task.create(:name => 'TestString')
-    assert_equal 7, Story.get_records(individuals(:aaron), :text => 'teststring').length
+    assert_equal 7, Story.get_records({project_id: individuals(:aaron).project_id, text: 'teststring'}).length
     story = create_story
     story.tasks << Task.create(:name => 'foo', :description => 'TestString')
-    assert_equal 8, Story.get_records(individuals(:aaron), :text => 'teststring').length
+    assert_equal 8, Story.get_records({project_id: individuals(:aaron).project_id, text: 'teststring'}).length
     story = create_story
     story.tasks << Task.create(:name => 'foo', :reason_blocked => 'TestString')
-    assert_equal 9, Story.get_records(individuals(:aaron), :text => 'teststring').length
-    assert_equal 0, Story.get_records(individuals(:aaron), :text => 'otherstring').length
+    assert_equal 9, Story.get_records({project_id: individuals(:aaron).project_id, text: 'teststring'}).length
+    assert_equal 0, Story.get_records({project_id: individuals(:aaron).project_id, text: 'otherstring'}).length
     
-    assert_equal 1, Story.get_records(individuals(:aaron), :text => 's1')[0].id
-    assert_equal 0, Story.get_records(individuals(:aaron), :text => 's300').length
-    assert_equal 5, Story.get_records(individuals(:user2), :text => 't3')[0].id
+    assert_equal 1, Story.get_records({project_id: individuals(:aaron).project_id, text: 's1'})[0].id
+    assert_equal 0, Story.get_records({project_id: individuals(:aaron).project_id, text: 's300'}).length
+    assert_equal 5, Story.get_records({project_id: individuals(:user2).project_id, text: 't3'})[0].id
   end
   
   # Validate is_blocked.
@@ -374,13 +374,13 @@ class StoryTest < ActiveSupport::TestCase
 
   # Validate export.
   def test_export
-    string = Story.export(individuals(:aaron))
+    string = Story.export({project_id: individuals(:aaron).project_id})
     assert_equal "PID,Epic,Name,Description,Acceptance Criteria,Size,Estimate,To Do,Actual,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Lead Time,Cycle Time,Test_List,Test_Number,Test_Release,Test_String,Test_Text\nS3,\"\",test3,\"\",\"\",1.0,,,,In Progress,\"\",\"\",\"\",\"\",\"\",false,2.0,0.0,,\"\",\"\",\"\",\"\"\,\"\"\nS2,\"\",test2,\"\",\"\",1.0,,,,Done,\"\",first,first,\"\",\"\",true,1.0,0.0,,\"\",\"\",\"\",\"\",\"\"\nS1,Epic,test,description,\"*criteria\n*criteria2 (Done)\",1.0,3.0,5.0,1.0,In Progress,\"\",first,first,Test_team,aaron hank,true,2.0,0.0,,Value 1,5,Theme 1,test,testy\nT2,\"\",test2_task,,\"\",\"\",3.0,2.0,1.0,Done,,\"\",\"\",\"\",aaron hank,\"\",\"\",0.0,,\"\",\"\",\"\",\"\",\"\"\nT1,\"\",test_task,,\"\",\"\",,3.0,,In Progress,,\"\",\"\",\"\",aaron hank,\"\",\"\",0.0,,\"\",\"\",\"\",\"\",\"\"\nS4,\"\",test4,\"\",\"\",1.0,,,,In Progress,\"\",\"\",\"\",\"\",\"\",true,,0.0,,\"\",\"\",\"\",\"\",\"\"\n", string
 
-    string = Story.export(individuals(:project_admin2))
+    string = Story.export({project_id: individuals(:project_admin2).project_id})
     assert_equal "PID,Epic,Name,Description,Acceptance Criteria,Size,Estimate,To Do,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Lead Time,Cycle Time,Test_String2\nS5,\"\",test5,\"\",\"\",2.0,2.0,3.0,Blocked,\"\",\"\",\"\",\"\",\"\",true,,0.0,,testit\nT3,\"\",test3,More,\"\",\"\",2.0,3.0,Blocked,,\"\",\"\",\"\",\"\",\"\",\"\",0.0,,\"\"\n", string
 
-    string = Story.export(individuals(:aaron), {:name => 'test3'})
+    string = Story.export({project_id: individuals(:aaron).project_id, name: 'test3'})
     assert_equal "PID,Epic,Name,Description,Acceptance Criteria,Size,Estimate,To Do,Actual,Status,Reason Blocked,Release,Iteration,Team,Owner,Public,User Rank,Lead Time,Cycle Time,Test_List,Test_Number,Test_Release,Test_String,Test_Text\nS3,\"\",test3,\"\",\"\",1.0,,,,In Progress,\"\",\"\",\"\",\"\",\"\",false,2.0,0.0,,\"\",\"\",\"\",\"\"\,\"\"\n", string
   end
 

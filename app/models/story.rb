@@ -52,19 +52,20 @@ class Story < ActiveRecord::Base
   before_create :initialize_defaults
 
   # Answer a CSV string representing the stories.
-  def self.export(current_user, conditions = {})
+  def self.export(conditions = {})
+    project = conditions[:project_id] ? Project.find(conditions[:project_id]) : nil
     CSV.generate(:row_sep => "\n") do |csv|
       attribs = ['PID', 'Epic', 'Name', 'Description', 'Acceptance Criteria', 'Size', 'Estimate', 'To Do', 'Actual', 'Status', 'Reason Blocked', 'Release', 'Iteration', 'Team', 'Owner', 'Public', 'User Rank', 'Lead Time', 'Cycle Time']
-      if current_user.project
-        if (!current_user.project.track_actuals)
+      if project
+        if (!project.track_actuals)
           attribs.delete('Actual')
         end
-        story_attributes = current_user.project.story_attributes.where(is_custom: true).includes([:story_attribute_values]).order('name')
+        story_attributes = project.story_attributes.where(is_custom: true).includes([:story_attribute_values]).order('name')
         story_attributes.each {|attrib| attribs << attrib.name}
       end
       csv << attribs
-      if current_user.project
-        stories = get_records(current_user, conditions)
+      if project
+        stories = get_records(conditions)
         include_tasks = !conditions.delete(:view_epics)
         stories.each do |story|
           story.export_with_children(conditions, story_attributes, csv, include_tasks)
@@ -309,18 +310,18 @@ class Story < ActiveRecord::Base
   end
 
   # Answer the epics for a particular user.
-  def self.get_epics(current_user, conditions={})
+  def self.get_epics(conditions={})
     modified_conditions = conditions.clone
     modified_conditions[:view_all] = true
-    modified_conditions = substitute_conditions(current_user, modified_conditions)
+    modified_conditions = substitute_conditions(modified_conditions)
     modified_conditions['tasks'] = {:id => nil}
     result = Story.joins("LEFT JOIN tasks ON tasks.story_id=stories.id").where(modified_conditions).group('stories.id').order('name')
     result.collect{|story| {id: story.id, name: story.name}}
   end
 
-  def self.get_num_pages(current_user, conditions={}, per_page=nil, page=nil)
+  def self.get_num_pages(conditions={}, per_page=nil, page=nil)
     if should_paginate(per_page, page, conditions)
-      count = get_query(current_user, conditions).count
+      count = get_query(conditions).count
       count == 0 ? 1 : (count.to_d / per_page).ceil
     else
       1
@@ -328,8 +329,8 @@ class Story < ActiveRecord::Base
   end
   
   # Answer the records for a particular user.
-  def self.get_records(current_user, conditions={}, per_page=nil, page=nil)
-    result = get_query(current_user, conditions)
+  def self.get_records(conditions={}, per_page=nil, page=nil)
+    result = get_query(conditions)
     if should_paginate(per_page, page, conditions)
       result = result.paginate(:per_page=>per_page, :page=>page)
     end
@@ -337,13 +338,13 @@ class Story < ActiveRecord::Base
     result
   end
     
-  def self.get_query(current_user, conditions={})
+  def self.get_query(conditions={})
     modified_conditions = conditions.clone
     joins = get_joins(modified_conditions)
     filter_on_individual = modified_conditions.has_key?(:individual_id)
     individual_id = modified_conditions.delete(:individual_id)
     text_filter = modified_conditions.delete(:text)
-    modified_conditions = substitute_conditions(current_user, modified_conditions)
+    modified_conditions = substitute_conditions(modified_conditions)
     options = {:include => [:criteria, :story_values, :tasks, :iteration, :release, :team, :individual, :stories], :conditions => modified_conditions, :order => 'stories.priority', :joins => joins}
     result = Story
     if options[:include] then result = result.includes(options[:include]) end
@@ -362,12 +363,11 @@ class Story < ActiveRecord::Base
   end
   
   # Update conditions replacing logical values with actual values
-  def self.substitute_conditions(current_user, conditions)
+  def self.substitute_conditions(conditions)
     conditions = conditions.clone
-    conditions[:project_id] = current_user.project_id
     release = nil
     if conditions[:release_id] == "Current"
-      release = Release.find_current(current_user)
+      release = Release.find_current(conditions[:project_id])
       if release
         conditions[:release_id] = release.id
       else
@@ -375,7 +375,7 @@ class Story < ActiveRecord::Base
       end
     end
     if conditions[:iteration_id] == "Current"
-      iteration = Iteration.find_current(current_user, release)
+      iteration = Iteration.find_current(conditions[:project_id], release)
       if iteration
         conditions[:iteration_id] = iteration.id
       else
@@ -384,14 +384,6 @@ class Story < ActiveRecord::Base
     end
     if conditions[:iteration_id] && (conditions[:view_epics] || conditions[:view_all])
       conditions.delete(:iteration_id)
-    end
-    if conditions[:team_id] == "MyTeam"
-      team_id = current_user.team_id
-      if team_id && current_user.team.project_id == current_user.project_id
-        conditions[:team_id] = team_id
-      else
-        conditions.delete(:team_id)
-      end
     end
     if conditions[:status_code] == "NotDone"
       conditions[:status_code] = [0,1,2]
@@ -438,11 +430,11 @@ class Story < ActiveRecord::Base
   def self.get_team_stats(current_individual, conditions, team)
     stats = {:statuses => {}, :iterations => {}}
     [0,1,2,3].each do |status|
-      stats[:statuses][status]=Story.get_records(current_individual, {:iteration_id=>'Current',:team_id=>team,:status_code=>status}).inject(0){|result,story|result+(story.effort == nil ? 0 : story.effort)}
+      stats[:statuses][status]=Story.get_records({:project_id=>current_individual.project_id, :iteration_id=>'Current',:team_id=>team,:status_code=>status}).inject(0){|result,story|result+(story.effort == nil ? 0 : story.effort)}
     end
     Iteration.get_records(current_individual).each do |iteration|
       if iteration.finish >= DateTime.now
-        stats[:iterations][iteration.id]=Story.get_records(current_individual,{:iteration_id=>iteration.id,:team_id=>team}).inject(0){|result,story|result+(story.effort == nil ? 0 : story.effort)}
+        stats[:iterations][iteration.id]=Story.get_records({:project_id=>current_individual.project_id, :iteration_id=>iteration.id,:team_id=>team}).inject(0){|result,story|result+(story.effort == nil ? 0 : story.effort)}
       end
     end
     stats

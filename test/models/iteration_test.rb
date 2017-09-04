@@ -66,23 +66,23 @@ class IterationTest < ActiveSupport::TestCase
 
   # Test finding iterations for a specific user.
   def test_find
-    assert_equal 0, Iteration.get_records(individuals(:quentin)).length
-    assert_equal Iteration.where(project_id: 1).length, Iteration.get_records(individuals(:aaron)).length
-    assert_equal Iteration.where(project_id: 1).length, Iteration.get_records(individuals(:user)).length
-    assert_equal Iteration.where(project_id: 1).length, Iteration.get_records(individuals(:readonly)).length
+    assert_equal 0, Iteration.get_records(individuals(:quentin).project_id).length
+    assert_equal Iteration.where(project_id: 1).length, Iteration.get_records(individuals(:aaron).project_id).length
+    assert_equal Iteration.where(project_id: 1).length, Iteration.get_records(individuals(:user).project_id).length
+    assert_equal Iteration.where(project_id: 1).length, Iteration.get_records(individuals(:readonly).project_id).length
   end
   
   # Test finding the current iteration
   def test_find_current
-    assert_nil Iteration.find_current(individuals(:admin2))
+    assert_nil Iteration.find_current(individuals(:admin2).project_id)
     iteration = create_iteration()
-    assert_equal iteration, Iteration.find_current(individuals(:admin2))
+    assert_equal iteration, Iteration.find_current(individuals(:admin2).project_id)
     release = Release.create(:name => 'foo', :start => Date.today, :finish => Date.today + 14)
-    assert_equal iteration, Iteration.find_current(individuals(:admin2), release)
+    assert_equal iteration, Iteration.find_current(individuals(:admin2).project_id, release)
     release.start = Date.today + 15
     release.finish = Date.today + 29
     release.save( :validate=> false )
-    assert_nil Iteration.find_current(individuals(:admin2), release)
+    assert_nil Iteration.find_current(individuals(:admin2).project_id, release)
   end
   
   # Test summarization.

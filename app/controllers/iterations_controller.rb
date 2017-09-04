@@ -10,7 +10,7 @@ protected
 
   # Get the records based on the current individual.
   def get_records
-    Iteration.get_records(current_individual, params[:historical] == 'true')
+    Iteration.get_records(project_id, params[:historical] == 'true')
   end
 
   # Answer the current record based on the current individual.
