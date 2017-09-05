@@ -10,7 +10,7 @@ protected
 
   # Get the records based on the current individual.
   def get_records
-    StoryAttribute.get_records(current_individual)
+    StoryAttribute.get_records(current_individual, project_id)
   end
 
   # Answer the current record based on the current individual.
@@ -28,7 +28,7 @@ protected
   # Create a new record given the params.
   def create_record
     if (!params[:record][:project_id])
-      params[:record][:project_id] = current_individual.project_id
+      params[:record][:project_id] = project_id
     end
     params[:record].delete(:is_custom)
     StoryAttribute.new(record_params)

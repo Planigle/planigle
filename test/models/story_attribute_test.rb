@@ -133,7 +133,7 @@ class StoryAttributeTest < ActiveSupport::TestCase
   end
   
   def test_get_records_new_user
-    attribs = StoryAttribute.get_records(individuals(:quentin))
+    attribs = StoryAttribute.get_records(individuals(:quentin), 1)
     attrib = attribs.detect {|attrib| attrib.id == 34}
     assert_equal 40, attrib.width
     assert_equal 80, attrib.ordering

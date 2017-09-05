@@ -56,7 +56,7 @@ class CompaniesController < ResourceController
   # /companies/recent - return companies accessed in the last 30 days
   def recent
     if (Company.authorized_for_recent?(current_individual))
-      render :json => Company.get_recent(current_individual)
+      render :json => Company.get_recent()
     else
       unauthorized
     end
@@ -89,7 +89,7 @@ protected
 
   # Get the records based on the current individual.
   def get_records
-    Company.get_records(current_individual)
+    Company.get_records(current_individual, project_id)
   end
 
   # Answer the current record based on the current individual.

@@ -70,12 +70,9 @@ class StoryAttribute < ActiveRecord::Base
   end
 
   # Answer the records for a particular user.
-  def self.get_records(current_user)
-    if current_user.role >= Individual::ProjectAdmin or current_user.project_id
-      values = StoryAttribute.includes(:story_attribute_values, :individual_story_attributes).where(project_id: current_user.project_id)
-    else
-      values = StoryAttribute.includes(:story_attribute_values, :individual_story_attributes)
-    end
+  def self.get_records(current_user, project_id=nil)
+    project_id = project_id ? project_id : current_user.project_id
+    values = StoryAttribute.includes(:story_attribute_values, :individual_story_attributes).where(project_id: project_id)
     
     # Replace my values with those of the individual.
     values.each do |value|

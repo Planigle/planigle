@@ -71,18 +71,19 @@ class Company < ActiveRecord::Base
   end
 
   # Answer the companies access in the last 30 days
-  def self.get_recent(current_user)
+  def self.get_recent()
     Company.joins(:individuals).where(["DATEDIFF(CURRENT_DATE, last_login) < 30"]).group('companies.id').order("companies.name, companies.id")
   end
   
   # Answer the records for a particular user.
-  def self.get_records(current_user)
+  def self.get_records(current_user, project_id=nil)
+    project_id = project_id ? project_id : current_user.project_id
     all = Company.includes(:projects => [:teams, {:story_attributes => :story_attribute_values}]).where(["companies.id = :company_id", {company_id: current_user.company_id}])
     
     # Ensure we load the settings for the current user
     all.each do |company|
       company.projects.each do |project|
-        if project == current_user.project
+        if project.id == project_id
           project.story_attributes.each{|story_attribute| story_attribute.show_for(current_user)}
           project.hide_attributes = false
         else

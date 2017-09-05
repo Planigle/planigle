@@ -13,7 +13,12 @@ protected
 
   # Answer the current project id (or nil if there is not one).
   def project_id
-    current_individual ? current_individual.project_id : nil
+    if current_individual
+      project_id = get_params[:project_id]
+      project_id && current_individual.project_ids.include?(project_id) ? project_id : current_individual.project_id
+    else
+      nil
+    end
   end
 
   # Answer the current project (or nil if there is not one).
@@ -88,10 +93,5 @@ protected
     end
 
     cond
-  end
-  
-  def project_id
-    project_id = get_params[:project_id]
-    project_id && current_individual.project_ids.include?(project_id) ? project_id : current_individual.project_id
   end
 end

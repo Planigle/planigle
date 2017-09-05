@@ -145,7 +145,7 @@ class Individual < ActiveRecord::Base
   # Override as_json to exclude private attributes.
   def as_json(options = {})
     if !options[:except]
-      options[:except] = [:crypted_password, :salt, :remember_token, :remember_token_expires_at, :activation_code, :accepted_agreement, :created_at, :updated_at, :deleted_at]
+      options[:except] = [:crypted_password, :salt, :remember_token, :remember_token_expires_at, :activation_code, :accepted_agreement, :created_at, :updated_at, :deleted_at, :forgot_token, :forgot_token_expires_at]
     end
     if !options[:methods]
       options[:methods] = [:project_ids, :team_name, :is_premium]
