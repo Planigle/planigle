@@ -95,7 +95,7 @@ class Iteration < ActiveRecord::Base
     total = 0
     stories.each do |story|
       if story.team == team
-        if story.lead_time != nil && story.status_code == Story.Done && story.effort != 0 && story.effort != nil
+        if story.lead_time != nil && story.status_code == Status.Done && story.effort != 0 && story.effort != nil
           total += story.lead_time
         end
       end
@@ -107,7 +107,7 @@ class Iteration < ActiveRecord::Base
     total = 0
     stories.each do |story|
       if story.team == team
-        if story.cycle_time != nil && story.status_code == Story.Done && story.effort != 0 && story.effort != nil
+        if story.cycle_time != nil && story.status_code == Status.Done && story.effort != 0 && story.effort != nil
           total += story.cycle_time
         end
       end
@@ -116,7 +116,7 @@ class Iteration < ActiveRecord::Base
   end
   
   def num_stories(team)
-    stories.select {|story|story.team == team && story.status_code == Story.Done && story.effort != 0 && story.effort != nil}.length
+    stories.select {|story|story.team == team && story.status_code == Status.Done && story.effort != 0 && story.effort != nil}.length
   end
 
   # Override as_json to exclude private attributes.

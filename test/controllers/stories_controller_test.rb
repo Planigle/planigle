@@ -9,6 +9,7 @@ class StoriesControllerTest < ActionDispatch::IntegrationTest
   include ControllerResourceHelper
   include StoriesTestHelper
 
+  fixtures :statuses
   fixtures :systems
   fixtures :teams
   fixtures :individuals

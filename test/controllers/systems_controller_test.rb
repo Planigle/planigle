@@ -6,6 +6,7 @@ class SystemsControllerTest < ActionDispatch::IntegrationTest
   
   include SystemsTestHelper
 
+  fixtures :statuses
   fixtures :systems
   fixtures :individuals
   fixtures :teams

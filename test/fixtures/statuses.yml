@@ -1,0 +1,143 @@
+first:
+  id: 1
+  project_id: 1
+  name: 'Not Started'
+  status_code: 0
+  applies_to_stories: true
+  applies_to_tasks: true
+  ordering: 1
+
+second:
+  id: 2
+  project_id: 1
+  name: 'In Progress'
+  status_code: 1
+  applies_to_stories: true
+  applies_to_tasks: true
+  ordering: 2
+
+third:
+  id: 3
+  project_id: 1
+  name: 'Blocked'
+  status_code: 2
+  applies_to_stories: true
+  applies_to_tasks: true
+  ordering: 3
+
+fourth:
+  id: 4
+  project_id: 1
+  name: 'Done'
+  status_code: 3
+  applies_to_stories: true
+  applies_to_tasks: true
+  ordering: 4
+
+fifth:
+  id: 5
+  project_id: 2
+  name: 'Not Started'
+  status_code: 0
+  applies_to_stories: true
+  applies_to_tasks: true
+  ordering: 1
+
+sixth:
+  id: 6
+  project_id: 2
+  name: 'In Progress'
+  status_code: 1
+  applies_to_stories: true
+  applies_to_tasks: true
+  ordering: 2
+
+seventh:
+  id: 7
+  project_id: 2
+  name: 'Blocked'
+  status_code: 2
+  applies_to_stories: true
+  applies_to_tasks: true
+  ordering: 3
+
+eighth:
+  id: 8
+  project_id: 2
+  name: 'Done'
+  status_code: 3
+  applies_to_stories: true
+  applies_to_tasks: true
+  ordering: 4
+
+ninth:
+  id: 9
+  project_id: 3
+  name: 'Not Started'
+  status_code: 0
+  applies_to_stories: true
+  applies_to_tasks: true
+  ordering: 1
+
+tenth:
+  id: 10
+  project_id: 3
+  name: 'In Progress'
+  status_code: 1
+  applies_to_stories: true
+  applies_to_tasks: true
+  ordering: 2
+
+eleventh:
+  id: 11
+  project_id: 3
+  name: 'Blocked'
+  status_code: 2
+  applies_to_stories: true
+  applies_to_tasks: true
+  ordering: 3
+
+twelth:
+  id: 12
+  project_id: 3
+  name: 'Done'
+  status_code: 3
+  applies_to_stories: true
+  applies_to_tasks: true
+  ordering: 4
+
+thirteenth:
+  id: 13
+  project_id: 4
+  name: 'Not Started'
+  status_code: 0
+  applies_to_stories: true
+  applies_to_tasks: true
+  ordering: 1
+
+fourteenth:
+  id: 14
+  project_id: 4
+  name: 'In Progress'
+  status_code: 1
+  applies_to_stories: true
+  applies_to_tasks: true
+  ordering: 2
+
+fifteenth:
+  id: 15
+  project_id: 4
+  name: 'Blocked'
+  status_code: 2
+  applies_to_stories: true
+  applies_to_tasks: true
+  ordering: 3
+
+sixteenth:
+  id: 16
+  project_id: 4
+  name: 'Done'
+  status_code: 3
+  applies_to_stories: true
+  applies_to_tasks: true
+  ordering: 4

@@ -6,6 +6,7 @@ class StoriesIntegrationTest < ActionDispatch::IntegrationTest
   include ResourceHelper
   include StoriesTestHelper
 
+  fixtures :statuses
   fixtures :systems
   fixtures :individuals
   fixtures :stories

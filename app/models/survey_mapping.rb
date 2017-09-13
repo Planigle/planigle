@@ -29,8 +29,8 @@ class SurveyMapping < ActiveRecord::Base
   end
   
   def normalized_priority
-    if story.priority && story.status_code < Story.Done
-      ((((survey.survey_mappings.collect {|mapping| mapping.story}).select{|story| story.status_code<Story.Done}).collect{|story| story.priority}).sort).index(story.priority) + 1
+    if story.priority && story.status_code < Status.Done
+      ((((survey.survey_mappings.collect {|mapping| mapping.story}).select{|story| story.status_code<Status.Done}).collect{|story| story.priority}).sort).index(story.priority) + 1
     else
       nil
     end

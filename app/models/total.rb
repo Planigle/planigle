@@ -14,9 +14,9 @@ class Total < ActiveRecord::Base
         effort = item.effort
         effort = effort != nil ? effort : 0
         case item.status_code
-          when Story.Created then created += effort
-          when Story.InProgress then in_progress += effort
-          when Story.Blocked then blocked += effort
+          when Status.Created then created += effort
+          when Status.InProgress then in_progress += effort
+          when Status.Blocked then blocked += effort
           else done += effort
         end
       end

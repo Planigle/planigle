@@ -1,7 +1,7 @@
 require "#{File.dirname(__FILE__)}/../test_helper"
 
 class SurveysIntegrationTest < ActionDispatch::IntegrationTest
-
+  fixtures :statuses
   fixtures :systems
   fixtures :individuals
   fixtures :stories

@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class TeamTest < ActiveSupport::TestCase
+  fixtures :statuses
   fixtures :companies
   fixtures :teams
   fixtures :individuals

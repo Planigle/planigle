@@ -6,6 +6,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
   include ControllerResourceHelper
   include CommentsTestHelper
 
+  fixtures :statuses
   fixtures :systems
   fixtures :individuals
   fixtures :comments

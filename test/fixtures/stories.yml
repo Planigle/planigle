@@ -9,7 +9,7 @@ first:
   name: 'test'
   description: 'description'
   effort: 1
-  status_code: 1
+  status_id: 2
   priority: 3
   is_public: true
   user_priority: 2
@@ -23,7 +23,7 @@ second:
   name: 'test2'
   description: ''
   effort: 1
-  status_code: 3
+  status_id: 4
   priority: 2
   is_public: true
   user_priority: 1
@@ -35,7 +35,7 @@ third:
   name: 'test3'
   description: ''
   effort: 1
-  status_code: 1
+  status_id: 2
   priority: 1
   user_priority: 2
   is_public: false
@@ -47,7 +47,7 @@ fourth:
   name: 'test4'
   description: ''
   effort: 1
-  status_code: 1
+  status_id: 2
   priority: 4
   is_public: true
   reason_blocked: ''
@@ -58,7 +58,7 @@ fifth:
   name: 'test5'
   description: ''
   effort: 2
-  status_code: 2
+  status_id: 7
   priority: 1
   is_public: true
   reason_blocked: ''
@@ -68,6 +68,6 @@ epic:
   project_id: 1
   name: 'Epic'
   description: ''
-  status_code: 1
+  status_id: 2
   priority: 10
   is_public: true

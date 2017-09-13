@@ -30,7 +30,7 @@ protected
 
   # Get the records based on the current individual.
   def get_records
-    Task.where(story_id: params[:story_id]).order(status_code: :desc, name: :asc)
+    Task.joins(:status).where(story_id: params[:story_id]).order('statuses.status_code desc, tasks.name asc')
   end
 
   # Answer whether the resulting record is visible
@@ -49,6 +49,7 @@ protected
   def create_record
     task = Task.new(record_params)
     task.story_id = params[:story_id]
+    task.update_parent_status
     task
   end
   
@@ -61,10 +62,10 @@ protected
       status = params[:record][:status_code]
       owner = params[:record][:individual_id]
     end
-    if @record.status_code == Story.Done && effort == nil
+    if @record.status_code == Status.Done && effort == nil
       @record.effort = 0
     end
-    if status != nil && status.to_i != Story.Created && status.to_i != Story.Blocked && @record.individual_id == nil
+    if status != nil && status.to_i != Status.Created && status.to_i != Status.Blocked && @record.individual_id == nil
       @record.individual_id = current_individual.id
     end
     if @record.status_code == 2 && @record.story.status_code != 2

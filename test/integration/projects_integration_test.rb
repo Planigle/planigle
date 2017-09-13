@@ -17,7 +17,7 @@ class ProjectsIntegrationTest < ActionDispatch::IntegrationTest
     ActionMailer::Base.delivery_method = :test
     ActionMailer::Base.perform_deliveries = true
     ActionMailer::Base.deliveries = []
-    CompanyMailer.who_to_notify = 'foo@bar.com'
+    CompanyMailer.who_to_notify = 'test@example.com'
   end
 
   # Test getting teams and attributes for a project.

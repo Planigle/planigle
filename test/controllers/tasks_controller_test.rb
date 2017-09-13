@@ -6,6 +6,7 @@ class TasksControllerTest < ActionDispatch::IntegrationTest
   include ControllerResourceHelper
   include TasksTestHelper
 
+  fixtures :statuses
   fixtures :systems
   fixtures :individuals
   fixtures :tasks

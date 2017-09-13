@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class TaskTest < ActiveSupport::TestCase
+  fixtures :statuses
   fixtures :individuals
   fixtures :stories
   fixtures :tasks
@@ -74,21 +75,15 @@ class TaskTest < ActiveSupport::TestCase
 
   # Test the validation of status.
   def test_status
-    assert_equal "In Progress", tasks(:one).status
-    assert_equal "Done", tasks(:two).status
-    assert_equal "Blocked", tasks(:three).status
+    assert_equal "In Progress", tasks(:one).status.name
+    assert_equal "Done", tasks(:two).status.name
+    assert_equal "Blocked", tasks(:three).status.name
   end
 
-  # Test the accepted? method.
-  def test_accepted
-    assert !tasks(:one).accepted?
-    assert tasks(:two).accepted?
-  end
-
-  # Test that we can get a mapping of status to code.
-  def test_status_code_mapping
-    mapping = Task.status_code_mapping
-    assert_equal ['Not Started',0], mapping[0]
+  # Test the is_done method.
+  def test_is_done
+    assert !tasks(:one).is_done
+    assert tasks(:two).is_done
   end
   
   # Validate is_blocked.
@@ -109,25 +104,25 @@ class TaskTest < ActiveSupport::TestCase
 
   def test_in_progress_at
     task = tasks(:one)
-    task.status_code = Story.Created
+    task.status_code = Status.Created
     assert_nil task.in_progress_at
-    task.status_code = Story.InProgress
+    task.status_code = Status.InProgress
     assert task.in_progress_at != nil
-    task.status_code = Story.Blocked
+    task.status_code = Status.Blocked
     assert task.in_progress_at != nil
-    task.status_code = Story.Done
+    task.status_code = Status.Done
     assert task.in_progress_at != nil
   end
   
   def test_done_at
     task = tasks(:one)
-    task.status_code = Story.Created
+    task.status_code = Status.Created
     assert_nil task.done_at
-    task.status_code = Story.InProgress
+    task.status_code = Status.InProgress
     assert_nil task.done_at
-    task.status_code = Story.Blocked
+    task.status_code = Status.Blocked
     assert_nil task.done_at
-    task.status_code = Story.Done
+    task.status_code = Status.Done
     assert task.done_at != nil
   end
 

@@ -6,6 +6,7 @@ class ReleasesIntegrationTest < ActionDispatch::IntegrationTest
   include ResourceHelper
   include ReleasesTestHelper
 
+  fixtures :statuses
   fixtures :systems
   fixtures :individuals
   fixtures :releases

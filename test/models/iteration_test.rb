@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class IterationTest < ActiveSupport::TestCase
+  fixtures :statuses
   fixtures :teams
   fixtures :individuals
   fixtures :iteration_totals
@@ -130,11 +131,11 @@ class IterationTest < ActiveSupport::TestCase
     iteration = iterations(:first)
     story1 = iteration.stories[0]
     story1.created_at = Time.now - 60*60*24
-    story1.status_code = Story.Done
+    story1.status_code = Status.Done
     story2 = iteration.stories[1]
     story2.created_at = Time.now - 2*60*60*24
     story2.done_at = Time.now
-    story2.status_code = Story.Done
+    story2.status_code = Status.Done
     assert_equal 1, iteration.lead_time(teams(:first))
     assert_equal 2, iteration.lead_time(nil)
   end
@@ -144,9 +145,9 @@ class IterationTest < ActiveSupport::TestCase
     story1 = iteration.stories[0]
     story1.in_progress_at = Time.now - 60*60*24
     story1.done_at = Time.now
-    story1.status_code = Story.Done
+    story1.status_code = Status.Done
     story2 = iteration.stories[1]
-    story2.status_code = Story.Done
+    story2.status_code = Status.Done
     assert_equal 1, iteration.cycle_time(teams(:first))
     assert_equal 0, iteration.cycle_time(nil)
   end

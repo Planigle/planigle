@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class CriteriumTest < ActiveSupport::TestCase
+  fixtures :statuses
   fixtures :stories
   fixtures :criteria
 

@@ -96,6 +96,7 @@ export class EpicsComponent extends ParentWorkItemsComponent implements AfterVie
       movedStory.id = revisedStory.id;
       this.id_map[revisedStory.uniqueId] = movedStory;
       this.checkRemoveRow(movedStory);
+      this.updateParentStatus(movedStory);
       this.storiesService.setRanks(this.stories);
       this.updateRows();
       this.updateAllocations();

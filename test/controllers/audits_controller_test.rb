@@ -6,7 +6,6 @@ class AuditsControllerTest < ActionDispatch::IntegrationTest
   fixtures :audits
   fixtures :projects
   fixtures :individuals_projects
-  fixtures :audits
 
   def test_index_unauthorized
     get base_URL

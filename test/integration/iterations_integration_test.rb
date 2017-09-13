@@ -6,6 +6,7 @@ class IterationsIntegrationTest < ActionDispatch::IntegrationTest
   include ResourceHelper
   include IterationsTestHelper
 
+  fixtures :statuses
   fixtures :systems
   fixtures :individuals
   fixtures :iterations

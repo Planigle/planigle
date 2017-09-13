@@ -421,12 +421,14 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
       if (work.added) {
         work.added = false;
         this.addRow(work);
+        this.updateParentStatus(work);
         this.checkRemoveRow(work);
         this.updateProjections();
         this.updateRows();
       } else if (work.isStory() && (<Story>work).split) {
         let originalStory = <Story>work;
         this.addRow(originalStory.split);
+        this.updateParentStatus(work);
         originalStory.split = null;
         this.checkRemoveRow(originalStory);
         this.updateProjections();
@@ -436,6 +438,7 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
           let story: Story = <Story>work;
           this.moveStory(story, story.epic, story.story_id);
         }
+        this.updateParentStatus(work);
         this.checkRemoveRow(work);
         this.updateProjections();
         this.refreshView();
@@ -616,6 +619,7 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
     (revisedStory) => {
       story.id = revisedStory.id;
       this.id_map[revisedStory.uniqueId] = story;
+      this.updateParentStatus(story);
       this.storiesService.setRanks(this.stories);
       this.updateRows();
       this.updateAllocations();
@@ -655,6 +659,7 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
           (revisedTask) => {
             task.id = revisedTask.id;
             this.id_map[revisedTask.uniqueId] = task;
+            this.updateParentStatus(task);
             this.updateRows();
             this.updateAllocations();
           }, (error) => this.processError.call(this, error));
@@ -662,6 +667,7 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
       this.tasksService.update(task).subscribe(
         (revisedTask) => {
           task.previous_story_id = null;
+          this.updateParentStatus(task);
           this.updateRows();
           this.updateAllocations();
         }, (error) => this.processError.call(this, error));
@@ -801,29 +807,29 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
     if (row.isStory()) {
       this.storiesService.update(<Story> row).subscribe(
         (story: Story) => {
-          this.updateGridForStatusChange(story);
-          row.updateParentStatus();
-          let parent: Story = (<Story>row).epic;
-          while (parent) {
-            this.updateGridForStatusChange(parent);
-            parent = parent.epic;
-          }
+          this.updateParentStatus(row);
+          this.gridReady();
         },
         (err: any) => this.processError.call(this, err));
     } else {
-      let changedTask: Task = <Task> row;
-      this.tasksService.update(changedTask).subscribe(
+      this.tasksService.update(<Task> row).subscribe(
         (task: Task) => {
-          this.updateGridForStatusChange(task);
-          row.updateParentStatus();
-          let parent: Story = changedTask.story;
-          while (parent) {
-            this.updateGridForStatusChange(parent);
-            parent = parent.epic;
-          }
+          this.updateParentStatus(row);
+          this.gridReady();
         },
         (err: any) => this.processError(err));
     }
+  }
+
+  updateParentStatus(row: Work): void {
+    this.checkRemoveRow(row);
+    row.updateParentStatus();
+    let parent: Story = row.isStory ? (<Story>row).epic : (<Task>row).story;
+    while (parent) {
+      this.checkRemoveRow(parent);
+      parent = parent.epic;
+    }
+    this.refreshView();
   }
 
   updateGridForStatusChange(row: Work): void {

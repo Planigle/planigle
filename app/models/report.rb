@@ -107,21 +107,23 @@ private
     return \
       'SELECT IFNULL(teams.id,0) AS id, IFNULL(teams.name,"None") AS name, SUM(IFNULL(stories.effort,0)) / ' + numIterations.to_s + ' AS velocity, SUM(IFNULL(tt.estimate,0)) / ' + numIterations.to_s + ' AS utilization '\
       'FROM stories '\
+      'JOIN statuses ON statuses.id=stories.status_id '\
       'LEFT JOIN teams ON teams.id=stories.team_id '\
       'LEFT JOIN ('\
         'SELECT stories.id, SUM(estimate) AS estimate '\
         'FROM stories '\
         'JOIN tasks ON tasks.story_id = stories.id '\
+        'JOIN statuses ON statuses.id=stories.status_id '\
         'WHERE ' + (params[:team_id] ? ('IFNULL(stories.team_id,0)=' + teamId) : 'stories.project_id=' + Integer(project_id).to_s) + ' '\
         'AND stories.iteration_id IN (' + last3IterationIds.join(',') + ') '\
-        'AND stories.status_code=3 '\
+        'AND statuses.status_code=3 '\
         'AND stories.deleted_at IS NULL '\
         'AND tasks.deleted_at IS NULL '\
         'GROUP BY stories.id '\
       ') tt ON tt.id=stories.id '\
       'WHERE ' + (teamId ? ('stories.team_id=' + teamId) : 'stories.project_id=' + Integer(project_id).to_s) + ' '\
       'AND stories.iteration_id IN (' + last3IterationIds.join(',') + ') '\
-      'AND stories.status_code=3 '\
+      'AND statuses.status_code=3 '\
       'AND stories.deleted_at IS NULL '\
       'GROUP BY teams.id '
   end

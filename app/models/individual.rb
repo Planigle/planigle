@@ -274,7 +274,7 @@ class Individual < ActiveRecord::Base
   def utilization_in(iteration)
     iteration.stories.inject(0) do |storyTotal, story|
       storyTotal + story.tasks.inject(0) do |sum, task|
-        if task.individual_id == id and task.status_code == Story.Done
+        if task.individual_id == id and task.status_code == Status.Done
           sum + (task.actual ? task.actual : (task.estimate ? task.estimate : 0))
         else
           sum

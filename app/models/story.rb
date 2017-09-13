@@ -10,6 +10,7 @@ class Story < ActiveRecord::Base
   belongs_to :iteration
   belongs_to :individual
   belongs_to :epic, :class_name=> "Story", :foreign_key => :story_id
+  belongs_to :status
   has_many :stories, :class_name=> "Story", :foreign_key => :story_id, :dependent => :nullify
   has_many :story_values, :dependent => :destroy
   has_many :criteria, -> {order('criteria.priority')}, dependent: :destroy
@@ -18,33 +19,19 @@ class Story < ActiveRecord::Base
   has_many :comments, -> {where(deleted_at: nil).order('comments.ordering')}, :dependent => :destroy
   audited :except => [:user_priority, :in_progress_at, :done_at]
   
-  validates_presence_of     :project_id, :name
+  validates_presence_of     :project_id, :name, :status_id
   validates_length_of       :name,                   :maximum => 250, :allow_nil => true # Allow nil to workaround bug
   validates_length_of       :description,            :maximum => 4096, :allow_nil => true
   validates_length_of       :reason_blocked,         :maximum => 4096, :allow_nil => true
   validates_numericality_of :effort, :allow_nil => true, :greater_than_or_equal_to => 0
   validates_numericality_of :priority, :user_priority, :allow_nil => true # Needed for priority since not set until after check
-  validates_numericality_of :status_code
   validate :validate
 
+  before_validation :initialize_status
   before_create :save_relative_priority
   after_create :save_custom_attributes
   before_save :save_relative_priority
   after_save :save_custom_attributes
-
-  StatusMapping = [ 'Not Started', 'In Progress', 'Blocked', 'Done' ]
-
-  @@Created = 0
-  cattr_reader :Created
-
-  @@InProgress = 1
-  cattr_reader :InProgress
-
-  @@Blocked = 2
-  cattr_reader :Blocked
-
-  @@Done = 3
-  cattr_reader :Done
 
   Headers = { 'pid'=>:id, 'epic'=>:story_id, 'name'=>:name, 'description'=>:description, 'acceptance criteria'=>:acceptance_criteria, 'size'=>:effort, 'status'=>:status_code, 'reason blocked'=>:reason_blocked, 'release'=>:release_id, 'iteration'=>:iteration_id, 'team'=>:team_id, 'owner'=>:individual_id, 'public'=>:is_public, 'estimate'=>:estimate, 'actual'=>:actual, 'to do'=>:effort}
 
@@ -113,7 +100,7 @@ class Story < ActiveRecord::Base
       values.push actual
     end
     values = values.concat [
-      status,
+      status.name,
       reason_blocked,
       release ? release.name : '',
       iteration ? iteration.name : '',
@@ -158,24 +145,27 @@ class Story < ActiveRecord::Base
     self
   end
   
-  # Answer the valid values for status.
-  def self.valid_status_values()
-    StatusMapping
+  def status_code
+    status ? status.status_code : -1
   end
-
-  # Map user displayable terms to the internal status codes.
-  def self.status_code_mapping
-    map = {}
-    i = -1
-    valid_status_values.each { |val| i+=1; map[val]=i }
-    map
+  
+  def statuses
+    project.story_statuses
   end
-
-  # Answer an abbreviated label for me.
-  def caption
-    task_count = tasks.length
-    task_status = (tasks.empty? || status_code == @@Created || status_code == @@Done) ? '' : ' - ' + tasks.select {|task| task.status_code == @@Done }.size.to_s + ' of ' + task_count.to_s + ' task' + (task_count == 1 ? '' : 's') + ' done'
-    name + '<br/>' + status + task_status
+  
+  # Answer whether I am blocked.
+  def is_blocked
+    status_code == Status.Blocked
+  end
+  
+  # Answer whether I am ready to be accepted (i.e., all my tasks are done).
+  def is_ready_to_accept
+    !tasks.any? {|task|!task.is_done}
+  end
+  
+  # Answer whether I am done.
+  def is_done
+    status_code == Status.Done
   end
   
   # Answer a url for more details on me.
@@ -209,7 +199,7 @@ class Story < ActiveRecord::Base
       if new_criteria
         new_criteria.split("\n").each do |criterium|
           criterium = criterium.match(/^\*.*$/) ? criterium[1,criterium.length-1] : criterium
-          code = status_code == @@Done ? Criterium.Done : Criterium.Created
+          code = is_done ? Criterium.Done : Criterium.Created
           if (match=criterium.match(/^(.*) \(Done\)$/))
             criterium = match[1]
             code = Criterium.Done
@@ -223,16 +213,6 @@ class Story < ActiveRecord::Base
       if(!@changed_attributes); @changed_attributes = {}; end
       @changed_attributes['acceptance_criteria'] = [old_criteria, new_criteria]
     end
-  end
-
-  # Answer my status in a user friendly format.
-  def status
-    StatusMapping[status_code]
-  end
-
-  # Answer true if I have been accepted.
-  def accepted?
-    self.status_code == @@Done
   end
   
   # My estimate is the sum of my tasks.
@@ -253,7 +233,7 @@ class Story < ActiveRecord::Base
   # Create a new story based on this one.
   def split
     next_iteration = self.iteration ? Iteration.where(["start>:start and project_id=:project_id",{start: self.iteration.start, project_id: self.project_id}]).order('start').first : nil
-    Story.new(
+    Story.create(
       :name => increment_name(self.name, self.name + ' Part Two'),
       :project_id => self.project_id,
       :iteration_id => next_iteration ? next_iteration.id : nil,
@@ -268,7 +248,6 @@ class Story < ActiveRecord::Base
 
   def current_conditions= conditions
     @current_conditions = conditions
-#    stories.each {|child| child.current_conditions=conditions}
   end
   
   # Override as_json to include tasks.
@@ -280,7 +259,7 @@ class Story < ActiveRecord::Base
       options[:include] = [:story_values, :criteria, :filtered_stories]
     end
     if !options[:methods]
-      options[:methods] = [:epic_name, :lead_time, :cycle_time, :filtered_tasks, :comments, :release_name, :iteration_name, :team_name, :individual_name] #:filtered_stories, 
+      options[:methods] = [:epic_name, :lead_time, :cycle_time, :filtered_tasks, :comments, :release_name, :iteration_name, :team_name, :individual_name, :status_code] #:filtered_stories, 
     end
     super(options)
   end
@@ -315,7 +294,7 @@ class Story < ActiveRecord::Base
     modified_conditions[:view_all] = true
     modified_conditions = substitute_conditions(modified_conditions)
     modified_conditions['tasks'] = {:id => nil}
-    result = Story.joins("LEFT JOIN tasks ON tasks.story_id=stories.id").where(modified_conditions).group('stories.id').order('name')
+    result = Story.includes([:status]).joins("LEFT JOIN tasks ON tasks.story_id=stories.id").where(modified_conditions).group('stories.id').order('stories.name')
     result.collect{|story| {id: story.id, name: story.name}}
   end
 
@@ -345,7 +324,7 @@ class Story < ActiveRecord::Base
     individual_id = modified_conditions.delete(:individual_id)
     text_filter = modified_conditions.delete(:text)
     modified_conditions = substitute_conditions(modified_conditions)
-    options = {:include => [:criteria, :story_values, :tasks, :iteration, :release, :team, :individual, :stories], :conditions => modified_conditions, :order => 'stories.priority', :joins => joins}
+    options = {:include => [:criteria, :story_values, :tasks, :iteration, :release, :team, :individual, :stories, :status], :conditions => modified_conditions, :order => 'stories.priority', :joins => joins}
     result = Story
     if options[:include] then result = result.includes(options[:include]) end
     if options[:joins] then result = result.joins(options[:joins]) end
@@ -387,6 +366,10 @@ class Story < ActiveRecord::Base
     end
     if conditions[:status_code] == "NotDone"
       conditions[:status_code] = [0,1,2]
+    end
+    if conditions[:status_code]
+      conditions["statuses.status_code"] = conditions[:status_code]
+      conditions.delete(:status_code)
     end
     if conditions[:view_epics]
       conditions["stories.story_id"] = nil
@@ -491,21 +474,6 @@ class Story < ActiveRecord::Base
       else false
     end
   end
-
-  # Answer whether I am blocked.
-  def is_blocked
-    status_code == @@Blocked
-  end
-  
-  # Answer whether I am ready to be accepted (i.e., all my tasks are done).
-  def is_ready_to_accept
-    !tasks.any? {|task|task.status_code != @@Done}
-  end
-  
-  # Answer whether I am blocked.
-  def is_done
-    status_code == @@Done
-  end
   
   # Notify of changes
   def send_notification(sender, subject, message)
@@ -556,6 +524,12 @@ class Story < ActiveRecord::Base
         modified_attributes[key] = value
       end
     end
+    if modified_attributes.has_key?(:project_id) || modified_attributes.has_key?('project_id')   # Set first so we can use it
+      self.project_id = modified_attributes[:project_id] || modified_attributes['project_id']
+    end
+    if modified_attributes.has_key?(:status_code) || modified_attributes.has_key?('status_code')   # Set second so we can use it (needed on create)
+      self.status_code = modified_attributes[:status_code] || modified_attributes['status_code']
+    end
     super(modified_attributes)
   end
 
@@ -563,14 +537,28 @@ class Story < ActiveRecord::Base
   def project_id=(new_project_id)
     old = project_id
     super(new_project_id)
+    self.status = equivalent_status(self.status)
     if (old && old.to_s != new_project_id.to_s)
       tasks.each do |task|
+        task.status = task.equivalent_status(self.status)
         if (task.individual && !task.individual.projects.include?(Project.find(new_project_id)))
           task.individual_id = nil
-          task.save( :validate=> false )
         end
+        task.save( :validate=> false )
       end
       @delete_custom_attribute_values = true
+    end
+  end
+  
+  def equivalent_status(status)
+    if status
+      new_status = statuses.detect{|candidate| candidate.name == status.name && candidate.status_code == status.status_code}
+      if !new_status
+        new_status = statuses.detect{|candidate| candidate.status_code == status.status_code}
+      end
+      new_status
+    else
+      status
     end
   end
   
@@ -668,21 +656,21 @@ class Story < ActiveRecord::Base
   
   def update_parent_status
     if epic
-      if status_code == 2
-        if epic.status_code != 2
-          epic.status_code = 2;
+      if status_code == Status.Blocked
+        if epic.status_code != Status.Blocked
+          epic.status = status;
           epic.save
         end
       else
-        if epic.status_code == 2 && !epic.reason_blocked && !epic.stories.detect{|story| story.status_code == 2}
-          if epic.stories.detect{|story| story.status_code > 0}
-            epic.status_code = 1;            
+        if epic.status_code == Status.Blocked && !epic.reason_blocked && !epic.stories.detect{|story| story.status_code == Status.Blocked}
+          if epic.stories.detect{|story| story.status_code > Status.Created}
+            epic.status_code = Status.InProgress
           else
-            epic.status_code = 0;
+            epic.status_code = Status.Created
           end
           epic.save
-        elsif status_code > 0 && epic.status_code == 0
-          epic.status_code = 1;
+        elsif status_code > Status.Created && epic.status_code == Status.Created
+          epic.status_code = Status.InProgress
           epic.save
         end
       end
@@ -694,7 +682,7 @@ protected
 
   # Add custom validation of the status field and relationships to give a more specific message.
   def validate
-    if status_code < 0 || status_code >= StatusMapping.length
+    if @invalid_status || !status || !(statuses.detect {|story_status| story_status.id == status.id})
       errors.add(:status_code, 'is invalid')
     end
     
@@ -745,6 +733,12 @@ protected
           errors.add(attrib.name.to_sym, "is invalid")
         end
       end
+    end
+  end
+
+  def initialize_status
+    if !self.status && project
+      self.status_code = Status.Created
     end
   end
 
@@ -841,7 +835,7 @@ private
             when :individual_id then value = find_object_id(value, Individual, ["concat(first_name, ' ', last_name) = ? and projects.id = ?", value, current_user.project_id], :projects)
             when :release_id then temp = find_object_id(value, Release, ['name = ? and project_id = ?', value, current_user.project_id]); value = temp == -1 ? value = find_object_id(value, Release, ['name like ? and project_id = ?', value.to_s+'%', current_user.project_id]) : temp
             when :iteration_id then value = find_object_id(value, Iteration, ['name = ? and project_id = ?', value, current_user.project_id])
-            when :status_code then value = status_code_mapping.has_key?(value) ? status_code_mapping[value] : -1
+            when :status_code then value = Status.status_code_mapping.has_key?(value) ? Status.status_code_mapping[value] : -1
             when :effort then value = value ? value.to_f : value
             else
               if attrib = header.to_s.match(/custom_(.*)/)

@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class CommentTest < ActiveSupport::TestCase
+  fixtures :statuses
   fixtures :individuals
   fixtures :stories
   fixtures :comments

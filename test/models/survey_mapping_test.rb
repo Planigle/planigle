@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class Survey_MappingTest < ActiveSupport::TestCase
+  fixtures :statuses
   fixtures :projects
   fixtures :stories
   fixtures :surveys

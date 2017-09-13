@@ -3,45 +3,44 @@ class Task < ActiveRecord::Base
   acts_as_paranoid
   belongs_to :individual
   belongs_to :story
+  belongs_to :status
   audited :except => [:story_id, :in_progress_at, :done_at]
   
-  validates_presence_of     :name, :story_id
+  validates_presence_of     :name, :story_id, :status_id
   validates_length_of       :name,                   :maximum => 250, :allow_nil => true # Allow nil to workaround bug
   validates_length_of       :description,            :maximum => 20480, :allow_nil => true
   validates_length_of       :reason_blocked,         :maximum => 4096, :allow_nil => true
   validates_numericality_of :effort, :allow_nil => true, :greater_than_or_equal_to => 0
   validates_numericality_of :actual, :allow_nil => true, :greater_than_or_equal_to => 0
   validates_numericality_of :estimate, :allow_nil => true, :greater_than_or_equal_to => 0
-  validates_numericality_of :status_code
   validates_numericality_of :priority, :allow_nil => true # Needed for priority since not set until after check
   validate :validate
 
+  before_validation :initialize_status
+  
   # Assign a priority on creation
   before_create :initialize_defaults
-
-  # Answer the valid values for status.
-  def self.valid_status_values()
-    Story::StatusMapping
+  
+  def status_code
+    status ? status.status_code : -1
   end
-
-  # Map user displayable terms to the internal status codes.
-  def self.status_code_mapping
-    i = -1
-    valid_status_values.collect { |val| i+=1;[val, i] }
+  
+  def statuses
+    project ? project.task_statuses : []
   end
-
-  # Answer my status in a user friendly format.
-  def status
-    Story::StatusMapping[status_code]
+  
+  # Answer whether I am blocked.
+  def is_blocked
+    status_code == Status.Blocked
   end
-
-  # Answer true if I have been accepted.
-  def accepted?
-    self.status_code == Story.Done
+  
+  # Answer whether I am done.
+  def is_done
+    status_code == Status.Done
   end
 
   def project
-    story.project
+    story ? story.project : nil
   end
   
   # Override as_json to include lead and cycle time.
@@ -50,7 +49,7 @@ class Task < ActiveRecord::Base
       options[:except] = [:created_at, :updated_at, :deleted_at, :in_progress_at, :done_at]
     end
     if !options[:methods]
-      options[:methods] = [:lead_time, :cycle_time, :individual_name]
+      options[:methods] = [:lead_time, :cycle_time, :individual_name, :status_code]
     end
     super(options)
   end
@@ -73,7 +72,7 @@ class Task < ActiveRecord::Base
       values.push actual
     end
     values = values.concat [
-      status,
+      status.name,
       reason_blocked,
       '', # release
       '', # iteration
@@ -127,11 +126,6 @@ class Task < ActiveRecord::Base
       else false
     end
   end
-
-  # Answer whether I am blocked.
-  def is_blocked
-    status_code == Story.Blocked
-  end
   
   # Answer a string which describes my blocked state.
   def blocked_message
@@ -143,6 +137,12 @@ class Task < ActiveRecord::Base
     if !self.priority
       highest = story.tasks.order('priority desc').first
       self.priority = highest ? highest.priority + 1 : 1
+    end
+  end
+  
+  def initialize_status
+    if !self.status && story
+      self.status_code = Status.Created
     end
   end
   
@@ -165,27 +165,43 @@ class Task < ActiveRecord::Base
   end
 
   def update_parent_status
-    if status_code == 2
-      if story.status_code != 2
-        story.status_code = 2;
+    if is_blocked
+      if !story.is_blocked
+        story.status_code = Status.Blocked
         story.save
       end
     else
-      if story.status_code == 2 && !story.reason_blocked && !story.tasks.detect{|task| task.status_code == 2}
-        if story.tasks.detect{|task| task.status_code > 0}
-          story.status_code = 1;
+      if story.is_blocked && !story.reason_blocked && !story.tasks.detect{|task| task.is_blocked}
+        if story.tasks.detect{|task| task.status_code > Status.Created}
+          story.status_code = Status.InProgress
         else
-          story.status_code = 0;
+          story.status_code = Status.Created
         end
         story.save
-      elsif status_code > 0 && story.status_code == 0
-        story.status_code = 1;
+      elsif status_code > Status.Created && story.status_code == Status.Created
+        story.status_code = Status.InProgress
         story.save
       end
     end
     story.update_parent_status
   end
+
+  def equivalent_status(status)
+    new_status = statuses.detect{|candidate| candidate.name=status.name && candidate.status_code=status.status_code}
+    if !new_status
+      new_status = statuses.detect{|candidate| candidate.status_code=status.status_code}
+    end
+    new_status
+  end
   
+  # Override assign_attributes to handle story values set through custom_<StoryAttribute.id>.
+  def assign_attributes(new_attributes)
+    if new_attributes.has_key?(:story_id) || new_attributes.has_key?('story_id')   # Set first so we can use it
+      self.story_id = new_attributes[:story_id] || new_attributes['story_id']
+    end
+    super(new_attributes)
+  end
+
 protected
 
   def matches_individual(cond)
@@ -208,7 +224,7 @@ protected
   
   # Add custom validation of the status field and relationships to give a more specific message.
   def validate
-    if status_code < 0 || status_code >= Story::StatusMapping.length
+    if @invalid_status || !status || !(statuses.detect {|task_status| task_status.id == status.id})
       errors.add(:status_code, 'is invalid')
     end
     

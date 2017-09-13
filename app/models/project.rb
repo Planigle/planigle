@@ -12,6 +12,7 @@ class Project < ActiveRecord::Base
   has_many :stories, -> {where(deleted_at: nil)}, dependent: :destroy
   has_many :story_attributes, :dependent => :destroy
   has_many :surveys, :dependent => :destroy
+  has_many :statuses, -> {where(deleted_at: nil).order('ordering')}, :dependent => :destroy
   audited :except => [:survey_key]
 
   validates_presence_of     :name, :company_id
@@ -93,6 +94,7 @@ class Project < ActiveRecord::Base
   def initialize_defaults
     self.survey_key = Digest::SHA1.hexdigest( Time.now.to_s.split(//).sort_by {rand}.join )
     add_default_attributes
+    add_default_statuses
   end
   
   # Override as_json to include teams.
@@ -130,7 +132,7 @@ class Project < ActiveRecord::Base
   def create_survey
     response = []
     i = 1
-    stories.joins("left join stories as child on child.story_id=stories.id").where("stories.status_code!=? and stories.is_public=1 and child.id is null", Story.Done).order('priority').each do |story|
+    stories.joins("left join stories as child on child.story_id=stories.id left join statuses on statuses.id=stories.status_id").where("statuses.status_code!=? and stories.is_public=1 and child.id is null", Status.Done).order('priority').each do |story|
       response << {
         story_id: story.id,
         name: story.name,
@@ -183,6 +185,14 @@ class Project < ActiveRecord::Base
     end
   end
   
+  # Add the default statuses.
+  def add_default_statuses
+    statuses << Status.new(project_id: id, name: 'Not Started', status_code: 0, applies_to_stories: true, applies_to_tasks: true, ordering: 1)
+    statuses << Status.new(project_id: id, name: 'In Progress', status_code: 1, applies_to_stories: true, applies_to_tasks: true, ordering: 2)
+    statuses << Status.new(project_id: id, name: 'Blocked', status_code: 2, applies_to_stories: true, applies_to_tasks: true, ordering: 3)
+    statuses << Status.new(project_id: id, name: 'Done', status_code: 3, applies_to_stories: true, applies_to_tasks: true, ordering: 4)
+  end
+
   # Add the default attributes for a story.
   def add_default_attributes
     story_attributes << StoryAttribute.new(:name => 'Id', :is_custom => false, :value_type => StoryAttribute::String, :width => 60, :ordering => 10, :show => false)
@@ -208,6 +218,14 @@ class Project < ActiveRecord::Base
   
   def updated_at_string
     updated_at ? updated_at.to_s : updated_at
+  end
+
+  def story_statuses
+    statuses.select{|status| status.applies_to_stories}
+  end
+  
+  def task_statuses
+    statuses.select{|status| status.applies_to_tasks}
   end
 
 protected

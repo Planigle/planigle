@@ -6,6 +6,7 @@ class StoryCommentsIntegrationTest < ActionDispatch::IntegrationTest
   include ResourceHelper
   include CommentsTestHelper
 
+  fixtures :statuses
   fixtures :systems
   fixtures :individuals
   fixtures :stories

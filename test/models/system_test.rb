@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class SystemTest < ActiveSupport::TestCase
+  fixtures :statuses
   fixtures :systems
   fixtures :releases
   fixtures :release_totals
@@ -9,6 +10,10 @@ class SystemTest < ActiveSupport::TestCase
   fixtures :stories
   fixtures :projects
   fixtures :teams
+  fixtures :story_attributes
+  fixtures :tasks
+  fixtures :criteria
+  fixtures :iteration_velocities
 
   # Test the license agreement.
   def test_license_agreement
@@ -23,12 +28,12 @@ class SystemTest < ActiveSupport::TestCase
     ActiveRecord::Base.connection.clear_query_cache
     release1 = Release.create(:project_id => 1, :name => 'start', :start => Date.today, :finish => Date.today + 13)
     iteration1 = Iteration.create(:project_id => 1, :name => 'start', :start => Date.today, :finish => Date.today + 14)
-    story = Story.create(:project_id => 1, :release_id => release1.id, :iteration_id => iteration1.id, :name => 'a', :effort => 2, :status_code => Story.Done)
-    Task.create(:story_id => story.id, :name => 'task 1', :effort => 5, :status_code => Story.Done)
+    story = Story.create(:project_id => 1, :release_id => release1.id, :iteration_id => iteration1.id, :name => 'a', :effort => 2, :status_code => Status.Done)
+    Task.create(:story_id => story.id, :name => 'task 1', :effort => 5, :status_code => Status.Done)
     release2 = Release.create(:project_id => 1, :name => 'end', :start => Date.today - 13, :finish => Date.tomorrow)
     iteration2 = Iteration.create(:project_id =>1, :name => 'end', :start => Date.today - 13, :finish => Date.today + 1)
-    story = Story.create(:project_id => 1, :release_id => release2.id, :iteration_id => iteration2.id, :name => 'a', :effort => 3, :status_code => Story.Done)
-    Task.create(:story_id => story.id, :name => 'task 2', :effort => 6, :status_code => Story.Done)
+    story = Story.create(:project_id => 1, :release_id => release2.id, :iteration_id => iteration2.id, :name => 'a', :effort => 3, :status_code => Status.Done)
+    Task.create(:story_id => story.id, :name => 'task 2', :effort => 6, :status_code => Status.Done)
     System.summarize
     assert_equal 5, IterationTotal.where(iteration_id: iteration1.id, team_id: nil)[0].done
     assert_equal 6, IterationTotal.where(iteration_id: iteration2.id, team_id: nil)[0].done

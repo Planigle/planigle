@@ -19,7 +19,7 @@ class CompaniesControllerTest < ActionDispatch::IntegrationTest
     ActionMailer::Base.perform_deliveries = true
     ActionMailer::Base.deliveries = []
     IndividualMailer.site = 'www.testxyz.com'
-    CompanyMailer.who_to_notify = 'test@testit.com'
+    CompanyMailer.who_to_notify = 'test@example.com'
   end
 
   # Test successfully signing up.

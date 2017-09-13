@@ -1,6 +1,7 @@
 delete from tasks using tasks, stories, projects where tasks.story_id=stories.id and project_id=projects.id and company_id = -10;
 delete from criteria using criteria, stories, projects where criteria.story_id=stories.id and project_id=projects.id and company_id = -10;
 delete from stories using stories, projects where project_id=projects.id and company_id = -10;
+delete from statuses using statuses, projects where statuses.project_id=projects.id and company_id = -10;
 delete from individuals_projects using individuals_projects, projects where project_id = projects.id and company_id = -10;
 delete from individuals where company_id = -10;
 delete from iteration_velocities using iteration_velocities, iterations, projects where iteration_id=iterations.id and project_id=projects.id and company_id = -10;
@@ -18,6 +19,12 @@ insert into companies (id, name, premium_expiry, premium_limit) values
 
 insert into projects (company_id, id, name, survey_key, survey_mode) values
 (-10, -10, "Online Bookstore", "885a0079624d19f24fc02b97040904e6ef981444", 2);
+
+insert into statuses (id, project_id, name, status_code, applies_to_stories, applies_to_tasks, ordering, created_at) values
+(-10, -10, 'Not Started', 0, 1, 1, 1, CURRENT_TIMESTAMP),
+(-11, -10, 'In Progress', 1, 1, 1, 2, CURRENT_TIMESTAMP),
+(-12, -10, 'Blocked', 2, 1, 1, 3, CURRENT_TIMESTAMP),
+(-13, -10, 'Done', 3, 1, 1, 4, CURRENT_TIMESTAMP);
 
 insert into individuals (company_id, id, login, email, first_name, last_name, crypted_password, salt, activated_at, accepted_agreement, role) values
 (-10, -10, "demo", "demo@planigle.com", "Fred", "Hacker", "b98229cbf40ba20980cfbba4c75fda2a903d8bbc", "c305359343ecf79911ebcd78267b9ff00911119f", now() - interval 1 day, now(), 1),
@@ -60,61 +67,61 @@ insert into story_attributes (project_id, id, name, value_type, is_custom, width
 (-10,-24,'Rank',2,0,40,'150.00000',1),
 (-10,-25,'User Rank',2,0,90,'160.00000',0);
 
-insert into stories (project_id, id, name, effort, status_code, priority, release_id, iteration_id, individual_id, is_public, description, reason_blocked) values
-(-10, -10, "User searches books by name", 2, 3, 10, -10, -10, -13, 1, "", ""),
-(-10, -11, "User searches books by author", 1, 3, 20, -10, -10, -13, 1, "", ""),
-(-10, -12, "User views book details", 1, 3, 30, -10, -10, -13, 1, "", ""),
-(-10, -13, "User buys book", 5, 3, 40, -10, -10, -13, 1, "", ""),
-(-10, -14, "User logs in", 2, 1, 50, -10, -11, -13, 1, "", ""),
-(-10, -15, "User creates profile", 3, 0, 60, -10, -11, -13, 1, "", ""),
-(-10, -16, "User updates profile", 2, 0, 70, -10, -11, -13, 1, "", ""),
-(-10, -17, "User forgets password", 1, 0, 80, -10, -11, -13, 1, "", ""),
-(-10, -18, "User adds book to shopping cart", 2, 0, 90, -10, -11, -13, 1, "", ""),
-(-10, -19, "User removes book from shopping cart", 1, 0, 100, -10, null, -13, 1, "", ""),
-(-10, -20, "User chooses shipping option", 1, 0, 110, -10, null, -13, 1, "", ""),
-(-10, -21, "User views order status", 5, 0, 120, -10, null, -13, 1, "", ""),
-(-10, -22, "Admin imports new books", 3, 0, 130, -10, null, -13, 1, "", ""),
-(-10, -23, "Admin views books to ship", 2, 0, 140, -10, null, -13, 1, "", ""),
-(-10, -24, "Admin disables book for purchases", 1, 0, 150, -10, null, -13, 1, "", ""),
-(-10, -25, "Admin updates info on book", 2, 0, 160, -10, null, -13, 1, "", ""),
-(-10, -26, "User comments on book", 2, 0, 170, -10, null, -13, 1, "", ""),
-(-10, -27, "Admin deletes book comment", 1, 0, 180, -10, null, -13, 1, "", ""),
-(-10, -28, "User views other books by author", 1, 0, 190, -10, null, -13, 1, "", ""),
-(-10, -29, "User views related books", 3, 0, 200, -10, null, -13, 1, "", ""),
-(-10, -30, "User creates wish list", 3, 0, 210, -10, null, -13, 1, "", ""),
-(-10, -31, "User buys gift card", 2, 0, 220, -10, null, -13, 1, "", ""),
-(-10, -32, "User views history of orders", 3, 0, 230, -10, null, -13, 1, "", "");
+insert into stories (project_id, id, name, effort, status_id, priority, release_id, iteration_id, individual_id, is_public, description, reason_blocked) values
+(-10, -10, "User searches books by name", 2, -13, 10, -10, -10, -13, 1, "", ""),
+(-10, -11, "User searches books by author", 1, -13, 20, -10, -10, -13, 1, "", ""),
+(-10, -12, "User views book details", 1, -13, 30, -10, -10, -13, 1, "", ""),
+(-10, -13, "User buys book", 5, -13, 40, -10, -10, -13, 1, "", ""),
+(-10, -14, "User logs in", 2, -11, 50, -10, -11, -13, 1, "", ""),
+(-10, -15, "User creates profile", 3, -10, 60, -10, -11, -13, 1, "", ""),
+(-10, -16, "User updates profile", 2, -10, 70, -10, -11, -13, 1, "", ""),
+(-10, -17, "User forgets password", 1, -10, 80, -10, -11, -13, 1, "", ""),
+(-10, -18, "User adds book to shopping cart", 2, -10, 90, -10, -11, -13, 1, "", ""),
+(-10, -19, "User removes book from shopping cart", 1, -10, 100, -10, null, -13, 1, "", ""),
+(-10, -20, "User chooses shipping option", 1, -10, 110, -10, null, -13, 1, "", ""),
+(-10, -21, "User views order status", 5, -10, 120, -10, null, -13, 1, "", ""),
+(-10, -22, "Admin imports new books", 3, -10, 130, -10, null, -13, 1, "", ""),
+(-10, -23, "Admin views books to ship", 2, -10, 140, -10, null, -13, 1, "", ""),
+(-10, -24, "Admin disables book for purchases", 1, -10, 150, -10, null, -13, 1, "", ""),
+(-10, -25, "Admin updates info on book", 2, -10, 160, -10, null, -13, 1, "", ""),
+(-10, -26, "User comments on book", 2, -10, 170, -10, null, -13, 1, "", ""),
+(-10, -27, "Admin deletes book comment", 1, -10, 180, -10, null, -13, 1, "", ""),
+(-10, -28, "User views other books by author", 1, -10, 190, -10, null, -13, 1, "", ""),
+(-10, -29, "User views related books", 3, -10, 200, -10, null, -13, 1, "", ""),
+(-10, -30, "User creates wish list", 3, -10, 210, -10, null, -13, 1, "", ""),
+(-10, -31, "User buys gift card", 2, -10, 220, -10, null, -13, 1, "", ""),
+(-10, -32, "User views history of orders", 3, -10, 230, -10, null, -13, 1, "", "");
 
-insert into tasks (story_id, id, name, description, status_code, estimate, effort, priority, individual_id, reason_blocked) values
-(-10, -10, "Create books table", "", 3, 3, 0, 10, -10, ""),
-(-10, -11, "Show search screen", "", 3, 2, 0, 20, -11, ""),
-(-10, -12, "Show results", "", 3, 3, 0, 30, -11, ""),
-(-10, -13, "Test screen", "", 3, 2, 0, 40, -12, ""),
-(-11, -14, "Do it", "", 3, 2, 0, 10, -10, ""),
-(-11, -15, "Test it", "", 3, 1, 0, 20, -12, ""),
-(-12, -16, "Modify schema for additional attributes", "", 3, 1, 0, 10, -11, ""),
-(-12, -17, "Create details screen", "", 3, 3, 0, 20, -10, ""),
-(-12, -18, "Test details screen", "", 3, 4, 0, 30, -12, ""),
-(-13, -19, "Capture billing information", "", 3, 3, 0, 10, -11, ""),
-(-13, -20, "Complete financial transaction", "", 3, 4, 0, 20, -10, ""),
-(-13, -21, "Notify customer", "", 3, 1, 0, 30, -10, ""),
-(-13, -22, "Test purchase", "", 3, 4, 0, 40, -12, ""),
-(-14, -23, "Create user table", "", 3, 2, 0, 10, null, ""),
-(-14, -24, "Show login screen", "", 1, 2, 2, 20, -10, ""),
-(-14, -25, "Show user info on existing screens", "", 1, 2, 2, 30, -11, ""),
-(-14, -26, "Test login", "", 0, 2, 2, 40, null, ""),
-(-15, -27, "Show user profile screen", "", 0, 2, 2, 10, null, ""),
-(-15, -28, "Validate email address", "", 0, 2, 2, 20, null, ""),
-(-15, -29, "Test profile", "", 0, 3, 3, 30, null, ""),
-(-16, -30, "Edit profile", "", 0, 2, 2, 10, null, ""),
-(-16, -31, "Test edits", "", 0, 2, 2, 20, null, ""),
-(-17, -32, "Enable button on login", "", 0, 1, 1, 10, null, ""),
-(-17, -33, "Send email", "", 0, 1, 1, 20, null, ""),
-(-17, -34, "Show confirmation screen", "", 0, 1, 1, 30, null, ""),
-(-17, -35, "Test forgot password", "", 0, 2, 2, 40, null, ""),
-(-18, -36, "User adds to shopping cart", "", 0, 2, 2, 10, null, ""),
-(-18, -37, "User checks out", "", 0, 3, 3, 20, null, ""),
-(-18, -38, "Test shopping cart", "", 0, 2, 2, 30, null, "");
+insert into tasks (story_id, id, name, description, status_id, estimate, effort, priority, individual_id, reason_blocked) values
+(-10, -10, "Create books table", "", -13, 3, 0, 10, -10, ""),
+(-10, -11, "Show search screen", "", -13, 2, 0, 20, -11, ""),
+(-10, -12, "Show results", "", -13, 3, 0, 30, -11, ""),
+(-10, -13, "Test screen", "", -13, 2, 0, 40, -12, ""),
+(-11, -14, "Do it", "", -13, 2, 0, 10, -10, ""),
+(-11, -15, "Test it", "", -13, 1, 0, 20, -12, ""),
+(-12, -16, "Modify schema for additional attributes", "", -13, 1, 0, 10, -11, ""),
+(-12, -17, "Create details screen", "", -13, 3, 0, 20, -10, ""),
+(-12, -18, "Test details screen", "", -13, 4, 0, 30, -12, ""),
+(-13, -19, "Capture billing information", "", -13, 3, 0, 10, -11, ""),
+(-13, -20, "Complete financial transaction", "", -13, 4, 0, 20, -10, ""),
+(-13, -21, "Notify customer", "", -13, 1, 0, 30, -10, ""),
+(-13, -22, "Test purchase", "", -13, 4, 0, 40, -12, ""),
+(-14, -23, "Create user table", "", -13, 2, 0, 10, null, ""),
+(-14, -24, "Show login screen", "", -11, 2, 2, 20, -10, ""),
+(-14, -25, "Show user info on existing screens", "", -11, 2, 2, 30, -11, ""),
+(-14, -26, "Test login", "", -10, 2, 2, 40, null, ""),
+(-15, -27, "Show user profile screen", "", -10, 2, 2, 10, null, ""),
+(-15, -28, "Validate email address", "", -10, 2, 2, 20, null, ""),
+(-15, -29, "Test profile", "", -10, 3, 3, 30, null, ""),
+(-16, -30, "Edit profile", "", -10, 2, 2, 10, null, ""),
+(-16, -31, "Test edits", "", -10, 2, 2, 20, null, ""),
+(-17, -32, "Enable button on login", "", -10, 1, 1, 10, null, ""),
+(-17, -33, "Send email", "", -10, 1, 1, 20, null, ""),
+(-17, -34, "Show confirmation screen", "", -10, 1, 1, 30, null, ""),
+(-17, -35, "Test forgot password", "", -10, 2, 2, 40, null, ""),
+(-18, -36, "User adds to shopping cart", "", -10, 2, 2, 10, null, ""),
+(-18, -37, "User checks out", "", -10, 3, 3, 20, null, ""),
+(-18, -38, "Test shopping cart", "", -10, 2, 2, 30, null, "");
 
 insert into criteria (story_id, id, description, status_code, priority) values
 (-10, -11, "Search is case insensitive", 1, 10),

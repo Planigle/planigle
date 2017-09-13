@@ -40,7 +40,7 @@ class Survey < ActiveRecord::Base
     hash = {}
     project.surveys.includes(:survey_mappings).where(excluded: false).each do |survey|
       i = 1
-      survey.survey_mappings.joins('inner join stories as s on survey_mappings.story_id = s.id').includes(:story).where(['s.status_code != :status_code', {status_code: Story.Done}]).order('survey_mappings.priority').each do |sm|
+      survey.survey_mappings.joins('inner join stories as s on survey_mappings.story_id = s.id inner join statuses on s.status_id=statuses.id').includes(:story).where(['statuses.status_code != :status_code', {status_code: Status.Done}]).order('survey_mappings.priority').each do |sm|
         if !hash.include? sm.story
           hash[sm.story] = []
         end

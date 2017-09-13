@@ -61,7 +61,7 @@ class StoriesController < ResourceController
     @old = Story.find(params[:id])
     
     Story.transaction do
-      @tasks = @old.tasks.select{|task| !task.accepted?}
+      @tasks = @old.tasks.select{|task| !task.is_done}
       @criteria = @old.criteria.select{|criterium| !criterium.accepted?}
       create
       if authorized_for_create?(@record) && @record.errors.empty?
@@ -87,7 +87,7 @@ class StoriesController < ResourceController
       @record = get_record
       blocked_before = @record.is_blocked
       done_before = @record.is_done
-      should_update = (params["record"] && params["record"]["status_code"] != Story.Done and @record.status_code == Story.Done)
+      should_update = (params["record"] && params["record"]["status_code"] != Status.Done and @record.status_code == Status.Done)
       super
       if should_update
         Survey.update_rankings(@record.project).each {|story| story.save( :validate=> false )}
@@ -161,6 +161,7 @@ protected
         criterium.destroy
       end
     end
+    story.update_parent_status
     story
   end
 

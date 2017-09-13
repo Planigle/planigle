@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class StoryTest < ActiveSupport::TestCase
+  fixtures :statuses
   fixtures :teams
   fixtures :individuals
   fixtures :individuals_projects
@@ -182,19 +183,10 @@ class StoryTest < ActiveSupport::TestCase
     assert_nil story.story_values.where(story_attribute_id: 6).first
   end
 
-  # Test the accepted? method.
-  def test_accepted
-    assert !stories(:first).accepted?
-    assert stories(:second).accepted?
-  end
-  
-  # Test the caption function.
-  def test_caption
-
-  assert_equal 'test<br/>In Progress - 1 of 2 tasks done', stories(:first).caption
-  assert_equal 'test2<br/>Done', stories(:second).caption
-  assert_equal 'test3<br/>In Progress', stories(:third).caption
-  assert_equal 'test5<br/>Blocked - 0 of 1 task done', stories(:fifth).caption
+  # Test the is_done method.
+  def test_done
+    assert !stories(:first).is_done
+    assert stories(:second).is_done
   end
   
   # Test the url function.
@@ -270,7 +262,7 @@ class StoryTest < ActiveSupport::TestCase
 
   # Test that we can get a mapping of status to code.
   def test_status_code_mapping
-    mapping = Story.status_code_mapping
+    mapping = Status.status_code_mapping
     assert_equal 0, mapping['Not Started']
   end
 
@@ -285,7 +277,7 @@ class StoryTest < ActiveSupport::TestCase
   
   # Test finding individuals for a specific user.
   def test_find_not_done
-    assert_equal Story.where(project_id: 1, status_code: [0,1,2]).length - 1, Story.get_records({project_id: individuals(:readonly).project_id, status_code: 'NotDone'}).length
+    assert_equal Story.includes([:status]).where('project_id' => 1, 'statuses.status_code' => [0,1,2]).length - 1, Story.get_records({project_id: individuals(:readonly).project_id, status_code: 'NotDone'}).length
   end
   
   # Test finding individuals for a specific user.
@@ -514,7 +506,7 @@ class StoryTest < ActiveSupport::TestCase
 
   def test_import_valid_status_code
     verify_no_errors(Story.import(individuals(:aaron), "pid,status\n1,Done"))
-    assert_equal Story.Done, stories(:first).reload.status_code
+    assert_equal Status.Done, stories(:first).reload.status_code
   end
 
   def test_import_invalid_status_code
@@ -616,7 +608,7 @@ class StoryTest < ActiveSupport::TestCase
     story = stories(:first)
     assert !story.is_ready_to_accept
     task = tasks(:one)
-    task.status_code = Story.Done
+    task.status_code = Status.Done
     task.save( :validate=> false )
     story.reload
     assert story.is_ready_to_accept
@@ -687,25 +679,25 @@ class StoryTest < ActiveSupport::TestCase
   
   def test_in_progress_at
     story = stories(:first)
-    story.status_code = Story.Created
+    story.status_code = Status.Created
     assert_nil story.in_progress_at
-    story.status_code = Story.InProgress
+    story.status_code = Status.InProgress
     assert story.in_progress_at != nil
-    story.status_code = Story.Blocked
+    story.status_code = Status.Blocked
     assert story.in_progress_at != nil
-    story.status_code = Story.Done
+    story.status_code = Status.Done
     assert story.in_progress_at != nil
   end
   
   def test_done_at
     story = stories(:first)
-    story.status_code = Story.Created
+    story.status_code = Status.Created
     assert_nil story.done_at
-    story.status_code = Story.InProgress
+    story.status_code = Status.InProgress
     assert_nil story.done_at
-    story.status_code = Story.Blocked
+    story.status_code = Status.Blocked
     assert_nil story.done_at
-    story.status_code = Story.Done
+    story.status_code = Status.Done
     assert story.done_at != nil
   end
   

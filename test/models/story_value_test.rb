@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/../test_helper'
 
 class StoryValueTest < ActiveSupport::TestCase
+  fixtures :statuses
   fixtures :projects
   fixtures :stories
   fixtures :story_attributes

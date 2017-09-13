@@ -1,20 +1,23 @@
 module Utilities::CycleTimeObject
   def status_code=(new_code)
-    if new_code.to_i >= Story.InProgress
+    if new_code.to_i >= Status.InProgress
       if in_progress_at == nil
         write_attribute(:in_progress_at,Time.now)
       end
     else
       write_attribute(:in_progress_at,nil)
     end
-    if new_code.to_i >= Story.Done
+    if new_code.to_i >= Status.Done
       if done_at == nil
         write_attribute(:done_at,Time.now)
       end
     else
       write_attribute(:done_at,nil)
     end
-    write_attribute(:status_code, new_code)
+    self.status = statuses.detect {|status| status.status_code.to_i == new_code.to_i}
+    if !self.status
+      @invalid_status = true
+    end
   end
   
   def lead_time
