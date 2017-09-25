@@ -6,6 +6,7 @@ class SurveysIntegrationTest < ActionDispatch::IntegrationTest
   fixtures :individuals
   fixtures :stories
   fixtures :projects
+  fixtures :releases
   fixtures :individuals_projects
   fixtures :surveys
   fixtures :survey_mappings

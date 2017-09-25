@@ -37,4 +37,52 @@ class Status < ActiveRecord::Base
     valid_status_values.each { |val| i+=1; map[val]=i }
     map
   end
+
+  # Override as_json to exclude change dates
+  def as_json(options = {})
+    if !options[:except]
+      options[:except] = [:created_at, :updated_at, :deleted_at]
+    end
+    super(options)
+  end
+
+  # Answer the records for a particular project.
+  def self.get_records(project_id)
+    Status.where(["project_id = :project_id", {project_id: project_id}]).order('ordering')
+  end
+
+  # Answer whether the user is authorized to create me.
+  def authorized_for_create?(current_user)
+    case current_user.role
+      when Individual::Admin then true
+      when Individual::ProjectAdmin then current_user.project_id == project_id
+      else false
+    end
+  end
+  
+  # Answer whether the user is authorized to see me.
+  def authorized_for_read?(current_user)
+    case current_user.role
+      when Individual::Admin then true
+      else current_user.project_id == project_id
+    end
+  end
+  
+  # Answer whether the user is authorized for update.
+  def authorized_for_update?(current_user)
+    case current_user.role
+      when Individual::Admin then true
+      when Individual::ProjectAdmin then current_user.project_id == project_id
+      else false
+    end
+  end
+  
+  # Answer whether the user is authorized for delete.
+  def authorized_for_destroy?(current_user)
+    case current_user.role
+      when Individual::Admin then true
+      when Individual::ProjectAdmin then current_user.project_id == project_id
+      else false
+    end
+  end
 end

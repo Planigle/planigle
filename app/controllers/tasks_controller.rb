@@ -57,29 +57,17 @@ protected
   def update_record
     old_status = @record.status_code
     @record.attributes = record_params
-    if (params[:record])
-      effort = params[:record][:effort]
-      status = params[:record][:status_code]
-      owner = params[:record][:individual_id]
-    end
-    if @record.status_code == Status.Done && effort == nil
+    if @record.status_code == Status.Done && params[:record][:effort] == nil
       @record.effort = 0
     end
-    if status != nil && status.to_i != Status.Created && status.to_i != Status.Blocked && @record.individual_id == nil
+    if @record.status_code != Status.Created && @record.status_code != Status.Blocked && @record.individual_id == nil
       @record.individual_id = current_individual.id
-    end
-    if @record.status_code == 2 && @record.story.status_code != 2
-      @record.story.status_code = 2;
-      @record.story.save
-    elsif @record.status_code > 0 && @record.story.status_code === 0
-      @record.story.status_code = 1;
-      @record.story.save
     end
     @record.update_parent_status
   end
   
 private
   def record_params
-    params.require(:record).permit(:name, :description, :effort, :status_code, :individual_id, :story_id, :reason_blocked, :priority, :actual, :estimate)
+    params.require(:record).permit(:name, :description, :effort, :status_id, :status_code, :individual_id, :story_id, :reason_blocked, :priority, :actual, :estimate)
   end
 end

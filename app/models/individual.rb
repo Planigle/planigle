@@ -183,12 +183,12 @@ class Individual < ActiveRecord::Base
     projects.collect {|project|project.id}.join(',')
   end
 
-  # Answer the records for a particular user.
-  def self.get_records(current_user)
-    if current_user.is_premium
-      joins(:projects).includes(:projects).where(["individuals.company_id = :company_id and role in (1,2,3)", {company_id: current_user.company_id}]).order('first_name, last_name')
+  # Answer the records for a particular project.
+  def self.get_records(company_id, project_id=nil)
+    if project_id
+      joins(:projects).includes(:projects).where(["individuals.company_id = :company_id and projects.id = :project_id and role in (1,2,3)", {company_id: company_id, project_id: project_id}]).order('first_name, last_name')
     else
-      joins(:projects).includes(:projects).where(["(projects.id = :project_id and role in (1,2,3)) or individuals.id=:user_id", {project_id: current_user.project_id, user_id: current_user.id}]).order('first_name, last_name')
+      where(["company_id = :company_id and role in (1,2,3)", {company_id: company_id, project_id: project_id}]).order('first_name, last_name')
     end
   end
 

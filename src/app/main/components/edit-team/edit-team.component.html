@@ -5,7 +5,7 @@
 			<div class="form-group required row">
 			  <label for="name" class="col-xs-3 col-form-label">Team Name</label>
 			  <div class="col-xs-9">
-			    <input class="form-control" type="text" [(ngModel)]="model.name" name="name" #name="ngModel" maxlength="250" [disabled]="!me.canChangeRelease()" required autofocus>
+			    <input class="form-control" type="text" [(ngModel)]="model.name" name="name" #name="ngModel" maxlength="250" [disabled]="!canUpdate()" required autofocus>
 			    <div [hidden]="name.valid || name.pristine" class="alert alert-danger">
 		          Name is required
 		        </div>
@@ -14,13 +14,13 @@
 			<div class="form-group row">
 			  <label for="description" class="col-xs-3 col-form-label">Description</label>
 			  <div class="col-xs-9">
-				<textarea class="form-control" name="description" rows="10" [(ngModel)]="model.description" [disabled]="!me.canChangeRelease()"></textarea>
+				<textarea class="form-control" name="description" rows="10" [(ngModel)]="model.description" [disabled]="!canUpdate()"></textarea>
 			  </div>
 			</div>
 		</div>
 		<div class="buttons">
-			<button type="submit" class="btn btn-secondary" *ngIf="me.canChangeRelease()" (click)="isNew() ? addAnother(form) : ok()" [disabled]="!canSave(form)">{{isNew() ? 'Create' : 'Update'}}</button>
-			<button type="submit" class="btn btn-secondary" *ngIf="me.canChangeRelease()" (click)="ok()" [disabled]="!canSave(form)" [hidden]="!isNew()">Create &amp; Close</button>
+			<button type="submit" class="btn btn-secondary" *ngIf="canUpdate()" (click)="isNew() ? addAnother(form) : ok()" [disabled]="!canSave(form)">{{isNew() ? 'Create' : 'Update'}}</button>
+			<button type="submit" class="btn btn-secondary" *ngIf="canUpdate()" (click)="ok()" [disabled]="!canSave(form)" [hidden]="!isNew()">Create &amp; Close</button>
 			<button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
 			<button type="button" class="btn btn-secondary" title="View Changes" (click)="viewChanges()" [hidden]="isNew()"><fa [name]="'info'"></fa></button>
 		</div>

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Http, Headers, RequestOptions } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { Project } from '../models/project';
+import { Status } from '../models/status';
 
 const baseUrl = 'api/projects';
 
@@ -62,6 +63,21 @@ export class ProjectsService {
       survey_mode: project.survey_mode,
       track_actuals: project.track_actuals
     };
+    if (project.statuses) {
+      let statuses: Array<Status> = [];
+      project.statuses.forEach((status: Status) => {
+        statuses.push({
+          id: status.id,
+          project_id: status.project_id,
+          name: status.name,
+          status_code: status.status_code,
+          ordering: status.ordering,
+          applies_to_stories: status.applies_to_stories,
+          applies_to_tasks: status.applies_to_tasks
+        });
+      });
+      record['updated_statuses'] = statuses;
+    }
     return method.call(this.http, baseUrl + idString, {record: record}, options)
       .map((res: any) => res.json())
       .map((updatedProject: any) => {

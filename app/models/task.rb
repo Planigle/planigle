@@ -170,18 +170,16 @@ class Task < ActiveRecord::Base
         story.status_code = Status.Blocked
         story.save
       end
-    else
-      if story.is_blocked && !story.reason_blocked && !story.tasks.detect{|task| task.is_blocked}
-        if story.tasks.detect{|task| task.status_code > Status.Created}
-          story.status_code = Status.InProgress
-        else
-          story.status_code = Status.Created
-        end
-        story.save
-      elsif status_code > Status.Created && story.status_code == Status.Created
+    elsif story.is_blocked && !story.reason_blocked && !story.tasks.detect{|task| task.is_blocked}
+      if story.tasks.detect{|task| task.status_code > Status.Created}
         story.status_code = Status.InProgress
-        story.save
+      else
+        story.status_code = Status.Created
       end
+      story.save
+    elsif status_code > Status.Created && story.status_code == Status.Created
+      story.status_code = Status.InProgress
+      story.save
     end
     story.update_parent_status
   end

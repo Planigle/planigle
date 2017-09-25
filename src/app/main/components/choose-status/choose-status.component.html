@@ -1,7 +1,4 @@
-<select name="status" class="form-control" [value]="model.status_code" [disabled]="me && !me.canChangeBacklog()" (change)="updateStatus($event)">
-	<option value="0">Not Started</option>
-	<option value="1">In Progress</option>
-	<option value="2">Blocked</option>
-	<option value="3">Done</option>
+<select name="status" class="form-control" [value]="model.status_id" [disabled]="me && !me.canChangeBacklog()" (change)="updateStatus($event)">
+	<option *ngFor="let status of statuses" [value]="status.id">{{status.name}}</option>
 	<option *ngIf="includeNoChange" value="-1">No Change</option>
 </select>

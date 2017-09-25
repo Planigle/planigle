@@ -19,7 +19,7 @@ protected
 
   # Get the records based on the current individual.
   def get_records
-    Individual.get_records(current_individual)
+    Individual.get_records(current_individual.company_id, params[:all] ? nil : project_id)
   end
 
   # Answer the current record based on the current individual.

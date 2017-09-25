@@ -16,7 +16,7 @@ class ProjectTest < ActiveSupport::TestCase
     ActionMailer::Base.delivery_method = :test
     ActionMailer::Base.perform_deliveries = true
     ActionMailer::Base.deliveries = []
-    Rails.configuration.who_to_notify = 'test@testit.com'
+    Rails.configuration.who_to_notify = 'test@example.com'
   end
 
   # Test that an project can be created.

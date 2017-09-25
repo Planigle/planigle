@@ -13,6 +13,7 @@ import { Team } from '../../models/team';
 import { Individual } from '../../models/individual';
 import { StoryAttribute } from '../../models/story-attribute';
 import { StoryValue } from '../../models/story-value';
+import { Status } from '../../models/status';
 
 @Component({
   selector: 'app-edit-multiple',
@@ -30,6 +31,7 @@ export class EditMultipleComponent {
     iteration_id: EditMultipleComponent.NoChange,
     team_id: EditMultipleComponent.NoChange,
     individual_id: EditMultipleComponent.NoChange,
+    status_id: EditMultipleComponent.NoChange,
     status_code: EditMultipleComponent.NoChange,
     is_public: EditMultipleComponent.NoChange
   };
@@ -39,6 +41,7 @@ export class EditMultipleComponent {
   public iterations: Iteration[] = [];
   public teams: Team[] = [];
   public individuals: Individual[] = [];
+  public statuses: Status[] = [];
   public showPublic: boolean;
 
   constructor(
@@ -110,8 +113,8 @@ export class EditMultipleComponent {
       record['individual_name'] = null;
       hasChange = true;
     }
-    if (this.model.status_code !== EditMultipleComponent.NoChange) {
-      record['status_code'] = this.model.status_code;
+    if (this.model.status_id !== EditMultipleComponent.NoChange) {
+      record['status_id'] = this.model.status_id;
       if (this.model.status_code === 2) {
         record['reason_blocked'] = null;
       }
@@ -159,8 +162,8 @@ export class EditMultipleComponent {
       record['individual_name'] = null;
       hasChange = true;
     }
-    if (this.model.status_code !== EditMultipleComponent.NoChange) {
-      record['status_code'] = this.model.status_code;
+    if (this.model.status_id !== EditMultipleComponent.NoChange) {
+      record['status_id'] = this.model.status_id;
       if (this.model.status_code === 2) {
         record['reason_blocked'] = this.model.reason_blocked;
       } else if ((this.model.status_code === 1 || this.model.status_code === 3) && work.individual_id === null) {

@@ -106,7 +106,7 @@ export class IndividualsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private fetchIndividuals(afterAction, afterActionParams): void {
-    this.individualsService.getIndividuals()
+    this.individualsService.getIndividuals(true)
       .subscribe(
         (individuals: Individual[]) => {
           individuals.forEach((individual: Individual) => {
@@ -140,7 +140,7 @@ export class IndividualsComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }
     };
-    if (this.user.canChangeRelease()) {
+    if (this.user.canChangePeople()) {
       menu['items']['deleteItem'] = {
         name: 'Delete',
         callback: function(key, opt) { self.deleteItem(self.getItem(this)); }

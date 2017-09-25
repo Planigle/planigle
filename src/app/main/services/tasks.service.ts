@@ -41,8 +41,8 @@ export class TasksService {
     if ('description' in task) {
       record['description'] = task.description;
     }
-    if ('status_code' in task) {
-      record['status_code'] = task.status_code;
+    if ('status_id' in task) {
+      record['status_id'] = task.status_id;
     }
     if ('reason_blocked' in task) {
       record['reason_blocked'] = task.reason_blocked;

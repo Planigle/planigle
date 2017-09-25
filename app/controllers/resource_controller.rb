@@ -34,13 +34,7 @@ class ResourceController < ApplicationController
           not_visible("created")
         end
       rescue Exception => e
-        if @record.valid?
-          logger.error(e)
-          logger.error(e.backtrace.join("\n"))
-          render :json => {:error => 'Error creating'}, :status => 500
-        else
-          render :json => @record.errors, :status => :unprocessable_entity
-        end
+        handle_error(e, 'Error creating')
       end
     else
       unauthorized
@@ -67,13 +61,7 @@ class ResourceController < ApplicationController
             not_visible("updated")
           end
         rescue Exception => e
-          if @record.valid?
-            logger.error(e)
-            logger.error(e.backtrace.join("\n"))
-            render :json => {:error => 'Error updating'}, :status => 500
-          else
-            render :json => @record.errors, :status => :unprocessable_entity
-          end
+          handle_error(e, 'Error updating')
         end
       else
         out_of_date
@@ -164,5 +152,15 @@ protected
   def respond_with_warning(warning, warning_id)
     status = 200
     render :json => {:errorId => warning_id, :error => warning, :record => @record}, :status => status
+  end
+  
+  def handle_error(e, message)
+    if @record.valid?
+      logger.error(e)
+      logger.error(e.backtrace.join("\n"))
+      render :json => {:error => message}, :status => 500
+    else
+      render :json => @record.errors, :status => :unprocessable_entity
+    end
   end
 end

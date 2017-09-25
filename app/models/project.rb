@@ -23,6 +23,12 @@ class Project < ActiveRecord::Base
   validate :validate
 
   before_create :initialize_defaults
+  before_destroy :destroy_stories
+  
+  def destroy_stories
+    # do this first to ensure stories / tasks are deleted before we try to destroy statuses
+    stories.each {|story| story.destroy}
+  end
 
   def hide_attributes
     @hide_attributes
@@ -100,7 +106,7 @@ class Project < ActiveRecord::Base
   # Override as_json to include teams.
   def as_json(options = {})
     if !options[:include]
-      options[:include] = [:teams]
+      options[:include] = [:teams, :statuses => {:except => [:created_at, :updated_at, :deleted_at]}]
     end
     if !options[:except]
       options[:except] = [:last_notified_of_inactivity, :created_at, :updated_at, :deleted_at]
@@ -228,12 +234,59 @@ class Project < ActiveRecord::Base
     statuses.select{|status| status.applies_to_tasks}
   end
 
+  def assign_attributes(new_attributes)
+    updated_statuses = new_attributes.delete(:updated_statuses)
+    if updated_statuses
+      update_statuses(updated_statuses)
+    end
+    super(new_attributes)
+  end
+  
+  def update_statuses(updated_statuses)
+    update_statuses_with_code(Status.Created, updated_statuses)
+    update_statuses_with_code(Status.InProgress, updated_statuses)
+    update_statuses_with_code(Status.Blocked, updated_statuses)
+    update_statuses_with_code(Status.Done, updated_statuses)
+    clear_association_cache
+  end
+  
+  def update_statuses_with_code(status_code, updated_statuses)
+    old_statuses = statuses.select {|status| status.status_code == status_code}
+    updated_statuses = updated_statuses.select {|status| status[:status_code] == status_code}
+    
+    statuses_to_delete = old_statuses.select{|old_status| !(updated_statuses.detect{|new_status| old_status.id == new_status[:id]})}
+    statuses_to_delete.each{|old_status| old_status.destroy}
+    updated_statuses.each do |new_status|
+      if new_status[:id]
+        old_status = old_statuses.detect{|old_status| old_status.id == new_status[:id]}
+        if old_status
+          old_status.attributes = new_status
+          old_status.save
+        end
+      else
+        Status.create(new_status)
+      end
+    end
+  end
+
 protected
   
   # Add custom validation of the status field and relationships to give a more specific message.
   def validate
     if survey_mode < 0 || survey_mode >= ModeMapping.length
       errors.add(:survey_mode, ' is invalid')
+    end
+    
+    validate_status_code(Status.Created)
+    validate_status_code(Status.InProgress)
+    validate_status_code(Status.Blocked)
+    validate_status_code(Status.Done)
+  end
+  
+  def validate_status_code(status_code)
+    status = statuses.select {|status| status.status_code == status_code}
+    if !status
+      errors.add(:statuses, ' must include at least one ' + Status.valid_status_values()[status_code])
     end
   end
 end

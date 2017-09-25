@@ -29,6 +29,14 @@ export class StoriesService {
       });
   }
 
+  getStory(id: number): Observable<Story> {
+    return this.http.get(baseUrl + '/' + id)
+      .map((res: any) => res.json())
+      .map((story: any) => {
+        return new Story(story);
+      });
+  }
+  
   getStoriesNumPages(queryString: string): Observable<number> {
     return this.http.get(baseUrl + '/num_pages' + queryString)
       .map((res: any) => res.json());
@@ -103,8 +111,8 @@ export class StoriesService {
     if ('description' in story) {
       record['description'] = story.description;
     }
-    if ('status_code' in story) {
-      record['status_code'] = story.status_code;
+    if ('status_id' in story) {
+      record['status_id'] = story.status_id;
     }
     if ('reason_blocked' in story) {
       record['reason_blocked'] = story.reason_blocked;

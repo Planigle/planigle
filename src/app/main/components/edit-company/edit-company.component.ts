@@ -34,7 +34,7 @@ export class EditCompanyComponent implements OnChanges {
   }
 
   canSave(form: any): boolean {
-    return form.form.valid && this.me.canChangeRelease();
+    return form.form.valid && this.me.canChangePeople();
   }
 
   ok(): void {

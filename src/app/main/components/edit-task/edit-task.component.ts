@@ -4,6 +4,7 @@ import { TasksService } from '../../services/tasks.service';
 import { ErrorService } from '../../services/error.service';
 import { Task } from '../../models/task';
 import { Individual } from '../../models/individual';
+import { Status } from '../../models/status';
 import { FinishedEditing } from '../../models/finished-editing';
 declare var $: any;
 
@@ -16,6 +17,7 @@ declare var $: any;
 export class EditTaskComponent implements OnChanges {
   @Input() task: Task;
   @Input() individuals: Individual[];
+  @Input() statuses: Status[];
   @Input() me: Individual;
   @Input() showActuals: boolean = false;
   @Input() hasPrevious: boolean;
@@ -100,6 +102,7 @@ export class EditTaskComponent implements OnChanges {
           this.task.id = task.id;
           this.task.name = task.name;
           this.task.description = task.description;
+          this.task.status_id = task.status_id;
           this.task.status_code = task.status_code;
           this.task.reason_blocked = task.reason_blocked;
           this.task.individual_id = task.individual_id;

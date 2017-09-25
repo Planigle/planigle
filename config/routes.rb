@@ -22,6 +22,8 @@ Planigle::Application.routes.draw do
     end
   
     resources :releases
+    
+    resources :statuses
   
     resources :companies
   

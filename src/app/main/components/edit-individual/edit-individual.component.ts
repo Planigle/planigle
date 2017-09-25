@@ -90,7 +90,7 @@ export class EditIndividualComponent implements OnChanges {
   }
 
   canUpdate(): boolean {
-    return this.me.id === this.individual.id || this.me.canChangeRelease();
+    return this.me.id === this.individual.id || this.me.canChangePeople();
   }
 
   ok(form): void {

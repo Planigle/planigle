@@ -420,16 +420,10 @@ class IndividualTest < ActiveSupport::TestCase
 
   # Test finding individuals for a specific user.
   def test_find
-    quentin = individuals(:quentin)
-    assert_equal Individual.where(['company_id = ? and role > 0', 1]).length, Individual.get_records(quentin).length
-    quentin.selected_project_id = 1
-    quentin.save( :validate=> false )
-    assert_equal Individual.where(['company_id=:company_id and role != 0', {company_id: 1}]).length, Individual.get_records(individuals(:aaron)).length
-    assert_equal Individual.where(['company_id=:company_id and role != 0', {company_id: 1}]).length, Individual.get_records(individuals(:user)).length
-    assert_equal Individual.where(['company_id=:company_id and role != 0', {company_id: 1}]).length, Individual.get_records(individuals(:readonly)).length
-    assert_equal Individual.joins(:projects).where(['projects.id=:project_id and role != 0',{project_id: 2}]).length, Individual.get_records(individuals(:project_admin2)).length
-    assert_equal Individual.joins(:projects).where(['projects.id=:project_id and role != 0',{project_id: 2}]).length, Individual.get_records(individuals(:user2)).length
-    assert_equal Individual.joins(:projects).where(['projects.id=:project_id and role != 0',{project_id: 4}]).length, Individual.get_records(individuals(:ro2)).length
+    assert_equal Individual.where(['company_id=:company_id and role != 0',{company_id: 1}]).length, Individual.get_records(1).length
+    assert_equal Individual.joins(:projects).where(['projects.id=:project_id and role != 0',{project_id: 1}]).length, Individual.get_records(1, 1).length
+    assert_equal Individual.joins(:projects).where(['projects.id=:project_id and role != 0',{project_id: 2}]).length, Individual.get_records(2, 2).length
+    assert_equal Individual.joins(:projects).where(['projects.id=:project_id and role != 0',{project_id: 4}]).length, Individual.get_records(2, 4).length
   end
   
   # Validate is_premium.

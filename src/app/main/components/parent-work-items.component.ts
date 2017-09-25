@@ -154,6 +154,7 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
       team_id = this.filters.team === 'MyTeam' ? this.user.team_id : parseInt(this.filters.team, 10);
     }
     return new Story({
+      status_id: this.project.statuses[0].id,
       status_code: 0,
       project_id: this.user.selected_project_id,
       release_id: release_id,
@@ -184,6 +185,7 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
     return new Task({
       story: story,
       story_id: story.id,
+      status_id: this.project.statuses[0].id,
       status_code: 0,
       individual_id: null
     });
@@ -823,13 +825,20 @@ export abstract class ParentWorkItemsComponent implements OnInit, AfterViewInit,
 
   updateParentStatus(row: Work): void {
     this.checkRemoveRow(row);
-    row.updateParentStatus();
-    let parent: Story = row.isStory ? (<Story>row).epic : (<Task>row).story;
-    while (parent) {
-      this.checkRemoveRow(parent);
-      parent = parent.epic;
+    this.refreshParent(row.isStory() ? (<Story>row).epic : (<Task>row).story);
+  }
+
+  refreshParent(parent: Story): void {
+    if (parent) {
+      this.storiesService.getStory(parent.id).subscribe((story: Story) => {
+        parent.status_id = story.status_id;
+        parent.status_code = story.status_code;
+        this.checkRemoveRow(parent);
+        this.refreshParent(parent.epic);
+      });
+    } else {
+      this.refreshView();
     }
-    this.refreshView();
   }
 
   updateGridForStatusChange(row: Work): void {

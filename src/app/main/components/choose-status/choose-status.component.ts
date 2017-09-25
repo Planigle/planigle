@@ -3,6 +3,7 @@ import { AgRendererComponent } from 'ag-grid-ng2/main';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { EditReasonBlockedComponent } from '../edit-reason-blocked/edit-reason-blocked.component';
 import { Individual } from '../../models/individual';
+import { Status } from '../../models/status';
 
 @Component({
   selector: 'app-choose-status',
@@ -11,6 +12,7 @@ import { Individual } from '../../models/individual';
 })
 export class ChooseStatusComponent implements AgRendererComponent {
   @Input() model: any;
+  @Input() statuses: Status[] = [];
   @Input() me: Individual = null;
   @Input() includeNoChange: boolean = false;
 
@@ -26,11 +28,13 @@ export class ChooseStatusComponent implements AgRendererComponent {
     this.me = params.context.me;
     this.updateFunction = params.context.updateFunction;
     this.gridHolder = params.context.gridHolder;
+    this.statuses = this.gridHolder.project.statuses;
   }
 
-  updateStatus(newStatus): void {
-    let newValue: number = parseInt(String(newStatus.currentTarget.value), 10); // Angular is converting this to a string
-    if (newValue === 2 && this.gridHolder) {
+  updateStatus(select): void {
+    let newStatusId: number = parseInt(String(select.currentTarget.value), 10); // Angular is converting this to a string
+    let newStatus: Status = this.findStatus(newStatusId);
+    if (newStatus.status_code === 2 && this.gridHolder) {
       const modalRef: NgbModalRef = this.modalService.open(EditReasonBlockedComponent);
       let model: any = {
         reason_blocked: ''
@@ -39,19 +43,33 @@ export class ChooseStatusComponent implements AgRendererComponent {
       modalRef.result.then(
         (result: any) => {
           if (model.reason_blocked == null) {
-            this.finishUpdateStatus(this.model.status_code, this.model.reason_blocked);
+            this.finishUpdateStatus(this.findStatus(this.model.status_id), this.model.reason_blocked);
           } else {
-            this.finishUpdateStatus(newValue, model.reason_blocked);
+            this.finishUpdateStatus(newStatus, model.reason_blocked);
           }
         });
     } else {
-      this.finishUpdateStatus(newValue, '');
+      this.finishUpdateStatus(newStatus, '');
     }
   }
 
-  private finishUpdateStatus(newValue, reason_blocked): void {
-    this.model.status_code = newValue;
-    if (newValue !== 2 || this.gridHolder) {
+  private findStatus(status_id: number): Status {
+    let candidate: Status = new Status({
+      id: -1,
+      status_code: -1
+    });
+    this.statuses.forEach((status: Status) => {
+      if (status.id === status_id) {
+        candidate = status;
+      }
+    });
+    return candidate;
+  }
+
+  private finishUpdateStatus(newStatus: Status, reason_blocked): void {
+    this.model.status_id = newStatus.id;
+    this.model.status_code = newStatus.status_code;
+    if (this.model.status_code !== 2 || this.gridHolder) {
       this.model.reason_blocked = reason_blocked;
     }
     let changeOwner: boolean =

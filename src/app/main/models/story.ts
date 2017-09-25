@@ -141,39 +141,4 @@ export class Story extends Work {
   hasLoaded(): boolean {
     return this.childrenLoaded;
   }
-
-  updateParentStatus(): void {
-    let epic = this.epic;
-    if (epic) {
-      let status_code = this.status_code;
-      if (status_code === 2) {
-        if (epic.status_code !== 2) {
-          epic.status_code = 2;
-        }
-      } else {
-        let hasBlockedStory = false;
-        epic.stories.forEach((story: Story) => {
-          if (story.status_code === 2) {
-            hasBlockedStory = true;
-          }
-        });
-        if (epic.status_code === 2 && !epic.reason_blocked && !hasBlockedStory) {
-          let hasInProgresStory = false;
-          epic.stories.forEach((story: Story) => {
-            if (story.status_code > 0) {
-              hasInProgresStory = true;
-            }
-          });
-          if (hasInProgresStory) {
-            epic.status_code = 1;
-          } else {
-            epic.status_code = 0;
-          }
-        } else if (status_code > 0 && epic.status_code === 0) {
-          epic.status_code = 1;
-        }
-      }
-      epic.updateParentStatus();
-    }
-  }
 }

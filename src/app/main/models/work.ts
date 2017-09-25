@@ -3,6 +3,7 @@ export abstract class Work {
   public name: string;
   public description: string;
   public effort: number;
+  public status_id: number;
   public status_code: number;
   public individual_id: number;
   public individual_name: string;
@@ -19,6 +20,7 @@ export abstract class Work {
     this.name = values.name;
     this.description = values.description;
     this.effort = values.effort ? parseFloat(values.effort) : null;
+    this.status_id = values.status_id;
     this.status_code = values.status_code;
     this.priority = parseFloat(values.priority);
     this.individual_id = values.individual_id;
@@ -41,7 +43,6 @@ export abstract class Work {
   abstract get size(): number;
   abstract get toDo(): number;
   abstract isStory(): boolean;
-  abstract updateParentStatus(): void;
 
   canAddChildren(): boolean {
     return false;

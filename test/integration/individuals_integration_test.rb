@@ -37,4 +37,12 @@ class IndividualsIntegrationTest < ActionDispatch::IntegrationTest
     assert_response 401 # Unprocessable Entity
     assert Individual.find_by_login('quentin')
   end
+
+  # Test a successful get /resources request.
+  def test_index_success
+    login_as(individuals(:admin2))
+    get resource_url, params: {}, headers: authorization_header
+    assert_response :success
+    assert_equal 5, json.length
+  end
 end

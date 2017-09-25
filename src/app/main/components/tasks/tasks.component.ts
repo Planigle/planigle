@@ -19,6 +19,7 @@ import { Project } from '../../models/project';
 import { Individual } from '../../models/individual';
 import { Release } from '../../models/release';
 import { Iteration } from '../../models/iteration';
+import { Status } from '../../models/status';
 import { StoryAttribute } from '../../models/story-attribute';
 import { FinishedEditing } from '../../models/finished-editing';
 declare var $: any;
@@ -42,7 +43,7 @@ export class TasksComponent implements AfterViewInit {
   epics: Story[] = [];
   projects: Project[] = [];
   customStoryAttributes: StoryAttribute[] = [];
-  myProject: Project;
+  myProject: Project = new Project({});
   user: Individual;
   private refresh_interval = null;
 
@@ -260,13 +261,20 @@ export class TasksComponent implements AfterViewInit {
           }
         });
       }
+      $('.square').css('width', (100 / (self.myProject.statuses.length + 1)) + '%');
     }, 0);
   }
 
   private dropTask(event, ui, dropTarget): void {
     let task: Task = this.mapping.get(parseInt($(ui.draggable[0]).attr('task'), 10));
-    let newStatus = parseInt(dropTarget.attr('status'), 10);
-    if (newStatus === 2) {
+    let newStatusId: number = parseInt(dropTarget.attr('status'), 10);
+    let newStatus: Status = null;
+    this.myProject.statuses.forEach((status: Status) => {
+      if (status.id === newStatusId) {
+        newStatus = status;
+      }
+    });
+    if (newStatus.status_code === 2) {
       this.zone.run(() => {
         const modalRef: NgbModalRef = this.modalService.open(EditReasonBlockedComponent);
         let model: any = {
@@ -285,12 +293,14 @@ export class TasksComponent implements AfterViewInit {
     }
   }
 
-  private finishUpdateStatus(task, newStatus, reason_blocked): void {
+  private finishUpdateStatus(task: Task, newStatus: Status, reason_blocked: string): void {
     let model: Task = new Task(task);
-    model.status_code = newStatus;
+    model.status_id = newStatus.id;
+    model.status_code = newStatus.status_code;
     model.reason_blocked = reason_blocked;
     this.tasksService.update(model).subscribe((revisedTask: Task) => {
       this.zone.run(() => {
+        task.status_id = revisedTask.status_id;
         task.status_code = revisedTask.status_code;
         task.reason_blocked = revisedTask.reason_blocked;
         task.individual_id = revisedTask.individual_id;

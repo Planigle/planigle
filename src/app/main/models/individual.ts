@@ -105,15 +105,23 @@ export class Individual {
   }
 
   canChangeBacklog(): boolean {
-    return this.role <= 2;
+    return this.canChangeProject(this.selected_project_id) && this.role <= 2;
   }
 
   canChangeRelease(): boolean {
+    return this.canChangeProject(this.selected_project_id) && this.role <= 1;
+  }
+
+  canChangePeople(): boolean {
     return this.role <= 1;
   }
 
   canChangeCompany(): boolean {
     return this.role <= 0;
+  }
+
+  canChangeProject(project_id: number): boolean {
+    return this.project_ids.indexOf(project_id) >= 0;
   }
 
   private getDatesService(): DatesService {

@@ -101,17 +101,19 @@ class DragSetup {
         if (!self.updatingBorder) {
           self.updatingBorder = true;
           let lastRow = $('.ag-body-container .ag-row:last-child');
-          self.bottom = lastRow.offset().top + lastRow.height();
-          $(document).on('mousemove', function(mouseEvent) {
-            self.mouseY = mouseEvent.pageY;
-          });
-          self.updatingBorderInterval = setInterval(function() {
-            let row = $('.ag-body-container .ag-row:last-child');
-            let newState = self.mouseY <= self.bottom ? '0px none rgb(0, 0, 0)' : '1px solid rgb(0, 0, 0)';
-            if (row.css('border-bottom') !== newState) {
-              row.css('border-bottom', newState);
-            }
-          }, 200);
+          if (lastRow.length > 0) {
+            self.bottom = lastRow.offset().top + lastRow.height();
+            $(document).on('mousemove', function(mouseEvent) {
+              self.mouseY = mouseEvent.pageY;
+            });
+            self.updatingBorderInterval = setInterval(function() {
+              let row = $('.ag-body-container .ag-row:last-child');
+              let newState = self.mouseY <= self.bottom ? '0px none rgb(0, 0, 0)' : '1px solid rgb(0, 0, 0)';
+              if (row.css('border-bottom') !== newState) {
+                row.css('border-bottom', newState);
+              }
+            }, 200);
+          }
         }
       },
       drop: function(event, ui) {

@@ -20,7 +20,7 @@
 			<div class="form-group row">
 			  <label for="status" class="col-xs-3 col-form-label">Status</label>
 			  <div class="col-xs-9">
-			  	<app-choose-status [(model)]="model" [me]="me"></app-choose-status>
+			  	<app-choose-status [(model)]="model" [statuses]="statuses" [me]="me"></app-choose-status>
 			  </div>
 			</div>
 			<div class="form-group row" *ngIf="model.status_code==2">

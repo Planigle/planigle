@@ -1,0 +1,49 @@
+.survey-url {
+	position: relative;
+	top:  -5px;
+	clear: both;
+	margin-left: -5px;
+	margin-bottom: 10px;
+}
+
+.survey-url label {
+	margin-top: -2px;
+	width: 160px;
+}
+
+.statuses {
+	border: 1px solid rgba(0, 0, 0, 0.15);
+	overflow: auto;
+	width: 100%;
+}
+
+.statuses .status {
+	height: 34px;
+}
+
+.statuses .status textarea {
+	resize: none;
+}
+
+.statuses .status span {
+	position: relative;
+	margin-left: 3px;
+	top: 3px;
+}
+
+.statuses .status span, .statuses .status textarea {
+	width: 160px;
+}
+
+.delete, .move-up, .move-down {
+	padding-right: 5px;
+	float: right;
+	cursor: pointer;
+	width: 21px;
+	min-height: 5px;
+}
+
+.status-type button {
+	margin-top: 5px;
+	width: 100%;
+}

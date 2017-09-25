@@ -124,7 +124,7 @@ export class TeamsComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }
     };
-    if (this.user.canChangeRelease()) {
+    if (this.user.canChangePeople()) {
       if (childName != null) {
         menu['items']['addChild'] = {
           name: 'Add ' + childName,

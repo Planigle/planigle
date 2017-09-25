@@ -9,8 +9,8 @@ const baseUrl = 'api/individuals';
 export class IndividualsService {
   constructor(private http: Http) { }
 
-  getIndividuals(): Observable<Individual[]> {
-    return this.http.get(baseUrl)
+  getIndividuals(all = false): Observable<Individual[]> {
+    return this.http.get(baseUrl + (all ? '?all=true' : ''))
       .map(res => res.json())
       .map((individuals: Array<any>) => {
         let result: Array<Individual> = [];

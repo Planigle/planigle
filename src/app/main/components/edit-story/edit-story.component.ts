@@ -16,6 +16,7 @@ import { Project } from '../../models/project';
 import { Release } from '../../models/release';
 import { Iteration } from '../../models/iteration';
 import { Team } from '../../models/team';
+import { Status } from '../../models/status';
 import { AcceptanceCriterium } from '../../models/acceptance-criterium';
 import { Individual } from '../../models/individual';
 import { FinishedEditing } from '../../models/finished-editing';
@@ -36,6 +37,7 @@ export class EditStoryComponent implements OnChanges {
   @Input() iterations: Iteration[];
   @Input() teams: Team[];
   @Input() individuals: Individual[];
+  @Input() statuses: Status[];
   @Input() me: Individual;
   @Input() hasPrevious: boolean;
   @Input() hasNext: boolean;
@@ -255,7 +257,7 @@ export class EditStoryComponent implements OnChanges {
         (answer: any) => {
           if (component.model.response) {
             if (component.model.response === 'Yes') {
-              this.story.status_code = 3;
+              this.story.status_id = this.statuses[this.statuses.length - 1].id;
               this.story.effort = 0;
               this.storiesService.update(this.story).subscribe((modifiedStory: Story) => {
                 self.updateModel(result, form);
@@ -340,6 +342,7 @@ export class EditStoryComponent implements OnChanges {
             this.story.epic_name = story.epic_name;
             this.story.name = story.name;
             this.story.description = story.description;
+            this.story.status_id = story.status_id;
             this.story.status_code = story.status_code;
             this.story.acceptance_criteria = story.acceptance_criteria;
             this.story.reason_blocked = story.reason_blocked;

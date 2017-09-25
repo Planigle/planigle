@@ -177,7 +177,7 @@ protected
   
   # Update the record given the params.
   def update_record
-    allowed_params = [:name, :description, :acceptance_criteria, :effort, :status_code, :release_id, :iteration_id, :individual_id, :project_id, :is_public, :priority, :user_priority, :team_id, :reason_blocked, :story_id]
+    allowed_params = [:name, :description, :acceptance_criteria, :effort, :status_id, :status_code, :release_id, :iteration_id, :individual_id, :project_id, :is_public, :priority, :user_priority, :team_id, :reason_blocked, :story_id]
     params[:record].keys.each do |key|
       if key.start_with? 'custom_'
         allowed_params.push(key)

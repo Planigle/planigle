@@ -1,6 +1,7 @@
 import { Organization } from './organization';
 import { Company } from './company';
 import { Team } from './team';
+import { Status } from './status';
 
 export class Project extends Organization {
   public description: string;
@@ -10,6 +11,7 @@ export class Project extends Organization {
   public company: Company;
   public track_actuals: boolean;
   public teams: Team[] = [];
+  public statuses: Status[] = [];
 
   constructor(values: any) {
     super(values);
@@ -25,6 +27,12 @@ export class Project extends Organization {
         let newTeam: Team = new Team(team);
         newTeam.project = this;
         this.teams.push(newTeam);
+      });
+    }
+
+    if (values.statuses) {
+      values.statuses.forEach((status) => {
+        this.statuses.push(new Status(status));
       });
     }
   }
